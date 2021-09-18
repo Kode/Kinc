@@ -24,25 +24,25 @@ namespace Kore {
 		}
 
 		class RowGetter {
-			const Matrix<X, Y, T>* m;
+			const Matrix<X, Y, T> *m;
 			unsigned row;
 
 		public:
-			RowGetter(Matrix<X, Y, T> const* m, unsigned row) : m(m), row(row) {}
+			RowGetter(Matrix<X, Y, T> const *m, unsigned row) : m(m), row(row) {}
 			inline T operator[](unsigned col) const {
 				return m->matrix[col][row];
 			}
 		};
 		class RowSetter {
-			Matrix<X, Y, T>* m;
+			Matrix<X, Y, T> *m;
 			unsigned row;
 
 		public:
-			RowSetter(Matrix<X, Y, T>* m, unsigned row) : m(m), row(row) {}
-			void operator=(Vector<T, X> const& v) {
+			RowSetter(Matrix<X, Y, T> *m, unsigned row) : m(m), row(row) {}
+			void operator=(Vector<T, X> const &v) {
 				for (unsigned x = 0; x < X; ++x) m->Set(row, x, v[x]);
 			}
-			inline T& operator[](unsigned col) {
+			inline T &operator[](unsigned col) {
 				return m->matrix[col][row];
 			}
 			inline T operator[](unsigned col) const {
@@ -269,15 +269,15 @@ namespace Kore {
 			for (unsigned x = 0; x < X; ++x)
 				for (unsigned y = 0; y < Y; ++y) matrix[x][y] = 0;
 		}
-		Matrix(myType const& other) {
+		Matrix(myType const &other) {
 			for (unsigned x = 0; x < X; ++x)
 				for (unsigned y = 0; y < Y; ++y) matrix[x][y] = other.matrix[x][y];
 		}
-		explicit Matrix(Matrix<X + 1, Y + 1, T> const& other) {
+		explicit Matrix(Matrix<X + 1, Y + 1, T> const &other) {
 			for (unsigned x = 0; x < X; ++x)
 				for (unsigned y = 0; y < Y; ++y) matrix[x][y] = other.matrix[x][y];
 		}
-		explicit Matrix(Matrix<X - 1, Y - 1, T> const& other) {
+		explicit Matrix(Matrix<X - 1, Y - 1, T> const &other) {
 			for (unsigned x = 0; x < X - 1; ++x) {
 				for (unsigned y = 0; y < Y - 1; ++y) matrix[x][y] = other.matrix[x][y];
 				matrix[x][Y - 1] = 0;
@@ -337,7 +337,7 @@ namespace Kore {
 			return t;
 		}
 
-		template <unsigned X2> Matrix<X2, Y, T> operator*(const Matrix<X2, X, T>& m) const {
+		template <unsigned X2> Matrix<X2, Y, T> operator*(const Matrix<X2, X, T> &m) const {
 			Matrix<X2, Y, T> product;
 			for (unsigned x = 0; x < X2; ++x)
 				for (unsigned y = 0; y < Y; ++y) {
@@ -348,11 +348,11 @@ namespace Kore {
 			return product;
 		}
 
-		template <unsigned S> Matrix<S, S, T>& operator*=(const Matrix<S, S, T>& m) {
+		template <unsigned S> Matrix<S, S, T> &operator*=(const Matrix<S, S, T> &m) {
 			return *this = *this * m;
 		}
 
-		Matrix<3, 3, T>& operator*=(const Matrix<3, 3, T>& m) {
+		Matrix<3, 3, T> &operator*=(const Matrix<3, 3, T> &m) {
 			for (unsigned y = 0; y < Y; ++y) {
 				float a0 = matrix[0][y];
 				float a1 = matrix[1][y];
@@ -364,7 +364,7 @@ namespace Kore {
 			return *this;
 		}
 
-		Matrix<4, 4, T>& operator*=(const Matrix<4, 4, T>& m) {
+		Matrix<4, 4, T> &operator*=(const Matrix<4, 4, T> &m) {
 			for (unsigned y = 0; y < Y; ++y) {
 				float a0 = matrix[0][y];
 				float a1 = matrix[1][y];
@@ -378,7 +378,7 @@ namespace Kore {
 			return *this;
 		}
 
-		Vector<T, Y> operator*(const Vector<T, X>& vec) const {
+		Vector<T, Y> operator*(const Vector<T, X> &vec) const {
 			Vector<T, Y> product;
 			for (unsigned y = 0; y < Y; ++y) {
 				T t = 0;
@@ -416,7 +416,7 @@ namespace Kore {
 			return p;
 		}
 
-		static Matrix<Y, X, T> linearInterpolate(const Matrix<Y, X, T>& a, const Matrix<Y, X, T>& b, float prop) {
+		static Matrix<Y, X, T> linearInterpolate(const Matrix<Y, X, T> &a, const Matrix<Y, X, T> &b, float prop) {
 			Matrix<Y, X, T> result;
 			for (unsigned x = 0; x < X; ++x)
 				for (unsigned y = 0; y < Y; ++y) result.matrix[x][y] = a.matrix[x][y] * (1 - prop) + b.matrix[x][y] * prop;

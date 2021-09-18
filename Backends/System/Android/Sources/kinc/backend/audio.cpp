@@ -18,14 +18,14 @@ namespace {
 	const int bufferSize = 1 * 1024;
 	int16_t tempBuffer[bufferSize];
 
-	void copySample(void* buffer) {
-		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
+	void copySample(void *buffer) {
+		float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 		a2_buffer.read_location += 4;
 		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
-		*(int16_t*)buffer = static_cast<int16_t>(value * 32767);
+		*(int16_t *)buffer = static_cast<int16_t>(value * 32767);
 	}
 
-	void bqPlayerCallback(SLAndroidSimpleBufferQueueItf caller, void* context) {
+	void bqPlayerCallback(SLAndroidSimpleBufferQueueItf caller, void *context) {
 		if (a2_callback != nullptr) {
 			a2_callback(&a2_buffer, bufferSize);
 			for (int i = 0; i < bufferSize; i += 1) {

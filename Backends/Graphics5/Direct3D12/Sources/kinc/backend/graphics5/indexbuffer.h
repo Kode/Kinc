@@ -17,7 +17,7 @@ typedef struct {
 	struct D3D12IindexBufferView indexBufferView;
 	struct ID3D12Resource *uploadBuffer;
 	int myCount;
-	//static IndexBuffer5Impl *_current;
+	// static IndexBuffer5Impl *_current;
 	bool _gpuMemory;
 } IndexBuffer5Impl;
 

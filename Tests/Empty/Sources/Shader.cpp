@@ -11,11 +11,11 @@
 using namespace Kore;
 
 namespace {
-	Graphics4::Shader* vertexShader;
-	Graphics4::Shader* fragmentShader;
-	Graphics4::PipelineState* pipeline;
-	Graphics4::VertexBuffer* vertices;
-	Graphics4::IndexBuffer* indices;
+	Graphics4::Shader *vertexShader;
+	Graphics4::Shader *fragmentShader;
+	Graphics4::PipelineState *pipeline;
+	Graphics4::VertexBuffer *vertices;
+	Graphics4::IndexBuffer *indices;
 
 	void update() {
 		printf("update\n");
@@ -32,7 +32,7 @@ namespace {
 	}
 }
 
-int kickstart(int argc, char** argv) {
+int kickstart(int argc, char **argv) {
 	Kore::System::init("Shader", 1024, 768);
 	Kore::System::setCallback(update);
 
@@ -50,7 +50,7 @@ int kickstart(int argc, char** argv) {
 	pipeline->compile();
 
 	vertices = new Graphics4::VertexBuffer(3, structure);
-	float* v = vertices->lock();
+	float *v = vertices->lock();
 	v[0] = -1;
 	v[1] = -1;
 	v[2] = 0.5;
@@ -63,7 +63,7 @@ int kickstart(int argc, char** argv) {
 	vertices->unlock();
 
 	indices = new Graphics4::IndexBuffer(3);
-	int* i = indices->lock();
+	int *i = indices->lock();
 	i[0] = 0;
 	i[1] = 1;
 	i[2] = 2;

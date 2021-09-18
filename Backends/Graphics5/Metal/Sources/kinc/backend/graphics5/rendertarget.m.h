@@ -27,7 +27,7 @@ static MTLPixelFormat convert_format(kinc_g5_render_target_format_t format) {
 }
 
 void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
-								kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+                                kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
 	target->texWidth = width;
 	target->texHeight = height;
 
@@ -35,7 +35,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 
 	id<MTLDevice> device = getMetalDevice();
 
-	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
+	MTLTextureDescriptor *descriptor = [MTLTextureDescriptor new];
 	descriptor.textureType = MTLTextureType2D;
 	descriptor.width = width;
 	descriptor.height = height;
@@ -46,10 +46,10 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 	descriptor.resourceOptions = MTLResourceStorageModePrivate;
 
-	target->impl._tex = (__bridge_retained void*)[device newTextureWithDescriptor:descriptor];
+	target->impl._tex = (__bridge_retained void *)[device newTextureWithDescriptor:descriptor];
 
 	if (depthBufferBits > 0) {
-		MTLTextureDescriptor* depthDescriptor = [MTLTextureDescriptor new];
+		MTLTextureDescriptor *depthDescriptor = [MTLTextureDescriptor new];
 		depthDescriptor.textureType = MTLTextureType2D;
 		depthDescriptor.width = width;
 		depthDescriptor.height = height;
@@ -60,14 +60,14 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		depthDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 		depthDescriptor.resourceOptions = MTLResourceStorageModePrivate;
 
-		target->impl._depthTex = (__bridge_retained void*)[device newTextureWithDescriptor:depthDescriptor];
+		target->impl._depthTex = (__bridge_retained void *)[device newTextureWithDescriptor:depthDescriptor];
 	}
-	
+
 	target->impl._texReadback = NULL;
 }
 
 void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing,
-									 kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+                                     kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
 	target->impl._tex = NULL;
 	target->impl._depthTex = NULL;
 	target->impl._texReadback = NULL;
@@ -77,11 +77,11 @@ void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {
 	id<MTLTexture> tex = (__bridge_transfer id<MTLTexture>)target->impl._tex;
 	tex = nil;
 	target->impl._tex = NULL;
-	
+
 	id<MTLTexture> depthTex = (__bridge_transfer id<MTLTexture>)target->impl._depthTex;
 	depthTex = nil;
 	target->impl._depthTex = NULL;
-	
+
 	id<MTLTexture> texReadback = (__bridge_transfer id<MTLTexture>)target->impl._texReadback;
 	texReadback = nil;
 	target->impl._texReadback = NULL;

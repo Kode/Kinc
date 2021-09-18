@@ -7,18 +7,18 @@
 #include <kinc/video.h>
 #include <kinc/window.h>
 
-#import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioToolbox.h>
+#import <UIKit/UIKit.h>
 
 bool withAutoreleasepool(bool (*f)(void)) {
-    @autoreleasepool {
-        return f();
-    }
+	@autoreleasepool {
+		return f();
+	}
 }
 
 static bool keyboardshown = false;
 
-const char* iphonegetresourcepath(void) {
+const char *iphonegetresourcepath(void) {
 	return [[[NSBundle mainBundle] resourcePath] cStringUsingEncoding:1];
 }
 
@@ -49,9 +49,9 @@ bool kinc_keyboard_active() {
 	return keyboardshown;
 }
 
-void loadURL(const char* url);
+void loadURL(const char *url);
 
-void kinc_load_url(const char* url) {
+void kinc_load_url(const char *url) {
 	loadURL(url);
 }
 
@@ -62,9 +62,9 @@ void kinc_vibrate(int ms) {
 
 static char language[3];
 
-const char* kinc_language() {
-	NSString* nsstr = [[NSLocale preferredLanguages] objectAtIndex:0];
-	const char* lang = [nsstr UTF8String];
+const char *kinc_language() {
+	NSString *nsstr = [[NSLocale preferredLanguages] objectAtIndex:0];
+	const char *lang = [nsstr UTF8String];
 	language[0] = lang[0];
 	language[1] = lang[1];
 	language[2] = 0;
@@ -82,9 +82,7 @@ void KoreUpdateKeyboard() {
 	}
 }
 
-void kinc_internal_shutdown() {
-
-}
+void kinc_internal_shutdown() {}
 
 int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
 	kinc_window_options_t defaultWin;
@@ -109,37 +107,37 @@ void swapBuffersiOS(void) {
 
 static char sysid[512];
 
-const char* kinc_system_id() {
-	const char* name = [[[UIDevice currentDevice] name] UTF8String];
-	const char* vendorId = [[[[UIDevice currentDevice] identifierForVendor] UUIDString] UTF8String];
+const char *kinc_system_id() {
+	const char *name = [[[UIDevice currentDevice] name] UTF8String];
+	const char *vendorId = [[[[UIDevice currentDevice] identifierForVendor] UUIDString] UTF8String];
 	strcpy(sysid, name);
 	strcat(sysid, "-");
 	strcat(sysid, vendorId);
 	return sysid;
 }
 
-static const char* getSavePath(void) {
-	NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-	NSString* resolvedPath = [paths objectAtIndex:0];
-	NSString* appName = [NSString stringWithUTF8String:kinc_application_name()];
+static const char *getSavePath(void) {
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+	NSString *resolvedPath = [paths objectAtIndex:0];
+	NSString *appName = [NSString stringWithUTF8String:kinc_application_name()];
 	resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
 
-	NSFileManager* fileMgr = [[NSFileManager alloc] init];
+	NSFileManager *fileMgr = [[NSFileManager alloc] init];
 
-	NSError* error;
+	NSError *error;
 	[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
 
 	resolvedPath = [resolvedPath stringByAppendingString:@"/"];
 	return [resolvedPath cStringUsingEncoding:1];
 }
 
-const char* kinc_internal_save_path() {
+const char *kinc_internal_save_path() {
 	return getSavePath();
 }
 
-static const char* videoFormats[] = {"mp4", NULL};
+static const char *videoFormats[] = {"mp4", NULL};
 
-const char** kinc_video_formats() {
+const char **kinc_video_formats() {
 	return videoFormats;
 }
 
@@ -156,13 +154,9 @@ kinc_ticks_t kinc_timestamp() {
 	return time;
 }
 
-void kinc_login() {
+void kinc_login() {}
 
-}
-
-void kinc_unlock_achievement(int id) {
-	
-}
+void kinc_unlock_achievement(int id) {}
 
 const char *kinc_gamepad_vendor(int gamepad) {
 	return "nobody";
@@ -176,11 +170,9 @@ bool kinc_gamepad_connected(int num) {
 	return true;
 }
 
-void kinc_gamepad_rumble(int gamepad, float left, float right) {
-	
-}
+void kinc_gamepad_rumble(int gamepad, float left, float right) {}
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 	int retVal = 0;
 	@autoreleasepool {
 		[KoreAppDelegate description]; // otherwise removed by the linker

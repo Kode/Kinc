@@ -27,13 +27,9 @@ id getMetalEncoder(void) {
 	return commandEncoder;
 }
 
-void kinc_g5_destroy(int window) {
+void kinc_g5_destroy(int window) {}
 
-}
-
-void kinc_internal_resize(int window, int width, int height) {
-
-}
+void kinc_internal_resize(int window, int width, int height) {}
 
 extern void kinc_internal_init_samplers(void);
 
@@ -56,13 +52,13 @@ bool kinc_internal_current_render_target_has_depth(void) {
 }
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
-	CAMetalLayer* metalLayer = getMetalLayer();
+	CAMetalLayer *metalLayer = getMetalLayer();
 	drawable = [metalLayer nextDrawable];
-	
+
 	kinc_internal_metal_has_depth = renderTarget->impl._depthTex != nil;
 
 	if (depthBits > 0 && (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height)) {
-		MTLTextureDescriptor* descriptor = [MTLTextureDescriptor new];
+		MTLTextureDescriptor *descriptor = [MTLTextureDescriptor new];
 		descriptor.textureType = MTLTextureType2D;
 		descriptor.width = drawable.texture.width;
 		descriptor.height = drawable.texture.height;
@@ -77,7 +73,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	}
 
 	id<MTLTexture> texture = drawable.texture;
-	MTLRenderPassDescriptor* renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+	MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 	renderPassDescriptor.colorAttachments[0].texture = texture;
 	renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
 	renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
@@ -96,9 +92,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
 
-void kinc_g5_end(int window) {
-
-}
+void kinc_g5_end(int window) {}
 
 bool kinc_g5_swap_buffers() {
 	if (commandBuffer != nil && commandEncoder != nil) {
@@ -176,45 +170,45 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 		[commandBuffer waitUntilCompleted];
 	}
 
-	MTLRenderPassDescriptor* renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+	MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 	for (int i = 0; i < count; ++i) {
 		renderPassDescriptor.colorAttachments[i].texture = renderTargets == NULL ? drawable.texture : (__bridge id<MTLTexture>)renderTargets[i]->impl._tex;
-        if (clear_flags & KINC_G5_CLEAR_COLOR) {
-            float red, green, blue, alpha;
-            kinc_color_components(color, &red, &green, &blue, &alpha);
-            renderPassDescriptor.colorAttachments[i].loadAction = MTLLoadActionClear;
-            renderPassDescriptor.colorAttachments[i].storeAction = MTLStoreActionStore;
-            renderPassDescriptor.colorAttachments[i].clearColor = MTLClearColorMake(red, green, blue, alpha);
-        }
-        else {
-            renderPassDescriptor.colorAttachments[i].loadAction = MTLLoadActionLoad;
-            renderPassDescriptor.colorAttachments[i].storeAction = MTLStoreActionStore;
-            renderPassDescriptor.colorAttachments[i].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
-        }
+		if (clear_flags & KINC_G5_CLEAR_COLOR) {
+			float red, green, blue, alpha;
+			kinc_color_components(color, &red, &green, &blue, &alpha);
+			renderPassDescriptor.colorAttachments[i].loadAction = MTLLoadActionClear;
+			renderPassDescriptor.colorAttachments[i].storeAction = MTLStoreActionStore;
+			renderPassDescriptor.colorAttachments[i].clearColor = MTLClearColorMake(red, green, blue, alpha);
+		}
+		else {
+			renderPassDescriptor.colorAttachments[i].loadAction = MTLLoadActionLoad;
+			renderPassDescriptor.colorAttachments[i].storeAction = MTLStoreActionStore;
+			renderPassDescriptor.colorAttachments[i].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+		}
 	}
-    
-    if (clear_flags & KINC_G5_CLEAR_DEPTH) {
-        renderPassDescriptor.depthAttachment.clearDepth = depth;
-        renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
-        renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-    }
-    else {
-        renderPassDescriptor.depthAttachment.clearDepth = 1;
-        renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
-        renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
-    }
+
+	if (clear_flags & KINC_G5_CLEAR_DEPTH) {
+		renderPassDescriptor.depthAttachment.clearDepth = depth;
+		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+	}
+	else {
+		renderPassDescriptor.depthAttachment.clearDepth = 1;
+		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
+		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+	}
 	renderPassDescriptor.depthAttachment.texture = renderTargets == NULL ? depthTexture : (__bridge id<MTLTexture>)renderTargets[0]->impl._depthTex;
-    
-    if (clear_flags & KINC_G5_CLEAR_STENCIL) {
-        renderPassDescriptor.stencilAttachment.clearStencil = stencil;
-        renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionClear;
-        renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionStore;
-    }
-    else {
-        renderPassDescriptor.stencilAttachment.clearStencil = 0;
-        renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
-        renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
-    }
+
+	if (clear_flags & KINC_G5_CLEAR_STENCIL) {
+		renderPassDescriptor.stencilAttachment.clearStencil = stencil;
+		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionClear;
+		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionStore;
+	}
+	else {
+		renderPassDescriptor.stencilAttachment.clearStencil = 0;
+		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
+		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
+	}
 	renderPassDescriptor.stencilAttachment.texture = renderTargets == NULL ? depthTexture : (__bridge id<MTLTexture>)renderTargets[0]->impl._depthTex;
 
 	id<MTLCommandQueue> commandQueue = getMetalQueue();

@@ -2,8 +2,8 @@
 #include <CoreServices/CoreServices.h>
 
 #include <kinc/audio2/audio.h>
-#include <kinc/log.h>
 #include <kinc/backend/video.h>
+#include <kinc/log.h>
 
 #include <stdio.h>
 
@@ -17,59 +17,59 @@ void macStopVideoSoundStream(void) {
 	video = NULL;
 }
 
-	// const int samplesPerSecond = 44100;
+// const int samplesPerSecond = 44100;
 
-	static void affirm(OSStatus err) {
-		if (err != kAudioHardwareNoError) {
-			kinc_log(KINC_LOG_LEVEL_ERROR, "Error: %i\n", err);
+static void affirm(OSStatus err) {
+	if (err != kAudioHardwareNoError) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Error: %i\n", err);
+	}
+}
+
+static bool initialized;
+static bool soundPlaying;
+static AudioDeviceID device;
+static UInt32 deviceBufferSize;
+static UInt32 size;
+static AudioStreamBasicDescription deviceFormat;
+static AudioObjectPropertyAddress address;
+
+static AudioDeviceIOProcID theIOProcID = NULL;
+
+static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
+static void (*a2_sample_rate_callback)(void) = NULL;
+static kinc_a2_buffer_t a2_buffer;
+
+static void copySample(void *buffer) {
+	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
+	a2_buffer.read_location += 4;
+	if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
+	*(float *)buffer = value;
+}
+
+static OSStatus appIOProc(AudioDeviceID inDevice, const AudioTimeStamp *inNow, const AudioBufferList *inInputData, const AudioTimeStamp *inInputTime,
+                          AudioBufferList *outOutputData, const AudioTimeStamp *inOutputTime, void *userdata) {
+	affirm(AudioObjectGetPropertyData(device, &address, 0, NULL, &size, &deviceFormat));
+	if (kinc_a2_samples_per_second != (int)deviceFormat.mSampleRate) {
+		kinc_a2_samples_per_second = (int)deviceFormat.mSampleRate;
+		if (a2_sample_rate_callback != NULL) {
+			a2_sample_rate_callback();
 		}
 	}
-
-	static bool initialized;
-	static bool soundPlaying;
-	static AudioDeviceID device;
-	static UInt32 deviceBufferSize;
-	static UInt32 size;
-	static AudioStreamBasicDescription deviceFormat;
-	static AudioObjectPropertyAddress address;
-
-	static AudioDeviceIOProcID theIOProcID = NULL;
-	
-	static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
-	static void (*a2_sample_rate_callback)(void) = NULL;
-	static kinc_a2_buffer_t a2_buffer;
-
-	static void copySample(void* buffer) {
-		float value = *(float*)&a2_buffer.data[a2_buffer.read_location];
-		a2_buffer.read_location += 4;
-		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
-		*(float*)buffer = value;
+	int numSamples = deviceBufferSize / deviceFormat.mBytesPerFrame;
+	a2_callback(&a2_buffer, numSamples * 2);
+	float *out = (float *)outOutputData->mBuffers[0].mData;
+	for (int i = 0; i < numSamples; ++i) {
+		copySample(out++); // left
+		copySample(out++); // right
 	}
-
-	static OSStatus appIOProc(AudioDeviceID inDevice, const AudioTimeStamp* inNow, const AudioBufferList* inInputData, const AudioTimeStamp* inInputTime,
-	                   AudioBufferList* outOutputData, const AudioTimeStamp* inOutputTime, void* userdata) {
-		affirm(AudioObjectGetPropertyData(device, &address, 0, NULL, &size, &deviceFormat));
-		if( kinc_a2_samples_per_second != (int)deviceFormat.mSampleRate) {
-            kinc_a2_samples_per_second = (int)deviceFormat.mSampleRate;
-            if (a2_sample_rate_callback != NULL) {
-                a2_sample_rate_callback();
-            }
-        }
-		int numSamples = deviceBufferSize / deviceFormat.mBytesPerFrame;
-		a2_callback(&a2_buffer, numSamples * 2);
-		float* out = (float*)outOutputData->mBuffers[0].mData;
-		for (int i = 0; i < numSamples; ++i) {
-			copySample(out++); // left
-			copySample(out++); // right
-		}
-		return kAudioHardwareNoError;
-	}
+	return kAudioHardwareNoError;
+}
 
 void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = (uint8_t*)malloc(a2_buffer.data_size);
+	a2_buffer.data = (uint8_t *)malloc(a2_buffer.data_size);
 
 	device = kAudioDeviceUnknown;
 
@@ -108,7 +108,7 @@ void kinc_a2_init() {
 	a2_buffer.format.samples_per_second = kinc_a2_samples_per_second;
 	a2_buffer.format.bits_per_sample = 32;
 	a2_buffer.format.channels = 2;
-	
+
 	initialized = true;
 
 	kinc_log(KINC_LOG_LEVEL_INFO, "mSampleRate = %g\n", deviceFormat.mSampleRate);
@@ -139,10 +139,10 @@ void kinc_a2_shutdown() {
 	soundPlaying = false;
 }
 
-void kinc_a2_set_callback(void(*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
 	a2_callback = kinc_a2_audio_callback;
 }
 
 void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void)) {
-    a2_sample_rate_callback = kinc_a2_sample_rate_callback;
+	a2_sample_rate_callback = kinc_a2_sample_rate_callback;
 }

@@ -13,19 +13,19 @@ using namespace Kore;
 namespace {
 	pthread_t threadid;
 	bool audioRunning = false;
-	snd_pcm_t* playback_handle;
+	snd_pcm_t *playback_handle;
 	const int bufferSize = 4096 * 4;
 	short buf[bufferSize];
 
-	void copySample(void* buffer) {
-		float value = *(float*)&Audio2::buffer.data[Audio2::buffer.readLocation];
+	void copySample(void *buffer) {
+		float value = *(float *)&Audio2::buffer.data[Audio2::buffer.readLocation];
 		Audio2::buffer.readLocation += 4;
 		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
 		if (value != 0) {
 			int a = 3;
 			++a;
 		}
-		*(s16*)buffer = static_cast<s16>(value * 32767);
+		*(s16 *)buffer = static_cast<s16>(value * 32767);
 	}
 
 	int playback_callback(snd_pcm_sframes_t nframes) {
@@ -53,9 +53,9 @@ namespace {
 		return err;
 	}
 
-	void* doAudio(void* arg) {
-		snd_pcm_hw_params_t* hw_params;
-		snd_pcm_sw_params_t* sw_params;
+	void *doAudio(void *arg) {
+		snd_pcm_hw_params_t *hw_params;
+		snd_pcm_sw_params_t *sw_params;
 		snd_pcm_sframes_t frames_to_deliver;
 		// int nfds;
 		int err;

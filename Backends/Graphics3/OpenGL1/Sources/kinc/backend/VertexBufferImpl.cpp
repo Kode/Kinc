@@ -9,7 +9,7 @@
 
 using namespace Kore;
 
-Graphics3::VertexBuffer* VertexBufferImpl::current = nullptr;
+Graphics3::VertexBuffer *VertexBufferImpl::current = nullptr;
 
 VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCount(count), instanceDataStepRate(instanceDataStepRate) {
 #ifndef NDEBUG
@@ -17,7 +17,7 @@ VertexBufferImpl::VertexBufferImpl(int count, int instanceDataStepRate) : myCoun
 #endif
 }
 
-Graphics3::VertexBuffer::VertexBuffer(int vertexCount, const Graphics4::VertexStructure& structure, Usage usage, int instanceDataStepRate)
+Graphics3::VertexBuffer::VertexBuffer(int vertexCount, const Graphics4::VertexStructure &structure, Usage usage, int instanceDataStepRate)
     : VertexBufferImpl(vertexCount, instanceDataStepRate) {
 	myStride = 0;
 	for (int i = 0; i < structure.size; ++i) {
@@ -55,7 +55,7 @@ Graphics3::VertexBuffer::~VertexBuffer() {
 	delete[] data;
 }
 
-float* Graphics3::VertexBuffer::lock() {
+float *Graphics3::VertexBuffer::lock() {
 	return data;
 }
 /*
@@ -84,7 +84,7 @@ int Graphics3::VertexBuffer::_set(int offset) {
 }
 
 void VertexBufferImpl::unset() {
-	if ((void*)current == (void*)this) current = nullptr;
+	if ((void *)current == (void *)this) current = nullptr;
 }
 
 int Graphics3::VertexBuffer::count() {
@@ -136,25 +136,25 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 		case Graphics4::VertexCoord:
 			assert(size >= 2 && size <= 4);
 			glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
+			glVertexPointer(size, type, myStride, reinterpret_cast<const void *>(internaloffset));
 			break;
 
 		case Graphics4::VertexNormal:
 			assert(size == 3);
 			glEnableClientState(GL_NORMAL_ARRAY);
-			glNormalPointer(type, myStride, reinterpret_cast<const void*>(internaloffset));
+			glNormalPointer(type, myStride, reinterpret_cast<const void *>(internaloffset));
 			break;
 
 		case Graphics4::VertexColor0:
 			assert(size >= 3 && size <= 4);
 			glEnableClientState(GL_COLOR_ARRAY);
-			glColorPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
+			glColorPointer(size, type, myStride, reinterpret_cast<const void *>(internaloffset));
 			break;
 
 		case Graphics4::VertexColor1:
 			assert(size == 3);
 			glEnableClientState(GL_SECONDARY_COLOR_ARRAY);
-			glSecondaryColorPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
+			glSecondaryColorPointer(size, type, myStride, reinterpret_cast<const void *>(internaloffset));
 			break;
 
 		case Graphics4::VertexTexCoord0:
@@ -168,7 +168,7 @@ int VertexBufferImpl::setVertexAttributes(int offset) {
 			assert(size >= 1 && size <= 4);
 			glClientActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(element.attribute - Graphics4::VertexTexCoord0));
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(size, type, myStride, reinterpret_cast<const void*>(internaloffset));
+			glTexCoordPointer(size, type, myStride, reinterpret_cast<const void *>(internaloffset));
 			break;
 
 		default:

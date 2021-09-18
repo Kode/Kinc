@@ -8,11 +8,12 @@ namespace Kore {
 	class FileWriter : public Writer {
 	public:
 		FileWriter();
-		FileWriter(const char* filename);
+		FileWriter(const char *filename);
 		~FileWriter();
-		bool open(const char* filename);
+		bool open(const char *filename);
 		void close();
-		void write(void* data, int size) override;
+		void write(void *data, int size) override;
+
 	private:
 		kinc_file_writer_t writer;
 	};

@@ -228,7 +228,7 @@ void Graphics3::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 	glCheckErrors();
 }
 
-void Graphics3::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+void Graphics3::RenderTarget::setDepthStencilFrom(RenderTarget *source) {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, source->_depthTexture, 0);
 }

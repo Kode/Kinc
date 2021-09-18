@@ -3,9 +3,9 @@
 
 #include <X11/Xatom.h>
 
-#include <X11/keysym.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xrandr.h>
+#include <X11/keysym.h>
 
 #include <stdlib.h>
 
@@ -19,24 +19,24 @@ typedef struct {
 	int number;
 } kinc_display_t;
 
-void enumDisplayMonitors(kinc_display_t *displays, int* displayCounter);
+void enumDisplayMonitors(kinc_display_t *displays, int *displayCounter);
 #define MAXIMUM_DISPLAY_COUNT 10
 static kinc_display_t displays[MAXIMUM_DISPLAY_COUNT];
 static int displayCounter = -1;
 static bool display_initialized = false;
 
 void kinc_display_init() {
-    if (display_initialized) {
-        return;
-    }
-    enumDisplayMonitors(displays, &displayCounter);
-    display_initialized = true;
+	if (display_initialized) {
+		return;
+	}
+	enumDisplayMonitors(displays, &displayCounter);
+	display_initialized = true;
 }
 
 kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
-    kinc_display_mode_t m;
-    m.x = 0;
-    m.y = 0;
+	kinc_display_mode_t m;
+	m.x = 0;
+	m.y = 0;
 	m.width = 800;
 	m.height = 600;
 	m.frequency = 60;
@@ -58,9 +58,9 @@ const char *kinc_display_name(int display) {
 }
 
 kinc_display_mode_t kinc_display_current_mode(int display) {
-    kinc_display_mode_t mode;
-    mode.x = 0;
-    mode.y = 0;
+	kinc_display_mode_t mode;
+	mode.x = 0;
+	mode.y = 0;
 	Display *disp = XOpenDisplay(NULL);
 	mode.width = XWidthOfScreen(XDefaultScreenOfDisplay(disp));
 	mode.height = XHeightOfScreen(XDefaultScreenOfDisplay(disp));
@@ -86,7 +86,8 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 			if (output_info->connection != RR_Connected || output_info->crtc == 0) {
 				XRRFreeOutputInfo(output_info);
 				output_info = NULL;
-			} else {
+			}
+			else {
 				break;
 			}
 		}

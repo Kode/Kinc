@@ -7,7 +7,7 @@
 #include <cstring>
 #include <gl2.h>
 
-void* Kore::System::createWindow() {
+void *Kore::System::createWindow() {
 	return nullptr;
 }
 
@@ -21,21 +21,21 @@ void Kore::System::showKeyboard() {}
 
 void Kore::System::hideKeyboard() {}
 
-void Kore::System::loadURL(const char* url) {}
+void Kore::System::loadURL(const char *url) {}
 
 void Kore::System::vibrate(int ms) {}
 
-const char* Kore::System::language() {
+const char *Kore::System::language() {
 	return "en";
 }
 
-void Kore::System::setTitle(const char*) {}
+void Kore::System::setTitle(const char *) {}
 
 void Kore::System::setKeepScreenOn(bool on) {}
 
 void Kore::System::showWindow() {}
 
-extern int kore(int argc, char** argv);
+extern int kore(int argc, char **argv);
 
 namespace {
 	void init() {
@@ -46,11 +46,11 @@ namespace {
 namespace {
 	using namespace Kore;
 
-	void copySample(void* buffer) {
-		float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
+	void copySample(void *buffer) {
+		float value = *(float *)&Audio::buffer.data[Audio::buffer.readLocation];
 		Audio::buffer.readLocation += 4;
 		if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
-		*(s16*)buffer = static_cast<s16>(value * 32767);
+		*(s16 *)buffer = static_cast<s16>(value * 32767);
 	}
 }
 

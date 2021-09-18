@@ -13,7 +13,7 @@ extern "C" {
 //
 // The entry function of Tizen application called by the operating system.
 //
-_EXPORT_ int OspMain(int argc, char* pArgv[]) {
+_EXPORT_ int OspMain(int argc, char *pArgv[]) {
 	AppLog("Application started.");
 	ArrayList args(SingleObjectDeleter);
 	args.Construct();

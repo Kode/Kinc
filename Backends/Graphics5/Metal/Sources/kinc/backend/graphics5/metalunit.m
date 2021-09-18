@@ -1,7 +1,7 @@
+#include "Metal.m.h"
 #include "commandlist.m.h"
 #include "constantbuffer.m.h"
 #include "indexbuffer.m.h"
-#include "Metal.m.h"
 #include "pipeline.m.h"
 #include "rendertarget.m.h"
 #include "shader.m.h"

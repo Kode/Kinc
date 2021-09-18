@@ -17,25 +17,24 @@ static bool alt = false;
 static bool cmd = false;
 
 #ifndef KORE_METAL
-+ (NSOpenGLPixelFormat*)basicPixelFormat {
++ (NSOpenGLPixelFormat *)basicPixelFormat {
 	// TODO (DK) pass via argument in
 	int aa = 1; // Kore::Application::the()->antialiasing();
 	if (aa > 0) {
-		NSOpenGLPixelFormatAttribute attributes[] = {
-			NSOpenGLPFADoubleBuffer, NSOpenGLPFADepthSize,
-			(NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-			NSOpenGLPFAOpenGLProfile,         NSOpenGLProfileVersion3_2Core,
-			NSOpenGLPFASupersample,           NSOpenGLPFASampleBuffers,
-			(NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
-			(NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
-			(NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
+		NSOpenGLPixelFormatAttribute attributes[] = {NSOpenGLPFADoubleBuffer,          NSOpenGLPFADepthSize,
+		                                             (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+		                                             NSOpenGLPFAOpenGLProfile,         NSOpenGLProfileVersion3_2Core,
+		                                             NSOpenGLPFASupersample,           NSOpenGLPFASampleBuffers,
+		                                             (NSOpenGLPixelFormatAttribute)1,  NSOpenGLPFASamples,
+		                                             (NSOpenGLPixelFormatAttribute)aa, NSOpenGLPFAStencilSize,
+		                                             (NSOpenGLPixelFormatAttribute)8,  (NSOpenGLPixelFormatAttribute)0};
 		return [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
 	}
 	else {
 		NSOpenGLPixelFormatAttribute attributes[] = {
-			NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
-			NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
-			(NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
+		    NSOpenGLPFADoubleBuffer,         NSOpenGLPFADepthSize,           (NSOpenGLPixelFormatAttribute)24, // 16 bit depth buffer
+		    NSOpenGLPFAOpenGLProfile,        NSOpenGLProfileVersion3_2Core,  NSOpenGLPFAStencilSize,
+		    (NSOpenGLPixelFormatAttribute)8, (NSOpenGLPixelFormatAttribute)0};
 		return [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
 	}
 }
@@ -81,48 +80,48 @@ static bool cmd = false;
 	}
 }
 
-- (void)keyDown:(NSEvent*)theEvent {
+- (void)keyDown:(NSEvent *)theEvent {
 	if ([theEvent isARepeat]) return;
-	NSString* characters = [theEvent charactersIgnoringModifiers];
+	NSString *characters = [theEvent charactersIgnoringModifiers];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
 		switch (ch) { // keys that exist in keydown and keypress events
-			case 59:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SEMICOLON);
-				break;
-			case 91:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_OPEN_BRACKET);
-				break;
-			case 93:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_CLOSE_BRACKET);
-				break;
-			case 39:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_QUOTE);
-				break;
-			case 92:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_SLASH);
-				break;
-			case 44:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_COMMA);
-				break;
-			case 46:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_PERIOD);
-				break;
-			case 47:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SLASH);
-				break;
-			case 96:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_QUOTE);
-				break;
-			case 32:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_SPACE);
-				break;
-			case 45: // we need breaks because EQUALS triggered too for some reason
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_HYPHEN_MINUS);
-				break;
-			case 61:
-				kinc_internal_keyboard_trigger_key_down(KINC_KEY_EQUALS);
-				break;
+		case 59:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_SEMICOLON);
+			break;
+		case 91:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_OPEN_BRACKET);
+			break;
+		case 93:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_CLOSE_BRACKET);
+			break;
+		case 39:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_QUOTE);
+			break;
+		case 92:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_SLASH);
+			break;
+		case 44:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_COMMA);
+			break;
+		case 46:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_PERIOD);
+			break;
+		case 47:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_SLASH);
+			break;
+		case 96:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACK_QUOTE);
+			break;
+		case 32:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_SPACE);
+			break;
+		case 45: // we need breaks because EQUALS triggered too for some reason
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_HYPHEN_MINUS);
+			break;
+		case 61:
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_EQUALS);
+			break;
 		}
 		switch (ch) {
 		case NSRightArrowFunctionKey:
@@ -153,24 +152,24 @@ static bool cmd = false;
 			break;
 		default:
 			if (ch == 'x' && [theEvent modifierFlags] & NSCommandKeyMask) {
-				char* text = kinc_internal_cut_callback();
+				char *text = kinc_internal_cut_callback();
 				if (text != NULL) {
-					NSPasteboard* board = [NSPasteboard generalPasteboard];
+					NSPasteboard *board = [NSPasteboard generalPasteboard];
 					[board clearContents];
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
 			}
 			if (ch == 'c' && [theEvent modifierFlags] & NSCommandKeyMask) {
-				char* text = kinc_internal_copy_callback();
+				char *text = kinc_internal_copy_callback();
 				if (text != NULL) {
-					NSPasteboard* board = [NSPasteboard generalPasteboard];
+					NSPasteboard *board = [NSPasteboard generalPasteboard];
 					[board clearContents];
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
 			}
 			if (ch == 'v' && [theEvent modifierFlags] & NSCommandKeyMask) {
-				NSPasteboard* board = [NSPasteboard generalPasteboard];
-				NSString* data = [board stringForType:NSStringPboardType];
+				NSPasteboard *board = [NSPasteboard generalPasteboard];
+				NSString *data = [board stringForType:NSStringPboardType];
 				if (data != nil) {
 					char charData[4096];
 					strcpy(charData, [data UTF8String]);
@@ -192,8 +191,8 @@ static bool cmd = false;
 	}
 }
 
-- (void)keyUp:(NSEvent*)theEvent {
-	NSString* characters = [theEvent charactersIgnoringModifiers];
+- (void)keyUp:(NSEvent *)theEvent {
+	NSString *characters = [theEvent charactersIgnoringModifiers];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];
 		switch (ch) {
@@ -274,23 +273,23 @@ static bool cmd = false;
 	}
 }
 
-	static int getMouseX(NSEvent* event) {
-		// TODO (DK) map [theEvent window] to window id instead of 0
-		NSWindow* window = [[NSApplication sharedApplication] mainWindow];
-		float scale = [window backingScaleFactor];
-		return (int)([event locationInWindow].x * scale);
-	}
+static int getMouseX(NSEvent *event) {
+	// TODO (DK) map [theEvent window] to window id instead of 0
+	NSWindow *window = [[NSApplication sharedApplication] mainWindow];
+	float scale = [window backingScaleFactor];
+	return (int)([event locationInWindow].x * scale);
+}
 
-	static int getMouseY(NSEvent* event) {
-		// TODO (DK) map [theEvent window] to window id instead of 0
-		NSWindow* window = [[NSApplication sharedApplication] mainWindow];
-		float scale = [window backingScaleFactor];
-		return (int)(kinc_height() - [event locationInWindow].y * scale);
-	}
+static int getMouseY(NSEvent *event) {
+	// TODO (DK) map [theEvent window] to window id instead of 0
+	NSWindow *window = [[NSApplication sharedApplication] mainWindow];
+	float scale = [window backingScaleFactor];
+	return (int)(kinc_height() - [event locationInWindow].y * scale);
+}
 
-	static bool controlKeyMouseButton = false;
+static bool controlKeyMouseButton = false;
 
-- (void)mouseDown:(NSEvent*)theEvent {
+- (void)mouseDown:(NSEvent *)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	if ([theEvent modifierFlags] & NSControlKeyMask) {
 		controlKeyMouseButton = true;
@@ -306,7 +305,7 @@ static bool cmd = false;
 	}
 }
 
-- (void)mouseUp:(NSEvent*)theEvent {
+- (void)mouseUp:(NSEvent *)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	if (controlKeyMouseButton) {
 		kinc_internal_mouse_trigger_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
@@ -321,12 +320,12 @@ static bool cmd = false;
 	}
 }
 
-- (void)mouseMoved:(NSEvent*)theEvent {
+- (void)mouseMoved:(NSEvent *)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
-- (void)mouseDragged:(NSEvent*)theEvent {
+- (void)mouseDragged:(NSEvent *)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
 
@@ -335,41 +334,41 @@ static bool cmd = false;
 	}
 }
 
-- (void)rightMouseDown:(NSEvent*)theEvent {
+- (void)rightMouseDown:(NSEvent *)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	kinc_internal_mouse_trigger_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
-- (void)rightMouseUp:(NSEvent*)theEvent {
+- (void)rightMouseUp:(NSEvent *)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	kinc_internal_mouse_trigger_release(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 }
 
-- (void)rightMouseDragged:(NSEvent*)theEvent {
+- (void)rightMouseDragged:(NSEvent *)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
-- (void)otherMouseDown:(NSEvent*)theEvent {
+- (void)otherMouseDown:(NSEvent *)theEvent {
 	kinc_internal_mouse_trigger_press(0, 2, getMouseX(theEvent), getMouseY(theEvent));
 }
 
-- (void)otherMouseUp:(NSEvent*)theEvent {
+- (void)otherMouseUp:(NSEvent *)theEvent {
 	kinc_internal_mouse_trigger_release(0, 2, getMouseX(theEvent), getMouseY(theEvent));
 }
 
-- (void)otherMouseDragged:(NSEvent*)theEvent {
+- (void)otherMouseDragged:(NSEvent *)theEvent {
 	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
 }
 
-- (void)scrollWheel:(NSEvent*)theEvent {
+- (void)scrollWheel:(NSEvent *)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	int delta = [theEvent deltaY];
 	kinc_internal_mouse_trigger_scroll(0, -delta);
 }
 
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
-	NSPasteboard* pboard = [sender draggingPasteboard];
+	NSPasteboard *pboard = [sender draggingPasteboard];
 	NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
 	if ([[pboard types] containsObject:NSURLPboardType]) {
 		if (sourceDragMask & NSDragOperationLink) {
@@ -380,11 +379,11 @@ static bool cmd = false;
 }
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
-	NSPasteboard* pboard = [sender draggingPasteboard];
-	//NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
+	NSPasteboard *pboard = [sender draggingPasteboard];
+	// NSDragOperation sourceDragMask = [sender draggingSourceOperationMask];
 	if ([[pboard types] containsObject:NSURLPboardType]) {
-		NSURL* fileURL = [NSURL URLFromPasteboard:pboard];
-		wchar_t* filePath = (wchar_t*)[fileURL.path cStringUsingEncoding:NSUTF32LittleEndianStringEncoding];
+		NSURL *fileURL = [NSURL URLFromPasteboard:pboard];
+		wchar_t *filePath = (wchar_t *)[fileURL.path cStringUsingEncoding:NSUTF32LittleEndianStringEncoding];
 		kinc_internal_drop_files_callback(filePath);
 	}
 	return YES;
@@ -394,7 +393,7 @@ static bool cmd = false;
 - (void)prepareOpenGL {
 	const GLint swapInt = 1;
 	[[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
-    [super prepareOpenGL];
+	[super prepareOpenGL];
 }
 #endif
 
@@ -406,7 +405,7 @@ static bool cmd = false;
 
 #ifndef KORE_METAL
 - (id)initWithFrame:(NSRect)frameRect {
-	NSOpenGLPixelFormat* pf = [BasicOpenGLView basicPixelFormat];
+	NSOpenGLPixelFormat *pf = [BasicOpenGLView basicPixelFormat];
 	self = [super initWithFrame:frameRect pixelFormat:pf];
 
 	[self prepareOpenGL];
@@ -426,7 +425,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 	library = [device newDefaultLibrary];
 	initMetalCompute(device, commandQueue);
 
-	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+	CAMetalLayer *metalLayer = (CAMetalLayer *)self.layer;
 
 	metalLayer.device = device;
 	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -457,8 +456,8 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 }
 
 #ifdef KORE_METAL
-- (CAMetalLayer*)metalLayer {
-	return (CAMetalLayer*)self.layer;
+- (CAMetalLayer *)metalLayer {
+	return (CAMetalLayer *)self.layer;
 }
 
 - (id<MTLDevice>)metalDevice {
@@ -476,8 +475,8 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandBuffer);
 
 @end
 
-void kinc_copy_to_clipboard(const char* text) {
-	NSPasteboard* board = [NSPasteboard generalPasteboard];
+void kinc_copy_to_clipboard(const char *text) {
+	NSPasteboard *board = [NSPasteboard generalPasteboard];
 	[board clearContents];
 	[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 }

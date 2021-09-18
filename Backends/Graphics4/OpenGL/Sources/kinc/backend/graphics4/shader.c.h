@@ -9,7 +9,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *data, size_t length, ki
 	shader->impl.length = length;
 	shader->impl._glid = 0;
 	shader->impl.fromSource = false;
-	char* source = (char*)malloc(length + 1);
+	char *source = (char *)malloc(length + 1);
 	memcpy(source, data, length);
 	source[length] = 0;
 	shader->impl.source = source;
@@ -24,7 +24,7 @@ void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *sourc
 
 void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (!shader->impl.fromSource) {
-		free((void*)shader->impl.source);
+		free((void *)shader->impl.source);
 	}
 	shader->impl.source = NULL;
 	if (shader->impl._glid != 0) {

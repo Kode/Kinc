@@ -10,9 +10,9 @@ void kinc_event_init(kinc_event_t *event, bool auto_reset) {
 
 	pthread_cond_init(&event->impl.event, NULL);
 
-	//pthread_mutexattr_t attr;
-	//pthread_mutexattr_init(&attr);
-	//pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	// pthread_mutexattr_t attr;
+	// pthread_mutexattr_init(&attr);
+	// pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 	pthread_mutex_init(&event->impl.mutex, NULL); //&attr);
 }
 

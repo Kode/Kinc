@@ -18,7 +18,7 @@ namespace Kore {
 #ifdef ANDROID
 		// Save the JVM. Must be called before Initialize().
 		// TODO: Can this be handled better?
-		void SetJVM(JavaVM* jvm);
+		void SetJVM(JavaVM *jvm);
 #endif
 
 #ifdef VR_CARDBOARD
@@ -26,11 +26,11 @@ namespace Kore {
 
 		void DistortionAfter();
 
-		void DistortTexture(kha::Image_obj* image);
+		void DistortTexture(kha::Image_obj *image);
 
 		void updateGaze(float x, float y, float z, float w);
 
-		kha::math::Quaternion_obj* getGaze();
+		kha::math::Quaternion_obj *getGaze();
 
 #endif
 
@@ -42,13 +42,13 @@ namespace Kore {
 
 		void WarpSwapLoadingIcon();
 
-		kha::vr::SensorState_obj* GetSensorState();
+		kha::vr::SensorState_obj *GetSensorState();
 
-		kha::vr::SensorState_obj* GetPredictedSensorState(float time);
+		kha::vr::SensorState_obj *GetPredictedSensorState(float time);
 
 		double GetTimeInSeconds();
 
-		void WarpSwap(kha::vr::TimeWarpParms_obj* parms);
+		void WarpSwap(kha::vr::TimeWarpParms_obj *parms);
 
 #endif
 	}

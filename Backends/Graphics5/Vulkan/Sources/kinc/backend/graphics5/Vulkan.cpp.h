@@ -39,7 +39,7 @@
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 #define KINC_SURFACE_EXT_NAME VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
 #endif
-extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance,int window_index,VkSurfaceKHR *surface);
+extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface);
 
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                                                                               \
 	{                                                                                                                                                          \
@@ -87,8 +87,10 @@ int depthBits;
 int stencilBits;
 bool vsynced;
 
-kinc_g5_texture_t *vulkanTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-kinc_g5_render_target_t *vulkanRenderTargets[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+kinc_g5_texture_t *vulkanTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                                         nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+kinc_g5_render_target_t *vulkanRenderTargets[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                                                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 namespace {
 	bool began = false;
@@ -346,8 +348,7 @@ void create_swapchain() {
 		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
 		// to that state
-		set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-		                      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 		color_attachment_view.image = Kore::Vulkan::buffers[i].image;
 
@@ -421,8 +422,7 @@ void create_swapchain() {
 		err = vkBindImageMemory(device, Kore::Vulkan::depth.image, Kore::Vulkan::depth.mem, 0);
 		assert(!err);
 
-		set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-		                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 		/* create image view */
 		view.image = Kore::Vulkan::depth.image;
@@ -624,7 +624,6 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	info.ppEnabledExtensionNames = (const char *const *)extension_names;
 
 	uint32_t gpu_count;
-
 
 #ifndef KORE_ANDROID
 	allocator.pfnAllocation = myalloc;
@@ -998,6 +997,7 @@ void kinc_g5_end(int window) {
 }
 
 void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
+	assert(unit.impl.binding >= 2); // Make sure the spirv-bindings have been read correctly
 	vulkanTextures[unit.impl.binding - 2] = texture;
 	vulkanRenderTargets[unit.impl.binding - 2] = nullptr;
 }

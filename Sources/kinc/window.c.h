@@ -1,5 +1,5 @@
-#include "window.h"
 #include "display.h"
+#include "window.h"
 
 #include <stdlib.h>
 

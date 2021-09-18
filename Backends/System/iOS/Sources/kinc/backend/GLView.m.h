@@ -1,57 +1,56 @@
 #import "GLView.h"
 
+#include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/rendertarget.h>
 #include <kinc/input/acceleration.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
+#include <kinc/input/pen.h>
 #include <kinc/input/rotation.h>
 #include <kinc/input/surface.h>
-#include <kinc/input/pen.h>
 #include <kinc/system.h>
-#include <kinc/graphics5/graphics.h>
-#include <kinc/graphics5/rendertarget.h>
 
 #ifdef KORE_OPENGL
 #include <kinc/backend/graphics4/OpenGLWindow.h>
 #endif
 
+static const int touchmaxcount = 20;
+static void *touches[touchmaxcount];
 
-	static const int touchmaxcount = 20;
-	static void* touches[touchmaxcount];
+static void initTouches() {
+	for (int i = 0; i < touchmaxcount; ++i) {
+		touches[i] = NULL;
+	}
+}
 
-	static void initTouches() {
-		for (int i = 0; i < touchmaxcount; ++i) {
+static int getTouchIndex(void *touch) {
+	for (int i = 0; i < touchmaxcount; ++i) {
+		if (touches[i] == touch) return i;
+	}
+	return -1;
+}
+
+static int addTouch(void *touch) {
+	for (int i = 0; i < touchmaxcount; ++i) {
+		if (touches[i] == NULL) {
+			touches[i] = touch;
+			return i;
+		}
+	}
+	return -1;
+}
+
+static int removeTouch(void *touch) {
+	for (int i = 0; i < touchmaxcount; ++i) {
+		if (touches[i] == touch) {
 			touches[i] = NULL;
+			return i;
 		}
 	}
+	return -1;
+}
 
-	static int getTouchIndex(void* touch) {
-		for (int i = 0; i < touchmaxcount; ++i) {
-			if (touches[i] == touch) return i;
-		}
-		return -1;
-	}
-
-	static int addTouch(void* touch) {
-		for (int i = 0; i < touchmaxcount; ++i) {
-			if (touches[i] == NULL) {
-				touches[i] = touch;
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	static int removeTouch(void* touch) {
-		for (int i = 0; i < touchmaxcount; ++i) {
-			if (touches[i] == touch) {
-				touches[i] = NULL;
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	static GLint backingWidth, backingHeight;
+static GLint backingWidth, backingHeight;
 
 int kinc_window_width(int window) {
 	return backingWidth;
@@ -90,7 +89,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	library = [device newDefaultLibrary];
 	initMetalCompute(device, commandQueue);
 
-	CAMetalLayer* metalLayer = (CAMetalLayer*)self.layer;
+	CAMetalLayer *metalLayer = (CAMetalLayer *)self.layer;
 
 	metalLayer.device = device;
 	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -112,7 +111,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 
 	initTouches();
 
-	CAEAGLLayer* eaglLayer = (CAEAGLLayer*)self.layer;
+	CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
 
 	eaglLayer.opaque = YES;
 	eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:FALSE], kEAGLDrawablePropertyRetainedBacking,
@@ -163,8 +162,8 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 #else
 - (void)begin {
 	[EAGLContext setCurrentContext:context];
-	//glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
-	//glViewport(0, 0, backingWidth, backingHeight);
+	// glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
+	// glViewport(0, 0, backingWidth, backingHeight);
 
 #ifndef KORE_TVOS
 	// Accelerometer updates
@@ -203,7 +202,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 #else
 - (void)layoutSubviews {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, colorRenderbuffer);
-	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer*)self.layer];
+	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(CAEAGLLayer *)self.layer];
 
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
@@ -248,10 +247,10 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 }
 #endif
 
-- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
-	for (UITouch* touch in touches) {
-		int index = getTouchIndex((__bridge void*)touch);
-		if (index == -1) index = addTouch((__bridge void*)touch);
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	for (UITouch *touch in touches) {
+		int index = getTouchIndex((__bridge void *)touch);
+		if (index == -1) index = addTouch((__bridge void *)touch);
 		if (index >= 0) {
 			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
@@ -268,9 +267,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	}
 }
 
-- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event {
-	for (UITouch* touch in touches) {
-		int index = getTouchIndex((__bridge void*)touch);
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+	for (UITouch *touch in touches) {
+		int index = getTouchIndex((__bridge void *)touch);
 		if (index >= 0) {
 			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
@@ -284,7 +283,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 }
 
 - (void)touchesEstimatedPropertiesUpdated:(NSSet<UITouch *> *)touches {
-	for (UITouch* touch in touches) {
+	for (UITouch *touch in touches) {
 		if (touch.type == UITouchTypePencil) {
 			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
@@ -294,9 +293,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	}
 }
 
-- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event {
-	for (UITouch* touch in touches) {
-		int index = removeTouch((__bridge void*)touch);
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+	for (UITouch *touch in touches) {
+		int index = removeTouch((__bridge void *)touch);
 		if (index >= 0) {
 			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
@@ -313,9 +312,9 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	}
 }
 
-- (void)touchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event {
-	for (UITouch* touch in touches) {
-		int index = removeTouch((__bridge void*)touch);
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+	for (UITouch *touch in touches) {
+		int index = removeTouch((__bridge void *)touch);
 		if (index >= 0) {
 			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
@@ -332,8 +331,8 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	}
 }
 
-static NSString* keyboardstring;
-static UITextField* myTextField = NULL;
+static NSString *keyboardstring;
+static UITextField *myTextField = NULL;
 static bool shiftDown = false;
 
 - (void)showKeyboard {
@@ -348,7 +347,7 @@ static bool shiftDown = false;
 	return YES;
 }
 
-- (void)insertText:(NSString*)text {
+- (void)insertText:(NSString *)text {
 	if ([text length] == 1) {
 		unichar ch = [text characterAtIndex:[text length] - 1];
 		if (ch == 8212) ch = '_';
@@ -386,13 +385,13 @@ static bool shiftDown = false;
 	return YES;
 }
 
-- (void)onKeyboardHide:(NSNotification*)notification {
+- (void)onKeyboardHide:(NSNotification *)notification {
 	kinc_keyboard_hide();
 }
 
 #ifdef KORE_METAL
-- (CAMetalLayer*)metalLayer {
-	return (CAMetalLayer*)self.layer;
+- (CAMetalLayer *)metalLayer {
+	return (CAMetalLayer *)self.layer;
 }
 
 - (id<MTLDevice>)metalDevice {

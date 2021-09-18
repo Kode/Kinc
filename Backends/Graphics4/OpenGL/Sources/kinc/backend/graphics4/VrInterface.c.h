@@ -24,7 +24,7 @@ struct TextureBuffer {
 	kinc_g4_render_target_t OVRRenderTarget;
 	bool render_target_initialized;
 
-	TextureBuffer(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char* data, int sampleCount)
+	TextureBuffer(ovrSession session, bool displayableOnHmd, OVR::Sizei size, int mipLevels, unsigned char *data, int sampleCount)
 	    : Session(session), TextureChain(nullptr), texSize(size), render_target_initialized(false) {
 		UNREFERENCED_PARAMETER(sampleCount);
 
@@ -133,7 +133,7 @@ struct OGL {
 		CloseWindow();
 	}
 
-	bool InitWindow(HINSTANCE hInst, const char* title, const char* windowClassName) {
+	bool InitWindow(HINSTANCE hInst, const char *title, const char *windowClassName) {
 		hInstance = hInst;
 		Running = true;
 
@@ -163,7 +163,7 @@ struct OGL {
 	}
 
 	// Note: currently there is no way to get GL to use the passed pLuid
-	bool InitDevice(int vpW, int vpH, const LUID* /*pLuid*/, bool windowed = true) {
+	bool InitDevice(int vpW, int vpH, const LUID * /*pLuid*/, bool windowed = true) {
 		UNREFERENCED_PARAMETER(windowed);
 
 		WinSizeW = vpW;
@@ -285,7 +285,7 @@ struct OGL {
 };
 
 namespace {
-	TextureBuffer* eyeRenderTexture[2] = {nullptr, nullptr};
+	TextureBuffer *eyeRenderTexture[2] = {nullptr, nullptr};
 
 	ovrMirrorTexture mirrorTexture = nullptr;
 	uint mirrorFBO = 0;
@@ -347,7 +347,7 @@ namespace {
 	}
 }
 
-void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowClassName) {
+void *kinc_vr_interface_init(void *hinst, const char *title, const char *windowClassName) {
 	ovrInitParams initParams = {ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0};
 	ovrResult result = ovr_Initialize(&initParams);
 	if (!OVR_SUCCESS(result)) {
@@ -372,7 +372,7 @@ void* kinc_vr_interface_init(void* hinst, const char* title, const char* windowC
 	// Setup Window and Graphics
 	// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
 	ovrSizei windowSize = {hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2};
-	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid))) {
+	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID *>(&luid))) {
 		log(Info, "Failed to init device.");
 		done();
 	}
@@ -411,7 +411,7 @@ void kinc_vr_interface_end_render(int eye) {
 
 namespace {
 
-	kinc_matrix4x4_t convert(OVR::Matrix4f& m) {
+	kinc_matrix4x4_t convert(OVR::Matrix4f &m) {
 		kinc_matrix4x4_t mat;
 		kinc_matrix4x4_set(&mat, 0, 0, m.M[0][0]);
 		kinc_matrix4x4_set(&mat, 0, 1, m.M[0][1]);
@@ -442,60 +442,60 @@ namespace {
 }
 
 /*SensorState VrInterface::getSensorState(int eye, Kore::Vector<float, 3>& headPosition) {
-	VrPoseState poseState;
+    VrPoseState poseState;
 
-	ovrQuatf orientation = EyeRenderPose[eye].Orientation;
-	poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
+    ovrQuatf orientation = EyeRenderPose[eye].Orientation;
+    poseState.vrPose.orientation = Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
 
-	ovrVector3f pos = EyeRenderPose[eye].Position;
-	poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
+    ovrVector3f pos = EyeRenderPose[eye].Position;
+    poseState.vrPose.position = vec3(pos.x, pos.y, pos.z);
 
-	ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
-	poseState.vrPose.left = fov.LeftTan;
-	poseState.vrPose.right = fov.RightTan;
-	poseState.vrPose.bottom = fov.DownTan;
-	poseState.vrPose.top = fov.UpTan;
+    ovrFovPort fov = hmdDesc.DefaultEyeFov[eye];
+    poseState.vrPose.left = fov.LeftTan;
+    poseState.vrPose.right = fov.RightTan;
+    poseState.vrPose.bottom = fov.DownTan;
+    poseState.vrPose.top = fov.UpTan;
 
-	// Get view and projection matrices
-	OVR::Matrix4f finalRollPitchYaw = OVR::Matrix4f(EyeRenderPose[eye].Orientation);
-	OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
-	OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
+    // Get view and projection matrices
+    OVR::Matrix4f finalRollPitchYaw = OVR::Matrix4f(EyeRenderPose[eye].Orientation);
+    OVR::Vector3f finalUp = finalRollPitchYaw.Transform(OVR::Vector3f(0, 1, 0));
+    OVR::Vector3f finalForward = finalRollPitchYaw.Transform(OVR::Vector3f(0, 0, -1));
 
-	Kore::Vector<float, 3> right = vectorConvert(finalForward).cross(vectorConvert(finalUp)).normalize() * 0.01f;
+    Kore::Vector<float, 3> right = vectorConvert(finalForward).cross(vectorConvert(finalUp)).normalize() * 0.01f;
 
-	OVR::Vector3f shiftedEyePos;
+    OVR::Vector3f shiftedEyePos;
 
-	if (eye == 0) {
-		shiftedEyePos = vectorConvert(headPosition - right);
-	} else {
-		shiftedEyePos = vectorConvert(headPosition + right);
-	}
+    if (eye == 0) {
+        shiftedEyePos = vectorConvert(headPosition - right);
+    } else {
+        shiftedEyePos = vectorConvert(headPosition + right);
+    }
 
 
-	OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
-	OVR::Matrix4f proj = ovrMatrix4f_Projection(hmdDesc.MaxEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);
+    OVR::Matrix4f view = OVR::Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
+    OVR::Matrix4f proj = ovrMatrix4f_Projection(hmdDesc.MaxEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);
 
-	poseState.vrPose.eye = convert(view);
-	poseState.vrPose.projection = convert(proj);
+    poseState.vrPose.eye = convert(view);
+    poseState.vrPose.projection = convert(proj);
 
-	ovrSessionStatus sessionStatus;
-	ovr_GetSessionStatus(session, &sessionStatus);
-	if (sessionStatus.IsVisible) poseState.isVisible = true;
-	else poseState.isVisible = false;
-	if (sessionStatus.HmdPresent) poseState.hmdPresenting = true;
-	else poseState.hmdPresenting = false;
-	if (sessionStatus.HmdMounted) poseState.hmdMounted = true;
-	else poseState.hmdMounted = false;
-	if (sessionStatus.DisplayLost) poseState.displayLost = true;
-	else poseState.displayLost = false;
-	if (sessionStatus.ShouldQuit) poseState.shouldQuit = true;
-	else poseState.shouldQuit = false;
-	if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
-	else poseState.shouldRecenter = false;
+    ovrSessionStatus sessionStatus;
+    ovr_GetSessionStatus(session, &sessionStatus);
+    if (sessionStatus.IsVisible) poseState.isVisible = true;
+    else poseState.isVisible = false;
+    if (sessionStatus.HmdPresent) poseState.hmdPresenting = true;
+    else poseState.hmdPresenting = false;
+    if (sessionStatus.HmdMounted) poseState.hmdMounted = true;
+    else poseState.hmdMounted = false;
+    if (sessionStatus.DisplayLost) poseState.displayLost = true;
+    else poseState.displayLost = false;
+    if (sessionStatus.ShouldQuit) poseState.shouldQuit = true;
+    else poseState.shouldQuit = false;
+    if (sessionStatus.ShouldRecenter) poseState.shouldRecenter = true;
+    else poseState.shouldRecenter = false;
 
-	sensorStates[eye].pose = poseState;
+    sensorStates[eye].pose = poseState;
 
-	return sensorStates[eye];
+    return sensorStates[eye];
 }*/
 
 kinc_vr_sensor_state_t kinc_vr_interface_get_sensor_state(int eye) {
@@ -583,7 +583,7 @@ void kinc_vr_interface_warp_swap() {
 		}
 	}
 
-	ovrLayerHeader* layers = &ld.Header;
+	ovrLayerHeader *layers = &ld.Header;
 	ovrResult result = ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1);
 	if (!OVR_SUCCESS(result)) {
 		isVisible = false;

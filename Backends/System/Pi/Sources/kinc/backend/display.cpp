@@ -7,7 +7,7 @@
 
 namespace Kore {
 	namespace Display {
-		void fatalError(const char* message) {
+		void fatalError(const char *message) {
 			printf("main: %s\n", message);
 			exit(1);
 		}
@@ -18,7 +18,7 @@ namespace Kore {
 		int displayCounter = -1;
 		bool initialized = false;
 
-		void enumDisplayMonitors(DeviceInfo screens[], int& displayCounter);
+		void enumDisplayMonitors(DeviceInfo screens[], int &displayCounter);
 
 		void enumerate() {
 			if (initialized) {
@@ -53,9 +53,9 @@ namespace Kore {
 			return displays[index].isPrimary;
 		}
 
-		const DeviceInfo* primaryScreen() {
+		const DeviceInfo *primaryScreen() {
 			for (int index = 0; index < MAXIMUM_DISPLAY_COUNT; ++index) {
-				const DeviceInfo& info = displays[index];
+				const DeviceInfo &info = displays[index];
 
 				if (info.isAvailable && info.isPrimary) {
 					return &info;
@@ -72,9 +72,9 @@ namespace Kore {
 			return &displays[0];
 		}
 
-		const DeviceInfo* screenById(int id) {
+		const DeviceInfo *screenById(int id) {
 			for (int index = 0; index < MAXIMUM_DISPLAY_COUNT; ++index) {
-				const DeviceInfo& info = displays[index];
+				const DeviceInfo &info = displays[index];
 
 				if (info.number == id) {
 					return &info;

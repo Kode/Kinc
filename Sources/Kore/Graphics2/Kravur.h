@@ -52,15 +52,15 @@ struct AlignedQuad {
 namespace Kore {
 	class Kravur {
 	private:
-		Kravur(Kore::Reader* reader);
+		Kravur(Kore::Reader *reader);
 
-		const char* name;
+		const char *name;
 		FontStyle style;
 		float size;
 
-		//float mySize;
+		// float mySize;
 		std::vector<BakedChar> chars;
-		Graphics4::Texture* texture;
+		Graphics4::Texture *texture;
 		float baseline;
 		float getCharWidth(int charIndex);
 		float charWidth(char ch);
@@ -69,14 +69,14 @@ namespace Kore {
 		int width;
 		int height;
 
-		static Kravur* load(const char* name, FontStyle style, float size);
+		static Kravur *load(const char *name, FontStyle style, float size);
 
-		Graphics4::Texture* getTexture();
+		Graphics4::Texture *getTexture();
 		AlignedQuad getBakedQuad(int char_index, float xpos, float ypos);
 
 		float getHeight();
-		float charsWidth(const char* ch, int offset, int length);
-		float stringWidth(const char* string, int length = -1);
+		float charsWidth(const char *ch, int offset, int length);
+		float stringWidth(const char *string, int length = -1);
 		float getBaselinePosition();
 	};
 }

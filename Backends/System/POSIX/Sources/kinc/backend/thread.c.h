@@ -3,28 +3,28 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <wchar.h>
 #include <unistd.h>
+#include <wchar.h>
 
 #if !defined(KORE_IOS) && !defined(KORE_MACOS)
 
 struct thread_start {
-	void (*thread)(void* param);
-	void* param;
+	void (*thread)(void *param);
+	void *param;
 };
 
 #define THREAD_STARTS 64
 static struct thread_start starts[THREAD_STARTS];
 static int thread_start_index = 0;
 
-static void* ThreadProc(void* arg) {
+static void *ThreadProc(void *arg) {
 	intptr_t start_index = (intptr_t)arg;
 	starts[start_index].thread(starts[start_index].param);
 	pthread_exit(NULL);
 	return NULL;
 }
 
-void kinc_thread_init(kinc_thread_t *t, void (*thread)(void* param), void* param) {
+void kinc_thread_init(kinc_thread_t *t, void (*thread)(void *param), void *param) {
 	t->impl.param = param;
 	t->impl.thread = thread;
 	pthread_attr_t attr;
@@ -40,29 +40,25 @@ void kinc_thread_init(kinc_thread_t *t, void (*thread)(void* param), void* param
 	}
 	starts[start_index].thread = thread;
 	starts[start_index].param = param;
-	int ret = pthread_create(&t->impl.pthread, &attr, &ThreadProc, (void*)start_index);
+	int ret = pthread_create(&t->impl.pthread, &attr, &ThreadProc, (void *)start_index);
 	assert(ret == 0);
 	pthread_attr_destroy(&attr);
 }
 
 void kinc_thread_wait_and_destroy(kinc_thread_t *thread) {
-    int ret;
-    do {
-        ret = pthread_join(thread->impl.pthread, NULL);
-    } while (ret != 0);
+	int ret;
+	do {
+		ret = pthread_join(thread->impl.pthread, NULL);
+	} while (ret != 0);
 }
 
 bool kinc_thread_try_to_destroy(kinc_thread_t *thread) {
-    return pthread_join(thread->impl.pthread, NULL) == 0;
+	return pthread_join(thread->impl.pthread, NULL) == 0;
 }
 
-void kinc_threads_init() {
+void kinc_threads_init() {}
 
-}
-
-void kinc_threads_quit() {
-
-}
+void kinc_threads_quit() {}
 
 #endif
 

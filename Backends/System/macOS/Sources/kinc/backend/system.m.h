@@ -2,8 +2,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <kinc/graphics4/graphics.h>
 #include <kinc/backend/HIDManager.h>
+#include <kinc/graphics4/graphics.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
@@ -19,46 +19,48 @@ bool withAutoreleasepool(bool (*f)(void)) {
 	}
 }
 
-extern const char* macgetresourcepath(void);
+extern const char *macgetresourcepath(void);
 
-const char* macgetresourcepath(void) {
+const char *macgetresourcepath(void) {
 	return [[[NSBundle mainBundle] resourcePath] cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
-@interface KincApplication : NSApplication {}
+@interface KincApplication : NSApplication {
+}
 - (void)terminate:(id)sender;
 @end
 
-@interface KincAppDelegate : NSObject<NSWindowDelegate> {}
-- (void)windowWillClose:(NSNotification*)notification;
-- (void)windowDidResize:(NSNotification*)notification;
+@interface KincAppDelegate : NSObject <NSWindowDelegate> {
+}
+- (void)windowWillClose:(NSNotification *)notification;
+- (void)windowDidResize:(NSNotification *)notification;
 - (void)windowWillMiniaturize:(NSNotification *)notification;
 - (void)windowDidDeminiaturize:(NSNotification *)notification;
 - (void)windowDidResignMain:(NSNotification *)notification;
 - (void)windowDidBecomeMain:(NSNotification *)notification;
 @end
 
-static NSApplication* myapp;
-static NSWindow* window;
-static BasicOpenGLView* view;
-static KincAppDelegate* delegate;
-static struct HIDManager* hidManager;
+static NSApplication *myapp;
+static NSWindow *window;
+static BasicOpenGLView *view;
+static KincAppDelegate *delegate;
+static struct HIDManager *hidManager;
 
-	/*struct KoreWindow : public KoreWindowBase {
-		NSWindow* handle;
-		BasicOpenGLView* view;
+/*struct KoreWindow : public KoreWindowBase {
+    NSWindow* handle;
+    BasicOpenGLView* view;
 
-		KoreWindow(NSWindow* handle, BasicOpenGLView* view, int x, int y, int width, int height)
-		    : KoreWindowBase(x, y, width, height), handle(handle), view(view) {
-			::view = view;
-		}
-	};*/
+    KoreWindow(NSWindow* handle, BasicOpenGLView* view, int x, int y, int width, int height)
+        : KoreWindowBase(x, y, width, height), handle(handle), view(view) {
+        ::view = view;
+    }
+};*/
 
 static struct WindowData windows[10] = {};
 static int windowCounter = 0;
 
 #ifdef KORE_METAL
-CAMetalLayer* getMetalLayer(void) {
+CAMetalLayer *getMetalLayer(void) {
 	return [view metalLayer];
 }
 
@@ -76,17 +78,19 @@ id getMetalQueue(void) {
 #endif
 
 bool kinc_internal_handle_messages() {
-	NSEvent* event =
-	    [myapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]; // distantPast: non-blocking
+	NSEvent *event = [myapp nextEventMatchingMask:NSAnyEventMask
+	                                    untilDate:[NSDate distantPast]
+	                                       inMode:NSDefaultRunLoopMode
+	                                      dequeue:YES]; // distantPast: non-blocking
 	if (event != nil) {
 		[myapp sendEvent:event];
 		[myapp updateWindows];
 	}
 
-  // Sleep for a frame to limit the calls when the window is not visible.
-  if (!window.visible) {
-    [NSThread sleepForTimeInterval: 1.0 / 60];
-  }
+	// Sleep for a frame to limit the calls when the window is not visible.
+	if (!window.visible) {
+		[NSThread sleepForTimeInterval:1.0 / 60];
+	}
 	return true;
 }
 
@@ -119,7 +123,7 @@ static int createWindow(kinc_window_options_t *options) {
 
 	windows[windowCounter].handle = window;
 	windows[windowCounter].view = view;
-	
+
 	[window makeKeyAndOrderFront:nil];
 
 	if (options->mode == KINC_WINDOW_MODE_FULLSCREEN || options->mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
@@ -136,40 +140,39 @@ int kinc_count_windows() {
 
 void kinc_window_change_window_mode(int window_index, kinc_window_mode_t mode) {
 	switch (mode) {
-		case KINC_WINDOW_MODE_WINDOW:
-			if (windows[window_index].fullscreen) {
-				[window toggleFullScreen:nil];
-				windows[window_index].fullscreen = false;
-			}
-			break;
-		case KINC_WINDOW_MODE_FULLSCREEN:
-		case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
-			if (!windows[window_index].fullscreen) {
-				[window toggleFullScreen:nil];
-				windows[window_index].fullscreen = true;
-			}
-			break;
+	case KINC_WINDOW_MODE_WINDOW:
+		if (windows[window_index].fullscreen) {
+			[window toggleFullScreen:nil];
+			windows[window_index].fullscreen = false;
+		}
+		break;
+	case KINC_WINDOW_MODE_FULLSCREEN:
+	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		if (!windows[window_index].fullscreen) {
+			[window toggleFullScreen:nil];
+			windows[window_index].fullscreen = true;
+		}
+		break;
 	}
-
 }
 
 static void addMenubar() {
-	NSString* appName = [[NSProcessInfo processInfo] processName];
+	NSString *appName = [[NSProcessInfo processInfo] processName];
 
-	NSMenu* appMenu = [NSMenu new];
-	NSString* quitTitle = [@"Quit " stringByAppendingString:appName];
-	NSMenuItem* quitMenuItem = [[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"];
+	NSMenu *appMenu = [NSMenu new];
+	NSString *quitTitle = [@"Quit " stringByAppendingString:appName];
+	NSMenuItem *quitMenuItem = [[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"];
 	[appMenu addItem:quitMenuItem];
 
-	NSMenuItem* appMenuItem = [NSMenuItem new];
+	NSMenuItem *appMenuItem = [NSMenuItem new];
 	[appMenuItem setSubmenu:appMenu];
 
-	NSMenu* menubar = [NSMenu new];
+	NSMenu *menubar = [NSMenu new];
 	[menubar addItem:appMenuItem];
 	[NSApp setMainMenu:menubar];
 }
 
-int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	@autoreleasepool {
 		myapp = [KincApplication sharedApplication];
 		[myapp finishLaunching];
@@ -181,7 +184,7 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 		addMenubar();
 	}
 
-	//System::_init(name, width, height, &win, &frame);
+	// System::_init(name, width, height, &win, &frame);
 	kinc_window_options_t defaultWindowOptions;
 	if (win == NULL) {
 		kinc_window_options_set_defaults(&defaultWindowOptions);
@@ -206,61 +209,59 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 }
 
 int kinc_window_width(int window_index) {
-	NSWindow* window = windows[window_index].handle;
+	NSWindow *window = windows[window_index].handle;
 	float scale = [window backingScaleFactor];
 	return [[window contentView] frame].size.width * scale;
 }
 
 int kinc_window_height(int window_index) {
-	NSWindow* window = windows[window_index].handle;
+	NSWindow *window = windows[window_index].handle;
 	float scale = [window backingScaleFactor];
 	return [[window contentView] frame].size.height * scale;
 }
 
-NSWindow* kinc_get_mac_window_handle(int window_index){
-    return windows[window_index].handle;
+NSWindow *kinc_get_mac_window_handle(int window_index) {
+	return windows[window_index].handle;
 }
 
-void kinc_load_url(const char* url) {
+void kinc_load_url(const char *url) {
 	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
 }
 
 static char language[3];
 
-const char* kinc_language() {
-	NSString* nsstr = [[NSLocale preferredLanguages] objectAtIndex:0];
-	const char* lang = [nsstr UTF8String];
+const char *kinc_language() {
+	NSString *nsstr = [[NSLocale preferredLanguages] objectAtIndex:0];
+	const char *lang = [nsstr UTF8String];
 	language[0] = lang[0];
 	language[1] = lang[1];
 	language[2] = 0;
 	return language;
 }
 
-void kinc_internal_shutdown() {
+void kinc_internal_shutdown() {}
 
+static const char *getSavePath(void) {
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+	NSString *resolvedPath = [paths objectAtIndex:0];
+	NSString *appName = [NSString stringWithUTF8String:kinc_application_name()];
+	resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
+
+	NSFileManager *fileMgr = [[NSFileManager alloc] init];
+
+	NSError *error;
+	[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
+
+	resolvedPath = [resolvedPath stringByAppendingString:@"/"];
+	return [resolvedPath cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
-	static const char* getSavePath(void) {
-		NSArray* paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-		NSString* resolvedPath = [paths objectAtIndex:0];
-		NSString* appName = [NSString stringWithUTF8String: kinc_application_name()];
-		resolvedPath = [resolvedPath stringByAppendingPathComponent:appName];
-
-		NSFileManager* fileMgr = [[NSFileManager alloc] init];
-
-		NSError* error;
-		[fileMgr createDirectoryAtPath:resolvedPath withIntermediateDirectories:YES attributes:nil error:&error];
-
-		resolvedPath = [resolvedPath stringByAppendingString:@"/"];
-		return [resolvedPath cStringUsingEncoding:NSUTF8StringEncoding];
-	}
-
-const char* kinc_internal_save_path() {
+const char *kinc_internal_save_path() {
 	return getSavePath();
 }
 
 #ifndef KINC_NO_MAIN
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 	return kickstart(argc, argv);
 }
 #endif
@@ -275,13 +276,13 @@ int main(int argc, char** argv) {
 
 @implementation KincAppDelegate
 
-- (void)windowWillClose:(NSNotification*)notification {
+- (void)windowWillClose:(NSNotification *)notification {
 	kinc_stop();
 }
 
-- (void)windowDidResize:(NSNotification*)notification {
-	NSWindow* window = [notification object];
-	NSSize size = [[window contentView]frame].size;
+- (void)windowDidResize:(NSNotification *)notification {
+	NSWindow *window = [notification object];
+	NSSize size = [[window contentView] frame].size;
 	[view resize:size];
 	if (windows[0].resizeCallback != NULL) {
 		windows[0].resizeCallback(size.width, size.height, windows[0].resizeCallbackData);

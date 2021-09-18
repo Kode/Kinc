@@ -1,16 +1,16 @@
 #include "Direct3D12.h"
 
+#include <kinc/backend/SystemMicrosoft.h>
 #include <kinc/graphics5/shader.h>
 #include <kinc/math/core.h>
-#include <kinc/backend/SystemMicrosoft.h>
 
-void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, size_t length, kinc_g5_shader_type_t type) {
+void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *_data, size_t length, kinc_g5_shader_type_t type) {
 	memset(shader->impl.constants, 0, sizeof(shader->impl.constants));
 	memset(shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	memset(shader->impl.textures, 0, sizeof(shader->impl.textures));
 
 	unsigned index = 0;
-	uint8_t* data = (uint8_t*)_data;
+	uint8_t *data = (uint8_t *)_data;
 
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
@@ -44,9 +44,9 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void* _data, size_t length, k
 			if (name[i2] == 0) break;
 		}
 		ShaderConstant constant;
-		constant.offset = *(uint32_t*)&data[index];
+		constant.offset = *(uint32_t *)&data[index];
 		index += 4;
-		constant.size = *(uint32_t*)&data[index];
+		constant.size = *(uint32_t *)&data[index];
 		index += 4;
 #ifdef KORE_WINDOWS
 		index += 2; // columns and rows

@@ -43,24 +43,24 @@ namespace {
 
 	GLboolean doubleBuffer = GL_TRUE;
 
-	void fatalError(const char* message) {
+	void fatalError(const char *message) {
 		printf("main: %s\n", message);
 		exit(1);
 	}
 
-	int getbit(uint32_t* bits, uint32_t bit) {
+	int getbit(uint32_t *bits, uint32_t bit) {
 		return (bits[bit / 32] >> (bit % 32)) & 1;
 	}
 
-	void enable_bit(uint32_t* bits, uint32_t bit) {
+	void enable_bit(uint32_t *bits, uint32_t bit) {
 		bits[bit / 32] |= 1u << (bit % 32);
 	}
 
-	void disable_bit(uint32_t* bits, uint32_t bit) {
+	void disable_bit(uint32_t *bits, uint32_t bit) {
 		bits[bit / 32] &= ~(1u << (bit % 32));
 	}
 
-	void set_bit(uint32_t* bits, uint32_t bit, int value) {
+	void set_bit(uint32_t *bits, uint32_t bit, int value) {
 		if (value)
 			enable_bit(bits, bit);
 		else
@@ -76,7 +76,7 @@ namespace {
 	const int inputDevicesCount = 16;
 	InputDevice inputDevices[inputDevicesCount];
 
-	Display* dpy;
+	Display *dpy;
 
 	void openXWindow(int x, int y, int width, int height) {
 		dpy = XOpenDisplay(NULL);
@@ -125,7 +125,7 @@ namespace {
 
 namespace Kore {
 	namespace Display {
-		void enumDisplayMonitors(DeviceInfo screens[], int& displayCounter) {
+		void enumDisplayMonitors(DeviceInfo screens[], int &displayCounter) {
 			displayCounter = 1;
 		}
 	}
@@ -140,7 +140,7 @@ bool Kore::System::isFullscreen() {
 
 // TODO (DK) the whole glx stuff should go into Graphics/OpenGL?
 //  -then there would be a better separation between window + context setup
-int createWindow(const char* title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits,
+int createWindow(const char *title, int x, int y, int width, int height, Kore::WindowMode windowMode, int targetDisplay, int depthBufferBits,
                  int stencilBufferBits) {
 	if (!bcmHostStarted) {
 		bcm_host_init();
@@ -370,7 +370,7 @@ namespace Kore {
 			return id;
 		}
 
-		void* windowHandle(int id) {
+		void *windowHandle(int id) {
 			return nullptr;
 		}
 	}
@@ -501,7 +501,7 @@ bool Kore::System::handleMessages() {
 	return true;
 }
 
-const char* Kore::System::systemId() {
+const char *Kore::System::systemId() {
 	return "Pi";
 }
 
@@ -538,7 +538,7 @@ void Kore::System::destroyWindow(int id) {
 
 void Kore::System::changeResolution(int width, int height, bool fullscreen) {}
 
-void Kore::System::setTitle(const char* title) {}
+void Kore::System::setTitle(const char *title) {}
 
 void Kore::System::setKeepScreenOn(bool on) {}
 
@@ -548,11 +548,11 @@ void Kore::System::showKeyboard() {}
 
 void Kore::System::hideKeyboard() {}
 
-void Kore::System::loadURL(const char* url) {}
+void Kore::System::loadURL(const char *url) {}
 
 void Kore::System::vibrate(int ms) {}
 
-const char* Kore::System::language() {
+const char *Kore::System::language() {
 	return "en";
 }
 
@@ -561,7 +561,7 @@ namespace {
 	bool saveInitialized = false;
 }
 
-const char* Kore::System::savePath() {
+const char *Kore::System::savePath() {
 	if (!saveInitialized) {
 		strcpy(save, "Ķ~/.");
 		strcat(save, name());
@@ -572,10 +572,10 @@ const char* Kore::System::savePath() {
 }
 
 namespace {
-	const char* videoFormats[] = {"ogv", nullptr};
+	const char *videoFormats[] = {"ogv", nullptr};
 }
 
-const char** Kore::System::videoFormats() {
+const char **Kore::System::videoFormats() {
 	return ::videoFormats;
 }
 
@@ -592,8 +592,8 @@ Kore::System::ticks Kore::System::timestamp() {
 	return static_cast<ticks>(now.tv_sec) * 1000000 + static_cast<ticks>(now.tv_usec);
 }
 
-extern int kore(int argc, char** argv);
+extern int kore(int argc, char **argv);
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 	kore(argc, argv);
 }

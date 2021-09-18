@@ -10,12 +10,12 @@ typedef struct {
 } kinc_compute_texture_unit_impl_t;
 
 typedef struct {
-	//int findTexture(const char* name);
-	char** textures;
-	int* textureValues;
+	// int findTexture(const char* name);
+	char **textures;
+	int *textureValues;
 	int textureCount;
 	unsigned _id;
 	unsigned _programid;
-	char* _source;
+	char *_source;
 	int _length;
 } kinc_compute_shader_impl_t;

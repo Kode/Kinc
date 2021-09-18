@@ -4,5 +4,5 @@
 #include <stdarg.h>
 
 namespace Kore {
-	void logArgs(LogLevel level, const char* format, va_list args);
+	void logArgs(LogLevel level, const char *format, va_list args);
 }

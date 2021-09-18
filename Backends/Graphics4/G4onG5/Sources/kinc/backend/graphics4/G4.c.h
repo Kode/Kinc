@@ -100,13 +100,13 @@ void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex
 
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 	startDraw();
-	kinc_g5_command_list_draw_indexed_vertices_instanced(&commandList,instanceCount);
+	kinc_g5_command_list_draw_indexed_vertices_instanced(&commandList, instanceCount);
 	endDraw();
 }
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
 	startDraw();
-	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(&commandList,instanceCount, start, count);
+	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(&commandList, instanceCount, start, count);
 	endDraw();
 }
 

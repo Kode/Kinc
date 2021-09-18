@@ -17,7 +17,7 @@ vec2i Kore::System::mousePos() {
 	return vec2i(0, 0);
 }
 
-int createWindow(const char* title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
+int createWindow(const char *title, int x, int y, int width, int height, WindowMode windowMode, int targetDisplay) {
 	return 0;
 }
 
@@ -29,7 +29,7 @@ int Kore::System::windowHeight(int window) {
 	return 100;
 }
 
-void* Kore::System::windowHandle(int windowId) {
+void *Kore::System::windowHandle(int windowId) {
 	return nullptr;
 }
 
@@ -59,29 +59,29 @@ bool Kore::System::showsKeyboard() {
 	return true;
 }
 
-void Kore::System::loadURL(const char* url) {}
+void Kore::System::loadURL(const char *url) {}
 
 void Kore::System::vibrate(int ms) {}
 
-const char* Kore::System::language() {
+const char *Kore::System::language() {
 	return "en";
 }
 
-void Kore::System::setTitle(const char* title) {}
+void Kore::System::setTitle(const char *title) {}
 
 void Kore::System::setKeepScreenOn(bool on) {}
 
 void Kore::System::showWindow() {}
 
-const char* Kore::System::systemId() {
+const char *Kore::System::systemId() {
 	return "Windows";
 }
 
-const char* Kore::System::savePath() {
+const char *Kore::System::savePath() {
 	return "";
 }
 
-const char** Kore::System::videoFormats() {
+const char **Kore::System::videoFormats() {
 	return nullptr;
 }
 

@@ -14,7 +14,7 @@ static const int KINC_MAX_HID_DEVICES = 12;
 
 // Slots to hold details on connected devices
 struct HIDManagerDeviceRecord {
-	bool connected; // = false;
+	bool connected;        // = false;
 	IOHIDDeviceRef device; // = NULL;
 	struct HIDGamepad pad;
 };

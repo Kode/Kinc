@@ -12,13 +12,13 @@ namespace Kore {
 		void unset();
 
 #if defined(KORE_ANDROID) || defined(KORE_PI)
-		u16* shortData;
+		u16 *shortData;
 #endif
-		int* data;
+		int *data;
 		int myCount;
 		uint bufferId;
 
 	public:
-		static Graphics3::IndexBuffer* current;
+		static Graphics3::IndexBuffer *current;
 	};
 }

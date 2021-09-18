@@ -1,34 +1,34 @@
 #include <kinc/graphics5/texture.h>
 
-#include <kinc/image.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/texture.h>
+#include <kinc/image.h>
 #include <kinc/log.h>
 
 #import <Metal/Metal.h>
 
 id getMetalDevice(void);
 
-	static MTLPixelFormat convert_image_format(kinc_image_format_t format) {
-		switch (format) {
-			case KINC_IMAGE_FORMAT_RGBA32:
-				return MTLPixelFormatRGBA8Unorm;
-			case KINC_IMAGE_FORMAT_GREY8:
-				return MTLPixelFormatR8Unorm;
-			case KINC_IMAGE_FORMAT_RGB24:
-				return MTLPixelFormatRGBA8Unorm;
-			case KINC_IMAGE_FORMAT_RGBA128:
-				return MTLPixelFormatRGBA32Float;
-			case KINC_IMAGE_FORMAT_RGBA64:
-				return MTLPixelFormatRGBA16Float;
-			case KINC_IMAGE_FORMAT_A32:
-				return MTLPixelFormatR32Float;
-			case KINC_IMAGE_FORMAT_BGRA32:
-				return MTLPixelFormatBGRA8Unorm;
-			case KINC_IMAGE_FORMAT_A16:
-				return MTLPixelFormatR16Float;
-		}
+static MTLPixelFormat convert_image_format(kinc_image_format_t format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return MTLPixelFormatRGBA8Unorm;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return MTLPixelFormatR8Unorm;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return MTLPixelFormatRGBA8Unorm;
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return MTLPixelFormatRGBA32Float;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return MTLPixelFormatRGBA16Float;
+	case KINC_IMAGE_FORMAT_A32:
+		return MTLPixelFormatR32Float;
+	case KINC_IMAGE_FORMAT_BGRA32:
+		return MTLPixelFormatBGRA8Unorm;
+	case KINC_IMAGE_FORMAT_A16:
+		return MTLPixelFormatR16Float;
 	}
+}
 
 bool kinc_internal_bilinear_filtering = false;
 
@@ -36,29 +36,32 @@ static id pointSampler;
 static id bilinearSampler;
 
 void kinc_internal_init_samplers(void) {
-    id<MTLDevice> device = getMetalDevice();
-    
-    MTLSamplerDescriptor *desc = (MTLSamplerDescriptor*)[[MTLSamplerDescriptor alloc] init];
-    desc.minFilter = MTLSamplerMinMagFilterNearest;
-    desc.magFilter = MTLSamplerMinMagFilterNearest;
-    desc.sAddressMode = MTLSamplerAddressModeRepeat;
-    desc.tAddressMode = MTLSamplerAddressModeRepeat;
-    desc.mipFilter = MTLSamplerMipFilterNotMipmapped;
-    desc.maxAnisotropy = 1U;
-    desc.normalizedCoordinates = YES;
-    desc.lodMinClamp = 0.0f;
-    desc.lodMaxClamp = FLT_MAX;
-    pointSampler = [device newSamplerStateWithDescriptor:desc];
-    
-    desc.minFilter = MTLSamplerMinMagFilterLinear;
-    desc.magFilter = MTLSamplerMinMagFilterLinear;
-    bilinearSampler = [device newSamplerStateWithDescriptor:desc];
+	id<MTLDevice> device = getMetalDevice();
+
+	MTLSamplerDescriptor *desc = (MTLSamplerDescriptor *)[[MTLSamplerDescriptor alloc] init];
+	desc.minFilter = MTLSamplerMinMagFilterNearest;
+	desc.magFilter = MTLSamplerMinMagFilterNearest;
+	desc.sAddressMode = MTLSamplerAddressModeRepeat;
+	desc.tAddressMode = MTLSamplerAddressModeRepeat;
+	desc.mipFilter = MTLSamplerMipFilterNotMipmapped;
+	desc.maxAnisotropy = 1U;
+	desc.normalizedCoordinates = YES;
+	desc.lodMinClamp = 0.0f;
+	desc.lodMaxClamp = FLT_MAX;
+	pointSampler = [device newSamplerStateWithDescriptor:desc];
+
+	desc.minFilter = MTLSamplerMinMagFilterLinear;
+	desc.magFilter = MTLSamplerMinMagFilterLinear;
+	bilinearSampler = [device newSamplerStateWithDescriptor:desc];
 }
 
 static void create(kinc_g5_texture_t *texture, int width, int height, int format, bool writable) {
 	id<MTLDevice> device = getMetalDevice();
 
-	MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert_image_format((kinc_image_format_t)format) width:width height:height mipmapped:NO];
+	MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert_image_format((kinc_image_format_t)format)
+	                                                                                      width:width
+	                                                                                     height:height
+	                                                                                  mipmapped:NO];
 	descriptor.textureType = MTLTextureType2D;
 	descriptor.width = width;
 	descriptor.height = height;
@@ -66,25 +69,25 @@ static void create(kinc_g5_texture_t *texture, int width, int height, int format
 	descriptor.pixelFormat = convert_image_format((kinc_image_format_t)format);
 	descriptor.arrayLength = 1;
 	descriptor.mipmapLevelCount = 1;
-	//TODO: Make less textures writable
+	// TODO: Make less textures writable
 	if (writable) {
 		descriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
 	}
 
-	texture->impl._tex = (__bridge_retained void*)[device newTextureWithDescriptor:descriptor];
+	texture->impl._tex = (__bridge_retained void *)[device newTextureWithDescriptor:descriptor];
 }
 
 /*void Graphics5::Texture::_init(const char* format, bool readable) {
-	texWidth = width;
-	texHeight = height;
+    texWidth = width;
+    texHeight = height;
 
-	create(width, height, Image::RGBA32, false);
-	lock();
-	unlock();
+    create(width, height, Image::RGBA32, false);
+    lock();
+    unlock();
 }*/
 
 void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {
-	//Image(width, height, format, readable);
+	// Image(width, height, format, readable);
 	texture->texWidth = width;
 	texture->texHeight = height;
 	texture->format = format;
@@ -92,9 +95,7 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	create(texture, width, height, format, true);
 }
 
-void kinc_g5_texture_init3d(kinc_g5_texture_t* texture, int width, int height, int depth, kinc_image_format_t format) {
-
-}
+void kinc_g5_texture_init3d(kinc_g5_texture_t *texture, int width, int height, int depth, kinc_image_format_t format) {}
 
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, struct kinc_image *image) {
 	texture->texWidth = image->width;
@@ -102,7 +103,12 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, struct kinc_ima
 	texture->format = image->format;
 	create(texture, image->width, image->height, image->format, true);
 	id<MTLTexture> tex = (__bridge id<MTLTexture>)texture->impl._tex;
-	[tex replaceRegion:MTLRegionMake2D(0, 0, texture->texWidth, texture->texHeight) mipmapLevel:0 slice:0 withBytes:image->data bytesPerRow:kinc_g5_texture_stride(texture) bytesPerImage:kinc_g5_texture_stride(texture) * texture->texHeight];
+	[tex replaceRegion:MTLRegionMake2D(0, 0, texture->texWidth, texture->texHeight)
+	       mipmapLevel:0
+	             slice:0
+	         withBytes:image->data
+	       bytesPerRow:kinc_g5_texture_stride(texture)
+	     bytesPerImage:kinc_g5_texture_stride(texture) * texture->texHeight];
 }
 
 void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {}
@@ -194,38 +200,43 @@ void kinc_internal_set_fragment_sampler(id encoder, int unit) {
 
 void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-    if (unit < 16) {
+	if (unit < 16) {
 		kinc_internal_set_fragment_sampler(encoder, unit);
-    }
+	}
 	[encoder setFragmentTexture:(__bridge id<MTLTexture>)texture->impl._tex atIndex:unit];
 }
 
 int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
 	switch (texture->format) {
-		case KINC_IMAGE_FORMAT_GREY8:
-			return texture->texWidth;
-		case KINC_IMAGE_FORMAT_RGBA32:
-		case KINC_IMAGE_FORMAT_BGRA32:
-		case KINC_IMAGE_FORMAT_RGB24:
-			return texture->texWidth * 4;
-		case KINC_IMAGE_FORMAT_RGBA64:
-			return texture->texWidth * 8;
-		case KINC_IMAGE_FORMAT_RGBA128:
-			return texture->texWidth * 16;
-		case KINC_IMAGE_FORMAT_A16:
-			return texture->texWidth * 2;
-		case KINC_IMAGE_FORMAT_A32:
-			return texture->texWidth * 4;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return texture->texWidth;
+	case KINC_IMAGE_FORMAT_RGBA32:
+	case KINC_IMAGE_FORMAT_BGRA32:
+	case KINC_IMAGE_FORMAT_RGB24:
+		return texture->texWidth * 4;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return texture->texWidth * 8;
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return texture->texWidth * 16;
+	case KINC_IMAGE_FORMAT_A16:
+		return texture->texWidth * 2;
+	case KINC_IMAGE_FORMAT_A32:
+		return texture->texWidth * 4;
 	}
 }
 
 uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture) {
-	return (uint8_t*)texture->impl.data;
+	return (uint8_t *)texture->impl.data;
 }
 
 void kinc_g5_texture_unlock(kinc_g5_texture_t *tex) {
 	id<MTLTexture> texture = (__bridge id<MTLTexture>)tex->impl._tex;
-	[texture replaceRegion:MTLRegionMake2D(0, 0, tex->texWidth, tex->texHeight) mipmapLevel:0 slice:0 withBytes:tex->impl.data bytesPerRow:kinc_g5_texture_stride(tex) bytesPerImage:kinc_g5_texture_stride(tex) * tex->texHeight];
+	[texture replaceRegion:MTLRegionMake2D(0, 0, tex->texWidth, tex->texHeight)
+	           mipmapLevel:0
+	                 slice:0
+	             withBytes:tex->impl.data
+	           bytesPerRow:kinc_g5_texture_stride(tex)
+	         bytesPerImage:kinc_g5_texture_stride(tex) * tex->texHeight];
 }
 
 void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {}

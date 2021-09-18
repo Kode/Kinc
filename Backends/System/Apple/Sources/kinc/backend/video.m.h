@@ -3,111 +3,111 @@
 #import <AVFoundation/AVFoundation.h>
 #include <kinc/audio1/audio.h>
 #include <kinc/graphics4/texture.h>
+#include <kinc/io/filereader.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
-#include <kinc/io/filereader.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-extern const char* iphonegetresourcepath(void);
-extern const char* macgetresourcepath(void);
+extern const char *iphonegetresourcepath(void);
+extern const char *macgetresourcepath(void);
 
 void kinc_internal_video_sound_stream_init(kinc_internal_video_sound_stream_t *stream, int channel_count, int frequency) {
-    stream->bufferSize = 1024 * 100;
-    stream->bufferReadPosition = 0;
-    stream->bufferWritePosition = 0;
-    stream->read = 0;
-    stream->written = 0;
-    stream->buffer = (float*)malloc(stream->bufferSize * sizeof(float));
+	stream->bufferSize = 1024 * 100;
+	stream->bufferReadPosition = 0;
+	stream->bufferWritePosition = 0;
+	stream->read = 0;
+	stream->written = 0;
+	stream->buffer = (float *)malloc(stream->bufferSize * sizeof(float));
 }
 
 void kinc_internal_video_sound_stream_destroy(kinc_internal_video_sound_stream_t *stream) {
-    free(stream->buffer);
+	free(stream->buffer);
 }
 
 void kinc_internal_video_sound_stream_insert_data(kinc_internal_video_sound_stream_t *stream, float *data, int sample_count) {
-    for (int i = 0; i < sample_count; ++i) {
-        float value = data[i]; // / 32767.0;
-        stream->buffer[stream->bufferWritePosition++] = value;
-        ++stream->written;
-        if (stream->bufferWritePosition >= stream->bufferSize) {
-            stream->bufferWritePosition = 0;
-        }
-    }
+	for (int i = 0; i < sample_count; ++i) {
+		float value = data[i]; // / 32767.0;
+		stream->buffer[stream->bufferWritePosition++] = value;
+		++stream->written;
+		if (stream->bufferWritePosition >= stream->bufferSize) {
+			stream->bufferWritePosition = 0;
+		}
+	}
 }
 
 float kinc_internal_video_sound_stream_next_sample(kinc_internal_video_sound_stream_t *stream) {
-    ++stream->read;
-    if (stream->written <= stream->read) {
-        kinc_log(KINC_LOG_LEVEL_WARNING, "Out of audio\n");
-        return 0;
-    }
-    if (stream->bufferReadPosition >= stream->bufferSize) {
-        stream->bufferReadPosition = 0;
-        kinc_log(KINC_LOG_LEVEL_INFO, "buffer read back - %i\n", (int)(stream->written - stream->read));
-    }
-    return stream->buffer[stream->bufferReadPosition++];
+	++stream->read;
+	if (stream->written <= stream->read) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Out of audio\n");
+		return 0;
+	}
+	if (stream->bufferReadPosition >= stream->bufferSize) {
+		stream->bufferReadPosition = 0;
+		kinc_log(KINC_LOG_LEVEL_INFO, "buffer read back - %i\n", (int)(stream->written - stream->read));
+	}
+	return stream->buffer[stream->bufferReadPosition++];
 }
 
 bool kinc_internal_video_sound_stream_ended(kinc_internal_video_sound_stream_t *stream) {
-    return false;
+	return false;
 }
 
 static void load(kinc_video_t *video, double startTime) {
-    video->impl.videoStart = startTime;
-    AVURLAsset* asset = [[AVURLAsset alloc] initWithURL:video->impl.url options:nil];
-    video->impl.videoAsset = asset;
+	video->impl.videoStart = startTime;
+	AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:video->impl.url options:nil];
+	video->impl.videoAsset = asset;
 
-    AVAssetTrack* videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-    NSDictionary* videoOutputSettings =
-        [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA], kCVPixelBufferPixelFormatTypeKey, nil];
-    AVAssetReaderTrackOutput* videoOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoOutputSettings];
+	AVAssetTrack *videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+	NSDictionary *videoOutputSettings =
+	    [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA], kCVPixelBufferPixelFormatTypeKey, nil];
+	AVAssetReaderTrackOutput *videoOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoOutputSettings];
 
-    bool hasAudio = [[asset tracksWithMediaType:AVMediaTypeAudio] count] > 0;
-    AVAssetReaderAudioMixOutput* audioOutput = NULL;
-    if (hasAudio) {
-        AVAssetTrack* audioTrack = [[asset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
-        NSDictionary* audioOutputSettings = [NSDictionary
-            dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kAudioFormatLinearPCM], AVFormatIDKey, [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
-                                         [NSNumber numberWithInt:32], AVLinearPCMBitDepthKey, [NSNumber numberWithBool:NO], AVLinearPCMIsNonInterleaved,
-                                         [NSNumber numberWithBool:YES], AVLinearPCMIsFloatKey, [NSNumber numberWithBool:NO], AVLinearPCMIsBigEndianKey, nil];
-        audioOutput = [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[ audioTrack ] audioSettings:audioOutputSettings];
-    }
+	bool hasAudio = [[asset tracksWithMediaType:AVMediaTypeAudio] count] > 0;
+	AVAssetReaderAudioMixOutput *audioOutput = NULL;
+	if (hasAudio) {
+		AVAssetTrack *audioTrack = [[asset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
+		NSDictionary *audioOutputSettings = [NSDictionary
+		    dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kAudioFormatLinearPCM], AVFormatIDKey, [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
+		                                 [NSNumber numberWithInt:32], AVLinearPCMBitDepthKey, [NSNumber numberWithBool:NO], AVLinearPCMIsNonInterleaved,
+		                                 [NSNumber numberWithBool:YES], AVLinearPCMIsFloatKey, [NSNumber numberWithBool:NO], AVLinearPCMIsBigEndianKey, nil];
+		audioOutput = [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[ audioTrack ] audioSettings:audioOutputSettings];
+	}
 
-    AVAssetReader* reader = [AVAssetReader assetReaderWithAsset:asset error:nil];
+	AVAssetReader *reader = [AVAssetReader assetReaderWithAsset:asset error:nil];
 
-    if (startTime > 0) {
-        CMTimeRange timeRange = CMTimeRangeMake(CMTimeMake(startTime * 1000, 1000), kCMTimePositiveInfinity);
-        reader.timeRange = timeRange;
-    }
+	if (startTime > 0) {
+		CMTimeRange timeRange = CMTimeRangeMake(CMTimeMake(startTime * 1000, 1000), kCMTimePositiveInfinity);
+		reader.timeRange = timeRange;
+	}
 
-    [reader addOutput:videoOutput];
-    if (hasAudio) {
-        [reader addOutput:audioOutput];
-    }
+	[reader addOutput:videoOutput];
+	if (hasAudio) {
+		[reader addOutput:audioOutput];
+	}
 
-    video->impl.assetReader = reader;
-    video->impl.videoTrackOutput = videoOutput;
-    if (hasAudio) {
-        video->impl.audioTrackOutput = audioOutput;
-    }
-    else {
-        video->impl.audioTrackOutput = NULL;
-    }
+	video->impl.assetReader = reader;
+	video->impl.videoTrackOutput = videoOutput;
+	if (hasAudio) {
+		video->impl.audioTrackOutput = audioOutput;
+	}
+	else {
+		video->impl.audioTrackOutput = NULL;
+	}
 
-    if (video->impl.myWidth < 0) video->impl.myWidth = [videoTrack naturalSize].width;
-    if (video->impl.myHeight < 0) video->impl.myHeight = [videoTrack naturalSize].height;
-    int framerate = [videoTrack nominalFrameRate];
-    kinc_log(KINC_LOG_LEVEL_INFO, "Framerate: %i\n", framerate);
-    video->impl.next = video->impl.videoStart;
-    video->impl.audioTime = video->impl.videoStart * 44100;
+	if (video->impl.myWidth < 0) video->impl.myWidth = [videoTrack naturalSize].width;
+	if (video->impl.myHeight < 0) video->impl.myHeight = [videoTrack naturalSize].height;
+	int framerate = [videoTrack nominalFrameRate];
+	kinc_log(KINC_LOG_LEVEL_INFO, "Framerate: %i\n", framerate);
+	video->impl.next = video->impl.videoStart;
+	video->impl.audioTime = video->impl.videoStart * 44100;
 }
 
 void kinc_video_init(kinc_video_t *video, const char *filename) {
-    video->impl.playing = false;
-    video->impl.sound = NULL;
-    video->impl.image_initialized = false;
+	video->impl.playing = false;
+	video->impl.sound = NULL;
+	video->impl.image_initialized = false;
 	char name[2048];
 #ifdef KORE_IOS
 	strcpy(name, iphonegetresourcepath());
@@ -137,11 +137,11 @@ void macStopVideoSoundStream(void);
 #endif
 
 void kinc_video_play(kinc_video_t *video) {
-	AVAssetReader* reader = video->impl.assetReader;
+	AVAssetReader *reader = video->impl.assetReader;
 	[reader startReading];
 
-    kinc_internal_video_sound_stream_t *stream = (kinc_internal_video_sound_stream_t *)malloc(sizeof(kinc_internal_video_sound_stream_t));
-    kinc_internal_video_sound_stream_init(stream, 2, 44100);
+	kinc_internal_video_sound_stream_t *stream = (kinc_internal_video_sound_stream_t *)malloc(sizeof(kinc_internal_video_sound_stream_t));
+	kinc_internal_video_sound_stream_init(stream, 2, 44100);
 	video->impl.sound = stream;
 // Mixer::play(sound);
 #ifdef KORE_IOS
@@ -163,7 +163,7 @@ void kinc_video_pause(kinc_video_t *video) {
 #else
 		macStopVideoSoundStream();
 #endif
-        kinc_internal_video_sound_stream_destroy((kinc_internal_video_sound_stream_t *)video->impl.sound);
+		kinc_internal_video_sound_stream_destroy((kinc_internal_video_sound_stream_t *)video->impl.sound);
 		free(video->impl.sound);
 		video->impl.sound = NULL;
 	}
@@ -176,10 +176,10 @@ void kinc_video_stop(kinc_video_t *video) {
 static void updateImage(kinc_video_t *video) {
 	if (!video->impl.playing) return;
 	{
-		AVAssetReaderTrackOutput* videoOutput = video->impl.videoTrackOutput;
+		AVAssetReaderTrackOutput *videoOutput = video->impl.videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
 		if (!buffer) {
-			AVAssetReader* reader = video->impl.assetReader;
+			AVAssetReader *reader = video->impl.assetReader;
 			if ([reader status] == AVAssetReaderStatusCompleted) {
 				kinc_video_stop(video);
 			}
@@ -205,7 +205,8 @@ static void updateImage(kinc_video_t *video) {
 		if (pixelBuffer != NULL) {
 			CVPixelBufferLockBaseAddress(pixelBuffer, 0);
 #ifdef KORE_OPENGL
-			kinc_g4_texture_upload(&video->impl.image, (uint8_t*)CVPixelBufferGetBaseAddress(pixelBuffer), (int)(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
+			kinc_g4_texture_upload(&video->impl.image, (uint8_t *)CVPixelBufferGetBaseAddress(pixelBuffer),
+			                       (int)(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
 #endif
 			CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 		}
@@ -213,7 +214,7 @@ static void updateImage(kinc_video_t *video) {
 	}
 
 	if (video->impl.audioTrackOutput != NULL) {
-		AVAssetReaderAudioMixOutput* audioOutput = video->impl.audioTrackOutput;
+		AVAssetReaderAudioMixOutput *audioOutput = video->impl.audioTrackOutput;
 		while (video->impl.audioTime / 44100.0 < video->impl.next + 0.1) {
 			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];
 			if (!buffer) return;
@@ -223,8 +224,8 @@ static void updateImage(kinc_video_t *video) {
 			CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(buffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL,
 			                                                        kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, &blockBufferOut);
 			for (int bufferCount = 0; bufferCount < audioBufferList.mNumberBuffers; ++bufferCount) {
-				float* samples = (float*)audioBufferList.mBuffers[bufferCount].mData;
-                kinc_internal_video_sound_stream_t *sound = (kinc_internal_video_sound_stream_t *)video->impl.sound;
+				float *samples = (float *)audioBufferList.mBuffers[bufferCount].mData;
+				kinc_internal_video_sound_stream_t *sound = (kinc_internal_video_sound_stream_t *)video->impl.sound;
 				if (video->impl.audioTime / 44100.0 > video->impl.next - 0.1) {
 					kinc_internal_video_sound_stream_insert_data(sound, samples, (int)numSamplesInBuffer * 2);
 				}
@@ -260,17 +261,17 @@ kinc_g4_texture_t *kinc_video_current_image(kinc_video_t *video) {
 }
 
 double kinc_video_duration(kinc_video_t *video) {
-    return 0.0;
+	return 0.0;
 }
 
 bool kinc_video_finished(kinc_video_t *video) {
-    return false;
+	return false;
 }
 
 bool kinc_video_paused(kinc_video_t *video) {
-    return !video->impl.playing;
+	return !video->impl.playing;
 }
 
 double kinc_video_position(kinc_video_t *video) {
-    return 0.0;
+	return 0.0;
 }

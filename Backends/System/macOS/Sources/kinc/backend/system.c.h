@@ -27,13 +27,13 @@ bool kinc_keyboard_active() {
 
 void kinc_vibrate(int ms) {}
 
-const char* kinc_system_id() {
+const char *kinc_system_id() {
 	return "macOS";
 }
 
-static const char* videoFormats[] = {"ogv", NULL};
+static const char *videoFormats[] = {"ogv", NULL};
 
-const char** kinc_video_formats() {
+const char **kinc_video_formats() {
 	return videoFormats;
 }
 
@@ -51,18 +51,12 @@ kinc_ticks_t kinc_timestamp() {
 	return mach_absolute_time();
 }
 
-void kinc_login() {
+void kinc_login() {}
 
-}
-
-void kinc_unlock_achievement(int id) {
-	
-}
+void kinc_unlock_achievement(int id) {}
 
 bool kinc_gamepad_connected(int num) {
 	return true;
 }
 
-void kinc_gamepad_rumble(int gamepad, float left, float right) {
-	
-}
+void kinc_gamepad_rumble(int gamepad, float left, float right) {}

@@ -60,7 +60,7 @@ static void set_number(kinc_internal_named_number *named_numbers, const char *na
 
 namespace {
 	void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
-					 kinc_internal_named_number *uniformOffsets) {
+	                 kinc_internal_named_number *uniformOffsets) {
 		uint32_t *spirv = (uint32_t *)shader->impl.source;
 		int spirvsize = shader->impl.length / 4;
 		int index = 0;
@@ -317,7 +317,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	int vertexAttributeCount = 0;
 	int vertexBindingCount = 0;
-	for(int i = 0; i < 16; ++i) {
+	for (int i = 0; i < 16; ++i) {
 		if (pipeline->inputLayout[i] == NULL) {
 			break;
 		}
@@ -326,14 +326,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	}
 
 #ifdef KORE_WINDOWS
-	VkVertexInputBindingDescription *vi_bindings =
-	    (VkVertexInputBindingDescription *)alloca(sizeof(VkVertexInputBindingDescription) * vertexBindingCount);
+	VkVertexInputBindingDescription *vi_bindings = (VkVertexInputBindingDescription *)alloca(sizeof(VkVertexInputBindingDescription) * vertexBindingCount);
 #else
 	VkVertexInputBindingDescription vi_bindings[vertexBindingCount];
 #endif
 #ifdef KORE_WINDOWS
-	VkVertexInputAttributeDescription *vi_attrs =
-		(VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * vertexAttributeCount);
+	VkVertexInputAttributeDescription *vi_attrs = (VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * vertexAttributeCount);
 #else
 	VkVertexInputAttributeDescription vi_attrs[vertexAttributeCount];
 #endif
@@ -347,7 +345,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	vi.pVertexAttributeDescriptions = vi_attrs;
 
 	uint32_t attr = 0;
-	for(int binding = 0; binding < vertexBindingCount; ++binding) {
+	for (int binding = 0; binding < vertexBindingCount; ++binding) {
 		uint32_t offset = 0;
 		uint32_t stride = 0;
 		for (int i = 0; i < pipeline->inputLayout[binding]->size; ++i) {
@@ -397,7 +395,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 				// TODO
 				vi_attrs[attr].binding = binding;
 				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
-				vi_attrs[attr].format = VK_FORMAT_R32G32B32A32_SFLOAT; 
+				vi_attrs[attr].format = VK_FORMAT_R32G32B32A32_SFLOAT;
 				vi_attrs[attr].offset = offset;
 				offset += 4 * 4 * 4;
 				stride += 4 * 4 * 4;
@@ -419,14 +417,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 				stride += 4 * 2;
 				break;
 			}
-		attr++;
+			attr++;
 		}
 		vi_bindings[binding].binding = binding;
 		vi_bindings[binding].stride = stride;
 		vi_bindings[binding].inputRate = pipeline->inputLayout[binding]->instanced ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
 	}
-	
-	
 
 	memset(&ia, 0, sizeof(ia));
 	ia.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -447,13 +443,11 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	VkPipelineColorBlendAttachmentState att_state[8];
 	memset(att_state, 0, sizeof(att_state));
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
-		att_state[i].colorWriteMask = (pipeline->colorWriteMaskRed[i] ? VK_COLOR_COMPONENT_R_BIT  : 0)
-			| (pipeline->colorWriteMaskGreen[i] ? VK_COLOR_COMPONENT_G_BIT  : 0)
-			| (pipeline->colorWriteMaskBlue[i] ? VK_COLOR_COMPONENT_B_BIT  : 0)
-			| (pipeline->colorWriteMaskAlpha[i] ? VK_COLOR_COMPONENT_A_BIT  : 0);
+		att_state[i].colorWriteMask =
+		    (pipeline->colorWriteMaskRed[i] ? VK_COLOR_COMPONENT_R_BIT : 0) | (pipeline->colorWriteMaskGreen[i] ? VK_COLOR_COMPONENT_G_BIT : 0) |
+		    (pipeline->colorWriteMaskBlue[i] ? VK_COLOR_COMPONENT_B_BIT : 0) | (pipeline->colorWriteMaskAlpha[i] ? VK_COLOR_COMPONENT_A_BIT : 0);
 		att_state[i].blendEnable = pipeline->blendSource != KINC_G5_BLEND_MODE_ONE || pipeline->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
-								   pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE ||
-								   pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+		                           pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
 		att_state[i].srcColorBlendFactor = convert_blend_mode(pipeline->blendSource);
 		att_state[i].dstColorBlendFactor = convert_blend_mode(pipeline->blendDestination);
 		att_state[i].colorBlendOp = VK_BLEND_OP_ADD;

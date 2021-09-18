@@ -1,6 +1,8 @@
 #ifdef KORE_OPENGL
 #include <GL/glfw.h>
 #endif
+#include <cstring>
+#include <emscripten/emscripten.h>
 #include <kinc/audio2/audio.h>
 #include <kinc/graphics4/graphics.h>
 #include <kinc/input/keyboard.h>
@@ -8,14 +10,12 @@
 #include <kinc/log.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
-#include <cstring>
-#include <emscripten/emscripten.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 namespace {
 	int argc;
-	char** argv;
+	char **argv;
 	bool initialized = false;
 
 	void drawfunc() {
@@ -144,7 +144,7 @@ namespace {
 extern int kinc_internal_window_width;
 extern int kinc_internal_window_height;
 
-int kinc_init(const char* name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	kinc_window_options_t defaultWin;
 	if (win == NULL) {
 		kinc_window_options_set_defaults(&defaultWin);
@@ -160,7 +160,7 @@ int kinc_init(const char* name, int width, int height, kinc_window_options_t *wi
 
 #ifdef KORE_OPENGL
 	glfwInit();
-	glfwOpenWindow(width,  height, 8, 8, 8, 0, 0, 0, GLFW_WINDOW);
+	glfwOpenWindow(width, height, 8, 8, 8, 0, 0, 0, GLFW_WINDOW);
 	glfwSetWindowTitle(name);
 	glfwSetKeyCallback(onKeyPressed);
 	glfwSetMousePosCallback(onMouseMove);
@@ -198,22 +198,22 @@ double kinc_time(void) {
 #endif
 }
 
-extern int kickstart(int argc, char** argv);
+extern int kickstart(int argc, char **argv);
 
 #ifdef KORE_WEBGPU
 extern "C" {
-	EMSCRIPTEN_KEEPALIVE void kinc_internal_webgpu_initialized() {
-		kickstart(argc, argv);
-		initialized = true;
-	}
+EMSCRIPTEN_KEEPALIVE void kinc_internal_webgpu_initialized() {
+	kickstart(argc, argv);
+	initialized = true;
+}
 }
 #endif
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 	::argc = argc;
 	::argv = argv;
 #ifdef KORE_WEBGPU
-	char* code = "(async () => {\
+	char *code = "(async () => {\
 		const adapter = await navigator.gpu.requestAdapter();\
 		const device = await adapter.requestDevice();\
 		Module.preinitializedWebGPUDevice = device;\

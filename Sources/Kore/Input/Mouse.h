@@ -3,7 +3,7 @@
 namespace Kore {
 	class Mouse {
 	public:
-		static Mouse* the();
+		static Mouse *the();
 
 		void (*Move)(int windowId, int x, int y, int movementX, int movementY);
 		void (*Press)(int windowId, int button, int x, int y);
@@ -20,7 +20,7 @@ namespace Kore {
 		void setCursor(int cursor);
 
 		void setPosition(int windowId, int x, int y);
-		void getPosition(int windowId, int& x, int& y);
+		void getPosition(int windowId, int &x, int &y);
 
 		Mouse();
 	};

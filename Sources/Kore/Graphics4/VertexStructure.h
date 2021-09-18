@@ -14,11 +14,7 @@ namespace Kore {
 			ColorVertexData
 		};
 
-		enum Usage {
-			StaticUsage,
-			DynamicUsage, 
-			ReadableUsage
-		};
+		enum Usage { StaticUsage, DynamicUsage, ReadableUsage };
 
 		// Fixed-function vertex attributes
 		enum VertexAttribute {
@@ -39,13 +35,13 @@ namespace Kore {
 
 		class VertexElement {
 		public:
-			const char* name;
+			const char *name;
 			VertexAttribute attribute; // for fixed-function (OpenGL 1.x)
 			VertexData data;
 
 			VertexElement() : name(nullptr), data(NoVertexData) {}
 
-			VertexElement(const char* name, VertexData data) : name(name), data(data) {}
+			VertexElement(const char *name, VertexData data) : name(name), data(data) {}
 
 			VertexElement(VertexAttribute attribute, VertexData data) : name(""), attribute(attribute), data(data) {}
 		};
@@ -57,11 +53,9 @@ namespace Kore {
 			int size;
 			bool instanced;
 
-			VertexStructure() : size(0), instanced(false) {
-				
-			}
+			VertexStructure() : size(0), instanced(false) {}
 
-			void add(const char* name, VertexData data) {
+			void add(const char *name, VertexData data) {
 				elements[size++] = VertexElement(name, data);
 			}
 

@@ -13,6 +13,6 @@ RenderTarget::~RenderTarget() {}
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {}
 
-void RenderTarget::setDepthStencilFrom(RenderTarget* source) {}
+void RenderTarget::setDepthStencilFrom(RenderTarget *source) {}
 
 void RenderTarget::useDepthAsTexture(TextureUnit unit) {}

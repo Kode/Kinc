@@ -33,7 +33,7 @@ KINC_FUNC void kinc_g1_end(void);
 
 extern uint32_t *kinc_internal_g1_image;
 extern int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
-	
+
 #if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC) || defined(KINC_DOCS)
 
 /// <summary>

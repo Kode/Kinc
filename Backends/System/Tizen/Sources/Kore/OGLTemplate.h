@@ -29,7 +29,7 @@ public:
 	/**
 	 * [Test] UiApp must have a factory method that creates an instance of itself.
 	 */
-	static Tizen::App::UiApp* CreateInstance(void);
+	static Tizen::App::UiApp *CreateInstance(void);
 
 public:
 	OGLTemplateApp(void);
@@ -37,7 +37,7 @@ public:
 
 public:
 	// Called when the UiApp is initializing.
-	virtual bool OnAppInitializing(Tizen::App::AppRegistry& appRegistry);
+	virtual bool OnAppInitializing(Tizen::App::AppRegistry &appRegistry);
 
 	// Called when the UiApp initializing is finished.
 	virtual bool OnAppInitialized(void);
@@ -46,7 +46,7 @@ public:
 	virtual bool OnAppWillTerminate(void);
 
 	// Called when the UiApp is terminating.
-	virtual bool OnAppTerminating(Tizen::App::AppRegistry& appRegistry, bool forcedTermination = false);
+	virtual bool OnAppTerminating(Tizen::App::AppRegistry &appRegistry, bool forcedTermination = false);
 
 	// Called when the UiApp's frame moves to the top of the screen.
 	virtual void OnForeground(void);
@@ -67,36 +67,36 @@ public:
 	virtual void OnScreenOff(void);
 
 	// Called when a key is pressed.
-	virtual void OnKeyPressed(const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode);
+	virtual void OnKeyPressed(const Tizen::Ui::Control &source, Tizen::Ui::KeyCode keyCode);
 
 	// Called when a key is released.
-	virtual void OnKeyReleased(const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode);
+	virtual void OnKeyReleased(const Tizen::Ui::Control &source, Tizen::Ui::KeyCode keyCode);
 
 	// Called when a key is pressed and held down for some time.
-	virtual void OnKeyLongPressed(const Tizen::Ui::Control& source, Tizen::Ui::KeyCode keyCode);
+	virtual void OnKeyLongPressed(const Tizen::Ui::Control &source, Tizen::Ui::KeyCode keyCode);
 
 	// Touch events
-	virtual void OnTouchMoved(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo);
+	virtual void OnTouchMoved(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo);
 
-	virtual void OnTouchPressed(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo);
+	virtual void OnTouchPressed(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo);
 
-	virtual void OnTouchReleased(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo);
+	virtual void OnTouchReleased(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo);
 
-	virtual void OnTouchCanceled(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo) {}
+	virtual void OnTouchCanceled(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
 
-	virtual void OnTouchFocusIn(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo) {}
+	virtual void OnTouchFocusIn(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
 
-	virtual void OnTouchFocusOut(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo) {}
+	virtual void OnTouchFocusOut(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {}
 
-	virtual void OnAudioOutBufferEndReached(Tizen::Media::AudioOut& src);
-	virtual void OnAudioOutErrorOccurred(Tizen::Media::AudioOut& src, result r) {}
-	virtual void OnAudioOutInterrupted(Tizen::Media::AudioOut& src) {}
-	virtual void OnAudioOutReleased(Tizen::Media::AudioOut& src) {}
-	virtual void OnAudioOutAudioFocusChanged(Tizen::Media::AudioOut& src) {}
+	virtual void OnAudioOutBufferEndReached(Tizen::Media::AudioOut &src);
+	virtual void OnAudioOutErrorOccurred(Tizen::Media::AudioOut &src, result r) {}
+	virtual void OnAudioOutInterrupted(Tizen::Media::AudioOut &src) {}
+	virtual void OnAudioOutReleased(Tizen::Media::AudioOut &src) {}
+	virtual void OnAudioOutAudioFocusChanged(Tizen::Media::AudioOut &src) {}
 
 private:
-	Tizen::Graphics::Opengl::GlPlayer* __player;
-	Tizen::Graphics::Opengl::IGlRenderer* __renderer;
+	Tizen::Graphics::Opengl::GlPlayer *__player;
+	Tizen::Graphics::Opengl::IGlRenderer *__renderer;
 
 	result StartAudio(void);
 	void StopAudio(void);

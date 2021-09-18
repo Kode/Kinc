@@ -21,11 +21,11 @@ int kinc_window_y(int window_index) {
 }
 
 int kinc_window_width(int window_index) {
-    return kinc_internal_window_width;
+	return kinc_internal_window_width;
 }
 
 int kinc_window_height(int window_index) {
-    return kinc_internal_window_height;
+	return kinc_internal_window_height;
 }
 
 void kinc_window_resize(int window_index, int width, int height) {}
@@ -38,22 +38,22 @@ void kinc_window_change_framebuffer(int window_index, kinc_framebuffer_options_t
 
 void kinc_window_change_features(int window_index, int features) {}
 
-//In HTML5 fullscreen is activable only from user input.
+// In HTML5 fullscreen is activable only from user input.
 void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 	if (mode == KINC_WINDOW_MODE_FULLSCREEN || mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
 		if (kinc_internal_window_mode == KINC_WINDOW_MODE_FULLSCREEN || kinc_internal_window_mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
 			kinc_internal_window_mode = mode;
 			return;
 		}
-		//TODO: call js Fullscreen API
+		// TODO: call js Fullscreen API
 		kinc_internal_window_mode = mode;
 	}
 	else {
 		if (mode == kinc_internal_window_mode) {
 			return;
 		}
-		//TODO: call js Fullscreen API
-        kinc_internal_window_mode = mode;
+		// TODO: call js Fullscreen API
+		kinc_internal_window_mode = mode;
 	}
 }
 
@@ -61,15 +61,13 @@ int kinc_primary_display(void) {
 	return 0;
 }
 
-void kinc_window_destroy(int window_index) {
-
-}
+void kinc_window_destroy(int window_index) {}
 
 void kinc_window_show(int window_index) {}
 
 void kinc_window_hide(int window_index) {}
 
-//TODO: change browser title.
+// TODO: change browser title.
 void kinc_window_set_title(int window_index, const char *title) {}
 
 int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {

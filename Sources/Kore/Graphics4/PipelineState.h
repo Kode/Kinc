@@ -14,12 +14,12 @@ namespace Kore {
 			PipelineState();
 			~PipelineState();
 
-			VertexStructure* inputLayout[16];
-			Shader* vertexShader;
-			Shader* fragmentShader;
-			Shader* geometryShader;
-			Shader* tessellationControlShader;
-			Shader* tessellationEvaluationShader;
+			VertexStructure *inputLayout[16];
+			Shader *vertexShader;
+			Shader *fragmentShader;
+			Shader *geometryShader;
+			Shader *tessellationControlShader;
+			Shader *tessellationEvaluationShader;
 
 			CullMode cullMode;
 
@@ -56,8 +56,8 @@ namespace Kore {
 			bool conservativeRasterization;
 
 			void compile();
-			ConstantLocation getConstantLocation(const char* name);
-			TextureUnit getTextureUnit(const char* name);
+			ConstantLocation getConstantLocation(const char *name);
+			TextureUnit getTextureUnit(const char *name);
 
 			kinc_g4_pipeline_t kincPipeline;
 		};

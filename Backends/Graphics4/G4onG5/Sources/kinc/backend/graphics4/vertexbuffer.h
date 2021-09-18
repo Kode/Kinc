@@ -8,7 +8,7 @@ extern "C" {
 
 typedef struct {
 	int myCount;
-	//void prepareLock();
+	// void prepareLock();
 	kinc_g5_vertex_buffer_t _buffer;
 	int _currentIndex;
 	int _multiple;

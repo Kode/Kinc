@@ -27,7 +27,7 @@ namespace DX {
 		void initWithDevice(Microsoft::WRL::ComPtr<ID3D11Device4> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext3> context);
 		// Public methods related to Direct3D devices.
 		void handleDeviceLost();
-		void registerDeviceNotify(IDeviceNotify* deviceNotify);
+		void registerDeviceNotify(IDeviceNotify *deviceNotify);
 		void present(Windows::Graphics::Holographic::HolographicFrame ^ frame);
 
 		// Public methods related to holographic devices.
@@ -37,22 +37,22 @@ namespace DX {
 		void lockCameraResources();
 		void unlockCameraResources();
 
-		DX::CameraResources* getResourcesForCamera(Windows::Graphics::Holographic::HolographicCamera ^ camera);
+		DX::CameraResources *getResourcesForCamera(Windows::Graphics::Holographic::HolographicCamera ^ camera);
 		void addHolographicCamera(Windows::Graphics::Holographic::HolographicCamera ^ camera);
 		void removeHolographicCamera(Windows::Graphics::Holographic::HolographicCamera ^ camera);
 
 		// Holographic accessors.
-		template <typename RetType, typename LCallback> RetType useHolographicCameraResources(const LCallback& callback);
+		template <typename RetType, typename LCallback> RetType useHolographicCameraResources(const LCallback &callback);
 
 		Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice ^ getD3DInteropDevice() const {
 			return m_d3dInteropDevice;
 		}
 
 		// D3D accessors.
-		ID3D11Device4* getD3DDevice() const {
+		ID3D11Device4 *getD3DDevice() const {
 			return m_d3dDevice.Get();
 		}
-		ID3D11DeviceContext3* getD3DDeviceContext() const {
+		ID3D11DeviceContext3 *getD3DDeviceContext() const {
 			return m_d3dContext.Get();
 		}
 		D3D_FEATURE_LEVEL getDeviceFeatureLevel() const {
@@ -71,7 +71,7 @@ namespace DX {
 		D3D_FEATURE_LEVEL m_d3dFeatureLevel = D3D_FEATURE_LEVEL_10_0;
 
 		// The IDeviceNotify can be held directly as it owns the DeviceResources.
-		IDeviceNotify* m_deviceNotify = nullptr;
+		IDeviceNotify *m_deviceNotify = nullptr;
 
 		// Back buffer resources, etc. for attached holographic cameras.
 		std::map<UINT32, std::unique_ptr<CameraResources> > m_cameraResources;
@@ -86,7 +86,7 @@ namespace DX {
 // not contain any nested calls to useHolographicCameraResources.
 // The callback takes a parameter of type std::map<UINT32, std::unique_ptr<DX::CameraResources>>&
 // through which the list of cameras will be accessed.
-template <typename RetType, typename LCallback> RetType DX::DeviceResources::useHolographicCameraResources(const LCallback& callback) {
+template <typename RetType, typename LCallback> RetType DX::DeviceResources::useHolographicCameraResources(const LCallback &callback) {
 	std::lock_guard<std::mutex> guard(m_cameraResourcesMutex);
 	return callback(m_cameraResources);
 }

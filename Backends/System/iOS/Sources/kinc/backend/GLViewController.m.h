@@ -1,5 +1,5 @@
-#import "GLViewController.h"
 #import "GLView.h"
+#import "GLViewController.h"
 
 #import <Foundation/Foundation.h>
 
@@ -8,25 +8,25 @@
 
 #include <objc/runtime.h>
 
-static GLView* glView;
+static GLView *glView;
 
 static bool visible;
 
 void beginGL() {
-  #ifdef KORE_METAL
+#ifdef KORE_METAL
 	if (!visible) {
 		return;
 	}
-  #endif
+#endif
 	[glView begin];
 }
 
 void endGL() {
-  #ifdef KORE_METAL
+#ifdef KORE_METAL
 	if (!visible) {
 		return;
 	}
-  #endif
+#endif
 	[glView end];
 }
 
@@ -40,7 +40,7 @@ void hideKeyboard() {
 
 #ifdef KORE_METAL
 
-CAMetalLayer* getMetalLayer() {
+CAMetalLayer *getMetalLayer() {
 	return [glView metalLayer];
 }
 

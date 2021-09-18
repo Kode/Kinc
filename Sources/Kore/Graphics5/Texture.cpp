@@ -144,7 +144,7 @@ int Texture::stride() {
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)
 void Texture::upload(u8 *data, int stride) {
-	//kinc_g5_texture_upload(&kincTexture, data, stride);
+	// kinc_g5_texture_upload(&kincTexture, data, stride);
 }
 #endif
 

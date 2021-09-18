@@ -8,17 +8,17 @@ namespace Kore {
 	class ProgramImpl {
 	protected:
 		uint programId;
-		Graphics4::Shader* vertexShader;
-		Graphics4::Shader* fragmentShader;
-		Graphics4::Shader* geometryShader;
-		Graphics4::Shader* tessellationControlShader;
-		Graphics4::Shader* tessellationEvaluationShader;
+		Graphics4::Shader *vertexShader;
+		Graphics4::Shader *fragmentShader;
+		Graphics4::Shader *geometryShader;
+		Graphics4::Shader *tessellationControlShader;
+		Graphics4::Shader *tessellationEvaluationShader;
 
 		ProgramImpl();
 		virtual ~ProgramImpl();
-		int findTexture(const char* name);
-		const char** textures;
-		int* textureValues;
+		int findTexture(const char *name);
+		const char **textures;
+		int *textureValues;
 		int textureCount;
 	};
 

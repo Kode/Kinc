@@ -14,9 +14,9 @@
 #include <OMXAL/OpenMAXAL.h>
 #include <OMXAL/OpenMAXAL_Android.h>
 #endif
-#include <kinc/backend/Android.h>
 #include <assert.h>
 #include <jni.h>
+#include <kinc/backend/Android.h>
 #include <pthread.h>
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 #include <android/asset_manager.h>
@@ -25,11 +25,11 @@
 #endif
 
 void kinc_video_sound_stream_impl_init(kinc_internal_video_sound_stream_t *stream, int channel_count, int frequency) {
-    stream->bufferSize = 1;
-    stream->bufferReadPosition = 0;
-    stream->bufferWritePosition = 0;
-    stream->read = 0;
-    stream->written = 0;
+	stream->bufferSize = 1;
+	stream->bufferReadPosition = 0;
+	stream->bufferWritePosition = 0;
+	stream->read = 0;
+	stream->written = 0;
 }
 
 void kinc_video_sound_stream_impl_destroy(kinc_internal_video_sound_stream_t *stream) {}
@@ -37,18 +37,18 @@ void kinc_video_sound_stream_impl_destroy(kinc_internal_video_sound_stream_t *st
 void kinc_video_sound_stream_impl_insert_data(kinc_internal_video_sound_stream_t *stream, float *data, int sample_count) {}
 
 float kinc_internal_video_sound_stream_next_sample(kinc_internal_video_sound_stream_t *stream) {
-    return 0;
+	return 0;
 }
 
 bool kinc_internal_video_sound_stream_ended(kinc_internal_video_sound_stream_t *stream) {
-    return false;
+	return false;
 }
 
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 
 namespace {
 	const int videosCount = 10;
-	kinc_video_t* videos[videosCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	kinc_video_t *videos[videosCount] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 #define NB_MAXAL_INTERFACES 3 // XAAndroidBufferQueueItf, XAStreamInformationItf and XAPlayItf
 #define NB_BUFFERS 8
@@ -61,23 +61,23 @@ namespace {
 	public:
 		AndroidVideo();
 		bool enqueueInitialBuffers(bool discontinuity);
-		bool init(const char* filename);
+		bool init(const char *filename);
 		void shutdown();
 
 	public:
 		XAObjectItf engineObject;
 		XAEngineItf engineEngine;
 		XAObjectItf outputMixObject;
-		const char* path;
+		const char *path;
 		// FILE* file = NULL;
-		AAsset* file;
+		AAsset *file;
 		XAObjectItf playerObj;
 		XAPlayItf playerPlayItf;
 		XAAndroidBufferQueueItf playerBQItf;
 		XAStreamInformationItf playerStreamInfoItf;
 		XAVolumeItf playerVolItf;
 		char dataCache[BUFFER_SIZE * NB_BUFFERS];
-		ANativeWindow* theNativeWindow;
+		ANativeWindow *theNativeWindow;
 		jboolean reachedEof;
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;
@@ -154,14 +154,14 @@ namespace {
 		return true;
 	}
 
-	XAresult AndroidBufferQueueCallback(XAAndroidBufferQueueItf caller, void* pCallbackContext, /* input */
-	                                    void* pBufferContext,                                   /* input */
-	                                    void* pBufferData,                                      /* input */
+	XAresult AndroidBufferQueueCallback(XAAndroidBufferQueueItf caller, void *pCallbackContext, /* input */
+	                                    void *pBufferContext,                                   /* input */
+	                                    void *pBufferData,                                      /* input */
 	                                    XAuint32 dataSize,                                      /* input */
 	                                    XAuint32 dataUsed,                                      /* input */
-	                                    const XAAndroidBufferItem* pItems,                      /* input */
+	                                    const XAAndroidBufferItem *pItems,                      /* input */
 	                                    XAuint32 itemsLength /* input */) {
-		AndroidVideo* self = (AndroidVideo*)pCallbackContext;
+		AndroidVideo *self = (AndroidVideo *)pCallbackContext;
 		XAresult res;
 		int ok;
 
@@ -194,7 +194,7 @@ namespace {
 		}
 
 		if ((pBufferData == NULL) && (pBufferContext != NULL)) {
-			const int processedCommand = *(int*)pBufferContext;
+			const int processedCommand = *(int *)pBufferContext;
 			if (kEosBufferCntxt == processedCommand) {
 				kinc_log(KINC_LOG_LEVEL_INFO, "EOS was processed");
 				// our buffer with the EOS message has been consumed
@@ -205,8 +205,8 @@ namespace {
 
 		// pBufferData is a pointer to a buffer that we previously Enqueued
 		assert((dataSize > 0) && ((dataSize % MPEG2_TS_PACKET_SIZE) == 0));
-		assert(self->dataCache <= (char*)pBufferData && (char*)pBufferData < &self->dataCache[BUFFER_SIZE * NB_BUFFERS]);
-		assert(0 == (((char*)pBufferData - self->dataCache) % BUFFER_SIZE));
+		assert(self->dataCache <= (char *)pBufferData && (char *)pBufferData < &self->dataCache[BUFFER_SIZE * NB_BUFFERS]);
+		assert(0 == (((char *)pBufferData - self->dataCache) % BUFFER_SIZE));
 
 		// don't bother trying to read more data once we've hit EOF
 		if (self->reachedEof) {
@@ -234,7 +234,7 @@ namespace {
 			msgEos[0].itemSize = 0;
 			// EOS message has no parameters, so the total size of the message is the size of the key
 			//   plus the size if itemSize, both XAuint32
-			res = (*caller)->Enqueue(caller, (void*)&kEosBufferCntxt /*pBufferContext*/, NULL /*pData*/, 0 /*dataLength*/, msgEos /*pMsg*/,
+			res = (*caller)->Enqueue(caller, (void *)&kEosBufferCntxt /*pBufferContext*/, NULL /*pData*/, 0 /*dataLength*/, msgEos /*pMsg*/,
 			                         sizeof(XAuint32) * 2 /*msgLength*/);
 			assert(XA_RESULT_SUCCESS == res);
 			self->reachedEof = JNI_TRUE;
@@ -246,9 +246,9 @@ namespace {
 		return XA_RESULT_SUCCESS;
 	}
 
-	void StreamChangeCallback(XAStreamInformationItf caller, XAuint32 eventId, XAuint32 streamIndex, void* pEventData, void* pContext) {
+	void StreamChangeCallback(XAStreamInformationItf caller, XAuint32 eventId, XAuint32 streamIndex, void *pEventData, void *pContext) {
 		kinc_log(KINC_LOG_LEVEL_INFO, "StreamChangeCallback called for stream %u", streamIndex);
-		AndroidVideo* self = (AndroidVideo*)pContext;
+		AndroidVideo *self = (AndroidVideo *)pContext;
 		// pContext was specified as NULL at RegisterStreamChangeCallback and is unused here
 		// assert(NULL == pContext);
 		switch (eventId) {
@@ -268,8 +268,8 @@ namespace {
 				XAVideoStreamInformation videoInfo;
 				res = (*caller)->QueryStreamInformation(caller, streamIndex, &videoInfo);
 				assert(XA_RESULT_SUCCESS == res);
-				kinc_log(KINC_LOG_LEVEL_INFO, "Found video size %u x %u, codec ID=%u, frameRate=%u, bitRate=%u, duration=%u ms", videoInfo.width, videoInfo.height,
-				          videoInfo.codecId, videoInfo.frameRate, videoInfo.bitRate, videoInfo.duration);
+				kinc_log(KINC_LOG_LEVEL_INFO, "Found video size %u x %u, codec ID=%u, frameRate=%u, bitRate=%u, duration=%u ms", videoInfo.width,
+				         videoInfo.height, videoInfo.codecId, videoInfo.frameRate, videoInfo.bitRate, videoInfo.duration);
 			} break;
 			default:
 				kinc_log(KINC_LOG_LEVEL_ERROR, "Unexpected domain %u\n", domain);
@@ -282,7 +282,7 @@ namespace {
 		}
 	}
 
-	bool AndroidVideo::init(const char* filename) {
+	bool AndroidVideo::init(const char *filename) {
 		XAresult res;
 
 		// create engine
@@ -325,7 +325,7 @@ namespace {
 		XADataLocator_NativeDisplay loc_nd = {
 		    XA_DATALOCATOR_NATIVEDISPLAY, // locatorType
 		    // the video sink must be an ANativeWindow created from a Surface or SurfaceTexture
-		    (void*)theNativeWindow, // hWindow
+		    (void *)theNativeWindow, // hWindow
 		    // must be NULL
 		    NULL // hDisplay
 		};
@@ -437,10 +437,10 @@ namespace {
 
 #endif
 
-extern "C" JNIEXPORT void JNICALL Java_tech_kode_kinc_KincMoviePlayer_nativeCreate(JNIEnv* env, jobject jobj, jstring jpath, jobject surface, jint id) {
+extern "C" JNIEXPORT void JNICALL Java_tech_kode_kinc_KincMoviePlayer_nativeCreate(JNIEnv *env, jobject jobj, jstring jpath, jobject surface, jint id) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
-	const char* path = env->GetStringUTFChars(jpath, NULL);
-	AndroidVideo* av = new AndroidVideo;
+	const char *path = env->GetStringUTFChars(jpath, NULL);
+	AndroidVideo *av = new AndroidVideo;
 	av->theNativeWindow = ANativeWindow_fromSurface(env, surface);
 	av->init(path);
 	for (int i = 0; i < 10; ++i) {
@@ -454,14 +454,14 @@ extern "C" JNIEXPORT void JNICALL Java_tech_kode_kinc_KincMoviePlayer_nativeCrea
 }
 
 void KoreAndroidVideoInit() {
-	JNIEnv* env;
+	JNIEnv *env;
 	kinc_android_get_activity()->vm->AttachCurrentThread(&env, nullptr);
 
 	jclass clazz = kinc_android_find_class(env, "tech.kinc.KincMoviePlayer");
 
 	// String path, Surface surface, int id
 	JNINativeMethod methodTable[] = {
-	    {"nativeCreate", "(Ljava/lang/String;Landroid/view/Surface;I)V", (void*)Java_tech_kode_kinc_KincMoviePlayer_nativeCreate}};
+	    {"nativeCreate", "(Ljava/lang/String;Landroid/view/Surface;I)V", (void *)Java_tech_kode_kinc_KincMoviePlayer_nativeCreate}};
 
 	int methodTableSize = sizeof(methodTable) / sizeof(methodTable[0]);
 
@@ -470,7 +470,7 @@ void KoreAndroidVideoInit() {
 	kinc_android_get_activity()->vm->DetachCurrentThread();
 }
 
-void kinc_video_init(kinc_video_t* video, const char* filename) {
+void kinc_video_init(kinc_video_t *video, const char *filename) {
 	video->impl.playing = false;
 	video->impl.sound = nullptr;
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
@@ -481,7 +481,7 @@ void kinc_video_init(kinc_video_t* video, const char* filename) {
 	video->impl.next = 0;
 	video->impl.audioTime = 0;
 
-	JNIEnv* env = nullptr;
+	JNIEnv *env = nullptr;
 	kinc_android_get_activity()->vm->AttachCurrentThread(&env, nullptr);
 	jclass koreMoviePlayerClass = kinc_android_find_class(env, "tech.kinc.KoreMoviePlayer");
 	jmethodID constructor = env->GetMethodID(koreMoviePlayerClass, "<init>", "(Ljava/lang/String;)V");
@@ -509,10 +509,10 @@ void kinc_video_init(kinc_video_t* video, const char* filename) {
 #endif
 }
 
-void kinc_video_destroy(kinc_video_t* video) {
+void kinc_video_destroy(kinc_video_t *video) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	kinc_video_stop(video);
-	AndroidVideo* av = (AndroidVideo*)video->impl.androidVideo;
+	AndroidVideo *av = (AndroidVideo *)video->impl.androidVideo;
 	av->shutdown();
 	for (int i = 0; i < 10; ++i) {
 		if (videos[i] == video) {
@@ -523,28 +523,28 @@ void kinc_video_destroy(kinc_video_t* video) {
 #endif
 }
 
-void kinc_video_play(kinc_video_t* video) {
+void kinc_video_play(kinc_video_t *video) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	video->impl.playing = true;
 	video->impl.start = kinc_time();
 #endif
 }
 
-void kinc_video_pause(kinc_video_t* video) {
+void kinc_video_pause(kinc_video_t *video) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	video->impl.playing = false;
 #endif
 }
 
-void kinc_video_stop(kinc_video_t* video) {
+void kinc_video_stop(kinc_video_t *video) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	kinc_video_pause(video);
 #endif
 }
 
-void kinc_video_update(kinc_video_t* video, double time) {}
+void kinc_video_update(kinc_video_t *video, double time) {}
 
-int kinc_video_width(kinc_video_t* video) {
+int kinc_video_width(kinc_video_t *video) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	return video->impl.myWidth;
 #else
@@ -552,7 +552,7 @@ int kinc_video_width(kinc_video_t* video) {
 #endif
 }
 
-int kinc_video_height(kinc_video_t* video) {
+int kinc_video_height(kinc_video_t *video) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	return video->impl.myHeight;
 #else
@@ -560,7 +560,7 @@ int kinc_video_height(kinc_video_t* video) {
 #endif
 }
 
-kinc_g4_texture_t *kinc_video_current_image(kinc_video_t* video) {
+kinc_g4_texture_t *kinc_video_current_image(kinc_video_t *video) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	return &video->impl.image;
 #else

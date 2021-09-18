@@ -22,7 +22,7 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 }
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
-	for(int i = 0; i < 16; ++i) {
+	for (int i = 0; i < 16; ++i) {
 		pipe->impl.pipe.input_layout[i] = pipe->inputLayout[i];
 	}
 	pipe->impl.pipe.vertex_shader = &pipe->vertexShader->impl.shader;

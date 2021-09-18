@@ -6,7 +6,7 @@ namespace Kore {
 
 	class Video {
 	public:
-		Video(const char* filename) {
+		Video(const char *filename) {
 			duration = 1000 * 10;
 			position = 0;
 			finished = false;
@@ -25,7 +25,7 @@ namespace Kore {
 		int height() {
 			return 100;
 		}
-		Graphics4::Texture* currentImage() {
+		Graphics4::Texture *currentImage() {
 			return image;
 		}
 		double duration; // milliseconds
@@ -35,6 +35,6 @@ namespace Kore {
 		void update(double time) {}
 
 	private:
-		Graphics4::Texture* image;
+		Graphics4::Texture *image;
 	};
 }

@@ -15,9 +15,7 @@ void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *te
 #endif
 }
 
-void kinc_g4_texture_array_destroy(kinc_g4_texture_array_t *array) {
-
-}
+void kinc_g4_texture_array_destroy(kinc_g4_texture_array_t *array) {}
 
 void Kinc_G4_Internal_TextureArraySet(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {
 #ifdef GL_VERSION_4_2

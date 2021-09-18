@@ -11,7 +11,7 @@ namespace Kore {
 	protected:
 		VertexBufferImpl(int count, int instanceDataStepRate);
 		void unset();
-		float* data;
+		float *data;
 		int myCount;
 		int myStride;
 		uint bufferId;
@@ -24,6 +24,6 @@ namespace Kore {
 		bool initialized;
 #endif
 	public:
-		static Graphics3::VertexBuffer* current;
+		static Graphics3::VertexBuffer *current;
 	};
 }
