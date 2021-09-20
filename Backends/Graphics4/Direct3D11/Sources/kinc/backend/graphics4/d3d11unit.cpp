@@ -18,8 +18,8 @@ static ID3D11Texture2D *depthStencil;
 static ID3D11DepthStencilView *depthStencilView;
 static ID3D11Texture2D *backBuffer;
 
-static int renderTargetWidth = 4096;
-static int renderTargetHeight = 4096;
+int renderTargetWidth = 4096;
+int renderTargetHeight = 4096;
 static int newRenderTargetWidth = 4096;
 static int newRenderTargetHeight = 4096;
 
