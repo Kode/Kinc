@@ -3,8 +3,6 @@
 
 #include <assert.h>
 
-using namespace Kore;
-
 static kinc_g4_texture_t *setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                              nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
@@ -242,18 +240,18 @@ void kinc_internal_texture_unset(kinc_g4_texture_t *texture) {
 	}
 }
 
-u8 *kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
+uint8_t *kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	kinc_microsoft_affirm(context->Map(texture->impl.texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 	texture->impl.rowPitch = mappedResource.RowPitch;
-	return (u8 *)mappedResource.pData;
+	return (uint8_t *)mappedResource.pData;
 }
 
 void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
 	context->Unmap(texture->impl.texture, 0);
 }
 
-void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, uint color) {
+void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {
 	if (texture->impl.renderView == nullptr) {
 		texture->tex_depth > 1 ? kinc_microsoft_affirm(device->CreateRenderTargetView(texture->impl.texture3D, 0, &texture->impl.renderView))
 		                       : kinc_microsoft_affirm(device->CreateRenderTargetView(texture->impl.texture, 0, &texture->impl.renderView));

@@ -1,10 +1,5 @@
 #include <kinc/graphics4/indexBuffer.h>
 
-#include <kinc/backend/SystemMicrosoft.h>
-
-#include <Windows.h>
-#include <d3d11.h>
-
 void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format, kinc_g4_usage_t usage) {
 	buffer->impl.count = count;
 

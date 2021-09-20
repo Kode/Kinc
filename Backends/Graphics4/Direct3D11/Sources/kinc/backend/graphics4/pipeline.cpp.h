@@ -3,8 +3,6 @@
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/log.h>
 
-#include <kinc/backend/SystemMicrosoft.h>
-
 #include <assert.h>
 #include <malloc.h>
 

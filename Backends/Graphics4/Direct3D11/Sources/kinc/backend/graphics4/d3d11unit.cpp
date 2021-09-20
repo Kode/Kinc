@@ -11,16 +11,23 @@
 #include <d3d11.h>
 #endif
 
-extern ID3D11Device *device;
-extern ID3D11DeviceContext *context;
-extern ID3D11RenderTargetView *renderTargetView;
-extern ID3D11DepthStencilView *depthStencilView;
-extern ID3D11Texture2D *backBuffer;
-extern Kore::u8 vertexConstants[1024 * 4];
-extern Kore::u8 fragmentConstants[1024 * 4];
-extern Kore::u8 geometryConstants[1024 * 4];
-extern Kore::u8 tessControlConstants[1024 * 4];
-extern Kore::u8 tessEvalConstants[1024 * 4];
+ID3D11Device *device;
+ID3D11DeviceContext *context;
+static ID3D11RenderTargetView *renderTargetView;
+static ID3D11Texture2D *depthStencil;
+static ID3D11DepthStencilView *depthStencilView;
+static ID3D11Texture2D *backBuffer;
+
+static int renderTargetWidth = 4096;
+static int renderTargetHeight = 4096;
+static int newRenderTargetWidth = 4096;
+static int newRenderTargetHeight = 4096;
+
+static uint8_t vertexConstants[1024 * 4];
+static uint8_t fragmentConstants[1024 * 4];
+static uint8_t geometryConstants[1024 * 4];
+static uint8_t tessControlConstants[1024 * 4];
+static uint8_t tessEvalConstants[1024 * 4];
 
 #include "Direct3D11.cpp.h"
 #include "ShaderHash.c.h"
