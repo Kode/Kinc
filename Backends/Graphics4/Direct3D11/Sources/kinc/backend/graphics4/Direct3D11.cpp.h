@@ -29,10 +29,7 @@ int antialiasingSamples() {
 #endif
 
 #ifdef KORE_WINDOWSAPP
-#include <d3d11_1.h>
-#include <d3d11_4.h>
-#include <dxgi1_5.h>
-#include <wrl.h>
+extern "C" IUnknown *kinc_winapp_internal_get_window(void);
 #endif
 
 #include <vector>
@@ -64,16 +61,6 @@ uint8_t fragmentConstants[1024 * 4];
 uint8_t geometryConstants[1024 * 4];
 uint8_t tessControlConstants[1024 * 4];
 uint8_t tessEvalConstants[1024 * 4];
-
-#ifdef KORE_WINDOWSAPP
-using namespace ::Microsoft::WRL;
-using namespace Windows::UI::Core;
-using namespace Windows::Foundation;
-#ifdef KORE_HOLOLENS
-using namespace Windows::Graphics::Holographic;
-using namespace Windows::Graphics::DirectX::Direct3D11;
-#endif
-#endif
 
 extern kinc_g4_pipeline_t *currentPipeline;
 void kinc_internal_set_constants(void);
@@ -220,7 +207,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	    D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0};
 
 #ifdef KORE_WINDOWSAPP
-	IDXGIAdapter3 *adapter = nullptr;
+	IDXGIAdapter *adapter = nullptr;
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
@@ -303,8 +290,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		IDXGIFactory2 *dxgiFactory;
 		kinc_microsoft_affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void **)&dxgiFactory));
 
-		kinc_microsoft_affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown *>(CoreWindow::GetForCurrentThread()), &swapChainDesc,
-		                                                                nullptr, &swapChain));
+		kinc_microsoft_affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, kinc_winapp_internal_get_window(), &swapChainDesc, nullptr, &swapChain));
 		kinc_microsoft_affirm(dxgiDevice->SetMaximumFrameLatency(1));
 #endif
 
