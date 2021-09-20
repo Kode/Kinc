@@ -1,9 +1,6 @@
 #include <kinc/graphics4/shader.h>
 
 #include <Kore/Math/Core.h>
-#include <kinc/backend/SystemMicrosoft.h>
-
-#include "Direct3D11.h"
 
 #include <assert.h>
 #include <stdint.h>

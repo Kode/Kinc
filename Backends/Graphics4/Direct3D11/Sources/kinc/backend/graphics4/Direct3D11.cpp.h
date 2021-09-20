@@ -2,7 +2,6 @@
 
 #include <kinc/log.h>
 
-#include "Direct3D11.h"
 #include <kinc/math/core.h>
 //#include <Kore/Application.h>
 #include <kinc/graphics4/pipeline.h>
@@ -16,7 +15,6 @@
 
 #undef CreateWindow
 
-#include <kinc/backend/SystemMicrosoft.h>
 #include <kinc/system.h>
 
 #include <kinc/display.h>

@@ -1,9 +1,5 @@
-#include "Direct3D11.h"
-
 #include <kinc/graphics4/texture.h>
 #include <kinc/graphics4/textureunit.h>
-
-#include <kinc/backend/SystemMicrosoft.h>
 
 #include <assert.h>
 

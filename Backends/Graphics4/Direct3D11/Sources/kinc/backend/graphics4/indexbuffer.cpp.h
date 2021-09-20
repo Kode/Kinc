@@ -1,5 +1,3 @@
-#include "Direct3D11.h"
-
 #include <kinc/graphics4/indexBuffer.h>
 
 #include <kinc/backend/SystemMicrosoft.h>

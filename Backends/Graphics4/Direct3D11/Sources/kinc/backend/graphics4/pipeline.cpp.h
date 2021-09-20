@@ -1,5 +1,3 @@
-#include "Direct3D11.h"
-
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/shader.h>
 #include <kinc/graphics4/vertexbuffer.h>

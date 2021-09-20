@@ -1,5 +1,3 @@
-#include <kinc/backend/graphics4/Direct3D11.h>
-
 #include <kinc/compute/compute.h>
 #include <kinc/graphics4/texture.h>
 #include <kinc/log.h>
@@ -7,7 +5,19 @@
 
 #include <kinc/backend/SystemMicrosoft.h>
 
+#define NOMINMAX
+
+#ifdef KORE_WINDOWSAPP
+#include <d3d11_1.h>
+#else
+#pragma warning(disable : 4005)
+#include <d3d11.h>
+#endif
+
 #include <assert.h>
+
+extern ID3D11Device *device;
+extern ID3D11DeviceContext *context;
 
 using namespace Kore;
 

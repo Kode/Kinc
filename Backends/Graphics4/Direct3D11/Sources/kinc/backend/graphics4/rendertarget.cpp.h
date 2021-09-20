@@ -2,10 +2,6 @@
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/log.h>
 
-#include "Direct3D11.h"
-
-#include <kinc/backend/SystemMicrosoft.h>
-
 static DXGI_FORMAT convertFormat(kinc_g4_render_target_format_t format) {
 	switch (format) {
 	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:

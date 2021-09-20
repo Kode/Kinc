@@ -1,10 +1,6 @@
 #include <kinc/graphics4/texturearray.h>
 #include <kinc/graphics4/textureunit.h>
 
-#include <kinc/backend/SystemMicrosoft.h>
-
-#include "Direct3D11.h"
-
 #include <malloc.h>
 #include <stdint.h>
 
