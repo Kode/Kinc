@@ -1,9 +1,5 @@
 #include <kinc/threads/mutex.h>
 
-#include <Windows.h>
-
-#include <assert.h>
-
 void kinc_mutex_init(kinc_mutex_t *mutex) {
 	assert(sizeof(RTL_CRITICAL_SECTION) == sizeof(kinc_microsoft_critical_section_t));
 	InitializeCriticalSection((LPCRITICAL_SECTION)&mutex->impl.criticalSection);

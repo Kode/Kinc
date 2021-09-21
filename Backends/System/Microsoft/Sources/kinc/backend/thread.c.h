@@ -1,10 +1,5 @@
 #include <kinc/threads/thread.h>
 
-#include <assert.h>
-#include <stdio.h>
-
-#include <Windows.h>
-
 void kinc_threads_init() {}
 
 void kinc_threads_quit() {}

@@ -1,7 +1,5 @@
 #include <kinc/threads/threadlocal.h>
 
-#include <Windows.h>
-
 void kinc_thread_local_init(kinc_thread_local_t *local) {
 	local->impl.slot = TlsAlloc();
 	TlsSetValue(local->impl.slot, 0);

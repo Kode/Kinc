@@ -1,9 +1,5 @@
 #include <kinc/threads/semaphore.h>
 
-#include <assert.h>
-
-#include <Windows.h>
-
 void kinc_semaphore_init(kinc_semaphore_t *semaphore, int current, int max) {
 	semaphore->impl.handle = CreateSemaphoreA(NULL, current, max, NULL);
 }

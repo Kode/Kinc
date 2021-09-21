@@ -2,12 +2,6 @@
 
 #include <kinc/error.h>
 
-#include <Windows.h>
-
-#include <intrin.h>
-
-#include <stdio.h>
-
 #define S_OK ((HRESULT)0L)
 
 static void winerror(HRESULT result) {

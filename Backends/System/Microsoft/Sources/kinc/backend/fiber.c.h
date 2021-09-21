@@ -1,7 +1,5 @@
 #include <kinc/threads/fiber.h>
 
-#include <Windows.h>
-
 VOID WINAPI fiber_func(LPVOID param) {
 #ifndef KORE_WINDOWSAPP
 	kinc_fiber_t *fiber = (kinc_fiber_t *)param;

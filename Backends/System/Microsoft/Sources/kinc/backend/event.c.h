@@ -1,7 +1,5 @@
 #include <kinc/threads/event.h>
 
-#include <Windows.h>
-
 void kinc_event_init(kinc_event_t *event, bool auto_clear) {
 	event->impl.event = CreateEvent(0, auto_clear ? FALSE : TRUE, 0, 0);
 }
