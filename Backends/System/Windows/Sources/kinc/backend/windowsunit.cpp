@@ -14,7 +14,7 @@
 #define NOICONS
 #define NOKANJI
 #define NOKEYSTATES
-#define NOMB
+//#define NOMB
 #define NOMCX
 #define NOMEMMGR
 #define NOMENUS
