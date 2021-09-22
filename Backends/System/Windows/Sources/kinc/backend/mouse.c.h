@@ -4,8 +4,6 @@
 
 #include <kinc/input/mouse.h>
 
-#include <Windows.h>
-
 void kinc_internal_mouse_lock(int window) {
 	kinc_mouse_hide();
 	HWND handle = kinc_windows_window_handle(window);

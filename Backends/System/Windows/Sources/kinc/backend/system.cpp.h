@@ -25,18 +25,11 @@
 #include <kinc/window.h>
 
 #define DIRECTINPUT_VERSION 0x0800
-#ifdef WIN32_LEAN_AND_MEAN
-#undef WIN32_LEAN_AND_MEAN
-#endif
 #include <dinput.h>
 #include <oleauto.h>
 #include <stdio.h>
 #include <wbemidl.h>
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-#include <Windowsx.h>
 #include <XInput.h>
 #include <dbghelp.h>
 #include <exception>

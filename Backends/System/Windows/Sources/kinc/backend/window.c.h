@@ -4,12 +4,6 @@
 
 #include <kinc/backend/Windows.h>
 
-#ifdef WIN32_LEAN_AND_MEAN
-#undef WIN32_LEAN_AND_MEAN
-#endif
-#define NOMINMAX
-#include <Windows.h>
-#include <Windowsx.h>
 #ifdef KORE_VR
 #include <kinc/vr/vrinterface.h>
 #endif

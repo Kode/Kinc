@@ -4,12 +4,6 @@
 #include <kinc/error.h>
 #include <kinc/log.h>
 
-#include <stdio.h>
-
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-
 #undef RegisterClass
 
 #define MAXIMUM_DISPLAYS 16

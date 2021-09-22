@@ -20,6 +20,7 @@
 #define NOMETAFILE
 #define NOMINMAX
 #define NOMSG
+//#define NONLS
 #define NOOPENFILE
 #define NOPROFILER
 #define NORASTEROPS
