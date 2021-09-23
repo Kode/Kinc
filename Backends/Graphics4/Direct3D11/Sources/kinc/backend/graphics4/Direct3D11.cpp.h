@@ -34,9 +34,6 @@ extern "C" IUnknown *kinc_winapp_internal_get_window(void);
 
 #include <vector>
 
-#include <malloc.h>
-#include <stdint.h>
-
 #ifdef KORE_HOLOLENS
 #include "DeviceResources.winrt.h"
 #include "Hololens.winrt.h"

@@ -1,9 +1,6 @@
 #include <kinc/graphics4/texturearray.h>
 #include <kinc/graphics4/textureunit.h>
 
-#include <malloc.h>
-#include <stdint.h>
-
 void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *textures, int count) {
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = textures[0].width;

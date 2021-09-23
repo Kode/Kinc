@@ -1,8 +1,6 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/graphics4/textureunit.h>
 
-#include <assert.h>
-
 static kinc_g4_texture_t *setTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                              nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 

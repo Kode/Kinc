@@ -2,9 +2,6 @@
 
 #include <Kore/Math/Core.h>
 
-#include <assert.h>
-#include <stdint.h>
-
 void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (shader->impl.shader != nullptr) {
 		switch (shader->impl.type) {

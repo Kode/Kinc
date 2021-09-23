@@ -3,9 +3,6 @@
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/log.h>
 
-#include <assert.h>
-#include <malloc.h>
-
 kinc_g4_pipeline_t *currentPipeline = NULL;
 
 static D3D11_CULL_MODE convert_cull_mode(kinc_g4_cull_mode_t cullMode) {
