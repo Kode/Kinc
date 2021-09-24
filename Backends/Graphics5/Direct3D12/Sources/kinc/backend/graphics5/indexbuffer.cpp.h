@@ -1,12 +1,7 @@
-#include "Direct3D12.h"
 #include "indexbuffer.h"
 
 #include <kinc/backend/SystemMicrosoft.h>
 #include <kinc/graphics5/indexbuffer.h>
-
-#include <Windows.h>
-
-#include <assert.h>
 
 kinc_g5_index_buffer_t *_current_index_buffer = nullptr;
 

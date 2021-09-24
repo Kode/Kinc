@@ -1,14 +1,11 @@
 #include "pipeline.h"
 
-#include <kinc/backend/graphics5/Direct3D12.h>
-
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
 #include <kinc/log.h>
 
 #include <kinc/backend/SystemMicrosoft.h>
-#include <malloc.h>
 
 void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_g5_pipeline_t *pipeline) {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {

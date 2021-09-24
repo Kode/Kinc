@@ -1,4 +1,3 @@
-#include "Direct3D12.h"
 #include "indexbuffer.h"
 #include "pipeline.h"
 #include "vertexbuffer.h"
@@ -40,10 +39,6 @@ ID3D12DescriptorHeap* cbvHeap;*/
 // ID3D12RenderTargetView* renderTargetView;
 // ID3D12DepthStencilView* depthStencilView;
 
-int currentBackBuffer = -1;
-ID3D12Device *device;
-ID3D12RootSignature *globalRootSignature;
-ID3D12RootSignature *globalComputeRootSignature;
 // ID3D12GraphicsCommandList* commandList;
 ID3D12Resource *depthStencilTexture;
 ID3D12CommandQueue *commandQueue;

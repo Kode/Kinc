@@ -1,7 +1,6 @@
 #include <Kinc/Graphics5/ConstantBuffer.h>
 
 #include <kinc/backend/SystemMicrosoft.h>
-#include <kinc/backend/graphics5/Direct3D12.h>
 
 bool kinc_g5_transposeMat3 = false;
 bool kinc_g5_transposeMat4 = false;

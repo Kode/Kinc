@@ -1,4 +1,3 @@
-#include "Direct3D12.h"
 #include "texture.h"
 
 #include <kinc/graphics5/rendertarget.h>

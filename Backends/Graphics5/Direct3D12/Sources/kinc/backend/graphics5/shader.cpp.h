@@ -1,5 +1,3 @@
-#include "Direct3D12.h"
-
 #include <kinc/backend/SystemMicrosoft.h>
 #include <kinc/graphics5/shader.h>
 #include <kinc/math/core.h>

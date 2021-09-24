@@ -1,4 +1,3 @@
-#include "Direct3D12.h"
 #include "rendertarget.h"
 
 #include <Kinc/Graphics5/RenderTarget.h>

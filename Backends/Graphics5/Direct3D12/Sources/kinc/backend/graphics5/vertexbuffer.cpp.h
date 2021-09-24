@@ -1,4 +1,3 @@
-#include "Direct3D12.h"
 #include "vertexbuffer.h"
 
 #include <kinc/graphics5/vertexbuffer.h>

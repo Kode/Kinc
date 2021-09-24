@@ -1,5 +1,4 @@
 #include <kinc/backend/compute.h>
-#include <kinc/backend/graphics5/Direct3D12.h>
 
 #include <kinc/compute/compute.h>
 #include <kinc/graphics4/texture.h>
@@ -8,12 +7,21 @@
 
 #include <kinc/backend/SystemMicrosoft.h>
 
+#include <d3d12.h>
+#ifdef KORE_WINDOWS
+#include "d3dx12.h"
+#endif
+
 #include <assert.h>
 
-using namespace Kore;
+#ifndef IID_GRAPHICS_PPV_ARGS
+#define IID_GRAPHICS_PPV_ARGS(x) IID_PPV_ARGS(x)
+#endif
+
+extern ID3D12Device *device;
 
 namespace {
-	u8 constantsMemory[1024 * 4];
+	uint8_t constantsMemory[1024 * 4];
 
 	int getMultipleOf16(int value) {
 		int ret = 16;
@@ -21,26 +29,26 @@ namespace {
 		return ret;
 	}
 
-	void setInt(u8 *constants, u32 offset, u32 size, int value) {
+	void setInt(uint8_t *constants, uint32_t offset, uint32_t size, int value) {
 		if (size == 0) return;
 		int *ints = reinterpret_cast<int *>(&constants[offset]);
 		ints[0] = value;
 	}
 
-	void setFloat(u8 *constants, u32 offset, u32 size, float value) {
+	void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
 		if (size == 0) return;
 		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		floats[0] = value;
 	}
 
-	void setFloat2(u8 *constants, u32 offset, u32 size, float value1, float value2) {
+	void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
 		if (size == 0) return;
 		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		floats[0] = value1;
 		floats[1] = value2;
 	}
 
-	void setFloat3(u8 *constants, u32 offset, u32 size, float value1, float value2, float value3) {
+	void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
 		if (size == 0) return;
 		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		floats[0] = value1;
@@ -48,7 +56,7 @@ namespace {
 		floats[2] = value3;
 	}
 
-	void setFloat4(u8 *constants, u32 offset, u32 size, float value1, float value2, float value3, float value4) {
+	void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
 		if (size == 0) return;
 		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		floats[0] = value1;
@@ -57,7 +65,7 @@ namespace {
 		floats[3] = value4;
 	}
 
-	void setFloats(u8 *constants, u32 offset, u32 size, u8 columns, u8 rows, float *values, int count) {
+	void setFloats(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, float *values, int count) {
 		if (size == 0) return;
 		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		if (columns == 4 && rows == 4) {
@@ -94,13 +102,13 @@ namespace {
 		}
 	}
 
-	void setBool(u8 *constants, u32 offset, u32 size, bool value) {
+	void setBool(uint8_t *constants, uint32_t offset, uint32_t size, bool value) {
 		if (size == 0) return;
 		int *ints = reinterpret_cast<int *>(&constants[offset]);
 		ints[0] = value ? 1 : 0;
 	}
 
-	void setMatrix(u8 *constants, u32 offset, u32 size, kinc_matrix4x4_t *value) {
+	void setMatrix(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix4x4_t *value) {
 		if (size == 0) return;
 		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		for (int y = 0; y < 4; ++y) {
@@ -110,7 +118,7 @@ namespace {
 		}
 	}
 
-	void setMatrix(u8 *constants, u32 offset, u32 size, kinc_matrix3x3_t *value) {
+	void setMatrix(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix3x3_t *value) {
 		if (size == 0) return;
 		float *floats = reinterpret_cast<float *>(&constants[offset]);
 		for (int y = 0; y < 3; ++y) {
@@ -123,7 +131,7 @@ namespace {
 
 void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int length) {
 	unsigned index = 0;
-	u8 *data = (u8 *)_data;
+	uint8_t *data = (uint8_t *)_data;
 
 	memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	int attributesCount = data[index++];
