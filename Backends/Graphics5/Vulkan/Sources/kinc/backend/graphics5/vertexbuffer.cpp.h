@@ -4,12 +4,6 @@
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/vertexbuffer.h>
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <vulkan/vulkan.h>
-
 extern VkDevice device;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);

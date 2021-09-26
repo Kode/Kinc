@@ -1,13 +1,7 @@
-#include "Vulkan.h"
-
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
 
-#include <assert.h>
-#include <malloc.h>
-
 #include <map>
-#include <string.h>
 #include <string>
 
 extern VkDevice device;

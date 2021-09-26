@@ -1,5 +1,3 @@
-#include "Vulkan.h"
-
 #include <kinc/error.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
@@ -7,13 +5,6 @@
 #include <kinc/math/core.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
-
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <vulkan/vulkan.h>
 
 #ifdef KORE_WINDOWS
 #define ERR_EXIT(err_msg, err_class)                                                                                                                           \

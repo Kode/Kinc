@@ -1,13 +1,6 @@
-#include "Vulkan.h"
-
 #include <kinc/graphics5/texture.h>
 #include <kinc/image.h>
 #include <kinc/log.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <vulkan/vulkan.h>
 
 extern VkDevice device;
 extern VkPhysicalDevice gpu;

@@ -1,16 +1,9 @@
-#include "Vulkan.h"
-
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/vertexbuffer.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
-
-#include <assert.h>
-#include <malloc.h>
-#include <memory.h>
-#include <vulkan/vulkan.h>
 
 extern VkDevice device;
 extern VkCommandPool cmd_pool;
