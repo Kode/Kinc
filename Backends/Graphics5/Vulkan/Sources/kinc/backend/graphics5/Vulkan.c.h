@@ -177,15 +177,15 @@ static VKAPI_ATTR void VKAPI_CALL myfree(void *pUserData, void *pMemory) {
 #endif
 }
 #endif
-static int pow(int pow) {
+static int powi(int power) {
 	int ret = 1;
-	for (int i = 0; i < pow; ++i) ret *= 2;
+	for (int i = 0; i < power; ++i) ret *= 2;
 	return ret;
 }
 
 static int getPower2(int i) {
 	for (int power = 0;; ++power)
-		if (pow(power) >= i) return pow(power);
+		if (powi(power) >= i) return powi(power);
 }
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
