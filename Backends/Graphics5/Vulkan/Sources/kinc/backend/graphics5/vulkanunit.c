@@ -82,13 +82,13 @@ extern struct DepthBuffer kinc_vulkan_internal_depth;
 extern VkBuffer *kinc_vulkan_internal_vertexUniformBuffer;
 extern VkBuffer *kinc_vulkan_internal_fragmentUniformBuffer;
 
-#include "Vulkan.cpp.h"
-#include "commandlist.cpp.h"
-#include "constantbuffer.cpp.h"
-#include "indexbuffer.cpp.h"
-#include "pipeline.cpp.h"
-#include "raytrace.cpp.h"
-#include "rendertarget.cpp.h"
-#include "shader.cpp.h"
-#include "texture.cpp.h"
-#include "vertexbuffer.cpp.h"
+#include "Vulkan.c.h"
+#include "commandlist.c.h"
+#include "constantbuffer.c.h"
+#include "indexbuffer.c.h"
+#include "pipeline.c.h"
+#include "raytrace.c.h"
+#include "rendertarget.c.h"
+#include "shader.c.h"
+#include "texture.c.h"
+#include "vertexbuffer.c.h"
