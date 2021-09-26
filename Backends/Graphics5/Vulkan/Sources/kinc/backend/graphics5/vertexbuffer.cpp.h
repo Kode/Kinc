@@ -47,7 +47,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 	}
 	buffer->impl.structure = *structure;
 
-	VkBufferCreateInfo buf_info = {};
+	VkBufferCreateInfo buf_info = {0};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
 	buf_info.size = vertexCount * buffer->impl.myStride;
@@ -63,7 +63,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 	buffer->impl.mem_alloc.allocationSize = 0;
 	buffer->impl.mem_alloc.memoryTypeIndex = 0;
 
-	VkMemoryRequirements mem_reqs = {};
+	VkMemoryRequirements mem_reqs = {0};
 	VkResult err;
 	bool pass;
 
@@ -93,14 +93,14 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 	assert(!err);
 }
 
-static void unset(kinc_g5_vertex_buffer_t *buffer) {
+static void unset_vertex_buffer(kinc_g5_vertex_buffer_t *buffer) {
 	if (currentVertexBuffer == buffer) {
 		currentVertexBuffer = NULL;
 	}
 }
 
 void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer) {
-	unset(buffer);
+	unset_vertex_buffer(buffer);
 }
 
 float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {

@@ -13,151 +13,151 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 void flush_init_cmd();
 
-namespace {
-	void prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint32_t tex_height, texture_object *tex_obj, VkImageTiling tiling,
-	                           VkImageUsageFlags usage, VkFlags required_props, VkDeviceSize &deviceSize, VkFormat tex_format) {
-		VkResult err;
-		bool pass;
+static void prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint32_t tex_height, struct texture_object *tex_obj, VkImageTiling tiling,
+                                  VkImageUsageFlags usage, VkFlags required_props, VkDeviceSize *deviceSize, VkFormat tex_format) {
+	VkResult err;
+	bool pass;
 
-		tex_obj->tex_width = tex_width;
-		tex_obj->tex_height = tex_height;
+	tex_obj->tex_width = tex_width;
+	tex_obj->tex_height = tex_height;
 
-		VkImageCreateInfo image_create_info = {};
-		image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		image_create_info.pNext = NULL;
-		image_create_info.imageType = VK_IMAGE_TYPE_2D;
-		image_create_info.format = tex_format;
-		image_create_info.extent = {tex_width, tex_height, 1};
-		image_create_info.mipLevels = 1;
-		image_create_info.arrayLayers = 1;
-		image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
-		image_create_info.tiling = tiling;
-		image_create_info.usage = usage;
-		image_create_info.flags = 0;
-		image_create_info.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
+	VkImageCreateInfo image_create_info = {0};
+	image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	image_create_info.pNext = NULL;
+	image_create_info.imageType = VK_IMAGE_TYPE_2D;
+	image_create_info.format = tex_format;
+	image_create_info.extent.width = tex_width;
+	image_create_info.extent.height = tex_height;
+	image_create_info.extent.depth = 1;
+	image_create_info.mipLevels = 1;
+	image_create_info.arrayLayers = 1;
+	image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
+	image_create_info.tiling = tiling;
+	image_create_info.usage = usage;
+	image_create_info.flags = 0;
+	image_create_info.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
 
-		VkMemoryAllocateInfo mem_alloc = {};
-		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		mem_alloc.pNext = NULL;
-		mem_alloc.allocationSize = 0;
-		mem_alloc.memoryTypeIndex = 0;
+	VkMemoryAllocateInfo mem_alloc = {0};
+	mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	mem_alloc.pNext = NULL;
+	mem_alloc.allocationSize = 0;
+	mem_alloc.memoryTypeIndex = 0;
 
-		VkMemoryRequirements mem_reqs;
+	VkMemoryRequirements mem_reqs;
 
-		err = vkCreateImage(device, &image_create_info, NULL, &tex_obj->image);
+	err = vkCreateImage(device, &image_create_info, NULL, &tex_obj->image);
+	assert(!err);
+
+	vkGetImageMemoryRequirements(device, tex_obj->image, &mem_reqs);
+
+	*deviceSize = mem_alloc.allocationSize = mem_reqs.size;
+	pass = memory_type_from_properties(mem_reqs.memoryTypeBits, required_props, &mem_alloc.memoryTypeIndex);
+	assert(pass);
+
+	// allocate memory
+	err = vkAllocateMemory(device, &mem_alloc, NULL, &tex_obj->mem);
+	assert(!err);
+
+	// bind memory
+	err = vkBindImageMemory(device, tex_obj->image, tex_obj->mem, 0);
+	assert(!err);
+
+	if (required_props & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT && tex_colors != NULL) {
+		VkImageSubresource subres = {0};
+		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subres.mipLevel = 0;
+		subres.arrayLayer = 0;
+
+		VkSubresourceLayout layout;
+		uint8_t *data;
+
+		vkGetImageSubresourceLayout(device, tex_obj->image, &subres, &layout);
+
+		err = vkMapMemory(device, tex_obj->mem, 0, mem_alloc.allocationSize, 0, (void **)&data);
 		assert(!err);
 
-		vkGetImageMemoryRequirements(device, tex_obj->image, &mem_reqs);
-
-		deviceSize = mem_alloc.allocationSize = mem_reqs.size;
-		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, required_props, &mem_alloc.memoryTypeIndex);
-		assert(pass);
-
-		// allocate memory
-		err = vkAllocateMemory(device, &mem_alloc, NULL, &tex_obj->mem);
-		assert(!err);
-
-		// bind memory
-		err = vkBindImageMemory(device, tex_obj->image, tex_obj->mem, 0);
-		assert(!err);
-
-		if (required_props & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT && tex_colors != nullptr) {
-			VkImageSubresource subres = {};
-			subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			subres.mipLevel = 0;
-			subres.arrayLayer = 0;
-
-			VkSubresourceLayout layout;
-			uint8_t *data;
-
-			vkGetImageSubresourceLayout(device, tex_obj->image, &subres, &layout);
-
-			err = vkMapMemory(device, tex_obj->mem, 0, mem_alloc.allocationSize, 0, (void **)&data);
-			assert(!err);
-
-			if (tex_format == VK_FORMAT_R8_UNORM) {
-				for (uint32_t y = 0; y < tex_height; y++) {
-					for (uint32_t x = 0; x < tex_width; x++) {
-						data[y * layout.rowPitch + x] = tex_colors[y * tex_width + x];
-					}
+		if (tex_format == VK_FORMAT_R8_UNORM) {
+			for (uint32_t y = 0; y < tex_height; y++) {
+				for (uint32_t x = 0; x < tex_width; x++) {
+					data[y * layout.rowPitch + x] = tex_colors[y * tex_width + x];
 				}
 			}
-			else if (tex_format == VK_FORMAT_R32_SFLOAT) {
-				uint32_t *data32 = (uint32_t *)data;
-				uint32_t *tex_colors32 = (uint32_t *)tex_colors;
-				for (uint32_t y = 0; y < tex_height; y++) {
-					for (uint32_t x = 0; x < tex_width; x++) {
-						data32[y * (layout.rowPitch / 4) + x] = tex_colors32[y * tex_width + x];
-					}
-				}
-			}
-			else if (tex_format == VK_FORMAT_R16_SFLOAT) {
-				uint16_t *data16 = (uint16_t *)data;
-				uint16_t *tex_colors16 = (uint16_t *)tex_colors;
-				for (uint32_t y = 0; y < tex_height; y++) {
-					for (uint32_t x = 0; x < tex_width; x++) {
-						data16[y * (layout.rowPitch / 4) + x] = tex_colors16[y * tex_width + x];
-					}
-				}
-			}
-			else if (tex_format == VK_FORMAT_R32G32B32A32_SFLOAT) {
-				uint32_t *data32 = (uint32_t *)data;
-				uint32_t *tex_colors32 = (uint32_t *)tex_colors;
-				for (uint32_t y = 0; y < tex_height; y++) {
-					for (uint32_t x = 0; x < tex_width; x++) {
-						data32[y * (layout.rowPitch / 4) + x * 4 + 0] = tex_colors32[y * tex_width * 4 + x * 4 + 0];
-						data32[y * (layout.rowPitch / 4) + x * 4 + 1] = tex_colors32[y * tex_width * 4 + x * 4 + 1];
-						data32[y * (layout.rowPitch / 4) + x * 4 + 2] = tex_colors32[y * tex_width * 4 + x * 4 + 2];
-						data32[y * (layout.rowPitch / 4) + x * 4 + 3] = tex_colors32[y * tex_width * 4 + x * 4 + 3];
-					}
-				}
-			}
-			else if (tex_format == VK_FORMAT_R16G16B16A16_SFLOAT) {
-				uint16_t *data16 = (uint16_t *)data;
-				uint16_t *tex_colors16 = (uint16_t *)tex_colors;
-				for (uint32_t y = 0; y < tex_height; y++) {
-					for (uint32_t x = 0; x < tex_width; x++) {
-						data16[y * (layout.rowPitch / 4) + x * 4 + 0] = tex_colors16[y * tex_width * 4 + x * 4 + 0];
-						data16[y * (layout.rowPitch / 4) + x * 4 + 1] = tex_colors16[y * tex_width * 4 + x * 4 + 1];
-						data16[y * (layout.rowPitch / 4) + x * 4 + 2] = tex_colors16[y * tex_width * 4 + x * 4 + 2];
-						data16[y * (layout.rowPitch / 4) + x * 4 + 3] = tex_colors16[y * tex_width * 4 + x * 4 + 3];
-					}
-				}
-			}
-			else {
-				for (uint32_t y = 0; y < tex_height; y++) {
-					// uint32_t *row = (uint32_t *)((char *)data + layout.rowPitch * y);
-					for (uint32_t x = 0; x < tex_width; x++) {
-						data[y * layout.rowPitch + x * 4 + 0] = tex_colors[y * tex_width * 4 + x * 4 + 2];
-						data[y * layout.rowPitch + x * 4 + 1] = tex_colors[y * tex_width * 4 + x * 4 + 1];
-						data[y * layout.rowPitch + x * 4 + 2] = tex_colors[y * tex_width * 4 + x * 4 + 0];
-						data[y * layout.rowPitch + x * 4 + 3] = tex_colors[y * tex_width * 4 + x * 4 + 3];
-						// row[x] = tex_colors[(x & 1) ^ (y & 1)];
-					}
-				}
-			}
-
-			vkUnmapMemory(device, tex_obj->mem);
 		}
-
-		if (usage & VK_IMAGE_USAGE_STORAGE_BIT) {
-			tex_obj->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		else if (tex_format == VK_FORMAT_R32_SFLOAT) {
+			uint32_t *data32 = (uint32_t *)data;
+			uint32_t *tex_colors32 = (uint32_t *)tex_colors;
+			for (uint32_t y = 0; y < tex_height; y++) {
+				for (uint32_t x = 0; x < tex_width; x++) {
+					data32[y * (layout.rowPitch / 4) + x] = tex_colors32[y * tex_width + x];
+				}
+			}
+		}
+		else if (tex_format == VK_FORMAT_R16_SFLOAT) {
+			uint16_t *data16 = (uint16_t *)data;
+			uint16_t *tex_colors16 = (uint16_t *)tex_colors;
+			for (uint32_t y = 0; y < tex_height; y++) {
+				for (uint32_t x = 0; x < tex_width; x++) {
+					data16[y * (layout.rowPitch / 4) + x] = tex_colors16[y * tex_width + x];
+				}
+			}
+		}
+		else if (tex_format == VK_FORMAT_R32G32B32A32_SFLOAT) {
+			uint32_t *data32 = (uint32_t *)data;
+			uint32_t *tex_colors32 = (uint32_t *)tex_colors;
+			for (uint32_t y = 0; y < tex_height; y++) {
+				for (uint32_t x = 0; x < tex_width; x++) {
+					data32[y * (layout.rowPitch / 4) + x * 4 + 0] = tex_colors32[y * tex_width * 4 + x * 4 + 0];
+					data32[y * (layout.rowPitch / 4) + x * 4 + 1] = tex_colors32[y * tex_width * 4 + x * 4 + 1];
+					data32[y * (layout.rowPitch / 4) + x * 4 + 2] = tex_colors32[y * tex_width * 4 + x * 4 + 2];
+					data32[y * (layout.rowPitch / 4) + x * 4 + 3] = tex_colors32[y * tex_width * 4 + x * 4 + 3];
+				}
+			}
+		}
+		else if (tex_format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+			uint16_t *data16 = (uint16_t *)data;
+			uint16_t *tex_colors16 = (uint16_t *)tex_colors;
+			for (uint32_t y = 0; y < tex_height; y++) {
+				for (uint32_t x = 0; x < tex_width; x++) {
+					data16[y * (layout.rowPitch / 4) + x * 4 + 0] = tex_colors16[y * tex_width * 4 + x * 4 + 0];
+					data16[y * (layout.rowPitch / 4) + x * 4 + 1] = tex_colors16[y * tex_width * 4 + x * 4 + 1];
+					data16[y * (layout.rowPitch / 4) + x * 4 + 2] = tex_colors16[y * tex_width * 4 + x * 4 + 2];
+					data16[y * (layout.rowPitch / 4) + x * 4 + 3] = tex_colors16[y * tex_width * 4 + x * 4 + 3];
+				}
+			}
 		}
 		else {
-			tex_obj->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			for (uint32_t y = 0; y < tex_height; y++) {
+				// uint32_t *row = (uint32_t *)((char *)data + layout.rowPitch * y);
+				for (uint32_t x = 0; x < tex_width; x++) {
+					data[y * layout.rowPitch + x * 4 + 0] = tex_colors[y * tex_width * 4 + x * 4 + 2];
+					data[y * layout.rowPitch + x * 4 + 1] = tex_colors[y * tex_width * 4 + x * 4 + 1];
+					data[y * layout.rowPitch + x * 4 + 2] = tex_colors[y * tex_width * 4 + x * 4 + 0];
+					data[y * layout.rowPitch + x * 4 + 3] = tex_colors[y * tex_width * 4 + x * 4 + 3];
+					// row[x] = tex_colors[(x & 1) ^ (y & 1)];
+				}
+			}
 		}
-		set_image_layout(tex_obj->image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, tex_obj->imageLayout);
-		// setting the image layout does not reference the actual memory so no need to add a mem ref
+
+		vkUnmapMemory(device, tex_obj->mem);
 	}
 
-	void destroy_texture_image(texture_object *tex_obj) {
-		// clean up staging resources
-		vkDestroyImage(device, tex_obj->image, NULL);
-		vkFreeMemory(device, tex_obj->mem, NULL);
+	if (usage & VK_IMAGE_USAGE_STORAGE_BIT) {
+		tex_obj->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 	}
+	else {
+		tex_obj->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	}
+	set_image_layout(tex_obj->image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, tex_obj->imageLayout);
+	// setting the image layout does not reference the actual memory so no need to add a mem ref
 }
 
-static VkFormat convert_format(kinc_image_format_t format) {
+static void destroy_texture_image(struct texture_object *tex_obj) {
+	// clean up staging resources
+	vkDestroyImage(device, tex_obj->image, NULL);
+	vkFreeMemory(device, tex_obj->mem, NULL);
+}
+
+static VkFormat convert_image_format(kinc_image_format_t format) {
 	switch (format) {
 	case KINC_IMAGE_FORMAT_RGBA128:
 		return VK_FORMAT_R32G32B32A32_SFLOAT;
@@ -216,29 +216,37 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	if ((props.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) && !use_staging_buffer) {
 		// Device can texture using linear textures
 		prepare_texture_image((uint8_t *)image->data, (uint32_t)image->width, (uint32_t)image->height, &texture->impl.texture, VK_IMAGE_TILING_LINEAR,
-		                      VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize, tex_format);
+		                      VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &texture->impl.deviceSize, tex_format);
 
 		flush_init_cmd();
 	}
 	else if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
 		// Must use staging buffer to copy linear texture to optimized
-		texture_object staging_texture;
+		struct texture_object staging_texture;
 
 		memset(&staging_texture, 0, sizeof(staging_texture));
 		prepare_texture_image((uint8_t *)image->data, (uint32_t)image->width, (uint32_t)image->height, &staging_texture, VK_IMAGE_TILING_LINEAR,
-		                      VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize, tex_format);
+		                      VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &texture->impl.deviceSize, tex_format);
 		prepare_texture_image((uint8_t *)image->data, (uint32_t)image->width, (uint32_t)image->height, &texture->impl.texture, VK_IMAGE_TILING_OPTIMAL,
-		                      (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture->impl.deviceSize,
+		                      (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture->impl.deviceSize,
 		                      tex_format);
 		set_image_layout(staging_texture.image, VK_IMAGE_ASPECT_COLOR_BIT, staging_texture.imageLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		set_image_layout(texture->impl.texture.image, VK_IMAGE_ASPECT_COLOR_BIT, texture->impl.texture.imageLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-		VkImageCopy copy_region = {};
-		copy_region.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-		copy_region.srcOffset = {0, 0, 0};
-		copy_region.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-		copy_region.dstOffset = {0, 0, 0};
-		copy_region.extent = {(uint32_t)staging_texture.tex_width, (uint32_t)staging_texture.tex_height, 1};
+		VkImageCopy copy_region = {0};
+		copy_region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		copy_region.srcSubresource.mipLevel = 0;
+		copy_region.srcSubresource.baseArrayLayer = 0;
+		copy_region.srcSubresource.layerCount = 1;
+		copy_region.srcOffset.x = copy_region.srcOffset.y = copy_region.srcOffset.z = 0;
+		copy_region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		copy_region.dstSubresource.mipLevel = 0;
+		copy_region.dstSubresource.baseArrayLayer = 0;
+		copy_region.dstSubresource.layerCount = 1;
+		copy_region.dstOffset.x = copy_region.dstOffset.y = copy_region.dstOffset.z = 0;
+		copy_region.extent.width = (uint32_t)staging_texture.tex_width;
+		copy_region.extent.height = (uint32_t)staging_texture.tex_height;
+		copy_region.extent.depth = 1;
 
 		vkCmdCopyImage(setup_cmd, staging_texture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, texture->impl.texture.image,
 		               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
@@ -253,7 +261,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 		assert(!"No support for B8G8R8A8_UNORM as texture image format");
 	}
 
-	VkSamplerCreateInfo sampler = {};
+	VkSamplerCreateInfo sampler = {0};
 	sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	sampler.pNext = NULL;
 	sampler.magFilter = VK_FILTER_LINEAR;
@@ -271,14 +279,21 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 	sampler.unnormalizedCoordinates = VK_FALSE;
 
-	VkImageViewCreateInfo view = {};
+	VkImageViewCreateInfo view = {0};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
 	view.image = VK_NULL_HANDLE;
 	view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	view.format = tex_format;
-	view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
-	view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+	view.components.r = VK_COMPONENT_SWIZZLE_R;
+	view.components.g = VK_COMPONENT_SWIZZLE_G;
+	view.components.b = VK_COMPONENT_SWIZZLE_B;
+	view.components.a = VK_COMPONENT_SWIZZLE_A;
+	view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	view.subresourceRange.baseMipLevel = 0;
+	view.subresourceRange.levelCount = 1;
+	view.subresourceRange.baseArrayLayer = 0;
+	view.subresourceRange.layerCount = 1;
 	view.flags = 0;
 
 	// create sampler
@@ -296,19 +311,19 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	texture->texHeight = height;
 	texture->impl.stride = format_byte_size(format) * texture->texWidth;
 
-	const VkFormat tex_format = convert_format(format);
+	const VkFormat tex_format = convert_image_format(format);
 	VkFormatProperties props;
 	VkResult err;
 
 	vkGetPhysicalDeviceFormatProperties(gpu, tex_format, &props);
 
 	// Device can texture using linear textures
-	prepare_texture_image(nullptr, (uint32_t)width, (uint32_t)height, &texture->impl.texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
-	                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, texture->impl.deviceSize, tex_format);
+	prepare_texture_image(NULL, (uint32_t)width, (uint32_t)height, &texture->impl.texture, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_SAMPLED_BIT,
+	                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &texture->impl.deviceSize, tex_format);
 
 	flush_init_cmd();
 
-	VkSamplerCreateInfo sampler = {};
+	VkSamplerCreateInfo sampler = {0};
 	sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	sampler.pNext = NULL;
 	sampler.magFilter = VK_FILTER_LINEAR;
@@ -326,14 +341,21 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 	sampler.unnormalizedCoordinates = VK_FALSE;
 
-	VkImageViewCreateInfo view = {};
+	VkImageViewCreateInfo view = {0};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
 	view.image = VK_NULL_HANDLE;
 	view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	view.format = tex_format;
-	view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
-	view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+	view.components.r = VK_COMPONENT_SWIZZLE_R;
+	view.components.g = VK_COMPONENT_SWIZZLE_G;
+	view.components.b = VK_COMPONENT_SWIZZLE_B;
+	view.components.a = VK_COMPONENT_SWIZZLE_A;
+	view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	view.subresourceRange.baseMipLevel = 0;
+	view.subresourceRange.levelCount = 1;
+	view.subresourceRange.baseArrayLayer = 0;
+	view.subresourceRange.layerCount = 1;
 	view.flags = 0;
 
 	// create sampler
@@ -353,20 +375,20 @@ void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int wid
 	texture->texHeight = height;
 	texture->impl.stride = format_byte_size(format) * texture->texWidth;
 
-	const VkFormat tex_format = convert_format(format);
+	const VkFormat tex_format = convert_image_format(format);
 	VkFormatProperties props;
 	VkResult err;
 
 	vkGetPhysicalDeviceFormatProperties(gpu, tex_format, &props);
 
 	// Device can texture using linear textures
-	prepare_texture_image(nullptr, (uint32_t)width, (uint32_t)height, &texture->impl.texture, VK_IMAGE_TILING_OPTIMAL,
-	                      VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture->impl.deviceSize,
+	prepare_texture_image(NULL, (uint32_t)width, (uint32_t)height, &texture->impl.texture, VK_IMAGE_TILING_OPTIMAL,
+	                      VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texture->impl.deviceSize,
 	                      tex_format);
 
 	flush_init_cmd();
 
-	VkSamplerCreateInfo sampler = {};
+	VkSamplerCreateInfo sampler = {0};
 	sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	sampler.pNext = NULL;
 	sampler.magFilter = VK_FILTER_LINEAR;
@@ -384,14 +406,21 @@ void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int wid
 	sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 	sampler.unnormalizedCoordinates = VK_FALSE;
 
-	VkImageViewCreateInfo view = {};
+	VkImageViewCreateInfo view = {0};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
 	view.image = VK_NULL_HANDLE;
 	view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	view.format = tex_format;
-	view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
-	view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+	view.components.r = VK_COMPONENT_SWIZZLE_R;
+	view.components.g = VK_COMPONENT_SWIZZLE_G;
+	view.components.b = VK_COMPONENT_SWIZZLE_B;
+	view.components.a = VK_COMPONENT_SWIZZLE_A;
+	view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	view.subresourceRange.baseMipLevel = 0;
+	view.subresourceRange.levelCount = 1;
+	view.subresourceRange.baseArrayLayer = 0;
+	view.subresourceRange.layerCount = 1;
 	view.flags = 0;
 
 	// create sampler
@@ -413,7 +442,7 @@ int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
 }
 
 uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture) {
-	VkImageSubresource subres = {};
+	VkImageSubresource subres = {0};
 	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	subres.mipLevel = 0;
 	subres.arrayLayer = 0;

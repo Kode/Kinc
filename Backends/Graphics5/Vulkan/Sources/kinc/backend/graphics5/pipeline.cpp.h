@@ -1,9 +1,6 @@
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
 
-#include <map>
-#include <string>
-
 extern VkDevice device;
 extern VkDescriptorSet desc_set;
 VkDescriptorSetLayout desc_layout;
@@ -52,116 +49,196 @@ static void set_number(kinc_internal_named_number *named_numbers, const char *na
 	assert(false);
 }
 
-namespace {
-	void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
-	                 kinc_internal_named_number *uniformOffsets) {
-		uint32_t *spirv = (uint32_t *)shader->impl.source;
-		int spirvsize = shader->impl.length / 4;
-		int index = 0;
+struct indexed_name {
+	uint32_t id;
+	char *name;
+};
 
-		unsigned magicNumber = spirv[index++];
-		unsigned version = spirv[index++];
-		unsigned generator = spirv[index++];
-		unsigned bound = spirv[index++];
-		index++;
+struct indexed_index {
+	uint32_t id;
+	uint32_t value;
+};
 
-		std::map<uint32_t, std::string> names;
-		std::map<uint32_t, std::string> memberNames;
-		std::map<uint32_t, uint32_t> locs;
-		std::map<uint32_t, uint32_t> bindings;
-		std::map<uint32_t, uint32_t> offsets;
+#define MAX_THINGS 256
+static struct indexed_name names[MAX_THINGS];
+static uint32_t names_size = 0;
+static struct indexed_name memberNames[MAX_THINGS];
+static uint32_t memberNames_size = 0;
+static struct indexed_index locs[MAX_THINGS];
+static uint32_t locs_size = 0;
+static struct indexed_index bindings[MAX_THINGS];
+static uint32_t bindings_size = 0;
+static struct indexed_index offsets[MAX_THINGS];
+static uint32_t offsets_size = 0;
 
-		while (index < spirvsize) {
-			int wordCount = spirv[index] >> 16;
-			uint32_t opcode = spirv[index] & 0xffff;
+static void add_name(uint32_t id, char *name) {
+	names[names_size].id = id;
+	names[names_size].name = name;
+	++names_size;
+}
 
-			uint32_t *operands = wordCount > 1 ? &spirv[index + 1] : nullptr;
-			uint32_t length = wordCount - 1;
+static char *find_name(uint32_t id) {
+	for (uint32_t i = 0; i < names_size; ++i) {
+		if (names[i].id == id) {
+			return names[i].name;
+		}
+	}
+	return NULL;
+}
 
-			switch (opcode) {
-			case 5: { // OpName
-				uint32_t id = operands[0];
-				char *string = (char *)&operands[1];
-				names[id] = string;
-				break;
+static void add_member_name(uint32_t id, char *name) {
+	memberNames[memberNames_size].id = id;
+	memberNames[memberNames_size].name = name;
+	++memberNames_size;
+}
+
+static char *find_member_name(uint32_t id) {
+	for (uint32_t i = 0; i < memberNames_size; ++i) {
+		if (memberNames[i].id == id) {
+			return memberNames[i].name;
+		}
+	}
+	return NULL;
+}
+
+static void add_location(uint32_t id, uint32_t location) {
+	locs[locs_size].id = id;
+	locs[locs_size].value = location;
+	++locs_size;
+}
+
+static void add_binding(uint32_t id, uint32_t binding) {
+	bindings[bindings_size].id = id;
+	bindings[bindings_size].value = binding;
+	++bindings_size;
+}
+
+static void add_offset(uint32_t id, uint32_t offset) {
+	offsets[offsets_size].id = id;
+	offsets[offsets_size].value = offset;
+	++offsets_size;
+}
+
+static void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
+                        kinc_internal_named_number *uniformOffsets) {
+	names_size = 0;
+	memberNames_size = 0;
+	locs_size = 0;
+	bindings_size = 0;
+	offsets_size = 0;
+
+	uint32_t *spirv = (uint32_t *)shader->impl.source;
+	int spirvsize = shader->impl.length / 4;
+	int index = 0;
+
+	uint32_t magicNumber = spirv[index++];
+	uint32_t version = spirv[index++];
+	uint32_t generator = spirv[index++];
+	uint32_t bound = spirv[index++];
+	index++;
+
+	while (index < spirvsize) {
+		int wordCount = spirv[index] >> 16;
+		uint32_t opcode = spirv[index] & 0xffff;
+
+		uint32_t *operands = wordCount > 1 ? &spirv[index + 1] : NULL;
+		uint32_t length = wordCount - 1;
+
+		switch (opcode) {
+		case 5: { // OpName
+			uint32_t id = operands[0];
+			char *string = (char *)&operands[1];
+			add_name(id, string);
+			break;
+		}
+		case 6: { // OpMemberName
+			uint32_t type = operands[0];
+			char *name = find_name(type);
+			if (name != NULL && strcmp(name, "_k_global_uniform_buffer_type") == 0) {
+				uint32_t member = operands[1];
+				char *string = (char *)&operands[2];
+				add_member_name(member, string);
 			}
-			case 6: { // OpMemberName
-				uint32_t type = operands[0];
-				if (names[type] == "_k_global_uniform_buffer_type") {
-					uint32_t member = operands[1];
-					char *string = (char *)&operands[2];
-					memberNames[member] = string;
+			break;
+		}
+		case 71: { // OpDecorate
+			uint32_t id = operands[0];
+			uint32_t decoration = operands[1];
+			if (decoration == 30) { // location
+				uint32_t location = operands[2];
+				add_location(id, location);
+			}
+			if (decoration == 33) { // binding
+				uint32_t binding = operands[2];
+				add_binding(id, binding);
+			}
+			break;
+		}
+		case 72: { // OpMemberDecorate
+			uint32_t type = operands[0];
+			char *name = find_name(type);
+			if (name != NULL && strcmp(name, "_k_global_uniform_buffer_type") == 0) {
+				uint32_t member = operands[1];
+				uint32_t decoration = operands[2];
+				if (decoration == 35) { // offset
+					uint32_t offset = operands[3];
+					add_offset(member, offset);
 				}
-				break;
 			}
-			case 71: { // OpDecorate
-				uint32_t id = operands[0];
-				uint32_t decoration = operands[1];
-				if (decoration == 30) { // location
-					uint32_t location = operands[2];
-					locs[id] = location;
-				}
-				if (decoration == 33) { // binding
-					uint32_t binding = operands[2];
-					bindings[id] = binding;
-				}
-				break;
-			}
-			case 72: { // OpMemberDecorate
-				uint32_t type = operands[0];
-				if (names[type] == "_k_global_uniform_buffer_type") {
-					uint32_t member = operands[1];
-					uint32_t decoration = operands[2];
-					if (decoration == 35) { // offset
-						uint32_t offset = operands[3];
-						offsets[member] = offset;
-					}
-				}
-			}
-			}
-
-			index += wordCount;
+			break;
+		}
 		}
 
-		for (std::map<uint32_t, uint32_t>::iterator it = locs.begin(); it != locs.end(); ++it) {
-			set_number(locations, names[it->first].c_str(), it->second);
-		}
+		index += wordCount;
+	}
 
-		for (std::map<uint32_t, uint32_t>::iterator it = bindings.begin(); it != bindings.end(); ++it) {
-			set_number(textureBindings, names[it->first].c_str(), it->second);
-		}
-
-		for (std::map<uint32_t, uint32_t>::iterator it = offsets.begin(); it != offsets.end(); ++it) {
-			set_number(uniformOffsets, memberNames[it->first].c_str(), it->second);
+	for (uint32_t i = 0; i < locs_size; ++i) {
+		char *name = find_name(locs[i].id);
+		if (name != NULL) {
+			set_number(locations, name, locs[i].value);
 		}
 	}
 
-	VkShaderModule prepare_shader_module(const void *code, size_t size) {
-		VkShaderModuleCreateInfo moduleCreateInfo;
-		VkShaderModule module;
-		VkResult err;
-
-		moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		moduleCreateInfo.pNext = NULL;
-
-		moduleCreateInfo.codeSize = size;
-		moduleCreateInfo.pCode = (const uint32_t *)code;
-		moduleCreateInfo.flags = 0;
-		err = vkCreateShaderModule(device, &moduleCreateInfo, NULL, &module);
-		assert(!err);
-
-		return module;
+	for (uint32_t i = 0; i < bindings_size; ++i) {
+		char *name = find_name(bindings[i].id);
+		if (name != NULL) {
+			set_number(textureBindings, name, bindings[i].value);
+		}
 	}
 
-	VkShaderModule prepare_vs(VkShaderModule &vert_shader_module, kinc_g5_shader_t *vertexShader) {
-		vert_shader_module = prepare_shader_module(vertexShader->impl.source, vertexShader->impl.length);
-		return vert_shader_module;
+	for (uint32_t i = 0; i < offsets_size; ++i) {
+		char *name = find_member_name(offsets[i].id);
+		if (name != NULL) {
+			set_number(uniformOffsets, name, offsets[i].value);
+		}
 	}
+}
 
-	VkShaderModule prepare_fs(VkShaderModule &frag_shader_module, kinc_g5_shader_t *fragmentShader) {
-		frag_shader_module = prepare_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
-		return frag_shader_module;
-	}
+static VkShaderModule prepare_shader_module(const void *code, size_t size) {
+	VkShaderModuleCreateInfo moduleCreateInfo;
+	VkShaderModule module;
+	VkResult err;
+
+	moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	moduleCreateInfo.pNext = NULL;
+
+	moduleCreateInfo.codeSize = size;
+	moduleCreateInfo.pCode = (const uint32_t *)code;
+	moduleCreateInfo.flags = 0;
+	err = vkCreateShaderModule(device, &moduleCreateInfo, NULL, &module);
+	assert(!err);
+
+	return module;
+}
+
+static VkShaderModule prepare_vs(VkShaderModule *vert_shader_module, kinc_g5_shader_t *vertexShader) {
+	*vert_shader_module = prepare_shader_module(vertexShader->impl.source, vertexShader->impl.length);
+	return *vert_shader_module;
+}
+
+static VkShaderModule prepare_fs(VkShaderModule *frag_shader_module, kinc_g5_shader_t *fragmentShader) {
+	*frag_shader_module = prepare_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
+	return *frag_shader_module;
 }
 
 static VkFormat convert_format(kinc_g5_render_target_format_t format) {
@@ -207,65 +284,63 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 	return unit;
 }
 
-namespace {
-	VkCullModeFlagBits convert_cull_mode(kinc_g5_cull_mode_t cullMode) {
-		switch (cullMode) {
-		case KINC_G5_CULL_MODE_CLOCKWISE:
-			return VK_CULL_MODE_BACK_BIT;
-		case KINC_G5_CULL_MODE_COUNTERCLOCKWISE:
-			return VK_CULL_MODE_FRONT_BIT;
-		case KINC_G5_CULL_MODE_NEVER:
-		default:
-			return VK_CULL_MODE_NONE;
-		}
+static VkCullModeFlagBits convert_cull_mode(kinc_g5_cull_mode_t cullMode) {
+	switch (cullMode) {
+	case KINC_G5_CULL_MODE_CLOCKWISE:
+		return VK_CULL_MODE_BACK_BIT;
+	case KINC_G5_CULL_MODE_COUNTERCLOCKWISE:
+		return VK_CULL_MODE_FRONT_BIT;
+	case KINC_G5_CULL_MODE_NEVER:
+	default:
+		return VK_CULL_MODE_NONE;
 	}
+}
 
-	VkCompareOp convert_compare_mode(kinc_g5_compare_mode_t compare) {
-		switch (compare) {
-		default:
-		case KINC_G5_COMPARE_MODE_ALWAYS:
-			return VK_COMPARE_OP_ALWAYS;
-		case KINC_G5_COMPARE_MODE_NEVER:
-			return VK_COMPARE_OP_NEVER;
-		case KINC_G5_COMPARE_MODE_EQUAL:
-			return VK_COMPARE_OP_EQUAL;
-		case KINC_G5_COMPARE_MODE_NOT_EQUAL:
-			return VK_COMPARE_OP_NOT_EQUAL;
-		case KINC_G5_COMPARE_MODE_LESS:
-			return VK_COMPARE_OP_LESS;
-		case KINC_G5_COMPARE_MODE_LESS_EQUAL:
-			return VK_COMPARE_OP_LESS_OR_EQUAL;
-		case KINC_G5_COMPARE_MODE_GREATER:
-			return VK_COMPARE_OP_GREATER;
-		case KINC_G5_COMPARE_MODE_GREATER_EQUAL:
-			return VK_COMPARE_OP_GREATER_OR_EQUAL;
-		}
+static VkCompareOp convert_compare_mode(kinc_g5_compare_mode_t compare) {
+	switch (compare) {
+	default:
+	case KINC_G5_COMPARE_MODE_ALWAYS:
+		return VK_COMPARE_OP_ALWAYS;
+	case KINC_G5_COMPARE_MODE_NEVER:
+		return VK_COMPARE_OP_NEVER;
+	case KINC_G5_COMPARE_MODE_EQUAL:
+		return VK_COMPARE_OP_EQUAL;
+	case KINC_G5_COMPARE_MODE_NOT_EQUAL:
+		return VK_COMPARE_OP_NOT_EQUAL;
+	case KINC_G5_COMPARE_MODE_LESS:
+		return VK_COMPARE_OP_LESS;
+	case KINC_G5_COMPARE_MODE_LESS_EQUAL:
+		return VK_COMPARE_OP_LESS_OR_EQUAL;
+	case KINC_G5_COMPARE_MODE_GREATER:
+		return VK_COMPARE_OP_GREATER;
+	case KINC_G5_COMPARE_MODE_GREATER_EQUAL:
+		return VK_COMPARE_OP_GREATER_OR_EQUAL;
 	}
+}
 
-	VkBlendFactor convert_blend_mode(kinc_g5_blending_operation_t op) {
-		switch (op) {
-		default:
-		case KINC_G5_BLEND_MODE_ONE:
-			return VK_BLEND_FACTOR_ONE;
-		case KINC_G5_BLEND_MODE_ZERO:
-			return VK_BLEND_FACTOR_ZERO;
-		case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
-			return VK_BLEND_FACTOR_SRC_ALPHA;
-		case KINC_G5_BLEND_MODE_DEST_ALPHA:
-			return VK_BLEND_FACTOR_DST_ALPHA;
-		case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
-			return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
-			return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
-		case KINC_G5_BLEND_MODE_SOURCE_COLOR:
-			return VK_BLEND_FACTOR_SRC_COLOR;
-		case KINC_G5_BLEND_MODE_DEST_COLOR:
-			return VK_BLEND_FACTOR_DST_COLOR;
-		case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
-			return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
-		case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
-			return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
-		}
+static VkBlendFactor convert_blend_mode(kinc_g5_blending_operation_t op) {
+	switch (op) {
+	default:
+	case KINC_G5_BLEND_MODE_ONE:
+		return VK_BLEND_FACTOR_ONE;
+	case KINC_G5_BLEND_MODE_ZERO:
+		return VK_BLEND_FACTOR_ZERO;
+	case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
+		return VK_BLEND_FACTOR_SRC_ALPHA;
+	case KINC_G5_BLEND_MODE_DEST_ALPHA:
+		return VK_BLEND_FACTOR_DST_ALPHA;
+	case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
+		return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
+		return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+	case KINC_G5_BLEND_MODE_SOURCE_COLOR:
+		return VK_BLEND_FACTOR_SRC_COLOR;
+	case KINC_G5_BLEND_MODE_DEST_COLOR:
+		return VK_BLEND_FACTOR_DST_COLOR;
+	case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
+		return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+	case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
+		return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
 	}
 }
 
@@ -278,7 +353,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	parseShader(pipeline->vertexShader, pipeline->impl.vertexLocations, pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
 	parseShader(pipeline->fragmentShader, pipeline->impl.fragmentLocations, pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
 
-	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
+	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {0};
 	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pPipelineLayoutCreateInfo.pNext = NULL;
 	pPipelineLayoutCreateInfo.setLayoutCount = 1;
@@ -287,18 +362,18 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	VkResult err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, NULL, &pipeline->impl.pipeline_layout);
 	assert(!err);
 
-	VkGraphicsPipelineCreateInfo pipeline_info = {};
-	VkPipelineCacheCreateInfo pipelineCache_info = {};
+	VkGraphicsPipelineCreateInfo pipeline_info = {0};
+	VkPipelineCacheCreateInfo pipelineCache_info = {0};
 
-	VkPipelineInputAssemblyStateCreateInfo ia = {};
-	VkPipelineRasterizationStateCreateInfo rs = {};
-	VkPipelineColorBlendStateCreateInfo cb = {};
-	VkPipelineDepthStencilStateCreateInfo ds = {};
-	VkPipelineViewportStateCreateInfo vp = {};
-	VkPipelineMultisampleStateCreateInfo ms = {};
-	const int dynamicStatesCount = 2;
+	VkPipelineInputAssemblyStateCreateInfo ia = {0};
+	VkPipelineRasterizationStateCreateInfo rs = {0};
+	VkPipelineColorBlendStateCreateInfo cb = {0};
+	VkPipelineDepthStencilStateCreateInfo ds = {0};
+	VkPipelineViewportStateCreateInfo vp = {0};
+	VkPipelineMultisampleStateCreateInfo ms = {0};
+#define dynamicStatesCount 2
 	VkDynamicState dynamicStateEnables[dynamicStatesCount];
-	VkPipelineDynamicStateCreateInfo dynamicState = {};
+	VkPipelineDynamicStateCreateInfo dynamicState = {0};
 
 	memset(dynamicStateEnables, 0, sizeof(dynamicStateEnables));
 	memset(&dynamicState, 0, sizeof(dynamicState));
@@ -329,7 +404,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 #else
 	VkVertexInputAttributeDescription vi_attrs[vertexAttributeCount];
 #endif
-	VkPipelineVertexInputStateCreateInfo vi = {};
+	VkPipelineVertexInputStateCreateInfo vi = {0};
 	memset(&vi, 0, sizeof(vi));
 	vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vi.pNext = NULL;
@@ -473,7 +548,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	memset(&ms, 0, sizeof(ms));
 	ms.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	ms.pSampleMask = nullptr;
+	ms.pSampleMask = NULL;
 	ms.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
 	pipeline_info.stageCount = 2;
@@ -482,12 +557,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 	shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStages[0].module = prepare_vs(pipeline->impl.vert_shader_module, pipeline->vertexShader);
+	shaderStages[0].module = prepare_vs(&pipeline->impl.vert_shader_module, pipeline->vertexShader);
 	shaderStages[0].pName = "main";
 
 	shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStages[1].module = prepare_fs(pipeline->impl.frag_shader_module, pipeline->fragmentShader);
+	shaderStages[1].module = prepare_fs(&pipeline->impl.frag_shader_module, pipeline->fragmentShader);
 	shaderStages[1].pName = "main";
 
 	VkAttachmentDescription attachments[9];
@@ -521,31 +596,31 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		color_references[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	}
 
-	VkAttachmentReference depth_reference = {};
+	VkAttachmentReference depth_reference = {0};
 	depth_reference.attachment = pipeline->colorAttachmentCount;
 	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-	VkSubpassDescription subpass = {};
+	VkSubpassDescription subpass = {0};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.flags = 0;
 	subpass.inputAttachmentCount = 0;
-	subpass.pInputAttachments = nullptr;
+	subpass.pInputAttachments = NULL;
 	subpass.colorAttachmentCount = pipeline->colorAttachmentCount;
 	subpass.pColorAttachments = color_references;
-	subpass.pResolveAttachments = nullptr;
-	subpass.pDepthStencilAttachment = pipeline->depthAttachmentBits > 0 ? &depth_reference : nullptr;
+	subpass.pResolveAttachments = NULL;
+	subpass.pDepthStencilAttachment = pipeline->depthAttachmentBits > 0 ? &depth_reference : NULL;
 	subpass.preserveAttachmentCount = 0;
-	subpass.pPreserveAttachments = nullptr;
+	subpass.pPreserveAttachments = NULL;
 
-	VkRenderPassCreateInfo rp_info = {};
+	VkRenderPassCreateInfo rp_info = {0};
 	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	rp_info.pNext = nullptr;
+	rp_info.pNext = NULL;
 	rp_info.attachmentCount = pipeline->depthAttachmentBits > 0 ? pipeline->colorAttachmentCount + 1 : pipeline->colorAttachmentCount;
 	rp_info.pAttachments = attachments;
 	rp_info.subpassCount = 1;
 	rp_info.pSubpasses = &subpass;
 	rp_info.dependencyCount = 0;
-	rp_info.pDependencies = nullptr;
+	rp_info.pDependencies = NULL;
 
 	VkRenderPass render_pass;
 	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
@@ -565,14 +640,14 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	memset(&pipelineCache_info, 0, sizeof(pipelineCache_info));
 	pipelineCache_info.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
-	err = vkCreatePipelineCache(device, &pipelineCache_info, nullptr, &pipeline->impl.pipelineCache);
+	err = vkCreatePipelineCache(device, &pipelineCache_info, NULL, &pipeline->impl.pipelineCache);
 	assert(!err);
-	err = vkCreateGraphicsPipelines(device, pipeline->impl.pipelineCache, 1, &pipeline_info, nullptr, &pipeline->impl.pipeline);
+	err = vkCreateGraphicsPipelines(device, pipeline->impl.pipelineCache, 1, &pipeline_info, NULL, &pipeline->impl.pipeline);
 	assert(!err);
 
-	vkDestroyPipelineCache(device, pipeline->impl.pipelineCache, nullptr);
-	vkDestroyShaderModule(device, pipeline->impl.frag_shader_module, nullptr);
-	vkDestroyShaderModule(device, pipeline->impl.vert_shader_module, nullptr);
+	vkDestroyPipelineCache(device, pipeline->impl.pipelineCache, NULL);
+	vkDestroyShaderModule(device, pipeline->impl.frag_shader_module, NULL);
+	vkDestroyShaderModule(device, pipeline->impl.vert_shader_module, NULL);
 }
 
 void createDescriptorLayout() {
@@ -583,23 +658,23 @@ void createDescriptorLayout() {
 	layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	layoutBindings[0].descriptorCount = 1;
 	layoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	layoutBindings[0].pImmutableSamplers = nullptr;
+	layoutBindings[0].pImmutableSamplers = NULL;
 
 	layoutBindings[1].binding = 1;
 	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	layoutBindings[1].descriptorCount = 1;
 	layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	layoutBindings[1].pImmutableSamplers = nullptr;
+	layoutBindings[1].pImmutableSamplers = NULL;
 
 	for (int i = 2; i < 18; ++i) {
 		layoutBindings[i].binding = i;
 		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		layoutBindings[i].descriptorCount = 1;
 		layoutBindings[i].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
-		layoutBindings[i].pImmutableSamplers = nullptr;
+		layoutBindings[i].pImmutableSamplers = NULL;
 	}
 
-	VkDescriptorSetLayoutCreateInfo descriptor_layout = {};
+	VkDescriptorSetLayoutCreateInfo descriptor_layout = {0};
 	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	descriptor_layout.pNext = NULL;
 	descriptor_layout.bindingCount = 18;
@@ -622,7 +697,7 @@ void createDescriptorLayout() {
 		typeCounts[i].descriptorCount = 1;
 	}
 
-	VkDescriptorPoolCreateInfo descriptor_pool = {};
+	VkDescriptorPoolCreateInfo descriptor_pool = {0};
 	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptor_pool.pNext = NULL;
 	descriptor_pool.maxSets = 1024;
@@ -635,28 +710,28 @@ void createDescriptorLayout() {
 	}
 }
 
-void createDescriptorSet(VkDescriptorSet &desc_set) {
+void createDescriptorSet(VkDescriptorSet *desc_set) {
 	VkDescriptorBufferInfo buffer_descs[2];
 
-	VkDescriptorSetAllocateInfo alloc_info = {};
+	VkDescriptorSetAllocateInfo alloc_info = {0};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.pNext = NULL;
 	alloc_info.descriptorPool = desc_pools[current_buffer];
 	alloc_info.descriptorSetCount = 1;
 	alloc_info.pSetLayouts = &desc_layout;
-	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
+	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, desc_set);
 	assert(!err);
 
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
-	if (Kore::Vulkan::vertexUniformBuffer != nullptr) {
-		buffer_descs[0].buffer = *Kore::Vulkan::vertexUniformBuffer;
+	if (kinc_vulkan_internal_vertexUniformBuffer != NULL) {
+		buffer_descs[0].buffer = *kinc_vulkan_internal_vertexUniformBuffer;
 	}
 	buffer_descs[0].offset = 0;
 	buffer_descs[0].range = 256 * sizeof(float);
 
-	if (Kore::Vulkan::fragmentUniformBuffer != nullptr) {
-		buffer_descs[1].buffer = *Kore::Vulkan::fragmentUniformBuffer;
+	if (kinc_vulkan_internal_fragmentUniformBuffer != NULL) {
+		buffer_descs[1].buffer = *kinc_vulkan_internal_fragmentUniformBuffer;
 	}
 	buffer_descs[1].offset = 0;
 	buffer_descs[1].range = 256 * sizeof(float);
@@ -666,12 +741,12 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 
 	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
-		if (vulkanTextures[i] != nullptr) {
+		if (vulkanTextures[i] != NULL) {
 			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
 			texture_count++;
 		}
-		else if (vulkanRenderTargets[i] != nullptr) {
+		else if (vulkanRenderTargets[i] != NULL) {
 			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
 			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.depthView;
@@ -689,14 +764,14 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 	memset(&writes, 0, sizeof(writes));
 
 	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writes[0].dstSet = desc_set;
+	writes[0].dstSet = *desc_set;
 	writes[0].dstBinding = 0;
 	writes[0].descriptorCount = 1;
 	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	writes[0].pBufferInfo = &buffer_descs[0];
 
 	writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writes[1].dstSet = desc_set;
+	writes[1].dstSet = *desc_set;
 	writes[1].dstBinding = 1;
 	writes[1].descriptorCount = 1;
 	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
@@ -704,24 +779,24 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 
 	for (int i = 2; i < 18; ++i) {
 		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writes[i].dstSet = desc_set;
+		writes[i].dstSet = *desc_set;
 		writes[i].dstBinding = i;
 		writes[i].descriptorCount = 1;
 		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		writes[i].pImageInfo = &tex_desc[i - 2];
 	}
 
-	if (vulkanTextures[0] != nullptr || vulkanRenderTargets[0] != nullptr) {
-		if (Kore::Vulkan::vertexUniformBuffer != nullptr && Kore::Vulkan::fragmentUniformBuffer != nullptr) {
-			vkUpdateDescriptorSets(device, 2 + texture_count, writes, 0, nullptr);
+	if (vulkanTextures[0] != NULL || vulkanRenderTargets[0] != NULL) {
+		if (kinc_vulkan_internal_vertexUniformBuffer != NULL && kinc_vulkan_internal_fragmentUniformBuffer != NULL) {
+			vkUpdateDescriptorSets(device, 2 + texture_count, writes, 0, NULL);
 		}
 		else {
-			vkUpdateDescriptorSets(device, texture_count, writes + 2, 0, nullptr);
+			vkUpdateDescriptorSets(device, texture_count, writes + 2, 0, NULL);
 		}
 	}
 	else {
-		if (Kore::Vulkan::vertexUniformBuffer != nullptr && Kore::Vulkan::fragmentUniformBuffer != nullptr) {
-			vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
+		if (kinc_vulkan_internal_vertexUniformBuffer != NULL && kinc_vulkan_internal_fragmentUniformBuffer != NULL) {
+			vkUpdateDescriptorSets(device, 2, writes, 0, NULL);
 		}
 	}
 }

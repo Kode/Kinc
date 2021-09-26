@@ -38,9 +38,9 @@ extern VkCommandBuffer setup_cmd;
 
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
 
-	VkImageMemoryBarrier imageMemoryBarrier = {};
+	VkImageMemoryBarrier imageMemoryBarrier = {0};
 	imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	imageMemoryBarrier.pNext = nullptr;
+	imageMemoryBarrier.pNext = NULL;
 	imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	imageMemoryBarrier.oldLayout = oldImageLayout;
@@ -85,7 +85,7 @@ void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags a
 	VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 	VkPipelineStageFlags dstStageFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
-	vkCmdPipelineBarrier(_buffer, srcStageFlags, dstStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	vkCmdPipelineBarrier(_buffer, srcStageFlags, dstStageFlags, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
 }
 
 void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
@@ -101,9 +101,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	target->impl.stage_depth = -1;
 	target->impl.readbackBufferCreated = false;
 
-	VkSamplerCreateInfo samplerInfo = {};
+	VkSamplerCreateInfo samplerInfo = {0};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.pNext = nullptr;
+	samplerInfo.pNext = NULL;
 	samplerInfo.magFilter = VK_FILTER_LINEAR;
 	samplerInfo.minFilter = VK_FILTER_LINEAR;
 	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
@@ -119,7 +119,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 	samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
-	VkResult err = vkCreateSampler(device, &samplerInfo, nullptr, &target->impl.sampler);
+	VkResult err = vkCreateSampler(device, &samplerInfo, NULL, &target->impl.sampler);
 	assert(!err);
 
 	if (contextId >= 0) {
@@ -131,9 +131,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			vkGetPhysicalDeviceFormatProperties(gpu, target->impl.format, &formatProperties);
 			assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT);
 
-			VkImageCreateInfo image = {};
+			VkImageCreateInfo image = {0};
 			image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-			image.pNext = nullptr;
+			image.pNext = NULL;
 			image.imageType = VK_IMAGE_TYPE_2D;
 			image.format = target->impl.format;
 			image.extent.width = width;
@@ -146,34 +146,33 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			image.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 			image.flags = 0;
 
-			VkImageViewCreateInfo colorImageView = {};
+			VkImageViewCreateInfo colorImageView = {0};
 			colorImageView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			colorImageView.pNext = nullptr;
+			colorImageView.pNext = NULL;
 			colorImageView.viewType = VK_IMAGE_VIEW_TYPE_2D;
 			colorImageView.format = target->impl.format;
 			colorImageView.flags = 0;
-			colorImageView.subresourceRange = {};
 			colorImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			colorImageView.subresourceRange.baseMipLevel = 0;
 			colorImageView.subresourceRange.levelCount = 1;
 			colorImageView.subresourceRange.baseArrayLayer = 0;
 			colorImageView.subresourceRange.layerCount = 1;
 
-			err = vkCreateImage(device, &image, nullptr, &target->impl.sourceImage);
+			err = vkCreateImage(device, &image, NULL, &target->impl.sourceImage);
 			assert(!err);
 
 			VkMemoryRequirements memoryRequirements;
 			vkGetImageMemoryRequirements(device, target->impl.sourceImage, &memoryRequirements);
 
-			VkMemoryAllocateInfo allocationInfo = {};
+			VkMemoryAllocateInfo allocationInfo = {0};
 			allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-			allocationInfo.pNext = nullptr;
+			allocationInfo.pNext = NULL;
 			allocationInfo.memoryTypeIndex = 0;
 			allocationInfo.allocationSize = memoryRequirements.size;
 			bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
 			assert(pass);
 
-			err = vkAllocateMemory(device, &allocationInfo, nullptr, &target->impl.sourceMemory);
+			err = vkAllocateMemory(device, &allocationInfo, NULL, &target->impl.sourceMemory);
 			assert(!err);
 
 			err = vkBindImageMemory(device, target->impl.sourceImage, target->impl.sourceMemory, 0);
@@ -184,13 +183,13 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			flush_init_cmd();
 
 			colorImageView.image = target->impl.sourceImage;
-			err = vkCreateImageView(device, &colorImageView, nullptr, &target->impl.sourceView);
+			err = vkCreateImageView(device, &colorImageView, NULL, &target->impl.sourceView);
 			assert(!err);
 		}
 
 		if (depthBufferBits > 0) {
 			const VkFormat depth_format = VK_FORMAT_D16_UNORM;
-			VkImageCreateInfo image = {};
+			VkImageCreateInfo image = {0};
 			image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 			image.pNext = NULL;
 			image.imageType = VK_IMAGE_TYPE_2D;
@@ -209,13 +208,13 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			err = vkCreateImage(device, &image, NULL, &target->impl.depthImage);
 			assert(!err);
 
-			VkMemoryAllocateInfo mem_alloc = {};
+			VkMemoryAllocateInfo mem_alloc = {0};
 			mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			mem_alloc.pNext = NULL;
 			mem_alloc.allocationSize = 0;
 			mem_alloc.memoryTypeIndex = 0;
 
-			VkImageViewCreateInfo view = {};
+			VkImageViewCreateInfo view = {0};
 			view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			view.pNext = NULL;
 			view.image = target->impl.depthImage;
@@ -228,7 +227,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			view.flags = 0;
 			view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 
-			VkMemoryRequirements mem_reqs = {};
+			VkMemoryRequirements mem_reqs = {0};
 			bool pass;
 
 			/* get memory requirements for this object */
@@ -281,25 +280,25 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 				attachments[1].flags = 0;
 			}
 
-			VkAttachmentReference color_reference = {};
+			VkAttachmentReference color_reference = {0};
 			color_reference.attachment = 0;
 			color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-			VkAttachmentReference depth_reference = {};
+			VkAttachmentReference depth_reference = {0};
 			depth_reference.attachment = 1;
 			depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-			VkSubpassDescription subpass = {};
+			VkSubpassDescription subpass = {0};
 			subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 			subpass.flags = 0;
 			subpass.inputAttachmentCount = 0;
-			subpass.pInputAttachments = nullptr;
+			subpass.pInputAttachments = NULL;
 			subpass.colorAttachmentCount = 1;
 			subpass.pColorAttachments = &color_reference;
-			subpass.pResolveAttachments = nullptr;
-			subpass.pDepthStencilAttachment = depthBufferBits > 0 ? &depth_reference : nullptr;
+			subpass.pResolveAttachments = NULL;
+			subpass.pDepthStencilAttachment = depthBufferBits > 0 ? &depth_reference : NULL;
 			subpass.preserveAttachmentCount = 0;
-			subpass.pPreserveAttachments = nullptr;
+			subpass.pPreserveAttachments = NULL;
 
 			VkSubpassDependency dependencies[2];
 			memset(&dependencies, 0, sizeof(dependencies));
@@ -320,9 +319,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 			dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-			VkRenderPassCreateInfo rp_info = {};
+			VkRenderPassCreateInfo rp_info = {0};
 			rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-			rp_info.pNext = nullptr;
+			rp_info.pNext = NULL;
 			rp_info.attachmentCount = depthBufferBits > 0 ? 2 : 1;
 			rp_info.pAttachments = attachments;
 			rp_info.subpassCount = 1;
@@ -341,9 +340,9 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			attachments[1] = target->impl.depthView;
 		}
 
-		VkFramebufferCreateInfo fbufCreateInfo = {};
+		VkFramebufferCreateInfo fbufCreateInfo = {0};
 		fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		fbufCreateInfo.pNext = nullptr;
+		fbufCreateInfo.pNext = NULL;
 		fbufCreateInfo.renderPass = target->impl.renderPass;
 		fbufCreateInfo.attachmentCount = depthBufferBits > 0 ? 2 : 1;
 		fbufCreateInfo.pAttachments = attachments;
@@ -351,7 +350,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		fbufCreateInfo.height = height;
 		fbufCreateInfo.layers = 1;
 
-		err = vkCreateFramebuffer(device, &fbufCreateInfo, nullptr, &target->impl.framebuffer);
+		err = vkCreateFramebuffer(device, &fbufCreateInfo, NULL, &target->impl.framebuffer);
 		assert(!err);
 	}
 }
@@ -364,13 +363,13 @@ void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {}
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	target->impl.stage = unit.impl.binding - 2;
 	vulkanRenderTargets[unit.impl.binding - 2] = target;
-	vulkanTextures[unit.impl.binding - 2] = nullptr;
+	vulkanTextures[unit.impl.binding - 2] = NULL;
 }
 
 void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	target->impl.stage_depth = unit.impl.binding - 2;
 	vulkanRenderTargets[unit.impl.binding - 2] = target;
-	vulkanTextures[unit.impl.binding - 2] = nullptr;
+	vulkanTextures[unit.impl.binding - 2] = NULL;
 }
 
 void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *target, kinc_g5_render_target_t *source) {
@@ -406,25 +405,25 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 			attachments[1].flags = 0;
 		}
 
-		VkAttachmentReference color_reference = {};
+		VkAttachmentReference color_reference = {0};
 		color_reference.attachment = 0;
 		color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		VkAttachmentReference depth_reference = {};
+		VkAttachmentReference depth_reference = {0};
 		depth_reference.attachment = 1;
 		depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		VkSubpassDescription subpass = {};
+		VkSubpassDescription subpass = {0};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.flags = 0;
 		subpass.inputAttachmentCount = 0;
-		subpass.pInputAttachments = nullptr;
+		subpass.pInputAttachments = NULL;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &color_reference;
-		subpass.pResolveAttachments = nullptr;
-		subpass.pDepthStencilAttachment = target->impl.depthBufferBits > 0 ? &depth_reference : nullptr;
+		subpass.pResolveAttachments = NULL;
+		subpass.pDepthStencilAttachment = target->impl.depthBufferBits > 0 ? &depth_reference : NULL;
 		subpass.preserveAttachmentCount = 0;
-		subpass.pPreserveAttachments = nullptr;
+		subpass.pPreserveAttachments = NULL;
 
 		VkSubpassDependency dependencies[2];
 		memset(&dependencies, 0, sizeof(dependencies));
@@ -445,9 +444,9 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 		dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 		dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-		VkRenderPassCreateInfo rp_info = {};
+		VkRenderPassCreateInfo rp_info = {0};
 		rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		rp_info.pNext = nullptr;
+		rp_info.pNext = NULL;
 		rp_info.attachmentCount = target->impl.depthBufferBits > 0 ? 2 : 1;
 		rp_info.pAttachments = attachments;
 		rp_info.subpassCount = 1;
@@ -467,9 +466,9 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 			attachments[1] = target->impl.depthView;
 		}
 
-		VkFramebufferCreateInfo fbufCreateInfo = {};
+		VkFramebufferCreateInfo fbufCreateInfo = {0};
 		fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		fbufCreateInfo.pNext = nullptr;
+		fbufCreateInfo.pNext = NULL;
 		fbufCreateInfo.renderPass = target->impl.renderPass;
 		fbufCreateInfo.attachmentCount = target->impl.depthBufferBits > 0 ? 2 : 1;
 		fbufCreateInfo.pAttachments = attachments;
@@ -477,7 +476,7 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 		fbufCreateInfo.height = target->height;
 		fbufCreateInfo.layers = 1;
 
-		VkResult err = vkCreateFramebuffer(device, &fbufCreateInfo, nullptr, &target->impl.framebuffer);
+		VkResult err = vkCreateFramebuffer(device, &fbufCreateInfo, NULL, &target->impl.framebuffer);
 		assert(!err);
 	}
 }

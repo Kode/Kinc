@@ -43,6 +43,9 @@
 #define NOWINSTYLES
 #define WIN32_LEAN_AND_MEAN
 
+// avoids a warning in the Windows headers
+#define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
+
 #endif
 
 #include <vulkan/vulkan.h>
@@ -59,29 +62,25 @@
 #include <kinc/image.h>
 #include <kinc/math/matrix.h>
 
-namespace Kore {
-	namespace Vulkan {
-		struct SwapchainBuffers {
-			VkImage image;
-			VkCommandBuffer cmd;
-			VkImageView view;
-		};
+struct SwapchainBuffers {
+	VkImage image;
+	VkCommandBuffer cmd;
+	VkImageView view;
+};
 
-		extern SwapchainBuffers *buffers;
+extern struct SwapchainBuffers *kinc_vulkan_internal_buffers;
 
-		struct DepthBuffer {
-			VkImage image;
-			VkDeviceMemory mem;
-			VkImageView view;
-		};
+struct DepthBuffer {
+	VkImage image;
+	VkDeviceMemory mem;
+	VkImageView view;
+};
 
-		extern DepthBuffer depth;
+extern struct DepthBuffer kinc_vulkan_internal_depth;
 
-		// buffer hack
-		extern VkBuffer *vertexUniformBuffer;
-		extern VkBuffer *fragmentUniformBuffer;
-	}
-}
+// buffer hack
+extern VkBuffer *kinc_vulkan_internal_vertexUniformBuffer;
+extern VkBuffer *kinc_vulkan_internal_fragmentUniformBuffer;
 
 #include "Vulkan.cpp.h"
 #include "commandlist.cpp.h"

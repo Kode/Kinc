@@ -14,7 +14,7 @@ static void unset(kinc_g5_index_buffer_t *buffer) {
 
 void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, bool gpuMemory) {
 	buffer->impl.myCount = indexCount;
-	VkBufferCreateInfo buf_info = {};
+	VkBufferCreateInfo buf_info = {0};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
 	buf_info.size = indexCount * sizeof(int);
@@ -36,7 +36,7 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, b
 	VkResult err = vkCreateBuffer(device, &buf_info, NULL, &buffer->impl.buf);
 	assert(!err);
 
-	VkMemoryRequirements mem_reqs = {};
+	VkMemoryRequirements mem_reqs = {0};
 	vkGetBufferMemoryRequirements(device, buffer->impl.buf, &mem_reqs);
 	assert(!err);
 
@@ -60,7 +60,6 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, b
 
 void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 	unset(buffer);
-	delete[] buffer->impl.data;
 }
 
 int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
