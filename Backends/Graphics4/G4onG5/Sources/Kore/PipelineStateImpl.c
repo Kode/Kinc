@@ -3,8 +3,8 @@
 #include "PipelineStateImpl.h"
 
 #include <kinc/graphics4/pipeline.h>
-#include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics4/shader.h>
+#include <kinc/graphics5/pipeline.h>
 
 void kinc_g4_pipeline_init(kinc_g4_pipeline_t *pipe) {
 	kinc_g4_internal_pipeline_set_defaults(pipe);
@@ -35,7 +35,8 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *pipe) {
 	pipe->impl._pipeline.fragmentShader = &pipe->fragment_shader->impl._shader;
 	pipe->impl._pipeline.geometryShader = pipe->geometry_shader != NULL ? &pipe->geometry_shader->impl._shader : NULL;
 	pipe->impl._pipeline.tessellationControlShader = pipe->tessellation_control_shader != NULL ? &pipe->tessellation_control_shader->impl._shader : NULL;
-	pipe->impl._pipeline.tessellationEvaluationShader = pipe->tessellation_evaluation_shader != NULL ? &pipe->tessellation_evaluation_shader->impl._shader : NULL;
+	pipe->impl._pipeline.tessellationEvaluationShader =
+	    pipe->tessellation_evaluation_shader != NULL ? &pipe->tessellation_evaluation_shader->impl._shader : NULL;
 	pipe->impl._pipeline.blendSource = (kinc_g5_blending_operation_t)pipe->blend_source;
 	pipe->impl._pipeline.blendDestination = (kinc_g5_blending_operation_t)pipe->blend_destination;
 	pipe->impl._pipeline.alphaBlendSource = (kinc_g5_blending_operation_t)pipe->alpha_blend_source;
@@ -49,7 +50,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *pipe) {
 		pipe->impl._pipeline.colorWriteMaskGreen[i] = pipe->color_write_mask_green[i];
 		pipe->impl._pipeline.colorWriteMaskBlue[i] = pipe->color_write_mask_blue[i];
 		pipe->impl._pipeline.colorWriteMaskAlpha[i] = pipe->color_write_mask_alpha[i];
-		pipe->impl._pipeline.colorAttachment[i] = pipe->color_attachment[i];
+		pipe->impl._pipeline.colorAttachment[i] = (kinc_g5_render_target_format_t)pipe->color_attachment[i];
 	}
 	kinc_g5_pipeline_compile(&pipe->impl._pipeline);
 }
