@@ -114,11 +114,9 @@ enum tagPOINTER_INPUT_TYPE {
 
 #include <stdio.h>
 
-#include "VrInterface_SteamVR.cpp.h"
-#include "Windows.cpp.h"
+#include "Windows.c.h"
 #include "display.c.h"
 #include "http.c.h"
 #include "mouse.c.h"
-#include "system.cpp.h"
-#include "video.cpp.h"
+#include "system.c.h"
 #include "window.c.h"

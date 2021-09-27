@@ -1,15 +1,13 @@
 #ifdef KORE_G4ONG5
-#include <Kore/Graphics5/Graphics.h>
+#include <kinc/graphics5/graphics.h>
 #elif KORE_G4
-#include <Kore/Graphics4/Graphics.h>
+#include <kinc/graphics4/graphics.h>
 #else
 #include <Kore/Graphics3/Graphics.h>
 #endif
 
 #include <kinc/input/gamepad.h>
 
-#include <Kore/Display.h>
-#include <Kore/Window.h>
 #include <kinc/backend/SystemMicrosoft.h>
 #include <kinc/backend/Windows.h>
 
@@ -32,7 +30,6 @@
 
 #include <XInput.h>
 #include <dbghelp.h>
-#include <exception>
 #include <shellapi.h>
 #include <shlobj.h>
 
@@ -44,9 +41,9 @@
 #define Graphics Graphics3
 #endif
 
-extern "C" __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
-extern "C" __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
-extern "C" void kinc_internal_resize(int window, int width, int height);
+__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+void kinc_internal_resize(int window, int width, int height);
 
 typedef BOOL(WINAPI *GetPointerInfoType)(UINT32 pointerId, POINTER_INFO *pointerInfo);
 static GetPointerInfoType MyGetPointerInfo = NULL;
@@ -63,7 +60,7 @@ struct touchpoint {
 	int y;
 };
 
-static touchpoint touchPoints[MAX_TOUCH_POINTS];
+static struct touchpoint touchPoints[MAX_TOUCH_POINTS];
 static int mouseX, mouseY;
 static bool keyPressed[256];
 int keyTranslated[256]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
@@ -283,21 +280,19 @@ static bool detectGamepad = true;
 static bool gamepadFound = false;
 static unsigned r = 0;
 
-namespace {
-	wchar_t toUnicode(WPARAM wParam, LPARAM lParam) {
-		wchar_t buffer[11];
-		BYTE state[256];
-		GetKeyboardState(state);
-		ToUnicode((UINT)wParam, (lParam >> 8) & 0xFFFFFF00, state, buffer, 10, 0);
-		return buffer[0];
-	}
+static wchar_t toUnicode(WPARAM wParam, LPARAM lParam) {
+	wchar_t buffer[11];
+	BYTE state[256];
+	GetKeyboardState(state);
+	ToUnicode((UINT)wParam, (lParam >> 8) & 0xFFFFFF00, state, buffer, 10, 0);
+	return buffer[0];
 }
 
-extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowId;
 	DWORD pointerId;
-	POINTER_INFO pointerInfo = {NULL};
-	POINTER_PEN_INFO penInfo = {NULL};
+	POINTER_INFO pointerInfo = {0};
+	POINTER_PEN_INFO penInfo = {0};
 	static bool controlDown = false;
 	static bool altDown = false;
 	static int last_window_width = -1;
@@ -307,7 +302,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 
 	switch (msg) {
 	case WM_NCCREATE:
-		if (MyEnableNonClientDpiScaling != nullptr) {
+		if (MyEnableNonClientDpiScaling != NULL) {
 			MyEnableNonClientDpiScaling(hWnd);
 		}
 		break;
@@ -473,7 +468,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			kinc_internal_pen_trigger_press(kinc_windows_window_index_from_hwnd(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
-			                                float(penInfo.pressure) / 1024.0f);
+			                                penInfo.pressure / 1024.0f);
 		}
 		break;
 	case WM_POINTERUP:
@@ -483,7 +478,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			kinc_internal_pen_trigger_release(kinc_windows_window_index_from_hwnd(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
-			                                  float(penInfo.pressure) / 1024.0f);
+			                                  penInfo.pressure / 1024.0f);
 		}
 		break;
 	case WM_POINTERUPDATE:
@@ -493,18 +488,18 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			MyGetPointerPenInfo(pointerId, &penInfo);
 			ScreenToClient(hWnd, &pointerInfo.ptPixelLocation);
 			kinc_internal_pen_trigger_move(kinc_windows_window_index_from_hwnd(hWnd), pointerInfo.ptPixelLocation.x, pointerInfo.ptPixelLocation.y,
-			                               float(penInfo.pressure) / 1024.0f);
+			                               penInfo.pressure / 1024.0f);
 		}
 		break;
 	case WM_TOUCH: {
 		BOOL bHandled = FALSE;
 		UINT cInputs = LOWORD(wParam);
-		PTOUCHINPUT pInputs = new TOUCHINPUT[cInputs];
+		PTOUCHINPUT pInputs = _alloca(cInputs * sizeof(TOUCHINPUT));
 		POINT ptInput;
 		int tindex;
 		if (pInputs) {
 			if (GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT))) {
-				for (int i = 0; i < static_cast<int>(cInputs); i++) {
+				for (int i = 0; i < (int)cInputs; i++) {
 					TOUCHINPUT ti = pInputs[i];
 					if (ti.dwID != 0) {
 						ptInput.x = TOUCH_COORD_TO_PIXEL(ti.x);
@@ -541,7 +536,6 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 					}
 				}
 			}
-			delete[] pInputs;
 		}
 		if (bHandled)
 			CloseTouchInputHandle((HTOUCHINPUT)lParam);
@@ -564,7 +558,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 			else {
 				if (controlDown && keyTranslated[wParam] == KINC_KEY_X) {
 					char *text = kinc_internal_cut_callback();
-					if (text != nullptr) {
+					if (text != NULL) {
 						wchar_t wtext[4096];
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
@@ -581,7 +575,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 
 				if (controlDown && keyTranslated[wParam] == KINC_KEY_C) {
 					char *text = kinc_internal_copy_callback();
-					if (text != nullptr) {
+					if (text != NULL) {
 						wchar_t wtext[4096];
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
@@ -600,11 +594,11 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 					if (IsClipboardFormatAvailable(CF_UNICODETEXT)) {
 						OpenClipboard(hWnd);
 						HANDLE handle = GetClipboardData(CF_UNICODETEXT);
-						if (handle != nullptr) {
+						if (handle != NULL) {
 							wchar_t *wtext = (wchar_t *)GlobalLock(handle);
-							if (wtext != nullptr) {
+							if (wtext != NULL) {
 								char text[4096];
-								WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, nullptr, nullptr);
+								WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, NULL, NULL);
 								kinc_internal_paste_callback(text);
 								GlobalUnlock(handle);
 							}
@@ -697,7 +691,7 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 		break;
 	case WM_DROPFILES:
 		HDROP hDrop = (HDROP)wParam;
-		unsigned count = DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, NULL);
+		unsigned count = DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
 		for (unsigned i = 0; i < count; ++i) {
 			wchar_t filePath[260];
 			if (DragQueryFileW(hDrop, i, filePath, 260)) {
@@ -710,260 +704,257 @@ extern "C" LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARA
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-namespace {
-	float axes[12 * 6];
-	float buttons[12 * 16];
+static float axes[12 * 6];
+static float buttons[12 * 16];
 
-	typedef DWORD(WINAPI *XInputGetStateType)(DWORD dwUserIndex, XINPUT_STATE *pState);
-	typedef DWORD(WINAPI *XInputSetStateType)(DWORD dwUserIndex, XINPUT_VIBRATION *pVibration);
-	XInputGetStateType InputGetState = nullptr;
-	XInputSetStateType InputSetState = nullptr;
-}
+typedef DWORD(WINAPI *XInputGetStateType)(DWORD dwUserIndex, XINPUT_STATE *pState);
+typedef DWORD(WINAPI *XInputSetStateType)(DWORD dwUserIndex, XINPUT_VIBRATION *pVibration);
+static XInputGetStateType InputGetState = NULL;
+static XInputSetStateType InputSetState = NULL;
 
 void loadXInput() {
 	HMODULE lib = LoadLibrary(L"xinput1_4.dll");
-	if (lib == nullptr) {
+	if (lib == NULL) {
 		lib = LoadLibrary(L"xinput1_3.dll");
 	}
-	if (lib == nullptr) {
+	if (lib == NULL) {
 		lib = LoadLibrary(L"xinput9_1_0.dll");
 	}
 
-	if (lib != nullptr) {
+	if (lib != NULL) {
 		InputGetState = (XInputGetStateType)GetProcAddress(lib, "XInputGetState");
 		InputSetState = (XInputSetStateType)GetProcAddress(lib, "XInputSetState");
 	}
 }
 
-namespace {
-	IDirectInput8 *di_instance = nullptr;
-	IDirectInputDevice8 *di_pads[XUSER_MAX_COUNT];
-	DIJOYSTATE2 di_padState[XUSER_MAX_COUNT];
-	DIJOYSTATE2 di_lastPadState[XUSER_MAX_COUNT];
-	DIDEVCAPS di_deviceCaps[XUSER_MAX_COUNT];
-	int padCount = 0;
+static IDirectInput8 *di_instance = NULL;
+static IDirectInputDevice8 *di_pads[XUSER_MAX_COUNT];
+static DIJOYSTATE2 di_padState[XUSER_MAX_COUNT];
+static DIJOYSTATE2 di_lastPadState[XUSER_MAX_COUNT];
+static DIDEVCAPS di_deviceCaps[XUSER_MAX_COUNT];
+static int padCount = 0;
 
-	void cleanupPad(int padIndex) {
-		if (di_pads[padIndex] != nullptr) {
-			di_pads[padIndex]->Unacquire();
-			di_pads[padIndex]->Release();
-			di_pads[padIndex] = 0;
-		}
+static void cleanupPad(int padIndex) {
+	if (di_pads[padIndex] != NULL) {
+		di_pads[padIndex]->lpVtbl->Unacquire(di_pads[padIndex]);
+		di_pads[padIndex]->lpVtbl->Release(di_pads[padIndex]);
+		di_pads[padIndex] = 0;
 	}
+}
 
 #ifndef SAFE_RELEASE
 #define SAFE_RELEASE(x)                                                                                                                                        \
 	if (x != NULL) {                                                                                                                                           \
-		x->Release();                                                                                                                                          \
+		x->lpVtbl->Release(x);                                                                                                                                 \
 		x = NULL;                                                                                                                                              \
 	}
 #endif
 
-	// From
-	//-----------------------------------------------------------------------------
-	// Enum each PNP device using WMI and check each device ID to see if it contains
-	// "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it's an XInput device
-	// Unfortunately this information can not be found by just using DirectInput
-	//-----------------------------------------------------------------------------
-	BOOL IsXInputDevice(const GUID *pGuidProductFromDirectInput) {
-		IWbemLocator *pIWbemLocator = NULL;
-		IEnumWbemClassObject *pEnumDevices = NULL;
-		IWbemClassObject *pDevices[20] = {0};
-		IWbemServices *pIWbemServices = NULL;
-		BSTR bstrNamespace = NULL;
-		BSTR bstrDeviceID = NULL;
-		BSTR bstrClassName = NULL;
-		DWORD uReturned = 0;
-		bool bIsXinputDevice = false;
-		UINT iDevice = 0;
-		VARIANT var;
-		HRESULT hr;
+// From
+//-----------------------------------------------------------------------------
+// Enum each PNP device using WMI and check each device ID to see if it contains
+// "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it's an XInput device
+// Unfortunately this information can not be found by just using DirectInput
+//-----------------------------------------------------------------------------
+static BOOL IsXInputDevice(const GUID *pGuidProductFromDirectInput) {
+	IWbemLocator *pIWbemLocator = NULL;
+	IEnumWbemClassObject *pEnumDevices = NULL;
+	IWbemClassObject *pDevices[20] = {0};
+	IWbemServices *pIWbemServices = NULL;
+	BSTR bstrNamespace = NULL;
+	BSTR bstrDeviceID = NULL;
+	BSTR bstrClassName = NULL;
+	DWORD uReturned = 0;
+	bool bIsXinputDevice = false;
+	UINT iDevice = 0;
+	VARIANT var;
+	HRESULT hr;
 
-		// CoInit if needed
-		hr = CoInitialize(NULL);
-		bool bCleanupCOM = SUCCEEDED(hr);
+	// CoInit if needed
+	hr = CoInitialize(NULL);
+	bool bCleanupCOM = SUCCEEDED(hr);
 
-		// Create WMI
-		hr = CoCreateInstance(__uuidof(WbemLocator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IWbemLocator), (LPVOID *)&pIWbemLocator);
-		if (FAILED(hr) || pIWbemLocator == NULL) goto LCleanup;
+	// Create WMI
+	hr = CoCreateInstance(&CLSID_WbemLocator, NULL, CLSCTX_INPROC_SERVER, &IID_IWbemLocator, (LPVOID *)&pIWbemLocator);
+	if (FAILED(hr) || pIWbemLocator == NULL) goto LCleanup;
 
-		bstrNamespace = SysAllocString(L"\\\\.\\root\\cimv2");
-		if (bstrNamespace == NULL) goto LCleanup;
-		bstrClassName = SysAllocString(L"Win32_PNPEntity");
-		if (bstrClassName == NULL) goto LCleanup;
-		bstrDeviceID = SysAllocString(L"DeviceID");
-		if (bstrDeviceID == NULL) goto LCleanup;
+	bstrNamespace = SysAllocString(L"\\\\.\\root\\cimv2");
+	if (bstrNamespace == NULL) goto LCleanup;
+	bstrClassName = SysAllocString(L"Win32_PNPEntity");
+	if (bstrClassName == NULL) goto LCleanup;
+	bstrDeviceID = SysAllocString(L"DeviceID");
+	if (bstrDeviceID == NULL) goto LCleanup;
 
-		// Connect to WMI
-		hr = pIWbemLocator->ConnectServer(bstrNamespace, NULL, NULL, 0L, 0L, NULL, NULL, &pIWbemServices);
-		if (FAILED(hr) || pIWbemServices == NULL) goto LCleanup;
+	// Connect to WMI
+	hr = pIWbemLocator->lpVtbl->ConnectServer(pIWbemLocator, bstrNamespace, NULL, NULL, 0L, 0L, NULL, NULL, &pIWbemServices);
+	if (FAILED(hr) || pIWbemServices == NULL) goto LCleanup;
 
-		// Switch security level to IMPERSONATE.
-		CoSetProxyBlanket(pIWbemServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+	// Switch security level to IMPERSONATE.
+	CoSetProxyBlanket((IUnknown *)pIWbemServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL,
+	                  EOAC_NONE);
 
-		hr = pIWbemServices->CreateInstanceEnum(bstrClassName, 0, NULL, &pEnumDevices);
-		if (FAILED(hr) || pEnumDevices == NULL) goto LCleanup;
+	hr = pIWbemServices->lpVtbl->CreateInstanceEnum(pIWbemServices, bstrClassName, 0, NULL, &pEnumDevices);
+	if (FAILED(hr) || pEnumDevices == NULL) goto LCleanup;
 
-		// Loop over all devices
-		for (;;) {
-			// Get 20 at a time
-			hr = pEnumDevices->Next(10000, 20, pDevices, &uReturned);
-			if (FAILED(hr)) goto LCleanup;
-			if (uReturned == 0) break;
+	// Loop over all devices
+	for (;;) {
+		// Get 20 at a time
+		hr = pEnumDevices->lpVtbl->Next(pEnumDevices, 10000, 20, pDevices, &uReturned);
+		if (FAILED(hr)) goto LCleanup;
+		if (uReturned == 0) break;
 
-			for (iDevice = 0; iDevice < uReturned; iDevice++) {
-				// For each device, get its device ID
-				hr = pDevices[iDevice]->Get(bstrDeviceID, 0L, &var, NULL, NULL);
-				if (SUCCEEDED(hr) && var.vt == VT_BSTR && var.bstrVal != NULL) {
-					// Check if the device ID contains "IG_".  If it does, then it's an XInput device
-					// This information can not be found from DirectInput
-					if (wcsstr(var.bstrVal, L"IG_")) {
-						// If it does, then get the VID/PID from var.bstrVal
-						DWORD dwPid = 0, dwVid = 0;
-						WCHAR *strVid = wcsstr(var.bstrVal, L"VID_");
-						if (strVid && swscanf(strVid, L"VID_%4X", &dwVid) != 1) dwVid = 0;
-						WCHAR *strPid = wcsstr(var.bstrVal, L"PID_");
-						if (strPid && swscanf(strPid, L"PID_%4X", &dwPid) != 1) dwPid = 0;
+		for (iDevice = 0; iDevice < uReturned; iDevice++) {
+			// For each device, get its device ID
+			hr = pDevices[iDevice]->lpVtbl->Get(pDevices[iDevice], bstrDeviceID, 0L, &var, NULL, NULL);
+			if (SUCCEEDED(hr) && var.vt == VT_BSTR && var.bstrVal != NULL) {
+				// Check if the device ID contains "IG_".  If it does, then it's an XInput device
+				// This information can not be found from DirectInput
+				if (wcsstr(var.bstrVal, L"IG_")) {
+					// If it does, then get the VID/PID from var.bstrVal
+					DWORD dwPid = 0, dwVid = 0;
+					WCHAR *strVid = wcsstr(var.bstrVal, L"VID_");
+					if (strVid && swscanf(strVid, L"VID_%4X", &dwVid) != 1) dwVid = 0;
+					WCHAR *strPid = wcsstr(var.bstrVal, L"PID_");
+					if (strPid && swscanf(strPid, L"PID_%4X", &dwPid) != 1) dwPid = 0;
 
-						// Compare the VID/PID to the DInput device
-						DWORD dwVidPid = MAKELONG(dwVid, dwPid);
-						if (dwVidPid == pGuidProductFromDirectInput->Data1) {
-							bIsXinputDevice = true;
-							goto LCleanup;
-						}
+					// Compare the VID/PID to the DInput device
+					DWORD dwVidPid = MAKELONG(dwVid, dwPid);
+					if (dwVidPid == pGuidProductFromDirectInput->Data1) {
+						bIsXinputDevice = true;
+						goto LCleanup;
 					}
 				}
-				SAFE_RELEASE(pDevices[iDevice]);
 			}
-		}
-
-	LCleanup:
-		if (bstrNamespace) SysFreeString(bstrNamespace);
-		if (bstrDeviceID) SysFreeString(bstrDeviceID);
-		if (bstrClassName) SysFreeString(bstrClassName);
-		for (iDevice = 0; iDevice < 20; iDevice++) SAFE_RELEASE(pDevices[iDevice]);
-		SAFE_RELEASE(pEnumDevices);
-		SAFE_RELEASE(pIWbemLocator);
-		SAFE_RELEASE(pIWbemServices);
-
-		if (bCleanupCOM) CoUninitialize();
-
-		return bIsXinputDevice;
-	}
-
-	// TODO (DK) this should probably be called from somewhere?
-	void cleanupDirectInput() {
-		for (int padIndex = 0; padIndex < XUSER_MAX_COUNT; ++padIndex) {
-			cleanupPad(padIndex);
-		}
-
-		if (di_instance != nullptr) {
-			di_instance->Release();
-			di_instance = nullptr;
+			SAFE_RELEASE(pDevices[iDevice]);
 		}
 	}
 
-	BOOL CALLBACK enumerateJoystickAxesCallback(LPCDIDEVICEOBJECTINSTANCEW ddoi, LPVOID context) {
-		HWND hwnd = (HWND)context;
+LCleanup:
+	if (bstrNamespace) SysFreeString(bstrNamespace);
+	if (bstrDeviceID) SysFreeString(bstrDeviceID);
+	if (bstrClassName) SysFreeString(bstrClassName);
+	for (iDevice = 0; iDevice < 20; iDevice++) SAFE_RELEASE(pDevices[iDevice]);
+	SAFE_RELEASE(pEnumDevices);
+	SAFE_RELEASE(pIWbemLocator);
+	SAFE_RELEASE(pIWbemServices);
 
-		DIPROPRANGE propertyRange;
-		propertyRange.diph.dwSize = sizeof(DIPROPRANGE);
-		propertyRange.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-		propertyRange.diph.dwHow = DIPH_BYID;
-		propertyRange.diph.dwObj = ddoi->dwType;
-		propertyRange.lMin = -32768;
-		propertyRange.lMax = 32768;
+	if (bCleanupCOM) CoUninitialize();
 
-		HRESULT hr = di_pads[padCount]->SetProperty(DIPROP_RANGE, &propertyRange.diph);
+	return bIsXinputDevice;
+}
 
-		if (FAILED(hr)) {
-			kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetProperty() failed (HRESULT=0x%x)", padCount, hr);
-
-			// TODO (DK) cleanup?
-			// cleanupPad(padCount);
-
-			return DIENUM_STOP;
-		}
-
-		return DIENUM_CONTINUE;
+// TODO (DK) this should probably be called from somewhere?
+static void cleanupDirectInput() {
+	for (int padIndex = 0; padIndex < XUSER_MAX_COUNT; ++padIndex) {
+		cleanupPad(padIndex);
 	}
 
-	BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID context) {
-		if (IsXInputDevice(&ddi->guidProduct)) return DIENUM_CONTINUE;
+	if (di_instance != NULL) {
+		di_instance->lpVtbl->Release(di_instance);
+		di_instance = NULL;
+	}
+}
 
-		HRESULT hr = di_instance->CreateDevice(ddi->guidInstance, &di_pads[padCount], nullptr);
+static BOOL CALLBACK enumerateJoystickAxesCallback(LPCDIDEVICEOBJECTINSTANCEW ddoi, LPVOID context) {
+	HWND hwnd = (HWND)context;
+
+	DIPROPRANGE propertyRange;
+	propertyRange.diph.dwSize = sizeof(DIPROPRANGE);
+	propertyRange.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+	propertyRange.diph.dwHow = DIPH_BYID;
+	propertyRange.diph.dwObj = ddoi->dwType;
+	propertyRange.lMin = -32768;
+	propertyRange.lMax = 32768;
+
+	HRESULT hr = di_pads[padCount]->lpVtbl->SetProperty(di_pads[padCount], DIPROP_RANGE, &propertyRange.diph);
+
+	if (FAILED(hr)) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetProperty() failed (HRESULT=0x%x)", padCount, hr);
+
+		// TODO (DK) cleanup?
+		// cleanupPad(padCount);
+
+		return DIENUM_STOP;
+	}
+
+	return DIENUM_CONTINUE;
+}
+
+static BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID context) {
+	if (IsXInputDevice(&ddi->guidProduct)) return DIENUM_CONTINUE;
+
+	HRESULT hr = di_instance->lpVtbl->CreateDevice(di_instance, &ddi->guidInstance, &di_pads[padCount], NULL);
+
+	if (SUCCEEDED(hr)) {
+		hr = di_pads[padCount]->lpVtbl->SetDataFormat(di_pads[padCount], &c_dfDIJoystick2);
+
+		// TODO (DK) required?
+		// hr = di_pads[padCount]->SetCooperativeLevel(NULL, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
 
 		if (SUCCEEDED(hr)) {
-			hr = di_pads[padCount]->SetDataFormat(&c_dfDIJoystick2);
-
-			// TODO (DK) required?
-			// hr = di_pads[padCount]->SetCooperativeLevel(NULL, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+			di_deviceCaps[padCount].dwSize = sizeof(DIDEVCAPS);
+			hr = di_pads[padCount]->lpVtbl->GetCapabilities(di_pads[padCount], &di_deviceCaps[padCount]);
 
 			if (SUCCEEDED(hr)) {
-				di_deviceCaps[padCount].dwSize = sizeof(DIDEVCAPS);
-				hr = di_pads[padCount]->GetCapabilities(&di_deviceCaps[padCount]);
+				hr = di_pads[padCount]->lpVtbl->EnumObjects(di_pads[padCount], enumerateJoystickAxesCallback, NULL, DIDFT_AXIS);
 
 				if (SUCCEEDED(hr)) {
-					hr = di_pads[padCount]->EnumObjects(enumerateJoystickAxesCallback, nullptr, DIDFT_AXIS);
+					hr = di_pads[padCount]->lpVtbl->Acquire(di_pads[padCount]);
 
 					if (SUCCEEDED(hr)) {
-						hr = di_pads[padCount]->Acquire();
+						memset(&di_padState[padCount], 0, sizeof(DIJOYSTATE2));
+						hr = di_pads[padCount]->lpVtbl->GetDeviceState(di_pads[padCount], sizeof(DIJOYSTATE2), &di_padState[padCount]);
 
 						if (SUCCEEDED(hr)) {
-							memset(&di_padState[padCount], 0, sizeof(DIJOYSTATE2));
-							hr = di_pads[padCount]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[padCount]);
-
-							if (SUCCEEDED(hr)) {
-								kinc_log(KINC_LOG_LEVEL_INFO, "DirectInput8 / Pad%i / initialized", padCount);
-							}
-							else {
-								kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetDeviceState() failed (HRESULT=0x%x)", padCount, hr);
-								// cleanupPad(padCount); // (DK) don't kill it, we try again in handleDirectInputPad()
-							}
+							kinc_log(KINC_LOG_LEVEL_INFO, "DirectInput8 / Pad%i / initialized", padCount);
 						}
 						else {
-							kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / Acquire() failed (HRESULT=0x%x)", padCount, hr);
-							cleanupPad(padCount);
+							kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetDeviceState() failed (HRESULT=0x%x)", padCount, hr);
+							// cleanupPad(padCount); // (DK) don't kill it, we try again in handleDirectInputPad()
 						}
 					}
 					else {
-						kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / EnumObjects(DIDFT_AXIS) failed (HRESULT=0x%x)", padCount, hr);
+						kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / Acquire() failed (HRESULT=0x%x)", padCount, hr);
 						cleanupPad(padCount);
 					}
 				}
 				else {
-					kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetCapabilities() failed (HRESULT=0x%x)", padCount, hr);
+					kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / EnumObjects(DIDFT_AXIS) failed (HRESULT=0x%x)", padCount, hr);
 					cleanupPad(padCount);
 				}
 			}
 			else {
-				kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetDataFormat() failed (HRESULT=0x%x)", padCount, hr);
+				kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / GetCapabilities() failed (HRESULT=0x%x)", padCount, hr);
 				cleanupPad(padCount);
 			}
-
-			++padCount;
-
-			if (padCount >= XUSER_MAX_COUNT) {
-				return DIENUM_STOP;
-			}
+		}
+		else {
+			kinc_log(KINC_LOG_LEVEL_WARNING, "DirectInput8 / Pad%i / SetDataFormat() failed (HRESULT=0x%x)", padCount, hr);
+			cleanupPad(padCount);
 		}
 
-		return DIENUM_CONTINUE;
+		++padCount;
+
+		if (padCount >= XUSER_MAX_COUNT) {
+			return DIENUM_STOP;
+		}
 	}
+
+	return DIENUM_CONTINUE;
 }
 
 static void initializeDirectInput() {
-	HINSTANCE hinstance = GetModuleHandle(nullptr);
+	HINSTANCE hinstance = GetModuleHandle(NULL);
 
 	memset(&di_pads, 0, sizeof(IDirectInputDevice8) * XUSER_MAX_COUNT);
 	memset(&di_padState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
 	memset(&di_lastPadState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
 	memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * XUSER_MAX_COUNT);
 
-	HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&di_instance, nullptr);
+	HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, &IID_IDirectInput8, (void **)&di_instance, NULL);
 
 	if (SUCCEEDED(hr)) {
-		hr = di_instance->EnumDevices(DI8DEVCLASS_GAMECTRL, enumerateJoysticksCallback, nullptr, DIEDFL_ATTACHEDONLY);
+		hr = di_instance->lpVtbl->EnumDevices(di_instance, DI8DEVCLASS_GAMECTRL, enumerateJoysticksCallback, NULL, DIEDFL_ATTACHEDONLY);
 
 		if (SUCCEEDED(hr)) {
 		}
@@ -977,18 +968,18 @@ static void initializeDirectInput() {
 }
 
 bool handleDirectInputPad(int padIndex) {
-	if (di_pads[padIndex] == nullptr) {
+	if (di_pads[padIndex] == NULL) {
 		return false;
 	}
 
-	HRESULT hr = di_pads[padIndex]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[padIndex]);
+	HRESULT hr = di_pads[padIndex]->lpVtbl->GetDeviceState(di_pads[padIndex], sizeof(DIJOYSTATE2), &di_padState[padIndex]);
 
 	switch (hr) {
 	case S_OK: {
 		// TODO (DK) there is a lot more to handle
 		for (int axisIndex = 0; axisIndex < 2; ++axisIndex) {
-			LONG *now = nullptr;
-			LONG *last = nullptr;
+			LONG *now = NULL;
+			LONG *last = NULL;
 
 			switch (axisIndex) {
 			case 0: {
@@ -1024,7 +1015,7 @@ bool handleDirectInputPad(int padIndex) {
 	}
 	case DIERR_INPUTLOST: // fall through
 	case DIERR_NOTACQUIRED: {
-		hr = di_pads[padIndex]->Acquire();
+		hr = di_pads[padIndex]->lpVtbl->Acquire(di_pads[padIndex]);
 		break;
 	}
 	}
@@ -1040,10 +1031,10 @@ static bool isXInputGamepad(int gamepad) {
 }
 
 static bool isDirectInputGamepad(int gamepad) {
-	if (di_pads[gamepad] == nullptr) {
+	if (di_pads[gamepad] == NULL) {
 		return false;
 	}
-	HRESULT hr = di_pads[gamepad]->GetDeviceState(sizeof(DIJOYSTATE2), &di_padState[gamepad]);
+	HRESULT hr = di_pads[gamepad]->lpVtbl->GetDeviceState(di_pads[gamepad], sizeof(DIJOYSTATE2), &di_padState[gamepad]);
 	return hr == S_OK;
 }
 
@@ -1073,7 +1064,7 @@ bool kinc_internal_handle_messages() {
 		DispatchMessage(&message);
 	}
 
-	if (InputGetState != nullptr && (detectGamepad || gamepadFound)) {
+	if (InputGetState != NULL && (detectGamepad || gamepadFound)) {
 		detectGamepad = false;
 		for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
 			XINPUT_STATE state;
@@ -1135,10 +1126,8 @@ bool kinc_internal_handle_messages() {
 //**	return vec2i(mouseX, mouseY);
 //**}
 
-namespace {
-	bool keyboardshown = false;
-	char language[3] = {0};
-}
+static bool keyboardshown = false;
+static char language[3] = {0};
 
 void kinc_keyboard_show() {
 	keyboardshown = true;
@@ -1165,7 +1154,7 @@ const char *kinc_language() {
 	wchar_t wlanguage[3] = {0};
 
 	if (GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SISO639LANGNAME, wlanguage, 3)) {
-		WideCharToMultiByte(CP_UTF8, 0, wlanguage, -1, language, 3, nullptr, nullptr);
+		WideCharToMultiByte(CP_UTF8, 0, wlanguage, -1, language, 3, NULL, NULL);
 		return language;
 	}
 	return "en";
@@ -1184,53 +1173,49 @@ void kinc_windows_co_initialize(void) {
 	}
 }
 
-namespace {
-	wchar_t savePathw[2048] = {0};
-	char savePath[2048] = {0};
+static wchar_t savePathw[2048] = {0};
+static char savePath[2048] = {0};
 
-	void findSavePath() {
-		kinc_windows_co_initialize();
-		IKnownFolderManager *folders = nullptr;
-		CoCreateInstance(CLSID_KnownFolderManager, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&folders));
-		IKnownFolder *folder = nullptr;
-		folders->GetFolder(FOLDERID_SavedGames, &folder);
+static void findSavePath() {
+	kinc_windows_co_initialize();
+	IKnownFolderManager *folders = NULL;
+	CoCreateInstance(&CLSID_KnownFolderManager, NULL, CLSCTX_INPROC_SERVER, &IID_IKnownFolderManager, (LPVOID *)&folders);
+	IKnownFolder *folder = NULL;
+	folders->lpVtbl->GetFolder(folders, &FOLDERID_SavedGames, &folder);
 
-		LPWSTR path;
-		folder->GetPath(0, &path);
+	LPWSTR path;
+	folder->lpVtbl->GetPath(folder, 0, &path);
 
-		wcscpy(savePathw, path);
-		wcscat(savePathw, L"\\");
-		wchar_t name[1024];
-		MultiByteToWideChar(CP_UTF8, 0, kinc_application_name(), -1, name, 1024);
-		wcscat(savePathw, name);
-		wcscat(savePathw, L"\\");
+	wcscpy(savePathw, path);
+	wcscat(savePathw, L"\\");
+	wchar_t name[1024];
+	MultiByteToWideChar(CP_UTF8, 0, kinc_application_name(), -1, name, 1024);
+	wcscat(savePathw, name);
+	wcscat(savePathw, L"\\");
 
-		SHCreateDirectoryEx(nullptr, savePathw, nullptr);
-		WideCharToMultiByte(CP_UTF8, 0, savePathw, -1, savePath, 1024, nullptr, nullptr);
+	SHCreateDirectoryEx(NULL, savePathw, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, savePathw, -1, savePath, 1024, NULL, NULL);
 
-		CoTaskMemFree(path);
-		folder->Release();
-		folders->Release();
-		// CoUninitialize();
-	}
+	CoTaskMemFree(path);
+	folder->lpVtbl->Release(folder);
+	folders->lpVtbl->Release(folders);
+	// CoUninitialize();
 }
 
 const char *kinc_internal_save_path() {
-	if (::savePath[0] == 0) findSavePath();
-	return ::savePath;
+	if (savePath[0] == 0) findSavePath();
+	return savePath;
 }
 
-namespace {
-	const char *videoFormats[] = {"ogv", nullptr};
-	LARGE_INTEGER frequency;
-	LARGE_INTEGER startCount;
-}
+static const char *videoFormats[] = {"ogv", NULL};
+static LARGE_INTEGER frequency;
+static LARGE_INTEGER startCount;
 
 const char **kinc_video_formats() {
-	return ::videoFormats;
+	return videoFormats;
 }
 
-void kinc_login() {}
+void kinc_login(void) {}
 
 void kinc_unlock_achievement(int id) {}
 
@@ -1242,14 +1227,14 @@ void kinc_gamepad_rumble(int gamepad, float left, float right) {
 	if (isXInputGamepad(gamepad)) {
 		XINPUT_VIBRATION vibration;
 		ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
-		vibration.wLeftMotorSpeed = WORD(65535.f * left);
-		vibration.wRightMotorSpeed = WORD(65535.f * right);
+		vibration.wLeftMotorSpeed = (WORD)(65535.f * left);
+		vibration.wRightMotorSpeed = (WORD)(65535.f * right);
 		InputSetState(gamepad, &vibration);
 	}
 }
 
 double kinc_frequency() {
-	return (double)::frequency.QuadPart;
+	return (double)frequency.QuadPart;
 }
 
 kinc_ticks_t kinc_timestamp(void) {
@@ -1261,26 +1246,19 @@ kinc_ticks_t kinc_timestamp(void) {
 double kinc_time(void) {
 	LARGE_INTEGER stamp;
 	QueryPerformanceCounter(&stamp);
-	return double(stamp.QuadPart - startCount.QuadPart) / (double)::frequency.QuadPart;
+	return (double)(stamp.QuadPart - startCount.QuadPart) / (double)frequency.QuadPart;
 }
 
 #ifndef KINC_NO_MAIN
-int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nCmdShow*/) {
-	int ret = 0;
-#ifndef _DEBUG
-	try {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+	int ret = kickstart(__argc, __argv);
+	if (ret != 0) {
+#ifdef NDEBUG
+		MessageBox(0, L"Unknown Error", L"Error", MB_OK);
+#else
+		__debugbreak();
 #endif
-		ret = kickstart(__argc, __argv);
-#ifndef _DEBUG
-	} catch (std::exception &ex) {
-		ret = 1;
-		MessageBoxA(0, ex.what(), "Exception", MB_OK);
-	} catch (...) {
-		ret = 1;
-		MessageBox(0, L"Unknown Exception", L"Exception", MB_OK);
 	}
-#endif
-
 	return ret;
 }
 #endif
@@ -1333,14 +1311,14 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	kinc_display_init();
 
 	QueryPerformanceCounter(&startCount);
-	QueryPerformanceFrequency(&::frequency);
+	QueryPerformanceFrequency(&frequency);
 
 	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
 
 	// Kore::System::_init(name, width, height, &win, &frame);
 	kinc_set_application_name(name);
 	kinc_window_options_t defaultWin;
-	if (win == nullptr) {
+	if (win == NULL) {
 		kinc_window_options_set_defaults(&defaultWin);
 		win = &defaultWin;
 	}

@@ -41,7 +41,7 @@ const wchar_t *windowClassName = L"KoreWindow";
 #ifdef KORE_VULKAN
 #include <vulkan/vulkan.h>
 
-extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
+VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
 	VkWin32SurfaceCreateInfoKHR createInfo = {0};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.pNext = NULL;
@@ -291,7 +291,7 @@ void kinc_window_move(int window_index, int x, int y) {
 	SetWindowPos(win->handle, NULL, x, y, rect.right - rect.left, rect.bottom - rect.top, 0);
 }
 
-extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
+void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
 
 void kinc_window_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
 	kinc_internal_change_framebuffer(window, frame);

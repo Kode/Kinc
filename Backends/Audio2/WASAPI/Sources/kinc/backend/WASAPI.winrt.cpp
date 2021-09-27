@@ -243,7 +243,7 @@ namespace {
 } // namespace
 
 #ifndef KORE_WINRT
-void kinc_windows_co_initialize(void);
+extern "C" void kinc_windows_co_initialize(void);
 #endif
 
 void kinc_a2_init() {
