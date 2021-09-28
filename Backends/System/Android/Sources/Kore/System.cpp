@@ -833,3 +833,39 @@ extern "C" const char *kinc_gamepad_vendor(int gamepad) {
 extern "C" const char *kinc_gamepad_product_name(int gamepad) {
 	return "gamepad";
 }
+
+extern "C" bool kinc_internal_120hz(void) {
+	return false;
+}
+
+extern "C" int kinc_count_dlcs(void) {
+	return 0;
+}
+
+extern "C" const char *kinc_get_dlc(int index) {
+	return "";
+}
+
+extern "C" const char *kinc_language_ex() {
+	return "en_US";
+}
+
+extern "C" double kinc_local_time(void) {
+	return 0;
+}
+
+extern "C" double kinc_hours(double time) {
+	return 0;
+}
+
+extern "C" double kinc_minutes(double time) {
+	return 0;
+}
+
+extern "C" double kinc_month(double time) {
+	return 0;
+}
+
+extern "C" bool kinc_is_activity_start(void) {
+	return false;
+}

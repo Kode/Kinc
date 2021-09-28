@@ -385,3 +385,9 @@ double kinc_month(double time) {
 	return (double)(system_time.wMonth - 1);
 }
 #endif
+
+#ifdef KORE_ANDROID
+static void commit_save(const char *old_filename, const char *new_filename) {
+	
+}
+#endif
