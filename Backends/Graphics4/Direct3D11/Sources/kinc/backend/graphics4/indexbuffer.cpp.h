@@ -7,7 +7,7 @@ void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g
 		buffer->impl.indices = NULL;
 	}
 	else {
-		buffer->impl.indices = new int[count];
+		buffer->impl.indices = (int *)malloc(count * sizeof(int));
 	}
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -32,12 +32,12 @@ void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g
 		break;
 	}
 
-	kinc_microsoft_affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.ib));
+	kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &bufferDesc, NULL, &buffer->impl.ib));
 }
 
 void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
-	buffer->impl.ib->Release();
-	delete[] buffer->impl.indices;
+	buffer->impl.ib->lpVtbl->Release(buffer->impl.ib);
+	free(buffer->impl.indices);
 	buffer->impl.indices = NULL;
 }
 
@@ -45,7 +45,7 @@ int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-		context->Map(buffer->impl.ib, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		context->lpVtbl->Map(context, (ID3D11Resource *)buffer->impl.ib, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		int *data = (int *)mappedResource.pData;
 		return data;
 	}
@@ -56,10 +56,10 @@ int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 
 void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
-		context->Unmap(buffer->impl.ib, 0);
+		context->lpVtbl->Unmap(context, (ID3D11Resource *)buffer->impl.ib, 0);
 	}
 	else {
-		context->UpdateSubresource(buffer->impl.ib, 0, nullptr, buffer->impl.indices, 0, 0);
+		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)buffer->impl.ib, 0, NULL, buffer->impl.indices, 0, 0);
 	}
 }
 

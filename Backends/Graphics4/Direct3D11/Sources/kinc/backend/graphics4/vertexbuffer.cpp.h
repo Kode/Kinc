@@ -37,7 +37,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 		buffer->impl.vertices = NULL;
 	}
 	else {
-		buffer->impl.vertices = new float[buffer->impl.stride / 4 * count];
+		buffer->impl.vertices = (float *)malloc(buffer->impl.stride * count);
 	}
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -62,12 +62,12 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	kinc_microsoft_affirm(device->CreateBuffer(&bufferDesc, nullptr, &buffer->impl.vb));
+	kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &bufferDesc, NULL, &buffer->impl.vb));
 }
 
 void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
-	buffer->impl.vb->Release();
-	delete[] buffer->impl.vertices;
+	buffer->impl.vb->lpVtbl->Release(buffer->impl.vb);
+	free(buffer->impl.vertices);
 	buffer->impl.vertices = NULL;
 }
 
@@ -82,7 +82,7 @@ float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, in
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-		context->Map(buffer->impl.vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		context->lpVtbl->Map(context, (ID3D11Resource *)buffer->impl.vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		float *data = (float *)mappedResource.pData;
 		return &data[start * buffer->impl.stride / 4];
 	}
@@ -97,10 +97,10 @@ void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
 
 void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
-		context->Unmap(buffer->impl.vb, 0);
+		context->lpVtbl->Unmap(context, (ID3D11Resource *)buffer->impl.vb, 0);
 	}
 	else {
-		context->UpdateSubresource(buffer->impl.vb, 0, nullptr, buffer->impl.vertices, 0, 0);
+		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)buffer->impl.vb, 0, NULL, buffer->impl.vertices, 0, 0);
 	}
 }
 

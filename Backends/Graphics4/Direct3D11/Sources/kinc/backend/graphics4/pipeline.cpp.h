@@ -93,112 +93,112 @@ static D3D11_STENCIL_OP get_stencil_action(kinc_g4_stencil_action_t action) {
 
 void kinc_internal_set_constants(void) {
 	if (currentPipeline->vertex_shader->impl.constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->impl.vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
-		context->VSSetConstantBuffers(0, 1, &currentPipeline->impl.vertexConstantBuffer);
+		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.vertexConstantBuffer, 0, NULL, vertexConstants, 0, 0);
+		context->lpVtbl->VSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.vertexConstantBuffer);
 	}
 	if (currentPipeline->fragment_shader->impl.constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->impl.fragmentConstantBuffer, 0, nullptr, fragmentConstants, 0, 0);
-		context->PSSetConstantBuffers(0, 1, &currentPipeline->impl.fragmentConstantBuffer);
+		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.fragmentConstantBuffer, 0, NULL, fragmentConstants, 0, 0);
+		context->lpVtbl->PSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.fragmentConstantBuffer);
 	}
-	if (currentPipeline->geometry_shader != nullptr && currentPipeline->geometry_shader->impl.constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->impl.geometryConstantBuffer, 0, nullptr, geometryConstants, 0, 0);
-		context->GSSetConstantBuffers(0, 1, &currentPipeline->impl.geometryConstantBuffer);
+	if (currentPipeline->geometry_shader != NULL && currentPipeline->geometry_shader->impl.constantsSize > 0) {
+		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.geometryConstantBuffer, 0, NULL, geometryConstants, 0, 0);
+		context->lpVtbl->GSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.geometryConstantBuffer);
 	}
-	if (currentPipeline->tessellation_control_shader != nullptr && currentPipeline->tessellation_control_shader->impl.constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->impl.tessControlConstantBuffer, 0, nullptr, tessControlConstants, 0, 0);
-		context->HSSetConstantBuffers(0, 1, &currentPipeline->impl.tessControlConstantBuffer);
+	if (currentPipeline->tessellation_control_shader != NULL && currentPipeline->tessellation_control_shader->impl.constantsSize > 0) {
+		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.tessControlConstantBuffer, 0, NULL, tessControlConstants, 0, 0);
+		context->lpVtbl->HSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.tessControlConstantBuffer);
 	}
-	if (currentPipeline->tessellation_evaluation_shader != nullptr && currentPipeline->tessellation_evaluation_shader->impl.constantsSize > 0) {
-		context->UpdateSubresource(currentPipeline->impl.tessEvalConstantBuffer, 0, nullptr, tessEvalConstants, 0, 0);
-		context->DSSetConstantBuffers(0, 1, &currentPipeline->impl.tessEvalConstantBuffer);
+	if (currentPipeline->tessellation_evaluation_shader != NULL && currentPipeline->tessellation_evaluation_shader->impl.constantsSize > 0) {
+		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.tessEvalConstantBuffer, 0, NULL, tessEvalConstants, 0, 0);
+		context->lpVtbl->DSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.tessEvalConstantBuffer);
 	}
 }
 
-void kinc_g4_pipeline_init(kinc_g4_pipeline *state) {
-	memset(state, 0, sizeof(kinc_g4_pipeline));
+void kinc_g4_pipeline_init(struct kinc_g4_pipeline *state) {
+	memset(state, 0, sizeof(struct kinc_g4_pipeline));
 	kinc_g4_internal_pipeline_set_defaults(state);
-	state->impl.d3d11inputLayout = nullptr;
-	state->impl.fragmentConstantBuffer = nullptr;
-	state->impl.vertexConstantBuffer = nullptr;
-	state->impl.geometryConstantBuffer = nullptr;
-	state->impl.tessEvalConstantBuffer = nullptr;
-	state->impl.tessControlConstantBuffer = nullptr;
-	state->impl.depthStencilState = nullptr;
-	state->impl.rasterizerState = nullptr;
-	state->impl.rasterizerStateScissor = nullptr;
-	state->impl.blendState = nullptr;
+	state->impl.d3d11inputLayout = NULL;
+	state->impl.fragmentConstantBuffer = NULL;
+	state->impl.vertexConstantBuffer = NULL;
+	state->impl.geometryConstantBuffer = NULL;
+	state->impl.tessEvalConstantBuffer = NULL;
+	state->impl.tessControlConstantBuffer = NULL;
+	state->impl.depthStencilState = NULL;
+	state->impl.rasterizerState = NULL;
+	state->impl.rasterizerStateScissor = NULL;
+	state->impl.blendState = NULL;
 }
 
-void kinc_g4_pipeline_destroy(kinc_g4_pipeline *state) {
-	if (state->impl.d3d11inputLayout != nullptr) {
-		state->impl.d3d11inputLayout->Release();
+void kinc_g4_pipeline_destroy(struct kinc_g4_pipeline *state) {
+	if (state->impl.d3d11inputLayout != NULL) {
+		state->impl.d3d11inputLayout->lpVtbl->Release(state->impl.d3d11inputLayout);
 		state->impl.d3d11inputLayout = NULL;
 	}
-	if (state->impl.fragmentConstantBuffer != nullptr) {
-		state->impl.fragmentConstantBuffer->Release();
+	if (state->impl.fragmentConstantBuffer != NULL) {
+		state->impl.fragmentConstantBuffer->lpVtbl->Release(state->impl.fragmentConstantBuffer);
 		state->impl.fragmentConstantBuffer = NULL;
 	}
-	if (state->impl.vertexConstantBuffer != nullptr) {
-		state->impl.vertexConstantBuffer->Release();
+	if (state->impl.vertexConstantBuffer != NULL) {
+		state->impl.vertexConstantBuffer->lpVtbl->Release(state->impl.vertexConstantBuffer);
 		state->impl.vertexConstantBuffer = NULL;
 	}
-	if (state->impl.geometryConstantBuffer != nullptr) {
-		state->impl.geometryConstantBuffer->Release();
+	if (state->impl.geometryConstantBuffer != NULL) {
+		state->impl.geometryConstantBuffer->lpVtbl->Release(state->impl.geometryConstantBuffer);
 		state->impl.geometryConstantBuffer = NULL;
 	}
-	if (state->impl.tessEvalConstantBuffer != nullptr) {
-		state->impl.tessEvalConstantBuffer->Release();
+	if (state->impl.tessEvalConstantBuffer != NULL) {
+		state->impl.tessEvalConstantBuffer->lpVtbl->Release(state->impl.tessEvalConstantBuffer);
 		state->impl.tessEvalConstantBuffer = NULL;
 	}
-	if (state->impl.tessControlConstantBuffer != nullptr) {
-		state->impl.tessControlConstantBuffer->Release();
+	if (state->impl.tessControlConstantBuffer != NULL) {
+		state->impl.tessControlConstantBuffer->lpVtbl->Release(state->impl.tessControlConstantBuffer);
 		state->impl.tessControlConstantBuffer = NULL;
 	}
-	if (state->impl.depthStencilState != nullptr) {
-		state->impl.depthStencilState->Release();
+	if (state->impl.depthStencilState != NULL) {
+		state->impl.depthStencilState->lpVtbl->Release(state->impl.depthStencilState);
 		state->impl.depthStencilState = NULL;
 	}
-	if (state->impl.rasterizerState != nullptr) {
-		state->impl.rasterizerState->Release();
+	if (state->impl.rasterizerState != NULL) {
+		state->impl.rasterizerState->lpVtbl->Release(state->impl.rasterizerState);
 		state->impl.rasterizerState = NULL;
 	}
-	if (state->impl.rasterizerStateScissor != nullptr) {
-		state->impl.rasterizerStateScissor->Release();
+	if (state->impl.rasterizerStateScissor != NULL) {
+		state->impl.rasterizerStateScissor->lpVtbl->Release(state->impl.rasterizerStateScissor);
 		state->impl.rasterizerStateScissor = NULL;
 	}
-	if (state->impl.blendState != nullptr) {
-		state->impl.blendState->Release();
+	if (state->impl.blendState != NULL) {
+		state->impl.blendState->lpVtbl->Release(state->impl.blendState);
 		state->impl.blendState = NULL;
 	}
 }
 
-void kinc_internal_set_rasterizer_state(kinc_g4_pipeline *pipeline, bool scissoring) {
-	if (scissoring && pipeline->impl.rasterizerStateScissor != nullptr)
-		context->RSSetState(pipeline->impl.rasterizerStateScissor);
-	else if (pipeline->impl.rasterizerState != nullptr)
-		context->RSSetState(pipeline->impl.rasterizerState);
+void kinc_internal_set_rasterizer_state(struct kinc_g4_pipeline *pipeline, bool scissoring) {
+	if (scissoring && pipeline->impl.rasterizerStateScissor != NULL)
+		context->lpVtbl->RSSetState(context, pipeline->impl.rasterizerStateScissor);
+	else if (pipeline->impl.rasterizerState != NULL)
+		context->lpVtbl->RSSetState(context, pipeline->impl.rasterizerState);
 }
 
-void kinc_internal_set_pipeline(kinc_g4_pipeline *pipeline, bool scissoring) {
+void kinc_internal_set_pipeline(struct kinc_g4_pipeline *pipeline, bool scissoring) {
 	currentPipeline = pipeline;
 
-	context->OMSetDepthStencilState(pipeline->impl.depthStencilState, pipeline->stencil_reference_value);
+	context->lpVtbl->OMSetDepthStencilState(context, pipeline->impl.depthStencilState, pipeline->stencil_reference_value);
 	float blendFactor[] = {0, 0, 0, 0};
 	UINT sampleMask = 0xffffffff;
-	context->OMSetBlendState(pipeline->impl.blendState, blendFactor, sampleMask);
+	context->lpVtbl->OMSetBlendState(context, pipeline->impl.blendState, blendFactor, sampleMask);
 	kinc_internal_set_rasterizer_state(pipeline, scissoring);
 
-	context->VSSetShader((ID3D11VertexShader *)pipeline->vertex_shader->impl.shader, nullptr, 0);
-	context->PSSetShader((ID3D11PixelShader *)pipeline->fragment_shader->impl.shader, nullptr, 0);
+	context->lpVtbl->VSSetShader(context, (ID3D11VertexShader *)pipeline->vertex_shader->impl.shader, NULL, 0);
+	context->lpVtbl->PSSetShader(context, (ID3D11PixelShader *)pipeline->fragment_shader->impl.shader, NULL, 0);
 
-	context->GSSetShader(pipeline->geometry_shader != nullptr ? (ID3D11GeometryShader *)pipeline->geometry_shader->impl.shader : nullptr, nullptr, 0);
-	context->HSSetShader(pipeline->tessellation_control_shader != nullptr ? (ID3D11HullShader *)pipeline->tessellation_control_shader->impl.shader : nullptr,
-	                     nullptr, 0);
-	context->DSSetShader(pipeline->tessellation_evaluation_shader != nullptr ? (ID3D11DomainShader *)pipeline->tessellation_evaluation_shader->impl.shader
-	                                                                         : nullptr,
-	                     nullptr, 0);
+	context->lpVtbl->GSSetShader(context, pipeline->geometry_shader != NULL ? (ID3D11GeometryShader *)pipeline->geometry_shader->impl.shader : NULL, NULL, 0);
+	context->lpVtbl->HSSetShader(
+	    context, pipeline->tessellation_control_shader != NULL ? (ID3D11HullShader *)pipeline->tessellation_control_shader->impl.shader : NULL, NULL, 0);
+	context->lpVtbl->DSSetShader(
+	    context, pipeline->tessellation_evaluation_shader != NULL ? (ID3D11DomainShader *)pipeline->tessellation_evaluation_shader->impl.shader : NULL, NULL,
+	    0);
 
-	context->IASetInputLayout(pipeline->impl.d3d11inputLayout);
+	context->lpVtbl->IASetInputLayout(context, pipeline->impl.d3d11inputLayout);
 }
 
 static kinc_internal_shader_constant_t *findConstant(kinc_internal_shader_constant_t *constants, uint32_t hash) {
@@ -219,7 +219,7 @@ static kinc_internal_hash_index_t *findTextureUnit(kinc_internal_hash_index_t *u
 	return NULL;
 }
 
-kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline *state, const char *name) {
+kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(struct kinc_g4_pipeline *state, const char *name) {
 	kinc_g4_constant_location_t location;
 
 	uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
@@ -302,15 +302,15 @@ kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipel
 	return location;
 }
 
-kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline *state, const char *name) {
+kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(struct kinc_g4_pipeline *state, const char *name) {
 	char unitName[64];
 	int unitOffset = 0;
 	size_t len = strlen(name);
 	if (len > 63) len = 63;
 	strncpy(unitName, name, len + 1);
-	if (unitName[len - 1] == ']') {                // Check for array - mySampler[2]
-		unitOffset = int(unitName[len - 2] - '0'); // Array index is unit offset
-		unitName[len - 3] = 0;                     // Strip array from name
+	if (unitName[len - 1] == ']') {                  // Check for array - mySampler[2]
+		unitOffset = (int)(unitName[len - 2] - '0'); // Array index is unit offset
+		unitName[len - 3] = 0;                       // Strip array from name
 	}
 
 	uint32_t hash = kinc_internal_hash_name((unsigned char *)unitName);
@@ -345,96 +345,125 @@ kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline *state
 	return unit;
 }
 
-namespace {
-	char stringCache[1024];
-	int stringCacheIndex = 0;
+static char stringCache[1024];
+static int stringCacheIndex = 0;
 
-	int getMultipleOf16(int value) {
-		int ret = 16;
-		while (ret < value) ret += 16;
-		return ret;
-	}
-
-	void setVertexDesc(D3D11_INPUT_ELEMENT_DESC &vertexDesc, int attributeIndex, int index, int stream, bool instanced, int subindex = -1) {
-		if (subindex < 0) {
-			vertexDesc.SemanticName = "TEXCOORD";
-			vertexDesc.SemanticIndex = attributeIndex;
-		}
-		else {
-			// SPIRV_CROSS uses TEXCOORD_0_0,... for split up matrices
-			int stringStart = stringCacheIndex;
-			strcpy(&stringCache[stringCacheIndex], "TEXCOORD");
-			stringCacheIndex += (int)strlen("TEXCOORD");
-			_itoa(attributeIndex, &stringCache[stringCacheIndex], 10);
-			stringCacheIndex += (int)strlen(&stringCache[stringCacheIndex]);
-			strcpy(&stringCache[stringCacheIndex], "_");
-			stringCacheIndex += 2;
-			vertexDesc.SemanticName = &stringCache[stringStart];
-			vertexDesc.SemanticIndex = subindex;
-		}
-		vertexDesc.InputSlot = stream;
-		vertexDesc.AlignedByteOffset = (index == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
-		vertexDesc.InputSlotClass = instanced ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
-		vertexDesc.InstanceDataStepRate = instanced ? 1 : 0;
-	}
+static int getMultipleOf16(int value) {
+	int ret = 16;
+	while (ret < value) ret += 16;
+	return ret;
 }
 
-namespace {
-	const int usedCount = 32;
-
-	int getAttributeLocation(kinc_internal_hash_index_t *attributes, const char *name, bool *used) {
-		uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
-
-		for (int i = 0; i < 64; ++i) {
-			if (attributes[i].hash == hash) {
-				return attributes[i].index;
-			}
-		}
-
-		for (int i = 0; i < usedCount; ++i) {
-			if (!used[i]) {
-				used[i] = true;
-				return i;
-			}
-		}
-
-		return 0;
+static void setVertexDesc(D3D11_INPUT_ELEMENT_DESC *vertexDesc, int attributeIndex, int index, int stream, bool instanced, int subindex) {
+	if (subindex < 0) {
+		vertexDesc->SemanticName = "TEXCOORD";
+		vertexDesc->SemanticIndex = attributeIndex;
 	}
-
-	void createRenderTargetBlendDesc(kinc_g4_pipeline *pipe, D3D11_RENDER_TARGET_BLEND_DESC *rtbd, int targetNum) {
-		rtbd->BlendEnable = pipe->blend_source != KINC_G4_BLEND_ONE || pipe->blend_destination != KINC_G4_BLEND_ZERO ||
-		                    pipe->alpha_blend_source != KINC_G4_BLEND_ONE || pipe->alpha_blend_destination != KINC_G4_BLEND_ZERO;
-		rtbd->SrcBlend = convert_blend_operation(pipe->blend_source);
-		rtbd->DestBlend = convert_blend_operation(pipe->blend_destination);
-		rtbd->BlendOp = D3D11_BLEND_OP_ADD;
-		rtbd->SrcBlendAlpha = convert_blend_operation(pipe->alpha_blend_source);
-		rtbd->DestBlendAlpha = convert_blend_operation(pipe->alpha_blend_destination);
-		rtbd->BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		rtbd->RenderTargetWriteMask = (((pipe->color_write_mask_red[targetNum] ? D3D11_COLOR_WRITE_ENABLE_RED : 0) |
-		                                (pipe->color_write_mask_green[targetNum] ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
-		                               (pipe->color_write_mask_blue[targetNum] ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
-		                              (pipe->color_write_mask_alpha[targetNum] ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
+	else {
+		// SPIRV_CROSS uses TEXCOORD_0_0,... for split up matrices
+		int stringStart = stringCacheIndex;
+		strcpy(&stringCache[stringCacheIndex], "TEXCOORD");
+		stringCacheIndex += (int)strlen("TEXCOORD");
+		_itoa(attributeIndex, &stringCache[stringCacheIndex], 10);
+		stringCacheIndex += (int)strlen(&stringCache[stringCacheIndex]);
+		strcpy(&stringCache[stringCacheIndex], "_");
+		stringCacheIndex += 2;
+		vertexDesc->SemanticName = &stringCache[stringStart];
+		vertexDesc->SemanticIndex = subindex;
 	}
+	vertexDesc->InputSlot = stream;
+	vertexDesc->AlignedByteOffset = (index == 0) ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
+	vertexDesc->InputSlotClass = instanced ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
+	vertexDesc->InstanceDataStepRate = instanced ? 1 : 0;
 }
 
-void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
-	if (state->vertex_shader->impl.constantsSize > 0)
-		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->vertex_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                                           nullptr, &state->impl.vertexConstantBuffer));
-	if (state->fragment_shader->impl.constantsSize > 0)
-		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->fragment_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                                           nullptr, &state->impl.fragmentConstantBuffer));
-	if (state->geometry_shader != NULL && state->geometry_shader->impl.constantsSize > 0)
-		kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->geometry_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                                           nullptr, &state->impl.geometryConstantBuffer));
-	if (state->tessellation_control_shader != NULL && state->tessellation_control_shader->impl.constantsSize > 0)
-		kinc_microsoft_affirm(
-		    device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->tessellation_control_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                         nullptr, &state->impl.tessControlConstantBuffer));
-	if (state->tessellation_evaluation_shader != NULL && state->tessellation_evaluation_shader->impl.constantsSize > 0)
-		kinc_microsoft_affirm(
-		    device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(state->tessellation_evaluation_shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER),
-		                         nullptr, &state->impl.tessEvalConstantBuffer));
+#define usedCount 32
+
+static int getAttributeLocation(kinc_internal_hash_index_t *attributes, const char *name, bool *used) {
+	uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
+
+	for (int i = 0; i < 64; ++i) {
+		if (attributes[i].hash == hash) {
+			return attributes[i].index;
+		}
+	}
+
+	for (int i = 0; i < usedCount; ++i) {
+		if (!used[i]) {
+			used[i] = true;
+			return i;
+		}
+	}
+
+	return 0;
+}
+
+static void createRenderTargetBlendDesc(struct kinc_g4_pipeline *pipe, D3D11_RENDER_TARGET_BLEND_DESC *rtbd, int targetNum) {
+	rtbd->BlendEnable = pipe->blend_source != KINC_G4_BLEND_ONE || pipe->blend_destination != KINC_G4_BLEND_ZERO ||
+	                    pipe->alpha_blend_source != KINC_G4_BLEND_ONE || pipe->alpha_blend_destination != KINC_G4_BLEND_ZERO;
+	rtbd->SrcBlend = convert_blend_operation(pipe->blend_source);
+	rtbd->DestBlend = convert_blend_operation(pipe->blend_destination);
+	rtbd->BlendOp = D3D11_BLEND_OP_ADD;
+	rtbd->SrcBlendAlpha = convert_blend_operation(pipe->alpha_blend_source);
+	rtbd->DestBlendAlpha = convert_blend_operation(pipe->alpha_blend_destination);
+	rtbd->BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtbd->RenderTargetWriteMask = (((pipe->color_write_mask_red[targetNum] ? D3D11_COLOR_WRITE_ENABLE_RED : 0) |
+	                                (pipe->color_write_mask_green[targetNum] ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
+	                               (pipe->color_write_mask_blue[targetNum] ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |
+	                              (pipe->color_write_mask_alpha[targetNum] ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
+}
+
+void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
+	if (state->vertex_shader->impl.constantsSize > 0) {
+		D3D11_BUFFER_DESC desc;
+		desc.ByteWidth = getMultipleOf16(state->vertex_shader->impl.constantsSize);
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+		desc.StructureByteStride = 0;
+		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.vertexConstantBuffer));
+	}
+	if (state->fragment_shader->impl.constantsSize > 0) {
+		D3D11_BUFFER_DESC desc;
+		desc.ByteWidth = getMultipleOf16(state->fragment_shader->impl.constantsSize);
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+		desc.StructureByteStride = 0;
+		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.fragmentConstantBuffer));
+	}
+	if (state->geometry_shader != NULL && state->geometry_shader->impl.constantsSize > 0) {
+		D3D11_BUFFER_DESC desc;
+		desc.ByteWidth = getMultipleOf16(state->geometry_shader->impl.constantsSize);
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+		desc.StructureByteStride = 0;
+		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.geometryConstantBuffer));
+	}
+	if (state->tessellation_control_shader != NULL && state->tessellation_control_shader->impl.constantsSize > 0) {
+		D3D11_BUFFER_DESC desc;
+		desc.ByteWidth = getMultipleOf16(state->tessellation_control_shader->impl.constantsSize);
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+		desc.StructureByteStride = 0;
+		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.tessControlConstantBuffer));
+	}
+	if (state->tessellation_evaluation_shader != NULL && state->tessellation_evaluation_shader->impl.constantsSize > 0) {
+		D3D11_BUFFER_DESC desc;
+		desc.ByteWidth = getMultipleOf16(state->tessellation_evaluation_shader->impl.constantsSize);
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+		desc.StructureByteStride = 0;
+		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.tessEvalConstantBuffer));
+	}
 
 	int all = 0;
 	for (int stream = 0; state->input_layout[stream] != NULL; ++stream) {
@@ -456,59 +485,59 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
 	stringCacheIndex = 0;
 	D3D11_INPUT_ELEMENT_DESC *vertexDesc = (D3D11_INPUT_ELEMENT_DESC *)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
 	int i = 0;
-	for (int stream = 0; state->input_layout[stream] != nullptr; ++stream) {
+	for (int stream = 0; state->input_layout[stream] != NULL; ++stream) {
 		for (int index = 0; index < state->input_layout[stream]->size; ++index) {
 			switch (state->input_layout[stream]->elements[index].data) {
 			case KINC_G4_VERTEX_DATA_FLOAT1:
-				setVertexDesc(vertexDesc[i],
+				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
-				              stream, state->input_layout[stream]->instanced);
+				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_FLOAT2:
-				setVertexDesc(vertexDesc[i],
+				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
-				              stream, state->input_layout[stream]->instanced);
+				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_FLOAT3:
-				setVertexDesc(vertexDesc[i],
+				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
-				              stream, state->input_layout[stream]->instanced);
+				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_FLOAT4:
-				setVertexDesc(vertexDesc[i],
+				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
-				              stream, state->input_layout[stream]->instanced);
+				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-				setVertexDesc(vertexDesc[i],
+				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
-				              stream, state->input_layout[stream]->instanced);
+				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16_SNORM;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-				setVertexDesc(vertexDesc[i],
+				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
-				              stream, state->input_layout[stream]->instanced);
+				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
 				++i;
 				break;
 			case KINC_G4_VERTEX_DATA_COLOR:
-				setVertexDesc(vertexDesc[i],
+				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
-				              stream, state->input_layout[stream]->instanced);
+				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT4X4:
+			case KINC_G4_VERTEX_DATA_FLOAT4X4: {
 				char name[101];
 				strcpy(name, state->input_layout[stream]->elements[index].name);
 				strcat(name, "_");
@@ -518,17 +547,18 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
 				int attributeLocation = getAttributeLocation(state->vertex_shader->impl.attributes, name, used);
 
 				for (int i2 = 0; i2 < 4; ++i2) {
-					setVertexDesc(vertexDesc[i], attributeLocation, index + i2, stream, state->input_layout[stream]->instanced, i2);
+					setVertexDesc(&vertexDesc[i], attributeLocation, index + i2, stream, state->input_layout[stream]->instanced, i2);
 					vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 					++i;
 				}
 				break;
 			}
+			}
 		}
 	}
 
-	kinc_microsoft_affirm(
-	    device->CreateInputLayout(vertexDesc, all, state->vertex_shader->impl.data, state->vertex_shader->impl.length, &state->impl.d3d11inputLayout));
+	kinc_microsoft_affirm(device->lpVtbl->CreateInputLayout(device, vertexDesc, all, state->vertex_shader->impl.data, state->vertex_shader->impl.length,
+	                                                        &state->impl.d3d11inputLayout));
 
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
@@ -545,7 +575,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
 		desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = get_stencil_action(state->stencil_both_pass);
 		desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = get_stencil_action(state->stencil_fail);
 
-		device->CreateDepthStencilState(&desc, &state->impl.depthStencilState);
+		device->lpVtbl->CreateDepthStencilState(device, &desc, &state->impl.depthStencilState);
 	}
 
 	{
@@ -561,9 +591,9 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
 		rasterDesc.MultisampleEnable = FALSE;
 		rasterDesc.AntialiasedLineEnable = FALSE;
 
-		device->CreateRasterizerState(&rasterDesc, &state->impl.rasterizerState);
+		device->lpVtbl->CreateRasterizerState(device, &rasterDesc, &state->impl.rasterizerState);
 		rasterDesc.ScissorEnable = TRUE;
-		device->CreateRasterizerState(&rasterDesc, &state->impl.rasterizerStateScissor);
+		device->lpVtbl->CreateRasterizerState(device, &rasterDesc, &state->impl.rasterizerStateScissor);
 
 		// We need d3d11_3 for conservative raster
 		// D3D11_RASTERIZER_DESC2 rasterDesc;
@@ -599,6 +629,6 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline *state) {
 			}
 		}
 
-		device->CreateBlendState(&blendDesc, &state->impl.blendState);
+		device->lpVtbl->CreateBlendState(device, &blendDesc, &state->impl.blendState);
 	}
 }

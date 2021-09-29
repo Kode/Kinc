@@ -19,120 +19,116 @@
 extern ID3D11Device *device;
 extern ID3D11DeviceContext *context;
 
-using namespace Kore;
+static uint8_t constantsMemory[1024 * 4];
 
-namespace {
-	u8 constantsMemory[1024 * 4];
+static int getMultipleOf16(int value) {
+	int ret = 16;
+	while (ret < value) ret += 16;
+	return ret;
+}
 
-	int getMultipleOf16(int value) {
-		int ret = 16;
-		while (ret < value) ret += 16;
-		return ret;
-	}
+static void setInt(uint8_t *constants, uint32_t offset, uint32_t size, int value) {
+	if (size == 0) return;
+	int *ints = (int *)&constants[offset];
+	ints[0] = value;
+}
 
-	void setInt(u8 *constants, u32 offset, u32 size, int value) {
-		if (size == 0) return;
-		int *ints = reinterpret_cast<int *>(&constants[offset]);
-		ints[0] = value;
-	}
+static void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value;
+}
 
-	void setFloat(u8 *constants, u32 offset, u32 size, float value) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		floats[0] = value;
-	}
+static void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value1;
+	floats[1] = value2;
+}
 
-	void setFloat2(u8 *constants, u32 offset, u32 size, float value1, float value2) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-	}
+static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value3;
+}
 
-	void setFloat3(u8 *constants, u32 offset, u32 size, float value1, float value2, float value3) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-	}
+static void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value3;
+	floats[3] = value4;
+}
 
-	void setFloat4(u8 *constants, u32 offset, u32 size, float value1, float value2, float value3, float value4) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-		floats[3] = value4;
-	}
-
-	void setFloats(u8 *constants, u32 offset, u32 size, u8 columns, u8 rows, float *values, int count) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		if (columns == 4 && rows == 4) {
-			for (int i = 0; i < count / 16 && i < static_cast<int>(size) / 4; ++i) {
-				for (int y = 0; y < 4; ++y) {
-					for (int x = 0; x < 4; ++x) {
-						floats[i * 16 + x + y * 4] = values[i * 16 + y + x * 4];
-					}
+static void setFloats(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, float *values, int count) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	if (columns == 4 && rows == 4) {
+		for (int i = 0; i < count / 16 && i < (int)size / 4; ++i) {
+			for (int y = 0; y < 4; ++y) {
+				for (int x = 0; x < 4; ++x) {
+					floats[i * 16 + x + y * 4] = values[i * 16 + y + x * 4];
 				}
 			}
 		}
-		else if (columns == 3 && rows == 3) {
-			for (int i = 0; i < count / 9 && i < static_cast<int>(size) / 3; ++i) {
-				for (int y = 0; y < 4; ++y) {
-					for (int x = 0; x < 4; ++x) {
-						floats[i * 12 + x + y * 4] = values[i * 9 + y + x * 3];
-					}
+	}
+	else if (columns == 3 && rows == 3) {
+		for (int i = 0; i < count / 9 && i < (int)size / 3; ++i) {
+			for (int y = 0; y < 4; ++y) {
+				for (int x = 0; x < 4; ++x) {
+					floats[i * 12 + x + y * 4] = values[i * 9 + y + x * 3];
 				}
 			}
 		}
-		else if (columns == 2 && rows == 2) {
-			for (int i = 0; i < count / 4 && i < static_cast<int>(size) / 2; ++i) {
-				for (int y = 0; y < 4; ++y) {
-					for (int x = 0; x < 4; ++x) {
-						floats[i * 8 + x + y * 4] = values[i * 4 + y + x * 2];
-					}
+	}
+	else if (columns == 2 && rows == 2) {
+		for (int i = 0; i < count / 4 && i < (int)size / 2; ++i) {
+			for (int y = 0; y < 4; ++y) {
+				for (int x = 0; x < 4; ++x) {
+					floats[i * 8 + x + y * 4] = values[i * 4 + y + x * 2];
 				}
 			}
 		}
-		else {
-			for (int i = 0; i < count && i * 4 < static_cast<int>(size); ++i) {
-				floats[i] = values[i];
-			}
+	}
+	else {
+		for (int i = 0; i < count && i * 4 < (int)size; ++i) {
+			floats[i] = values[i];
 		}
 	}
+}
 
-	void setBool(u8 *constants, u32 offset, u32 size, bool value) {
-		if (size == 0) return;
-		int *ints = reinterpret_cast<int *>(&constants[offset]);
-		ints[0] = value ? 1 : 0;
-	}
+static void setBool(uint8_t *constants, uint32_t offset, uint32_t size, bool value) {
+	if (size == 0) return;
+	int *ints = (int *)&constants[offset];
+	ints[0] = value ? 1 : 0;
+}
 
-	void setMatrix(u8 *constants, u32 offset, u32 size, kinc_matrix4x4_t *value) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		for (int y = 0; y < 4; ++y) {
-			for (int x = 0; x < 4; ++x) {
-				floats[x + y * 4] = kinc_matrix4x4_get(value, y, x);
-			}
+static void setMatrix4(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix4x4_t *value) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	for (int y = 0; y < 4; ++y) {
+		for (int x = 0; x < 4; ++x) {
+			floats[x + y * 4] = kinc_matrix4x4_get(value, y, x);
 		}
 	}
+}
 
-	void setMatrix(u8 *constants, u32 offset, u32 size, kinc_matrix3x3_t *value) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		for (int y = 0; y < 3; ++y) {
-			for (int x = 0; x < 3; ++x) {
-				floats[x + y * 4] = kinc_matrix3x3_get(value, y, x);
-			}
+static void setMatrix3(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix3x3_t *value) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	for (int y = 0; y < 3; ++y) {
+		for (int x = 0; x < 3; ++x) {
+			floats[x + y * 4] = kinc_matrix3x3_get(value, y, x);
 		}
 	}
 }
 
 void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int length) {
 	unsigned index = 0;
-	u8 *data = (u8 *)_data;
+	uint8_t *data = (uint8_t *)_data;
 
 	memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	int attributesCount = data[index++];
@@ -187,15 +183,21 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	assert(shader->impl.data != NULL);
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
 
-	HRESULT hr = device->CreateComputeShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11ComputeShader **)&shader->impl.shader);
+	HRESULT hr = device->lpVtbl->CreateComputeShader(device, shader->impl.data, shader->impl.length, NULL, (ID3D11ComputeShader **)&shader->impl.shader);
 
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
 		return;
 	}
 
-	kinc_microsoft_affirm(device->CreateBuffer(&CD3D11_BUFFER_DESC(getMultipleOf16(shader->impl.constantsSize), D3D11_BIND_CONSTANT_BUFFER), nullptr,
-	                                           &shader->impl.constantBuffer));
+	D3D11_BUFFER_DESC desc;
+	desc.ByteWidth = getMultipleOf16(shader->impl.constantsSize);
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+	kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &shader->impl.constantBuffer));
 }
 
 void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {}
@@ -250,9 +252,9 @@ kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_sh
 	size_t len = strlen(name);
 	if (len > 63) len = 63;
 	strncpy(unitName, name, len + 1);
-	if (unitName[len - 1] == ']') {                // Check for array - mySampler[2]
-		unitOffset = int(unitName[len - 2] - '0'); // Array index is unit offset
-		unitName[len - 3] = 0;                     // Strip array from name
+	if (unitName[len - 1] == ']') {                  // Check for array - mySampler[2]
+		unitOffset = (int)(unitName[len - 2] - '0'); // Array index is unit offset
+		unitName[len - 3] = 0;                       // Strip array from name
 	}
 
 	uint32_t hash = kinc_internal_hash_name((unsigned char *)unitName);
@@ -280,55 +282,55 @@ kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_sh
 }
 
 void kinc_compute_set_bool(kinc_compute_constant_location_t location, bool value) {
-	::setBool(constantsMemory, location.impl.offset, location.impl.size, value);
+	setBool(constantsMemory, location.impl.offset, location.impl.size, value);
 }
 
 void kinc_compute_set_int(kinc_compute_constant_location_t location, int value) {
-	::setInt(constantsMemory, location.impl.offset, location.impl.size, value);
+	setInt(constantsMemory, location.impl.offset, location.impl.size, value);
 }
 
 void kinc_compute_set_float(kinc_compute_constant_location_t location, float value) {
-	::setFloat(constantsMemory, location.impl.offset, location.impl.size, value);
+	setFloat(constantsMemory, location.impl.offset, location.impl.size, value);
 }
 
 void kinc_compute_set_float2(kinc_compute_constant_location_t location, float value1, float value2) {
-	::setFloat2(constantsMemory, location.impl.offset, location.impl.size, value1, value2);
+	setFloat2(constantsMemory, location.impl.offset, location.impl.size, value1, value2);
 }
 
 void kinc_compute_set_float3(kinc_compute_constant_location_t location, float value1, float value2, float value3) {
-	::setFloat3(constantsMemory, location.impl.offset, location.impl.size, value1, value2, value3);
+	setFloat3(constantsMemory, location.impl.offset, location.impl.size, value1, value2, value3);
 }
 
 void kinc_compute_set_float4(kinc_compute_constant_location_t location, float value1, float value2, float value3, float value4) {
-	::setFloat4(constantsMemory, location.impl.offset, location.impl.size, value1, value2, value3, value4);
+	setFloat4(constantsMemory, location.impl.offset, location.impl.size, value1, value2, value3, value4);
 }
 
 void kinc_compute_set_floats(kinc_compute_constant_location_t location, float *values, int count) {
-	::setFloats(constantsMemory, location.impl.offset, location.impl.size, location.impl.columns, location.impl.rows, values, count);
+	setFloats(constantsMemory, location.impl.offset, location.impl.size, location.impl.columns, location.impl.rows, values, count);
 }
 
 void kinc_compute_set_matrix4(kinc_compute_constant_location_t location, kinc_matrix4x4_t *value) {
-	::setMatrix(constantsMemory, location.impl.offset, location.impl.size, value);
+	setMatrix4(constantsMemory, location.impl.offset, location.impl.size, value);
 }
 
 void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, kinc_matrix3x3_t *value) {
-	::setMatrix(constantsMemory, location.impl.offset, location.impl.size, value);
+	setMatrix3(constantsMemory, location.impl.offset, location.impl.size, value);
 }
 
-void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture, kinc_compute_access_t access) {
-	ID3D11ShaderResourceView *nullView = nullptr;
-	context->PSSetShaderResources(0, 1, &nullView);
+void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, struct kinc_g4_texture *texture, kinc_compute_access_t access) {
+	ID3D11ShaderResourceView *nullView = NULL;
+	context->lpVtbl->PSSetShaderResources(context, 0, 1, &nullView);
 
-	context->CSSetUnorderedAccessViews(unit.impl.unit, 1, &texture->impl.computeView, nullptr);
+	context->lpVtbl->CSSetUnorderedAccessViews(context, unit.impl.unit, 1, &texture->impl.computeView, NULL);
 }
 
-void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *texture, kinc_compute_access_t access) {}
+void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, struct kinc_g4_render_target *texture, kinc_compute_access_t access) {}
 
-void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, kinc_g4_texture *texture) {}
+void kinc_compute_set_sampled_texture(kinc_compute_texture_unit_t unit, struct kinc_g4_texture *texture) {}
 
-void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {}
+void kinc_compute_set_sampled_render_target(kinc_compute_texture_unit_t unit, struct kinc_g4_render_target *target) {}
 
-void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, kinc_g4_render_target *target) {}
+void kinc_compute_set_sampled_depth_from_render_target(kinc_compute_texture_unit_t unit, struct kinc_g4_render_target *target) {}
 
 void kinc_compute_set_texture_addressing(kinc_compute_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {}
 
@@ -347,15 +349,15 @@ void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t 
 void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
 
 void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
-	context->CSSetShader((ID3D11ComputeShader *)shader->impl.shader, nullptr, 0);
+	context->lpVtbl->CSSetShader(context, (ID3D11ComputeShader *)shader->impl.shader, NULL, 0);
 
-	context->UpdateSubresource(shader->impl.constantBuffer, 0, nullptr, constantsMemory, 0, 0);
-	context->CSSetConstantBuffers(0, 1, &shader->impl.constantBuffer);
+	context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)shader->impl.constantBuffer, 0, NULL, constantsMemory, 0, 0);
+	context->lpVtbl->CSSetConstantBuffers(context, 0, 1, &shader->impl.constantBuffer);
 }
 
 void kinc_compute(int x, int y, int z) {
-	context->Dispatch(x, y, z);
+	context->lpVtbl->Dispatch(context, x, y, z);
 
-	ID3D11UnorderedAccessView *nullView = nullptr;
-	context->CSSetUnorderedAccessViews(0, 1, &nullView, nullptr);
+	ID3D11UnorderedAccessView *nullView = NULL;
+	context->lpVtbl->CSSetUnorderedAccessViews(context, 0, 1, &nullView, NULL);
 }

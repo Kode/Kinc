@@ -1,5 +1,3 @@
-#define NOMINMAX
-
 #include <kinc/log.h>
 
 #include <kinc/math/core.h>
@@ -29,15 +27,12 @@ int antialiasingSamples() {
 #endif
 
 #ifdef KORE_WINDOWSAPP
-extern "C" IUnknown *kinc_winapp_internal_get_window(void);
+IUnknown *kinc_winapp_internal_get_window(void);
 #endif
-
-#include <vector>
 
 #ifdef KORE_HOLOLENS
 #include "DeviceResources.winrt.h"
 #include "Hololens.winrt.h"
-#include <memory>
 #include <windows.graphics.directx.direct3d11.interop.h>
 #endif
 
@@ -46,88 +41,100 @@ void kinc_internal_set_constants(void);
 
 bool kinc_internal_scissoring = false;
 
-namespace {
-	unsigned hz;
-	bool vsync;
+static unsigned hz;
+static bool vsync;
 
-	D3D_FEATURE_LEVEL featureLevel;
+static D3D_FEATURE_LEVEL featureLevel;
 #ifdef KORE_WINDOWSAPP
-	IDXGISwapChain1 *swapChain = nullptr;
+static IDXGISwapChain1 *swapChain = NULL;
 #else
-	IDXGISwapChain *swapChain = nullptr;
+static IDXGISwapChain *swapChain = NULL;
 #endif
-	D3D11_SAMPLER_DESC lastSamplers[16];
+static D3D11_SAMPLER_DESC lastSamplers[16];
 
-	struct Sampler {
-		D3D11_SAMPLER_DESC desc;
-		ID3D11SamplerState *state;
-	};
+struct Sampler {
+	D3D11_SAMPLER_DESC desc;
+	ID3D11SamplerState *state;
+};
 
-	std::vector<Sampler> samplers;
+#define MAX_SAMPLERS 256
+static struct Sampler samplers[MAX_SAMPLERS];
+static uint32_t samplers_size = 0;
 
-	ID3D11SamplerState *getSamplerState(const D3D11_SAMPLER_DESC &desc) {
-		for (unsigned i = 0; i < samplers.size(); ++i) {
-			if (memcmp(&desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
-				return samplers[i].state;
-			}
+static ID3D11SamplerState *getSamplerState(D3D11_SAMPLER_DESC *desc) {
+	for (unsigned i = 0; i < samplers_size; ++i) {
+		if (memcmp(&desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
+			return samplers[i].state;
 		}
-		Sampler s;
-		s.desc = desc;
-		device->CreateSamplerState(&s.desc, &s.state);
-		samplers.push_back(s);
-		return s.state;
+	}
+	struct Sampler s;
+	s.desc = *desc;
+	device->lpVtbl->CreateSamplerState(device, &s.desc, &s.state);
+	samplers[samplers_size++] = s;
+	return s.state;
+}
+
+static void initSamplers() {
+	D3D11_SAMPLER_DESC samplerDesc;
+	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	ID3D11SamplerState *state;
+	device->lpVtbl->CreateSamplerState(device, &samplerDesc, &state);
+
+	ID3D11SamplerState *states[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
+	for (int i = 0; i < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT; ++i) {
+		states[i] = state;
 	}
 
-	void initSamplers() {
-		D3D11_SAMPLER_DESC samplerDesc;
-		ZeroMemory(&samplerDesc, sizeof(samplerDesc));
-		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	context->lpVtbl->VSSetSamplers(context, 0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
+	context->lpVtbl->PSSetSamplers(context, 0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
+}
 
-		ID3D11SamplerState *state;
-		device->CreateSamplerState(&samplerDesc, &state);
-
-		ID3D11SamplerState *states[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
-		for (int i = 0; i < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT; ++i) {
-			states[i] = state;
-		}
-
-		context->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
-		context->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
-	}
-
-	ID3D11RenderTargetView **currentRenderTargetViews =
-	    (ID3D11RenderTargetView **)malloc(sizeof(ID3D11RenderTargetView *) * D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
-	int renderTargetCount = 1;
-	ID3D11DepthStencilView *currentDepthStencilView;
-} // namespace
+static ID3D11RenderTargetView *currentRenderTargetViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
+static int renderTargetCount = 1;
+static ID3D11DepthStencilView *currentDepthStencilView;
 
 void kinc_g4_destroy(int window) {}
 
 static void createBackbuffer(int antialiasingSamples) {
-	kinc_microsoft_affirm(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&backBuffer));
+	kinc_microsoft_affirm(swapChain->lpVtbl->GetBuffer(swapChain, 0, &IID_ID3D11Texture2D, (void **)&backBuffer));
 
-	kinc_microsoft_affirm(device->CreateRenderTargetView(backBuffer, nullptr, &renderTargetView));
+	kinc_microsoft_affirm(device->lpVtbl->CreateRenderTargetView(device, (ID3D11Resource *)backBuffer, NULL, &renderTargetView));
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
-	backBuffer->GetDesc(&backBufferDesc);
+	backBuffer->lpVtbl->GetDesc(backBuffer, &backBufferDesc);
 	newRenderTargetWidth = renderTargetWidth = backBufferDesc.Width;
 	newRenderTargetHeight = renderTargetHeight = backBufferDesc.Height;
 
 	// TODO (DK) map depth/stencilBufferBits arguments
-	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, backBufferDesc.Width, backBufferDesc.Height, 1, 1, D3D11_BIND_DEPTH_STENCIL,
-	                                       D3D11_USAGE_DEFAULT, 0U, antialiasingSamples > 1 ? antialiasingSamples : 1,
-	                                       antialiasingSamples > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0);
+	D3D11_TEXTURE2D_DESC depth_stencil_desc;
+	depth_stencil_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depth_stencil_desc.Width = backBufferDesc.Width;
+	depth_stencil_desc.Height = backBufferDesc.Height;
+	depth_stencil_desc.ArraySize = 1;
+	depth_stencil_desc.MipLevels = 1;
+	depth_stencil_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depth_stencil_desc.Usage = D3D11_USAGE_DEFAULT;
+	depth_stencil_desc.CPUAccessFlags = 0;
+	depth_stencil_desc.SampleDesc.Count = antialiasingSamples > 1 ? antialiasingSamples : 1,
+	depth_stencil_desc.SampleDesc.Quality = antialiasingSamples > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
+	depth_stencil_desc.MiscFlags = 0;
+	kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &depth_stencil_desc, NULL, &depthStencil));
 
-	kinc_microsoft_affirm(device->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencil));
-
-	kinc_microsoft_affirm(device->CreateDepthStencilView(
-	    depthStencil, &CD3D11_DEPTH_STENCIL_VIEW_DESC(antialiasingSamples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D),
-	    &depthStencilView));
+	D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
+	depth_stencil_view_desc.ViewDimension = antialiasingSamples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
+	depth_stencil_view_desc.Format = DXGI_FORMAT_UNKNOWN;
+	depth_stencil_view_desc.Flags = 0;
+	if (antialiasingSamples <= 1) {
+		depth_stencil_view_desc.Texture2D.MipSlice = 0;
+	}
+	kinc_microsoft_affirm(device->lpVtbl->CreateDepthStencilView(device, (ID3D11Resource *)depthStencil, &depth_stencil_view_desc, &depthStencilView));
 }
 
 #ifdef KORE_WINDOWS
@@ -208,8 +215,8 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	const int _DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL = 3;
 	const int _DXGI_SWAP_EFFECT_FLIP_DISCARD = 4;
 
-	if (swapChain != nullptr) {
-		kinc_microsoft_affirm(swapChain->ResizeBuffers(2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+	if (swapChain != NULL) {
+		kinc_microsoft_affirm(swapChain->lpVtbl->ResizeBuffers(swapChain, 2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 	}
 	else {
 #ifdef KORE_WINDOWS
@@ -301,20 +308,20 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 #ifdef _DEBUG
 		flags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
-		HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
-		                                               &swapChain, &device, nullptr, &context);
+		HRESULT result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
+		                                               &swapChain, &device, NULL, &context);
 		if (result != S_OK) {
-			kinc_microsoft_affirm(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, flags, featureLevels, 3, D3D11_SDK_VERSION,
-			                                                    &swapChainDesc, &swapChain, &device, nullptr, &context));
+			kinc_microsoft_affirm(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_WARP, NULL, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
+			                                                    &swapChain, &device, NULL, &context));
 		}
 
 		IDXGIDevice *pDXGIDevice;
-		result = device->QueryInterface(__uuidof(IDXGIDevice), (void **)&pDXGIDevice);
+		result = device->lpVtbl->QueryInterface(device, &IID_IDXGIDevice, (void **)&pDXGIDevice);
 		IDXGIAdapter *pDXGIAdapter;
-		result = pDXGIDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&pDXGIAdapter);
+		result = pDXGIDevice->lpVtbl->GetParent(pDXGIDevice, &IID_IDXGIAdapter, (void **)&pDXGIAdapter);
 		IDXGIFactory *pIDXGIFactory;
-		pDXGIAdapter->GetParent(__uuidof(IDXGIFactory), (void **)&pIDXGIFactory);
-		pIDXGIFactory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
+		pDXGIAdapter->lpVtbl->GetParent(pDXGIAdapter, &IID_IDXGIFactory, (void **)&pIDXGIFactory);
+		pIDXGIFactory->lpVtbl->MakeWindowAssociation(pIDXGIFactory, hwnd, DXGI_MWA_NO_ALT_ENTER);
 #endif
 	}
 
@@ -335,10 +342,16 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	createBackbuffer(kinc_g4_antialiasing_samples());
 	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	context->lpVtbl->OMSetRenderTargets(context, 1, &renderTargetView, depthStencilView);
 
-	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(renderTargetWidth), static_cast<float>(renderTargetHeight));
-	context->RSSetViewports(1, &viewPort);
+	D3D11_VIEWPORT viewPort;
+	viewPort.TopLeftX = 0.0f;
+	viewPort.TopLeftY = 0.0f;
+	viewPort.Width = (float)renderTargetWidth;
+	viewPort.Height = (float)renderTargetHeight;
+	viewPort.MinDepth = D3D11_MIN_DEPTH;
+	viewPort.MaxDepth = D3D11_MAX_DEPTH;
+	context->lpVtbl->RSSetViewports(context, 1, &viewPort);
 #endif
 
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -379,36 +392,34 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	blendDesc.RenderTarget[0] = rtbd;
 
 	ID3D11BlendState *blending;
-	device->CreateBlendState(&blendDesc, &blending);
+	device->lpVtbl->CreateBlendState(device, &blendDesc, &blending);
 
-	kinc_microsoft_affirm(device->CreateBlendState(&blendDesc, &blending));
-	context->OMSetBlendState(blending, nullptr, 0xffffffff);
+	kinc_microsoft_affirm(device->lpVtbl->CreateBlendState(device, &blendDesc, &blending));
+	context->lpVtbl->OMSetBlendState(context, blending, NULL, 0xffffffff);
 }
 
 void kinc_g4_flush() {}
 
-namespace {
-	ID3D11ShaderResourceView *nullviews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {0};
-}
+static ID3D11ShaderResourceView *nullviews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {0};
 
 static kinc_g4_index_buffer_t *currentIndexBuffer = NULL;
 
 void kinc_internal_g4_index_buffer_set(kinc_g4_index_buffer_t *buffer) {
 	currentIndexBuffer = buffer;
-	context->IASetIndexBuffer(buffer->impl.ib, DXGI_FORMAT_R32_UINT, 0);
+	context->lpVtbl->IASetIndexBuffer(context, buffer->impl.ib, DXGI_FORMAT_R32_UINT, 0);
 }
 
 void kinc_g4_draw_indexed_vertices() {
-	if (currentPipeline->tessellation_control_shader != nullptr) {
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	if (currentPipeline->tessellation_control_shader != NULL) {
+		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	kinc_internal_set_constants();
-	context->DrawIndexed(currentIndexBuffer->impl.count, 0, 0);
+	context->lpVtbl->DrawIndexed(context, currentIndexBuffer->impl.count, 0, 0);
 
-	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
+	context->lpVtbl->PSSetShaderResources(context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
@@ -416,16 +427,16 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 }
 
 void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
-	if (currentPipeline->tessellation_control_shader != nullptr) {
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	if (currentPipeline->tessellation_control_shader != NULL) {
+		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	kinc_internal_set_constants();
-	context->DrawIndexed(count, start, vertex_offset);
+	context->lpVtbl->DrawIndexed(context, count, start, vertex_offset);
 
-	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
+	context->lpVtbl->PSSetShaderResources(context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
@@ -433,31 +444,29 @@ void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 }
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
-	if (currentPipeline->tessellation_control_shader != nullptr) {
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	if (currentPipeline->tessellation_control_shader != NULL) {
+		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	kinc_internal_set_constants();
-	context->DrawIndexedInstanced(count, instanceCount, start, 0, 0);
+	context->lpVtbl->DrawIndexedInstanced(context, count, instanceCount, start, 0, 0);
 
-	context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
+	context->lpVtbl->PSSetShaderResources(context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
-namespace {
-	D3D11_TEXTURE_ADDRESS_MODE convertAddressing(kinc_g4_texture_addressing_t addressing) {
-		switch (addressing) {
-		default:
-		case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
-			return D3D11_TEXTURE_ADDRESS_WRAP;
-		case KINC_G4_TEXTURE_ADDRESSING_MIRROR:
-			return D3D11_TEXTURE_ADDRESS_MIRROR;
-		case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
-			return D3D11_TEXTURE_ADDRESS_CLAMP;
-		case KINC_G4_TEXTURE_ADDRESSING_BORDER:
-			return D3D11_TEXTURE_ADDRESS_BORDER;
-		}
+static D3D11_TEXTURE_ADDRESS_MODE convertAddressing(kinc_g4_texture_addressing_t addressing) {
+	switch (addressing) {
+	default:
+	case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
+		return D3D11_TEXTURE_ADDRESS_WRAP;
+	case KINC_G4_TEXTURE_ADDRESSING_MIRROR:
+		return D3D11_TEXTURE_ADDRESS_MIRROR;
+	case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
+		return D3D11_TEXTURE_ADDRESS_CLAMP;
+	case KINC_G4_TEXTURE_ADDRESSING_BORDER:
+		return D3D11_TEXTURE_ADDRESS_BORDER;
 	}
 }
 
@@ -478,8 +487,8 @@ void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture
 		break;
 	}
 
-	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
-	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
+	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
@@ -494,23 +503,23 @@ void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 	const float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
 	                            ((color & 0xff000000) >> 24) / 255.0f};
 	for (int i = 0; i < renderTargetCount; ++i) {
-		if (currentRenderTargetViews[i] != nullptr && flags & KINC_G4_CLEAR_COLOR) {
-			context->ClearRenderTargetView(currentRenderTargetViews[i], clearColor);
+		if (currentRenderTargetViews[i] != NULL && flags & KINC_G4_CLEAR_COLOR) {
+			context->lpVtbl->ClearRenderTargetView(context, currentRenderTargetViews[i], clearColor);
 		}
 	}
-	if (currentDepthStencilView != nullptr && (flags & KINC_G4_CLEAR_DEPTH) || (flags & KINC_G4_CLEAR_STENCIL)) {
+	if (currentDepthStencilView != NULL && (flags & KINC_G4_CLEAR_DEPTH) || (flags & KINC_G4_CLEAR_STENCIL)) {
 		unsigned d3dflags = ((flags & KINC_G4_CLEAR_DEPTH) ? D3D11_CLEAR_DEPTH : 0) | ((flags & KINC_G4_CLEAR_STENCIL) ? D3D11_CLEAR_STENCIL : 0);
-		context->ClearDepthStencilView(currentDepthStencilView, d3dflags, kinc_clamp(depth, 0.0f, 1.0f), stencil);
+		context->lpVtbl->ClearDepthStencilView(context, currentDepthStencilView, d3dflags, kinc_clamp(depth, 0.0f, 1.0f), stencil);
 	}
 }
 
 void kinc_g4_begin(int windowId) {
 	if (newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight) {
-		depthStencil->Release();
-		depthStencilView->Release();
-		renderTargetView->Release();
-		backBuffer->Release();
-		kinc_microsoft_affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+		depthStencil->lpVtbl->Release(depthStencil);
+		depthStencilView->lpVtbl->Release(depthStencilView);
+		renderTargetView->lpVtbl->Release(renderTargetView);
+		backBuffer->lpVtbl->Release(backBuffer);
+		kinc_microsoft_affirm(swapChain->lpVtbl->ResizeBuffers(swapChain, 2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
 		createBackbuffer(kinc_g4_antialiasing_samples());
 		kinc_g4_restore_render_target();
 	}
@@ -522,13 +531,13 @@ void kinc_g4_begin(int windowId) {
 
 void kinc_g4_viewport(int x, int y, int width, int height) {
 	D3D11_VIEWPORT viewport;
-	viewport.TopLeftX = static_cast<float>(x);
-	viewport.TopLeftY = static_cast<float>(y);
-	viewport.Width = static_cast<float>(width);
-	viewport.Height = static_cast<float>(height);
+	viewport.TopLeftX = (float)x;
+	viewport.TopLeftY = (float)y;
+	viewport.Width = (float)width;
+	viewport.Height = (float)height;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	context->RSSetViewports(1, &viewport);
+	context->lpVtbl->RSSetViewports(context, 1, &viewport);
 }
 
 void kinc_internal_set_rasterizer_state(kinc_g4_pipeline_t *pipeline, bool scissoring);
@@ -539,17 +548,17 @@ void kinc_g4_scissor(int x, int y, int width, int height) {
 	rect.top = y;
 	rect.right = x + width;
 	rect.bottom = y + height;
-	context->RSSetScissorRects(1, &rect);
+	context->lpVtbl->RSSetScissorRects(context, 1, &rect);
 	kinc_internal_scissoring = true;
-	if (currentPipeline != nullptr) {
+	if (currentPipeline != NULL) {
 		kinc_internal_set_rasterizer_state(currentPipeline, kinc_internal_scissoring);
 	}
 }
 
 void kinc_g4_disable_scissor() {
-	context->RSSetScissorRects(0, nullptr);
+	context->lpVtbl->RSSetScissorRects(context, 0, NULL);
 	kinc_internal_scissoring = false;
-	if (currentPipeline != nullptr) {
+	if (currentPipeline != NULL) {
 		kinc_internal_set_rasterizer_state(currentPipeline, kinc_internal_scissoring);
 	}
 }
@@ -561,15 +570,15 @@ void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 }
 
 void kinc_g4_set_stencil_reference_value(int value) {
-	if (currentPipeline != nullptr) {
-		context->OMSetDepthStencilState(currentPipeline->impl.depthStencilState, value);
+	if (currentPipeline != NULL) {
+		context->lpVtbl->OMSetDepthStencilState(context, currentPipeline->impl.depthStencilState, value);
 	}
 }
 
 void kinc_g4_end(int windowId) {}
 
 bool kinc_g4_swap_buffers() {
-	HRESULT hr = swapChain->Present(vsync, 0);
+	HRESULT hr = swapChain->lpVtbl->Present(swapChain, vsync, 0);
 	// TODO: if (hr == DXGI_STATUS_OCCLUDED)...
 	// http://www.pouet.net/topic.php?which=10454
 	// "Proper handling of DXGI_STATUS_OCCLUDED would be to pause the application,
@@ -587,278 +596,276 @@ void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g
 	// TODO
 }
 
-namespace {
-	void setInt(uint8_t *constants, uint32_t offset, uint32_t size, int value) {
-		if (size == 0) return;
-		int *ints = reinterpret_cast<int *>(&constants[offset]);
-		ints[0] = value;
-	}
+static void setInt(uint8_t *constants, uint32_t offset, uint32_t size, int value) {
+	if (size == 0) return;
+	int *ints = (int *)&constants[offset];
+	ints[0] = value;
+}
 
-	void setInt2(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2) {
-		if (size == 0) return;
-		int *ints = reinterpret_cast<int *>(&constants[offset]);
-		ints[0] = value1;
-		ints[1] = value2;
-	}
+static void setInt2(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2) {
+	if (size == 0) return;
+	int *ints = (int *)&constants[offset];
+	ints[0] = value1;
+	ints[1] = value2;
+}
 
-	void setInt3(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2, int value3) {
-		if (size == 0) return;
-		int *ints = reinterpret_cast<int *>(&constants[offset]);
-		ints[0] = value1;
-		ints[1] = value2;
-		ints[2] = value3;
-	}
+static void setInt3(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2, int value3) {
+	if (size == 0) return;
+	int *ints = (int *)&constants[offset];
+	ints[0] = value1;
+	ints[1] = value2;
+	ints[2] = value3;
+}
 
-	void setInt4(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2, int value3, int value4) {
-		if (size == 0) return;
-		int *ints = reinterpret_cast<int *>(&constants[offset]);
-		ints[0] = value1;
-		ints[1] = value2;
-		ints[2] = value3;
-		ints[3] = value4;
-	}
+static void setInt4(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2, int value3, int value4) {
+	if (size == 0) return;
+	int *ints = (int *)&constants[offset];
+	ints[0] = value1;
+	ints[1] = value2;
+	ints[2] = value3;
+	ints[3] = value4;
+}
 
-	void setInts(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, int *values, int count) {
-		if (size == 0) return;
-		int *ints = reinterpret_cast<int *>(&constants[offset]);
-		if (columns == 4 && rows == 4) {
-			for (int i = 0; i < count / 16 && i < static_cast<int>(size) / 4; ++i) {
-				for (int y = 0; y < 4; ++y) {
-					for (int x = 0; x < 4; ++x) {
-						ints[i * 16 + x + y * 4] = values[i * 16 + y + x * 4];
-					}
+static void setInts(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, int *values, int count) {
+	if (size == 0) return;
+	int *ints = (int *)&constants[offset];
+	if (columns == 4 && rows == 4) {
+		for (int i = 0; i < count / 16 && i < (int)size / 4; ++i) {
+			for (int y = 0; y < 4; ++y) {
+				for (int x = 0; x < 4; ++x) {
+					ints[i * 16 + x + y * 4] = values[i * 16 + y + x * 4];
 				}
 			}
 		}
-		else if (columns == 3 && rows == 3) {
-			for (int i = 0; i < count / 9 && i < static_cast<int>(size) / 3; ++i) {
-				for (int y = 0; y < 4; ++y) {
-					for (int x = 0; x < 4; ++x) {
-						ints[i * 12 + x + y * 4] = values[i * 9 + y + x * 3];
-					}
+	}
+	else if (columns == 3 && rows == 3) {
+		for (int i = 0; i < count / 9 && i < (int)size / 3; ++i) {
+			for (int y = 0; y < 4; ++y) {
+				for (int x = 0; x < 4; ++x) {
+					ints[i * 12 + x + y * 4] = values[i * 9 + y + x * 3];
 				}
 			}
 		}
-		else if (columns == 2 && rows == 2) {
-			for (int i = 0; i < count / 4 && i < static_cast<int>(size) / 2; ++i) {
-				for (int y = 0; y < 4; ++y) {
-					for (int x = 0; x < 4; ++x) {
-						ints[i * 8 + x + y * 4] = values[i * 4 + y + x * 2];
-					}
+	}
+	else if (columns == 2 && rows == 2) {
+		for (int i = 0; i < count / 4 && i < (int)size / 2; ++i) {
+			for (int y = 0; y < 4; ++y) {
+				for (int x = 0; x < 4; ++x) {
+					ints[i * 8 + x + y * 4] = values[i * 4 + y + x * 2];
 				}
 			}
 		}
-		else {
-			for (int i = 0; i < count && i * 4 < static_cast<int>(size); ++i) {
-				ints[i] = values[i];
-			}
+	}
+	else {
+		for (int i = 0; i < count && i * 4 < (int)size; ++i) {
+			ints[i] = values[i];
 		}
 	}
+}
 
-	void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		floats[0] = value;
-	}
+static void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value;
+}
 
-	void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-	}
+static void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value1;
+	floats[1] = value2;
+}
 
-	void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-	}
+static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value3;
+}
 
-	void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		floats[0] = value1;
-		floats[1] = value2;
-		floats[2] = value3;
-		floats[3] = value4;
-	}
+static void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	floats[0] = value1;
+	floats[1] = value2;
+	floats[2] = value3;
+	floats[3] = value4;
+}
 
-	void setFloats(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, float *values, int count) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		if (columns == 4 && rows == 4) {
-			for (int i = 0; i < count / 16 && i < static_cast<int>(size) / 4; ++i) {
-				for (int y = 0; y < 4; ++y) {
-					for (int x = 0; x < 4; ++x) {
-						floats[i * 16 + x + y * 4] = values[i * 16 + y + x * 4];
-					}
+static void setFloats(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, float *values, int count) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	if (columns == 4 && rows == 4) {
+		for (int i = 0; i < count / 16 && i < (int)size / 4; ++i) {
+			for (int y = 0; y < 4; ++y) {
+				for (int x = 0; x < 4; ++x) {
+					floats[i * 16 + x + y * 4] = values[i * 16 + y + x * 4];
 				}
 			}
 		}
-		else if (columns == 3 && rows == 3) {
-			for (int i = 0; i < count / 9 && i < static_cast<int>(size) / 3; ++i) {
-				for (int y = 0; y < 4; ++y) {
-					for (int x = 0; x < 4; ++x) {
-						floats[i * 12 + x + y * 4] = values[i * 9 + y + x * 3];
-					}
+	}
+	else if (columns == 3 && rows == 3) {
+		for (int i = 0; i < count / 9 && i < (int)size / 3; ++i) {
+			for (int y = 0; y < 4; ++y) {
+				for (int x = 0; x < 4; ++x) {
+					floats[i * 12 + x + y * 4] = values[i * 9 + y + x * 3];
 				}
 			}
 		}
-		else if (columns == 2 && rows == 2) {
-			for (int i = 0; i < count / 4 && i < static_cast<int>(size) / 2; ++i) {
-				for (int y = 0; y < 4; ++y) {
-					for (int x = 0; x < 4; ++x) {
-						floats[i * 8 + x + y * 4] = values[i * 4 + y + x * 2];
-					}
+	}
+	else if (columns == 2 && rows == 2) {
+		for (int i = 0; i < count / 4 && i < (int)size / 2; ++i) {
+			for (int y = 0; y < 4; ++y) {
+				for (int x = 0; x < 4; ++x) {
+					floats[i * 8 + x + y * 4] = values[i * 4 + y + x * 2];
 				}
 			}
 		}
-		else {
-			for (int i = 0; i < count && i * 4 < static_cast<int>(size); ++i) {
-				floats[i] = values[i];
-			}
+	}
+	else {
+		for (int i = 0; i < count && i * 4 < (int)size; ++i) {
+			floats[i] = values[i];
 		}
 	}
+}
 
-	void setBool(uint8_t *constants, uint32_t offset, uint32_t size, bool value) {
-		if (size == 0) return;
-		int *ints = reinterpret_cast<int *>(&constants[offset]);
-		ints[0] = value ? 1 : 0;
-	}
+static void setBool(uint8_t *constants, uint32_t offset, uint32_t size, bool value) {
+	if (size == 0) return;
+	int *ints = (int *)&constants[offset];
+	ints[0] = value ? 1 : 0;
+}
 
-	void setMatrix(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix4x4_t *value) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		for (int y = 0; y < 4; ++y) {
-			for (int x = 0; x < 4; ++x) {
-				floats[x + y * 4] = value->m[y + x * 4];
-			}
+static void setMatrix4(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix4x4_t *value) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	for (int y = 0; y < 4; ++y) {
+		for (int x = 0; x < 4; ++x) {
+			floats[x + y * 4] = value->m[y + x * 4];
 		}
 	}
+}
 
-	void setMatrix(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix3x3_t *value) {
-		if (size == 0) return;
-		float *floats = reinterpret_cast<float *>(&constants[offset]);
-		for (int y = 0; y < 3; ++y) {
-			for (int x = 0; x < 3; ++x) {
-				floats[x + y * 4] = value->m[y + x * 3];
-			}
+static void setMatrix3(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix3x3_t *value) {
+	if (size == 0) return;
+	float *floats = (float *)&constants[offset];
+	for (int y = 0; y < 3; ++y) {
+		for (int x = 0; x < 3; ++x) {
+			floats[x + y * 4] = value->m[y + x * 3];
 		}
 	}
 }
 
 void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
-	::setInt(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
-	::setInt(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
-	::setInt(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
-	::setInt(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
-	::setInt(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setInt(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	setInt(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	setInt(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	setInt(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	setInt(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
 void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {
-	::setInt2(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2);
-	::setInt2(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2);
-	::setInt2(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2);
-	::setInt2(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2);
-	::setInt2(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2);
+	setInt2(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2);
+	setInt2(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2);
+	setInt2(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2);
+	setInt2(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2);
+	setInt2(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2);
 }
 
 void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3) {
-	::setInt3(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3);
-	::setInt3(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3);
-	::setInt3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3);
-	::setInt3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3);
-	::setInt3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3);
+	setInt3(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3);
+	setInt3(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3);
+	setInt3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3);
+	setInt3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3);
+	setInt3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3);
 }
 
 void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4) {
-	::setInt4(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3, value4);
-	::setInt4(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3, value4);
-	::setInt4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3, value4);
-	::setInt4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3, value4);
-	::setInt4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3, value4);
+	setInt4(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3, value4);
+	setInt4(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3, value4);
+	setInt4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3, value4);
+	setInt4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3, value4);
+	setInt4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3, value4);
 }
 
 void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
-	::setInts(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, location.impl.vertexColumns, location.impl.vertexRows, values, count);
-	::setInts(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, location.impl.fragmentColumns, location.impl.fragmentRows, values,
-	          count);
-	::setInts(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, location.impl.geometryColumns, location.impl.geometryRows, values,
-	          count);
-	::setInts(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, location.impl.tessEvalColumns, location.impl.tessEvalRows, values,
-	          count);
-	::setInts(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
-	          location.impl.tessControlRows, values, count);
+	setInts(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, location.impl.vertexColumns, location.impl.vertexRows, values, count);
+	setInts(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, location.impl.fragmentColumns, location.impl.fragmentRows, values,
+	        count);
+	setInts(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, location.impl.geometryColumns, location.impl.geometryRows, values,
+	        count);
+	setInts(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, location.impl.tessEvalColumns, location.impl.tessEvalRows, values,
+	        count);
+	setInts(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
+	        location.impl.tessControlRows, values, count);
 }
 
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
-	::setFloat(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
-	::setFloat(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
-	::setFloat(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
-	::setFloat(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
-	::setFloat(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setFloat(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	setFloat(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	setFloat(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	setFloat(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	setFloat(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
 void kinc_g4_set_float2(kinc_g4_constant_location_t location, float value1, float value2) {
-	::setFloat2(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2);
-	::setFloat2(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2);
-	::setFloat2(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2);
-	::setFloat2(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2);
-	::setFloat2(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2);
+	setFloat2(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2);
+	setFloat2(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2);
+	setFloat2(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2);
+	setFloat2(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2);
+	setFloat2(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2);
 }
 
 void kinc_g4_set_float3(kinc_g4_constant_location_t location, float value1, float value2, float value3) {
-	::setFloat3(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3);
-	::setFloat3(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3);
-	::setFloat3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3);
-	::setFloat3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3);
-	::setFloat3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3);
+	setFloat3(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3);
+	setFloat3(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3);
+	setFloat3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3);
+	setFloat3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3);
+	setFloat3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3);
 }
 
 void kinc_g4_set_float4(kinc_g4_constant_location_t location, float value1, float value2, float value3, float value4) {
-	::setFloat4(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3, value4);
-	::setFloat4(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3, value4);
-	::setFloat4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3, value4);
-	::setFloat4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3, value4);
-	::setFloat4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3, value4);
+	setFloat4(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value1, value2, value3, value4);
+	setFloat4(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value1, value2, value3, value4);
+	setFloat4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3, value4);
+	setFloat4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3, value4);
+	setFloat4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3, value4);
 }
 
 void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int count) {
-	::setFloats(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, location.impl.vertexColumns, location.impl.vertexRows, values, count);
-	::setFloats(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, location.impl.fragmentColumns, location.impl.fragmentRows, values,
-	            count);
-	::setFloats(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, location.impl.geometryColumns, location.impl.geometryRows, values,
-	            count);
-	::setFloats(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, location.impl.tessEvalColumns, location.impl.tessEvalRows, values,
-	            count);
-	::setFloats(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
-	            location.impl.tessControlRows, values, count);
+	setFloats(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, location.impl.vertexColumns, location.impl.vertexRows, values, count);
+	setFloats(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, location.impl.fragmentColumns, location.impl.fragmentRows, values,
+	          count);
+	setFloats(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, location.impl.geometryColumns, location.impl.geometryRows, values,
+	          count);
+	setFloats(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, location.impl.tessEvalColumns, location.impl.tessEvalRows, values,
+	          count);
+	setFloats(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
+	          location.impl.tessControlRows, values, count);
 }
 
 void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value) {
-	::setBool(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
-	::setBool(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
-	::setBool(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
-	::setBool(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
-	::setBool(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setBool(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	setBool(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	setBool(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	setBool(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	setBool(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
 void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value) {
-	::setMatrix(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
-	::setMatrix(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
-	::setMatrix(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
-	::setMatrix(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
-	::setMatrix(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setMatrix4(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	setMatrix4(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	setMatrix4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	setMatrix4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	setMatrix4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
 void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value) {
-	::setMatrix(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
-	::setMatrix(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
-	::setMatrix(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
-	::setMatrix(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
-	::setMatrix(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setMatrix3(vertexConstants, location.impl.vertexOffset, location.impl.vertexSize, value);
+	setMatrix3(fragmentConstants, location.impl.fragmentOffset, location.impl.fragmentSize, value);
+	setMatrix3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
+	setMatrix3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
+	setMatrix3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
@@ -916,8 +923,8 @@ void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_
 	lastSamplers[unit.impl.unit].Filter = d3d11filter;
 	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
-	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
+	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -980,8 +987,8 @@ void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g
 	lastSamplers[unit.impl.unit].Filter = d3d11filter;
 	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
-	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
+	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -1046,8 +1053,8 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipm
 	lastSamplers[unit.impl.unit].Filter = d3d11filter;
 	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
-	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
+	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
@@ -1065,8 +1072,8 @@ void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled)
 		lastSamplers[unit.impl.unit].ComparisonFunc = D3D11_COMPARISON_NEVER;
 	}
 
-	ID3D11SamplerState *sampler = getSamplerState(lastSamplers[unit.impl.unit]);
-	context->PSSetSamplers(unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
+	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
@@ -1084,13 +1091,19 @@ bool kinc_g4_non_pow2_textures_supported() {
 void kinc_g4_restore_render_target() {
 	currentRenderTargetViews[0] = renderTargetView;
 	currentDepthStencilView = depthStencilView;
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	context->lpVtbl->OMSetRenderTargets(context, 1, &renderTargetView, depthStencilView);
 	renderTargetCount = 1;
-	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(renderTargetWidth), static_cast<float>(renderTargetHeight));
-	context->RSSetViewports(1, &viewPort);
+	D3D11_VIEWPORT viewPort;
+	viewPort.TopLeftX = 0.0f;
+	viewPort.TopLeftY = 0.0f;
+	viewPort.Width = (float)renderTargetWidth;
+	viewPort.Height = (float)renderTargetHeight;
+	viewPort.MinDepth = D3D11_MIN_DEPTH;
+	viewPort.MaxDepth = D3D11_MAX_DEPTH;
+	context->lpVtbl->RSSetViewports(context, 1, &viewPort);
 }
 
-void kinc_g4_set_render_targets(kinc_g4_render_target **targets, int count) {
+void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int count) {
 	currentDepthStencilView = targets[0]->impl.depthStencilView[0];
 
 	renderTargetCount = count;
@@ -1098,18 +1111,30 @@ void kinc_g4_set_render_targets(kinc_g4_render_target **targets, int count) {
 		currentRenderTargetViews[i] = targets[i]->impl.renderTargetViewRender[0];
 	}
 
-	context->OMSetRenderTargets(count, currentRenderTargetViews, currentDepthStencilView);
-	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(targets[0]->width), static_cast<float>(targets[0]->height));
-	context->RSSetViewports(1, &viewPort);
+	context->lpVtbl->OMSetRenderTargets(context, count, currentRenderTargetViews, currentDepthStencilView);
+	D3D11_VIEWPORT viewPort;
+	viewPort.TopLeftX = 0.0f;
+	viewPort.TopLeftY = 0.0f;
+	viewPort.Width = (float)targets[0]->width;
+	viewPort.Height = (float)targets[0]->height;
+	viewPort.MinDepth = D3D11_MIN_DEPTH;
+	viewPort.MaxDepth = D3D11_MAX_DEPTH;
+	context->lpVtbl->RSSetViewports(context, 1, &viewPort);
 }
 
-void kinc_g4_set_render_target_face(kinc_g4_render_target *texture, int face) {
+void kinc_g4_set_render_target_face(struct kinc_g4_render_target *texture, int face) {
 	renderTargetCount = 1;
 	currentRenderTargetViews[0] = texture->impl.renderTargetViewRender[face];
 	currentDepthStencilView = texture->impl.depthStencilView[face];
-	context->OMSetRenderTargets(1, currentRenderTargetViews, currentDepthStencilView);
-	CD3D11_VIEWPORT viewPort(0.0f, 0.0f, static_cast<float>(texture->width), static_cast<float>(texture->height));
-	context->RSSetViewports(1, &viewPort);
+	context->lpVtbl->OMSetRenderTargets(context, 1, currentRenderTargetViews, currentDepthStencilView);
+	D3D11_VIEWPORT viewPort;
+	viewPort.TopLeftX = 0.0f;
+	viewPort.TopLeftY = 0.0f;
+	viewPort.Width = (float)texture->width;
+	viewPort.Height = (float)texture->height;
+	viewPort.MinDepth = D3D11_MIN_DEPTH;
+	viewPort.MaxDepth = D3D11_MAX_DEPTH;
+	context->lpVtbl->RSSetViewports(context, 1, &viewPort);
 }
 
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
@@ -1130,7 +1155,7 @@ void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 		internaloffsets[i] = 0;
 	}
 
-	context->IASetVertexBuffers(0, count, d3dbuffers, strides, internaloffsets);
+	context->lpVtbl->IASetVertexBuffers(context, 0, count, d3dbuffers, strides, internaloffsets);
 }
 
 void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *buffer) {
@@ -1150,21 +1175,24 @@ void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *t
 }
 
 static unsigned queryCount = 0;
-static std::vector<ID3D11Query *> queryPool;
+#define QUERY_POOL_MAX_SIZE 256
+static uint32_t query_pool_size = 0;
+static ID3D11Query *queryPool[QUERY_POOL_MAX_SIZE];
 
 bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 	D3D11_QUERY_DESC queryDesc;
 	queryDesc.Query = D3D11_QUERY_OCCLUSION;
 	queryDesc.MiscFlags = 0;
-	ID3D11Query *pQuery = nullptr;
-	HRESULT result = device->CreateQuery(&queryDesc, &pQuery);
+	ID3D11Query *pQuery = NULL;
+	HRESULT result = device->lpVtbl->CreateQuery(device, &queryDesc, &pQuery);
 
 	if (FAILED(result)) {
 		kinc_log(KINC_LOG_LEVEL_INFO, "Internal query creation failed, result: 0x%X.", result);
 		return false;
 	}
 
-	queryPool.push_back(pQuery);
+	assert(query_pool_size < QUERY_POOL_MAX_SIZE);
+	queryPool[query_pool_size++] = pQuery;
 	*occlusionQuery = queryCount;
 	++queryCount;
 
@@ -1172,38 +1200,42 @@ bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 }
 
 void kinc_g4_delete_occlusion_query(unsigned occlusionQuery) {
-	if (occlusionQuery < queryPool.size()) queryPool[occlusionQuery] = nullptr;
+	if (occlusionQuery < query_pool_size) {
+		queryPool[occlusionQuery] = NULL;
+	}
 }
 
 void kinc_g4_start_occlusion_query(unsigned occlusionQuery) {
 	ID3D11Query *pQuery = queryPool[occlusionQuery];
-	if (pQuery != nullptr) {
-		context->Begin(pQuery);
+	if (pQuery != NULL) {
+		context->lpVtbl->Begin(context, (ID3D11Asynchronous *)pQuery);
 	}
 }
 
 void kinc_g4_end_occlusion_query(unsigned occlusionQuery) {
 	ID3D11Query *pQuery = queryPool[occlusionQuery];
-	if (pQuery != nullptr) {
-		context->End(pQuery);
+	if (pQuery != NULL) {
+		context->lpVtbl->End(context, (ID3D11Asynchronous *)pQuery);
 	}
 }
 
 bool kinc_g4_are_query_results_available(unsigned occlusionQuery) {
 	ID3D11Query *pQuery = queryPool[occlusionQuery];
-	if (pQuery != nullptr) {
-		if (S_OK == context->GetData(pQuery, 0, 0, 0)) return true;
+	if (pQuery != NULL) {
+		if (S_OK == context->lpVtbl->GetData(context, (ID3D11Asynchronous *)pQuery, 0, 0, 0)) {
+			return true;
+		}
 	}
 	return false;
 }
 
 void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {
 	ID3D11Query *pQuery = queryPool[occlusionQuery];
-	if (pQuery != nullptr) {
+	if (pQuery != NULL) {
 		UINT64 numberOfPixelsDrawn;
-		HRESULT result = context->GetData(pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
+		HRESULT result = context->lpVtbl->GetData(context, (ID3D11Asynchronous *)pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
 		if (S_OK == result) {
-			*pixelCount = static_cast<unsigned>(numberOfPixelsDrawn);
+			*pixelCount = (unsigned)numberOfPixelsDrawn;
 		}
 		else {
 			kinc_log(KINC_LOG_LEVEL_INFO, "Check first if results are available");
@@ -1218,16 +1250,16 @@ void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, kinc_g4_texture_arra
 	kinc_internal_texture_array_set(array, unit);
 }
 
-extern "C" void kinc_internal_resize(int window, int width, int height) {
+void kinc_internal_resize(int window, int width, int height) {
 	newRenderTargetWidth = width;
 	newRenderTargetHeight = height;
 }
 
-extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
+void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
 	kinc_g4_set_antialiasing_samples(frame->samples_per_pixel);
 	vsync = frame->vertical_sync;
 }
 
-extern "C" bool kinc_window_vsynced(int window_index) {
+bool kinc_window_vsynced(int window_index) {
 	return vsync;
 }

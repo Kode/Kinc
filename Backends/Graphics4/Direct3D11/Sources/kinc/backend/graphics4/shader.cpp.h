@@ -1,26 +1,8 @@
 #include <kinc/graphics4/shader.h>
 
-#include <Kore/Math/Core.h>
-
 void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
-	if (shader->impl.shader != nullptr) {
-		switch (shader->impl.type) {
-		case KINC_G4_SHADER_TYPE_VERTEX:
-			((ID3D11VertexShader *)shader->impl.shader)->Release();
-			break;
-		case KINC_G4_SHADER_TYPE_FRAGMENT:
-			((ID3D11PixelShader *)shader->impl.shader)->Release();
-			break;
-		case KINC_G4_SHADER_TYPE_GEOMETRY:
-			((ID3D11GeometryShader *)shader->impl.shader)->Release();
-			break;
-		case KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL:
-			((ID3D11HullShader *)shader->impl.shader)->Release();
-			break;
-		case KINC_G4_SHADER_TYPE_TESSELLATION_EVALUATION:
-			((ID3D11DomainShader *)shader->impl.shader)->Release();
-			break;
-		}
+	if (shader->impl.shader != NULL) {
+		((IUnknown *)shader->impl.shader)->lpVtbl->Release(shader->impl.shader);
 		free(shader->impl.data);
 	}
 }
@@ -85,19 +67,24 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 
 	switch (type) {
 	case KINC_G4_SHADER_TYPE_VERTEX:
-		kinc_microsoft_affirm(device->CreateVertexShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11VertexShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(
+		    device->lpVtbl->CreateVertexShader(device, shader->impl.data, shader->impl.length, NULL, (ID3D11VertexShader **)&shader->impl.shader));
 		break;
 	case KINC_G4_SHADER_TYPE_FRAGMENT:
-		kinc_microsoft_affirm(device->CreatePixelShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11PixelShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(
+		    device->lpVtbl->CreatePixelShader(device, shader->impl.data, shader->impl.length, NULL, (ID3D11PixelShader **)&shader->impl.shader));
 		break;
 	case KINC_G4_SHADER_TYPE_GEOMETRY:
-		kinc_microsoft_affirm(device->CreateGeometryShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11GeometryShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(
+		    device->lpVtbl->CreateGeometryShader(device, shader->impl.data, shader->impl.length, NULL, (ID3D11GeometryShader **)&shader->impl.shader));
 		break;
 	case KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL:
-		kinc_microsoft_affirm(device->CreateHullShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11HullShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(
+		    device->lpVtbl->CreateHullShader(device, shader->impl.data, shader->impl.length, NULL, (ID3D11HullShader **)&shader->impl.shader));
 		break;
 	case KINC_G4_SHADER_TYPE_TESSELLATION_EVALUATION:
-		kinc_microsoft_affirm(device->CreateDomainShader(shader->impl.data, shader->impl.length, nullptr, (ID3D11DomainShader **)&shader->impl.shader));
+		kinc_microsoft_affirm(
+		    device->lpVtbl->CreateDomainShader(device, shader->impl.data, shader->impl.length, NULL, (ID3D11DomainShader **)&shader->impl.shader));
 		break;
 	}
 }
