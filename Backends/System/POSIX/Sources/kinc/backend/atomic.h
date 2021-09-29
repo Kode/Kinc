@@ -40,7 +40,7 @@
 
 #define KINC_ATOMIC_EXCHANGE_32(pointer, value) (__sync_lock_test_and_set(pointer, value))
 
-#define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value) (__sync_lock_test_and_set(pointer, value))
+#define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value) (__sync_lock_test_and_set((volatile int32_t *)pointer, *(int32_t *)&value)))
 
 #endif
 
