@@ -85,7 +85,7 @@ $(function() {
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">struct </span>kinc_internal_video_sound_stream;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
 <div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="structkinc__a1__channel.html">   21</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__a1__channel.html">kinc_a1_channel</a> {</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    kinc_a1_sound_t *sound;</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keywordtype">float</span> position;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordtype">bool</span> loop;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordtype">float</span> volume;</div>
@@ -104,9 +104,9 @@ $(function() {
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="audio1_2audio_8h.html#ad7fd50219af27609406df29207bdfc6f">kinc_a1_init</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;KINC_FUNC <a class="code" href="structkinc__a1__channel.html">kinc_a1_channel_t</a> *<a class="code" href="audio1_2audio_8h.html#a42c3a552eb10002f00c29d325710a277">kinc_a1_play_sound</a>(<a class="code" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound, <span class="keywordtype">bool</span> loop, <span class="keywordtype">float</span> pitch, <span class="keywordtype">bool</span> unique);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;KINC_FUNC <a class="code" href="structkinc__a1__channel.html">kinc_a1_channel_t</a> *<a class="code" href="audio1_2audio_8h.html#a42c3a552eb10002f00c29d325710a277">kinc_a1_play_sound</a>(kinc_a1_sound_t *sound, <span class="keywordtype">bool</span> loop, <span class="keywordtype">float</span> pitch, <span class="keywordtype">bool</span> unique);</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="audio1_2audio_8h.html#a12790ea026bde4237ef008e16756ff75">kinc_a1_stop_sound</a>(<a class="code" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="audio1_2audio_8h.html#a12790ea026bde4237ef008e16756ff75">kinc_a1_stop_sound</a>(kinc_a1_sound_t *sound);</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="audio1_2audio_8h.html#aeca8fdd93220a2b5e5066cf07a148358">kinc_a1_play_sound_stream</a>(<a class="code" href="structkinc__a1__sound__stream.html">kinc_a1_sound_stream_t</a> *stream);</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
@@ -120,7 +120,6 @@ $(function() {
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;}</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="astructkinc__a1__sound_html"><div class="ttname"><a href="structkinc__a1__sound.html">kinc_a1_sound</a></div><div class="ttdef"><b>Definition:</b> sound.h:17</div></div>
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <div class="ttc" id="aaudio1_2audio_8h_html_aeca8fdd93220a2b5e5066cf07a148358"><div class="ttname"><a href="audio1_2audio_8h.html#aeca8fdd93220a2b5e5066cf07a148358">kinc_a1_play_sound_stream</a></div><div class="ttdeci">KINC_FUNC void kinc_a1_play_sound_stream(kinc_a1_sound_stream_t *stream)</div><div class="ttdoc">Starts playing a sound-stream.</div><div class="ttdef"><b>Definition:</b> audio.c.h:169</div></div>
 <div class="ttc" id="aaudio1_2audio_8h_html_a9b6549972a164ffe81bf1e53efef4d29"><div class="ttname"><a href="audio1_2audio_8h.html#a9b6549972a164ffe81bf1e53efef4d29">kinc_a1_stop_sound_stream</a></div><div class="ttdeci">KINC_FUNC void kinc_a1_stop_sound_stream(kinc_a1_sound_stream_t *stream)</div><div class="ttdoc">Stops a sound-stream from playing.</div><div class="ttdef"><b>Definition:</b> audio.c.h:191</div></div>

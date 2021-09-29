@@ -198,7 +198,7 @@ $(function() {
 <div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <a class="code" href="audio2_2audio_8h.html#ace051f47075d4e14b303a6b56d50b8cc">kinc_a2_set_callback</a>(kinc_internal_a1_mix);</div>
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;}</div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
-<div class="line"><a name="l00130"></a><span class="lineno"><a class="line" href="audio1_2audio_8h.html#a42c3a552eb10002f00c29d325710a277">  130</a></span>&#160;<a class="code" href="structkinc__a1__channel.html">kinc_a1_channel_t</a> *<a class="code" href="audio1_2audio_8h.html#a42c3a552eb10002f00c29d325710a277">kinc_a1_play_sound</a>(<a class="code" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound, <span class="keywordtype">bool</span> loop, <span class="keywordtype">float</span> pitch, <span class="keywordtype">bool</span> unique) {</div>
+<div class="line"><a name="l00130"></a><span class="lineno"><a class="line" href="audio1_2audio_8h.html#a42c3a552eb10002f00c29d325710a277">  130</a></span>&#160;<a class="code" href="structkinc__a1__channel.html">kinc_a1_channel_t</a> *<a class="code" href="audio1_2audio_8h.html#a42c3a552eb10002f00c29d325710a277">kinc_a1_play_sound</a>(kinc_a1_sound_t *sound, <span class="keywordtype">bool</span> loop, <span class="keywordtype">float</span> pitch, <span class="keywordtype">bool</span> unique) {</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <a class="code" href="structkinc__a1__channel.html">kinc_a1_channel_t</a> *channel = NULL;</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <a class="code" href="mutex_8h.html#a87d149adc906ed402d9296d445f25173">kinc_mutex_lock</a>(&amp;mutex);</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="keywordtype">bool</span> found = <span class="keyword">false</span>;</div>
@@ -215,7 +215,7 @@ $(function() {
 <div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;                channels[i].position = 0;</div>
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;                channels[i].loop = loop;</div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;                channels[i].pitch = pitch;</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;                channels[i].volume = 1.0f;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;                channels[i].volume = sound-&gt;volume;</div>
 <div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;                channel = &amp;channels[i];</div>
 <div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;                <span class="keywordflow">break</span>;</div>
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;            }</div>
@@ -225,7 +225,7 @@ $(function() {
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordflow">return</span> channel;</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;}</div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160; </div>
-<div class="line"><a name="l00157"></a><span class="lineno"><a class="line" href="audio1_2audio_8h.html#a12790ea026bde4237ef008e16756ff75">  157</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="audio1_2audio_8h.html#a12790ea026bde4237ef008e16756ff75">kinc_a1_stop_sound</a>(<a class="code" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound) {</div>
+<div class="line"><a name="l00157"></a><span class="lineno"><a class="line" href="audio1_2audio_8h.html#a12790ea026bde4237ef008e16756ff75">  157</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="audio1_2audio_8h.html#a12790ea026bde4237ef008e16756ff75">kinc_a1_stop_sound</a>(kinc_a1_sound_t *sound) {</div>
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <a class="code" href="mutex_8h.html#a87d149adc906ed402d9296d445f25173">kinc_mutex_lock</a>(&amp;mutex);</div>
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; CHANNEL_COUNT; ++i) {</div>
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;        <span class="keywordflow">if</span> (channels[i].sound == sound) {</div>
@@ -295,7 +295,6 @@ $(function() {
 <div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <a class="code" href="mutex_8h.html#ac7d45960627f8704a21ea5f65e7d2367">kinc_mutex_unlock</a>(&amp;mutex);</div>
 <div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="astructkinc__a1__sound_html"><div class="ttname"><a href="structkinc__a1__sound.html">kinc_a1_sound</a></div><div class="ttdef"><b>Definition:</b> sound.h:17</div></div>
 <div class="ttc" id="aaudio1_2audio_8h_html_aeca8fdd93220a2b5e5066cf07a148358"><div class="ttname"><a href="audio1_2audio_8h.html#aeca8fdd93220a2b5e5066cf07a148358">kinc_a1_play_sound_stream</a></div><div class="ttdeci">KINC_FUNC void kinc_a1_play_sound_stream(kinc_a1_sound_stream_t *stream)</div><div class="ttdoc">Starts playing a sound-stream.</div><div class="ttdef"><b>Definition:</b> audio.c.h:169</div></div>
 <div class="ttc" id="amutex_8h_html_a881f39b0131d6ed9845593ea8ca68d53"><div class="ttname"><a href="mutex_8h.html#a881f39b0131d6ed9845593ea8ca68d53">kinc_mutex_init</a></div><div class="ttdeci">KINC_FUNC void kinc_mutex_init(kinc_mutex_t *mutex)</div><div class="ttdoc">Initializes a mutex-object.</div></div>
 <div class="ttc" id="avideo_8h_html"><div class="ttname"><a href="video_8h.html">video.h</a></div><div class="ttdoc">Hardware-assisted video decoding support. Actually supported formats vary per target-system.</div></div>
