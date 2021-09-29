@@ -193,18 +193,18 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	    D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0};
 
 #ifdef KORE_WINDOWSAPP
-	IDXGIAdapter *adapter = nullptr;
+	IDXGIAdapter *adapter = NULL;
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	kinc_microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags, featureLevels, ARRAYSIZE(featureLevels),
-	                                        D3D11_SDK_VERSION, &device, &featureLevel, &context));
+	kinc_microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+	                                        &device, &featureLevel, &context));
 
 #elif KORE_OCULUS
-	IDXGIFactory *dxgiFactory = nullptr;
+	IDXGIFactory *dxgiFactory = NULL;
 	kinc_microsoft_affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void **)(&dxgiFactory)));
 
-	kinc_microsoft_affirm(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+	kinc_microsoft_affirm(D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
 	                                        &device, &featureLevel, &context));
 #endif
 	// affirm(device0.As(&device));
@@ -268,16 +268,17 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 		swapChainDesc.Flags = 0;
 
 		IDXGIDevice1 *dxgiDevice;
-		kinc_microsoft_affirm(device->QueryInterface(IID_IDXGIDevice1, (void **)&dxgiDevice));
+		kinc_microsoft_affirm(device->lpVtbl->QueryInterface(device, &IID_IDXGIDevice1, (void **)&dxgiDevice));
 
 		IDXGIAdapter *dxgiAdapter;
-		kinc_microsoft_affirm(dxgiDevice->GetAdapter(&dxgiAdapter));
+		kinc_microsoft_affirm(dxgiDevice->lpVtbl->GetAdapter(dxgiDevice, &dxgiAdapter));
 
 		IDXGIFactory2 *dxgiFactory;
-		kinc_microsoft_affirm(dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void **)&dxgiFactory));
+		kinc_microsoft_affirm(dxgiAdapter->lpVtbl->GetParent(dxgiAdapter, &IID_IDXGIFactory2, (void **)&dxgiFactory));
 
-		kinc_microsoft_affirm(dxgiFactory->CreateSwapChainForCoreWindow(device, kinc_winapp_internal_get_window(), &swapChainDesc, nullptr, &swapChain));
-		kinc_microsoft_affirm(dxgiDevice->SetMaximumFrameLatency(1));
+		kinc_microsoft_affirm(dxgiFactory->lpVtbl->CreateSwapChainForCoreWindow(dxgiFactory, (IUnknown *)device, kinc_winapp_internal_get_window(),
+		                                                                        &swapChainDesc, NULL, &swapChain));
+		kinc_microsoft_affirm(dxgiDevice->lpVtbl->SetMaximumFrameLatency(dxgiDevice, 1));
 #endif
 
 #elif KORE_OCULUS
@@ -525,7 +526,7 @@ void kinc_g4_begin(int windowId) {
 	}
 #ifdef KORE_WINDOWSAPP
 	// TODO (DK) do i need to do something here?
-	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+	context->lpVtbl->OMSetRenderTargets(context, 1, &renderTargetView, depthStencilView);
 #endif
 }
 

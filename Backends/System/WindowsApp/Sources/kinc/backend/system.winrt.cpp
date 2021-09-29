@@ -214,8 +214,8 @@ const char *kinc_language() {
 	return "en";
 }
 
-extern int renderTargetWidth;
-extern int renderTargetHeight;
+extern "C" int renderTargetWidth;
+extern "C" int renderTargetHeight;
 
 Win8Application::Win8Application() : closed(false) {}
 
