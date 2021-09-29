@@ -12,16 +12,24 @@
 
 #define KINC_ATOMIC_DECREMENT(pointer) (OSAtomicDecrement32Barrier(ioWhere) + 1)
 
+#define KINC_ATOMIC_EXCHANGE_32(pointer, value) (__sync_swap(pointer, value))
+
+#define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value) (__sync_swap((volatile int32_t *)pointer, *(int32_t *)&value))
+
 #else
 
 // clang/gcc intrinsics
 
-#define KINC_ATOMIC_COMPARE_EXCHANGE(pointer, oldValue, newValue) (__sync_bool_compare_and_swap(pointer, oldValue, newValue))
+#define KINC_ATOMIC_COMPARE_EXCHANGE(pointer, oldValue, newValue) (__sync_val_compare_and_swap(pointer, oldValue, newValue) == oldValue)
 
-#define KINC_ATOMIC_COMPARE_EXCHANGE_POINTER(pointer, oldValue, newValue) (__sync_bool_compare_and_swap(pointer, oldValue, newValue))
+#define KINC_ATOMIC_COMPARE_EXCHANGE_POINTER(pointer, oldValue, newValue) (__sync_val_compare_and_swap(pointer, oldValue, newValue) == oldValue)
 
 #define KINC_ATOMIC_INCREMENT(pointer) (__sync_fetch_and_add(pointer, 1))
 
 #define KINC_ATOMIC_DECREMENT(pointer) (__sync_fetch_and_sub(pointer, 1))
+
+#define KINC_ATOMIC_EXCHANGE_32(pointer, value) (__sync_swap(pointer, value))
+
+#define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value) (__sync_swap((volatile int32_t *)pointer, *(int32_t *)&value))
 
 #endif
