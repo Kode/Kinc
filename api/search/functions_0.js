@@ -1,5 +1,7 @@
 var searchData=
 [
+  ['kinc_5fa1_5fchannel_5fget_5fvolume_680',['kinc_a1_channel_get_volume',['../audio1_2audio_8h.html#ae56f2a66b416262c7ceec4347d33c12d',1,'audio.c.h']]],
+  ['kinc_5fa1_5fchannel_5fset_5fvolume_681',['kinc_a1_channel_set_volume',['../audio1_2audio_8h.html#a1d3f0f1e4b889ca930505757933a7f72',1,'audio.c.h']]],
   ['kinc_5fa1_5finit_682',['kinc_a1_init',['../audio1_2audio_8h.html#ad7fd50219af27609406df29207bdfc6f',1,'audio.c.h']]],
   ['kinc_5fa1_5fplay_5fsound_683',['kinc_a1_play_sound',['../audio1_2audio_8h.html#a42c3a552eb10002f00c29d325710a277',1,'audio.c.h']]],
   ['kinc_5fa1_5fplay_5fsound_5fstream_684',['kinc_a1_play_sound_stream',['../audio1_2audio_8h.html#aeca8fdd93220a2b5e5066cf07a148358',1,'audio.c.h']]],
