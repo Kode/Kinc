@@ -108,7 +108,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 	kinc_a1_sound_t *sound = find_sound();
 	assert(sound != NULL);
 	sound->in_use = true;
-	sound->my_volume = 1;
+	sound->volume = 1.0f;
 	sound->size = 0;
 	sound->left = NULL;
 	sound->right = NULL;
@@ -208,9 +208,9 @@ void kinc_a1_sound_destroy(kinc_a1_sound_t *sound) {
 }
 
 float kinc_a1_sound_volume(kinc_a1_sound_t *sound) {
-	return sound->my_volume;
+	return sound->volume;
 }
 
 void kinc_a1_sound_set_volume(kinc_a1_sound_t *sound, float value) {
-	sound->my_volume = value;
+	sound->volume = value;
 }
