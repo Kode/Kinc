@@ -28,8 +28,20 @@
 
 #define KINC_ATOMIC_DECREMENT(pointer) (__sync_fetch_and_sub(pointer, 1))
 
+#ifdef __clang__
+
 #define KINC_ATOMIC_EXCHANGE_32(pointer, value) (__sync_swap(pointer, value))
 
 #define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value) (__sync_swap((volatile int32_t *)pointer, *(int32_t *)&value))
+
+#else
+
+// Beware, __sync_lock_test_and_set is not a full barrier and can have platform-specific weirdness
+
+#define KINC_ATOMIC_EXCHANGE_32(pointer, value) (__sync_lock_test_and_set(pointer, value))
+
+#define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value) (__sync_lock_test_and_set(pointer, value))
+
+#endif
 
 #endif
