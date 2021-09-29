@@ -4,6 +4,7 @@
 
 #include <kinc/audio2/audio.h>
 #include <kinc/math/core.h>
+#include <kinc/threads/atomic.h>
 #include <kinc/threads/mutex.h>
 #include <kinc/video.h>
 
@@ -222,4 +223,12 @@ void kinc_internal_stop_video_sound_stream(struct kinc_internal_video_sound_stre
 		}
 	}
 	kinc_mutex_unlock(&mutex);
+}
+
+float kinc_a1_channel_get_volume(kinc_a1_channel_t *channel) {
+	return channel->volume;
+}
+
+void kinc_a1_channel_set_volume(kinc_a1_channel_t *channel, float volume) {
+	KINC_ATOMIC_EXCHANGE_FLOAT(&channel->volume, volume);
 }
