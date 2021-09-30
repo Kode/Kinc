@@ -41,8 +41,6 @@
 #define NOWINSTYLES
 #define WIN32_LEAN_AND_MEAN
 
-#include <Kore/Graphics5/Graphics.h>
-#include <Kore/Math/Matrix.h>
 #include <d3d12.h>
 #ifdef KORE_WINDOWS
 #include "d3dx12.h"
@@ -62,14 +60,14 @@ static ID3D12RootSignature *globalComputeRootSignature = NULL;
 #include <assert.h>
 #include <malloc.h>
 
-#include "Direct3D12.cpp.h"
-#include "ShaderHash.c.h"
-#include "commandlist.cpp.h"
-#include "constantbuffer.cpp.h"
-#include "indexbuffer.cpp.h"
-#include "pipeline.cpp.h"
-#include "raytrace.cpp.h"
-#include "rendertarget.cpp.h"
-#include "shader.cpp.h"
+//#include "Direct3D12.cpp.h"
+//#include "ShaderHash.c.h"
+//#include "commandlist.cpp.h"
+//#include "constantbuffer.cpp.h"
+//#include "indexbuffer.cpp.h"
+//#include "pipeline.cpp.h"
+//#include "raytrace.cpp.h"
+//#include "rendertarget.cpp.h"
+//#include "shader.cpp.h"
 #include "texture.cpp.h"
 #include "vertexbuffer.cpp.h"

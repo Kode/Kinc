@@ -5,8 +5,6 @@
 #include <kinc/graphics5/vertexbuffer.h>
 #include <kinc/window.h>
 
-#include <type_traits>
-
 extern ID3D12CommandQueue *commandQueue;
 static const int textureCount = 16;
 extern kinc_g5_texture_t *currentTextures[textureCount];
