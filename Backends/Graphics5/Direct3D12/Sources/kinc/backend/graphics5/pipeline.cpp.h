@@ -30,11 +30,11 @@ void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_
 	}
 	*/
 
-	commandList->SetPipelineState(pipeline->impl.pso);
+	commandList->lpVtbl->SetPipelineState(commandList, pipeline->impl.pso);
 #ifdef KORE_DXC
-	commandList->SetGraphicsRootSignature(pipeline->impl.rootSignature);
+	commandList->lpVtbl->SetGraphicsRootSignature(commandList, pipeline->impl.rootSignature);
 #else
-	commandList->SetGraphicsRootSignature(globalRootSignature);
+	commandList->lpVtbl->SetGraphicsRootSignature(commandList, globalRootSignature);
 #endif
 
 	if (pipeline->impl.textures > 0) {
@@ -47,9 +47,9 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
 }
 
 void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipe) {
-	if (pipe->impl.pso != nullptr) {
-		pipe->impl.pso->Release();
-		pipe->impl.pso = nullptr;
+	if (pipe->impl.pso != NULL) {
+		pipe->impl.pso->lpVtbl->Release(pipe->impl.pso);
+		pipe->impl.pso = NULL;
 	}
 }
 
@@ -109,7 +109,7 @@ static ShaderAttribute findAttribute(kinc_g5_shader_t *shader, const char *name)
 	return attribute;
 }
 
-kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline *pipe, const char *name) {
+kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(struct kinc_g5_pipeline *pipe, const char *name) {
 	kinc_g5_constant_location_t location;
 
 	{
@@ -161,110 +161,107 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 	return unit;
 }
 
-namespace {
-	int getMultipleOf16(int value) {
-		int ret = 16;
-		while (ret < value) ret += 16;
-		return ret;
-	}
+static int getMultipleOf16(int value) {
+	int ret = 16;
+	while (ret < value) ret += 16;
+	return ret;
+}
 
-	D3D12_BLEND convert(kinc_g5_blending_operation_t op) {
-		switch (op) {
-		default:
-		case KINC_G5_BLEND_MODE_ONE:
-			return D3D12_BLEND_ONE;
-		case KINC_G5_BLEND_MODE_ZERO:
-			return D3D12_BLEND_ZERO;
-		case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
-			return D3D12_BLEND_SRC_ALPHA;
-		case KINC_G5_BLEND_MODE_DEST_ALPHA:
-			return D3D12_BLEND_DEST_ALPHA;
-		case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
-			return D3D12_BLEND_INV_SRC_ALPHA;
-		case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
-			return D3D12_BLEND_INV_DEST_ALPHA;
-		case KINC_G5_BLEND_MODE_SOURCE_COLOR:
-			return D3D12_BLEND_SRC_COLOR;
-		case KINC_G5_BLEND_MODE_DEST_COLOR:
-			return D3D12_BLEND_DEST_COLOR;
-		case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
-			return D3D12_BLEND_INV_SRC_COLOR;
-		case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
-			return D3D12_BLEND_INV_DEST_COLOR;
-		}
+static D3D12_BLEND convert(kinc_g5_blending_operation_t op) {
+	switch (op) {
+	default:
+	case KINC_G5_BLEND_MODE_ONE:
+		return D3D12_BLEND_ONE;
+	case KINC_G5_BLEND_MODE_ZERO:
+		return D3D12_BLEND_ZERO;
+	case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
+		return D3D12_BLEND_SRC_ALPHA;
+	case KINC_G5_BLEND_MODE_DEST_ALPHA:
+		return D3D12_BLEND_DEST_ALPHA;
+	case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
+		return D3D12_BLEND_INV_SRC_ALPHA;
+	case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
+		return D3D12_BLEND_INV_DEST_ALPHA;
+	case KINC_G5_BLEND_MODE_SOURCE_COLOR:
+		return D3D12_BLEND_SRC_COLOR;
+	case KINC_G5_BLEND_MODE_DEST_COLOR:
+		return D3D12_BLEND_DEST_COLOR;
+	case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
+		return D3D12_BLEND_INV_SRC_COLOR;
+	case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
+		return D3D12_BLEND_INV_DEST_COLOR;
 	}
+}
 
-	D3D12_CULL_MODE convert_cull_mode(kinc_g5_cull_mode_t cullMode) {
-		switch (cullMode) {
-		case KINC_G5_CULL_MODE_CLOCKWISE:
-			return D3D12_CULL_MODE_FRONT;
-		case KINC_G5_CULL_MODE_COUNTERCLOCKWISE:
-			return D3D12_CULL_MODE_BACK;
-		case KINC_G5_CULL_MODE_NEVER:
-		default:
-			return D3D12_CULL_MODE_NONE;
-		}
+static D3D12_CULL_MODE convert_cull_mode(kinc_g5_cull_mode_t cullMode) {
+	switch (cullMode) {
+	case KINC_G5_CULL_MODE_CLOCKWISE:
+		return D3D12_CULL_MODE_FRONT;
+	case KINC_G5_CULL_MODE_COUNTERCLOCKWISE:
+		return D3D12_CULL_MODE_BACK;
+	case KINC_G5_CULL_MODE_NEVER:
+	default:
+		return D3D12_CULL_MODE_NONE;
 	}
+}
 
-	D3D12_COMPARISON_FUNC convert_compare_mode(kinc_g5_compare_mode_t compare) {
-		switch (compare) {
-		default:
-		case KINC_G5_COMPARE_MODE_ALWAYS:
-			return D3D12_COMPARISON_FUNC_ALWAYS;
-		case KINC_G5_COMPARE_MODE_NEVER:
-			return D3D12_COMPARISON_FUNC_NEVER;
-		case KINC_G5_COMPARE_MODE_EQUAL:
-			return D3D12_COMPARISON_FUNC_EQUAL;
-		case KINC_G5_COMPARE_MODE_NOT_EQUAL:
-			return D3D12_COMPARISON_FUNC_NOT_EQUAL;
-		case KINC_G5_COMPARE_MODE_LESS:
-			return D3D12_COMPARISON_FUNC_LESS;
-		case KINC_G5_COMPARE_MODE_LESS_EQUAL:
-			return D3D12_COMPARISON_FUNC_LESS_EQUAL;
-		case KINC_G5_COMPARE_MODE_GREATER:
-			return D3D12_COMPARISON_FUNC_GREATER;
-		case KINC_G5_COMPARE_MODE_GREATER_EQUAL:
-			return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
-		}
+static D3D12_COMPARISON_FUNC convert_compare_mode(kinc_g5_compare_mode_t compare) {
+	switch (compare) {
+	default:
+	case KINC_G5_COMPARE_MODE_ALWAYS:
+		return D3D12_COMPARISON_FUNC_ALWAYS;
+	case KINC_G5_COMPARE_MODE_NEVER:
+		return D3D12_COMPARISON_FUNC_NEVER;
+	case KINC_G5_COMPARE_MODE_EQUAL:
+		return D3D12_COMPARISON_FUNC_EQUAL;
+	case KINC_G5_COMPARE_MODE_NOT_EQUAL:
+		return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+	case KINC_G5_COMPARE_MODE_LESS:
+		return D3D12_COMPARISON_FUNC_LESS;
+	case KINC_G5_COMPARE_MODE_LESS_EQUAL:
+		return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	case KINC_G5_COMPARE_MODE_GREATER:
+		return D3D12_COMPARISON_FUNC_GREATER;
+	case KINC_G5_COMPARE_MODE_GREATER_EQUAL:
+		return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
 	}
+}
 
-	DXGI_FORMAT convert_format(kinc_g5_render_target_format_t format) {
-		switch (format) {
-		case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
-			return DXGI_FORMAT_R32G32B32A32_FLOAT;
-		case KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT:
-			return DXGI_FORMAT_R16G16B16A16_FLOAT;
-		case KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
-			return DXGI_FORMAT_R32_FLOAT;
-		case KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
-			return DXGI_FORMAT_R16_FLOAT;
-		case KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED:
-			return DXGI_FORMAT_R8_UNORM;
-		case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
-		default:
+static DXGI_FORMAT convert_format(kinc_g5_render_target_format_t format) {
+	switch (format) {
+	case KINC_G5_RENDER_TARGET_FORMAT_128BIT_FLOAT:
+		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_64BIT_FLOAT:
+		return DXGI_FORMAT_R16G16B16A16_FLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT_RED_FLOAT:
+		return DXGI_FORMAT_R32_FLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_16BIT_RED_FLOAT:
+		return DXGI_FORMAT_R16_FLOAT;
+	case KINC_G5_RENDER_TARGET_FORMAT_8BIT_RED:
+		return DXGI_FORMAT_R8_UNORM;
+	case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
+	default:
 #ifdef KORE_WINDOWS
-			return DXGI_FORMAT_R8G8B8A8_UNORM;
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
 #else
-			return DXGI_FORMAT_B8G8R8A8_UNORM;
+		return DXGI_FORMAT_B8G8R8A8_UNORM;
 #endif
-		}
 	}
+}
 
-	void set_blend_state(D3D12_BLEND_DESC *blend_desc, kinc_g5_pipeline_t *pipe, int target) {
-		blend_desc->RenderTarget[target].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
-		                                               pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE ||
-		                                               pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
-		blend_desc->RenderTarget[target].SrcBlend = convert(pipe->blendSource);
-		blend_desc->RenderTarget[target].DestBlend = convert(pipe->blendDestination);
-		blend_desc->RenderTarget[target].BlendOp = D3D12_BLEND_OP_ADD;
-		blend_desc->RenderTarget[target].SrcBlendAlpha = convert(pipe->alphaBlendSource);
-		blend_desc->RenderTarget[target].DestBlendAlpha = convert(pipe->alphaBlendDestination);
-		blend_desc->RenderTarget[target].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-		blend_desc->RenderTarget[target].RenderTargetWriteMask =
-		    (((pipe->colorWriteMaskRed[target] ? D3D12_COLOR_WRITE_ENABLE_RED : 0) | (pipe->colorWriteMaskGreen[target] ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0)) |
-		     (pipe->colorWriteMaskBlue[target] ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0)) |
-		    (pipe->colorWriteMaskAlpha[target] ? D3D12_COLOR_WRITE_ENABLE_ALPHA : 0);
-	}
+static void set_blend_state(D3D12_BLEND_DESC *blend_desc, kinc_g5_pipeline_t *pipe, int target) {
+	blend_desc->RenderTarget[target].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
+	                                               pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+	blend_desc->RenderTarget[target].SrcBlend = convert(pipe->blendSource);
+	blend_desc->RenderTarget[target].DestBlend = convert(pipe->blendDestination);
+	blend_desc->RenderTarget[target].BlendOp = D3D12_BLEND_OP_ADD;
+	blend_desc->RenderTarget[target].SrcBlendAlpha = convert(pipe->alphaBlendSource);
+	blend_desc->RenderTarget[target].DestBlendAlpha = convert(pipe->alphaBlendDestination);
+	blend_desc->RenderTarget[target].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blend_desc->RenderTarget[target].RenderTargetWriteMask =
+	    (((pipe->colorWriteMaskRed[target] ? D3D12_COLOR_WRITE_ENABLE_RED : 0) | (pipe->colorWriteMaskGreen[target] ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0)) |
+	     (pipe->colorWriteMaskBlue[target] ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0)) |
+	    (pipe->colorWriteMaskAlpha[target] ? D3D12_COLOR_WRITE_ENABLE_ALPHA : 0);
 }
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
@@ -387,7 +384,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.SampleMask = 0xFFFFFFFF;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	hr = device->CreateGraphicsPipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipe->impl.pso));
+	hr = device->lpVtbl->CreateGraphicsPipelineState(device, &psoDesc, IID_GRAPHICS_PPV_ARGS(&pipe->impl.pso));
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}
@@ -400,7 +397,7 @@ void kinc_g5_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipeline) {
 
 void kinc_g5_compute_pipeline_destroy(kinc_g5_compute_pipeline_t *pipeline) {
 	if (pipeline->impl.pso != NULL) {
-		pipeline->impl.pso->Release();
+		pipeline->impl.pso->lpVtbl->Release(pipeline->impl.pso);
 		pipeline->impl.pso = NULL;
 	}
 }
@@ -416,7 +413,7 @@ void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline) {
 	pipe->impl.fragmentConstantsSize = pipe->fragmentShader->impl.constantsSize;*/
 #endif
 
-	D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {};
+	D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {0};
 	psoDesc.CS.BytecodeLength = pipeline->compute_shader->impl.length;
 	psoDesc.CS.pShaderBytecode = pipeline->compute_shader->impl.data;
 #ifdef KORE_DXC
@@ -425,7 +422,7 @@ void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline) {
 	psoDesc.pRootSignature = globalComputeRootSignature;
 #endif
 
-	hr = device->CreateComputePipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipeline->impl.pso));
+	hr = device->lpVtbl->CreateComputePipelineState(device, &psoDesc, IID_GRAPHICS_PPV_ARGS(&pipeline->impl.pso));
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}

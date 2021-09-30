@@ -55,7 +55,7 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *_data, size_t length, k
 	}
 
 	shader->impl.length = (int)length - index;
-	shader->impl.data = new uint8_t[shader->impl.length];
+	shader->impl.data = (uint8_t *)malloc(shader->impl.length);
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
 
 	switch (type) {

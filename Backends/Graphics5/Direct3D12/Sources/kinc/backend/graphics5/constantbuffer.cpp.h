@@ -7,17 +7,17 @@ bool kinc_g5_transposeMat4 = false;
 
 void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	buffer->impl.mySize = size;
-	buffer->data = nullptr;
+	buffer->data = NULL;
 
 	CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
 	CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
-	kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+	kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
 	                                                      IID_GRAPHICS_PPV_ARGS(&buffer->impl.constant_buffer)));
 
 	void *p;
-	buffer->impl.constant_buffer->Map(0, nullptr, &p);
+	buffer->impl.constant_buffer->lpVtbl->Map(buffer->impl.constant_buffer, 0, NULL, &p);
 	ZeroMemory(p, size);
-	buffer->impl.constant_buffer->Unmap(0, nullptr);
+	buffer->impl.constant_buffer->lpVtbl->Unmap(buffer->impl.constant_buffer, 0, NULL);
 }
 
 void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {}
@@ -33,7 +33,7 @@ void kinc_g5_constant_buffer_lock(kinc_g5_constant_buffer_t *buffer, int start, 
 	range.Begin = start;
 	range.End = range.Begin + count;
 	uint8_t *p;
-	buffer->impl.constant_buffer->Map(0, &range, (void **)&p);
+	buffer->impl.constant_buffer->lpVtbl->Map(buffer->impl.constant_buffer, 0, &range, (void **)&p);
 	buffer->data = &p[start];
 }
 
@@ -41,8 +41,8 @@ void kinc_g5_constant_buffer_unlock(kinc_g5_constant_buffer_t *buffer) {
 	D3D12_RANGE range;
 	range.Begin = buffer->impl.lastStart;
 	range.End = range.Begin + buffer->impl.lastCount;
-	buffer->impl.constant_buffer->Unmap(0, &range);
-	buffer->data = nullptr;
+	buffer->impl.constant_buffer->lpVtbl->Unmap(buffer->impl.constant_buffer, 0, &range);
+	buffer->data = NULL;
 }
 
 int kinc_g5_constant_buffer_size(kinc_g5_constant_buffer_t *buffer) {

@@ -14,9 +14,6 @@
 #include <kinc/backend/Windows.h>
 #endif
 #include <kinc/backend/SystemMicrosoft.h>
-#include <wrl.h>
-
-#include <type_traits>
 
 /*IDXGIFactory4* dxgiFactory;
 ID3D12Device* device;
@@ -48,14 +45,10 @@ ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
 IDXGISwapChain *swapChain;
 #endif
 
-extern "C" {
 int renderTargetWidth;
 int renderTargetHeight;
 int newRenderTargetWidth;
 int newRenderTargetHeight;
-}
-
-using namespace Kore;
 
 #ifndef KORE_WINDOWS
 #define DXGI_SWAP_CHAIN_DESC DXGI_SWAP_CHAIN_DESC1
@@ -83,258 +76,252 @@ void createSwapChain(RenderEnvironment *env, const DXGI_SWAP_CHAIN_DESC1 *desc);
 void createSamplersAndHeaps();
 extern bool bilinearFiltering;
 
-namespace {
-	D3D12_VIEWPORT viewport;
-	D3D12_RECT rectScissor;
-	// ID3D12Resource* renderTarget;
-	// ID3D12DescriptorHeap* renderTargetDescriptorHeap;
-	ID3D12DescriptorHeap *depthStencilDescriptorHeap;
-	UINT64 currentFenceValue;
-	UINT64 fenceValues[QUEUE_SLOT_COUNT];
-	HANDLE frameFenceEvents[QUEUE_SLOT_COUNT];
-	ID3D12Fence *frameFences[QUEUE_SLOT_COUNT];
-	ID3D12Fence *uploadFence;
-	ID3D12GraphicsCommandList *initCommandList;
-	ID3D12CommandAllocator *initCommandAllocator;
+static D3D12_VIEWPORT viewport;
+static D3D12_RECT rectScissor;
+// ID3D12Resource* renderTarget;
+// ID3D12DescriptorHeap* renderTargetDescriptorHeap;
+static ID3D12DescriptorHeap *depthStencilDescriptorHeap;
+static UINT64 currentFenceValue;
+static UINT64 fenceValues[QUEUE_SLOT_COUNT];
+static HANDLE frameFenceEvents[QUEUE_SLOT_COUNT];
+static ID3D12Fence *frameFences[QUEUE_SLOT_COUNT];
+static ID3D12Fence *uploadFence;
+static ID3D12GraphicsCommandList *initCommandList;
+static ID3D12CommandAllocator *initCommandAllocator;
 
-	RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter *adapter, D3D_FEATURE_LEVEL minimumFeatureLevel, const DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
-		RenderEnvironment result;
+static struct RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter *adapter, D3D_FEATURE_LEVEL minimumFeatureLevel,
+                                                               const DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
+	struct RenderEnvironment result;
 #ifdef KORE_WINDOWS
-		kinc_microsoft_affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
+	kinc_microsoft_affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
 
-		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		kinc_microsoft_affirm(result.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&result.queue)));
+	kinc_microsoft_affirm(result.device->lpVtbl->CreateCommandQueue(result.device, &queueDesc, IID_PPV_ARGS(&result.queue)));
 
-		IDXGIFactory4 *dxgiFactory;
-		kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
+	IDXGIFactory4 *dxgiFactory;
+	kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
 
-		DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
-		kinc_microsoft_affirm(dxgiFactory->CreateSwapChain(result.queue, &swapChainDescCopy, &result.swapChain));
+	DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
+	kinc_microsoft_affirm(dxgiFactory->lpVtbl->CreateSwapChain(dxgiFactory, result.queue, &swapChainDescCopy, &result.swapChain));
 #else
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-		createSwapChain(&result, QUEUE_SLOT_COUNT);
+	createSwapChain(&result, QUEUE_SLOT_COUNT);
 #else
-		createSwapChain(&result, swapChainDesc);
+	createSwapChain(&result, swapChainDesc);
 #endif
 #endif
-		return result;
+	return result;
+}
+
+static void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
+	if (fence->lpVtbl->GetCompletedValue(fence) < completionValue) {
+		kinc_microsoft_affirm(fence->lpVtbl->SetEventOnCompletion(fence, completionValue, waitEvent));
+		WaitForSingleObject(waitEvent, INFINITE);
+	}
+}
+
+static void setupSwapChain() {
+	/*D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = 1;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));*/
+
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+	dsvHeapDesc.NumDescriptors = 1;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	device->lpVtbl->CreateDescriptorHeap(device, &dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&depthStencilDescriptorHeap));
+
+	CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0, renderTargetWidth, renderTargetHeight, 1, 1, DXGI_FORMAT_D32_FLOAT, 1, 0,
+	                                   D3D12_TEXTURE_LAYOUT_UNKNOWN, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
+
+	D3D12_CLEAR_VALUE clearValue;
+	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+	clearValue.DepthStencil.Depth = 1.0f;
+	clearValue.DepthStencil.Stencil = 0;
+
+	CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
+	device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
+	                                        IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
+
+	device->lpVtbl->CreateDepthStencilView(device, depthStencilTexture, NULL, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+	currentFenceValue = 0;
+
+	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
+		frameFenceEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+		fenceValues[i] = 0;
+		device->lpVtbl->CreateFence(device, currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&frameFences[i]));
 	}
 
-	void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
-		if (fence->GetCompletedValue() < completionValue) {
-			kinc_microsoft_affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
-			WaitForSingleObject(waitEvent, INFINITE);
-		}
-	}
+	//**swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
+	//**createRenderTargetView();
+}
 
-	void setupSwapChain() {
-		/*D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-		heapDesc.NumDescriptors = 1;
-		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));*/
-
-		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-		dsvHeapDesc.NumDescriptors = 1;
-		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&depthStencilDescriptorHeap));
-
-		CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0, renderTargetWidth, renderTargetHeight, 1, 1, DXGI_FORMAT_D32_FLOAT, 1, 0,
-		                                   D3D12_TEXTURE_LAYOUT_UNKNOWN, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
-
-		D3D12_CLEAR_VALUE clearValue;
-		clearValue.Format = DXGI_FORMAT_D32_FLOAT;
-		clearValue.DepthStencil.Depth = 1.0f;
-		clearValue.DepthStencil.Stencil = 0;
-
-		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-		device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-		                                IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
-
-		device->CreateDepthStencilView(depthStencilTexture, nullptr, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-		currentFenceValue = 0;
-
-		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			frameFenceEvents[i] = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-			fenceValues[i] = 0;
-			device->CreateFence(currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&frameFences[i]));
-		}
-
-		//**swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
-		//**createRenderTargetView();
-	}
-
-	void createDeviceAndSwapChain(int width, int height, HWND window) {
+static void createDeviceAndSwapChain(int width, int height, HWND window) {
 #ifdef _DEBUG
-		ID3D12Debug *debugController = nullptr;
-		D3D12GetDebugInterface(IID_GRAPHICS_PPV_ARGS(&debugController));
-		debugController->EnableDebugLayer();
+	ID3D12Debug *debugController = NULL;
+	D3D12GetDebugInterface(IID_GRAPHICS_PPV_ARGS(&debugController));
+	debugController->lpVtbl->EnableDebugLayer(debugController);
 #endif
 
-		DXGI_SWAP_CHAIN_DESC swapChainDesc;
-		ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
 #ifdef KORE_WINDOWS
-		swapChainDesc.BufferCount = QUEUE_SLOT_COUNT;
-		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.BufferDesc.Width = width;
-		swapChainDesc.BufferDesc.Height = height;
-		swapChainDesc.OutputWindow = window;
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		swapChainDesc.Windowed = true;
+	swapChainDesc.BufferCount = QUEUE_SLOT_COUNT;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferDesc.Width = width;
+	swapChainDesc.BufferDesc.Height = height;
+	swapChainDesc.OutputWindow = window;
+	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.Windowed = true;
 #else
-		initSwapChain(&swapChainDesc, width, height, window);
+	initSwapChain(&swapChainDesc, width, height, window);
 #endif
 
-		auto renderEnv = createDeviceAndSwapChainHelper(nullptr, D3D_FEATURE_LEVEL_11_0, &swapChainDesc);
+	auto renderEnv = createDeviceAndSwapChainHelper(NULL, D3D_FEATURE_LEVEL_11_0, &swapChainDesc);
 
-		device = renderEnv.device;
-		commandQueue = renderEnv.queue;
+	device = renderEnv.device;
+	commandQueue = renderEnv.queue;
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			swapChainRenderTargets[i] = renderEnv.renderTargets[i];
-		}
+	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
+		swapChainRenderTargets[i] = renderEnv.renderTargets[i];
+	}
 #else
-		swapChain = renderEnv.swapChain;
+	swapChain = renderEnv.swapChain;
 #endif
 
-		setupSwapChain();
+	setupSwapChain();
+}
+
+static void createViewportScissor(int width, int height) {
+	rectScissor.left = 0;
+	rectScissor.top = 0;
+	rectScissor.right = width;
+	rectScissor.bottom = height;
+	viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
+}
+
+static void createRootSignature() {
+	ID3DBlob *rootBlob;
+	ID3DBlob *errorBlob;
+
+	CD3DX12_ROOT_PARAMETER parameters[4];
+
+	CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
+	parameters[0].InitAsDescriptorTable(1, &range);
+	CD3DX12_DESCRIPTOR_RANGE range2{D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, (UINT)textureCount, 0};
+	parameters[1].InitAsDescriptorTable(1, &range2);
+
+	parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+	parameters[3].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+
+	CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
+	for (int i = 0; i < textureCount; ++i) {
+		samplers[i].Init(i, D3D12_FILTER_MIN_MAG_MIP_POINT);
+	}
+	for (int i = textureCount; i < textureCount * 2; ++i) {
+		samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
 	}
 
-	void createViewportScissor(int width, int height) {
-		rectScissor = {0, 0, width, height};
-		viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
+	CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
+	descRootSignature.Init(4, parameters, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
+	device->lpVtbl->CreateRootSignature(device, 0, rootBlob->lpVtbl->GetBufferPointer(rootBlob), rootBlob->lpVtbl->GetBufferSize(rootBlob),
+	                                    IID_GRAPHICS_PPV_ARGS(&globalRootSignature));
+
+	createSamplersAndHeaps();
+}
+
+static void createComputeRootSignature() {
+	ID3DBlob *rootBlob;
+	ID3DBlob *errorBlob;
+
+	CD3DX12_ROOT_PARAMETER parameters[3];
+
+	CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
+	parameters[0].InitAsDescriptorTable(1, &range);
+	CD3DX12_DESCRIPTOR_RANGE range2{D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, (UINT)textureCount, 0};
+	parameters[1].InitAsDescriptorTable(1, &range2);
+
+	parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
+
+	CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
+	for (int i = 0; i < textureCount; ++i) {
+		samplers[i].Init(i, D3D12_FILTER_MIN_MAG_MIP_POINT);
+	}
+	for (int i = textureCount; i < textureCount * 2; ++i) {
+		samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
 	}
 
-	void createRootSignature() {
-		const int textureCount = 16;
+	CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
+	descRootSignature.Init(3, parameters, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
+	device->lpVtbl->CreateRootSignature(device, 0, rootBlob->lpVtbl->GetBufferPointer(rootBlob), rootBlob->lpVtbl->GetBufferSize(rootBlob),
+	                                    IID_GRAPHICS_PPV_ARGS(&globalComputeRootSignature));
 
-		ID3DBlob *rootBlob;
-		ID3DBlob *errorBlob;
+	// createSamplersAndHeaps();
+}
 
-		CD3DX12_ROOT_PARAMETER parameters[4];
+static void initialize(int width, int height, HWND window) {
+	createDeviceAndSwapChain(width, height, window);
+	createViewportScissor(width, height);
+	createRootSignature();
+	createComputeRootSignature();
 
-		CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
-		parameters[0].InitAsDescriptorTable(1, &range);
-		CD3DX12_DESCRIPTOR_RANGE range2{D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, (UINT)textureCount, 0};
-		parameters[1].InitAsDescriptorTable(1, &range2);
+	device->lpVtbl->CreateFence(device, 0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&uploadFence));
 
-		parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-		parameters[3].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+	device->lpVtbl->CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&initCommandAllocator));
+	device->lpVtbl->CreateCommandList(device, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, IID_GRAPHICS_PPV_ARGS(&initCommandList));
 
-		CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
-		for (int i = 0; i < textureCount; ++i) {
-			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_MIP_POINT);
-		}
-		for (int i = textureCount; i < textureCount * 2; ++i) {
-			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
-		}
+	initCommandList->lpVtbl->Close(initCommandList);
 
-		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
-		descRootSignature.Init(4, parameters, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-		kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
-		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&globalRootSignature));
+	ID3D12CommandList *commandLists[] = {initCommandList};
+	commandQueue->lpVtbl->ExecuteCommandLists(commandQueue, std::extent<decltype(commandLists)>::value, commandLists);
+	commandQueue->lpVtbl->Signal(commandQueue, uploadFence, 1);
 
-		createSamplersAndHeaps();
+	HANDLE waitEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	waitForFence(uploadFence, 1, waitEvent);
+
+	initCommandAllocator->lpVtbl->Reset(initCommandAllocator);
+	initCommandList->lpVtbl->Release(initCommandList);           // check me
+	initCommandAllocator->lpVtbl->Release(initCommandAllocator); // check me
+
+	CloseHandle(waitEvent);
+}
+
+static void shutdown() {
+	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
+		waitForFence(frameFences[i], fenceValues[i], frameFenceEvents[i]);
 	}
 
-	void createComputeRootSignature() {
-		const int textureCount = 16;
-
-		ID3DBlob *rootBlob;
-		ID3DBlob *errorBlob;
-
-		CD3DX12_ROOT_PARAMETER parameters[3];
-
-		CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
-		parameters[0].InitAsDescriptorTable(1, &range);
-		CD3DX12_DESCRIPTOR_RANGE range2{D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, (UINT)textureCount, 0};
-		parameters[1].InitAsDescriptorTable(1, &range2);
-
-		parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
-
-		CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
-		for (int i = 0; i < textureCount; ++i) {
-			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_MIP_POINT);
-		}
-		for (int i = textureCount; i < textureCount * 2; ++i) {
-			samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
-		}
-
-		CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
-		descRootSignature.Init(3, parameters, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-		kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
-		device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&globalComputeRootSignature));
-
-		// createSamplersAndHeaps();
-	}
-
-	void initialize(int width, int height, HWND window) {
-		createDeviceAndSwapChain(width, height, window);
-		createViewportScissor(width, height);
-		createRootSignature();
-		createComputeRootSignature();
-
-		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&uploadFence));
-
-		device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&initCommandAllocator));
-		device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, nullptr, IID_GRAPHICS_PPV_ARGS(&initCommandList));
-
-		initCommandList->Close();
-
-		ID3D12CommandList *commandLists[] = {initCommandList};
-		commandQueue->ExecuteCommandLists(std::extent<decltype(commandLists)>::value, commandLists);
-		commandQueue->Signal(uploadFence, 1);
-
-		HANDLE waitEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		waitForFence(uploadFence, 1, waitEvent);
-
-		initCommandAllocator->Reset();
-		initCommandList->Release();      // check me
-		initCommandAllocator->Release(); // check me
-
-		CloseHandle(waitEvent);
-	}
-
-	void shutdown() {
-		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			waitForFence(frameFences[i], fenceValues[i], frameFenceEvents[i]);
-		}
-
-		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-			CloseHandle(frameFenceEvents[i]);
-		}
+	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
+		CloseHandle(frameFenceEvents[i]);
 	}
 }
 
-namespace Kore {
-	extern PipelineState5Impl *currentProgram;
-}
+static unsigned hz;
+static bool vsync;
 
-namespace {
-	unsigned hz;
-	bool vsync;
+// D3D_FEATURE_LEVEL featureLevel;
+// ID3D11DepthStencilState* depthTestState = nullptr;
+// ID3D11DepthStencilState* noDepthTestState = nullptr;
 
-	// D3D_FEATURE_LEVEL featureLevel;
-	// ID3D11DepthStencilState* depthTestState = nullptr;
-	// ID3D11DepthStencilState* noDepthTestState = nullptr;
+/*IDXGISwapChain1* swapChain;
 
-	/*IDXGISwapChain1* swapChain;
-
-	void waitForGpu() {
-	    Microsoft::affirm(commandQueue->Signal(fence, fenceValues[currentFrame]));
-	    Microsoft::affirm(fence->SetEventOnCompletion(fenceValues[currentFrame], fenceEvent));
-	    WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
-	    fenceValues[currentFrame]++;
-	}*/
-}
+void waitForGpu() {
+    Microsoft::affirm(commandQueue->Signal(fence, fenceValues[currentFrame]));
+    Microsoft::affirm(fence->SetEventOnCompletion(fenceValues[currentFrame], fenceEvent));
+    WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
+    fenceValues[currentFrame]++;
+}*/
 
 void kinc_g5_destroy(int window) {}
 
@@ -401,9 +388,7 @@ int kinc_g5_max_bound_textures(void) {
 #define $Line MakeString(Stringize, __LINE__)
 #define Warning __FILE__ "(" $Line ") : warning: "
 
-namespace {
-	bool began = false;
-}
+static bool began = false;
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	if (began) return;
@@ -412,10 +397,10 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
 
 	if (newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight) {
-		depthStencilDescriptorHeap->Release();
-		depthStencilTexture->Release();
+		depthStencilDescriptorHeap->lpVtbl->Release(depthStencilDescriptorHeap);
+		depthStencilTexture->lpVtbl->Release(depthStencilTexture);
 #ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-		kinc_microsoft_affirm(swapChain->ResizeBuffers(2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+		kinc_microsoft_affirm(swapChain->lpVtbl->ResizeBuffers(swapChain, 2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 #endif
 		setupSwapChain();
 		renderTargetWidth = newRenderTargetWidth;
@@ -424,7 +409,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	}
 
 	const UINT64 fenceValue = currentFenceValue;
-	commandQueue->Signal(frameFences[currentBackBuffer], fenceValue);
+	commandQueue->lpVtbl->Signal(commandQueue, frameFences[currentBackBuffer], fenceValue);
 	fenceValues[currentBackBuffer] = fenceValue;
 	++currentFenceValue;
 
@@ -452,21 +437,21 @@ bool kinc_g5_vsynced() {
 	return true;
 }
 
-extern "C" bool kinc_window_vsynced(int window) {
+bool kinc_window_vsynced(int window) {
 	return true;
 }
 
-extern "C" void kinc_internal_resize(int window, int width, int height) {
+void kinc_internal_resize(int window, int width, int height) {
 	if (width == 0 || height == 0) return;
 	newRenderTargetWidth = width;
 	newRenderTargetHeight = height;
 }
 
-extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
+void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
 
 #ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 bool kinc_g5_swap_buffers() {
-	kinc_microsoft_affirm(swapChain->Present(vsync, 0));
+	kinc_microsoft_affirm(swapChain->lpVtbl->Present(swapChain, vsync, 0));
 	return true;
 }
 #endif

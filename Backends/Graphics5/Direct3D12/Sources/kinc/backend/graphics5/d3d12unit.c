@@ -50,7 +50,8 @@
 #define IID_GRAPHICS_PPV_ARGS(x) IID_PPV_ARGS(x)
 #endif
 
-static const int QUEUE_SLOT_COUNT = 2;
+#define QUEUE_SLOT_COUNT 2
+#define textureCount 16
 static int currentBackBuffer = -1;
 ID3D12Device *device;
 static ID3D12RootSignature *globalRootSignature = NULL;
@@ -59,15 +60,16 @@ static ID3D12RootSignature *globalComputeRootSignature = NULL;
 
 #include <assert.h>
 #include <malloc.h>
+#include <stdbool.h>
 
-//#include "Direct3D12.cpp.h"
-//#include "ShaderHash.c.h"
-//#include "commandlist.cpp.h"
-//#include "constantbuffer.cpp.h"
-//#include "indexbuffer.cpp.h"
-//#include "pipeline.cpp.h"
-//#include "raytrace.cpp.h"
-//#include "rendertarget.cpp.h"
-//#include "shader.cpp.h"
+#include "Direct3D12.cpp.h"
+#include "ShaderHash.c.h"
+#include "commandlist.cpp.h"
+#include "constantbuffer.cpp.h"
+#include "indexbuffer.cpp.h"
+#include "pipeline.cpp.h"
+#include "raytrace.cpp.h"
+#include "rendertarget.cpp.h"
+#include "shader.cpp.h"
 #include "texture.cpp.h"
 #include "vertexbuffer.cpp.h"
