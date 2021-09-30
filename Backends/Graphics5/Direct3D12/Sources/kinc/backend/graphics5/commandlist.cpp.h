@@ -50,7 +50,7 @@ static void init() {
 	if (!initialized) {
 		initialized = true;
 		renderFenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-		device->lpVtbl->CreateFence(device, 0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&renderFence));
+		device->lpVtbl->CreateFence(device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, &renderFence);
 	}
 }
 
@@ -65,8 +65,8 @@ static void graphicsFlush(struct kinc_g5_command_list *list, ID3D12CommandAlloca
 	list->impl._commandList->lpVtbl->Close(list->impl._commandList);
 	list->impl.closed = true;
 
-	ID3D12CommandList *commandLists[] = {list->impl._commandList};
-	commandQueue->lpVtbl->ExecuteCommandLists(commandQueue, std::extent<decltype(commandLists)>::value, commandLists);
+	ID3D12CommandList *commandLists[] = {(ID3D12CommandList *)list->impl._commandList};
+	commandQueue->lpVtbl->ExecuteCommandLists(commandQueue, 1, commandLists);
 
 	commandQueue->lpVtbl->Signal(commandQueue, renderFence, ++renderFenceValue);
 }
@@ -76,11 +76,14 @@ static void graphicsWait(struct kinc_g5_command_list *list, ID3D12CommandAllocat
 	commandAllocator->lpVtbl->Reset(commandAllocator);
 	list->impl._commandList->lpVtbl->Reset(list->impl._commandList, commandAllocator, NULL);
 	if (currentRenderTarget != NULL) {
-		D3D12_CPU_DESCRIPTOR_HANDLE *heapStart = currentRenderTarget->impl.depthStencilDescriptorHeap != NULL
-		                                             ? &currentRenderTarget->impl.depthStencilDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(
-		                                                   currentRenderTarget->impl.depthStencilDescriptorHeap)
-		                                             : NULL;
-		list->impl._commandList->lpVtbl->OMSetRenderTargets(list->impl._commandList, currentRenderTargetCount, &targetDescriptors[0], false, heapStart);
+		if (currentRenderTarget->impl.depthStencilDescriptorHeap != NULL) {
+			D3D12_CPU_DESCRIPTOR_HANDLE heapStart = currentRenderTarget->impl.depthStencilDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(
+			    currentRenderTarget->impl.depthStencilDescriptorHeap);
+			list->impl._commandList->lpVtbl->OMSetRenderTargets(list->impl._commandList, currentRenderTargetCount, &targetDescriptors[0], false, &heapStart);
+		}
+		else {
+			list->impl._commandList->lpVtbl->OMSetRenderTargets(list->impl._commandList, currentRenderTargetCount, &targetDescriptors[0], false, NULL);
+		}
 		list->impl._commandList->lpVtbl->RSSetViewports(list->impl._commandList, 1, (D3D12_VIEWPORT *)&currentRenderTarget->impl.viewport);
 		list->impl._commandList->lpVtbl->RSSetScissorRects(list->impl._commandList, 1, (D3D12_RECT *)&currentRenderTarget->impl.scissor);
 	}
@@ -109,9 +112,9 @@ static int formatSize(DXGI_FORMAT format) {
 void kinc_g5_command_list_init(struct kinc_g5_command_list *list) {
 	init();
 	list->impl.closed = false;
-	device->lpVtbl->CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->impl._commandAllocator));
-	device->lpVtbl->CreateCommandList(device, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->impl._commandAllocator, NULL,
-	                                  IID_GRAPHICS_PPV_ARGS(&list->impl._commandList));
+	device->lpVtbl->CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, &IID_ID3D12CommandAllocator, &list->impl._commandAllocator);
+	device->lpVtbl->CreateCommandList(device, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->impl._commandAllocator, NULL, &IID_ID3D12GraphicsCommandList,
+	                                  &list->impl._commandList);
 	//_commandList->Close();
 	// createConstantBuffer();
 	list->impl._indexCount = 0;
@@ -278,10 +281,10 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to_from(struct kinc_g5_comm
 	list->impl._commandList->lpVtbl->DrawIndexedInstanced(list->impl._commandList, count, 1, start, vertex_offset, 0);
 }
 
-void kinc_g5_command_list_draw_indexed_vertices_instanced(struct kinc_g5_command_list_t *list, int instanceCount) {
+void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t *list, int instanceCount) {
 	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(list, instanceCount, 0, list->impl._indexCount);
 }
-void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(struct kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
+void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
 	list->impl._commandList->lpVtbl->IASetPrimitiveTopology(list->impl._commandList, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	list->impl._commandList->lpVtbl->DrawIndexedInstanced(list->impl._commandList, count, instanceCount, start, 0, 0);
 }
@@ -362,7 +365,8 @@ void kinc_g5_command_list_set_render_targets(struct kinc_g5_command_list *list, 
 	currentRenderTarget = targets[0];
 	currentRenderTargetCount = count;
 	for (int i = 0; i < count; ++i) {
-		targetDescriptors[i] = targets[i]->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+		targetDescriptors[i] =
+		    targets[i]->impl.renderTargetDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(targets[i]->impl.renderTargetDescriptorHeap);
 	}
 	graphicsFlushAndWait(list, list->impl._commandAllocator);
 }
@@ -376,16 +380,31 @@ void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, kinc
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_texture_t *texture) {
 	D3D12_RESOURCE_DESC Desc = texture->impl.image->lpVtbl->GetDesc(texture->impl.image);
 	ID3D12Device *device;
-	texture->impl.image->lpVtbl->GetDevice(texture->impl.image, IID_GRAPHICS_PPV_ARGS(&device));
+	texture->impl.image->lpVtbl->GetDevice(texture->impl.image, &IID_ID3D12Device, &device);
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 	device->lpVtbl->GetCopyableFootprints(device, &Desc, 0, 1, 0, &footprint, NULL, NULL, NULL);
 	device->lpVtbl->Release(device);
 
-	CD3DX12_TEXTURE_COPY_LOCATION source(texture->impl.uploadImage, footprint);
-	CD3DX12_TEXTURE_COPY_LOCATION destination(texture->impl.image, 0);
+	D3D12_TEXTURE_COPY_LOCATION source = {0};
+	source.pResource = texture->impl.uploadImage;
+	source.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	source.PlacedFootprint = footprint;
+
+	D3D12_TEXTURE_COPY_LOCATION destination = {0};
+	destination.pResource = texture->impl.image;
+	destination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	destination.SubresourceIndex = 0;
+
 	list->impl._commandList->lpVtbl->CopyTextureRegion(list->impl._commandList, &destination, 0, 0, 0, &source, NULL);
-	CD3DX12_RESOURCE_BARRIER transition =
-	    CD3DX12_RESOURCE_BARRIER::Transition(texture->impl.image, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+	D3D12_RESOURCE_BARRIER transition = {0};
+	transition.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	transition.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	transition.Transition.pResource = texture->impl.image;
+	transition.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	transition.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	transition.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
 	list->impl._commandList->lpVtbl->ResourceBarrier(list->impl._commandList, 1, &transition);
 }
 
@@ -406,10 +425,28 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 
 	// Create readback buffer
 	if (render_target->impl.renderTargetReadback == NULL) {
-		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_READBACK);
-		CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(rowPitch * render_target->texHeight);
+		D3D12_HEAP_PROPERTIES heapProperties;
+		heapProperties.Type = D3D12_HEAP_TYPE_READBACK;
+		heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+		heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+		heapProperties.CreationNodeMask = 1;
+		heapProperties.VisibleNodeMask = 1;
+
+		D3D12_RESOURCE_DESC resourceDesc;
+		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resourceDesc.Alignment = 0;
+		resourceDesc.Width = rowPitch * render_target->texHeight;
+		resourceDesc.Height = 1;
+		resourceDesc.DepthOrArraySize = 1;
+		resourceDesc.MipLevels = 1;
+		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+		resourceDesc.SampleDesc.Count = 1;
+		resourceDesc.SampleDesc.Quality = 0;
+		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
 		device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-		                                        IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetReadback));
+		                                        &IID_ID3D12Resource, &render_target->impl.renderTargetReadback);
 	}
 
 	// Copy render target to readback buffer

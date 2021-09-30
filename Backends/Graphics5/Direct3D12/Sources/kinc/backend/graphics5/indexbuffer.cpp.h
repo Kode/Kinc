@@ -11,16 +11,39 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, bool g
 	// static_assert(sizeof(D3D12IindexBufferView) == sizeof(D3D12_INDEX_BUFFER_VIEW), "Something is wrong with D3D12IindexBufferView");
 	int uploadBufferSize = sizeof(int) * count;
 
-	CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
-	CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+	D3D12_HEAP_PROPERTIES heapProperties;
+	heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+	heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	heapProperties.CreationNodeMask = 1;
+	heapProperties.VisibleNodeMask = 1;
+
+	D3D12_RESOURCE_DESC resourceDesc;
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	resourceDesc.Alignment = 0;
+	resourceDesc.Width = uploadBufferSize;
+	resourceDesc.Height = 1;
+	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.MipLevels = 1;
+	resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+	resourceDesc.SampleDesc.Count = 1;
+	resourceDesc.SampleDesc.Quality = 0;
+	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
 	kinc_microsoft_affirm(device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,
-	                                                              D3D12_RESOURCE_STATE_GENERIC_READ, NULL, IID_GRAPHICS_PPV_ARGS(&buffer->impl.uploadBuffer)));
+	                                                              D3D12_RESOURCE_STATE_GENERIC_READ, NULL, &IID_ID3D12Resource, &buffer->impl.uploadBuffer));
 
 	if (gpuMemory) {
-		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-		CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+		D3D12_HEAP_PROPERTIES heapProperties;
+		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+		heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+		heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+		heapProperties.CreationNodeMask = 1;
+		heapProperties.VisibleNodeMask = 1;
+
 		kinc_microsoft_affirm(device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,
-		                                                              D3D12_RESOURCE_STATE_COPY_DEST, NULL, IID_GRAPHICS_PPV_ARGS(&buffer->impl.indexBuffer)));
+		                                                              D3D12_RESOURCE_STATE_COPY_DEST, NULL, &IID_ID3D12Resource, &buffer->impl.indexBuffer));
 
 		buffer->impl.indexBufferView.BufferLocation = buffer->impl.indexBuffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.indexBuffer);
 	}
@@ -51,8 +74,13 @@ void kinc_g5_internal_index_buffer_upload(kinc_g5_index_buffer_t *buffer, ID3D12
 
 	commandList->lpVtbl->CopyBufferRegion(commandList, buffer->impl.indexBuffer, 0, buffer->impl.uploadBuffer, 0, sizeof(int) * buffer->impl.myCount);
 
-	CD3DX12_RESOURCE_BARRIER barriers[1] = {
-	    CD3DX12_RESOURCE_BARRIER::Transition(buffer->impl.indexBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER)};
+	D3D12_RESOURCE_BARRIER barriers[1] = {0};
+	barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barriers[0].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barriers[0].Transition.pResource = buffer->impl.indexBuffer;
+	barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_INDEX_BUFFER;
+	barriers[0].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
 	commandList->lpVtbl->ResourceBarrier(commandList, 1, barriers);
 }

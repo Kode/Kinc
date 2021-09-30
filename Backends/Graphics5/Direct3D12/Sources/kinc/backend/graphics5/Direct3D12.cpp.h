@@ -93,19 +93,19 @@ static struct RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter *ada
                                                                const DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
 	struct RenderEnvironment result;
 #ifdef KORE_WINDOWS
-	kinc_microsoft_affirm(D3D12CreateDevice(adapter, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
+	kinc_microsoft_affirm(D3D12CreateDevice((IUnknown *)adapter, minimumFeatureLevel, &IID_ID3D12Device, &result.device));
 
-	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {0};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-	kinc_microsoft_affirm(result.device->lpVtbl->CreateCommandQueue(result.device, &queueDesc, IID_PPV_ARGS(&result.queue)));
+	kinc_microsoft_affirm(result.device->lpVtbl->CreateCommandQueue(result.device, &queueDesc, &IID_ID3D12CommandQueue, &result.queue));
 
 	IDXGIFactory4 *dxgiFactory;
-	kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
+	kinc_microsoft_affirm(CreateDXGIFactory1(&IID_IDXGIFactory4, &dxgiFactory));
 
 	DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
-	kinc_microsoft_affirm(dxgiFactory->lpVtbl->CreateSwapChain(dxgiFactory, result.queue, &swapChainDescCopy, &result.swapChain));
+	kinc_microsoft_affirm(dxgiFactory->lpVtbl->CreateSwapChain(dxgiFactory, (IUnknown *)result.queue, &swapChainDescCopy, &result.swapChain));
 #else
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 	createSwapChain(&result, QUEUE_SLOT_COUNT);
@@ -130,32 +130,49 @@ static void setupSwapChain() {
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));*/
 
-	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {0};
 	dsvHeapDesc.NumDescriptors = 1;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device->lpVtbl->CreateDescriptorHeap(device, &dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&depthStencilDescriptorHeap));
+	kinc_microsoft_affirm(device->lpVtbl->CreateDescriptorHeap(device, &dsvHeapDesc, &IID_ID3D12DescriptorHeap, &depthStencilDescriptorHeap));
 
-	CD3DX12_RESOURCE_DESC depthTexture(D3D12_RESOURCE_DIMENSION_TEXTURE2D, 0, renderTargetWidth, renderTargetHeight, 1, 1, DXGI_FORMAT_D32_FLOAT, 1, 0,
-	                                   D3D12_TEXTURE_LAYOUT_UNKNOWN, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
+	D3D12_RESOURCE_DESC depthTexture;
+	depthTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	depthTexture.Alignment = 0;
+	depthTexture.Width = renderTargetWidth;
+	depthTexture.Height = renderTargetHeight;
+	depthTexture.DepthOrArraySize = 1;
+	depthTexture.MipLevels = 1;
+	depthTexture.Format = DXGI_FORMAT_D32_FLOAT;
+	depthTexture.SampleDesc.Count = 1;
+	depthTexture.SampleDesc.Quality = 0;
+	depthTexture.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	depthTexture.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 
 	D3D12_CLEAR_VALUE clearValue;
 	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
 	clearValue.DepthStencil.Depth = 1.0f;
 	clearValue.DepthStencil.Stencil = 0;
 
-	CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-	device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-	                                        IID_GRAPHICS_PPV_ARGS(&depthStencilTexture));
+	D3D12_HEAP_PROPERTIES heapProperties;
+	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+	heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	heapProperties.CreationNodeMask = 1;
+	heapProperties.VisibleNodeMask = 1;
 
-	device->lpVtbl->CreateDepthStencilView(device, depthStencilTexture, NULL, depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
+	                                        &IID_ID3D12Resource, &depthStencilTexture);
+
+	device->lpVtbl->CreateDepthStencilView(device, depthStencilTexture, NULL,
+	                                       depthStencilDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(depthStencilDescriptorHeap));
 
 	currentFenceValue = 0;
 
 	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
 		frameFenceEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
 		fenceValues[i] = 0;
-		device->lpVtbl->CreateFence(device, currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&frameFences[i]));
+		device->lpVtbl->CreateFence(device, currentFenceValue, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, &frameFences[i]);
 	}
 
 	//**swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
@@ -165,7 +182,7 @@ static void setupSwapChain() {
 static void createDeviceAndSwapChain(int width, int height, HWND window) {
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
-	D3D12GetDebugInterface(IID_GRAPHICS_PPV_ARGS(&debugController));
+	D3D12GetDebugInterface(&IID_ID3D12Debug, &debugController);
 	debugController->lpVtbl->EnableDebugLayer(debugController);
 #endif
 
@@ -186,7 +203,7 @@ static void createDeviceAndSwapChain(int width, int height, HWND window) {
 	initSwapChain(&swapChainDesc, width, height, window);
 #endif
 
-	auto renderEnv = createDeviceAndSwapChainHelper(NULL, D3D_FEATURE_LEVEL_11_0, &swapChainDesc);
+	struct RenderEnvironment renderEnv = createDeviceAndSwapChainHelper(NULL, D3D_FEATURE_LEVEL_11_0, &swapChainDesc);
 
 	device = renderEnv.device;
 	commandQueue = renderEnv.queue;
@@ -206,36 +223,95 @@ static void createViewportScissor(int width, int height) {
 	rectScissor.top = 0;
 	rectScissor.right = width;
 	rectScissor.bottom = height;
-	viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
+
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.Width = (float)width;
+	viewport.Height = (float)height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
 }
 
 static void createRootSignature() {
 	ID3DBlob *rootBlob;
 	ID3DBlob *errorBlob;
 
-	CD3DX12_ROOT_PARAMETER parameters[4];
+	D3D12_ROOT_PARAMETER parameters[4] = {0};
 
-	CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
-	parameters[0].InitAsDescriptorTable(1, &range);
-	CD3DX12_DESCRIPTOR_RANGE range2{D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, (UINT)textureCount, 0};
-	parameters[1].InitAsDescriptorTable(1, &range2);
+	D3D12_DESCRIPTOR_RANGE range;
+	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	range.NumDescriptors = (UINT)textureCount;
+	range.BaseShaderRegister = 0;
+	range.RegisterSpace = 0;
+	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	parameters[0].DescriptorTable.NumDescriptorRanges = 1;
+	parameters[0].DescriptorTable.pDescriptorRanges = &range;
 
-	parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-	parameters[3].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+	D3D12_DESCRIPTOR_RANGE range2;
+	range2.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+	range2.NumDescriptors = (UINT)textureCount;
+	range2.BaseShaderRegister = 0;
+	range2.RegisterSpace = 0;
+	range2.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	parameters[1].DescriptorTable.NumDescriptorRanges = 1;
+	parameters[1].DescriptorTable.pDescriptorRanges = &range;
 
-	CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
+	parameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	parameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	parameters[2].Descriptor.ShaderRegister = 0;
+	parameters[2].Descriptor.RegisterSpace = 0;
+
+	parameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	parameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	parameters[3].Descriptor.ShaderRegister = 0;
+	parameters[3].Descriptor.RegisterSpace = 0;
+
+	D3D12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
 	for (int i = 0; i < textureCount; ++i) {
-		samplers[i].Init(i, D3D12_FILTER_MIN_MAG_MIP_POINT);
+		samplers[i].ShaderRegister = i;
+		samplers[i].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		samplers[i].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].MipLODBias = 0;
+		samplers[i].MaxAnisotropy = 16;
+		samplers[i].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		samplers[i].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+		samplers[i].MinLOD = 0.0f;
+		samplers[i].MaxLOD = D3D12_FLOAT32_MAX;
+		samplers[i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		samplers[i].RegisterSpace = 0;
 	}
 	for (int i = textureCount; i < textureCount * 2; ++i) {
-		samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+		samplers[i].ShaderRegister = i;
+		samplers[i].Filter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		samplers[i].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].MipLODBias = 0;
+		samplers[i].MaxAnisotropy = 16;
+		samplers[i].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		samplers[i].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+		samplers[i].MinLOD = 0.0f;
+		samplers[i].MaxLOD = D3D12_FLOAT32_MAX;
+		samplers[i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		samplers[i].RegisterSpace = 0;
 	}
 
-	CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
-	descRootSignature.Init(4, parameters, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	D3D12_ROOT_SIGNATURE_DESC descRootSignature;
+	descRootSignature.NumParameters = 4;
+	descRootSignature.pParameters = parameters;
+	descRootSignature.NumStaticSamplers = 0;
+	descRootSignature.pStaticSamplers = NULL;
+	descRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
 	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 	device->lpVtbl->CreateRootSignature(device, 0, rootBlob->lpVtbl->GetBufferPointer(rootBlob), rootBlob->lpVtbl->GetBufferSize(rootBlob),
-	                                    IID_GRAPHICS_PPV_ARGS(&globalRootSignature));
+	                                    &IID_ID3D12RootSignature, &globalRootSignature);
 
 	createSamplersAndHeaps();
 }
@@ -244,28 +320,77 @@ static void createComputeRootSignature() {
 	ID3DBlob *rootBlob;
 	ID3DBlob *errorBlob;
 
-	CD3DX12_ROOT_PARAMETER parameters[3];
+	D3D12_ROOT_PARAMETER parameters[3] = {0};
 
-	CD3DX12_DESCRIPTOR_RANGE range{D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)textureCount, 0};
-	parameters[0].InitAsDescriptorTable(1, &range);
-	CD3DX12_DESCRIPTOR_RANGE range2{D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, (UINT)textureCount, 0};
-	parameters[1].InitAsDescriptorTable(1, &range2);
+	D3D12_DESCRIPTOR_RANGE range;
+	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	range.NumDescriptors = (UINT)textureCount;
+	range.BaseShaderRegister = 0;
+	range.RegisterSpace = 0;
+	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	parameters[0].DescriptorTable.NumDescriptorRanges = 1;
+	parameters[0].DescriptorTable.pDescriptorRanges = &range;
 
-	parameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
+	D3D12_DESCRIPTOR_RANGE range2;
+	range2.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+	range2.NumDescriptors = (UINT)textureCount;
+	range2.BaseShaderRegister = 0;
+	range2.RegisterSpace = 0;
+	range2.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	parameters[1].DescriptorTable.NumDescriptorRanges = 1;
+	parameters[1].DescriptorTable.pDescriptorRanges = &range;
 
-	CD3DX12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
+	parameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	parameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	parameters[2].Descriptor.ShaderRegister = 0;
+	parameters[2].Descriptor.RegisterSpace = 0;
+
+	D3D12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
 	for (int i = 0; i < textureCount; ++i) {
-		samplers[i].Init(i, D3D12_FILTER_MIN_MAG_MIP_POINT);
+		samplers[i].ShaderRegister = i;
+		samplers[i].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+		samplers[i].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].MipLODBias = 0;
+		samplers[i].MaxAnisotropy = 16;
+		samplers[i].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		samplers[i].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+		samplers[i].MinLOD = 0.0f;
+		samplers[i].MaxLOD = D3D12_FLOAT32_MAX;
+		samplers[i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		samplers[i].RegisterSpace = 0;
 	}
 	for (int i = textureCount; i < textureCount * 2; ++i) {
-		samplers[i].Init(i, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
+		samplers[i].ShaderRegister = i;
+		samplers[i].Filter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		samplers[i].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		samplers[i].MipLODBias = 0;
+		samplers[i].MaxAnisotropy = 16;
+		samplers[i].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		samplers[i].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+		samplers[i].MinLOD = 0.0f;
+		samplers[i].MaxLOD = D3D12_FLOAT32_MAX;
+		samplers[i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		samplers[i].RegisterSpace = 0;
 	}
 
-	CD3DX12_ROOT_SIGNATURE_DESC descRootSignature;
-	descRootSignature.Init(3, parameters, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	D3D12_ROOT_SIGNATURE_DESC descRootSignature;
+	descRootSignature.NumParameters = 3;
+	descRootSignature.pParameters = parameters;
+	descRootSignature.NumStaticSamplers = 0;
+	descRootSignature.pStaticSamplers = NULL;
+	descRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
 	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 	device->lpVtbl->CreateRootSignature(device, 0, rootBlob->lpVtbl->GetBufferPointer(rootBlob), rootBlob->lpVtbl->GetBufferSize(rootBlob),
-	                                    IID_GRAPHICS_PPV_ARGS(&globalComputeRootSignature));
+	                                    &IID_ID3D12RootSignature, &globalComputeRootSignature);
 
 	// createSamplersAndHeaps();
 }
@@ -276,15 +401,15 @@ static void initialize(int width, int height, HWND window) {
 	createRootSignature();
 	createComputeRootSignature();
 
-	device->lpVtbl->CreateFence(device, 0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&uploadFence));
+	device->lpVtbl->CreateFence(device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, &uploadFence);
 
-	device->lpVtbl->CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&initCommandAllocator));
-	device->lpVtbl->CreateCommandList(device, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, IID_GRAPHICS_PPV_ARGS(&initCommandList));
+	device->lpVtbl->CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, &IID_ID3D12CommandAllocator, &initCommandAllocator);
+	device->lpVtbl->CreateCommandList(device, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, &IID_ID3D12CommandList, &initCommandList);
 
 	initCommandList->lpVtbl->Close(initCommandList);
 
-	ID3D12CommandList *commandLists[] = {initCommandList};
-	commandQueue->lpVtbl->ExecuteCommandLists(commandQueue, std::extent<decltype(commandLists)>::value, commandLists);
+	ID3D12CommandList *commandLists[] = {(ID3D12CommandList *)initCommandList};
+	commandQueue->lpVtbl->ExecuteCommandLists(commandQueue, 1, commandLists);
 	commandQueue->lpVtbl->Signal(commandQueue, uploadFence, 1);
 
 	HANDLE waitEvent = CreateEvent(NULL, FALSE, FALSE, NULL);

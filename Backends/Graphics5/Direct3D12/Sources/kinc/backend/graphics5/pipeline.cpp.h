@@ -325,7 +325,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 
 	pipe->impl.textures = pipe->fragmentShader->impl.texturesCount;
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {0};
 	psoDesc.VS.BytecodeLength = pipe->vertexShader->impl.length;
 	psoDesc.VS.pShaderBytecode = pipe->vertexShader->impl.data;
 	psoDesc.PS.BytecodeLength = pipe->fragmentShader->impl.length;
@@ -356,7 +356,24 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.RasterizerState.ForcedSampleCount = 0;
 	psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState.AlphaToCoverageEnable = FALSE;
+	psoDesc.BlendState.IndependentBlendEnable = FALSE;
+	const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
+	    FALSE,
+	    FALSE,
+	    D3D12_BLEND_ONE,
+	    D3D12_BLEND_ZERO,
+	    D3D12_BLEND_OP_ADD,
+	    D3D12_BLEND_ONE,
+	    D3D12_BLEND_ZERO,
+	    D3D12_BLEND_OP_ADD,
+	    D3D12_LOGIC_OP_NOOP,
+	    D3D12_COLOR_WRITE_ENABLE_ALL,
+	};
+	for (UINT i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i) {
+		psoDesc.BlendState.RenderTarget[i] = defaultRenderTargetBlendDesc;
+	}
+
 	bool independentBlend = false;
 	for (int i = 1; i < 8; ++i) {
 		if (pipe->colorWriteMaskRed[0] != pipe->colorWriteMaskRed[i] || pipe->colorWriteMaskGreen[0] != pipe->colorWriteMaskGreen[i] ||
@@ -374,7 +391,16 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 		}
 	}
 
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState.DepthEnable = TRUE;
+	psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	psoDesc.DepthStencilState.StencilEnable = FALSE;
+	psoDesc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+	psoDesc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+	const D3D12_DEPTH_STENCILOP_DESC defaultStencilOp = {D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS};
+	psoDesc.DepthStencilState.FrontFace = defaultStencilOp;
+	psoDesc.DepthStencilState.BackFace = defaultStencilOp;
+
 	psoDesc.DepthStencilState.DepthEnable = pipe->depthMode != KINC_G5_COMPARE_MODE_ALWAYS;
 	psoDesc.DepthStencilState.DepthWriteMask = pipe->depthWrite ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
 	psoDesc.DepthStencilState.DepthFunc = convert_compare_mode(pipe->depthMode);
@@ -384,7 +410,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.SampleMask = 0xFFFFFFFF;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	hr = device->lpVtbl->CreateGraphicsPipelineState(device, &psoDesc, IID_GRAPHICS_PPV_ARGS(&pipe->impl.pso));
+	hr = device->lpVtbl->CreateGraphicsPipelineState(device, &psoDesc, &IID_ID3D12PipelineState, &pipe->impl.pso);
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}
@@ -422,7 +448,7 @@ void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline) {
 	psoDesc.pRootSignature = globalComputeRootSignature;
 #endif
 
-	hr = device->lpVtbl->CreateComputePipelineState(device, &psoDesc, IID_GRAPHICS_PPV_ARGS(&pipeline->impl.pso));
+	hr = device->lpVtbl->CreateComputePipelineState(device, &psoDesc, &IID_ID3D12PipelineState, &pipeline->impl.pso);
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}

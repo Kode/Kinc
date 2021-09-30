@@ -18,7 +18,7 @@
 #define IID_GRAPHICS_PPV_ARGS(x) IID_PPV_ARGS(x)
 #endif
 
-extern ID3D12Device *device;
+extern "C" ID3D12Device *device;
 
 namespace {
 	uint8_t constantsMemory[1024 * 4];
