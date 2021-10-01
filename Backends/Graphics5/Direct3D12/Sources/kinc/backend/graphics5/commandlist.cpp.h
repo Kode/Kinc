@@ -372,7 +372,7 @@ void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, kinc
 }
 
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_texture_t *texture) {
-	D3D12_RESOURCE_DESC Desc = texture->impl.image->lpVtbl->GetDesc(texture->impl.image);
+	D3D12_RESOURCE_DESC Desc = D3D12ResourceGetDesc(texture->impl.image);
 	ID3D12Device *device;
 	texture->impl.image->lpVtbl->GetDevice(texture->impl.image, &IID_ID3D12Device, &device);
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
@@ -411,7 +411,7 @@ int d3d12_textureAlignment();
 #endif
 
 void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {
-	DXGI_FORMAT dxgiFormat = render_target->impl.renderTarget->lpVtbl->GetDesc(render_target->impl.renderTarget).Format;
+	DXGI_FORMAT dxgiFormat = D3D12ResourceGetDesc(render_target->impl.renderTarget).Format;
 	int formatByteSize = formatSize(dxgiFormat);
 	int rowPitch = render_target->texWidth * formatByteSize;
 	int align = rowPitch % d3d12_textureAlignment();

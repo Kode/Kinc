@@ -28,16 +28,12 @@ static ID3D12DescriptorHeap *samplerHeap;
 int d3d12_textureAlignment();
 #endif
 
-static inline UINT64 GetRequiredIntermediateSize(ID3D12Resource *pDestinationResource, UINT FirstSubresource, UINT NumSubresources) {
-	D3D12_RESOURCE_DESC Desc = pDestinationResource->lpVtbl->GetDesc(pDestinationResource);
-	UINT64 RequiredSize = 0;
-
-	ID3D12Device *pDevice;
-	pDestinationResource->lpVtbl->GetDevice(pDestinationResource, &IID_ID3D12Device, (void **)&pDevice);
-	pDevice->lpVtbl->GetCopyableFootprints(pDevice, &Desc, FirstSubresource, NumSubresources, 0, NULL, NULL, NULL, &RequiredSize);
-	pDevice->lpVtbl->Release(pDevice);
-
-	return RequiredSize;
+static inline UINT64 GetRequiredIntermediateSize(ID3D12Resource *destinationResource, UINT FirstSubresource, UINT NumSubresources) {
+	D3D12_RESOURCE_DESC desc = D3D12ResourceGetDesc(destinationResource);
+	UINT64 requiredSize = 0;
+	device->lpVtbl->GetCopyableFootprints(device, &desc, FirstSubresource, NumSubresources, 0, NULL, NULL, NULL, &requiredSize);
+	device->lpVtbl->Release(device);
+	return requiredSize;
 }
 
 static DXGI_FORMAT convertImageFormat(kinc_image_format_t format) {
