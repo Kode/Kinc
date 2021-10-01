@@ -284,7 +284,7 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 
 	// Bind the heaps, acceleration structure and dispatch rays
 	command_list->impl._commandList->SetDescriptorHeaps(1, &descriptorHeap);
-	command_list->impl._commandList->SetComputeRootDescriptorTable(0, descriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	command_list->impl._commandList->SetComputeRootDescriptorTable(0, GetGPUDescriptorHandle(descriptorHeap));
 	command_list->impl._commandList->SetComputeRootShaderResourceView(1, accel->impl.top_level_accel->GetGPUVirtualAddress());
 	auto cbGpuAddress = pipeline->_constant_buffer->impl.constant_buffer->GetGPUVirtualAddress();
 	command_list->impl._commandList->SetComputeRootConstantBufferView(2, cbGpuAddress);

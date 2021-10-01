@@ -93,6 +93,13 @@ inline static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(ID3D12Descripto
 	return handle;
 }
 
+inline static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap *heap) {
+	FixedID3D12DescriptorHeapVtbl *vtable = (FixedID3D12DescriptorHeapVtbl *)heap->lpVtbl;
+	D3D12_GPU_DESCRIPTOR_HANDLE handle;
+	vtable->GetGPUDescriptorHandleForHeapStart(heap, &handle);
+	return handle;
+}
+
 #include <assert.h>
 #include <malloc.h>
 #include <stdbool.h>

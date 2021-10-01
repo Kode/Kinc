@@ -8,9 +8,6 @@
 #include <kinc/backend/SystemMicrosoft.h>
 
 #include <d3d12.h>
-#ifdef KORE_WINDOWS
-#include "d3dx12.h"
-#endif
 
 #include <assert.h>
 

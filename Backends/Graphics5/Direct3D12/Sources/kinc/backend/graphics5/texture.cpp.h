@@ -95,8 +95,8 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
 		}
 
 		ID3D12DescriptorHeap *samplerDescriptorHeap = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
-		D3D12_GPU_DESCRIPTOR_HANDLE srvGpu = srvHeap->lpVtbl->GetGPUDescriptorHandleForHeapStart(srvHeap);
-		D3D12_GPU_DESCRIPTOR_HANDLE samplerGpu = samplerHeap->lpVtbl->GetGPUDescriptorHandleForHeapStart(samplerHeap);
+		D3D12_GPU_DESCRIPTOR_HANDLE srvGpu = GetGPUDescriptorHandle(srvHeap);
+		D3D12_GPU_DESCRIPTOR_HANDLE samplerGpu = GetGPUDescriptorHandle(samplerHeap);
 		srvGpu.ptr += heapIndex * srvStep;
 		samplerGpu.ptr += heapIndex * samplerStep;
 
