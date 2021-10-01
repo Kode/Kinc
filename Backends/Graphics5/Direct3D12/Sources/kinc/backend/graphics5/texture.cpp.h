@@ -103,22 +103,18 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
 		for (int i = 0; i < textureCount; ++i) {
 			if (currentRenderTargets[i] != NULL || currentTextures[i] != NULL) {
 
-				D3D12_CPU_DESCRIPTOR_HANDLE srvCpu = srvHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(srvHeap);
-				D3D12_CPU_DESCRIPTOR_HANDLE samplerCpu = samplerHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(samplerHeap);
+				D3D12_CPU_DESCRIPTOR_HANDLE srvCpu = GetCPUDescriptorHandle(srvHeap);
+				D3D12_CPU_DESCRIPTOR_HANDLE samplerCpu = GetCPUDescriptorHandle(samplerHeap);
 				srvCpu.ptr += heapIndex * srvStep;
 				samplerCpu.ptr += heapIndex * samplerStep;
 				++heapIndex;
 
 				if (currentRenderTargets[i] != NULL) {
 					bool is_depth = currentRenderTargets[i]->impl.stage_depth == i;
-					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu =
-					    is_depth ? currentRenderTargets[i]->impl.srvDepthDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(
-					                   currentRenderTargets[i]->impl.srvDepthDescriptorHeap)
-					             : currentRenderTargets[i]->impl.srvDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(
-					                   currentRenderTargets[i]->impl.srvDescriptorHeap);
+					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = is_depth ? GetCPUDescriptorHandle(currentRenderTargets[i]->impl.srvDepthDescriptorHeap)
+					                                                 : GetCPUDescriptorHandle(currentRenderTargets[i]->impl.srvDescriptorHeap);
 					device->lpVtbl->CopyDescriptorsSimple(device, 1, srvCpu, sourceCpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-					device->lpVtbl->CopyDescriptorsSimple(device, 1, samplerCpu,
-					                                      samplerDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(samplerDescriptorHeap),
+					device->lpVtbl->CopyDescriptorsSimple(device, 1, samplerCpu, GetCPUDescriptorHandle(samplerDescriptorHeap),
 					                                      D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 
 					if (is_depth) {
@@ -127,11 +123,9 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
 					}
 				}
 				else {
-					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu =
-					    currentTextures[i]->impl.srvDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(currentTextures[i]->impl.srvDescriptorHeap);
+					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = GetCPUDescriptorHandle(currentTextures[i]->impl.srvDescriptorHeap);
 					device->lpVtbl->CopyDescriptorsSimple(device, 1, srvCpu, sourceCpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-					device->lpVtbl->CopyDescriptorsSimple(device, 1, samplerCpu,
-					                                      samplerDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(samplerDescriptorHeap),
+					device->lpVtbl->CopyDescriptorsSimple(device, 1, samplerCpu, GetCPUDescriptorHandle(samplerDescriptorHeap),
 					                                      D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 				}
 			}
@@ -163,9 +157,7 @@ static void createSampler(bool bilinear, D3D12_FILTER filter) {
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	device->lpVtbl->CreateSampler(device, &samplerDesc,
-	                              (bilinear ? samplerDescriptorHeapBilinear->lpVtbl->GetCPUDescriptorHandleForHeapStart(samplerDescriptorHeapBilinear)
-	                                        : samplerDescriptorHeapPoint->lpVtbl->GetCPUDescriptorHandleForHeapStart(samplerDescriptorHeapPoint)));
+	device->lpVtbl->CreateSampler(device, &samplerDesc, GetCPUDescriptorHandle(bilinear ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint));
 }
 
 void createSamplersAndHeaps() {
@@ -294,8 +286,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	device->lpVtbl->CreateShaderResourceView(device, texture->impl.image, &shaderResourceViewDesc,
-	                                         texture->impl.srvDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(texture->impl.srvDescriptorHeap));
+	device->lpVtbl->CreateShaderResourceView(device, texture->impl.image, &shaderResourceViewDesc, GetCPUDescriptorHandle(texture->impl.srvDescriptorHeap));
 }
 
 void create_texture(struct kinc_g5_texture *texture, int width, int height, kinc_image_format_t format, D3D12_RESOURCE_FLAGS flags) {
@@ -397,8 +388,7 @@ void create_texture(struct kinc_g5_texture *texture, int width, int height, kinc
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	device->lpVtbl->CreateShaderResourceView(device, texture->impl.image, &shaderResourceViewDesc,
-	                                         texture->impl.srvDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(texture->impl.srvDescriptorHeap));
+	device->lpVtbl->CreateShaderResourceView(device, texture->impl.image, &shaderResourceViewDesc, GetCPUDescriptorHandle(texture->impl.srvDescriptorHeap));
 }
 
 void kinc_g5_texture_init(struct kinc_g5_texture *texture, int width, int height, kinc_image_format_t format) {

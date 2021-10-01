@@ -77,8 +77,7 @@ static void graphicsWait(struct kinc_g5_command_list *list, ID3D12CommandAllocat
 	list->impl._commandList->lpVtbl->Reset(list->impl._commandList, commandAllocator, NULL);
 	if (currentRenderTarget != NULL) {
 		if (currentRenderTarget->impl.depthStencilDescriptorHeap != NULL) {
-			D3D12_CPU_DESCRIPTOR_HANDLE heapStart = currentRenderTarget->impl.depthStencilDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(
-			    currentRenderTarget->impl.depthStencilDescriptorHeap);
+			D3D12_CPU_DESCRIPTOR_HANDLE heapStart = GetCPUDescriptorHandle(currentRenderTarget->impl.depthStencilDescriptorHeap);
 			list->impl._commandList->lpVtbl->OMSetRenderTargets(list->impl._commandList, currentRenderTargetCount, &targetDescriptors[0], false, &heapStart);
 		}
 		else {
@@ -143,19 +142,15 @@ void kinc_g5_command_list_clear(struct kinc_g5_command_list *list, kinc_g5_rende
 	if (flags & KINC_G5_CLEAR_COLOR) {
 		float clearColor[] = {((color & 0x00ff0000) >> 16) / 255.0f, ((color & 0x0000ff00) >> 8) / 255.0f, (color & 0x000000ff) / 255.0f,
 		                      ((color & 0xff000000) >> 24) / 255.0f};
-		list->impl._commandList->lpVtbl->ClearRenderTargetView(
-		    list->impl._commandList,
-		    renderTarget->impl.renderTargetDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(renderTarget->impl.renderTargetDescriptorHeap),
-		    clearColor, 0, NULL);
+		list->impl._commandList->lpVtbl->ClearRenderTargetView(list->impl._commandList, GetCPUDescriptorHandle(renderTarget->impl.renderTargetDescriptorHeap),
+		                                                       clearColor, 0, NULL);
 	}
 	if ((flags & KINC_G5_CLEAR_DEPTH) || (flags & KINC_G5_CLEAR_STENCIL)) {
 		D3D12_CLEAR_FLAGS d3dflags = (flags & KINC_G5_CLEAR_DEPTH) && (flags & KINC_G5_CLEAR_STENCIL) ? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
 		                             : (flags & KINC_G5_CLEAR_DEPTH)                                  ? D3D12_CLEAR_FLAG_DEPTH
 		                                                                                              : D3D12_CLEAR_FLAG_STENCIL;
-		list->impl._commandList->lpVtbl->ClearDepthStencilView(
-		    list->impl._commandList,
-		    renderTarget->impl.depthStencilDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(renderTarget->impl.depthStencilDescriptorHeap), d3dflags,
-		    depth, stencil, 0, NULL);
+		list->impl._commandList->lpVtbl->ClearDepthStencilView(list->impl._commandList, GetCPUDescriptorHandle(renderTarget->impl.depthStencilDescriptorHeap),
+		                                                       d3dflags, depth, stencil, 0, NULL);
 	}
 }
 
@@ -365,8 +360,7 @@ void kinc_g5_command_list_set_render_targets(struct kinc_g5_command_list *list, 
 	currentRenderTarget = targets[0];
 	currentRenderTargetCount = count;
 	for (int i = 0; i < count; ++i) {
-		targetDescriptors[i] =
-		    targets[i]->impl.renderTargetDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(targets[i]->impl.renderTargetDescriptorHeap);
+		targetDescriptors[i] = GetCPUDescriptorHandle(targets[i]->impl.renderTargetDescriptorHeap);
 	}
 	graphicsFlushAndWait(list, list->impl._commandAllocator);
 }

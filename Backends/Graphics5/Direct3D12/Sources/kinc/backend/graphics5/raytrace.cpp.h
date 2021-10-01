@@ -275,7 +275,7 @@ void kinc_raytrace_set_target(kinc_g5_texture_t *_output) {
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		device->CreateUnorderedAccessView(output->impl.image, nullptr, &uavDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		device->CreateUnorderedAccessView(output->impl.image, nullptr, &uavDesc, GetCPUDescriptorHandle(descriptorHeap));
 	}
 }
 

@@ -91,7 +91,7 @@ static ID3D12CommandAllocator *initCommandAllocator;
 
 static struct RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter *adapter, D3D_FEATURE_LEVEL minimumFeatureLevel,
                                                                const DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
-	struct RenderEnvironment result;
+	struct RenderEnvironment result = {0};
 #ifdef KORE_WINDOWS
 	kinc_microsoft_affirm(D3D12CreateDevice((IUnknown *)adapter, minimumFeatureLevel, &IID_ID3D12Device, &result.device));
 
@@ -136,7 +136,7 @@ static void setupSwapChain() {
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	kinc_microsoft_affirm(device->lpVtbl->CreateDescriptorHeap(device, &dsvHeapDesc, &IID_ID3D12DescriptorHeap, &depthStencilDescriptorHeap));
 
-	D3D12_RESOURCE_DESC depthTexture;
+	D3D12_RESOURCE_DESC depthTexture = {0};
 	depthTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	depthTexture.Alignment = 0;
 	depthTexture.Width = renderTargetWidth;
@@ -149,23 +149,22 @@ static void setupSwapChain() {
 	depthTexture.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	depthTexture.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 
-	D3D12_CLEAR_VALUE clearValue;
+	D3D12_CLEAR_VALUE clearValue = {0};
 	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
 	clearValue.DepthStencil.Depth = 1.0f;
 	clearValue.DepthStencil.Stencil = 0;
 
-	D3D12_HEAP_PROPERTIES heapProperties;
+	D3D12_HEAP_PROPERTIES heapProperties = {0};
 	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
 	heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	heapProperties.CreationNodeMask = 1;
 	heapProperties.VisibleNodeMask = 1;
 
-	device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-	                                        &IID_ID3D12Resource, &depthStencilTexture);
+	kinc_microsoft_affirm(device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture,
+	                                                              D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, &IID_ID3D12Resource, &depthStencilTexture));
 
-	device->lpVtbl->CreateDepthStencilView(device, depthStencilTexture, NULL,
-	                                       depthStencilDescriptorHeap->lpVtbl->GetCPUDescriptorHandleForHeapStart(depthStencilDescriptorHeap));
+	device->lpVtbl->CreateDepthStencilView(device, depthStencilTexture, NULL, GetCPUDescriptorHandle(depthStencilDescriptorHeap));
 
 	currentFenceValue = 0;
 
@@ -258,7 +257,7 @@ static void createRootSignature() {
 	parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	parameters[1].DescriptorTable.NumDescriptorRanges = 1;
-	parameters[1].DescriptorTable.pDescriptorRanges = &range;
+	parameters[1].DescriptorTable.pDescriptorRanges = &range2;
 
 	parameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	parameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
@@ -266,7 +265,7 @@ static void createRootSignature() {
 	parameters[2].Descriptor.RegisterSpace = 0;
 
 	parameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	parameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	parameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	parameters[3].Descriptor.ShaderRegister = 0;
 	parameters[3].Descriptor.RegisterSpace = 0;
 
@@ -303,7 +302,7 @@ static void createRootSignature() {
 	}
 
 	D3D12_ROOT_SIGNATURE_DESC descRootSignature;
-	descRootSignature.NumParameters = 4;
+	descRootSignature.NumParameters = 2;
 	descRootSignature.pParameters = parameters;
 	descRootSignature.NumStaticSamplers = 0;
 	descRootSignature.pStaticSamplers = NULL;
@@ -342,7 +341,7 @@ static void createComputeRootSignature() {
 	parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	parameters[1].DescriptorTable.NumDescriptorRanges = 1;
-	parameters[1].DescriptorTable.pDescriptorRanges = &range;
+	parameters[1].DescriptorTable.pDescriptorRanges = &range2;
 
 	parameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	parameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -546,9 +545,9 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 
 	// static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
 
-	// commandList->ClearRenderTargetView(renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), clearColor, 0, nullptr);
+	// commandList->ClearRenderTargetView(GetCPUDescriptorHandle(renderTargetDescriptorHeap), clearColor, 0, nullptr);
 
-	// commandList->ClearDepthStencilView(depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	// commandList->ClearDepthStencilView(GetCPUDescriptorHandle(depthStencilDescriptorHeap), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	static int frameNumber = 0;
 	frameNumber++;
