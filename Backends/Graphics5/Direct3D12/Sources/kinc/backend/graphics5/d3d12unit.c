@@ -60,39 +60,28 @@ static ID3D12RootSignature *globalComputeRootSignature = NULL;
 typedef struct FixedID3D12DescriptorHeapVtbl {
 	BEGIN_INTERFACE
 
-	DECLSPEC_XFGVIRT(IUnknown, QueryInterface)
 	HRESULT(STDMETHODCALLTYPE *QueryInterface)(ID3D12DescriptorHeap *This, REFIID riid, _COM_Outptr_ void **ppvObject);
 
-	DECLSPEC_XFGVIRT(IUnknown, AddRef)
 	ULONG(STDMETHODCALLTYPE *AddRef)(ID3D12DescriptorHeap *This);
 
-	DECLSPEC_XFGVIRT(IUnknown, Release)
 	ULONG(STDMETHODCALLTYPE *Release)(ID3D12DescriptorHeap *This);
 
-	DECLSPEC_XFGVIRT(ID3D12Object, GetPrivateData)
 	HRESULT(STDMETHODCALLTYPE *GetPrivateData)
 	(ID3D12DescriptorHeap *This, _In_ REFGUID guid, _Inout_ UINT *pDataSize, _Out_writes_bytes_opt_(*pDataSize) void *pData);
 
-	DECLSPEC_XFGVIRT(ID3D12Object, SetPrivateData)
 	HRESULT(STDMETHODCALLTYPE *SetPrivateData)
 	(ID3D12DescriptorHeap *This, _In_ REFGUID guid, _In_ UINT DataSize, _In_reads_bytes_opt_(DataSize) const void *pData);
 
-	DECLSPEC_XFGVIRT(ID3D12Object, SetPrivateDataInterface)
 	HRESULT(STDMETHODCALLTYPE *SetPrivateDataInterface)(ID3D12DescriptorHeap *This, _In_ REFGUID guid, _In_opt_ const IUnknown *pData);
 
-	DECLSPEC_XFGVIRT(ID3D12Object, SetName)
 	HRESULT(STDMETHODCALLTYPE *SetName)(ID3D12DescriptorHeap *This, _In_z_ LPCWSTR Name);
 
-	DECLSPEC_XFGVIRT(ID3D12DeviceChild, GetDevice)
 	HRESULT(STDMETHODCALLTYPE *GetDevice)(ID3D12DescriptorHeap *This, REFIID riid, _COM_Outptr_opt_ void **ppvDevice);
 
-	DECLSPEC_XFGVIRT(ID3D12DescriptorHeap, GetDesc)
 	D3D12_DESCRIPTOR_HEAP_DESC *(STDMETHODCALLTYPE *GetDesc)(ID3D12DescriptorHeap *This, D3D12_DESCRIPTOR_HEAP_DESC *RetVal);
 
-	DECLSPEC_XFGVIRT(ID3D12DescriptorHeap, GetCPUDescriptorHandleForHeapStart)
 	D3D12_CPU_DESCRIPTOR_HANDLE *(STDMETHODCALLTYPE *GetCPUDescriptorHandleForHeapStart)(ID3D12DescriptorHeap *This, D3D12_CPU_DESCRIPTOR_HANDLE *RetVal);
 
-	DECLSPEC_XFGVIRT(ID3D12DescriptorHeap, GetGPUDescriptorHandleForHeapStart)
 	D3D12_GPU_DESCRIPTOR_HANDLE *(STDMETHODCALLTYPE *GetGPUDescriptorHandleForHeapStart)(ID3D12DescriptorHeap *This, D3D12_GPU_DESCRIPTOR_HANDLE *RetVal);
 
 	END_INTERFACE
@@ -101,54 +90,39 @@ typedef struct FixedID3D12DescriptorHeapVtbl {
 typedef struct FixedID3D12ResourceVtbl {
 	BEGIN_INTERFACE
 
-	DECLSPEC_XFGVIRT(IUnknown, QueryInterface)
 	HRESULT(STDMETHODCALLTYPE *QueryInterface)(ID3D12Resource *This, REFIID riid, _COM_Outptr_ void **ppvObject);
 
-	DECLSPEC_XFGVIRT(IUnknown, AddRef)
 	ULONG(STDMETHODCALLTYPE *AddRef)(ID3D12Resource *This);
 
-	DECLSPEC_XFGVIRT(IUnknown, Release)
 	ULONG(STDMETHODCALLTYPE *Release)(ID3D12Resource *This);
 
-	DECLSPEC_XFGVIRT(ID3D12Object, GetPrivateData)
 	HRESULT(STDMETHODCALLTYPE *GetPrivateData)
 	(ID3D12Resource *This, _In_ REFGUID guid, _Inout_ UINT *pDataSize, _Out_writes_bytes_opt_(*pDataSize) void *pData);
 
-	DECLSPEC_XFGVIRT(ID3D12Object, SetPrivateData)
 	HRESULT(STDMETHODCALLTYPE *SetPrivateData)(ID3D12Resource *This, _In_ REFGUID guid, _In_ UINT DataSize, _In_reads_bytes_opt_(DataSize) const void *pData);
 
-	DECLSPEC_XFGVIRT(ID3D12Object, SetPrivateDataInterface)
 	HRESULT(STDMETHODCALLTYPE *SetPrivateDataInterface)(ID3D12Resource *This, _In_ REFGUID guid, _In_opt_ const IUnknown *pData);
 
-	DECLSPEC_XFGVIRT(ID3D12Object, SetName)
 	HRESULT(STDMETHODCALLTYPE *SetName)(ID3D12Resource *This, _In_z_ LPCWSTR Name);
 
-	DECLSPEC_XFGVIRT(ID3D12DeviceChild, GetDevice)
 	HRESULT(STDMETHODCALLTYPE *GetDevice)(ID3D12Resource *This, REFIID riid, _COM_Outptr_opt_ void **ppvDevice);
 
-	DECLSPEC_XFGVIRT(ID3D12Resource, Map)
 	HRESULT(STDMETHODCALLTYPE *Map)
 	(ID3D12Resource *This, UINT Subresource, _In_opt_ const D3D12_RANGE *pReadRange,
 	 _Outptr_opt_result_bytebuffer_(_Inexpressible_("Dependent on resource")) void **ppData);
 
-	DECLSPEC_XFGVIRT(ID3D12Resource, Unmap)
 	void(STDMETHODCALLTYPE *Unmap)(ID3D12Resource *This, UINT Subresource, _In_opt_ const D3D12_RANGE *pWrittenRange);
 
-	DECLSPEC_XFGVIRT(ID3D12Resource, GetDesc)
 	D3D12_RESOURCE_DESC *(STDMETHODCALLTYPE *GetDesc)(ID3D12Resource *This, D3D12_RESOURCE_DESC *RetVal);
 
-	DECLSPEC_XFGVIRT(ID3D12Resource, GetGPUVirtualAddress)
 	D3D12_GPU_VIRTUAL_ADDRESS(STDMETHODCALLTYPE *GetGPUVirtualAddress)(ID3D12Resource *This);
 
-	DECLSPEC_XFGVIRT(ID3D12Resource, WriteToSubresource)
 	HRESULT(STDMETHODCALLTYPE *WriteToSubresource)
 	(ID3D12Resource *This, UINT DstSubresource, _In_opt_ const D3D12_BOX *pDstBox, _In_ const void *pSrcData, UINT SrcRowPitch, UINT SrcDepthPitch);
 
-	DECLSPEC_XFGVIRT(ID3D12Resource, ReadFromSubresource)
 	HRESULT(STDMETHODCALLTYPE *ReadFromSubresource)
 	(ID3D12Resource *This, _Out_ void *pDstData, UINT DstRowPitch, UINT DstDepthPitch, UINT SrcSubresource, _In_opt_ const D3D12_BOX *pSrcBox);
 
-	DECLSPEC_XFGVIRT(ID3D12Resource, GetHeapProperties)
 	HRESULT(STDMETHODCALLTYPE *GetHeapProperties)
 	(ID3D12Resource *This, _Out_opt_ D3D12_HEAP_PROPERTIES *pHeapProperties, _Out_opt_ D3D12_HEAP_FLAGS *pHeapFlags);
 
