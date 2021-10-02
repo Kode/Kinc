@@ -161,12 +161,6 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 	return unit;
 }
 
-static int getMultipleOf16(int value) {
-	int ret = 16;
-	while (ret < value) ret += 16;
-	return ret;
-}
-
 static D3D12_BLEND convert(kinc_g5_blending_operation_t op) {
 	switch (op) {
 	default:
