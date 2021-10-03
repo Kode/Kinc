@@ -6,6 +6,7 @@
 
 #include "constantlocation.h"
 #include "textureunit.h"
+#include "pipeline.h"
 
 /*! \file graphics.h
     \brief Contains the base G4-functionality.
@@ -312,7 +313,19 @@ KINC_FUNC void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texuni
 
 KINC_FUNC void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled);
 
+KINC_FUNC void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode);
+
 KINC_FUNC void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled);
+
+KINC_FUNC void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode);
+
+KINC_FUNC void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy);
+
+KINC_FUNC void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy);
+
+KINC_FUNC void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp);
+
+KINC_FUNC void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp);
 
 /// <summary>
 /// Returns how many textures can be used at the same time in a fragment-shader.

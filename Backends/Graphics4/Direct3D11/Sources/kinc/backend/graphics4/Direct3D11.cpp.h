@@ -1077,8 +1077,46 @@ void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled)
 	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
 }
 
+void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
+	if (unit.impl.unit < 0) return;
+
+	lastSamplers[unit.impl.unit].ComparisonFunc = get_comparison(mode);
+
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
+	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+}
+
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
 	kinc_g4_set_texture_compare_mode(unit, enabled);
+}
+
+void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
+	kinc_g4_set_texture_compare_func(unit, mode);
+}
+
+void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
+	if (unit.impl.unit < 0) return;
+	lastSamplers[unit.impl.unit].MaxAnisotropy = max_anisotropy;
+
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
+	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+}
+
+void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
+	kinc_g4_set_texture_max_anisotropy(unit, max_anisotropy);
+}
+
+void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
+	if (unit.impl.unit < 0) return;
+	lastSamplers[unit.impl.unit].MinLOD = lod_min_clamp;
+	lastSamplers[unit.impl.unit].MaxLOD = lod_max_clamp;
+
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
+	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+}
+
+void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
+	kinc_g4_set_texture_lod(unit, lod_min_clamp, lod_max_clamp);
 }
 
 bool kinc_g4_render_targets_inverted_y() {

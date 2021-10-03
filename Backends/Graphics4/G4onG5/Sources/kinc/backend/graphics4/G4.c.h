@@ -315,8 +315,13 @@ void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4
 }
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
-
+void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {}
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
+void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {}
+void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {}
+void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {}
+void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_mind_clamp, float lod_max_clamp);
+void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_mind_clamp, float lod_max_clamp);
 
 bool kinc_g4_render_targets_inverted_y() {
 	return kinc_g5_render_targets_inverted_y();
