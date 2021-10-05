@@ -41,7 +41,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 
 	WGPUSwapChainDescriptor scDesc;
 	memset(&scDesc, 0, sizeof(scDesc));
-	scDesc.usage = WGPUTextureUsage_OutputAttachment;
+	scDesc.usage = WGPUTextureUsage_RenderAttachment;
 	scDesc.format = WGPUTextureFormat_BGRA8Unorm;
 	scDesc.width = kinc_width();
 	scDesc.height = kinc_height();

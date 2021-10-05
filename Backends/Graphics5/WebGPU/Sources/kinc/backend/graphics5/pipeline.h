@@ -11,7 +11,7 @@ typedef struct {
 } PipelineState5Impl;
 
 typedef struct {
-	int a;
+	WGPUComputePipeline pipeline;
 } ComputePipelineState5Impl;
 
 typedef struct {
