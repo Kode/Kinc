@@ -323,7 +323,23 @@ void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
 
+void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {}
+
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
+
+void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {}
+
+void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
+	device->SetSamplerState(unit.impl.unit, D3DSAMP_MAXANISOTROPY, max_anisotropy);
+}
+
+void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {}
+
+void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
+	// device->SetSamplerState(unit.impl.unit, D3DSAMP_, );
+}
+
+void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {}
 
 void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int count) {
 	// if (backBuffer != nullptr) backBuffer->Release();

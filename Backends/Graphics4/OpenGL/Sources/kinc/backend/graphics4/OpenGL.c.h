@@ -734,6 +734,11 @@ void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t texunit, bool enabl
 	}
 }
 
+void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
+	if (unit.impl.unit < 0) return;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, Kinc_G4_Internal_StencilFunc(mode));
+}
+
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t texunit, bool enabled) {
 	if (texunit.impl.unit < 0) return;
 	if (enabled) {
@@ -745,8 +750,33 @@ void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t texunit, bool enabl
 	}
 }
 
+void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
+	if (unit.impl.unit < 0) return;
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, Kinc_G4_Internal_StencilFunc(mode));
+}
+
 void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2) {
 	// glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+}
+
+void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
+	if (unit.impl.unit < 0) return;
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
+}
+
+void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
+	if (unit.impl.unit < 0) return;
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
+}
+
+void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_LOD, lod_min_clamp);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, lod_max_clamp);
+}
+
+void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_LOD, lod_min_clamp);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LOD, lod_max_clamp);
 }
 
 void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
