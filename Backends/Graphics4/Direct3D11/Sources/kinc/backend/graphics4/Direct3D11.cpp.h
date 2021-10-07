@@ -63,13 +63,14 @@ static uint32_t samplers_size = 0;
 
 static ID3D11SamplerState *getSamplerState(D3D11_SAMPLER_DESC *desc) {
 	for (unsigned i = 0; i < samplers_size; ++i) {
-		if (memcmp(&desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
+		if (memcmp(desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
 			return samplers[i].state;
 		}
 	}
 	struct Sampler s;
 	s.desc = *desc;
 	device->lpVtbl->CreateSamplerState(device, &s.desc, &s.state);
+	assert(samplers_size < MAX_SAMPLERS);
 	samplers[samplers_size++] = s;
 	return s.state;
 }
