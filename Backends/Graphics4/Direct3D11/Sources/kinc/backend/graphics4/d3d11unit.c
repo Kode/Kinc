@@ -74,6 +74,28 @@ static uint8_t geometryConstants[1024 * 4];
 static uint8_t tessControlConstants[1024 * 4];
 static uint8_t tessEvalConstants[1024 * 4];
 
+static D3D11_COMPARISON_FUNC get_comparison(kinc_g4_compare_mode_t compare) {
+	switch (compare) {
+	default:
+	case KINC_G4_COMPARE_ALWAYS:
+		return D3D11_COMPARISON_ALWAYS;
+	case KINC_G4_COMPARE_NEVER:
+		return D3D11_COMPARISON_NEVER;
+	case KINC_G4_COMPARE_EQUAL:
+		return D3D11_COMPARISON_EQUAL;
+	case KINC_G4_COMPARE_NOT_EQUAL:
+		return D3D11_COMPARISON_NOT_EQUAL;
+	case KINC_G4_COMPARE_LESS:
+		return D3D11_COMPARISON_LESS;
+	case KINC_G4_COMPARE_LESS_EQUAL:
+		return D3D11_COMPARISON_LESS_EQUAL;
+	case KINC_G4_COMPARE_GREATER:
+		return D3D11_COMPARISON_GREATER;
+	case KINC_G4_COMPARE_GREATER_EQUAL:
+		return D3D11_COMPARISON_GREATER_EQUAL;
+	}
+}
+
 #include "Direct3D11.cpp.h"
 #include "ShaderHash.c.h"
 #include "indexbuffer.cpp.h"

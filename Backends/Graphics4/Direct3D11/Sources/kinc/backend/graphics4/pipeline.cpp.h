@@ -47,28 +47,6 @@ static D3D11_BLEND convert_blend_operation(kinc_g4_blending_operation_t operatio
 	}
 }
 
-static D3D11_COMPARISON_FUNC get_comparison(kinc_g4_compare_mode_t compare) {
-	switch (compare) {
-	default:
-	case KINC_G4_COMPARE_ALWAYS:
-		return D3D11_COMPARISON_ALWAYS;
-	case KINC_G4_COMPARE_NEVER:
-		return D3D11_COMPARISON_NEVER;
-	case KINC_G4_COMPARE_EQUAL:
-		return D3D11_COMPARISON_EQUAL;
-	case KINC_G4_COMPARE_NOT_EQUAL:
-		return D3D11_COMPARISON_NOT_EQUAL;
-	case KINC_G4_COMPARE_LESS:
-		return D3D11_COMPARISON_LESS;
-	case KINC_G4_COMPARE_LESS_EQUAL:
-		return D3D11_COMPARISON_LESS_EQUAL;
-	case KINC_G4_COMPARE_GREATER:
-		return D3D11_COMPARISON_GREATER;
-	case KINC_G4_COMPARE_GREATER_EQUAL:
-		return D3D11_COMPARISON_GREATER_EQUAL;
-	}
-}
-
 static D3D11_STENCIL_OP get_stencil_action(kinc_g4_stencil_action_t action) {
 	switch (action) {
 	default:
