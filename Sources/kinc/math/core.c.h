@@ -1,38 +1,82 @@
 #include "core.h"
 
 #include <float.h>
+
+#ifdef KINC_NO_CLIB
+#include <intrin.h>
+#include <kinc/libs/sse_mathfun.h>
+#else
 #include <math.h>
+#endif
 
 float kinc_tan(float x) {
 	return tanf(x);
 }
 
 float kinc_cot(float x) {
+#ifdef KINC_NO_CLIB
+	return kinc_cos(x) / kinc_sin(x);
+#else
 	return cosf(x) / sinf(x);
+#endif
 }
 
 float kinc_round(float value) {
+#ifdef KINC_NO_CLIB
+	return (float)(int)(value + 0.5f);
+#else
 	return floorf(value + 0.5f);
+#endif
 }
 
 float kinc_ceil(float value) {
+#ifdef KINC_NO_CLIB
+	return (float)(int)(value + 1.0f);
+#else
 	return ceilf(value);
+#endif
 }
 
 float kinc_floor(float value) {
+#ifdef KINC_NO_CLIB
+	return (float)(int)value;
+#else
 	return floorf(value);
+#endif
 }
 
 float kinc_mod(float numer, float denom) {
+#ifdef KINC_NO_CLIB
+	__m128 ssenumer;
+	ssenumer.m128_f32[0] = numer;
+	__m128 ssedenom;
+	ssedenom.m128_f32[0] = denom;
+	return _mm_fmod_ps(ssenumer, ssedenom).m128_f32[0];
+#else
 	return fmodf(numer, denom);
+#endif
 }
 
 float kinc_exp(float exponent) {
+#ifdef KINC_NO_CLIB
+	__m128 input;
+	input.m128_f32[0] = exponent;
+	return exp_ps(input).m128_f32[0];
+#else
 	return expf(exponent);
+#endif
 }
 
 float kinc_pow(float value, float exponent) {
+#ifdef KINC_NO_CLIB
+	__m128 ssevalue;
+	ssevalue.m128_f32[0] = value;
+	__m128 sseexponent;
+	sseexponent.m128_f32[0] = exponent;
+	return _mm_pow_ps(ssevalue, sseexponent).m128_f32[0];
+#else
 	return powf(value, exponent);
+#endif
 }
 
 float kinc_max_float() {
@@ -40,7 +84,13 @@ float kinc_max_float() {
 }
 
 float kinc_sqrt(float value) {
+#ifdef KINC_NO_CLIB
+	__m128 input;
+	input.m128_f32[0] = value;
+	return _mm_sqrt_ss(input).m128_f32[0];
+#else
 	return sqrtf(value);
+#endif
 }
 
 float kinc_abs(float value) {
@@ -48,11 +98,23 @@ float kinc_abs(float value) {
 }
 
 float kinc_sin(float value) {
+#ifdef KINC_NO_CLIB
+	__m128 input;
+	input.m128_f32[0] = value;
+	return sin_ps(input).m128_f32[0];
+#else
 	return sinf(value);
+#endif
 }
 
 float kinc_cos(float value) {
+#ifdef KINC_NO_CLIB
+	__m128 input;
+	input.m128_f32[0] = value;
+	return cos_ps(input).m128_f32[0];
+#else
 	return cosf(value);
+#endif
 }
 
 float kinc_asin(float value) {

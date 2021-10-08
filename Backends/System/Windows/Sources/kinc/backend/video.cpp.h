@@ -1,5 +1,7 @@
 #include <kinc/video.h>
 
+#ifndef KINC_NO_DIRECTSHOW
+
 #include <streams.h>
 
 namespace {
@@ -185,6 +187,50 @@ bool kinc_video_finished(kinc_video_t *video) {
 bool kinc_video_paused(kinc_video_t *video) {
 	return video->impl.paused;
 }
+
+#else
+
+void kinc_video_init(kinc_video_t *video, const char *filename) {}
+
+void kinc_video_destroy(kinc_video_t *video) {}
+
+kinc_g4_texture_t *kinc_video_current_image(kinc_video_t *video) {
+	return NULL;
+}
+
+int kinc_video_width(kinc_video_t *video) {
+	return 64;
+}
+
+int kinc_video_height(kinc_video_t *video) {
+	return 64;
+}
+
+void kinc_video_play(kinc_video_t *video) {}
+
+void kinc_video_pause(kinc_video_t *video) {}
+
+void kinc_video_stop(kinc_video_t *video) {}
+
+void kinc_video_update(kinc_video_t *video, double time) {}
+
+double kinc_video_duration(kinc_video_t *video) {
+	return 0.0;
+}
+
+double kinc_video_position(kinc_video_t *video) {
+	return 0.0;
+}
+
+bool kinc_video_finished(kinc_video_t *video) {
+	return true;
+}
+
+bool kinc_video_paused(kinc_video_t *video) {
+	return true;
+}
+
+#endif
 
 void kinc_internal_video_sound_stream_init(kinc_internal_video_sound_stream_t *stream, int channel_count, int frequency) {}
 

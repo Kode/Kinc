@@ -61,10 +61,14 @@ if (platform === Platform.Windows) {
 	project.addLib('ws2_32');
 	project.addLib('Winhttp');
 
-	project.addFile('Backends/System/Windows/Libraries/DirectShow/**');
-	project.addIncludeDir('Backends/System/Windows/Libraries/DirectShow/BaseClasses');
-	project.addLib('strmiids');
-	project.addLib('winmm');
+	const directshow = true;
+	if (directshow) {
+		project.addFile('Backends/System/Windows/Libraries/DirectShow/**');
+		project.addIncludeDir('Backends/System/Windows/Libraries/DirectShow/BaseClasses');
+		project.addLib('strmiids');
+		project.addLib('winmm');
+	}
+
 	project.addLib('wbemuuid');
 
 	if (graphics === GraphicsApi.OpenGL1) {
