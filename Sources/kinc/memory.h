@@ -2,6 +2,8 @@
 
 #include <kinc/global.h>
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
