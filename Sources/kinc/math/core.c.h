@@ -4,6 +4,7 @@
 
 #ifdef KINC_NO_CLIB
 #include <intrin.h>
+#define USE_SSE2
 #include <kinc/libs/sse_mathfun.h>
 #else
 #include <math.h>
@@ -61,7 +62,8 @@ float kinc_exp(float exponent) {
 #ifdef KINC_NO_CLIB
 	__m128 input;
 	input.m128_f32[0] = exponent;
-	return exp_ps(input).m128_f32[0];
+	__m128 output = exp_ps(input);
+	return output.m128_f32[0];
 #else
 	return expf(exponent);
 #endif
@@ -101,7 +103,8 @@ float kinc_sin(float value) {
 #ifdef KINC_NO_CLIB
 	__m128 input;
 	input.m128_f32[0] = value;
-	return sin_ps(input).m128_f32[0];
+	__m128 output = sin_ps(input);
+	return output.m128_f32[0];
 #else
 	return sinf(value);
 #endif
@@ -111,7 +114,8 @@ float kinc_cos(float value) {
 #ifdef KINC_NO_CLIB
 	__m128 input;
 	input.m128_f32[0] = value;
-	return cos_ps(input).m128_f32[0];
+	__m128 output = cos_ps(input);
+	return output.m128_f32[0];
 #else
 	return cosf(value);
 #endif
