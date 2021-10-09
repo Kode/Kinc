@@ -570,6 +570,13 @@ enum STBVorbisError
    #if defined(__linux__) || defined(__linux) || defined(__EMSCRIPTEN__)
       #include <alloca.h>
    #endif
+
+#include <kinc/memory.h>
+
+#define malloc(s) kinc_allocate(s)
+#define realloc(p, s) kinc_reallocate(p, s)
+#define free(p) kinc_free(p)
+
 #else // STB_VORBIS_NO_CRT
    #define NULL 0
    #define malloc(s)   0

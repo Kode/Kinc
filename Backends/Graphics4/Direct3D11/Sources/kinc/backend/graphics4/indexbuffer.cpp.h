@@ -1,4 +1,5 @@
 #include <kinc/graphics4/indexBuffer.h>
+#include <kinc/memory.h>
 
 void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format, kinc_g4_usage_t usage) {
 	buffer->impl.count = count;
@@ -7,7 +8,7 @@ void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g
 		buffer->impl.indices = NULL;
 	}
 	else {
-		buffer->impl.indices = (int *)malloc(count * sizeof(int));
+		buffer->impl.indices = (int *)kinc_allocate(count * sizeof(int));
 	}
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -37,7 +38,7 @@ void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g
 
 void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 	buffer->impl.ib->lpVtbl->Release(buffer->impl.ib);
-	free(buffer->impl.indices);
+	kinc_free(buffer->impl.indices);
 	buffer->impl.indices = NULL;
 }
 

@@ -1,4 +1,5 @@
 #include <kinc/log.h>
+#include <kinc/memory.h>
 #include <kinc/network/http.h>
 
 #include <stdio.h>
@@ -70,7 +71,7 @@ void kinc_http_request(const char *url, const char *path, const char *data, int 
 
 			if ((int)dwSize + 1 > returnDataSize - returnDataIndex) {
 				int newReturnDataSize = (returnDataIndex + dwSize + 1) * 2;
-				char *newReturnData = (char *)malloc(newReturnDataSize);
+				char *newReturnData = (char *)kinc_allocate(newReturnDataSize);
 				if (newReturnData == 0) {
 					kinc_log(KINC_LOG_LEVEL_ERROR, "Out of memory\n");
 				}

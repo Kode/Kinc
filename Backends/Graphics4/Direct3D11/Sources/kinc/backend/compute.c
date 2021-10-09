@@ -2,6 +2,7 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/log.h>
 #include <kinc/math/core.h>
+#include <kinc/memory.h>
 
 #include <kinc/backend/SystemMicrosoft.h>
 
@@ -179,7 +180,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	}
 
 	shader->impl.length = (int)(length - index);
-	shader->impl.data = (uint8_t *)malloc(shader->impl.length);
+	shader->impl.data = (uint8_t *)kinc_allocate(shader->impl.length);
 	assert(shader->impl.data != NULL);
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
 

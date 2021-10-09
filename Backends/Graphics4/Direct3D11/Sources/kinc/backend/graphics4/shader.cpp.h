@@ -1,4 +1,5 @@
 #include <kinc/graphics4/shader.h>
+#include <kinc/memory.h>
 
 void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (shader->impl.shader != NULL) {
@@ -61,7 +62,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 	}
 
 	shader->impl.length = (int)(length - index);
-	shader->impl.data = (uint8_t *)malloc(shader->impl.length);
+	shader->impl.data = (uint8_t *)kinc_allocate(shader->impl.length);
 	assert(shader->impl.data != NULL);
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
 

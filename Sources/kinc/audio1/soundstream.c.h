@@ -4,6 +4,7 @@
 #include "stb_vorbis.c"
 
 #include <kinc/io/filereader.h>
+#include <kinc/memory.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -24,11 +25,11 @@ kinc_a1_sound_stream_t *kinc_a1_sound_stream_create(const char *filename, bool l
 	kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET);
 	stream->buffer = &buffer[bufferIndex];
 	bufferIndex += (int)kinc_file_reader_size(&file);
-	uint8_t *filecontent = (uint8_t *)malloc(kinc_file_reader_size(&file));
+	uint8_t *filecontent = (uint8_t *)kinc_allocate(kinc_file_reader_size(&file));
 	kinc_file_reader_read(&file, filecontent, kinc_file_reader_size(&file));
 	kinc_file_reader_close(&file);
 	memcpy(stream->buffer, filecontent, kinc_file_reader_size(&file));
-	free(filecontent);
+	kinc_free(filecontent);
 	stream->vorbis = stb_vorbis_open_memory(buffer, (int)kinc_file_reader_size(&file), NULL, NULL);
 	if (stream->vorbis != NULL) {
 		stb_vorbis_info info = stb_vorbis_get_info(stream->vorbis);

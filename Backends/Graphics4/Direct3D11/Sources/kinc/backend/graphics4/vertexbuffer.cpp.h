@@ -67,7 +67,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 
 void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
 	buffer->impl.vb->lpVtbl->Release(buffer->impl.vb);
-	free(buffer->impl.vertices);
+	kinc_free(buffer->impl.vertices);
 	buffer->impl.vertices = NULL;
 }
 

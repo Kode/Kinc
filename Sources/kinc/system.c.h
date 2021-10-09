@@ -275,14 +275,14 @@ size_t kinc_get_save_file_size(void) {
 }
 
 void kinc_load_save_file(const char *filename) {
-	free(current_file);
+	kinc_free(current_file);
 	current_file = NULL;
 	current_file_size = 0;
 
 	kinc_file_reader_t reader;
 	if (kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_SAVE)) {
 		current_file_size = kinc_file_reader_size(&reader);
-		current_file = (uint8_t *)malloc(current_file_size);
+		current_file = (uint8_t *)kinc_allocate(current_file_size);
 		kinc_file_reader_read(&reader, current_file, current_file_size);
 		kinc_file_reader_close(&reader);
 	}
