@@ -1,5 +1,6 @@
 #include <kinc/math/core.h>
 #include <kinc/math/matrix.h>
+#include <kinc/memory.h>
 
 #include <memory.h>
 
@@ -18,12 +19,12 @@ void kinc_matrix3x3_transpose(kinc_matrix3x3_t *matrix) {
 			kinc_matrix3x3_set(&transposed, x, y, kinc_matrix3x3_get(matrix, y, x));
 		}
 	}
-	memcpy(matrix->m, transposed.m, sizeof(transposed.m));
+	kinc_memcpy(matrix->m, transposed.m, sizeof(transposed.m));
 }
 
 kinc_matrix3x3_t kinc_matrix3x3_identity(void) {
 	kinc_matrix3x3_t m;
-	memset(m.m, 0, sizeof(m.m));
+	kinc_memset(m.m, 0, sizeof(m.m));
 	for (unsigned x = 0; x < 3; ++x) {
 		kinc_matrix3x3_set(&m, x, x, 1.0f);
 	}
@@ -125,7 +126,7 @@ void kinc_matrix4x4_transpose(kinc_matrix4x4_t *matrix) {
 			kinc_matrix4x4_set(&transposed, x, y, kinc_matrix4x4_get(matrix, y, x));
 		}
 	}
-	memcpy(matrix->m, transposed.m, sizeof(transposed.m));
+	kinc_memcpy(matrix->m, transposed.m, sizeof(transposed.m));
 }
 
 kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_matrix4x4_t *b) {

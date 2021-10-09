@@ -2,6 +2,7 @@
 #include <kinc/graphics4/shader.h>
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/log.h>
+#include <kinc/memory.h>
 
 kinc_g4_pipeline_t *currentPipeline = NULL;
 
@@ -93,7 +94,7 @@ void kinc_internal_set_constants(void) {
 }
 
 void kinc_g4_pipeline_init(struct kinc_g4_pipeline *state) {
-	memset(state, 0, sizeof(struct kinc_g4_pipeline));
+	kinc_memset(state, 0, sizeof(struct kinc_g4_pipeline));
 	kinc_g4_internal_pipeline_set_defaults(state);
 	state->impl.d3d11inputLayout = NULL;
 	state->impl.fragmentConstantBuffer = NULL;

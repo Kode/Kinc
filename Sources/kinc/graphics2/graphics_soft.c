@@ -3,6 +3,7 @@
 #include <kinc/graphics1/graphics.h>
 #include <kinc/math/core.h>
 #include <kinc/math/matrix.h>
+#include <kinc/memory.h>
 
 #include <stdint.h>
 #include <string.h>
@@ -23,7 +24,7 @@ void kinc_g2_end(void) {
 }
 
 void kinc_g2_clear(float r, float g, float b) {
-	memset(kinc_internal_g1_image, 0, kinc_internal_g1_tex_width * kinc_internal_g1_h * 4);
+	kinc_memset(kinc_internal_g1_image, 0, kinc_internal_g1_tex_width * kinc_internal_g1_h * 4);
 }
 
 /*void kinc_g2_draw_image(kinc_image_t *img, float x, float y) {

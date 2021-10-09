@@ -4,6 +4,7 @@
 
 #include <kinc/error.h>
 #include <kinc/log.h>
+#include <kinc/memory.h>
 #include <kinc/threads/thread.h>
 
 #include <AudioClient.h>
@@ -173,7 +174,7 @@ namespace {
 			return;
 		}
 
-		memset(buffer, 0, frames * format->nBlockAlign);
+		kinc_memset(buffer, 0, frames * format->nBlockAlign);
 
 		result = renderClient->ReleaseBuffer(frames, 0);
 	}
@@ -192,7 +193,7 @@ namespace {
 
 		if (a2_callback != nullptr) {
 			a2_callback(&a2_buffer, frames * 2);
-			memset(buffer, 0, frames * format->nBlockAlign);
+			kinc_memset(buffer, 0, frames * format->nBlockAlign);
 			if (format->wFormatTag == WAVE_FORMAT_PCM) {
 				for (UINT32 i = 0; i < frames; ++i) {
 					copyS16Sample((s16 *)&buffer[i * format->nBlockAlign]);
@@ -207,7 +208,7 @@ namespace {
 			}
 		}
 		else {
-			memset(buffer, 0, frames * format->nBlockAlign);
+			kinc_memset(buffer, 0, frames * format->nBlockAlign);
 		}
 
 		result = renderClient->ReleaseBuffer(frames, 0);

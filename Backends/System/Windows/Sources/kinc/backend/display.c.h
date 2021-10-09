@@ -3,6 +3,7 @@
 #include <kinc/display.h>
 #include <kinc/error.h>
 #include <kinc/log.h>
+#include <kinc/memory.h>
 
 #undef RegisterClass
 
@@ -26,7 +27,7 @@ static GetDpiForMonitorType MyGetDpiForMonitor = NULL;
 
 static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPRECT rect_unused, LPARAM lparam) {
 	MONITORINFOEXA info;
-	memset(&info, 0, sizeof(MONITORINFOEXA));
+	kinc_memset(&info, 0, sizeof(MONITORINFOEXA));
 	info.cbSize = sizeof(MONITORINFOEXA);
 
 	if (GetMonitorInfoA(monitor, (MONITORINFO *)&info) == FALSE) {
@@ -66,7 +67,7 @@ static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPREC
 		display->ppi = (int)dpiX;
 	}
 
-	memset(&original_modes[free_slot], 0, sizeof(DEVMODEA));
+	kinc_memset(&original_modes[free_slot], 0, sizeof(DEVMODEA));
 	original_modes[free_slot].dmSize = sizeof(DEVMODEA);
 	EnumDisplaySettingsA(display->name, ENUM_CURRENT_SETTINGS, &original_modes[free_slot]);
 	display->frequency = original_modes[free_slot].dmDisplayFrequency;
@@ -84,7 +85,7 @@ void kinc_display_init() {
 	if (shcore != NULL) {
 		MyGetDpiForMonitor = (GetDpiForMonitorType)GetProcAddress(shcore, "GetDpiForMonitor");
 	}
-	memset(displays, 0, sizeof(DisplayData) * MAXIMUM_DISPLAYS);
+	kinc_memset(displays, 0, sizeof(DisplayData) * MAXIMUM_DISPLAYS);
 	EnumDisplayMonitors(NULL, NULL, EnumerationCallback, 0);
 	display_initialized = true;
 }

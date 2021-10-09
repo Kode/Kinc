@@ -14,6 +14,7 @@
 #include <kinc/io/filereader.h>
 #include <kinc/log.h>
 #include <kinc/math/core.h>
+#include <kinc/memory.h>
 
 #include <string.h>
 
@@ -54,7 +55,7 @@ static void *buffer_realloc(void *p, size_t size) {
 		if (new_pointer == NULL) {
 			return NULL;
 		}
-		memcpy(new_pointer, old_pointer, old_size < size ? old_size : size);
+		kinc_memcpy(new_pointer, old_pointer, old_size < size ? old_size : size);
 		return new_pointer;
 	}
 }
@@ -338,7 +339,7 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 			return false;
 		}
 		*outputSize = *width * *height * 16;
-		memcpy(output, uncompressed, *outputSize);
+		kinc_memcpy(output, uncompressed, *outputSize);
 		*format = KINC_IMAGE_FORMAT_RGBA128;
 		buffer_offset = 0;
 		return true;
@@ -460,7 +461,7 @@ struct kinc_internal_image_memory {
 static int memory_read_callback(void *user_data, void *data, size_t size) {
 	struct kinc_internal_image_memory *memory = (struct kinc_internal_image_memory *)user_data;
 	size_t read_size = memory->size - memory->offset < size ? memory->size - memory->offset : size;
-	memcpy(data, &memory->data[memory->offset], read_size);
+	kinc_memcpy(data, &memory->data[memory->offset], read_size);
 	memory->offset += read_size;
 	return (int)read_size;
 }

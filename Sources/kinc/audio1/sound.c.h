@@ -53,7 +53,7 @@ static void readChunk(uint8_t **data, struct WaveData *wave) {
 		wave->dataSize = chunksize;
 		wave->data = (uint8_t *)kinc_allocate(chunksize * sizeof(uint8_t));
 		kinc_affirm(wave->data != NULL);
-		memcpy(wave->data, *data, chunksize);
+		kinc_memcpy(wave->data, *data, chunksize);
 		*data += chunksize;
 	}
 	else {

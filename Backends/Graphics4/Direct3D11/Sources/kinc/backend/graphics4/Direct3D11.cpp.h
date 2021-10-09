@@ -16,6 +16,7 @@
 #include <kinc/system.h>
 
 #include <kinc/display.h>
+#include <kinc/memory.h>
 #include <kinc/window.h>
 
 #ifdef KORE_WINDOWS
@@ -63,7 +64,7 @@ static uint32_t samplers_size = 0;
 
 static ID3D11SamplerState *getSamplerState(D3D11_SAMPLER_DESC *desc) {
 	for (unsigned i = 0; i < samplers_size; ++i) {
-		if (memcmp(desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
+		if (kinc_memcmp(desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
 			return samplers[i].state;
 		}
 	}

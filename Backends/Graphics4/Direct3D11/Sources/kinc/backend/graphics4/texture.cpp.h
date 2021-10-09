@@ -1,5 +1,6 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/graphics4/textureunit.h>
+#include <kinc/memory.h>
 
 static kinc_g4_texture_t *setTextures[16] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
@@ -55,7 +56,7 @@ static bool isHdr(kinc_image_format_t format) {
 }
 
 void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *image) {
-	memset(&texture->impl, 0, sizeof(texture->impl));
+	kinc_memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->tex_width = image->width;
 	texture->tex_height = image->height;
@@ -85,7 +86,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 }
 
 void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t *image) {
-	memset(&texture->impl, 0, sizeof(texture->impl));
+	kinc_memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->tex_width = image->width;
 	texture->tex_height = image->height;
@@ -115,7 +116,7 @@ void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t 
 }
 
 void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
-	memset(&texture->impl, 0, sizeof(texture->impl));
+	kinc_memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->tex_width = width;
 	texture->tex_height = height;
@@ -156,7 +157,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 }
 
 void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format) {
-	memset(&texture->impl, 0, sizeof(texture->impl));
+	kinc_memset(&texture->impl, 0, sizeof(texture->impl));
 	texture->impl.stage = 0;
 	texture->tex_width = width;
 	texture->tex_height = height;

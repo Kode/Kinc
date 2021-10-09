@@ -1,6 +1,7 @@
 #include <kinc/error.h>
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/log.h>
+#include <kinc/memory.h>
 
 static DXGI_FORMAT convertRenderTargetFormat(kinc_g4_render_target_format_t format) {
 	switch (format) {
@@ -430,8 +431,8 @@ void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uin
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	context->lpVtbl->Map(context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0, D3D11_MAP_READ, 0, &mappedResource);
-	memcpy(data, mappedResource.pData,
-	       renderTarget->texWidth * renderTarget->texHeight * formatRenderTargetByteSize((kinc_g4_render_target_format_t)renderTarget->impl.format));
+	kinc_memcpy(data, mappedResource.pData,
+	            renderTarget->texWidth * renderTarget->texHeight * formatRenderTargetByteSize((kinc_g4_render_target_format_t)renderTarget->impl.format));
 	context->lpVtbl->Unmap(context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0);
 }
 

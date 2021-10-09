@@ -131,7 +131,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	unsigned index = 0;
 	uint8_t *data = (uint8_t *)_data;
 
-	memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
+	kinc_memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
 		unsigned char name[256];
@@ -143,7 +143,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 		shader->impl.attributes[i].index = data[index++];
 	}
 
-	memset(&shader->impl.textures, 0, sizeof(shader->impl.textures));
+	kinc_memset(&shader->impl.textures, 0, sizeof(shader->impl.textures));
 	uint8_t texCount = data[index++];
 	for (unsigned i = 0; i < texCount; ++i) {
 		unsigned char name[256];
@@ -155,7 +155,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 		shader->impl.textures[i].index = data[index++];
 	}
 
-	memset(&shader->impl.constants, 0, sizeof(shader->impl.constants));
+	kinc_memset(&shader->impl.constants, 0, sizeof(shader->impl.constants));
 	uint8_t constantCount = data[index++];
 	shader->impl.constantsSize = 0;
 	for (unsigned i = 0; i < constantCount; ++i) {
@@ -182,7 +182,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	shader->impl.length = (int)(length - index);
 	shader->impl.data = (uint8_t *)kinc_allocate(shader->impl.length);
 	assert(shader->impl.data != NULL);
-	memcpy(shader->impl.data, &data[index], shader->impl.length);
+	kinc_memcpy(shader->impl.data, &data[index], shader->impl.length);
 
 	HRESULT hr = device->lpVtbl->CreateComputeShader(device, shader->impl.data, shader->impl.length, NULL, (ID3D11ComputeShader **)&shader->impl.shader);
 

@@ -75,7 +75,7 @@ void kinc_http_request(const char *url, const char *path, const char *data, int 
 				if (newReturnData == 0) {
 					kinc_log(KINC_LOG_LEVEL_ERROR, "Out of memory\n");
 				}
-				memcpy(newReturnData, returnData, returnDataSize);
+				kinc_memcpy(newReturnData, returnData, returnDataSize);
 				returnDataSize = newReturnDataSize;
 				returnData = newReturnData;
 			}

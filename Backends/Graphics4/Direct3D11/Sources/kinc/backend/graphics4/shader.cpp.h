@@ -13,7 +13,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 	uint8_t *data = (uint8_t *)_data;
 	shader->impl.type = (int)type;
 
-	memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
+	kinc_memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
 		unsigned char name[256];
@@ -25,7 +25,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 		shader->impl.attributes[i].index = data[index++];
 	}
 
-	memset(&shader->impl.textures, 0, sizeof(shader->impl.textures));
+	kinc_memset(&shader->impl.textures, 0, sizeof(shader->impl.textures));
 	uint8_t texCount = data[index++];
 	for (unsigned i = 0; i < texCount; ++i) {
 		unsigned char name[256];
@@ -37,7 +37,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 		shader->impl.textures[i].index = data[index++];
 	}
 
-	memset(&shader->impl.constants, 0, sizeof(shader->impl.constants));
+	kinc_memset(&shader->impl.constants, 0, sizeof(shader->impl.constants));
 	uint8_t constantCount = data[index++];
 	shader->impl.constantsSize = 0;
 	for (unsigned i = 0; i < constantCount; ++i) {
@@ -64,7 +64,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 	shader->impl.length = (int)(length - index);
 	shader->impl.data = (uint8_t *)kinc_allocate(shader->impl.length);
 	assert(shader->impl.data != NULL);
-	memcpy(shader->impl.data, &data[index], shader->impl.length);
+	kinc_memcpy(shader->impl.data, &data[index], shader->impl.length);
 
 	switch (type) {
 	case KINC_G4_SHADER_TYPE_VERTEX:
