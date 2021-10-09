@@ -30,6 +30,7 @@ KINC_FUNC void *kinc_memset(void *ptr, int value, size_t num) {
 	for (size_t i = 0; i < num; ++i) {
 		data[i] = (unsigned char)value;
 	}
+	return ptr;
 #else
 	return memset(ptr, value, num);
 #endif
