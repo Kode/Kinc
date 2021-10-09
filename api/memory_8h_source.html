@@ -83,9 +83,15 @@ $(function() {
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_free(<span class="keywordtype">void</span> *mem);</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;}</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;KINC_FUNC <span class="keywordtype">void</span> *kinc_memset(<span class="keywordtype">void</span> *ptr, <span class="keywordtype">int</span> value, <span class="keywordtype">size_t</span> num);</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;KINC_FUNC <span class="keywordtype">void</span> *kinc_memcpy(<span class="keywordtype">void</span> *destination, <span class="keyword">const</span> <span class="keywordtype">void</span> *source, <span class="keywordtype">size_t</span> num);</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_memcmp(<span class="keyword">const</span> <span class="keywordtype">void</span> *ptr1, <span class="keyword">const</span> <span class="keywordtype">void</span> *ptr2, <span class="keywordtype">size_t</span> num);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;}</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <!-- start footer part -->
