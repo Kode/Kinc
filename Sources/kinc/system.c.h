@@ -162,7 +162,7 @@ const char *kinc_application_name(void) {
 }
 
 void kinc_set_application_name(const char *name) {
-	strcpy(application_name, name);
+	kinc_string_copy(application_name, name);
 }
 
 #ifdef KORE_METAL

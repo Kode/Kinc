@@ -7,6 +7,7 @@
 #include <kinc/error.h>
 #include <kinc/io/filereader.h>
 #include <kinc/memory.h>
+#include <kinc/string.h>
 
 #include <assert.h>
 #include <string.h>
@@ -113,7 +114,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 	sound->size = 0;
 	sound->left = NULL;
 	sound->right = NULL;
-	size_t filenameLength = strlen(filename);
+	size_t filenameLength = kinc_string_length(filename);
 	uint8_t *data = NULL;
 
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {

@@ -15,6 +15,7 @@
 #include <kinc/log.h>
 #include <kinc/math/core.h>
 #include <kinc/memory.h>
+#include <kinc/string.h>
 
 #include <string.h>
 
@@ -102,8 +103,8 @@ static int stb_eof(void *user) {
 
 static _Bool endsWith(const char *str, const char *suffix) {
 	if (str == NULL || suffix == NULL) return 0;
-	size_t lenstr = strlen(str);
-	size_t lensuffix = strlen(suffix);
+	size_t lenstr = kinc_string_length(str);
+	size_t lensuffix = kinc_string_length(suffix);
 	if (lensuffix > lenstr) return 0;
 	return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }

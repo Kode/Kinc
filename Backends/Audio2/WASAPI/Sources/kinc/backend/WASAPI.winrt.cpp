@@ -251,7 +251,7 @@ void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = new u8[a2_buffer.data_size];
+	a2_buffer.data = (uint8_t *)kinc_allocate(a2_buffer.data_size);
 
 	audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
 	kinc_affirm(audioProcessingDoneEvent != 0);

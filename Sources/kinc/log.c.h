@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <kinc/string.h>
 #include <kinc/system.h>
 
 #ifdef KORE_MICROSOFT
@@ -41,7 +42,7 @@ void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 	OutputDebugStringA(buffer);
 #ifdef KORE_WINDOWS
 	DWORD written;
-	WriteConsoleA(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)strlen(buffer), &written, NULL);
+	WriteConsoleA(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)kinc_string_length(buffer), &written, NULL);
 #endif
 #endif
 #else

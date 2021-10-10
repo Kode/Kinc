@@ -3,6 +3,7 @@
 #include <kinc/log.h>
 #include <kinc/math/core.h>
 #include <kinc/memory.h>
+#include <kinc/string.h>
 
 #include <kinc/backend/SystemMicrosoft.h>
 
@@ -250,7 +251,7 @@ kinc_compute_constant_location_t kinc_compute_shader_get_constant_location(kinc_
 kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_shader_t *shader, const char *name) {
 	char unitName[64];
 	int unitOffset = 0;
-	size_t len = strlen(name);
+	size_t len = kinc_string_length(name);
 	if (len > 63) len = 63;
 	strncpy(unitName, name, len + 1);
 	if (unitName[len - 1] == ']') {                  // Check for array - mySampler[2]

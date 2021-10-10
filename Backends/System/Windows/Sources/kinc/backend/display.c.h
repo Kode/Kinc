@@ -4,6 +4,7 @@
 #include <kinc/error.h>
 #include <kinc/log.h>
 #include <kinc/memory.h>
+#include <kinc/string.h>
 
 #undef RegisterClass
 
@@ -147,7 +148,7 @@ bool kinc_windows_set_display_mode(int display_index, int width, int height, int
 	display->mode_changed = true;
 	DEVMODEA mode = {0};
 	mode.dmSize = sizeof(mode);
-	strcpy((char *)mode.dmDeviceName, display->name);
+	kinc_string_copy((char *)mode.dmDeviceName, display->name);
 	mode.dmPelsWidth = width;
 	mode.dmPelsHeight = height;
 	mode.dmBitsPerPel = bpp;

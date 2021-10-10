@@ -1,6 +1,7 @@
 #include "filereader.h"
 
 #include <kinc/memory.h>
+#include <kinc/string.h>
 #include <kinc/system.h>
 
 #ifdef KORE_ANDROID
@@ -59,7 +60,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	kinc_memset(reader, 0, sizeof(kinc_file_reader_t));
 	char filepath[1001];
 #ifdef KORE_IOS
-	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());
+	kinc_string_copy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());
 	if (type != KINC_FILE_TYPE_SAVE) {
 		strcat(filepath, "/");
 		strcat(filepath, KORE_DEBUGDIR);
@@ -69,7 +70,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	strcat(filepath, filename);
 #endif
 #ifdef KORE_MACOS
-	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : macgetresourcepath());
+	kinc_string_copy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : macgetresourcepath());
 	if (type != KINC_FILE_TYPE_SAVE) {
 		strcat(filepath, "/");
 		strcat(filepath, KORE_DEBUGDIR);
@@ -79,13 +80,13 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #endif
 #ifdef KORE_WINDOWS
 	if (type == KINC_FILE_TYPE_SAVE) {
-		strcpy(filepath, kinc_internal_save_path());
+		kinc_string_copy(filepath, kinc_internal_save_path());
 		strcat(filepath, filename);
 	}
 	else {
-		strcpy(filepath, filename);
+		kinc_string_copy(filepath, filename);
 	}
-	size_t filepathlength = strlen(filepath);
+	size_t filepathlength = kinc_string_length(filepath);
 	for (size_t i = 0; i < filepathlength; ++i)
 		if (filepath[i] == '/') filepath[i] = '\\';
 #endif
@@ -96,15 +97,15 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #endif
 #ifdef KORE_LINUX
 	if (type == KINC_FILE_TYPE_SAVE) {
-		strcpy(filepath, kinc_internal_save_path());
+		kinc_string_copy(filepath, kinc_internal_save_path());
 		strcat(filepath, filename);
 	}
 	else {
-		strcpy(filepath, filename);
+		kinc_string_copy(filepath, filename);
 	}
 #endif
 #ifdef KORE_HTML5
-	strcpy(filepath, KORE_DEBUGDIR);
+	kinc_string_copy(filepath, KORE_DEBUGDIR);
 	strcat(filepath, "/");
 	strcat(filepath, filename);
 #endif
@@ -127,10 +128,10 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #endif
 
 	if (isAbsolute) {
-		strcpy(filepath, filename);
+		kinc_string_copy(filepath, filename);
 	}
 	else if (fileslocation != NULL && type != KINC_FILE_TYPE_SAVE) {
-		strcpy(filepath, fileslocation);
+		kinc_string_copy(filepath, fileslocation);
 		strcat(filepath, "/");
 		strcat(filepath, filename);
 	}
