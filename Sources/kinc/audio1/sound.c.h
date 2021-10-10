@@ -1,7 +1,7 @@
 #include "sound.h"
 
 #define STB_VORBIS_HEADER_ONLY
-#include "stb_vorbis.c"
+#include <kinc/libs/stb_vorbis.c>
 
 #include <kinc/audio2/audio.h>
 #include <kinc/error.h>
