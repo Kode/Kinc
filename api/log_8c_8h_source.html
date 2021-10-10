@@ -100,16 +100,16 @@ $(function() {
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#ifdef UTF8</span></div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">wchar_t</span> buffer[4096];</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    kinc_microsoft_format(format, args, buffer);</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    wcscat(buffer, L<span class="stringliteral">&quot;\r\n&quot;</span>);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    kinc_wstring_append(buffer, L<span class="stringliteral">&quot;\r\n&quot;</span>);</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    OutputDebugString(buffer);</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    DWORD written;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    WriteConsole(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)wcslen(buffer), &amp;written, NULL);</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    WriteConsole(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)kinc_wstring_length(buffer), &amp;written, NULL);</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">char</span> buffer[4096];</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    vsnprintf(buffer, 4090, format, args);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    strcat(buffer, <span class="stringliteral">&quot;\r\n&quot;</span>);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    kinc_string_append(buffer, <span class="stringliteral">&quot;\r\n&quot;</span>);</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    OutputDebugStringA(buffer);</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    DWORD written;</div>
@@ -119,7 +119,7 @@ $(function() {
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">char</span> buffer[4096];</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    vsnprintf(buffer, 4090, format, args);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    strcat(buffer, <span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    kinc_string_append(buffer, <span class="stringliteral">&quot;\n&quot;</span>);</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    fprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, <span class="stringliteral">&quot;%s&quot;</span>, buffer);</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
