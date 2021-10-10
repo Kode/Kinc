@@ -6,6 +6,9 @@
 #define STB_SPRINTF_IMPLEMENTATION
 #include <kinc/libs/stb_sprintf.h>
 
+#undef strcmp
+#undef strncmp
+
 size_t kinc_string_length(const char *str) {
 #ifdef KINC_NO_CLIB
 	size_t size = 0;

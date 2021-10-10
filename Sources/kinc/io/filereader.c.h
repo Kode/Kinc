@@ -138,16 +138,20 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 
 #ifdef KORE_WINDOWS
 	MultiByteToWideChar(CP_UTF8, 0, filepath, -1, wfilepath, 1000);
-	reader->file = _wfopen(wfilepath, L"rb");
+	reader->file = CreateFile(wfilepath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #else
 	reader->file = fopen(filepath, "rb");
 #endif
 	if (reader->file == NULL) {
 		return false;
 	}
+#ifdef KORE_WINDOWS
+	reader->size = GetFileSize(reader->file, NULL);
+#else
 	fseek((FILE *)reader->file, 0, SEEK_END);
 	reader->size = (int)ftell((FILE *)reader->file);
 	fseek((FILE *)reader->file, 0, SEEK_SET);
+#endif
 	return true;
 }
 #endif
@@ -161,6 +165,14 @@ int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 		int read = AAsset_read(reader->asset, data, size);
 		reader->pos += read;
 		return read;
+	}
+#elif defined(KORE_WINDOWS)
+	DWORD readBytes = 0;
+	if (ReadFile(reader->file, data, (DWORD)size, &readBytes, NULL)) {
+		return (int)readBytes;
+	}
+	else {
+		return 0;
 	}
 #else
 	return (int)fread(data, 1, size, (FILE *)reader->file);
@@ -176,6 +188,8 @@ void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos) {
 		AAsset_seek(reader->asset, pos, SEEK_SET);
 		reader->pos = pos;
 	}
+#elif defined(KORE_WINDOWS)
+	SetFilePointer(reader->file, pos, NULL, FILE_BEGIN);
 #else
 	fseek((FILE *)reader->file, pos, SEEK_SET);
 #endif
@@ -191,6 +205,8 @@ void kinc_file_reader_close(kinc_file_reader_t *reader) {
 		AAsset_close(reader->asset);
 		reader->asset = NULL;
 	}
+#elif defined(KORE_WINDOWS)
+	CloseHandle(reader->file);
 #else
 	if (reader->file == NULL) {
 		return;
@@ -206,6 +222,8 @@ int kinc_file_reader_pos(kinc_file_reader_t *reader) {
 		return (int)ftell(reader->file);
 	else
 		return reader->pos;
+#elif defined(KORE_WINDOWS)
+	return (int)SetFilePointer(reader->file, 0, NULL, FILE_CURRENT);
 #else
 	return (int)ftell((FILE *)reader->file);
 #endif

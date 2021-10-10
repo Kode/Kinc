@@ -1,5 +1,8 @@
 #include "memory.h"
 
+#undef memcpy
+#undef memset
+
 void *kinc_allocate(size_t size) {
 #ifdef KINC_NO_CLIB
 	return NULL;
