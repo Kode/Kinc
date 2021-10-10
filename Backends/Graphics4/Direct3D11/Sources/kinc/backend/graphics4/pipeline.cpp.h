@@ -287,7 +287,7 @@ kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(struct kinc_g4_pipeline
 	int unitOffset = 0;
 	size_t len = kinc_string_length(name);
 	if (len > 63) len = 63;
-	strncpy(unitName, name, len + 1);
+	kinc_string_copy_limited(unitName, name, len + 1);
 	if (unitName[len - 1] == ']') {                  // Check for array - mySampler[2]
 		unitOffset = (int)(unitName[len - 2] - '0'); // Array index is unit offset
 		unitName[len - 3] = 0;                       // Strip array from name
@@ -520,7 +520,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 			case KINC_G4_VERTEX_DATA_FLOAT4X4: {
 				char name[101];
 				kinc_string_copy(name, state->input_layout[stream]->elements[index].name);
-				strcat(name, "_");
+				kinc_string_append(name, "_");
 				size_t length = kinc_string_length(name);
 				_itoa(0, &name[length], 10);
 				name[length + 1] = 0;

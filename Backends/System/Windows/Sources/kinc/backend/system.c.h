@@ -564,7 +564,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
 						EmptyClipboard();
-						size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+						size_t size = (kinc_wstring_length(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void *data = GlobalLock(handle);
 						kinc_memcpy(data, wtext, size);
@@ -581,7 +581,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
 						EmptyClipboard();
-						size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+						size_t size = (kinc_wstring_length(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void *data = GlobalLock(handle);
 						kinc_memcpy(data, wtext, size);
@@ -1187,12 +1187,12 @@ static void findSavePath() {
 	LPWSTR path;
 	folder->lpVtbl->GetPath(folder, 0, &path);
 
-	wcscpy(savePathw, path);
-	wcscat(savePathw, L"\\");
+	kinc_wstring_copy(savePathw, path);
+	kinc_wstring_append(savePathw, L"\\");
 	wchar_t name[1024];
 	MultiByteToWideChar(CP_UTF8, 0, kinc_application_name(), -1, name, 1024);
-	wcscat(savePathw, name);
-	wcscat(savePathw, L"\\");
+	kinc_wstring_append(savePathw, name);
+	kinc_wstring_append(savePathw, L"\\");
 
 	SHCreateDirectoryEx(NULL, savePathw, NULL);
 	WideCharToMultiByte(CP_UTF8, 0, savePathw, -1, savePath, 1024, NULL, NULL);
@@ -1346,7 +1346,7 @@ void kinc_copy_to_clipboard(const char *text) {
 	MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 	OpenClipboard(kinc_windows_window_handle(0));
 	EmptyClipboard();
-	size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+	size_t size = (kinc_wstring_length(wtext) + 1) * sizeof(wchar_t);
 	HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 	void *data = GlobalLock(handle);
 	kinc_memcpy(data, wtext, size);

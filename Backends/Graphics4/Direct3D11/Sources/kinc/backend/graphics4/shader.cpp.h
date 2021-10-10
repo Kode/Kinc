@@ -4,7 +4,7 @@
 void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (shader->impl.shader != NULL) {
 		((IUnknown *)shader->impl.shader)->lpVtbl->Release(shader->impl.shader);
-		free(shader->impl.data);
+		kinc_free(shader->impl.data);
 	}
 }
 

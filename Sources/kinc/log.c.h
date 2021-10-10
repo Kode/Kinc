@@ -29,16 +29,16 @@ void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 #ifdef UTF8
 	wchar_t buffer[4096];
 	kinc_microsoft_format(format, args, buffer);
-	wcscat(buffer, L"\r\n");
+	kinc_wstring_append(buffer, L"\r\n");
 	OutputDebugString(buffer);
 #ifdef KORE_WINDOWS
 	DWORD written;
-	WriteConsole(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)wcslen(buffer), &written, NULL);
+	WriteConsole(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)kinc_wstring_length(buffer), &written, NULL);
 #endif
 #else
 	char buffer[4096];
 	vsnprintf(buffer, 4090, format, args);
-	strcat(buffer, "\r\n");
+	kinc_string_append(buffer, "\r\n");
 	OutputDebugStringA(buffer);
 #ifdef KORE_WINDOWS
 	DWORD written;
@@ -48,7 +48,7 @@ void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 #else
 	char buffer[4096];
 	vsnprintf(buffer, 4090, format, args);
-	strcat(buffer, "\n");
+	kinc_string_append(buffer, "\n");
 	fprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, "%s", buffer);
 #endif
 

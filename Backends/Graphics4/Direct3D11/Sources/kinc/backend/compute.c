@@ -253,7 +253,7 @@ kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_sh
 	int unitOffset = 0;
 	size_t len = kinc_string_length(name);
 	if (len > 63) len = 63;
-	strncpy(unitName, name, len + 1);
+	kinc_string_copy_limited(unitName, name, len + 1);
 	if (unitName[len - 1] == ']') {                  // Check for array - mySampler[2]
 		unitOffset = (int)(unitName[len - 2] - '0'); // Array index is unit offset
 		unitName[len - 3] = 0;                       // Strip array from name

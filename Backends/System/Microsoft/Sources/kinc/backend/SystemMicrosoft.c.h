@@ -54,8 +54,8 @@ void kinc_microsoft_format(const char *format, va_list args, wchar_t *buffer) {
 				char *arg = va_arg(args, char *);
 				wchar_t argw[1024];
 				MultiByteToWideChar(CP_UTF8, 0, arg, -1, argw, 1024);
-				wcscat(buffer, argw);
-				bufferIndex += wcslen(argw);
+				kinc_wstring_append(buffer, argw);
+				bufferIndex += kinc_wstring_length(argw);
 				break;
 			}
 			case L'd':

@@ -37,7 +37,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 		buffer->impl.vertices = NULL;
 	}
 	else {
-		buffer->impl.vertices = (float *)malloc(buffer->impl.stride * count);
+		buffer->impl.vertices = (float *)kinc_allocate(buffer->impl.stride * count);
 	}
 
 	D3D11_BUFFER_DESC bufferDesc;

@@ -31,7 +31,7 @@ bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath) {
 #endif
 	char path[1001];
 	kinc_string_copy(path, kinc_internal_save_path());
-	strcat(path, filepath);
+	kinc_string_append(path, filepath);
 
 #ifdef KORE_WINDOWS
 	wchar_t wpath[MAX_PATH];
