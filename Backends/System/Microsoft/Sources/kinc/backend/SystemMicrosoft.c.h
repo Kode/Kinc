@@ -1,6 +1,7 @@
 #include "SystemMicrosoft.h"
 
 #include <kinc/error.h>
+#include <kinc/string.h>
 
 #define S_OK ((HRESULT)0L)
 
@@ -44,7 +45,7 @@ void kinc_microsoft_format(const char *format, va_list args, wchar_t *buffer) {
 
 	size_t bufferIndex = 0;
 	buffer[bufferIndex] = 0;
-	printf("");
+
 	for (int i = 0; formatw[i] != 0; ++i) {
 		if (formatw[i] == L'%') {
 			++i;

@@ -1,6 +1,7 @@
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/shader.h>
 #include <kinc/graphics4/vertexbuffer.h>
+#include <kinc/libs/stb_sprintf.h>
 #include <kinc/log.h>
 #include <kinc/memory.h>
 #include <kinc/string.h>
@@ -344,7 +345,7 @@ static void setVertexDesc(D3D11_INPUT_ELEMENT_DESC *vertexDesc, int attributeInd
 		int stringStart = stringCacheIndex;
 		kinc_string_copy(&stringCache[stringCacheIndex], "TEXCOORD");
 		stringCacheIndex += (int)kinc_string_length("TEXCOORD");
-		_itoa(attributeIndex, &stringCache[stringCacheIndex], 10);
+		stbsp_sprintf(&stringCache[stringCacheIndex], "%i", attributeIndex);
 		stringCacheIndex += (int)kinc_string_length(&stringCache[stringCacheIndex]);
 		kinc_string_copy(&stringCache[stringCacheIndex], "_");
 		stringCacheIndex += 2;
@@ -522,7 +523,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 				kinc_string_copy(name, state->input_layout[stream]->elements[index].name);
 				kinc_string_append(name, "_");
 				size_t length = kinc_string_length(name);
-				_itoa(0, &name[length], 10);
+				stbsp_sprintf(&name[length], "%i", 0);
 				name[length + 1] = 0;
 				int attributeLocation = getAttributeLocation(state->vertex_shader->impl.attributes, name, used);
 
