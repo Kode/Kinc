@@ -113,7 +113,7 @@ $(function() {
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    readFOURCC(data, fourcc);</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    uint32_t chunksize = <a class="code" href="filereader_8h.html#aa9a6763373fb7385d3808ff17a8dda6d">kinc_read_u32le</a>(*data);</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    *data += 4;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;fmt &quot;</span>) == 0) {</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;fmt &quot;</span>) == 0) {</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        wave-&gt;audioFormat = <a class="code" href="filereader_8h.html#a392265ef5b1de3afd91fe00624e8110f">kinc_read_u16le</a>(*data + 0);</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        wave-&gt;numChannels = <a class="code" href="filereader_8h.html#a392265ef5b1de3afd91fe00624e8110f">kinc_read_u16le</a>(*data + 2);</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        wave-&gt;sampleRate = <a class="code" href="filereader_8h.html#aa9a6763373fb7385d3808ff17a8dda6d">kinc_read_u32le</a>(*data + 4);</div>
@@ -121,7 +121,7 @@ $(function() {
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        wave-&gt;bitsPerSample = <a class="code" href="filereader_8h.html#a392265ef5b1de3afd91fe00624e8110f">kinc_read_u16le</a>(*data + 14);</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        *data += chunksize;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    }</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;data&quot;</span>) == 0) {</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;data&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        wave-&gt;dataSize = chunksize;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        wave-&gt;data = (uint8_t *)kinc_allocate(chunksize * <span class="keyword">sizeof</span>(uint8_t));</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        <a class="code" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(wave-&gt;data != NULL);</div>
@@ -188,7 +188,7 @@ $(function() {
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordtype">size_t</span> filenameLength = kinc_string_length(filename);</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    uint8_t *data = NULL;</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="keywordflow">if</span> (strncmp(&amp;filename[filenameLength - 4], <span class="stringliteral">&quot;.ogg&quot;</span>, 4) == 0) {</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="keywordflow">if</span> (kinc_string_compare_limited(&amp;filename[filenameLength - 4], <span class="stringliteral">&quot;.ogg&quot;</span>, 4) == 0) {</div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> file;</div>
 <div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;        <a class="code" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(&amp;file, filename, KINC_FILE_TYPE_ASSET);</div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;        uint8_t *filedata = (uint8_t *)kinc_allocate(<a class="code" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file));</div>
@@ -201,7 +201,7 @@ $(function() {
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        sound-&gt;format.bits_per_sample = 16;</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;        kinc_free(filedata);</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    }</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strncmp(&amp;filename[filenameLength - 4], <span class="stringliteral">&quot;.wav&quot;</span>, 4) == 0) {</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (kinc_string_compare_limited(&amp;filename[filenameLength - 4], <span class="stringliteral">&quot;.wav&quot;</span>, 4) == 0) {</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;        <span class="keyword">struct </span><a class="code" href="struct_wave_data.html">WaveData</a> wave = {0};</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        {</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;            <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> file;</div>

@@ -177,7 +177,7 @@ $(function() {
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordtype">size_t</span> lenstr = kinc_string_length(str);</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keywordtype">size_t</span> lensuffix = kinc_string_length(suffix);</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="keywordflow">if</span> (lensuffix &gt; lenstr) <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordflow">return</span> strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordflow">return</span> kinc_string_compare_limited(str + lenstr - lensuffix, suffix, lensuffix) == 0;</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;}</div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160; </div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="keyword">static</span> <span class="keywordtype">size_t</span> loadImageSize(<a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks, <span class="keywordtype">void</span> *user_data, <span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
@@ -192,16 +192,16 @@ $(function() {
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        callbacks.read(user_data, fourcc, 4);</div>
 <div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;        fourcc[4] = 0;</div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160; </div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;        <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;LZ4 &quot;</span>) == 0) {</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;        <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;LZ4 &quot;</span>) == 0) {</div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;            <span class="keywordflow">return</span> width * height * 4;</div>
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;        }</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;LZ4F&quot;</span>) == 0) {</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;LZ4F&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;            <span class="keywordflow">return</span> width * height * 16;</div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;        }</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;ASTC&quot;</span>) == 0) {</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;ASTC&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;            <span class="keywordflow">return</span> width * height * 4; <span class="comment">// just an upper bound</span></div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;        }</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;DXT5&quot;</span>) == 0) {</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;DXT5&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;            <span class="keywordflow">return</span> width * height; <span class="comment">// just an upper bound</span></div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        }</div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;        <span class="keywordflow">else</span> {</div>
@@ -271,7 +271,7 @@ $(function() {
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160; </div>
 <div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;        <span class="keywordtype">int</span> compressedSize = (int)callbacks.size(user_data) - 12;</div>
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160; </div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;        <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;LZ4 &quot;</span>) == 0) {</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;        <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;LZ4 &quot;</span>) == 0) {</div>
 <div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;            *compression = KINC_IMAGE_COMPRESSION_NONE;</div>
 <div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;            *internalFormat = 0;</div>
 <div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;            *outputSize = *width * *height * 4;</div>
@@ -279,7 +279,7 @@ $(function() {
 <div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;            LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, *outputSize);</div>
 <div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;        }</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;LZ4F&quot;</span>) == 0) {</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;LZ4F&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;            *compression = KINC_IMAGE_COMPRESSION_NONE;</div>
 <div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;            *internalFormat = 0;</div>
 <div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;            *outputSize = *width * *height * 16;</div>
@@ -288,7 +288,7 @@ $(function() {
 <div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;            *format = KINC_IMAGE_FORMAT_RGBA128;</div>
 <div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;        }</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;ASTC&quot;</span>) == 0) {</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;ASTC&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;            *compression = KINC_IMAGE_COMPRESSION_ASTC;</div>
 <div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;            *outputSize = *width * *height * 4;</div>
 <div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;            callbacks.read(user_data, buffer, compressedSize);</div>
@@ -330,7 +330,7 @@ $(function() {
 <div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;<span class="comment">            }</span></div>
 <div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;<span class="comment">            free(astcdata);*/</span></div>
 <div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;        }</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;DXT5&quot;</span>) == 0) {</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (kinc_string_compare(fourcc, <span class="stringliteral">&quot;DXT5&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;            *compression = KINC_IMAGE_COMPRESSION_DXT5;</div>
 <div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;            *outputSize = *width * *height;</div>
 <div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;            callbacks.read(user_data, buffer, compressedSize);</div>
