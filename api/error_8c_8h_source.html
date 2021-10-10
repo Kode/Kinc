@@ -124,23 +124,27 @@ $(function() {
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    }</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    exit(EXIT_FAILURE);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
-<div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="error_8h.html#abcd361a1455a4042c59c4593d66b14d7">   59</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="error_8h.html#abcd361a1455a4042c59c4593d66b14d7">kinc_error_args</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *format, va_list args) {</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <a class="code" href="log_8h.html#ab6eed7bf673f78c006b8b10513e67bbb">kinc_log_args</a>(KINC_LOG_LEVEL_ERROR, format, args);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">wchar_t</span> buffer[4096];</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    kinc_microsoft_format(format, args, buffer);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    MessageBox(NULL, buffer, L<span class="stringliteral">&quot;Error&quot;</span>, 0);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    exit(EXIT_FAILURE);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;}</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#ifndef KINC_NO_CLIB</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    exit(EXIT_FAILURE);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;}</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
+<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="error_8h.html#abcd361a1455a4042c59c4593d66b14d7">   61</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="error_8h.html#abcd361a1455a4042c59c4593d66b14d7">kinc_error_args</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *format, va_list args) {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="log_8h.html#ab6eed7bf673f78c006b8b10513e67bbb">kinc_log_args</a>(KINC_LOG_LEVEL_ERROR, format, args);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">wchar_t</span> buffer[4096];</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    kinc_microsoft_format(format, args, buffer);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    MessageBox(NULL, buffer, L<span class="stringliteral">&quot;Error&quot;</span>, 0);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">#ifndef KINC_NO_CLIB</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    exit(EXIT_FAILURE);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aerror_8h_html_a2d847867382dad8cec8995ea337766c9"><div class="ttname"><a href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a></div><div class="ttdeci">KINC_FUNC void kinc_affirm(bool condition)</div><div class="ttdoc">Exits the program when a condition is untrue and shows a generic error message.</div><div class="ttdef"><b>Definition:</b> error.c.h:12</div></div>
-<div class="ttc" id="aerror_8h_html_abcd361a1455a4042c59c4593d66b14d7"><div class="ttname"><a href="error_8h.html#abcd361a1455a4042c59c4593d66b14d7">kinc_error_args</a></div><div class="ttdeci">KINC_FUNC void kinc_error_args(const char *format, va_list args)</div><div class="ttdoc">Equivalent to kinc_error_message but uses a va_list parameter.</div><div class="ttdef"><b>Definition:</b> error.c.h:59</div></div>
+<div class="ttc" id="aerror_8h_html_abcd361a1455a4042c59c4593d66b14d7"><div class="ttname"><a href="error_8h.html#abcd361a1455a4042c59c4593d66b14d7">kinc_error_args</a></div><div class="ttdeci">KINC_FUNC void kinc_error_args(const char *format, va_list args)</div><div class="ttdoc">Equivalent to kinc_error_message but uses a va_list parameter.</div><div class="ttdef"><b>Definition:</b> error.c.h:61</div></div>
 <div class="ttc" id="aerror_8h_html_a79404d19af95fae2b603271938081537"><div class="ttname"><a href="error_8h.html#a79404d19af95fae2b603271938081537">kinc_error_message</a></div><div class="ttdeci">KINC_FUNC void kinc_error_message(const char *format,...)</div><div class="ttdoc">Exits the program and shows a provided error message.</div><div class="ttdef"><b>Definition:</b> error.c.h:37</div></div>
 <div class="ttc" id="aerror_8h_html"><div class="ttname"><a href="error_8h.html">error.h</a></div><div class="ttdoc">Contains functionality to stop the program in case of an error and create a user-visible error messag...</div></div>
 <div class="ttc" id="alog_8h_html"><div class="ttname"><a href="log_8h.html">log.h</a></div><div class="ttdoc">Contains basic logging functionality.</div></div>

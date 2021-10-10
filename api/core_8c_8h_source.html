@@ -227,6 +227,14 @@ $(function() {
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;<span class="keywordtype">float</span> kinc_clamp(<span class="keywordtype">float</span> value, <span class="keywordtype">float</span> minValue, <span class="keywordtype">float</span> maxValue) {</div>
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="keywordflow">return</span> kinc_max(minValue, kinc_min(maxValue, value));</div>
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;}</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160; </div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<span class="keywordtype">int</span> kinc_absi(<span class="keywordtype">int</span> value) {</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;<span class="preprocessor">#ifdef KINC_NO_CLIB</span></div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordflow">return</span> value &lt; 0 ? -value : value;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordflow">return</span> abs(value);</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="acore_8h_html"><div class="ttname"><a href="core_8h.html">core.h</a></div><div class="ttdoc">Provides some basic math functions. This is mostly just functionality that also exists in math....</div></div>
 <!-- start footer part -->
