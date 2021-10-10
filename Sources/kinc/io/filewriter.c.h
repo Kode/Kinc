@@ -36,7 +36,7 @@ bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath) {
 #ifdef KORE_WINDOWS
 	wchar_t wpath[MAX_PATH];
 	MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_PATH);
-	writer->file = _wfopen(wpath, L"wb");
+	writer->file = CreateFile(wpath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 #else
 	writer->file = fopen(path, "wb");
 #endif
@@ -49,7 +49,11 @@ bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath) {
 
 void kinc_file_writer_close(kinc_file_writer_t *writer) {
 	if (writer->file != NULL) {
+#ifdef KORE_WINDOWS
+		CloseHandle(writer->file);
+#else
 		fclose((FILE *)writer->file);
+#endif
 		writer->file = NULL;
 	}
 #ifdef MOUNT_SAVES
@@ -61,7 +65,12 @@ void kinc_file_writer_close(kinc_file_writer_t *writer) {
 }
 
 void kinc_file_writer_write(kinc_file_writer_t *writer, void *data, int size) {
+#ifdef KORE_WINDOWS
+	DWORD written = 0;
+	WriteFile(writer->file, data, (DWORD)size, &written, NULL);
+#else
 	fwrite(data, 1, size, (FILE *)writer->file);
+#endif
 }
 
 #endif

@@ -1,5 +1,6 @@
 #include "socket.h"
 
+#include <kinc/libs/stb_sprintf.h>
 #include <kinc/log.h>
 
 #include <stdbool.h>
@@ -28,7 +29,7 @@ static int resolveAddress(const char *url, int port, struct addrinfo **result) {
 	hints.ai_protocol = IPPROTO_UDP;
 
 	char serv[6];
-	sprintf(serv, "%u", port);
+	stbsp_sprintf(serv, "%u", port);
 
 	return getaddrinfo(url, serv, &hints, result);
 }
