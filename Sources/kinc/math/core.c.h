@@ -82,6 +82,18 @@ float kinc_pow(float value, float exponent) {
 #endif
 }
 
+double kinc_powd(double value, double exponent) {
+#ifdef KINC_NO_CLIB
+	__m128d ssevalue;
+	ssevalue.m128d_f64[0] = value;
+	__m128d sseexponent;
+	sseexponent.m128d_f64[0] = exponent;
+	return _mm_pow_pd(ssevalue, sseexponent).m128d_f64[0];
+#else
+	return pow(value, exponent);
+#endif
+}
+
 float kinc_max_float() {
 	return FLT_MAX;
 }

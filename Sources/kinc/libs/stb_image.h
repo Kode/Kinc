@@ -315,6 +315,7 @@ RECENT REVISION HISTORY:
 //     want the zlib decoder to be available, #define STBI_SUPPORT_ZLIB
 //
 
+#define STBI_NO_STDIO
 
 #ifndef STBI_NO_STDIO
 #include <stdio.h>
@@ -488,10 +489,6 @@ STBIDEF int   stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const ch
 
 #ifdef STB_IMAGE_IMPLEMENTATION
 
-#include <kinc/math/core.h>
-
-#define abs(value) kinc_absi(value)
-
 #if defined(STBI_ONLY_JPEG) || defined(STBI_ONLY_PNG) || defined(STBI_ONLY_BMP) \
   || defined(STBI_ONLY_TGA) || defined(STBI_ONLY_GIF) || defined(STBI_ONLY_PSD) \
   || defined(STBI_ONLY_HDR) || defined(STBI_ONLY_PIC) || defined(STBI_ONLY_PNM) \
@@ -590,8 +587,20 @@ typedef unsigned char validate_uint32[sizeof(stbi__uint32)==4 ? 1 : -1];
 #endif
 
 #ifdef _MSC_VER
+#ifndef KINC_NO_CLIB
 #define STBI_HAS_LROTL
 #endif
+#endif
+
+#include <kinc/math/core.h>
+#include <kinc/string.h>
+
+#define abs(value) kinc_absi(value)
+#define pow(a, b) kinc_powd(a, b)
+#define memcpy(d, s, num) kinc_memcpy(d, s, num)
+#define memset(d, value, num) kinc_memset(d, value, num)
+#define strcmp(str1, str2) kinc_string_compare(str1, str2)
+#define strncmp(str1, str2, num) kinc_string_compare_limited(str1, str2, num)
 
 #ifdef STBI_HAS_LROTL
    #define stbi_lrot(x,y)  _lrotl(x,y)

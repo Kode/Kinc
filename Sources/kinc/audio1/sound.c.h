@@ -42,7 +42,7 @@ static void readChunk(uint8_t **data, struct WaveData *wave) {
 	readFOURCC(data, fourcc);
 	uint32_t chunksize = kinc_read_u32le(*data);
 	*data += 4;
-	if (strcmp(fourcc, "fmt ") == 0) {
+	if (kinc_string_compare(fourcc, "fmt ") == 0) {
 		wave->audioFormat = kinc_read_u16le(*data + 0);
 		wave->numChannels = kinc_read_u16le(*data + 2);
 		wave->sampleRate = kinc_read_u32le(*data + 4);
@@ -50,7 +50,7 @@ static void readChunk(uint8_t **data, struct WaveData *wave) {
 		wave->bitsPerSample = kinc_read_u16le(*data + 14);
 		*data += chunksize;
 	}
-	else if (strcmp(fourcc, "data") == 0) {
+	else if (kinc_string_compare(fourcc, "data") == 0) {
 		wave->dataSize = chunksize;
 		wave->data = (uint8_t *)kinc_allocate(chunksize * sizeof(uint8_t));
 		kinc_affirm(wave->data != NULL);
@@ -117,7 +117,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 	size_t filenameLength = kinc_string_length(filename);
 	uint8_t *data = NULL;
 
-	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
+	if (kinc_string_compare_limited(&filename[filenameLength - 4], ".ogg", 4) == 0) {
 		kinc_file_reader_t file;
 		kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET);
 		uint8_t *filedata = (uint8_t *)kinc_allocate(kinc_file_reader_size(&file));
@@ -130,7 +130,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 		sound->format.bits_per_sample = 16;
 		kinc_free(filedata);
 	}
-	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
+	else if (kinc_string_compare_limited(&filename[filenameLength - 4], ".wav", 4) == 0) {
 		struct WaveData wave = {0};
 		{
 			kinc_file_reader_t file;

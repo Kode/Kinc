@@ -66,6 +66,8 @@
 #ifndef STB_VORBIS_INCLUDE_STB_VORBIS_H
 #define STB_VORBIS_INCLUDE_STB_VORBIS_H
 
+#define STB_VORBIS_NO_STDIO
+
 #if defined(STB_VORBIS_NO_CRT) && !defined(STB_VORBIS_NO_STDIO)
 #define STB_VORBIS_NO_STDIO 1
 #endif
@@ -571,6 +573,7 @@ enum STBVorbisError
       #include <alloca.h>
    #endif
 
+#include <kinc/math/core.h>
 #include <kinc/memory.h>
 #include <kinc/string.h>
 
@@ -579,6 +582,9 @@ enum STBVorbisError
 #define free(p) kinc_free(p)
 #define memcpy(p, value, num) kinc_memcpy(p, value, num)
 #define memset(p1, p2, mem) kinc_memset(p1, p2, mem)
+#define memcmp(p1, p2, num) kinc_memcmp(p1, p2, num)
+#define pow(a, b) kinc_powd(a, b)
+#define abs(value) kinc_absi(value)
 
 #else // STB_VORBIS_NO_CRT
    #define NULL 0

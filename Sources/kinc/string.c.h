@@ -88,6 +88,37 @@ char *kinc_string_find(char *str1, const char *str2) {
 #endif
 }
 
+int kinc_string_compare(const char *str1, const char *str2) {
+#ifdef KINC_NO_CLIB
+	for (size_t i = 0;; ++i) {
+		if (str1[i] != str2[i]) {
+			return str1[i] - str2[i];
+		}
+		if (str1[i] == 0) {
+			return 0;
+		}
+	}
+#else
+	return strcmp(str1, str2);
+#endif
+}
+
+int kinc_string_compare_limited(const char *str1, const char *str2, size_t num) {
+#ifdef KINC_NO_CLIB
+	for (size_t i = 0; i < num; ++i) {
+		if (str1[i] != str2[i]) {
+			return str1[i] - str2[i];
+		}
+		if (str1[i] == 0) {
+			return 0;
+		}
+	}
+	return 0;
+#else
+	return strncmp(str1, str2, num);
+#endif
+}
+
 size_t kinc_wstring_length(const wchar_t *str) {
 #ifdef KINC_NO_CLIB
 	size_t size = 0;
@@ -167,5 +198,36 @@ wchar_t *kinc_wstring_find(wchar_t *str1, const wchar_t *str2) {
 	}
 #else
 	return wcsstr(str1, str2);
+#endif
+}
+
+int kinc_wstring_compare(const wchar_t *str1, const wchar_t *str2) {
+#ifdef KINC_NO_CLIB
+	for (size_t i = 0;; ++i) {
+		if (str1[i] != str2[i]) {
+			return str1[i] - str2[i];
+		}
+		if (str1[i] == 0) {
+			return 0;
+		}
+	}
+#else
+	return wcscmp(str1, str2);
+#endif
+}
+
+int kinc_wstring_compare_limited(const wchar_t *str1, const wchar_t *str2, size_t num) {
+#ifdef KINC_NO_CLIB
+	for (size_t i = 0; i < num; ++i) {
+		if (str1[i] != str2[i]) {
+			return str1[i] - str2[i];
+		}
+		if (str1[i] == 0) {
+			return 0;
+		}
+	}
+	return 0;
+#else
+	return wcsncmp(str1, str2, num);
 #endif
 }
