@@ -47,7 +47,8 @@ static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPREC
 	}
 
 	DisplayData *display = &displays[free_slot];
-	strcpy_s(display->name, 32, info.szDevice);
+	kinc_string_copy_limited(display->name, info.szDevice, 31);
+	display->name[31] = 0;
 	display->index = free_slot;
 	display->monitor = monitor;
 	display->primary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;

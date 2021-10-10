@@ -36,6 +36,7 @@ KINC_FUNC float kinc_max(float a, float b);
 KINC_FUNC int kinc_mini(int a, int b);
 KINC_FUNC int kinc_maxi(int a, int b);
 KINC_FUNC float kinc_clamp(float value, float minValue, float maxValue);
+KINC_FUNC int kinc_absi(int value);
 
 #ifdef __cplusplus
 }

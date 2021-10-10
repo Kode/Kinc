@@ -1,6 +1,7 @@
 #include "SystemMicrosoft.h"
 
 #include <kinc/error.h>
+#include <kinc/libs/stb_sprintf.h>
 #include <kinc/string.h>
 
 #define S_OK ((HRESULT)0L)
@@ -40,78 +41,7 @@ void kinc_microsoft_affirm_message(HRESULT result, const char *format, ...) {
 }
 
 void kinc_microsoft_format(const char *format, va_list args, wchar_t *buffer) {
-	wchar_t formatw[4096];
-	MultiByteToWideChar(CP_UTF8, 0, format, -1, formatw, 4096);
-
-	size_t bufferIndex = 0;
-	buffer[bufferIndex] = 0;
-
-	for (int i = 0; formatw[i] != 0; ++i) {
-		if (formatw[i] == L'%') {
-			++i;
-			switch (formatw[i]) {
-			case L's':
-			case L'S': {
-				char *arg = va_arg(args, char *);
-				wchar_t argw[1024];
-				MultiByteToWideChar(CP_UTF8, 0, arg, -1, argw, 1024);
-				kinc_wstring_append(buffer, argw);
-				bufferIndex += kinc_wstring_length(argw);
-				break;
-			}
-			case L'd':
-			case L'i':
-			case L'u':
-			case L'o':
-			case L'x': {
-				int arg = va_arg(args, int);
-				wchar_t argformat[3];
-				argformat[0] = L'%';
-				argformat[1] = formatw[i];
-				argformat[2] = 0;
-				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, argformat, arg);
-				break;
-			}
-			case 'f':
-			case 'e':
-			case 'g':
-			case 'a': {
-				double arg = va_arg(args, double);
-				wchar_t argformat[3];
-				argformat[0] = L'%';
-				argformat[1] = formatw[i];
-				argformat[2] = 0;
-				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, argformat, arg);
-				break;
-			}
-			case 'c': {
-				char arg = va_arg(args, char);
-				wchar_t argformat[3];
-				argformat[0] = L'%';
-				argformat[1] = formatw[i];
-				argformat[2] = 0;
-				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, argformat, arg);
-				break;
-			}
-			case 'p':
-			case 'n': {
-				void *arg = va_arg(args, void *);
-				wchar_t argformat[3];
-				argformat[0] = L'%';
-				argformat[1] = formatw[i];
-				argformat[2] = 0;
-				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, argformat, arg);
-				break;
-			}
-			case '%': {
-				bufferIndex += swprintf(&buffer[bufferIndex], 4096 - bufferIndex - 1, L"%%");
-				break;
-			}
-			}
-		}
-		else {
-			buffer[bufferIndex++] = formatw[i];
-			buffer[bufferIndex] = 0;
-		}
-	}
+	char cbuffer[4096];
+	stbsp_vsprintf(cbuffer, format, args);
+	MultiByteToWideChar(CP_UTF8, 0, cbuffer, -1, buffer, 4096);
 }

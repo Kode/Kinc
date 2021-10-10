@@ -156,3 +156,11 @@ int kinc_maxi(int a, int b) {
 float kinc_clamp(float value, float minValue, float maxValue) {
 	return kinc_max(minValue, kinc_min(maxValue, value));
 }
+
+int kinc_absi(int value) {
+#ifdef KINC_NO_CLIB
+	return value < 0 ? -value : value;
+#else
+	return abs(value);
+#endif
+}

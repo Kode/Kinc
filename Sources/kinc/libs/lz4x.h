@@ -16,6 +16,8 @@ Written and placed in the public domain by Ilya Muravyov
 #include <string.h>
 #include <time.h>
 
+#include <kinc/memory.h>
+
 #define NO_UTIME
 
 #ifndef NO_UTIME
@@ -432,14 +434,14 @@ void compress_optimal()
 
 static size_t kread(void* dst, size_t size, const char* src, size_t* offset, size_t compressedSize) {
   size_t realSize = MIN(size, compressedSize - *offset);
-  memcpy(dst, &src[*offset], realSize);
+  kinc_memcpy(dst, &src[*offset], realSize);
   *offset += realSize;
   return realSize;
 }
 
 static size_t kwrite(void* src, size_t size, char* dst, size_t* offset, int maxOutputSize) {
   size_t realSize = MIN(size, maxOutputSize - *offset);
-  memcpy(&dst[*offset], src, size);
+  kinc_memcpy(&dst[*offset], src, size);
   *offset += realSize;
   return realSize;
 }
@@ -521,8 +523,8 @@ int LZ4_decompress_safe(const char *source, char *buf, int compressedSize, int m
 
     if (kwrite(g_buf, p, buf, &write_offset, maxOutputSize)!=p)
     {
-      perror("Fwrite() failed");
-      exit(1);
+      kinc_error_message("Fwrite() failed");
+      return -1;
     }
   }
 

@@ -53,7 +53,9 @@ void kinc_error_message(const char *format, ...) {
 	}
 #endif
 
+#ifndef KINC_NO_CLIB
 	exit(EXIT_FAILURE);
+#endif
 }
 
 void kinc_error_args(const char *format, va_list args) {
@@ -65,5 +67,7 @@ void kinc_error_args(const char *format, va_list args) {
 	MessageBox(NULL, buffer, L"Error", 0);
 #endif
 
+#ifndef KINC_NO_CLIB
 	exit(EXIT_FAILURE);
+#endif
 }

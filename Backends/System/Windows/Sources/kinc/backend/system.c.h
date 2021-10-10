@@ -810,13 +810,20 @@ static BOOL IsXInputDevice(const GUID *pGuidProductFromDirectInput) {
 			if (SUCCEEDED(hr) && var.vt == VT_BSTR && var.bstrVal != NULL) {
 				// Check if the device ID contains "IG_".  If it does, then it's an XInput device
 				// This information can not be found from DirectInput
-				if (wcsstr(var.bstrVal, L"IG_")) {
+				// TODO: Doesn't work with an Xbox Series X|S controller
+				if (kinc_wstring_find(var.bstrVal, L"IG_")) {
 					// If it does, then get the VID/PID from var.bstrVal
 					DWORD dwPid = 0, dwVid = 0;
-					WCHAR *strVid = wcsstr(var.bstrVal, L"VID_");
-					if (strVid && swscanf(strVid, L"VID_%4X", &dwVid) != 1) dwVid = 0;
-					WCHAR *strPid = wcsstr(var.bstrVal, L"PID_");
-					if (strPid && swscanf(strPid, L"PID_%4X", &dwPid) != 1) dwPid = 0;
+					WCHAR *strVid = kinc_wstring_find(var.bstrVal, L"VID_");
+#ifndef KINC_NO_CLIB
+					if (strVid && swscanf(strVid, L"VID_%4X", &dwVid) != 1) {
+						dwVid = 0;
+					}
+					WCHAR *strPid = kinc_wstring_find(var.bstrVal, L"PID_");
+					if (strPid && swscanf(strPid, L"PID_%4X", &dwPid) != 1) {
+						dwPid = 0;
+					}
+#endif
 
 					// Compare the VID/PID to the DInput device
 					DWORD dwVidPid = MAKELONG(dwVid, dwPid);
@@ -1250,7 +1257,7 @@ double kinc_time(void) {
 	return (double)(stamp.QuadPart - startCount.QuadPart) / (double)frequency.QuadPart;
 }
 
-#ifndef KINC_NO_MAIN
+#if !defined(KINC_NO_MAIN) && !defined(KINC_NO_CLIB)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	int ret = kickstart(__argc, __argv);
 	if (ret != 0) {

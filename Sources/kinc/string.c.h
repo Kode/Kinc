@@ -68,6 +68,26 @@ char *kinc_string_append(char *destination, const char *source) {
 #endif
 }
 
+char *kinc_string_find(char *str1, const char *str2) {
+#ifdef KINC_NO_CLIB
+	for (size_t i1 = 0;; ++i1) {
+		if (str1[i1] == 0) {
+			return NULL;
+		}
+		for (size_t i2 = 0;; ++i2) {
+			if (str2[i2] == 0) {
+				return &str1[i1];
+			}
+			if (str1[i1 + i2] != str2[i2]) {
+				break;
+			}
+		}
+	}
+#else
+	return strstr(str1, str2);
+#endif
+}
+
 size_t kinc_wstring_length(const wchar_t *str) {
 #ifdef KINC_NO_CLIB
 	size_t size = 0;
@@ -127,5 +147,25 @@ wchar_t *kinc_wstring_append(wchar_t *destination, const wchar_t *source) {
 	return destination;
 #else
 	return wcscat(destination, source);
+#endif
+}
+
+wchar_t *kinc_wstring_find(wchar_t *str1, const wchar_t *str2) {
+#ifdef KINC_NO_CLIB
+	for (size_t i1 = 0;; ++i1) {
+		if (str1[i1] == 0) {
+			return NULL;
+		}
+		for (size_t i2 = 0;; ++i2) {
+			if (str2[i2] == 0) {
+				return &str1[i1];
+			}
+			if (str1[i1 + i2] != str2[i2]) {
+				break;
+			}
+		}
+	}
+#else
+	return wcsstr(str1, str2);
 #endif
 }
