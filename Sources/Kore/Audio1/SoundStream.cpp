@@ -2,7 +2,7 @@
 
 #define STB_VORBIS_HEADER_ONLY
 #include <Kore/IO/FileReader.h>
-#include <kinc/audio1/stb_vorbis.c>
+#include <kinc/libs/stb_vorbis.c>
 #include <string.h>
 
 using namespace Kore;

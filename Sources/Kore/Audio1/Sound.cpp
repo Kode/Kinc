@@ -4,7 +4,7 @@
 #include <Kore/Audio2/Audio.h>
 #include <Kore/Error.h>
 #include <Kore/IO/FileReader.h>
-#include <kinc/audio1/stb_vorbis.c>
+#include <kinc/libs/stb_vorbis.c>
 
 #include <assert.h>
 #include <string.h>
