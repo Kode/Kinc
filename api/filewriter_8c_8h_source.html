@@ -107,7 +107,7 @@ $(function() {
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">wchar_t</span> wpath[MAX_PATH];</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_PATH);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    writer-&gt;file = _wfopen(wpath, L<span class="stringliteral">&quot;wb&quot;</span>);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    writer-&gt;file = CreateFile(wpath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    writer-&gt;file = fopen(path, <span class="stringliteral">&quot;wb&quot;</span>);</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#endif</span></div>
@@ -120,27 +120,36 @@ $(function() {
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
 <div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="filewriter_8h.html#abb2246ce01383b0f4c34751a9103b6b7">   50</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="filewriter_8h.html#abb2246ce01383b0f4c34751a9103b6b7">kinc_file_writer_close</a>(<a class="code" href="structkinc__file__writer.html">kinc_file_writer_t</a> *writer) {</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordflow">if</span> (writer-&gt;file != NULL) {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        fclose((FILE *)writer-&gt;file);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        writer-&gt;file = NULL;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    }</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#ifdef MOUNT_SAVES</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordflow">if</span> (writer-&gt;mounted) {</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        writer-&gt;mounted = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        unmountSaveData();</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    }</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;}</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
-<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="filewriter_8h.html#a7be488fcba6ea39422d5b280c05f8baa">   63</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="filewriter_8h.html#a7be488fcba6ea39422d5b280c05f8baa">kinc_file_writer_write</a>(<a class="code" href="structkinc__file__writer.html">kinc_file_writer_t</a> *writer, <span class="keywordtype">void</span> *data, <span class="keywordtype">int</span> size) {</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    fwrite(data, 1, size, (FILE *)writer-&gt;file);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        CloseHandle(writer-&gt;file);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        fclose((FILE *)writer-&gt;file);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        writer-&gt;file = NULL;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    }</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#ifdef MOUNT_SAVES</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordflow">if</span> (writer-&gt;mounted) {</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        writer-&gt;mounted = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        unmountSaveData();</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    }</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;}</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno"><a class="line" href="filewriter_8h.html#a7be488fcba6ea39422d5b280c05f8baa">   67</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="filewriter_8h.html#a7be488fcba6ea39422d5b280c05f8baa">kinc_file_writer_write</a>(<a class="code" href="structkinc__file__writer.html">kinc_file_writer_t</a> *writer, <span class="keywordtype">void</span> *data, <span class="keywordtype">int</span> size) {</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    DWORD written = 0;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    WriteFile(writer-&gt;file, data, (DWORD)size, &amp;written, NULL);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    fwrite(data, 1, size, (FILE *)writer-&gt;file);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;}</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="afilewriter_8h_html_a799e118e90115583a2066644b059d44e"><div class="ttname"><a href="filewriter_8h.html#a799e118e90115583a2066644b059d44e">kinc_file_writer_open</a></div><div class="ttdeci">KINC_FUNC bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath)</div><div class="ttdoc">Opens a file for writing.</div><div class="ttdef"><b>Definition:</b> filewriter.c.h:23</div></div>
 <div class="ttc" id="afilewriter_8h_html_abb2246ce01383b0f4c34751a9103b6b7"><div class="ttname"><a href="filewriter_8h.html#abb2246ce01383b0f4c34751a9103b6b7">kinc_file_writer_close</a></div><div class="ttdeci">KINC_FUNC void kinc_file_writer_close(kinc_file_writer_t *writer)</div><div class="ttdoc">Closes a file.</div><div class="ttdef"><b>Definition:</b> filewriter.c.h:50</div></div>
 <div class="ttc" id="afilewriter_8h_html"><div class="ttname"><a href="filewriter_8h.html">filewriter.h</a></div><div class="ttdoc">Provides an API very similar to fwrite and friends but uses a directory that can actually used for pe...</div></div>
-<div class="ttc" id="afilewriter_8h_html_a7be488fcba6ea39422d5b280c05f8baa"><div class="ttname"><a href="filewriter_8h.html#a7be488fcba6ea39422d5b280c05f8baa">kinc_file_writer_write</a></div><div class="ttdeci">KINC_FUNC void kinc_file_writer_write(kinc_file_writer_t *writer, void *data, int size)</div><div class="ttdoc">Writes data to a file starting from the current writing-position and increases the writing-position a...</div><div class="ttdef"><b>Definition:</b> filewriter.c.h:63</div></div>
+<div class="ttc" id="afilewriter_8h_html_a7be488fcba6ea39422d5b280c05f8baa"><div class="ttname"><a href="filewriter_8h.html#a7be488fcba6ea39422d5b280c05f8baa">kinc_file_writer_write</a></div><div class="ttdeci">KINC_FUNC void kinc_file_writer_write(kinc_file_writer_t *writer, void *data, int size)</div><div class="ttdoc">Writes data to a file starting from the current writing-position and increases the writing-position a...</div><div class="ttdef"><b>Definition:</b> filewriter.c.h:67</div></div>
 <div class="ttc" id="aerror_8h_html"><div class="ttname"><a href="error_8h.html">error.h</a></div><div class="ttdoc">Contains functionality to stop the program in case of an error and create a user-visible error messag...</div></div>
 <div class="ttc" id="astructkinc__file__writer_html"><div class="ttname"><a href="structkinc__file__writer.html">kinc_file_writer</a></div><div class="ttdef"><b>Definition:</b> filewriter.h:16</div></div>
 <div class="ttc" id="asystem_8h_html"><div class="ttname"><a href="system_8h.html">system.h</a></div><div class="ttdoc">Provides basic system and application-management functionality which doesn't fit anywhere else.</div></div>
