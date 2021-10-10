@@ -1026,7 +1026,7 @@ bool handleDirectInputPad(int padIndex) {
 
 static bool isXInputGamepad(int gamepad) {
 	XINPUT_STATE state;
-	ZeroMemory(&state, sizeof(XINPUT_STATE));
+	kinc_memset(&state, 0, sizeof(XINPUT_STATE));
 	DWORD dwResult = InputGetState(gamepad, &state);
 	return dwResult == ERROR_SUCCESS;
 }
@@ -1069,7 +1069,7 @@ bool kinc_internal_handle_messages() {
 		detectGamepad = false;
 		for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
 			XINPUT_STATE state;
-			ZeroMemory(&state, sizeof(XINPUT_STATE));
+			kinc_memset(&state, 0, sizeof(XINPUT_STATE));
 			DWORD dwResult = InputGetState(i, &state);
 
 			if (dwResult == ERROR_SUCCESS) {
@@ -1227,7 +1227,7 @@ bool kinc_gamepad_connected(int num) {
 void kinc_gamepad_rumble(int gamepad, float left, float right) {
 	if (isXInputGamepad(gamepad)) {
 		XINPUT_VIBRATION vibration;
-		ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+		kinc_memset(&vibration, 0, sizeof(XINPUT_VIBRATION));
 		vibration.wLeftMotorSpeed = (WORD)(65535.f * left);
 		vibration.wRightMotorSpeed = (WORD)(65535.f * right);
 		InputSetState(gamepad, &vibration);

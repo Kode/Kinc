@@ -542,7 +542,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		kinc_memset(&desc, 0, sizeof(desc));
 		desc.DepthEnable = state->depth_mode != KINC_G4_COMPARE_ALWAYS;
 		desc.DepthWriteMask = state->depth_write ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
 		desc.DepthFunc = get_comparison(state->depth_mode);
@@ -594,12 +594,12 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		}
 
 		D3D11_BLEND_DESC blendDesc;
-		ZeroMemory(&blendDesc, sizeof(blendDesc));
+		kinc_memset(&blendDesc, 0, sizeof(blendDesc));
 		blendDesc.AlphaToCoverageEnable = false;
 		blendDesc.IndependentBlendEnable = independentBlend;
 
 		D3D11_RENDER_TARGET_BLEND_DESC rtbd[8];
-		ZeroMemory(&rtbd, sizeof(rtbd));
+		kinc_memset(&rtbd, 0, sizeof(rtbd));
 		createRenderTargetBlendDesc(state, &rtbd[0], 0);
 		blendDesc.RenderTarget[0] = rtbd[0];
 		if (independentBlend) {

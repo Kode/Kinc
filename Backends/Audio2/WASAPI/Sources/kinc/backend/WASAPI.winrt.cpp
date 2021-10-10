@@ -108,7 +108,7 @@ namespace {
 			const int sampleRate = 48000;
 
 			format = &requestedFormat;
-			ZeroMemory(&requestedFormat, sizeof(WAVEFORMATEX));
+			kinc_memset(&requestedFormat, 0, sizeof(WAVEFORMATEX));
 			requestedFormat.nChannels = 2;
 			requestedFormat.nSamplesPerSec = sampleRate;
 			requestedFormat.wFormatTag = WAVE_FORMAT_PCM;

@@ -78,7 +78,7 @@ static ID3D11SamplerState *getSamplerState(D3D11_SAMPLER_DESC *desc) {
 
 static void initSamplers() {
 	D3D11_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+	kinc_memset(&samplerDesc, 0, sizeof(samplerDesc));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -358,7 +358,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 #endif
 
 	D3D11_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+	kinc_memset(&samplerDesc, 0, sizeof(samplerDesc));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -373,10 +373,10 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	initSamplers();
 
 	D3D11_BLEND_DESC blendDesc;
-	ZeroMemory(&blendDesc, sizeof(blendDesc));
+	kinc_memset(&blendDesc, 0, sizeof(blendDesc));
 
 	D3D11_RENDER_TARGET_BLEND_DESC rtbd;
-	ZeroMemory(&rtbd, sizeof(rtbd));
+	kinc_memset(&rtbd, 0, sizeof(rtbd));
 
 	rtbd.BlendEnable = true;
 	rtbd.SrcBlend = D3D11_BLEND_SRC_ALPHA;

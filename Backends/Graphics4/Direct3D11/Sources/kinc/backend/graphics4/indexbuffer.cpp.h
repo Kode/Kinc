@@ -45,7 +45,7 @@ void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+		kinc_memset(&mappedResource, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
 		context->lpVtbl->Map(context, (ID3D11Resource *)buffer->impl.ib, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		int *data = (int *)mappedResource.pData;
 		return data;
