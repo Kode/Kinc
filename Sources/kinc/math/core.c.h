@@ -8,6 +8,7 @@
 #include <kinc/libs/sse_mathfun.h>
 #else
 #include <math.h>
+#include <stdlib.h>
 #endif
 
 float kinc_tan(float x) {
