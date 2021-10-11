@@ -45,7 +45,7 @@ void Graphics2::ImageShaderPainter::initShaders() {
 	if (shaderPipeline != nullptr) return;
 
 	structure.add("vertexPosition", Graphics4::Float3VertexData);
-	structure.add("texPosition", Graphics4::Float2VertexData);
+	structure.add("vertexUV", Graphics4::Float2VertexData);
 	structure.add("vertexColor", Graphics4::Float4VertexData);
 
 	FileReader fs("painter-image.frag");
@@ -590,7 +590,7 @@ void Graphics2::TextShaderPainter::initShaders() {
 	if (shaderPipeline != nullptr) return;
 
 	structure.add("vertexPosition", Graphics4::Float3VertexData);
-	structure.add("texPosition", Graphics4::Float2VertexData);
+	structure.add("vertexUV", Graphics4::Float2VertexData);
 	structure.add("vertexColor", Graphics4::Float4VertexData);
 
 	FileReader fs("painter-text.frag");
@@ -808,7 +808,7 @@ void Graphics2::Graphics2::initShaders() {
 
 	Graphics4::VertexStructure structure;
 	structure.add("vertexPosition", Graphics4::Float3VertexData);
-	structure.add("texPosition", Graphics4::Float2VertexData);
+	structure.add("vertexUV", Graphics4::Float2VertexData);
 	structure.add("vertexColor", Graphics4::Float4VertexData);
 
 	FileReader fs("painter-video.frag");
