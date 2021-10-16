@@ -198,6 +198,11 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 
 #ifdef KORE_METAL
 - (void)layoutSubviews {
+	backingWidth = self.frame.size.width * self.contentScaleFactor;
+	backingHeight = self.frame.size.height * self.contentScaleFactor;
+
+	CAMetalLayer *metalLayer = (CAMetalLayer *)self.layer;
+	metalLayer.drawableSize = CGSizeMake(backingWidth, backingHeight);
 }
 #else
 - (void)layoutSubviews {
