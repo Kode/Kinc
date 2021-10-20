@@ -77,7 +77,8 @@ static uint32_t eraserMaxPressure = 2048;
 static float eraserPressureLast = 0.0;
 static XID eraserDevice;
 static unsigned int ignoreKeycode = 0;
-static char clipboardString[4096];
+size_t clipboardStringSize = 1024;
+char *clipboardString;
 
 static void fatalError(const char *message) {
 	printf("main: %s\n", message);
@@ -470,12 +471,12 @@ bool kinc_internal_handle_messages() {
 			else if (controlDown && (ksKey == XK_c || ksKey == XK_C)) {
 				XSetSelectionOwner(kinc_linux_display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_copy_callback();
-				if (text != NULL) strcpy(clipboardString, text);
+				if (text != NULL) kinc_copy_to_clipboard(text);
 			}
 			else if (controlDown && (ksKey == XK_x || ksKey == XK_X)) {
 				XSetSelectionOwner(kinc_linux_display, clipboard, win, CurrentTime);
 				char *text = kinc_internal_cut_callback();
-				if (text != NULL) strcpy(clipboardString, text);
+				if (text != NULL) kinc_copy_to_clipboard(text);
 			}
 
 			if (event.xkey.keycode == ignoreKeycode) {
@@ -1035,6 +1036,7 @@ void kinc_login() {}
 void kinc_unlock_achievement(int id) {}
 
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	clipboardString = (char *) malloc(clipboardStringSize);
 	kinc_linux_initHIDGamepads();
 
 	gettimeofday(&start, NULL);
@@ -1062,6 +1064,7 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 }
 
 void kinc_internal_shutdown() {
+	free(clipboardString);
 	kinc_linux_closeHIDGamepads();
 	kinc_internal_shutdown_callback();
 }
@@ -1073,5 +1076,11 @@ int main(int argc, char **argv) {
 #endif
 
 void kinc_copy_to_clipboard(const char *text) {
+	size_t textLength = strlen(text);
+	if (textLength >= clipboardStringSize) {
+		free(clipboardString);
+		clipboardStringSize = textLength + 1;
+		clipboardString = (char *) malloc(clipboardStringSize);
+	}
 	strcpy(clipboardString, text);
 }
