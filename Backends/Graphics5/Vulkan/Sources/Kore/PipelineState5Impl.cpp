@@ -13,7 +13,6 @@
 #include <string>
 
 extern VkDevice device;
-extern VkDescriptorSet desc_set;
 VkDescriptorSetLayout desc_layout;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
@@ -21,7 +20,7 @@ extern uint32_t swapchainImageCount;
 extern uint32_t current_buffer;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
-VkDescriptorPool desc_pools[3];
+static VkDescriptorPool descriptor_pool;
 
 static bool has_number(kinc_internal_named_number *named_numbers, const char *name) {
 	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
@@ -62,7 +61,7 @@ static void set_number(kinc_internal_named_number *named_numbers, const char *na
 
 namespace {
 	void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
-					 kinc_internal_named_number *uniformOffsets) {
+	                 kinc_internal_named_number *uniformOffsets) {
 		uint32_t *spirv = (uint32_t *)shader->impl.source;
 		int spirvsize = shader->impl.length / 4;
 		int index = 0;
@@ -351,7 +350,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	VkVertexInputBindingDescription vi_bindings[1];
 #ifdef KORE_WINDOWS
 	VkVertexInputAttributeDescription *vi_attrs =
-		(VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * pipeline->inputLayout[0]->size);
+	    (VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * pipeline->inputLayout[0]->size);
 #else
 	VkVertexInputAttributeDescription vi_attrs[pipeline->inputLayout[0]->size];
 #endif
@@ -450,13 +449,11 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	VkPipelineColorBlendAttachmentState att_state[8];
 	memset(att_state, 0, sizeof(att_state));
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
-		att_state[i].colorWriteMask = (pipeline->colorWriteMaskRed[i] ? VK_COLOR_COMPONENT_R_BIT  : 0)
-			| (pipeline->colorWriteMaskGreen[i] ? VK_COLOR_COMPONENT_G_BIT  : 0)
-			| (pipeline->colorWriteMaskBlue[i] ? VK_COLOR_COMPONENT_B_BIT  : 0)
-			| (pipeline->colorWriteMaskAlpha[i] ? VK_COLOR_COMPONENT_A_BIT  : 0);
+		att_state[i].colorWriteMask =
+		    (pipeline->colorWriteMaskRed[i] ? VK_COLOR_COMPONENT_R_BIT : 0) | (pipeline->colorWriteMaskGreen[i] ? VK_COLOR_COMPONENT_G_BIT : 0) |
+		    (pipeline->colorWriteMaskBlue[i] ? VK_COLOR_COMPONENT_B_BIT : 0) | (pipeline->colorWriteMaskAlpha[i] ? VK_COLOR_COMPONENT_A_BIT : 0);
 		att_state[i].blendEnable = pipeline->blendSource != KINC_G5_BLEND_MODE_ONE || pipeline->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
-								   pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE ||
-								   pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
+		                           pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
 		att_state[i].srcColorBlendFactor = convert_blend_mode(pipeline->blendSource);
 		att_state[i].dstColorBlendFactor = convert_blend_mode(pipeline->blendDestination);
 		att_state[i].colorBlendOp = VK_BLEND_OP_ADD;
@@ -637,30 +634,62 @@ void createDescriptorLayout() {
 		typeCounts[i].descriptorCount = 1;
 	}
 
-	VkDescriptorPoolCreateInfo descriptor_pool = {};
-	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	descriptor_pool.pNext = NULL;
-	descriptor_pool.maxSets = 1024;
-	descriptor_pool.poolSizeCount = 18;
-	descriptor_pool.pPoolSizes = typeCounts;
+	VkDescriptorPoolCreateInfo pool_info = {};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.pNext = NULL;
+	pool_info.maxSets = 1024;
+	pool_info.poolSizeCount = 18;
+	pool_info.pPoolSizes = typeCounts;
 
-	for (int i = 0; i < 3; ++i) {
-		err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[i]);
-		assert(!err);
-	}
+	err = vkCreateDescriptorPool(device, &pool_info, NULL, &descriptor_pool);
+	assert(!err);
 }
 
-void createDescriptorSet(VkDescriptorSet &desc_set) {
-	VkDescriptorBufferInfo buffer_descs[2];
+int calc_descriptor_id(void) {
+	int texture_count = 0;
+	for (int i = 0; i < 16; ++i) {
+		if (vulkanTextures[i] != nullptr) {
+			texture_count++;
+		}
+		else if (vulkanRenderTargets[i] != nullptr) {
+			texture_count++;
+		}
+	}
+
+	bool uniform_buffer = Kore::Vulkan::vertexUniformBuffer != nullptr && Kore::Vulkan::fragmentUniformBuffer != nullptr;
+
+	return 1 | (texture_count << 1) | ((uniform_buffer ? 1 : 0) << 8);
+}
+
+#define MAX_DESCRIPTOR_SETS 256
+
+struct destriptor_set {
+	int id;
+	VkDescriptorSet set;
+};
+
+static struct destriptor_set descriptor_sets[MAX_DESCRIPTOR_SETS] = {0};
+static int descriptor_sets_count = 0;
+
+VkDescriptorSet getDescriptorSet() {
+	int id = calc_descriptor_id();
+	for (int i = 0; i < descriptor_sets_count; ++i) {
+		if (descriptor_sets[i].id == id) {
+			return descriptor_sets[i].set;
+		}
+	}
 
 	VkDescriptorSetAllocateInfo alloc_info = {};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.pNext = NULL;
-	alloc_info.descriptorPool = desc_pools[current_buffer];
+	alloc_info.descriptorPool = descriptor_pool;
 	alloc_info.descriptorSetCount = 1;
 	alloc_info.pSetLayouts = &desc_layout;
-	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &desc_set);
+	VkDescriptorSet descriptor_set;
+	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &descriptor_set);
 	assert(!err);
+
+	VkDescriptorBufferInfo buffer_descs[2];
 
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
@@ -704,14 +733,14 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 	memset(&writes, 0, sizeof(writes));
 
 	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writes[0].dstSet = desc_set;
+	writes[0].dstSet = descriptor_set;
 	writes[0].dstBinding = 0;
 	writes[0].descriptorCount = 1;
 	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	writes[0].pBufferInfo = &buffer_descs[0];
 
 	writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writes[1].dstSet = desc_set;
+	writes[1].dstSet = descriptor_set;
 	writes[1].dstBinding = 1;
 	writes[1].descriptorCount = 1;
 	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
@@ -719,7 +748,7 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 
 	for (int i = 2; i < 18; ++i) {
 		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writes[i].dstSet = desc_set;
+		writes[i].dstSet = descriptor_set;
 		writes[i].dstBinding = i;
 		writes[i].descriptorCount = 1;
 		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -739,4 +768,11 @@ void createDescriptorSet(VkDescriptorSet &desc_set) {
 			vkUpdateDescriptorSets(device, 2, writes, 0, nullptr);
 		}
 	}
+
+	assert(descriptor_sets_count + 1 < MAX_DESCRIPTOR_SETS);
+	descriptor_sets[descriptor_sets_count].id = id;
+	descriptor_sets[descriptor_sets_count].set = descriptor_set;
+	descriptor_sets_count += 1;
+
+	return descriptor_set;
 }

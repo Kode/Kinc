@@ -65,7 +65,6 @@ int newRenderTargetHeight;
 VkDevice device;
 VkFormat format;
 VkRenderPass render_pass;
-VkDescriptorSet desc_set;
 VkPhysicalDevice gpu;
 VkCommandPool cmd_pool;
 VkQueue queue;
@@ -89,8 +88,10 @@ int depthBits;
 int stencilBits;
 bool vsynced;
 
-kinc_g5_texture_t *vulkanTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-kinc_g5_render_target_t *vulkanRenderTargets[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+kinc_g5_texture_t *vulkanTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                                         nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+kinc_g5_render_target_t *vulkanRenderTargets[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                                                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 namespace {
 	bool began = false;
@@ -348,8 +349,7 @@ void create_swapchain() {
 		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
 		// to that state
-		set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-		                      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		set_image_layout(Kore::Vulkan::buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 		color_attachment_view.image = Kore::Vulkan::buffers[i].image;
 
@@ -423,8 +423,7 @@ void create_swapchain() {
 		err = vkBindImageMemory(device, Kore::Vulkan::depth.image, Kore::Vulkan::depth.mem, 0);
 		assert(!err);
 
-		set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-		                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		set_image_layout(Kore::Vulkan::depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 		/* create image view */
 		view.image = Kore::Vulkan::depth.image;
