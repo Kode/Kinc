@@ -12,14 +12,12 @@ extern VkSwapchainKHR swapchain;
 extern VkQueue queue;
 extern VkFramebuffer *framebuffers;
 extern VkRenderPass render_pass;
-extern VkDescriptorSet desc_set;
 extern uint32_t current_buffer;
-extern VkDescriptorPool desc_pools[3];
 extern int depthBits;
 extern VkSemaphore presentCompleteSemaphore;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
-void createDescriptorSet(VkDescriptorSet *desc_set);
+VkDescriptorSet getDescriptorSet(void);
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 VkCommandBuffer setup_cmd;
@@ -333,8 +331,6 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	currentRenderPassBeginInfo = rp_begin;
 
 	set_viewport_and_scissor(list);
-
-	vkResetDescriptorPool(device, desc_pools[current_buffer], 0);
 
 	onBackBuffer = true;
 
@@ -863,9 +859,9 @@ void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *lis
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	lastFragmentConstantBufferOffset = offset;
 
-	createDescriptorSet(&desc_set);
+	VkDescriptorSet descriptor_set = getDescriptorSet();
 	uint32_t offsets[2] = {lastVertexConstantBufferOffset, lastFragmentConstantBufferOffset};
-	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &desc_set, 2, offsets);
+	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &descriptor_set, 2, offsets);
 }
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}

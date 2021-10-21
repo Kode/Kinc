@@ -2,7 +2,6 @@
 #include <kinc/graphics5/shader.h>
 
 extern VkDevice device;
-extern VkDescriptorSet desc_set;
 VkDescriptorSetLayout desc_layout;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
@@ -10,7 +9,7 @@ extern uint32_t swapchainImageCount;
 extern uint32_t current_buffer;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
-VkDescriptorPool desc_pools[3];
+static VkDescriptorPool descriptor_pool;
 
 static bool has_number(kinc_internal_named_number *named_numbers, const char *name) {
 	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
@@ -697,30 +696,62 @@ void createDescriptorLayout() {
 		typeCounts[i].descriptorCount = 1;
 	}
 
-	VkDescriptorPoolCreateInfo descriptor_pool = {0};
-	descriptor_pool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	descriptor_pool.pNext = NULL;
-	descriptor_pool.maxSets = 1024;
-	descriptor_pool.poolSizeCount = 18;
-	descriptor_pool.pPoolSizes = typeCounts;
+	VkDescriptorPoolCreateInfo pool_info = {0};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.pNext = NULL;
+	pool_info.maxSets = 1024;
+	pool_info.poolSizeCount = 18;
+	pool_info.pPoolSizes = typeCounts;
 
-	for (int i = 0; i < 3; ++i) {
-		err = vkCreateDescriptorPool(device, &descriptor_pool, NULL, &desc_pools[i]);
-		assert(!err);
-	}
+	err = vkCreateDescriptorPool(device, &pool_info, NULL, &descriptor_pool);
+	assert(!err);
 }
 
-void createDescriptorSet(VkDescriptorSet *desc_set) {
-	VkDescriptorBufferInfo buffer_descs[2];
+int calc_descriptor_id(void) {
+	int texture_count = 0;
+	for (int i = 0; i < 16; ++i) {
+		if (vulkanTextures[i] != NULL) {
+			texture_count++;
+		}
+		else if (vulkanRenderTargets[i] != NULL) {
+			texture_count++;
+		}
+	}
+
+	bool uniform_buffer = kinc_vulkan_internal_vertexUniformBuffer != NULL && kinc_vulkan_internal_fragmentUniformBuffer != NULL;
+
+	return 1 | (texture_count << 1) | ((uniform_buffer ? 1 : 0) << 8);
+}
+
+#define MAX_DESCRIPTOR_SETS 256
+
+struct destriptor_set {
+	int id;
+	VkDescriptorSet set;
+};
+
+static struct destriptor_set descriptor_sets[MAX_DESCRIPTOR_SETS] = {0};
+static int descriptor_sets_count = 0;
+
+VkDescriptorSet getDescriptorSet() {
+	int id = calc_descriptor_id();
+	for (int i = 0; i < descriptor_sets_count; ++i) {
+		if (descriptor_sets[i].id == id) {
+			return descriptor_sets[i].set;
+		}
+	}
 
 	VkDescriptorSetAllocateInfo alloc_info = {0};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.pNext = NULL;
-	alloc_info.descriptorPool = desc_pools[current_buffer];
+	alloc_info.descriptorPool = descriptor_pool;
 	alloc_info.descriptorSetCount = 1;
 	alloc_info.pSetLayouts = &desc_layout;
-	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, desc_set);
+	VkDescriptorSet descriptor_set;
+	VkResult err = vkAllocateDescriptorSets(device, &alloc_info, &descriptor_set);
 	assert(!err);
+
+	VkDescriptorBufferInfo buffer_descs[2];
 
 	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
@@ -764,14 +795,14 @@ void createDescriptorSet(VkDescriptorSet *desc_set) {
 	memset(&writes, 0, sizeof(writes));
 
 	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writes[0].dstSet = *desc_set;
+	writes[0].dstSet = descriptor_set;
 	writes[0].dstBinding = 0;
 	writes[0].descriptorCount = 1;
 	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	writes[0].pBufferInfo = &buffer_descs[0];
 
 	writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	writes[1].dstSet = *desc_set;
+	writes[1].dstSet = descriptor_set;
 	writes[1].dstBinding = 1;
 	writes[1].descriptorCount = 1;
 	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
@@ -779,7 +810,7 @@ void createDescriptorSet(VkDescriptorSet *desc_set) {
 
 	for (int i = 2; i < 18; ++i) {
 		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writes[i].dstSet = *desc_set;
+		writes[i].dstSet = descriptor_set;
 		writes[i].dstBinding = i;
 		writes[i].descriptorCount = 1;
 		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -799,4 +830,11 @@ void createDescriptorSet(VkDescriptorSet *desc_set) {
 			vkUpdateDescriptorSets(device, 2, writes, 0, NULL);
 		}
 	}
+
+	assert(descriptor_sets_count + 1 < MAX_DESCRIPTOR_SETS);
+	descriptor_sets[descriptor_sets_count].id = id;
+	descriptor_sets[descriptor_sets_count].set = descriptor_set;
+	descriptor_sets_count += 1;
+
+	return descriptor_set;
 }

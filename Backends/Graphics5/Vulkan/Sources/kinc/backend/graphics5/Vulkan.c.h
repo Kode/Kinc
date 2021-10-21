@@ -52,7 +52,6 @@ int newRenderTargetHeight;
 VkDevice device;
 VkFormat format;
 VkRenderPass render_pass;
-VkDescriptorSet desc_set;
 VkPhysicalDevice gpu;
 VkCommandPool cmd_pool;
 VkQueue queue;
