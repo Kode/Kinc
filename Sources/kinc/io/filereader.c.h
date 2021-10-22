@@ -139,12 +139,16 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #ifdef KORE_WINDOWS
 	MultiByteToWideChar(CP_UTF8, 0, filepath, -1, wfilepath, 1000);
 	reader->file = CreateFile(wfilepath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (reader->file == INVALID_HANDLE_VALUE) {
+		return false;
+	}
 #else
 	reader->file = fopen(filepath, "rb");
-#endif
 	if (reader->file == NULL) {
 		return false;
 	}
+#endif
+
 #ifdef KORE_WINDOWS
 	reader->size = GetFileSize(reader->file, NULL);
 #else
