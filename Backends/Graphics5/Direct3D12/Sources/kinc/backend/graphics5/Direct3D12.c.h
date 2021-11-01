@@ -302,7 +302,7 @@ static void createRootSignature() {
 	}
 
 	D3D12_ROOT_SIGNATURE_DESC descRootSignature;
-	descRootSignature.NumParameters = 2;
+	descRootSignature.NumParameters = 4;
 	descRootSignature.pParameters = parameters;
 	descRootSignature.NumStaticSamplers = 0;
 	descRootSignature.pStaticSamplers = NULL;
