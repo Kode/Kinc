@@ -523,7 +523,7 @@ void kinc_video_destroy(kinc_video_t *video) {
 #endif
 }
 
-void kinc_video_play(kinc_video_t *video) {
+void kinc_video_play(kinc_video_t *video, bool loop) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	video->impl.playing = true;
 	video->impl.start = kinc_time();

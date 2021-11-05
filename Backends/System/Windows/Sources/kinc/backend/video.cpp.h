@@ -156,7 +156,7 @@ int kinc_video_height(kinc_video_t *video) {
 	return renderer->height;
 }
 
-void kinc_video_play(kinc_video_t *video) {
+void kinc_video_play(kinc_video_t *video, bool loop) {
 	mediaControl->Run();
 }
 

@@ -136,7 +136,7 @@ void macPlayVideoSoundStream(kinc_internal_video_sound_stream_t *video);
 void macStopVideoSoundStream(void);
 #endif
 
-void kinc_video_play(kinc_video_t *video) {
+void kinc_video_play(kinc_video_t *video, bool loop) {
 	AVAssetReader *reader = video->impl.assetReader;
 	[reader startReading];
 

@@ -4,7 +4,7 @@ void kinc_video_init(kinc_video_t *video, const char *filename) {}
 
 void kinc_video_destroy(kinc_video_t *video) {}
 
-void kinc_video_play(kinc_video_t *video) {}
+void kinc_video_play(kinc_video_t *video, bool loop) {}
 
 void kinc_video_pause(kinc_video_t *video) {}
 
