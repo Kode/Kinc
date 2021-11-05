@@ -186,7 +186,7 @@ static void updateImage(kinc_video_t *video) {
 			else {
 				kinc_video_pause(video);
 				load(video, video->impl.next);
-				kinc_video_play(video);
+				kinc_video_play(video, false);
 			}
 			return;
 		}
