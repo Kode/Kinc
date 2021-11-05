@@ -7,7 +7,7 @@ namespace Kore {
 	public:
 		Video(const char *filename);
 		~Video();
-		void play();
+		void play(bool loop);
 		void pause();
 		void stop();
 		int width();
