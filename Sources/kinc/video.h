@@ -37,7 +37,7 @@ KINC_FUNC void kinc_video_destroy(kinc_video_t *video);
 /// <summary>
 /// Starts playing a video.
 /// </summary>
-KINC_FUNC void kinc_video_play(kinc_video_t *video);
+KINC_FUNC void kinc_video_play(kinc_video_t *video, bool loop);
 
 /// <summary>
 /// Pauses a video.
