@@ -113,15 +113,8 @@ if (platform === Platform.Windows) {
 		if (!process.env.VULKAN_SDK) {
 			throw 'Could not find a Vulkan SDK';
 		}
-		project.addLibFor('Win32', path.join(process.env.VULKAN_SDK, 'Lib32', 'vulkan-1'));
 		project.addLibFor('x64', path.join(process.env.VULKAN_SDK, 'Lib', 'vulkan-1'));
-		let libs = fs.readdirSync(path.join(process.env.VULKAN_SDK, 'Lib32'));
-		for (const lib of libs) {
-			if (lib.startsWith('VkLayer_')) {
-				project.addLibFor('Win32', path.join(process.env.VULKAN_SDK, 'Lib32', lib.substr(0, lib.length - 4)));
-			}
-		}
-		libs = fs.readdirSync(path.join(process.env.VULKAN_SDK, 'Lib'));
+		let libs = fs.readdirSync(path.join(process.env.VULKAN_SDK, 'Lib'));
 		for (const lib of libs) {
 			if (lib.startsWith('VkLayer_')) {
 				project.addLibFor('x64', path.join(process.env.VULKAN_SDK, 'Lib', lib.substr(0, lib.length - 4)));
