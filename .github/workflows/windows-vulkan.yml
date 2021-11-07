@@ -27,4 +27,4 @@ jobs:
     - name: Compile
       run: .\nodejs_bin\node.exe make.js -g vulkan --kinc . --from Tests/Empty --noshaders --compile
       env:
-        VULKAN_SDK: C:\VulkanSDK\1.1.126.0
+        VULKAN_SDK: C:\VulkanSDK\1.2.189.2
