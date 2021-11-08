@@ -96,12 +96,12 @@ static D3D11_COMPARISON_FUNC get_comparison(kinc_g4_compare_mode_t compare) {
 	}
 }
 
-#include "Direct3D11.cpp.h"
+#include "Direct3D11.c.h"
 #include "ShaderHash.c.h"
-#include "indexbuffer.cpp.h"
-#include "pipeline.cpp.h"
-#include "rendertarget.cpp.h"
-#include "shader.cpp.h"
-#include "texture.cpp.h"
-#include "texturearray.cpp.h"
-#include "vertexbuffer.cpp.h"
+#include "indexbuffer.c.h"
+#include "pipeline.c.h"
+#include "rendertarget.c.h"
+#include "shader.c.h"
+#include "texture.c.h"
+#include "texturearray.c.h"
+#include "vertexbuffer.c.h"
