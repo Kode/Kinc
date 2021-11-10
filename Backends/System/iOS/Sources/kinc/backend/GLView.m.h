@@ -173,9 +173,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 
 		if (acc.x != lastAccelerometerX || acc.y != lastAccelerometerY || acc.z != lastAccelerometerZ) {
 
-			if (kinc_acceleration_callback != NULL) {
-				(*kinc_acceleration_callback)(acc.x, acc.y, acc.z);
-			}
+			kinc_internal_on_acceleration(acc.x, acc.y, acc.z);
 
 			lastAccelerometerX = acc.x;
 			lastAccelerometerY = acc.y;

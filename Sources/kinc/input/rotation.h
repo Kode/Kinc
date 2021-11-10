@@ -11,9 +11,12 @@ extern "C" {
 #endif
 
 /// <summary>
-/// Called when the device is rotated. Act quickly when this is called for a desktop-system.
+/// Sets the rotation-callback which is called when the device is rotated. Act quickly when this is called for a desktop-system.
 /// </summary>
-KINC_FUNC extern void (*kinc_rotation_callback)(float /*x*/, float /*y*/, float /*z*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_rotation_callback(void (*value)(float /*x*/, float /*y*/, float /*z*/));
+
+void kinc_internal_on_rotation(float x, float y, float z);
 
 #ifdef __cplusplus
 }

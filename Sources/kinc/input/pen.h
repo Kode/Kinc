@@ -10,35 +10,42 @@
 extern "C" {
 #endif
 
-/// <summary>
-/// Called when the pen is touching the drawing-surface.
-/// </summary>
-KINC_FUNC extern void (*kinc_pen_press_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
 
 /// <summary>
-/// Called when the pen is moved.
+/// Sets the pen-press-callback which is called when the pen is touching the drawing-surface.
 /// </summary>
-KINC_FUNC extern void (*kinc_pen_move_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_pen_press_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/));
 
 /// <summary>
-/// Called when the pen is moved away from the drawing-surface.
+/// Sets the pen-move-callback which is called when the pen is moved.
 /// </summary>
-KINC_FUNC extern void (*kinc_pen_release_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_pen_move_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/));
 
 /// <summary>
-/// Called when the pen is touching the drawing-surface in eraser-mode.
+/// Sets the pen-release-callback which is called when the pen is moved away from the drawing-surface.
 /// </summary>
-KINC_FUNC extern void (*kinc_eraser_press_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_pen_release_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/));
 
 /// <summary>
-/// Called when the pen is moved while in eraser-mode.
+/// Sets the eraser-press-callback which is called when the pen is touching the drawing-surface in eraser-mode.
 /// </summary>
-KINC_FUNC extern void (*kinc_eraser_move_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_eraser_press_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/));
 
 /// <summary>
-/// Called when the pen is moved away from the drawing-sufrace when in eraser-mode.
+/// Sets the eraser-move-callback which is called when the pen is moved while in eraser-mode.
 /// </summary>
-KINC_FUNC extern void (*kinc_eraser_release_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_eraser_move_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/));
+
+/// <summary>
+/// Sets the eraser-release-callback which is called when the pen is moved away from the drawing-surface when in eraser-mode.
+/// </summary>
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_eraser_release_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/));
 
 void kinc_internal_pen_trigger_move(int window, int x, int y, float pressure);
 void kinc_internal_pen_trigger_press(int window, int x, int y, float pressure);

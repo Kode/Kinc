@@ -894,14 +894,10 @@ bool kinc_internal_handle_messages(void) {
 				ASensorEvent event;
 				while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0) {
 					if (event.type == ASENSOR_TYPE_ACCELEROMETER) {
-						if (kinc_acceleration_callback != NULL) {
-							kinc_acceleration_callback(event.acceleration.x, event.acceleration.y, event.acceleration.z);
-						}
+						kinc_internal_on_acceleration(event.acceleration.x, event.acceleration.y, event.acceleration.z);
 					}
 					else if (event.type == ASENSOR_TYPE_GYROSCOPE) {
-						if (kinc_rotation_callback != NULL) {
-							kinc_rotation_callback(event.vector.x, event.vector.y, event.vector.z);
-						}
+						kinc_internal_on_rotation(event.vector.x, event.vector.y, event.vector.z);
 					}
 				}
 			}
