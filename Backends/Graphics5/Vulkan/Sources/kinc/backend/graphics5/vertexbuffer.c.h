@@ -80,7 +80,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 	assert(pass);
 
 #ifdef KORE_VKRT
-	VkMemoryAllocateFlagsInfo memory_allocate_flags_info = {};
+	VkMemoryAllocateFlagsInfo memory_allocate_flags_info = {0};
 	memory_allocate_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
 	memory_allocate_flags_info.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR;
 	buffer->impl.mem_alloc.pNext = &memory_allocate_flags_info;
