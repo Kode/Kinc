@@ -207,7 +207,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	texture->texHeight = image->height;
 	texture->impl.stride = format_byte_size(image->format) * texture->texWidth;
 
-	const VkFormat tex_format = convert_format(image->format);
+	const VkFormat tex_format = convert_image_format(image->format);
 	VkFormatProperties props;
 	VkResult err;
 
