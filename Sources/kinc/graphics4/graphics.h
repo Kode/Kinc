@@ -5,8 +5,8 @@
 #include <kinc/math/matrix.h>
 
 #include "constantlocation.h"
-#include "textureunit.h"
 #include "pipeline.h"
+#include "textureunit.h"
 
 /*! \file graphics.h
     \brief Contains the base G4-functionality.

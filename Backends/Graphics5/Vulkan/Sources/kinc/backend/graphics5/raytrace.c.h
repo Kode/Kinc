@@ -6,9 +6,9 @@
 #include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/indexbuffer.h>
+#include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/raytrace.h>
 #include <kinc/graphics5/vertexbuffer.h>
-#include <kinc/graphics5/pipeline.h>
 #include <string.h>
 #include <vulkan/vulkan.h>
 
@@ -737,7 +737,7 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 
 	_vkCmdTraceRaysKHR = (void *)vkGetDeviceProcAddr(device, "vkCmdTraceRaysKHR");
 	_vkCmdTraceRaysKHR(command_list->impl._buffer, &raygen_shader_sbt_entry, &miss_shader_sbt_entry, &hit_shader_sbt_entry, &callable_shader_sbt_entry,
-	                  output->texWidth, output->texHeight, 1);
+	                   output->texWidth, output->texHeight, 1);
 
 	vkCmdBeginRenderPass(command_list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }

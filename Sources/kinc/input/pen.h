@@ -10,7 +10,6 @@
 extern "C" {
 #endif
 
-
 /// <summary>
 /// Sets the pen-press-callback which is called when the pen is touching the drawing-surface.
 /// </summary>

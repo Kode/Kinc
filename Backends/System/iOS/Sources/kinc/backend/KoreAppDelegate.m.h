@@ -32,13 +32,13 @@ void loadURL(const char *url) {
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    AVAudioSession *sessionInstance = [AVAudioSession sharedInstance];
-        NSError *error;
-        
-        // set the session category
-    NSString *category = AVAudioSessionCategoryAmbient;
-        bool success = [sessionInstance setCategory:category error:&error];
-        if (!success) NSLog(@"Error setting AVAudioSession category! %@\n", [error localizedDescription]);
+	AVAudioSession *sessionInstance = [AVAudioSession sharedInstance];
+	NSError *error;
+
+	// set the session category
+	NSString *category = AVAudioSessionCategoryAmbient;
+	bool success = [sessionInstance setCategory:category error:&error];
+	if (!success) NSLog(@"Error setting AVAudioSession category! %@\n", [error localizedDescription]);
 	// CGRect rect = [[UIScreen mainScreen] applicationFrame];
 	// CGRect screenBounds = [[UIScreen mainScreen] bounds];
 

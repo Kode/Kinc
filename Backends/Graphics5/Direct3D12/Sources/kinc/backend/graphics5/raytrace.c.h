@@ -75,8 +75,8 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	ID3DBlob *blob = NULL;
 	ID3DBlob *error = NULL;
 	D3D12SerializeRootSignature(&dxrRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error);
-	device->lpVtbl->CreateRootSignature(device, 1, blob->lpVtbl->GetBufferPointer(blob), blob->lpVtbl->GetBufferSize(blob),
-	                                    &IID_ID3D12RootSignature, &dxrRootSignature);
+	device->lpVtbl->CreateRootSignature(device, 1, blob->lpVtbl->GetBufferPointer(blob), blob->lpVtbl->GetBufferSize(blob), &IID_ID3D12RootSignature,
+	                                    &dxrRootSignature);
 
 	// Pipeline
 	D3D12_STATE_OBJECT_DESC raytracingPipeline = {0};
@@ -101,11 +101,11 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	hitGroup.Type = D3D12_HIT_GROUP_TYPE_TRIANGLES;
 
 	D3D12_RAYTRACING_SHADER_CONFIG shaderConfig = {0};
-	shaderConfig.MaxPayloadSizeInBytes = 4 * sizeof(float); // float4 color
+	shaderConfig.MaxPayloadSizeInBytes = 4 * sizeof(float);   // float4 color
 	shaderConfig.MaxAttributeSizeInBytes = 2 * sizeof(float); // float2 barycentrics
 
 	D3D12_RAYTRACING_PIPELINE_CONFIG pipelineConfig = {0};
-	pipelineConfig.MaxTraceRecursionDepth = 1;  // ~ primary rays only
+	pipelineConfig.MaxTraceRecursionDepth = 1; // ~ primary rays only
 
 	D3D12_STATE_SUBOBJECT subobjects[5] = {0};
 	subobjects[0].Type = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
@@ -165,8 +165,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		cbRange.Begin = 0;
 		cbRange.End = constant_buffer->impl.mySize;
 		void *constantBufferData;
-		constant_buffer->impl.constant_buffer->lpVtbl->Map(constant_buffer->impl.constant_buffer, 0, &cbRange,
-		                                                   (void **)&constantBufferData);
+		constant_buffer->impl.constant_buffer->lpVtbl->Map(constant_buffer->impl.constant_buffer, 0, &cbRange, (void **)&constantBufferData);
 		memcpy(byteDest, rayGenShaderId, size);
 		memcpy(byteDest + size, constantBufferData, constant_buffer->impl.mySize);
 		pipeline->impl.raygen_shader_table->lpVtbl->Unmap(pipeline->impl.raygen_shader_table, 0, NULL);
@@ -274,7 +273,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 	bottomLevelInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
 	bottomLevelInputs.pGeometryDescs = &geometryDesc;
 	bottomLevelInputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
-	dxrDevice->lpVtbl->GetRaytracingAccelerationStructurePrebuildInfo(dxrDevice , &bottomLevelInputs, &bottomLevelPrebuildInfo);
+	dxrDevice->lpVtbl->GetRaytracingAccelerationStructurePrebuildInfo(dxrDevice, &bottomLevelInputs, &bottomLevelPrebuildInfo);
 
 	ID3D12Resource *scratchResource;
 	{
@@ -320,8 +319,9 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		uploadHeapProperties.CreationNodeMask = 1;
 		uploadHeapProperties.VisibleNodeMask = 1;
 
-		device->lpVtbl->CreateCommittedResource(device, &uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, NULL,
-												&IID_ID3D12Resource, &accel->impl.bottom_level_accel);
+		device->lpVtbl->CreateCommittedResource(device, &uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc,
+		                                        D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, NULL, &IID_ID3D12Resource,
+		                                        &accel->impl.bottom_level_accel);
 	}
 	{
 		D3D12_RESOURCE_DESC bufferDesc = {0};
@@ -340,8 +340,9 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		uploadHeapProperties.CreationNodeMask = 1;
 		uploadHeapProperties.VisibleNodeMask = 1;
 
-		device->lpVtbl->CreateCommittedResource(device, &uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, NULL,
-		                                        &IID_ID3D12Resource, &accel->impl.top_level_accel);
+		device->lpVtbl->CreateCommittedResource(device, &uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc,
+		                                        D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, NULL, &IID_ID3D12Resource,
+		                                        &accel->impl.top_level_accel);
 	}
 
 	// Create an instance desc for the bottom-level acceleration structure
@@ -426,7 +427,8 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	// Bind the heaps, acceleration structure and dispatch rays
 	command_list->impl._commandList->lpVtbl->SetDescriptorHeaps(command_list->impl._commandList, 1, &descriptorHeap);
 	command_list->impl._commandList->lpVtbl->SetComputeRootDescriptorTable(command_list->impl._commandList, 0, GetGPUDescriptorHandle(descriptorHeap));
-	command_list->impl._commandList->lpVtbl->SetComputeRootShaderResourceView(command_list->impl._commandList, 1, accel->impl.top_level_accel->lpVtbl->GetGPUVirtualAddress(accel->impl.top_level_accel));
+	command_list->impl._commandList->lpVtbl->SetComputeRootShaderResourceView(
+	    command_list->impl._commandList, 1, accel->impl.top_level_accel->lpVtbl->GetGPUVirtualAddress(accel->impl.top_level_accel));
 	auto cbGpuAddress = pipeline->_constant_buffer->impl.constant_buffer->lpVtbl->GetGPUVirtualAddress(pipeline->_constant_buffer->impl.constant_buffer);
 	command_list->impl._commandList->lpVtbl->SetComputeRootConstantBufferView(command_list->impl._commandList, 2, cbGpuAddress);
 

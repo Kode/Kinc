@@ -10,7 +10,6 @@
 extern "C" {
 #endif
 
-
 /// <summary>
 /// Sets the surface-touch-start-callback which is called when a finger-touch is detected.
 /// </summary>

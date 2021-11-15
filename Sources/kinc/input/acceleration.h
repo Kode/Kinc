@@ -18,7 +18,6 @@ KINC_FUNC void kinc_acceleration_set_callback(void (*value)(float /*x*/, float /
 
 void kinc_internal_on_acceleration(float x, float y, float z);
 
-
 #ifdef __cplusplus
 }
 #endif

@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 typedef struct {
-    WGPUBuffer buffer;
+	WGPUBuffer buffer;
 } ConstantBuffer5Impl;
 
 #ifdef __cplusplus

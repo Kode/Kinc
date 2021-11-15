@@ -10,7 +10,6 @@
 extern "C" {
 #endif
 
-
 /// <summary>
 /// Sets the gamepad-axis-callback which is called with data about changing gamepad-sticks.
 /// </summary>

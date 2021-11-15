@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 typedef struct {
-    WGPUTexture texture;
+	WGPUTexture texture;
 } RenderTarget5Impl;
 
 #ifdef __cplusplus

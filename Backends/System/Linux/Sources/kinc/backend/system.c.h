@@ -1036,7 +1036,7 @@ void kinc_login() {}
 void kinc_unlock_achievement(int id) {}
 
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
-	clipboardString = (char *) malloc(clipboardStringSize);
+	clipboardString = (char *)malloc(clipboardStringSize);
 	kinc_linux_initHIDGamepads();
 
 	gettimeofday(&start, NULL);
@@ -1080,7 +1080,7 @@ void kinc_copy_to_clipboard(const char *text) {
 	if (textLength >= clipboardStringSize) {
 		free(clipboardString);
 		clipboardStringSize = textLength + 1;
-		clipboardString = (char *) malloc(clipboardStringSize);
+		clipboardString = (char *)malloc(clipboardStringSize);
 	}
 	strcpy(clipboardString, text);
 }
