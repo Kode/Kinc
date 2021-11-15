@@ -13,34 +13,46 @@ extern "C" {
 #endif
 
 /// <summary>
-/// Is called when a mouse-button is pressed.
+/// Sets the mouse-press-callback which is called when a mouse-button is pressed.
 /// </summary>
-KINC_FUNC extern void (*kinc_mouse_press_callback)(int /*window*/, int /*button*/, int /*x*/, int /*y*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_mouse_press_callback(void (*value)(int /*window*/, int /*button*/, int /*x*/, int /*y*/));
+
 
 /// <summary>
-/// Is called when a mouse-button is released.
+/// Sets the mouse-release-callback which is called when a mouse-button is released.
 /// </summary>
-KINC_FUNC extern void (*kinc_mouse_release_callback)(int /*window*/, int /*button*/, int /*x*/, int /*y*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_mouse_release_callback(void (*value)(int /*window*/, int /*button*/, int /*x*/, int /*y*/));
+
 
 /// <summary>
-/// Is called when the mouse is moved.
+/// Sets the mouse-move-callback which is called when the mouse is moved.
 /// </summary>
-KINC_FUNC extern void (*kinc_mouse_move_callback)(int /*window*/, int /*x*/, int /*y*/, int /*movement_x*/, int /*movement_y*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_mouse_move_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, int /*movement_x*/, int /*movement_y*/));
+
 
 /// <summary>
-/// Is called when the mouse wheel is spinning.
+/// Sets the mouse-scroll-callback which is called when the mouse wheel is spinning.
 /// </summary>
-KINC_FUNC extern void (*kinc_mouse_scroll_callback)(int /*window*/, int /*delta*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_mouse_scroll_callback(void (*value)(int /*window*/, int /*delta*/));
+
 
 /// <summary>
-/// Is called when the mouse-cursor enters the application-window.
+/// Sets the mouse-enter-window-callback which is called when the mouse-cursor enters the application-window.
 /// </summary>
-KINC_FUNC extern void (*kinc_mouse_enter_window_callback)(int /*window*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_mouse_enter_window_callback(void (*value)(int /*window*/));
+
 
 /// <summary>
-/// Is called when the mouse-cursor leaves the application-window.
+/// Sets the mouse-leave-window-callback which is called when the mouse-cursor leaves the application-window.
 /// </summary>
-KINC_FUNC extern void (*kinc_mouse_leave_window_callback)(int /*window*/);
+/// <param name="value">The callback</param>
+KINC_FUNC void kinc_set_mouse_leave_window_callback(void (*value)(int /*window*/));
+
 
 /// <summary>
 /// Figures out whether mouse-locking is supported.
