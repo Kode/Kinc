@@ -41,11 +41,11 @@ namespace {
 
 Mouse *Mouse::the() {
 	if (!initialized) {
-		kinc_mouse_move_callback = move;
-		kinc_mouse_press_callback = press;
-		kinc_mouse_release_callback = release;
-		kinc_mouse_scroll_callback = scroll;
-		kinc_mouse_leave_window_callback = leave;
+		kinc_mouse_set_move_callback(move);
+		kinc_mouse_set_press_callback(press);
+		kinc_mouse_set_release_callback(release);
+		kinc_mouse_set_scroll_callback(scroll);
+		kinc_mouse_set_leave_window_callback(leave);
 		initialized = true;
 	}
 	return &mouse;

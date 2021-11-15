@@ -28,8 +28,8 @@ Gamepad *Gamepad::get(int num) {
 		return nullptr;
 	}
 	if (!callbacksInitialized) {
-		kinc_gamepad_axis_callback = axisCallback;
-		kinc_gamepad_button_callback = buttonCallback;
+		kinc_gamepad_set_axis_callback(axisCallback);
+		kinc_gamepad_set_button_callback(buttonCallback);
 	}
 	if (!padInitialized[num]) {
 		pads[num].vendor = kinc_gamepad_vendor(num);

@@ -29,9 +29,9 @@ namespace {
 
 Surface *Surface::the() {
 	if (!initialized) {
-		kinc_surface_touch_start_callback = touchStart;
-		kinc_surface_move_callback = move;
-		kinc_surface_touch_end_callback = touchEnd;
+		kinc_surface_set_touch_start_callback(touchStart);
+		kinc_surface_set_move_callback(move);
+		kinc_surface_set_touch_end_callback(touchEnd);
 		initialized = true;
 	}
 	return &surface;

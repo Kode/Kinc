@@ -29,9 +29,9 @@ namespace {
 
 Pen *Pen::the() {
 	if (!initialized) {
-		kinc_pen_press_callback = pressCallback;
-		kinc_pen_move_callback = moveCallback;
-		kinc_pen_release_callback = releaseCallback;
+		kinc_pen_set_press_callback(pressCallback);
+		kinc_pen_set_move_callback(moveCallback);
+		kinc_pen_set_release_callback(releaseCallback);
 		initialized = true;
 	}
 	return &pen;
