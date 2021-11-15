@@ -585,6 +585,9 @@ enum STBVorbisError
 #define memcmp(p1, p2, num) kinc_memcmp(p1, p2, num)
 #define pow(a, b) kinc_powd(a, b)
 #define abs(value) kinc_absi(value)
+#define sin(value) kinc_sind(value)
+#define cos(value) kinc_cosd(value)
+#define floor(value) kinc_floord(value)
 
 #else // STB_VORBIS_NO_CRT
    #define NULL 0

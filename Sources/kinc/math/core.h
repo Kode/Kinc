@@ -15,7 +15,9 @@ extern "C" {
 #define KINC_TAU 6.283185307
 
 KINC_FUNC float kinc_sin(float value);
+KINC_FUNC double kinc_sind(double value);
 KINC_FUNC float kinc_cos(float value);
+KINC_FUNC double kinc_cosd(double value);
 KINC_FUNC float kinc_tan(float x);
 KINC_FUNC float kinc_cot(float x);
 KINC_FUNC float kinc_round(float value);
@@ -30,6 +32,7 @@ KINC_FUNC float kinc_acos(float value);
 KINC_FUNC float kinc_atan(float value);
 KINC_FUNC float kinc_atan2(float y, float x);
 KINC_FUNC float kinc_floor(float value);
+KINC_FUNC double kinc_floord(double value);
 KINC_FUNC float kinc_mod(float numer, float denom);
 KINC_FUNC float kinc_exp(float exponent);
 KINC_FUNC float kinc_min(float a, float b);

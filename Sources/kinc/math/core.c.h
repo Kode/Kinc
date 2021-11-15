@@ -47,6 +47,14 @@ float kinc_floor(float value) {
 #endif
 }
 
+double kinc_floord(double value) {
+#ifdef KINC_NO_CLIB
+	return (double)(int)value;
+#else
+	return floor(value);
+#endif
+}
+
 float kinc_mod(float numer, float denom) {
 #ifdef KINC_NO_CLIB
 	__m128 ssenumer;
@@ -123,6 +131,18 @@ float kinc_sin(float value) {
 #endif
 }
 
+double kinc_sind(double value) {
+#ifdef KINC_NO_CLIB
+	// TODO: Actually use doubles
+	__m128 input;
+	input.m128_f32[0] = value;
+	__m128 output = sin_ps(input);
+	return output.m128_f32[0];
+#else
+	return sin(value);
+#endif
+}
+
 float kinc_cos(float value) {
 #ifdef KINC_NO_CLIB
 	__m128 input;
@@ -131,6 +151,18 @@ float kinc_cos(float value) {
 	return output.m128_f32[0];
 #else
 	return cosf(value);
+#endif
+}
+
+double kinc_cosd(double value) {
+#ifdef KINC_NO_CLIB
+	// TODO: Actually use doubles
+	__m128 input;
+	input.m128_f32[0] = value;
+	__m128 output = cos_ps(input);
+	return output.m128_f32[0];
+#else
+	return cos(value);
 #endif
 }
 
