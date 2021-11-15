@@ -81,33 +81,36 @@ $(function() {
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#define KINC_TAU 6.283185307</span></div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_sin(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_cos(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_tan(<span class="keywordtype">float</span> x);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_cot(<span class="keywordtype">float</span> x);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_round(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_ceil(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_pow(<span class="keywordtype">float</span> value, <span class="keywordtype">float</span> exponent);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;KINC_FUNC <span class="keywordtype">double</span> kinc_powd(<span class="keywordtype">double</span> value, <span class="keywordtype">double</span> exponent);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_max_float(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_sqrt(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_abs(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_asin(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_acos(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_atan(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_atan2(<span class="keywordtype">float</span> y, <span class="keywordtype">float</span> x);</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_floor(<span class="keywordtype">float</span> value);</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_mod(<span class="keywordtype">float</span> numer, <span class="keywordtype">float</span> denom);</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_exp(<span class="keywordtype">float</span> exponent);</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_min(<span class="keywordtype">float</span> a, <span class="keywordtype">float</span> b);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_max(<span class="keywordtype">float</span> a, <span class="keywordtype">float</span> b);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_mini(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_maxi(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_clamp(<span class="keywordtype">float</span> value, <span class="keywordtype">float</span> minValue, <span class="keywordtype">float</span> maxValue);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_absi(<span class="keywordtype">int</span> value);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;}</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;KINC_FUNC <span class="keywordtype">double</span> kinc_sind(<span class="keywordtype">double</span> value);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_cos(<span class="keywordtype">float</span> value);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;KINC_FUNC <span class="keywordtype">double</span> kinc_cosd(<span class="keywordtype">double</span> value);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_tan(<span class="keywordtype">float</span> x);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_cot(<span class="keywordtype">float</span> x);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_round(<span class="keywordtype">float</span> value);</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_ceil(<span class="keywordtype">float</span> value);</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_pow(<span class="keywordtype">float</span> value, <span class="keywordtype">float</span> exponent);</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;KINC_FUNC <span class="keywordtype">double</span> kinc_powd(<span class="keywordtype">double</span> value, <span class="keywordtype">double</span> exponent);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_max_float(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_sqrt(<span class="keywordtype">float</span> value);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_abs(<span class="keywordtype">float</span> value);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_asin(<span class="keywordtype">float</span> value);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_acos(<span class="keywordtype">float</span> value);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_atan(<span class="keywordtype">float</span> value);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_atan2(<span class="keywordtype">float</span> y, <span class="keywordtype">float</span> x);</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_floor(<span class="keywordtype">float</span> value);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;KINC_FUNC <span class="keywordtype">double</span> kinc_floord(<span class="keywordtype">double</span> value);</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_mod(<span class="keywordtype">float</span> numer, <span class="keywordtype">float</span> denom);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_exp(<span class="keywordtype">float</span> exponent);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_min(<span class="keywordtype">float</span> a, <span class="keywordtype">float</span> b);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_max(<span class="keywordtype">float</span> a, <span class="keywordtype">float</span> b);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_mini(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_maxi(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;KINC_FUNC <span class="keywordtype">float</span> kinc_clamp(<span class="keywordtype">float</span> value, <span class="keywordtype">float</span> minValue, <span class="keywordtype">float</span> maxValue);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;KINC_FUNC <span class="keywordtype">int</span> kinc_absi(<span class="keywordtype">int</span> value);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <!-- start footer part -->
