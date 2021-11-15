@@ -219,20 +219,20 @@ KINC_FUNC bool kinc_keyboard_active(void);
 /// Sets the keyboard-key-down-callback which is called with a key-code when a key goes down. Do not use this for text-input, that's what the key-press-callback is here for.
 /// </summary>
 /// <param name="value">The callback</param>
-KINC_FUNC void kinc_set_keyboard_key_down_callback(void (*value)(int /*key_code*/));
+KINC_FUNC void kinc_keyboard_set_key_down_callback(void (*value)(int /*key_code*/));
 
 
 /// <summary>
 /// Sets the keyboard-key-up-callback which is called with a key-code when a key goes up. Do not use this for text-input, that's what the key-press-callback is here for.
 /// </summary>
 /// <param name="value">The callback</param>
-KINC_FUNC void kinc_set_keyboard_key_up_callback(void (*value)(int /*key_code*/));
+KINC_FUNC void kinc_keyboard_set_key_up_callback(void (*value)(int /*key_code*/));
 
 /// <summary>
 /// Sets the keyboard-key-press-callback which is called when the system decides that a character came in via the keyboard. Use this for text-input.
 /// </summary>
 /// <param name="value">The callback</param>
-KINC_FUNC void kinc_set_keyboard_key_press_callback(void (*value)(unsigned /*character*/));
+KINC_FUNC void kinc_keyboard_set_key_press_callback(void (*value)(unsigned /*character*/));
 
 void kinc_internal_keyboard_trigger_key_down(int key_code);
 void kinc_internal_keyboard_trigger_key_up(int key_code);

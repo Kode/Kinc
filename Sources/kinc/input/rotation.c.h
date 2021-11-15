@@ -4,7 +4,7 @@
 
 static void (*rotation_callback)(float /*x*/, float /*y*/, float /*z*/) = NULL;
 
-void kinc_set_rotation_callback(void (*value)(float /*x*/, float /*y*/, float /*z*/)) {
+void kinc_rotation_set_callback(void (*value)(float /*x*/, float /*y*/, float /*z*/)) {
   rotation_callback = value;
 }
 

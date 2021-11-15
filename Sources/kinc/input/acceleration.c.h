@@ -4,7 +4,7 @@
 
 void (*acceleration_callback)(float /*x*/, float /*y*/, float /*z*/) = NULL;
 
-void kinc_set_acceleration_callback(void (*value)(float /*x*/, float /*y*/, float /*z*/)) {
+void kinc_acceleration_set_callback(void (*value)(float /*x*/, float /*y*/, float /*z*/)) {
   acceleration_callback = value;
 }
 

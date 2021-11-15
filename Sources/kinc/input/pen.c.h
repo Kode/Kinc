@@ -10,27 +10,27 @@ static void (*eraser_press_callback)(int /*window*/, int /*x*/, int /*y*/, float
 static void (*eraser_move_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;
 static void (*eraser_release_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;
 
-void kinc_set_pen_press_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
+void kinc_pen_set_press_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
 	pen_press_callback = value;
 }
 
-void kinc_set_pen_move_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
+void kinc_pen_set_move_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
 	pen_move_callback = value;
 }
 
-void kinc_set_pen_release_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
+void kinc_pen_set_release_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
 	pen_release_callback = value;
 }
 
-void kinc_set_eraser_press_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
+void kinc_eraser_set_press_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
 	eraser_press_callback = value;
 }
 
-void kinc_set_eraser_move_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
+void kinc_eraser_set_move_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
 	eraser_move_callback = value;
 }
 
-void kinc_set_eraser_release_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
+void kinc_eraser_set_release_callback(void (*value)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/)) {
 	eraser_release_callback = value;
 }
 

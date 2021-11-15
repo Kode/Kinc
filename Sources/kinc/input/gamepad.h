@@ -15,13 +15,13 @@ extern "C" {
 /// Sets the gamepad-axis-callback which is called with data about changing gamepad-sticks.
 /// </summary>
 /// <param name="value">The callback</param>
-KINC_FUNC void kinc_set_gamepad_axis_callback(void (*value)(int /*gamepad*/, int /*axis*/, float /*value*/));
+KINC_FUNC void kinc_gamepad_set_axis_callback(void (*value)(int /*gamepad*/, int /*axis*/, float /*value*/));
 
 /// <summary>
 /// Sets the gamepad-button-callback which is called with data about changing gamepad-buttons.
 /// </summary>
 /// <param name="value">The callback</param>
-KINC_FUNC void kinc_set_gamepad_button_callback(void (*value)(int /*gamepad*/, int /*button*/, float /*value*/));
+KINC_FUNC void kinc_gamepad_set_button_callback(void (*value)(int /*gamepad*/, int /*button*/, float /*value*/));
 
 /// <summary>
 /// Returns a vendor-name for a gamepad.

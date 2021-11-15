@@ -6,15 +6,15 @@ static void (*surface_touch_start_callback)(int /*index*/, int /*x*/, int /*y*/)
 static void (*surface_move_callback)(int /*index*/, int /*x*/, int /*y*/) = NULL;
 static void (*surface_touch_end_callback)(int /*index*/, int /*x*/, int /*y*/) = NULL;
 
-void kinc_set_surface_touch_start_callback(void (*value)(int /*index*/, int /*x*/, int /*y*/)) {
+void kinc_surface_set_touch_start_callback(void (*value)(int /*index*/, int /*x*/, int /*y*/)) {
 	surface_touch_start_callback = value;
 }
 
-void kinc_set_surface_move_callback(void (*value)(int /*index*/, int /*x*/, int /*y*/)) {
+void kinc_surface_set_move_callback(void (*value)(int /*index*/, int /*x*/, int /*y*/)) {
 	surface_move_callback = value;
 }
 
-void kinc_set_surface_touch_end_callback(void (*value)(int /*index*/, int /*x*/, int /*y*/)) {
+void kinc_surface_set_touch_end_callback(void (*value)(int /*index*/, int /*x*/, int /*y*/)) {
 	surface_touch_end_callback = value;
 }
 

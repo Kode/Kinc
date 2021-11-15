@@ -1,3 +1,4 @@
+* 2021-11-15: The input callbacks are now set using function calls like in other parts of the API.
 * 2021-07-05: kinc_g4_index_buffer_init now has an additional usage-parameter, just like kinc_g4_vertex_buffer_init. Pass KINC_G4_USAGE_STATIC to retain the previous behaviour.
 * 2021-05-24: The window-parameter has been removed from most of the mouse-locking functions. If you use them, just remove that parameter, too.
 * 2020-09-19: When using a kincfile.js by default the Kore API isn't included anymore. It continues to be auto-included when using a korefile.js and can also be included via a kincfile by setting project.cpp to true.

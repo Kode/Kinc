@@ -14,7 +14,7 @@ extern "C" {
 /// Sets the acceleration-callback which is called with measured acceleration-data in three dimensions.
 /// </summary>
 /// <param name="value">The callback</param>
-KINC_FUNC void kinc_set_acceleration_callback(void (*value)(float /*x*/, float /*y*/, float /*z*/));
+KINC_FUNC void kinc_acceleration_set_callback(void (*value)(float /*x*/, float /*y*/, float /*z*/));
 
 void kinc_internal_on_acceleration(float x, float y, float z);
 
