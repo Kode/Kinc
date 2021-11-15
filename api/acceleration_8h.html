@@ -66,7 +66,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">acceleration.h File Reference</div>  </div>
 </div><!--header-->
@@ -78,28 +78,38 @@ $(function() {
 </div>
 <p><a href="acceleration_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:ab027a18a34697bf24f48edf7be39af26"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="acceleration_8h.html#ab027a18a34697bf24f48edf7be39af26">kinc_acceleration_callback</a> )(float, float, float)</td></tr>
-<tr class="memdesc:ab027a18a34697bf24f48edf7be39af26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is called with measured acceleration-data in three dimensions.  <a href="acceleration_8h.html#ab027a18a34697bf24f48edf7be39af26">More...</a><br /></td></tr>
-<tr class="separator:ab027a18a34697bf24f48edf7be39af26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a642cc6871745ffdbfabe559010e6b6b6"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="acceleration_8h.html#a642cc6871745ffdbfabe559010e6b6b6">kinc_set_acceleration_callback</a> (void(*value)(float, float, float))</td></tr>
+<tr class="memdesc:a642cc6871745ffdbfabe559010e6b6b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the acceleration-callback which is called with measured acceleration-data in three dimensions.  <a href="acceleration_8h.html#a642cc6871745ffdbfabe559010e6b6b6">More...</a><br /></td></tr>
+<tr class="separator:a642cc6871745ffdbfabe559010e6b6b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides data provided by acceleration-sensors. </p>
-</div><h2 class="groupheader">Variable Documentation</h2>
-<a id="ab027a18a34697bf24f48edf7be39af26"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab027a18a34697bf24f48edf7be39af26">&#9670;&nbsp;</a></span>kinc_acceleration_callback</h2>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a642cc6871745ffdbfabe559010e6b6b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a642cc6871745ffdbfabe559010e6b6b6">&#9670;&nbsp;</a></span>kinc_set_acceleration_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_acceleration_callback) (float, float, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_acceleration_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(float, float, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Is called with measured acceleration-data in three dimensions. </p>
+<p>Sets the acceleration-callback which is called with measured acceleration-data in three dimensions. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

@@ -66,7 +66,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">rotation.h File Reference</div>  </div>
 </div><!--header-->
@@ -78,28 +78,38 @@ $(function() {
 </div>
 <p><a href="rotation_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:ae73da76d19d2c195d55cbacc99027945"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rotation_8h.html#ae73da76d19d2c195d55cbacc99027945">kinc_rotation_callback</a> )(float, float, float)</td></tr>
-<tr class="memdesc:ae73da76d19d2c195d55cbacc99027945"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the device is rotated. Act quickly when this is called for a desktop-system.  <a href="rotation_8h.html#ae73da76d19d2c195d55cbacc99027945">More...</a><br /></td></tr>
-<tr class="separator:ae73da76d19d2c195d55cbacc99027945"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a8885a568f5b6c7613ed15931f34eace9"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rotation_8h.html#a8885a568f5b6c7613ed15931f34eace9">kinc_set_rotation_callback</a> (void(*value)(float, float, float))</td></tr>
+<tr class="memdesc:a8885a568f5b6c7613ed15931f34eace9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the rotation-callback which is called when the device is rotated. Act quickly when this is called for a desktop-system.  <a href="rotation_8h.html#a8885a568f5b6c7613ed15931f34eace9">More...</a><br /></td></tr>
+<tr class="separator:a8885a568f5b6c7613ed15931f34eace9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides support for rotation-sensors. </p>
-</div><h2 class="groupheader">Variable Documentation</h2>
-<a id="ae73da76d19d2c195d55cbacc99027945"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae73da76d19d2c195d55cbacc99027945">&#9670;&nbsp;</a></span>kinc_rotation_callback</h2>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a8885a568f5b6c7613ed15931f34eace9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8885a568f5b6c7613ed15931f34eace9">&#9670;&nbsp;</a></span>kinc_set_rotation_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_rotation_callback) (float, float, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_rotation_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(float, float, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when the device is rotated. Act quickly when this is called for a desktop-system. </p>
+<p>Sets the rotation-callback which is called when the device is rotated. Act quickly when this is called for a desktop-system. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

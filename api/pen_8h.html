@@ -66,7 +66,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">pen.h File Reference</div>  </div>
 </div><!--header-->
@@ -78,123 +78,183 @@ $(function() {
 </div>
 <p><a href="pen_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a865e7c72be25f921222e16ee5be47c5a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a865e7c72be25f921222e16ee5be47c5a">kinc_pen_press_callback</a> )(int, int, int, float)</td></tr>
-<tr class="memdesc:a865e7c72be25f921222e16ee5be47c5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the pen is touching the drawing-surface.  <a href="pen_8h.html#a865e7c72be25f921222e16ee5be47c5a">More...</a><br /></td></tr>
-<tr class="separator:a865e7c72be25f921222e16ee5be47c5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06b4a74a96f6cdd5b3d9e6dfdb70f50b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a06b4a74a96f6cdd5b3d9e6dfdb70f50b">kinc_pen_move_callback</a> )(int, int, int, float)</td></tr>
-<tr class="memdesc:a06b4a74a96f6cdd5b3d9e6dfdb70f50b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the pen is moved.  <a href="pen_8h.html#a06b4a74a96f6cdd5b3d9e6dfdb70f50b">More...</a><br /></td></tr>
-<tr class="separator:a06b4a74a96f6cdd5b3d9e6dfdb70f50b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3ef2c87eb1e910e9629c753e545d5de"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#ad3ef2c87eb1e910e9629c753e545d5de">kinc_pen_release_callback</a> )(int, int, int, float)</td></tr>
-<tr class="memdesc:ad3ef2c87eb1e910e9629c753e545d5de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the pen is moved away from the drawing-surface.  <a href="pen_8h.html#ad3ef2c87eb1e910e9629c753e545d5de">More...</a><br /></td></tr>
-<tr class="separator:ad3ef2c87eb1e910e9629c753e545d5de"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4df2d89047973a6770d03e4efe7db252"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a4df2d89047973a6770d03e4efe7db252">kinc_eraser_press_callback</a> )(int, int, int, float)</td></tr>
-<tr class="memdesc:a4df2d89047973a6770d03e4efe7db252"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the pen is touching the drawing-surface in eraser-mode.  <a href="pen_8h.html#a4df2d89047973a6770d03e4efe7db252">More...</a><br /></td></tr>
-<tr class="separator:a4df2d89047973a6770d03e4efe7db252"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40006c62271d947a47cbe52649cc9462"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a40006c62271d947a47cbe52649cc9462">kinc_eraser_move_callback</a> )(int, int, int, float)</td></tr>
-<tr class="memdesc:a40006c62271d947a47cbe52649cc9462"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the pen is moved while in eraser-mode.  <a href="pen_8h.html#a40006c62271d947a47cbe52649cc9462">More...</a><br /></td></tr>
-<tr class="separator:a40006c62271d947a47cbe52649cc9462"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61804fcb682a6f4c95431c35d1916996"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a61804fcb682a6f4c95431c35d1916996">kinc_eraser_release_callback</a> )(int, int, int, float)</td></tr>
-<tr class="memdesc:a61804fcb682a6f4c95431c35d1916996"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when the pen is moved away from the drawing-sufrace when in eraser-mode.  <a href="pen_8h.html#a61804fcb682a6f4c95431c35d1916996">More...</a><br /></td></tr>
-<tr class="separator:a61804fcb682a6f4c95431c35d1916996"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a5880353559a22fc4b41129950cd0f790"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a5880353559a22fc4b41129950cd0f790">kinc_set_pen_press_callback</a> (void(*value)(int, int, int, float))</td></tr>
+<tr class="memdesc:a5880353559a22fc4b41129950cd0f790"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the pen-press-callback which is called when the pen is touching the drawing-surface.  <a href="pen_8h.html#a5880353559a22fc4b41129950cd0f790">More...</a><br /></td></tr>
+<tr class="separator:a5880353559a22fc4b41129950cd0f790"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e5ca7c24d0177f4309f24ff87fa7310"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a4e5ca7c24d0177f4309f24ff87fa7310">kinc_set_pen_move_callback</a> (void(*value)(int, int, int, float))</td></tr>
+<tr class="memdesc:a4e5ca7c24d0177f4309f24ff87fa7310"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the pen-move-callback which is called when the pen is moved.  <a href="pen_8h.html#a4e5ca7c24d0177f4309f24ff87fa7310">More...</a><br /></td></tr>
+<tr class="separator:a4e5ca7c24d0177f4309f24ff87fa7310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e739134908fb3867a99b83644affa84"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a9e739134908fb3867a99b83644affa84">kinc_set_pen_release_callback</a> (void(*value)(int, int, int, float))</td></tr>
+<tr class="memdesc:a9e739134908fb3867a99b83644affa84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the pen-release-callback which is called when the pen is moved away from the drawing-surface.  <a href="pen_8h.html#a9e739134908fb3867a99b83644affa84">More...</a><br /></td></tr>
+<tr class="separator:a9e739134908fb3867a99b83644affa84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a655f618ba753a843df40c9517e57d5b7"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a655f618ba753a843df40c9517e57d5b7">kinc_set_eraser_press_callback</a> (void(*value)(int, int, int, float))</td></tr>
+<tr class="memdesc:a655f618ba753a843df40c9517e57d5b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the eraser-press-callback which is called when the pen is touching the drawing-surface in eraser-mode.  <a href="pen_8h.html#a655f618ba753a843df40c9517e57d5b7">More...</a><br /></td></tr>
+<tr class="separator:a655f618ba753a843df40c9517e57d5b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65f2d54cf4a7843a7ecee29002716504"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a65f2d54cf4a7843a7ecee29002716504">kinc_set_eraser_move_callback</a> (void(*value)(int, int, int, float))</td></tr>
+<tr class="memdesc:a65f2d54cf4a7843a7ecee29002716504"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the eraser-move-callback which is called when the pen is moved while in eraser-mode.  <a href="pen_8h.html#a65f2d54cf4a7843a7ecee29002716504">More...</a><br /></td></tr>
+<tr class="separator:a65f2d54cf4a7843a7ecee29002716504"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d40a805a64e63bd854facf9698a5034"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="pen_8h.html#a7d40a805a64e63bd854facf9698a5034">kinc_set_eraser_release_callback</a> (void(*value)(int, int, int, float))</td></tr>
+<tr class="memdesc:a7d40a805a64e63bd854facf9698a5034"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the eraser-release-callback which is called when the pen is moved away from the drawing-surface when in eraser-mode.  <a href="pen_8h.html#a7d40a805a64e63bd854facf9698a5034">More...</a><br /></td></tr>
+<tr class="separator:a7d40a805a64e63bd854facf9698a5034"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides pen-support. </p>
-</div><h2 class="groupheader">Variable Documentation</h2>
-<a id="a40006c62271d947a47cbe52649cc9462"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a40006c62271d947a47cbe52649cc9462">&#9670;&nbsp;</a></span>kinc_eraser_move_callback</h2>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a65f2d54cf4a7843a7ecee29002716504"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65f2d54cf4a7843a7ecee29002716504">&#9670;&nbsp;</a></span>kinc_set_eraser_move_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_eraser_move_callback) (int, int, int, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_eraser_move_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, int, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when the pen is moved while in eraser-mode. </p>
+<p>Sets the eraser-move-callback which is called when the pen is moved while in eraser-mode. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="a4df2d89047973a6770d03e4efe7db252"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4df2d89047973a6770d03e4efe7db252">&#9670;&nbsp;</a></span>kinc_eraser_press_callback</h2>
+<a id="a655f618ba753a843df40c9517e57d5b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a655f618ba753a843df40c9517e57d5b7">&#9670;&nbsp;</a></span>kinc_set_eraser_press_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_eraser_press_callback) (int, int, int, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_eraser_press_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, int, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when the pen is touching the drawing-surface in eraser-mode. </p>
+<p>Sets the eraser-press-callback which is called when the pen is touching the drawing-surface in eraser-mode. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="a61804fcb682a6f4c95431c35d1916996"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a61804fcb682a6f4c95431c35d1916996">&#9670;&nbsp;</a></span>kinc_eraser_release_callback</h2>
+<a id="a7d40a805a64e63bd854facf9698a5034"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d40a805a64e63bd854facf9698a5034">&#9670;&nbsp;</a></span>kinc_set_eraser_release_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_eraser_release_callback) (int, int, int, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_eraser_release_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, int, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when the pen is moved away from the drawing-sufrace when in eraser-mode. </p>
+<p>Sets the eraser-release-callback which is called when the pen is moved away from the drawing-surface when in eraser-mode. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="a06b4a74a96f6cdd5b3d9e6dfdb70f50b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a06b4a74a96f6cdd5b3d9e6dfdb70f50b">&#9670;&nbsp;</a></span>kinc_pen_move_callback</h2>
+<a id="a4e5ca7c24d0177f4309f24ff87fa7310"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e5ca7c24d0177f4309f24ff87fa7310">&#9670;&nbsp;</a></span>kinc_set_pen_move_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_pen_move_callback) (int, int, int, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_pen_move_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, int, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when the pen is moved. </p>
+<p>Sets the pen-move-callback which is called when the pen is moved. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="a865e7c72be25f921222e16ee5be47c5a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a865e7c72be25f921222e16ee5be47c5a">&#9670;&nbsp;</a></span>kinc_pen_press_callback</h2>
+<a id="a5880353559a22fc4b41129950cd0f790"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5880353559a22fc4b41129950cd0f790">&#9670;&nbsp;</a></span>kinc_set_pen_press_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_pen_press_callback) (int, int, int, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_pen_press_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, int, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when the pen is touching the drawing-surface. </p>
+<p>Sets the pen-press-callback which is called when the pen is touching the drawing-surface. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="ad3ef2c87eb1e910e9629c753e545d5de"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad3ef2c87eb1e910e9629c753e545d5de">&#9670;&nbsp;</a></span>kinc_pen_release_callback</h2>
+<a id="a9e739134908fb3867a99b83644affa84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e739134908fb3867a99b83644affa84">&#9670;&nbsp;</a></span>kinc_set_pen_release_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_pen_release_callback) (int, int, int, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_pen_release_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, int, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when the pen is moved away from the drawing-surface. </p>
+<p>Sets the pen-release-callback which is called when the pen is moved away from the drawing-surface. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

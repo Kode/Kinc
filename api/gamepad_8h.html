@@ -66,8 +66,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">gamepad.h File Reference</div>  </div>
 </div><!--header-->
@@ -81,6 +80,12 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a69010d65f4c8663817e0130e2a7fe1e3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#a69010d65f4c8663817e0130e2a7fe1e3">kinc_set_gamepad_axis_callback</a> (void(*value)(int, int, float))</td></tr>
+<tr class="memdesc:a69010d65f4c8663817e0130e2a7fe1e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-axis-callback which is called with data about changing gamepad-sticks.  <a href="gamepad_8h.html#a69010d65f4c8663817e0130e2a7fe1e3">More...</a><br /></td></tr>
+<tr class="separator:a69010d65f4c8663817e0130e2a7fe1e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81c29af884708c98647b9766efeeac16"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#a81c29af884708c98647b9766efeeac16">kinc_set_gamepad_button_callback</a> (void(*value)(int, int, float))</td></tr>
+<tr class="memdesc:a81c29af884708c98647b9766efeeac16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-button-callback which is called with data about changing gamepad-buttons.  <a href="gamepad_8h.html#a81c29af884708c98647b9766efeeac16">More...</a><br /></td></tr>
+<tr class="separator:a81c29af884708c98647b9766efeeac16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae488d9481e87f765cb1ea8853203dc17"><td class="memItemLeft" align="right" valign="top">const KINC_FUNC char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#ae488d9481e87f765cb1ea8853203dc17">kinc_gamepad_vendor</a> (int gamepad)</td></tr>
 <tr class="memdesc:ae488d9481e87f765cb1ea8853203dc17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a vendor-name for a gamepad.  <a href="gamepad_8h.html#ae488d9481e87f765cb1ea8853203dc17">More...</a><br /></td></tr>
 <tr class="separator:ae488d9481e87f765cb1ea8853203dc17"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -93,15 +98,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a3d52cdbcbfa52e09910f37fdb05d584a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#a3d52cdbcbfa52e09910f37fdb05d584a">kinc_gamepad_rumble</a> (int gamepad, float left, float right)</td></tr>
 <tr class="memdesc:a3d52cdbcbfa52e09910f37fdb05d584a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rumbles a gamepad. Careful here because it might just fall of your table.  <a href="gamepad_8h.html#a3d52cdbcbfa52e09910f37fdb05d584a">More...</a><br /></td></tr>
 <tr class="separator:a3d52cdbcbfa52e09910f37fdb05d584a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:ac295e788435e8309bf2cd9fbe03a98ed"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#ac295e788435e8309bf2cd9fbe03a98ed">kinc_gamepad_axis_callback</a> )(int, int, float)</td></tr>
-<tr class="memdesc:ac295e788435e8309bf2cd9fbe03a98ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is called with data about changing gamepad-sticks.  <a href="gamepad_8h.html#ac295e788435e8309bf2cd9fbe03a98ed">More...</a><br /></td></tr>
-<tr class="separator:ac295e788435e8309bf2cd9fbe03a98ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b30e257fa8078924536ba4656c02a91"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#a5b30e257fa8078924536ba4656c02a91">kinc_gamepad_button_callback</a> )(int, int, float)</td></tr>
-<tr class="memdesc:a5b30e257fa8078924536ba4656c02a91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is called with data about changing gamepad-buttons.  <a href="gamepad_8h.html#a5b30e257fa8078924536ba4656c02a91">More...</a><br /></td></tr>
-<tr class="separator:a5b30e257fa8078924536ba4656c02a91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides gamepad-support. </p>
@@ -231,36 +227,55 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a id="ac295e788435e8309bf2cd9fbe03a98ed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac295e788435e8309bf2cd9fbe03a98ed">&#9670;&nbsp;</a></span>kinc_gamepad_axis_callback</h2>
+<a id="a69010d65f4c8663817e0130e2a7fe1e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69010d65f4c8663817e0130e2a7fe1e3">&#9670;&nbsp;</a></span>kinc_set_gamepad_axis_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_gamepad_axis_callback) (int, int, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_gamepad_axis_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Is called with data about changing gamepad-sticks. </p>
+<p>Sets the gamepad-axis-callback which is called with data about changing gamepad-sticks. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="a5b30e257fa8078924536ba4656c02a91"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5b30e257fa8078924536ba4656c02a91">&#9670;&nbsp;</a></span>kinc_gamepad_button_callback</h2>
+<a id="a81c29af884708c98647b9766efeeac16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81c29af884708c98647b9766efeeac16">&#9670;&nbsp;</a></span>kinc_set_gamepad_button_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_gamepad_button_callback) (int, int, float)</td>
+          <td class="memname">KINC_FUNC void kinc_set_gamepad_button_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, float)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Is called with data about changing gamepad-buttons. </p>
+<p>Sets the gamepad-button-callback which is called with data about changing gamepad-buttons. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

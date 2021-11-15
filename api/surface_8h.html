@@ -66,7 +66,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">surface.h File Reference</div>  </div>
 </div><!--header-->
@@ -78,66 +78,96 @@ $(function() {
 </div>
 <p><a href="surface_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:acae082b8acf7ee8d24a35a910adeeed1"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="surface_8h.html#acae082b8acf7ee8d24a35a910adeeed1">kinc_surface_touch_start_callback</a> )(int, int, int)</td></tr>
-<tr class="memdesc:acae082b8acf7ee8d24a35a910adeeed1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a finger-touch is detected.  <a href="surface_8h.html#acae082b8acf7ee8d24a35a910adeeed1">More...</a><br /></td></tr>
-<tr class="separator:acae082b8acf7ee8d24a35a910adeeed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a75f0dad3a2e3d55bdb31e09b48479b55"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="surface_8h.html#a75f0dad3a2e3d55bdb31e09b48479b55">kinc_surface_move_callback</a> )(int, int, int)</td></tr>
-<tr class="memdesc:a75f0dad3a2e3d55bdb31e09b48479b55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a finger is moving around.  <a href="surface_8h.html#a75f0dad3a2e3d55bdb31e09b48479b55">More...</a><br /></td></tr>
-<tr class="separator:a75f0dad3a2e3d55bdb31e09b48479b55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec3d5eeb6171bb25940ee20ed056aa6c"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="surface_8h.html#aec3d5eeb6171bb25940ee20ed056aa6c">kinc_surface_touch_end_callback</a> )(int, int, int)</td></tr>
-<tr class="memdesc:aec3d5eeb6171bb25940ee20ed056aa6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when a finger disappears. This is usually not a medical emergency.  <a href="surface_8h.html#aec3d5eeb6171bb25940ee20ed056aa6c">More...</a><br /></td></tr>
-<tr class="separator:aec3d5eeb6171bb25940ee20ed056aa6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:ad7e8e3d5a6c46debfeffbcc2d345aa80"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="surface_8h.html#ad7e8e3d5a6c46debfeffbcc2d345aa80">kinc_set_surface_touch_start_callback</a> (void(*value)(int, int, int))</td></tr>
+<tr class="memdesc:ad7e8e3d5a6c46debfeffbcc2d345aa80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the surface-touch-start-callback which is called when a finger-touch is detected.  <a href="surface_8h.html#ad7e8e3d5a6c46debfeffbcc2d345aa80">More...</a><br /></td></tr>
+<tr class="separator:ad7e8e3d5a6c46debfeffbcc2d345aa80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cfada79e74ecebcc69aba84940a424e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="surface_8h.html#a9cfada79e74ecebcc69aba84940a424e">kinc_set_surface_move_callback</a> (void(*value)(int, int, int))</td></tr>
+<tr class="memdesc:a9cfada79e74ecebcc69aba84940a424e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the surface-move-callback which is called when a finger is moving around.  <a href="surface_8h.html#a9cfada79e74ecebcc69aba84940a424e">More...</a><br /></td></tr>
+<tr class="separator:a9cfada79e74ecebcc69aba84940a424e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e5fb05f1d481192adec444be6dd2c54"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="surface_8h.html#a7e5fb05f1d481192adec444be6dd2c54">kinc_set_surface_touch_end_callback</a> (void(*value)(int, int, int))</td></tr>
+<tr class="memdesc:a7e5fb05f1d481192adec444be6dd2c54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the surface-touch-end-callback which is called when a finger disappears. This is usually not a medical emergency.  <a href="surface_8h.html#a7e5fb05f1d481192adec444be6dd2c54">More...</a><br /></td></tr>
+<tr class="separator:a7e5fb05f1d481192adec444be6dd2c54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides touch-support. </p>
-</div><h2 class="groupheader">Variable Documentation</h2>
-<a id="a75f0dad3a2e3d55bdb31e09b48479b55"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a75f0dad3a2e3d55bdb31e09b48479b55">&#9670;&nbsp;</a></span>kinc_surface_move_callback</h2>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a9cfada79e74ecebcc69aba84940a424e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9cfada79e74ecebcc69aba84940a424e">&#9670;&nbsp;</a></span>kinc_set_surface_move_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_surface_move_callback) (int, int, int)</td>
+          <td class="memname">KINC_FUNC void kinc_set_surface_move_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, int)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when a finger is moving around. </p>
+<p>Sets the surface-move-callback which is called when a finger is moving around. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="aec3d5eeb6171bb25940ee20ed056aa6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec3d5eeb6171bb25940ee20ed056aa6c">&#9670;&nbsp;</a></span>kinc_surface_touch_end_callback</h2>
+<a id="a7e5fb05f1d481192adec444be6dd2c54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e5fb05f1d481192adec444be6dd2c54">&#9670;&nbsp;</a></span>kinc_set_surface_touch_end_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_surface_touch_end_callback) (int, int, int)</td>
+          <td class="memname">KINC_FUNC void kinc_set_surface_touch_end_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, int)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when a finger disappears. This is usually not a medical emergency. </p>
+<p>Sets the surface-touch-end-callback which is called when a finger disappears. This is usually not a medical emergency. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
-<a id="acae082b8acf7ee8d24a35a910adeeed1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acae082b8acf7ee8d24a35a910adeeed1">&#9670;&nbsp;</a></span>kinc_surface_touch_start_callback</h2>
+<a id="ad7e8e3d5a6c46debfeffbcc2d345aa80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7e8e3d5a6c46debfeffbcc2d345aa80">&#9670;&nbsp;</a></span>kinc_set_surface_touch_start_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void(* kinc_surface_touch_start_callback) (int, int, int)</td>
+          <td class="memname">KINC_FUNC void kinc_set_surface_touch_start_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, int, int)&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Called when a finger-touch is detected. </p>
+<p>Sets the surface-touch-start-callback which is called when a finger-touch is detected. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
