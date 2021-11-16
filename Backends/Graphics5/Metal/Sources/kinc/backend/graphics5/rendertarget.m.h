@@ -28,6 +28,8 @@ static MTLPixelFormat convert_format(kinc_g5_render_target_format_t format) {
 
 void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
                                 kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+	memset(target, 0, sizeof(kinc_g5_render_target_t));
+
 	target->texWidth = width;
 	target->texHeight = height;
 
