@@ -259,7 +259,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				kinc_internal_mouse_trigger_press(0, 0, x, y);
+				kinc_internal_mouse_trigger_press(0, event.buttonMask == UIEventButtonMaskSecondary ? 1 : 0, x, y);
 			}
 			kinc_internal_surface_trigger_touch_start(index, x, y);
 
@@ -304,7 +304,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				kinc_internal_mouse_trigger_release(0, 0, x, y);
+				kinc_internal_mouse_trigger_release(0, event.buttonMask == UIEventButtonMaskSecondary ? 1 : 0, x, y);
 			}
 			kinc_internal_surface_trigger_touch_end(index, x, y);
 
@@ -323,7 +323,7 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				kinc_internal_mouse_trigger_release(0, 0, x, y);
+				kinc_internal_mouse_trigger_release(0, event.buttonMask == UIEventButtonMaskSecondary ? 1 : 0, x, y);
 			}
 			kinc_internal_surface_trigger_touch_end(index, x, y);
 
