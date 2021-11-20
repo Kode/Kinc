@@ -182,7 +182,7 @@ void setup_init_cmd() {
 	}
 }
 
-void flush_init_cmd() {
+static void flush_init_cmd() {
 	VkResult err;
 
 	if (setup_cmd == VK_NULL_HANDLE) return;

@@ -11,7 +11,6 @@ bool use_staging_buffer = false;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
-void flush_init_cmd();
 
 static void prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint32_t tex_height, struct texture_object *tex_obj, VkImageTiling tiling,
                                   VkImageUsageFlags usage, VkFlags required_props, VkDeviceSize *deviceSize, VkFormat tex_format) {
