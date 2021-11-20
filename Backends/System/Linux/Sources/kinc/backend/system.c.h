@@ -39,6 +39,8 @@
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display *, GLXFBConfig, GLXContext, Bool, const int *);
 #endif
 
+void kinc_internal_resize(int window, int width, int height);
+
 struct _XDisplay *kinc_linux_display = NULL;
 XIC xInputContext;
 
@@ -840,6 +842,7 @@ bool kinc_internal_handle_messages() {
 				kinc_internal_windows[windowId].width = event.xconfigure.width;
 				kinc_internal_windows[windowId].height = event.xconfigure.height;
 				kinc_internal_call_resize_callback(windowId, event.xconfigure.width, event.xconfigure.height);
+				kinc_internal_resize(windowId, event.xconfigure.width, event.xconfigure.height);
 #ifdef KORE_OPENGL
 				glViewport(0, 0, event.xconfigure.width, event.xconfigure.height);
 #endif

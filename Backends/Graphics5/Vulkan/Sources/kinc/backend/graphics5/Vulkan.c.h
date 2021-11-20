@@ -5,6 +5,7 @@
 #include <kinc/math/core.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
+#include <stdlib.h>
 
 #ifdef KORE_WINDOWS
 #define ERR_EXIT(err_msg, err_class)                                                                                                                           \
@@ -164,7 +165,9 @@ static VKAPI_ATTR void *VKAPI_CALL myalloc(void *pUserData, size_t size, size_t 
 #ifdef _MSC_VER
 	return _aligned_malloc(size, alignment);
 #else
-	return aligned_alloc(alignment, size);
+	void *ptr;
+	posix_memalign(&ptr, alignment, size);
+	return ptr;
 #endif
 }
 
@@ -495,6 +498,8 @@ void create_swapchain() {
 		err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
 		assert(!err);
 	}
+
+	flush_init_cmd();
 }
 
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
@@ -784,8 +789,8 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
 
-	renderTargetWidth = kinc_window_width(window);
-	renderTargetHeight = kinc_window_height(window);
+	newRenderTargetWidth = renderTargetWidth = kinc_window_width(window);
+	newRenderTargetHeight = renderTargetHeight = kinc_window_height(window);
 
 	{
 		VkResult err;
