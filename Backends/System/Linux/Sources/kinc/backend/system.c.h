@@ -992,6 +992,9 @@ static char save[2000];
 static bool saveInitialized = false;
 
 const char *kinc_internal_save_path() {
+	// first check for an existing directory in $HOME
+	// if one exists, use it, else create one in $XDG_DATA_HOME
+	// See: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 	if (!saveInitialized) {
 		const char *homedir;
 
@@ -1003,8 +1006,30 @@ const char *kinc_internal_save_path() {
 		strcat(save, "/.");
 		strcat(save, kinc_application_name());
 		strcat(save, "/");
-
-		int res = mkdir(save, 0700);
+		struct stat st;
+		if (stat(save, &st) == 0) {
+			// use existing folder in $HOME
+		} else {
+			// use XDG folder
+			const char *data_home;
+			if ((data_home = getenv("XDG_DATA_HOME")) == NULL) {
+				// $XDG_DATA_HOME is not defined, fall back to the default, $HOME/.local/share
+				strcpy(save, homedir);
+				strcat(save, "/.local/share/");
+			}
+			else {
+				// use $XDG_DATA_HOME
+				strcpy(save, data_home);
+				if (data_home[strlen(data_home) - 1] != '/') {
+					strcat(save, "/");
+				}
+			}
+			strcat(save, kinc_application_name());
+			strcat(save, "/");
+			if (mkdir(save, 0700) != 0) {
+				kinc_log(KINC_LOG_LEVEL_ERROR, "Could not create save directory '%s'.", save);
+			}
+		}
 
 		saveInitialized = true;
 	}
