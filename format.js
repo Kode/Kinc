@@ -29,6 +29,12 @@ const excludes = [
 	'Sources/Kore/IO/snappy/snappy-stubs-internal.h',
 	'Sources/Kore/IO/snappy/snappy-stubs-public.h',
 	'Sources/Kore/IO/snappy/snappy.h',
+	'Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.c.h',
+	'Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.h',
+	'Backends/System/Linux/Sources/kinc/backend/wayland/xdg-decoration.c.h',
+	'Backends/System/Linux/Sources/kinc/backend/wayland/xdg-decoration.h',
+	'Backends/System/Linux/Sources/kinc/backend/wayland/xdg-shell.c.h',
+	'Backends/System/Linux/Sources/kinc/backend/wayland/xdg-shell.h',
 ];
 
 function isExcluded(filepath) {

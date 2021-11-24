@@ -5,7 +5,9 @@
 #include <kinc/math/core.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef KORE_WINDOWS
 #define ERR_EXIT(err_msg, err_class)                                                                                                                           \
@@ -22,15 +24,8 @@
 	} while (0)
 #endif
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-#define KINC_SURFACE_EXT_NAME VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-#endif
-#ifdef VK_USE_PLATFORM_XLIB_KHR
-#define KINC_SURFACE_EXT_NAME VK_KHR_XLIB_SURFACE_EXTENSION_NAME
-#endif
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
-#define KINC_SURFACE_EXT_NAME VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
-#endif
+void kinc_vulkan_get_instance_extensions(const char **extensions, int *index, int max);
+VkBool32 kinc_wayland_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
 VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface);
 
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                                                                               \
@@ -645,46 +640,45 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, NULL);
 	assert(!err);
 
+	static const char *wanted_extensions[64];
+	static bool found_extensions[64];
+	int num_found_extensions;
+	int wanted_extension_count = 0;
+	int max = 64;
+#ifdef VALIDATE
+	wanted_extensions[wanted_extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
+#endif
+	wanted_extensions[wanted_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
+	kinc_vulkan_get_instance_extensions(wanted_extensions, &wanted_extension_count, max);
+
 	if (instance_extension_count > 0) {
 		VkExtensionProperties *instance_extensions = (VkExtensionProperties *)malloc(sizeof(VkExtensionProperties) * instance_extension_count);
 		err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, instance_extensions);
 		assert(!err);
 		for (uint32_t i = 0; i < instance_extension_count; i++) {
-			if (!strcmp(VK_KHR_SURFACE_EXTENSION_NAME, instance_extensions[i].extensionName)) {
-				surfaceExtFound = 1;
-				extension_names[enabled_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
+			for (int i2 = 0; i2 < wanted_extension_count; i2++) {
+				if (strcmp(wanted_extensions[i2], instance_extensions[i].extensionName) == 0) {
+					found_extensions[i2] = true;
+				}
 			}
-			if (!strcmp(KINC_SURFACE_EXT_NAME, instance_extensions[i].extensionName)) {
-				platformSurfaceExtFound = 1;
-				extension_names[enabled_extension_count++] = KINC_SURFACE_EXT_NAME;
-			}
-			if (!strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, instance_extensions[i].extensionName)) {
-#ifdef VALIDATE
-				extension_names[enabled_extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-#endif
-			}
-			assert(enabled_extension_count < 64);
 		}
 
 		free(instance_extensions);
 	}
 
-	if (!surfaceExtFound) {
-		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
-		         "the " VK_KHR_SURFACE_EXTENSION_NAME " extension.\n\nDo you have a compatible "
-		         "Vulkan installable client driver (ICD) installed?\nPlease "
-		         "look at the Getting Started guide for additional "
-		         "information.\n",
-		         "vkCreateInstance Failure");
+	bool missing_extensions = false;
+
+	for (int i = 0; i < wanted_extension_count; i++) {
+		if (!found_extensions[i]) {
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to find required extension %s", wanted_extensions[i]);
+			missing_extensions = true;
+		}
 	}
-	if (!platformSurfaceExtFound) {
-		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
-		         "the " KINC_SURFACE_EXT_NAME " extension.\n\nDo you have a compatible "
-		         "Vulkan installable client driver (ICD) installed?\nPlease "
-		         "look at the Getting Started guide for additional "
-		         "information.\n",
-		         "vkCreateInstance Failure");
+
+	if (missing_extensions) {
+		exit(1);
 	}
+
 	VkApplicationInfo app = {0};
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	app.pNext = NULL;
@@ -709,8 +703,8 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	info.enabledLayerCount = 0;
 	info.ppEnabledLayerNames = NULL;
 #endif
-	info.enabledExtensionCount = enabled_extension_count;
-	info.ppEnabledExtensionNames = (const char *const *)extension_names;
+	info.enabledExtensionCount = wanted_extension_count;
+	info.ppEnabledExtensionNames = (const char *const *)wanted_extensions;
 
 	uint32_t gpu_count;
 

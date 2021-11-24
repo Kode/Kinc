@@ -1,4 +1,15 @@
 /build
 /Tests/Empty/build
 .DS_Store
-
+# clangd cache
+.cache
+# ignore all build directories
+**/build/**
+# Shaders
+*.vert
+*.frag
+*.comp
+**/Deployment/Empty
+**/Deployment/MultiWindow
+compile_commands.json
+.vscode/**

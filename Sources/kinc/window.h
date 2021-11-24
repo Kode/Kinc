@@ -155,6 +155,12 @@ KINC_FUNC void kinc_window_set_resize_callback(int window, void (*callback)(int 
 KINC_FUNC void kinc_window_set_ppi_changed_callback(int window, void (*callback)(int ppi, void *data), void *data);
 
 /// <summary>
+/// Sets a close callback that's called when the window is about to close.
+/// Returning false from the callback tries stops the window from closing.
+/// </summary>
+KINC_FUNC void kinc_window_set_close_callback(int window, bool (*callback)(void *data), void *data);
+
+/// <summary>
 /// Returns Whether the window is vsynced or not.
 /// </summary>
 /// <returns>Whether the window is vsynced or not</returns>
@@ -164,6 +170,7 @@ void kinc_internal_init_window_options(kinc_window_options_t *win);
 void kinc_internal_init_framebuffer_options(kinc_framebuffer_options_t *frame);
 void kinc_internal_call_resize_callback(int window, int width, int height);
 void kinc_internal_call_ppi_changed_callback(int window, int ppi);
+bool kinc_internal_call_close_callback(int window);
 
 #ifdef __cplusplus
 }

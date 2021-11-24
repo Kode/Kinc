@@ -320,11 +320,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	addBackend('System/POSIX');
 	project.addLib('asound');
 	project.addLib('dl');
-	project.addLib('X11');
-	project.addLib('Xcursor');
-	project.addLib('Xinerama');
-	project.addLib('Xrandr');
-	project.addLib('Xi');
+
 	if (platform === Platform.Linux) {
 		project.addLib('udev');
 	}
@@ -339,7 +335,6 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		addBackend('Graphics5/Vulkan');
 		project.addLib('vulkan');
 		project.addDefine('KORE_VULKAN');
-		project.addDefine('VK_USE_PLATFORM_XLIB_KHR');
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
@@ -347,6 +342,8 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/glew.c');
 		project.addLib('GL');
 		project.addDefine('KORE_OPENGL');
+		project.addLib("EGL");
+		project.addDefine("KINC_EGL");
 	}
 	else {
 		throw new Error('Graphics API ' + graphics + ' is not available for Linux.');
