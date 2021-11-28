@@ -1,12 +1,12 @@
 #include <EGL/egl.h>
 #include <GLContext.h>
-#include <hx/CFFI.h>
 #include <kinc/backend/Android.h>
 #include <kinc/graphics4/graphics.h>
 #include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 //#include <kinc/input/sensor.h>
+#include <kinc/threads/mutex.h>
 #include <android/sensor.h>
 #include <android/window.h>
 #include <android_native_app_glue.h>
@@ -760,19 +760,22 @@ extern "C" jclass kinc_android_find_class(JNIEnv *env, const char *name) {
 	return clazz;
 }
 
-extern "C" JNIEXPORT void JNICALL Java_tech_kinc_KincActivity_nativeKincKeyPress(JNIEnv* env, jobject jobj, jstring chars) {
-  int base = 0;
-  gc_set_top_of_stack(&base, true);
+#define UNICODE_STACK_SIZE 256
+static uint16_t unicode_stack[UNICODE_STACK_SIZE];
+static int unicode_stack_index = 0;
+static kinc_mutex_t unicode_mutex;
 
-  const jchar* text = env->GetStringChars(chars, NULL);
-  const jsize length = env->GetStringLength(chars);
-  for (jsize i = 0; i < length; ++i) {
-    kinc_internal_keyboard_trigger_key_press(text[i]);
-  }
+extern "C" JNIEXPORT void JNICALL Java_tech_kinc_KincActivity_nativeKincKeyPress(JNIEnv* env, jobject jobj, jstring chars) {
+	const jchar* text = env->GetStringChars(chars, NULL);
+	const jsize length = env->GetStringLength(chars);
+
+	kinc_mutex_lock(&unicode_mutex);
+	for (jsize i = 0; i < length && unicode_stack_index < UNICODE_STACK_SIZE; ++i) {
+		unicode_stack[unicode_stack_index++] = text[i];
+	}
+	kinc_mutex_unlock(&unicode_mutex);
 
 	env->ReleaseStringChars(chars, text);
-
-  gc_set_top_of_stack(0, true);
 }
 
 void KincAndroidKeyboardInit() {
@@ -913,6 +916,13 @@ double kinc_time() {
 }
 
 bool kinc_internal_handle_messages(void) {
+	kinc_mutex_lock(&unicode_mutex);
+	for (int i = 0; i < unicode_stack_index; ++i) {
+		kinc_internal_keyboard_trigger_key_press(unicode_stack[i]);
+	}
+	unicode_stack_index = 0;
+	kinc_mutex_unlock(&unicode_mutex);
+
 	int ident;
 	int events;
 	android_poll_source *source;
@@ -1041,6 +1051,8 @@ extern "C" void android_main(android_app *app) {
 }
 
 int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
+	kinc_mutex_init(&unicode_mutex);
+
 	kinc_window_options default_win;
 	if (win == NULL) {
 		kinc_window_options_set_defaults(&default_win);

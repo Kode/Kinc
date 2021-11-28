@@ -156,5 +156,5 @@ public class KincActivity extends NativeActivity implements KeyEvent.Callback {
 		});
 	}
 
-  private native void nativeKincKeyPress(String chars);
+	private native void nativeKincKeyPress(String chars);
 }
