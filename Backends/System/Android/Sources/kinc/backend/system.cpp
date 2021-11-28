@@ -1,5 +1,6 @@
 #include <EGL/egl.h>
 #include <GLContext.h>
+#include <hx/CFFI.h>
 #include <kinc/backend/Android.h>
 #include <kinc/graphics4/graphics.h>
 #include <kinc/input/gamepad.h>
@@ -759,6 +760,38 @@ extern "C" jclass kinc_android_find_class(JNIEnv *env, const char *name) {
 	return clazz;
 }
 
+extern "C" JNIEXPORT void JNICALL Java_tech_kinc_KincActivity_nativeKincKeyPress(JNIEnv* env, jobject jobj, jstring chars) {
+  int base = 0;
+  gc_set_top_of_stack(&base, true);
+
+  const jchar* text = env->GetStringChars(chars, NULL);
+  const jsize length = env->GetStringLength(chars);
+  for (jsize i = 0; i < length; ++i) {
+    kinc_internal_keyboard_trigger_key_press(text[i]);
+  }
+
+	env->ReleaseStringChars(chars, text);
+
+  gc_set_top_of_stack(0, true);
+}
+
+void KincAndroidKeyboardInit() {
+	JNIEnv* env;
+	activity->vm->AttachCurrentThread(&env, nullptr);
+
+	jclass clazz = kinc_android_find_class(env, "tech.kinc.KincActivity");
+
+	// String chars
+	JNINativeMethod methodTable[] = {
+	    {"nativeKincKeyPress", "(Ljava/lang/String;)V", (void*)Java_tech_kinc_KincActivity_nativeKincKeyPress}};
+
+	int methodTableSize = sizeof(methodTable) / sizeof(methodTable[0]);
+
+	env->RegisterNatives(clazz, methodTable, methodTableSize);
+
+	activity->vm->DetachCurrentThread();
+}
+
 static bool keyboard_active = false;
 
 void kinc_keyboard_show() {
@@ -975,6 +1008,7 @@ extern "C" void android_main(android_app *app) {
 	activity = app->activity;
 	initAndroidFileReader();
 	KoreAndroidVideoInit();
+	KincAndroidKeyboardInit();
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
 	activity->callbacks->onNativeWindowResized = resize;
