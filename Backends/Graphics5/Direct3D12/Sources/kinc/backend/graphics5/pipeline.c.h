@@ -293,14 +293,101 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 			case KINC_G4_VERTEX_DATA_FLOAT4:
 				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				break;
-			case KINC_G4_VERTEX_DATA_COLOR:
+			case KINC_G4_VERTEX_DATA_BYTE1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_BYTE2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_BYTE4:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8B8A8_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE4:
 				vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 				break;
-			case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE4:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE4:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_SHORT1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_SHORT2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT2:
 				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16_SNORM;
 				break;
-			case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_SHORT4:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16B16A16_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT4:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16B16A16_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT4:
 				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT4:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16B16A16_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_INT1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_INT1:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_INT2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_INT2:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_INT3:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_INT3:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_INT4:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32A32_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_UNSIGNED_INT4:
+				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32A32_UINT;
 				break;
 			}
 			curAttr++;
