@@ -15,34 +15,7 @@ static void unset(kinc_shader_storage_buffer_t *buffer) {
 void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int indexCount, kinc_g4_vertex_data_t type) {
 	buffer->impl.myCount = indexCount;
 	buffer->impl.myStride = 0;
-	switch (type) {
-	case KINC_G4_VERTEX_DATA_COLOR:
-		buffer->impl.myStride += 1 * 4;
-		break;
-	case KINC_G4_VERTEX_DATA_FLOAT1:
-		buffer->impl.myStride += 1 * 4;
-		break;
-	case KINC_G4_VERTEX_DATA_FLOAT2:
-		buffer->impl.myStride += 2 * 4;
-		break;
-	case KINC_G4_VERTEX_DATA_FLOAT3:
-		buffer->impl.myStride += 3 * 4;
-		break;
-	case KINC_G4_VERTEX_DATA_FLOAT4:
-		buffer->impl.myStride += 4 * 4;
-		break;
-	case KINC_G4_VERTEX_DATA_FLOAT4X4:
-		buffer->impl.myStride += 4 * 4 * 4;
-		break;
-	case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-		buffer->impl.myStride += 2 * 2;
-		break;
-	case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-		buffer->impl.myStride += 2 * 4;
-		break;
-	case KINC_G4_VERTEX_DATA_NONE:
-		break;
-	}
+	buffer->impl.myStride += kinc_g4_vertex_data_size(type);
 #ifdef HAS_COMPUTE
 	glGenBuffers(1, &buffer->impl.bufferId);
 	glCheckErrors();

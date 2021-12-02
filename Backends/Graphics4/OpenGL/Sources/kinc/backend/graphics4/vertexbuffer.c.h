@@ -25,34 +25,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int vertexCount
 	buffer->impl.myStride = 0;
 	for (int i = 0; i < structure->size; ++i) {
 		kinc_g4_vertex_element_t element = structure->elements[i];
-		switch (element.data) {
-		case KINC_G4_VERTEX_DATA_COLOR:
-			buffer->impl.myStride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT1:
-			buffer->impl.myStride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
-			buffer->impl.myStride += 2 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
-			buffer->impl.myStride += 3 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
-			buffer->impl.myStride += 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4X4:
-			buffer->impl.myStride += 4 * 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-			buffer->impl.myStride += 2 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-			buffer->impl.myStride += 4 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_NONE:
-			break;
-		}
+		buffer->impl.myStride += kinc_g4_vertex_data_size(element.data);
 	}
 	buffer->impl.structure = *structure;
 
@@ -162,9 +135,7 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 		int size = 0;
 		GLenum type = GL_FLOAT;
 		switch (element.data) {
-		case KINC_G4_VERTEX_DATA_COLOR:
-			size = 4;
-			type = GL_UNSIGNED_BYTE;
+		case KINC_G4_VERTEX_DATA_NONE:
 			break;
 		case KINC_G4_VERTEX_DATA_FLOAT1:
 			size = 1;
@@ -181,15 +152,133 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 		case KINC_G4_VERTEX_DATA_FLOAT4X4:
 			size = 16;
 			break;
-		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
+		case KINC_G4_VERTEX_DATA_BYTE1:
+			size = 1;
+			type = GL_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE1:
+			size = 1;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE1:
+			size = 1;
+			type = GL_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE1:
+			size = 1;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_BYTE2:
 			size = 2;
+			type = GL_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE2:
+			size = 2;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE2:
+			size = 2;
+			type = GL_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE2:
+			size = 2;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_BYTE4:
+			size = 4;
+			type = GL_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE4:
+			size = 4;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE4:
+			size = 4;
+			type = GL_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE4:
+			size = 4;
+			type = GL_UNSIGNED_BYTE;
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT1:
+			size = 1;
 			type = GL_SHORT;
 			break;
-		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
+		case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT1:
+			size = 1;
+			type = GL_UNSIGNED_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT1:
+			size = 1;
+			type = GL_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT1:
+			size = 1;
+			type = GL_UNSIGNED_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT2:
+			size = 2;
+			type = GL_UNSIGNED_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT2:
+			size = 2;
+			type = GL_UNSIGNED_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT2:
+			size = 2;
+			type = GL_UNSIGNED_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT2:
+			size = 2;
+			type = GL_UNSIGNED_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_SHORT4:
 			size = 4;
 			type = GL_SHORT;
 			break;
-		case KINC_G4_VERTEX_DATA_NONE:
+		case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT4:
+			size = 4;
+			type = GL_UNSIGNED_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT4:
+			size = 4;
+			type = GL_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT4:
+			size = 4;
+			type = GL_UNSIGNED_SHORT;
+			break;
+		case KINC_G4_VERTEX_DATA_INT1:
+			size = 1;
+			type = GL_INT;
+			break;
+		case KINC_G4_VERTEX_DATA_UNSIGNED_INT1:
+			size = 1;
+			type = GL_UNSIGNED_INT;
+			break;
+		case KINC_G4_VERTEX_DATA_INT2:
+			size = 2;
+			type = GL_INT;
+			break;
+		case KINC_G4_VERTEX_DATA_UNSIGNED_INT2:
+			size = 2;
+			type = GL_UNSIGNED_INT;
+			break;
+		case KINC_G4_VERTEX_DATA_INT3:
+			size = 3;
+			type = GL_INT;
+			break;
+		case KINC_G4_VERTEX_DATA_UNSIGNED_INT3:
+			size = 3;
+			type = GL_UNSIGNED_INT;
+			break;
+		case KINC_G4_VERTEX_DATA_INT4:
+			size = 4;
+			type = GL_INT;
+			break;
+		case KINC_G4_VERTEX_DATA_UNSIGNED_INT4:
+			size = 4;
+			type = GL_UNSIGNED_INT;
 			break;
 		}
 		if (size > 4) {
@@ -240,34 +329,7 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 #endif
 			++actualIndex;
 		}
-		switch (element.data) {
-		case KINC_G4_VERTEX_DATA_COLOR:
-			internaloffset += 4 * 1;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT1:
-			internaloffset += 4 * 1;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
-			internaloffset += 4 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
-			internaloffset += 4 * 3;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
-			internaloffset += 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4X4:
-			internaloffset += 4 * 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-			internaloffset += 2 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-			internaloffset += 2 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_NONE:
-			break;
-		}
+		internaloffset += kinc_g4_vertex_data_size(element.data);
 	}
 	int count = 16 - offset;
 	for (int index = actualIndex; index < count; ++index) {

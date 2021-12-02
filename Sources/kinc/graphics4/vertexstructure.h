@@ -55,6 +55,7 @@ typedef enum kinc_g4_vertex_data {
 
 static inline int kinc_g4_vertex_data_size(kinc_g4_vertex_data_t data) {
 	switch (data) {
+	default:
 	case KINC_G4_VERTEX_DATA_NONE:
 		return 0;
 	case KINC_G4_VERTEX_DATA_FLOAT1:
