@@ -66,8 +66,8 @@ void kinc_g1_init(int width, int height) {
 
 	kinc_g4_vertex_structure_t structure;
 	kinc_g4_vertex_structure_init(&structure);
-	kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_FLOAT3);
-	kinc_g4_vertex_structure_add(&structure, "tex", KINC_G4_VERTEX_DATA_FLOAT2);
+	kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_F32_3);
+	kinc_g4_vertex_structure_add(&structure, "tex", KINC_G4_VERTEX_DATA_F32_2);
 	kinc_g4_pipeline_init(&pipeline);
 	pipeline.input_layout[0] = &structure;
 	pipeline.input_layout[1] = NULL;

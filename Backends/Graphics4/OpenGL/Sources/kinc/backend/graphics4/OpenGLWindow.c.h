@@ -114,7 +114,7 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 			wglMakeCurrent(Kinc_Internal_windows[window].deviceContext, Kinc_Internal_windows[window].glContext);
 			kinc_g4_vertex_structure_t structure;
 			kinc_g4_vertex_structure_init(&structure);
-			kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_FLOAT2);
+			kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_F32_2);
 			kinc_g4_vertex_buffer_init(&windowVertexBuffer, 4, &structure, KINC_G4_USAGE_STATIC, 0);
 			float *vertices = kinc_g4_vertex_buffer_lock_all(&windowVertexBuffer);
 			vertices[0] = -1.0f;

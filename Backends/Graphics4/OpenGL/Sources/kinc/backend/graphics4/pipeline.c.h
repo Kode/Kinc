@@ -167,7 +167,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 			kinc_g4_vertex_element_t element = state->input_layout[i1]->elements[i2];
 			glBindAttribLocation(state->impl.programId, index, element.name);
 			glCheckErrors();
-			if (element.data == KINC_G4_VERTEX_DATA_FLOAT4X4) {
+			if (element.data == KINC_G4_VERTEX_DATA_F32_4X4) {
 				index += 4;
 			}
 			else {

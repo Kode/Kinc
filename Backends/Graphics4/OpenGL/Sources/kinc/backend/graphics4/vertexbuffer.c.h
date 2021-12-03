@@ -137,146 +137,110 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 		switch (element.data) {
 		case KINC_G4_VERTEX_DATA_NONE:
 			break;
-		case KINC_G4_VERTEX_DATA_FLOAT1:
+		case KINC_G4_VERTEX_DATA_F32_1:
 			size = 1;
 			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
+		case KINC_G4_VERTEX_DATA_F32_2:
 			size = 2;
 			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
+		case KINC_G4_VERTEX_DATA_F32_3:
 			size = 3;
 			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
+		case KINC_G4_VERTEX_DATA_F32_4:
 			size = 4;
 			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4X4:
+		case KINC_G4_VERTEX_DATA_F32_4X4:
 			size = 16;
 			break;
-		case KINC_G4_VERTEX_DATA_BYTE1:
+		case KINC_G4_VERTEX_DATA_I8_1:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_I8_1:
 			size = 1;
 			type = GL_BYTE;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE1:
+		case KINC_G4_VERTEX_DATA_U8_1:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_U8_1:
 			size = 1;
 			type = GL_UNSIGNED_BYTE;
 			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE1:
-			size = 1;
-			type = GL_BYTE;
-			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE1:
-			size = 1;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case KINC_G4_VERTEX_DATA_BYTE2:
+		case KINC_G4_VERTEX_DATA_I8_2:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_I8_2:
 			size = 2;
 			type = GL_BYTE;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE2:
+		case KINC_G4_VERTEX_DATA_U8_2:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_U8_2:
 			size = 2;
 			type = GL_UNSIGNED_BYTE;
 			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE2:
-			size = 2;
-			type = GL_BYTE;
-			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE2:
-			size = 2;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case KINC_G4_VERTEX_DATA_BYTE4:
+		case KINC_G4_VERTEX_DATA_I8_4:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_I8_4:
 			size = 4;
 			type = GL_BYTE;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE4:
+		case KINC_G4_VERTEX_DATA_U8_4:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_U8_4:
 			size = 4;
 			type = GL_UNSIGNED_BYTE;
 			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE4:
-			size = 4;
-			type = GL_BYTE;
-			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE4:
-			size = 4;
-			type = GL_UNSIGNED_BYTE;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT1:
+		case KINC_G4_VERTEX_DATA_I16_1:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_I16_1:
 			size = 1;
 			type = GL_SHORT;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT1:
+		case KINC_G4_VERTEX_DATA_U16_1:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_U16_1:
 			size = 1;
 			type = GL_UNSIGNED_SHORT;
 			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT1:
-			size = 1;
+		case KINC_G4_VERTEX_DATA_I16_2:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_I16_2:
+			size = 2;
 			type = GL_SHORT;
 			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT1:
-			size = 1;
-			type = GL_UNSIGNED_SHORT;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT2:
+		case KINC_G4_VERTEX_DATA_U16_2:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_U16_2:
 			size = 2;
 			type = GL_UNSIGNED_SHORT;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT2:
-			size = 2;
-			type = GL_UNSIGNED_SHORT;
-			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT2:
-			size = 2;
-			type = GL_UNSIGNED_SHORT;
-			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT2:
-			size = 2;
-			type = GL_UNSIGNED_SHORT;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT4:
+		case KINC_G4_VERTEX_DATA_I16_4:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_I16_4:
 			size = 4;
 			type = GL_SHORT;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT4:
+		case KINC_G4_VERTEX_DATA_U16_4:
+		case KINC_G4_VERTEX_DATA_NORMALIZED_U16_4:
 			size = 4;
 			type = GL_UNSIGNED_SHORT;
 			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT4:
-			size = 4;
-			type = GL_SHORT;
-			break;
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT4:
-			size = 4;
-			type = GL_UNSIGNED_SHORT;
-			break;
-		case KINC_G4_VERTEX_DATA_INT1:
+		case KINC_G4_VERTEX_DATA_I32_1:
 			size = 1;
 			type = GL_INT;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_INT1:
+		case KINC_G4_VERTEX_DATA_U32_1:
 			size = 1;
 			type = GL_UNSIGNED_INT;
 			break;
-		case KINC_G4_VERTEX_DATA_INT2:
+		case KINC_G4_VERTEX_DATA_I32_2:
 			size = 2;
 			type = GL_INT;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_INT2:
+		case KINC_G4_VERTEX_DATA_U32_2:
 			size = 2;
 			type = GL_UNSIGNED_INT;
 			break;
-		case KINC_G4_VERTEX_DATA_INT3:
+		case KINC_G4_VERTEX_DATA_I32_3:
 			size = 3;
 			type = GL_INT;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_INT3:
+		case KINC_G4_VERTEX_DATA_U32_3:
 			size = 3;
 			type = GL_UNSIGNED_INT;
 			break;
-		case KINC_G4_VERTEX_DATA_INT4:
+		case KINC_G4_VERTEX_DATA_I32_4:
 			size = 4;
 			type = GL_INT;
 			break;
-		case KINC_G4_VERTEX_DATA_UNSIGNED_INT4:
+		case KINC_G4_VERTEX_DATA_U32_4:
 			size = 4;
 			type = GL_UNSIGNED_INT;
 			break;
