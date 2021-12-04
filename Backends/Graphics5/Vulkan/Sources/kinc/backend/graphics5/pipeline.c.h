@@ -417,71 +417,124 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		uint32_t stride = 0;
 		for (int i = 0; i < pipeline->inputLayout[binding]->size; ++i) {
 			kinc_g5_vertex_element_t element = pipeline->inputLayout[binding]->elements[i];
+
+			vi_attrs[attr].binding = binding;
+			vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+			vi_attrs[attr].offset = offset;
+			offset += kinc_g4_vertex_data_size(element.data);
+			stride += kinc_g4_vertex_data_size(element.data);
+
 			switch (element.data) {
-			case KINC_G4_VERTEX_DATA_COLOR:
-				vi_attrs[attr].binding = binding;
-				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
-				vi_attrs[attr].format = VK_FORMAT_R32_UINT;
-				vi_attrs[attr].offset = offset;
-				offset += 1 * 4;
-				stride += 1 * 4;
-				break;
-			case KINC_G4_VERTEX_DATA_FLOAT1:
-				vi_attrs[attr].binding = binding;
-				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+			case KINC_G4_VERTEX_DATA_F32_1:
 				vi_attrs[attr].format = VK_FORMAT_R32_SFLOAT;
-				vi_attrs[attr].offset = offset;
-				offset += 1 * 4;
-				stride += 1 * 4;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT2:
-				vi_attrs[attr].binding = binding;
-				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+			case KINC_G4_VERTEX_DATA_F32_2:
 				vi_attrs[attr].format = VK_FORMAT_R32G32_SFLOAT;
-				vi_attrs[attr].offset = offset;
-				offset += 2 * 4;
-				stride += 2 * 4;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT3:
-				vi_attrs[attr].binding = binding;
-				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+			case KINC_G4_VERTEX_DATA_F32_3:
 				vi_attrs[attr].format = VK_FORMAT_R32G32B32_SFLOAT;
-				vi_attrs[attr].offset = offset;
-				offset += 3 * 4;
-				stride += 3 * 4;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT4:
-				vi_attrs[attr].binding = binding;
-				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+			case KINC_G4_VERTEX_DATA_F32_4:
 				vi_attrs[attr].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-				vi_attrs[attr].offset = offset;
-				offset += 4 * 4;
-				stride += 4 * 4;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT4X4:
-				// TODO
-				vi_attrs[attr].binding = binding;
-				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
-				vi_attrs[attr].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-				vi_attrs[attr].offset = offset;
-				offset += 4 * 4 * 4;
-				stride += 4 * 4 * 4;
+			case KINC_G4_VERTEX_DATA_I8_1:
+				vi_attrs[attr].format = VK_FORMAT_R8_SINT;
 				break;
-			case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-				vi_attrs[attr].binding = binding;
-				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+			case KINC_G4_VERTEX_DATA_U8_1:
+				vi_attrs[attr].format = VK_FORMAT_R8_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I8_1:
+				vi_attrs[attr].format = VK_FORMAT_R8_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U8_1:
+				vi_attrs[attr].format = VK_FORMAT_R8_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_I8_2:
+				vi_attrs[attr].format = VK_FORMAT_R8G8_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_U8_2:
+				vi_attrs[attr].format = VK_FORMAT_R8G8_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I8_2:
+				vi_attrs[attr].format = VK_FORMAT_R8G8_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U8_2:
+				vi_attrs[attr].format = VK_FORMAT_R8G8_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_I8_4:
+				vi_attrs[attr].format = VK_FORMAT_R8G8B8A8_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_U8_4:
+				vi_attrs[attr].format = VK_FORMAT_R8G8B8A8_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I8_4:
+				vi_attrs[attr].format = VK_FORMAT_R8G8B8A8_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U8_4:
+				vi_attrs[attr].format = VK_FORMAT_R8G8B8A8_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_I16_1:
+				vi_attrs[attr].format = VK_FORMAT_R16_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_U16_1:
+				vi_attrs[attr].format = VK_FORMAT_R16_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I16_1:
+				vi_attrs[attr].format = VK_FORMAT_R16_SNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U16_1:
+				vi_attrs[attr].format = VK_FORMAT_R16_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_I16_2:
+				vi_attrs[attr].format = VK_FORMAT_R16G16_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_U16_2:
+				vi_attrs[attr].format = VK_FORMAT_R16G16_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I16_2:
 				vi_attrs[attr].format = VK_FORMAT_R16G16_SNORM;
-				vi_attrs[attr].offset = offset;
-				offset += 2 * 2;
-				stride += 2 * 2;
 				break;
-			case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-				vi_attrs[attr].binding = binding;
-				vi_attrs[attr].location = find_number(pipeline->impl.vertexLocations, element.name);
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U16_2:
+				vi_attrs[attr].format = VK_FORMAT_R16G16_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_I16_4:
+				vi_attrs[attr].format = VK_FORMAT_R16G16B16A16_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_U16_4:
+				vi_attrs[attr].format = VK_FORMAT_R16G16B16A16_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I16_4:
 				vi_attrs[attr].format = VK_FORMAT_R16G16B16A16_SNORM;
-				vi_attrs[attr].offset = offset;
-				offset += 4 * 2;
-				stride += 4 * 2;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U16_4:
+				vi_attrs[attr].format = VK_FORMAT_R16G16B16A16_UNORM;
+				break;
+			case KINC_G4_VERTEX_DATA_I32_1:
+				vi_attrs[attr].format = VK_FORMAT_R32_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_U32_1:
+				vi_attrs[attr].format = VK_FORMAT_R32_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_I32_2:
+				vi_attrs[attr].format = VK_FORMAT_R32G32_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_U32_2:
+				vi_attrs[attr].format = VK_FORMAT_R32G32_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_I32_3:
+				vi_attrs[attr].format = VK_FORMAT_R32G32B32_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_U32_3:
+				vi_attrs[attr].format = VK_FORMAT_R32G32B32_UINT;
+				break;
+			case KINC_G4_VERTEX_DATA_I32_4:
+				vi_attrs[attr].format = VK_FORMAT_R32G32B32A32_SINT;
+				break;
+			case KINC_G4_VERTEX_DATA_U32_4:
+				vi_attrs[attr].format = VK_FORMAT_R32G32B32A32_UINT;
+				break;
+			default:
+				assert(false);
 				break;
 			}
 			attr++;
