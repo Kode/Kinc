@@ -449,7 +449,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 	int all = 0;
 	for (int stream = 0; state->input_layout[stream] != NULL; ++stream) {
 		for (int index = 0; index < state->input_layout[stream]->size; ++index) {
-			if (state->input_layout[stream]->elements[index].data == KINC_G4_VERTEX_DATA_FLOAT4X4) {
+			if (state->input_layout[stream]->elements[index].data == KINC_G4_VERTEX_DATA_F32_4X4) {
 				all += 4;
 			}
 			else {
@@ -469,259 +469,259 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 	for (int stream = 0; state->input_layout[stream] != NULL; ++stream) {
 		for (int index = 0; index < state->input_layout[stream]->size; ++index) {
 			switch (state->input_layout[stream]->elements[index].data) {
-			case KINC_G4_VERTEX_DATA_FLOAT1:
+			case KINC_G4_VERTEX_DATA_F32_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_FLOAT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT2:
+			case KINC_G4_VERTEX_DATA_F32_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_FLOAT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT3:
+			case KINC_G4_VERTEX_DATA_F32_3:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT4:
+			case KINC_G4_VERTEX_DATA_F32_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_BYTE1:
+			case KINC_G4_VERTEX_DATA_I8_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE1:
+			case KINC_G4_VERTEX_DATA_U8_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE1:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I8_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8_SNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE1:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U8_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8_UNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_BYTE2:
+			case KINC_G4_VERTEX_DATA_I8_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE2:
+			case KINC_G4_VERTEX_DATA_U8_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE2:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I8_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8_SNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE2:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U8_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8_UNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_BYTE4:
+			case KINC_G4_VERTEX_DATA_I8_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE4:
+			case KINC_G4_VERTEX_DATA_U8_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE4:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I8_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_SNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE4:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U8_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_SHORT1:
+			case KINC_G4_VERTEX_DATA_I16_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT1:
+			case KINC_G4_VERTEX_DATA_U16_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT1:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I16_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16_SNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT1:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U16_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16_UNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_SHORT2:
+			case KINC_G4_VERTEX_DATA_I16_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT2:
+			case KINC_G4_VERTEX_DATA_U16_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT2:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I16_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16_SNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT2:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U16_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16_UNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_SHORT4:
+			case KINC_G4_VERTEX_DATA_I16_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT4:
+			case KINC_G4_VERTEX_DATA_U16_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT4:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I16_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT4:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U16_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R16G16B16A16_UNORM;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_INT1:
+			case KINC_G4_VERTEX_DATA_I32_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_INT1:
+			case KINC_G4_VERTEX_DATA_U32_1:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_INT2:
+			case KINC_G4_VERTEX_DATA_I32_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_INT2:
+			case KINC_G4_VERTEX_DATA_U32_2:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_INT3:
+			case KINC_G4_VERTEX_DATA_I32_3:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_INT3:
+			case KINC_G4_VERTEX_DATA_U32_3:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_INT4:
+			case KINC_G4_VERTEX_DATA_I32_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_SINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_UNSIGNED_INT4:
+			case KINC_G4_VERTEX_DATA_U32_4:
 				setVertexDesc(&vertexDesc[i],
 				              getAttributeLocation(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name, used), index,
 				              stream, state->input_layout[stream]->instanced, -1);
 				vertexDesc[i].Format = DXGI_FORMAT_R32G32B32A32_UINT;
 				++i;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT4X4: {
+			case KINC_G4_VERTEX_DATA_F32_4X4: {
 				char name[101];
 				kinc_string_copy(name, state->input_layout[stream]->elements[index].name);
 				kinc_string_append(name, "_");

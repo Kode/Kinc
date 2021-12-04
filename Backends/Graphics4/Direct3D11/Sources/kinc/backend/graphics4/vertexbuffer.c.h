@@ -5,75 +5,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 	buffer->impl.count = count;
 	buffer->impl.stride = 0;
 	for (int i = 0; i < structure->size; ++i) {
-		switch (structure->elements[i].data) {
-		case KINC_G4_VERTEX_DATA_FLOAT1:
-			buffer->impl.stride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
-			buffer->impl.stride += 2 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
-			buffer->impl.stride += 3 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
-			buffer->impl.stride += 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4X4:
-			buffer->impl.stride += 4 * 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_BYTE1:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE1:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE1:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE1:
-			buffer->impl.stride += 1;
-			break;
-		case KINC_G4_VERTEX_DATA_BYTE2:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE2:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE2:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE2:
-			buffer->impl.stride += 2;
-			break;
-		case KINC_G4_VERTEX_DATA_BYTE4:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_BYTE4:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_BYTE4:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_BYTE4:
-			buffer->impl.stride += 4;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT1:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT1:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT1:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT1:
-			buffer->impl.stride += 1 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT2:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT2:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT2:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT2:
-			buffer->impl.stride += 2 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT4:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_SHORT4:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_SHORT4:
-		case KINC_G4_VERTEX_DATA_NORMALIZED_UNSIGNED_SHORT4:
-			buffer->impl.stride += 4 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_INT1:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_INT1:
-			buffer->impl.stride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_INT2:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_INT2:
-			buffer->impl.stride += 2 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_INT3:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_INT3:
-			buffer->impl.stride += 3 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_INT4:
-		case KINC_G4_VERTEX_DATA_UNSIGNED_INT4:
-			buffer->impl.stride += 4 * 4;
-			break;
-		}
+		buffer->impl.stride += kinc_g4_vertex_data_size(structure->elements[i].data);
 	}
 
 	if (usage == KINC_G4_USAGE_DYNAMIC) {
