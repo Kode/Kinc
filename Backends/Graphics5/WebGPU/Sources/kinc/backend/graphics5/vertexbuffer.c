@@ -11,29 +11,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 	buffer->impl.count = count;
 	buffer->impl.stride = 0;
 	for (int i = 0; i < structure->size; ++i) {
-		switch (structure->elements[i].data) {
-		case KINC_G4_VERTEX_DATA_FLOAT1:
-			buffer->impl.stride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
-			buffer->impl.stride += 2 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
-			buffer->impl.stride += 3 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
-			buffer->impl.stride += 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_COLOR:
-			buffer->impl.stride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-			buffer->impl.stride += 2 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-			buffer->impl.stride += 4 * 2;
-			break;
-		}
+		buffer->impl.stride += kinc_g4_vertex_data_size(structure->elements[i].data);
 	}
 }
 
