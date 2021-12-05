@@ -63,6 +63,6 @@ KINC_FUNC int kinc_memcmp(const void *ptr1, const void *ptr2, size_t num) {
 	}
 	return 0;
 #else
-	return memcmp(ptr1, ptr1, num);
+	return memcmp(ptr1, ptr2, num);
 #endif
 }
