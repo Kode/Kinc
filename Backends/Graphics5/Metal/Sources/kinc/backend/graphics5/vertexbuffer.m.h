@@ -23,34 +23,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 	buffer->impl.gpuMemory = gpuMemory;
 	for (int i = 0; i < structure->size; ++i) {
 		kinc_g5_vertex_element_t element = structure->elements[i];
-		switch (element.data) {
-		case KINC_G4_VERTEX_DATA_COLOR:
-			buffer->impl.myStride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT1:
-			buffer->impl.myStride += 1 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
-			buffer->impl.myStride += 2 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
-			buffer->impl.myStride += 3 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
-			buffer->impl.myStride += 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT2_NORM:
-			buffer->impl.myStride += 2 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_SHORT4_NORM:
-			buffer->impl.myStride += 4 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_NONE:
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4X4:
-			assert(false);
-			break;
-		}
+		buffer->impl.myStride += kinc_g4_vertex_data_size(element.data);
 	}
 
 	id<MTLDevice> device = getMetalDevice();
