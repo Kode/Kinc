@@ -18,26 +18,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 
 	buffer->impl.myStride = 0;
 	for (int i = 0; i < structure->size; ++i) {
-		switch (structure->elements[i].data) {
-		case KINC_G4_VERTEX_DATA_FLOAT1:
-			buffer->impl.myStride += 4 * 1;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT2:
-			buffer->impl.myStride += 4 * 2;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT3:
-			buffer->impl.myStride += 4 * 3;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4:
-			buffer->impl.myStride += 4 * 4;
-			break;
-		case KINC_G4_VERTEX_DATA_COLOR:
-			buffer->impl.myStride += 4;
-			break;
-		case KINC_G4_VERTEX_DATA_FLOAT4X4:
-			buffer->impl.myStride += 4 * 4 * 4;
-			break;
-		}
+		buffer->impl.myStride += kinc_g4_vertex_data_size(structure->elements[i].data);
 	}
 
 	kinc_microsoft_affirm(device->CreateVertexBuffer(kinc_g4_vertex_buffer_stride(buffer) * count, usageFlags, 0, D3DPOOL_DEFAULT, &buffer->impl.vb, 0));

@@ -8,6 +8,7 @@
 
 #include "Direct3D9.h"
 
+#include <assert.h>
 #include <malloc.h>
 
 namespace {
@@ -100,7 +101,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 	int all = 0;
 	for (int stream = 0; state->input_layout[stream] != nullptr; ++stream) {
 		for (int index = 0; index < state->input_layout[stream]->size; ++index) {
-			if (state->input_layout[stream]->elements[index].data == KINC_G4_VERTEX_DATA_FLOAT4X4) {
+			if (state->input_layout[stream]->elements[index].data == KINC_G4_VERTEX_DATA_F32_4X4) {
 				all += 4;
 			}
 			else {
@@ -114,32 +115,76 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 	for (int stream = 0; state->input_layout[stream] != nullptr; ++stream) {
 		int stride = 0;
 		for (int index = 0; index < state->input_layout[stream]->size; ++index) {
-			if (state->input_layout[stream]->elements[index].data != KINC_G4_VERTEX_DATA_FLOAT4X4) {
+			if (state->input_layout[stream]->elements[index].data != KINC_G4_VERTEX_DATA_F32_4X4) {
 				elements[i].Stream = stream;
 				elements[i].Offset = stride;
 			}
+			stride += kinc_g4_vertex_data_size(state->input_layout[stream]->elements[index].data);
 			switch (state->input_layout[stream]->elements[index].data) {
-			case KINC_G4_VERTEX_DATA_FLOAT1:
+			case KINC_G4_VERTEX_DATA_F32_1X:
 				elements[i].Type = D3DDECLTYPE_FLOAT1;
-				stride += 4 * 1;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT2:
+			case KINC_G4_VERTEX_DATA_F32_2X:
 				elements[i].Type = D3DDECLTYPE_FLOAT2;
-				stride += 4 * 2;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT3:
+			case KINC_G4_VERTEX_DATA_F32_3X:
 				elements[i].Type = D3DDECLTYPE_FLOAT3;
-				stride += 4 * 3;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT4:
+			case KINC_G4_VERTEX_DATA_F32_4X:
 				elements[i].Type = D3DDECLTYPE_FLOAT4;
-				stride += 4 * 4;
 				break;
-			case KINC_G4_VERTEX_DATA_COLOR:
-				elements[i].Type = D3DDECLTYPE_D3DCOLOR;
-				stride += 4;
+			case KINC_G4_VERTEX_DATA_U8_4X:
+				elements[i].Type = D3DDECLTYPE_UBYTE4;
 				break;
-			case KINC_G4_VERTEX_DATA_FLOAT4X4:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U8_4X:
+				elements[i].Type = D3DDECLTYPE_UBYTE4N;
+				break;
+			case KINC_G4_VERTEX_DATA_I16_2X:
+				elements[i].Type = D3DDECLTYPE_SHORT2;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I16_2X:
+				elements[i].Type = D3DDECLTYPE_SHORT2N;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U16_2X:
+				elements[i].Type = D3DDECLTYPE_USHORT2N;
+				break;
+			case KINC_G4_VERTEX_DATA_I16_4X:
+				elements[i].Type = D3DDECLTYPE_SHORT4;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I16_4X:
+				elements[i].Type = D3DDECLTYPE_SHORT4N;
+				break;
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U16_4X:
+				elements[i].Type = D3DDECLTYPE_USHORT4N;
+				break;
+			case KINC_G4_VERTEX_DATA_I8_1X:
+			case KINC_G4_VERTEX_DATA_U8_1X:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I8_1X:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U8_1X:
+			case KINC_G4_VERTEX_DATA_I8_2X:
+			case KINC_G4_VERTEX_DATA_U8_2X:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I8_2X:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U8_2X:
+			case KINC_G4_VERTEX_DATA_I8_4X:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I8_4X:
+			case KINC_G4_VERTEX_DATA_I16_1X:
+			case KINC_G4_VERTEX_DATA_U16_1X:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_I16_1X:
+			case KINC_G4_VERTEX_DATA_NORMALIZED_U16_1X:
+			case KINC_G4_VERTEX_DATA_U16_2X:
+			case KINC_G4_VERTEX_DATA_U16_4X:
+			case KINC_G4_VERTEX_DATA_I32_1X:
+			case KINC_G4_VERTEX_DATA_U32_1X:
+			case KINC_G4_VERTEX_DATA_I32_2X:
+			case KINC_G4_VERTEX_DATA_U32_2X:
+			case KINC_G4_VERTEX_DATA_I32_3X:
+			case KINC_G4_VERTEX_DATA_U32_3X:
+			case KINC_G4_VERTEX_DATA_I32_4X:
+			case KINC_G4_VERTEX_DATA_U32_4X:
+				elements[i].Type = D3DDECLTYPE_UNUSED;
+				assert(false);
+				break;
+			case KINC_G4_VERTEX_DATA_F32_4X4:
 				for (int i2 = 0; i2 < 4; ++i2) {
 					elements[i].Stream = stream;
 					elements[i].Offset = stride;
@@ -160,12 +205,11 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 					else {
 						elements[i].UsageIndex = state->vertex_shader->impl.attributes[attribute_index].index;
 					}
-					stride += 4 * 4;
 					++i;
 				}
 				break;
 			}
-			if (state->input_layout[stream]->elements[index].data != KINC_G4_VERTEX_DATA_FLOAT4X4) {
+			if (state->input_layout[stream]->elements[index].data != KINC_G4_VERTEX_DATA_F32_4X4) {
 				elements[i].Method = D3DDECLMETHOD_DEFAULT;
 				elements[i].Usage = D3DDECLUSAGE_TEXCOORD;
 				int attribute_index = find_attribute(state->vertex_shader->impl.attributes, state->input_layout[stream]->elements[index].name);
