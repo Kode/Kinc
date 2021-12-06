@@ -161,7 +161,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 		offset += kinc_g4_vertex_data_size(pipeline->inputLayout[0]->elements[i].data);
 		if (index >= 0) {
-		switch (pipeline->inputLayout[0]->elements[i].data) {
+			switch (pipeline->inputLayout[0]->elements[i].data) {
 			case KINC_G4_VERTEX_DATA_NONE:
 				assert(false);
 				break;
@@ -279,7 +279,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 			default:
 				assert(false);
 				break;
-		}
+			}
 		}
 	}
 

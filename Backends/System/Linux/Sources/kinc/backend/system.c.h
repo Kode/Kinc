@@ -1009,7 +1009,8 @@ const char *kinc_internal_save_path() {
 		struct stat st;
 		if (stat(save, &st) == 0) {
 			// use existing folder in $HOME
-		} else {
+		}
+		else {
 			// use XDG folder
 			const char *data_home;
 			if ((data_home = getenv("XDG_DATA_HOME")) == NULL) {

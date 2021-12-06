@@ -6,7 +6,6 @@
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 //#include <kinc/input/sensor.h>
-#include <kinc/threads/mutex.h>
 #include <android/sensor.h>
 #include <android/window.h>
 #include <android_native_app_glue.h>
@@ -14,6 +13,7 @@
 #include <kinc/input/surface.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
+#include <kinc/threads/mutex.h>
 #include <kinc/video.h>
 #include <kinc/window.h>
 #include <stdlib.h>
@@ -765,8 +765,8 @@ static uint16_t unicode_stack[UNICODE_STACK_SIZE];
 static int unicode_stack_index = 0;
 static kinc_mutex_t unicode_mutex;
 
-extern "C" JNIEXPORT void JNICALL Java_tech_kinc_KincActivity_nativeKincKeyPress(JNIEnv* env, jobject jobj, jstring chars) {
-	const jchar* text = env->GetStringChars(chars, NULL);
+extern "C" JNIEXPORT void JNICALL Java_tech_kinc_KincActivity_nativeKincKeyPress(JNIEnv *env, jobject jobj, jstring chars) {
+	const jchar *text = env->GetStringChars(chars, NULL);
 	const jsize length = env->GetStringLength(chars);
 
 	kinc_mutex_lock(&unicode_mutex);
@@ -779,14 +779,13 @@ extern "C" JNIEXPORT void JNICALL Java_tech_kinc_KincActivity_nativeKincKeyPress
 }
 
 void KincAndroidKeyboardInit() {
-	JNIEnv* env;
+	JNIEnv *env;
 	activity->vm->AttachCurrentThread(&env, nullptr);
 
 	jclass clazz = kinc_android_find_class(env, "tech.kinc.KincActivity");
 
 	// String chars
-	JNINativeMethod methodTable[] = {
-	    {"nativeKincKeyPress", "(Ljava/lang/String;)V", (void*)Java_tech_kinc_KincActivity_nativeKincKeyPress}};
+	JNINativeMethod methodTable[] = {{"nativeKincKeyPress", "(Ljava/lang/String;)V", (void *)Java_tech_kinc_KincActivity_nativeKincKeyPress}};
 
 	int methodTableSize = sizeof(methodTable) / sizeof(methodTable[0]);
 
