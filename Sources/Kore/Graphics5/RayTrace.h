@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef KORE_DXR
-
 #include <kinc/graphics5/raytrace.h>
 
 namespace Kore {
@@ -38,5 +36,3 @@ namespace Kore {
 		void copyRayTraceTarget(CommandList *commandList, RenderTarget *renderTarget, RayTraceTarget *output);
 	}
 }
-
-#endif

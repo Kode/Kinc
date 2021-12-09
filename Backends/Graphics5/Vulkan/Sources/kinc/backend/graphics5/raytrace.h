@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef KORE_VKRT
-
 #include "MiniVulkan.h"
 
 #ifdef __cplusplus
@@ -27,6 +25,4 @@ typedef struct {
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

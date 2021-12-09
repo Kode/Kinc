@@ -1,7 +1,7 @@
 #pragma once
 
 /*! \file raytrace.h
-    \brief I still do not own a raytracing-GPU for my PC :(
+    \brief I do now own a raytracing-GPU for my PC :)
 */
 
 #include <kinc/global.h>

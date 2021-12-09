@@ -1,7 +1,5 @@
 #include "raytrace.h"
 
-#ifdef KORE_VKRT
-
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/graphics.h>
@@ -9,8 +7,6 @@
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/raytrace.h>
 #include <kinc/graphics5/vertexbuffer.h>
-#include <string.h>
-#include <vulkan/vulkan.h>
 
 extern VkDevice device;
 extern VkQueue queue;
@@ -21,27 +17,27 @@ extern VkFramebuffer *framebuffers;
 extern uint32_t current_buffer;
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
-const int INDEX_RAYGEN = 0;
-const int INDEX_MISS = 1;
-const int INDEX_CLOSEST_HIT = 2;
-const char *raygen_shader_name = "raygeneration";
-const char *closesthit_shader_name = "closesthit";
-const char *miss_shader_name = "miss";
+static const int INDEX_RAYGEN = 0;
+static const int INDEX_MISS = 1;
+static const int INDEX_CLOSEST_HIT = 2;
+static const char *raygen_shader_name = "raygeneration";
+static const char *closesthit_shader_name = "closesthit";
+static const char *miss_shader_name = "miss";
 
-VkDescriptorPool raytrace_descriptor_pool;
-kinc_raytrace_acceleration_structure_t *accel;
-kinc_raytrace_pipeline_t *pipeline;
-kinc_g5_texture_t *output = NULL;
+static VkDescriptorPool raytrace_descriptor_pool;
+static kinc_raytrace_acceleration_structure_t *accel;
+static kinc_raytrace_pipeline_t *pipeline;
+static kinc_g5_texture_t *output = NULL;
 
-PFN_vkCreateRayTracingPipelinesKHR _vkCreateRayTracingPipelinesKHR = NULL;
-PFN_vkGetRayTracingShaderGroupHandlesKHR _vkGetRayTracingShaderGroupHandlesKHR = NULL;
-PFN_vkGetBufferDeviceAddressKHR _vkGetBufferDeviceAddressKHR = NULL;
-PFN_vkCreateAccelerationStructureKHR _vkCreateAccelerationStructureKHR = NULL;
-PFN_vkGetAccelerationStructureDeviceAddressKHR _vkGetAccelerationStructureDeviceAddressKHR = NULL;
-PFN_vkGetAccelerationStructureBuildSizesKHR _vkGetAccelerationStructureBuildSizesKHR = NULL;
-PFN_vkCmdBuildAccelerationStructuresKHR _vkCmdBuildAccelerationStructuresKHR = NULL;
-PFN_vkDestroyAccelerationStructureKHR _vkDestroyAccelerationStructureKHR = NULL;
-PFN_vkCmdTraceRaysKHR _vkCmdTraceRaysKHR = NULL;
+static PFN_vkCreateRayTracingPipelinesKHR _vkCreateRayTracingPipelinesKHR = NULL;
+static PFN_vkGetRayTracingShaderGroupHandlesKHR _vkGetRayTracingShaderGroupHandlesKHR = NULL;
+static PFN_vkGetBufferDeviceAddressKHR _vkGetBufferDeviceAddressKHR = NULL;
+static PFN_vkCreateAccelerationStructureKHR _vkCreateAccelerationStructureKHR = NULL;
+static PFN_vkGetAccelerationStructureDeviceAddressKHR _vkGetAccelerationStructureDeviceAddressKHR = NULL;
+static PFN_vkGetAccelerationStructureBuildSizesKHR _vkGetAccelerationStructureBuildSizesKHR = NULL;
+static PFN_vkCmdBuildAccelerationStructuresKHR _vkCmdBuildAccelerationStructuresKHR = NULL;
+static PFN_vkDestroyAccelerationStructureKHR _vkDestroyAccelerationStructureKHR = NULL;
+static PFN_vkCmdTraceRaysKHR _vkCmdTraceRaysKHR = NULL;
 
 void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_command_list_t *command_list, void *ray_shader, int ray_shader_size,
                                  kinc_g5_constant_buffer_t *constant_buffer) {
@@ -766,5 +762,3 @@ void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_tar
 
 	vkCmdBeginRenderPass(command_list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
-
-#endif // KORE_VKRT
