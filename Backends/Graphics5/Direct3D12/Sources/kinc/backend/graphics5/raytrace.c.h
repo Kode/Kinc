@@ -1,10 +1,5 @@
 #include <kinc/backend/graphics5/raytrace.h>
 
-#ifdef KORE_DXR
-
-#undef min
-#undef max
-#include "d3dx12.h"
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/graphics.h>
@@ -12,21 +7,18 @@
 #include <kinc/graphics5/raytrace.h>
 #include <kinc/graphics5/vertexbuffer.h>
 
-extern ID3D12Device *device;
-extern ID3D12CommandQueue *commandQueue;
+static const wchar_t *hit_group_name = L"hitgroup";
+static const wchar_t *raygen_shader_name = L"raygeneration";
+static const wchar_t *closesthit_shader_name = L"closesthit";
+static const wchar_t *miss_shader_name = L"miss";
 
-const wchar_t *hit_group_name = L"hitgroup";
-const wchar_t *raygen_shader_name = L"raygeneration";
-const wchar_t *closesthit_shader_name = L"closesthit";
-const wchar_t *miss_shader_name = L"miss";
-
-ID3D12Device5 *dxrDevice;
-ID3D12GraphicsCommandList4 *dxrCommandList;
-ID3D12RootSignature *dxrRootSignature;
-ID3D12DescriptorHeap *descriptorHeap;
-kinc_raytrace_acceleration_structure_t *accel;
-kinc_raytrace_pipeline_t *pipeline;
-kinc_g5_texture_t *output = NULL;
+static ID3D12Device5 *dxrDevice;
+static ID3D12GraphicsCommandList4 *dxrCommandList;
+static ID3D12RootSignature *dxrRootSignature;
+static ID3D12DescriptorHeap *descriptorHeap;
+static kinc_raytrace_acceleration_structure_t *accel;
+static kinc_raytrace_pipeline_t *pipeline;
+static kinc_g5_texture_t *output = NULL;
 
 void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_command_list_t *command_list, void *ray_shader, int ray_shader_size,
                                  kinc_g5_constant_buffer_t *constant_buffer) {
@@ -429,7 +421,8 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	command_list->impl._commandList->lpVtbl->SetComputeRootDescriptorTable(command_list->impl._commandList, 0, GetGPUDescriptorHandle(descriptorHeap));
 	command_list->impl._commandList->lpVtbl->SetComputeRootShaderResourceView(
 	    command_list->impl._commandList, 1, accel->impl.top_level_accel->lpVtbl->GetGPUVirtualAddress(accel->impl.top_level_accel));
-	auto cbGpuAddress = pipeline->_constant_buffer->impl.constant_buffer->lpVtbl->GetGPUVirtualAddress(pipeline->_constant_buffer->impl.constant_buffer);
+	D3D12_GPU_VIRTUAL_ADDRESS cbGpuAddress =
+	    pipeline->_constant_buffer->impl.constant_buffer->lpVtbl->GetGPUVirtualAddress(pipeline->_constant_buffer->impl.constant_buffer);
 	command_list->impl._commandList->lpVtbl->SetComputeRootConstantBufferView(command_list->impl._commandList, 2, cbGpuAddress);
 
 	// Since each shader table has only one shader record, the stride is same as the size.
@@ -478,5 +471,3 @@ void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_tar
 	postCopyBarriers[1].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	command_list->impl._commandList->lpVtbl->ResourceBarrier(command_list->impl._commandList, ARRAYSIZE(postCopyBarriers), postCopyBarriers);
 }
-
-#endif // KORE_DXR

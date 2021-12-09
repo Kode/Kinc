@@ -1,12 +1,11 @@
 #pragma once
 
-#ifdef KORE_DXR
-
-#include <d3d12.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct ID3D12StateObject;
+struct ID3D12Resource;
 
 typedef struct {
 	ID3D12StateObject *dxr_state;
@@ -22,6 +21,4 @@ typedef struct {
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

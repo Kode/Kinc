@@ -4,8 +4,6 @@
     \brief I still do not own a raytracing-GPU for my PC :(
 */
 
-#ifdef KORE_RAYTRACE
-
 #include <kinc/global.h>
 
 #include <kinc/backend/graphics5/raytrace.h>
@@ -46,6 +44,4 @@ KINC_FUNC void kinc_raytrace_copy(struct kinc_g5_command_list *command_list, str
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
