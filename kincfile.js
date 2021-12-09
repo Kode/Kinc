@@ -97,12 +97,6 @@ if (platform === Platform.Windows) {
 		project.addDefine('KORE_DIRECT3D12');
 		project.addLib('dxgi');
 		project.addLib('d3d12');
-
-		if (raytrace === RayTraceApi.DXR) {
-			project.addDefine('KORE_RAYTRACE');
-			project.addDefine('KORE_DXR');
-			project.addIncludeDir('Backends/Graphics5/Direct3D12/Libraries/D3D12Raytracing/Include/');
-		}
 	}
 	else if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
@@ -121,10 +115,6 @@ if (platform === Platform.Windows) {
 			}
 		}
 		project.addIncludeDir(path.join(process.env.VULKAN_SDK, 'Include'));
-		if (raytrace === RayTraceApi.VKRT) {
-			project.addDefine('KORE_RAYTRACE');
-			project.addDefine('KORE_VKRT');
-		}
 	}
 	else if (graphics === GraphicsApi.Direct3D9) {
 		g4 = true;
@@ -349,10 +339,6 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		project.addLib('vulkan');
 		project.addDefine('KORE_VULKAN');
 		project.addDefine('VK_USE_PLATFORM_XLIB_KHR');
-		if (raytrace === RayTraceApi.VKRT) {
-			project.addDefine('KORE_RAYTRACE');
-			project.addDefine('KORE_VKRT');
-		}
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
