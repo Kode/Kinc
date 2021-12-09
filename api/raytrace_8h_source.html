@@ -71,59 +71,57 @@ $(function() {
 <div class="contents">
 <a href="raytrace_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#ifdef KORE_RAYTRACE</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="global_8h.html">kinc/global.h</a>&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="global_8h.html">kinc/global.h</a>&gt;</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/graphics5/raytrace.h&gt;</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/graphics5/raytrace.h&gt;</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a>;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a>;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__index__buffer.html">kinc_g5_index_buffer</a>;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target</a>;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__texture.html">kinc_g5_texture</a>;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__vertex__buffer.html">kinc_g5_vertex_buffer</a>;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>kinc_raytrace_pipeline {</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keyword">struct </span><a class="code" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a> *_constant_buffer;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    kinc_raytrace_pipeline_impl_t impl;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;} kinc_raytrace_pipeline_t;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a> *command_list, <span class="keywordtype">void</span> *ray_shader, <span class="keywordtype">int</span> ray_shader_size,</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;                                           <span class="keyword">struct</span> <a class="code" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a> *constant_buffer);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_pipeline_destroy(kinc_raytrace_pipeline_t *pipeline);</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>kinc_raytrace_acceleration_structure {</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    kinc_raytrace_acceleration_structure_impl_t impl;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;} kinc_raytrace_acceleration_structure_t;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_structure_t *accel, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a> *command_list,</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;                                                         <span class="keyword">struct</span> <a class="code" href="structkinc__g5__vertex__buffer.html">kinc_g5_vertex_buffer</a> *vb, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__index__buffer.html">kinc_g5_index_buffer</a> *ib);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_acceleration_structure_destroy(kinc_raytrace_acceleration_structure_t *accel);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_set_acceleration_structure(kinc_raytrace_acceleration_structure_t *accel);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_set_pipeline(kinc_raytrace_pipeline_t *pipeline);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_set_target(<span class="keyword">struct</span> <a class="code" href="structkinc__g5__texture.html">kinc_g5_texture</a> *output);</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_dispatch_rays(<span class="keyword">struct</span> <a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a> *command_list);</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_copy(<span class="keyword">struct</span> <a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a> *command_list, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target</a> *target, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__texture.html">kinc_g5_texture</a> *source);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;}</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a>;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a>;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__index__buffer.html">kinc_g5_index_buffer</a>;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target</a>;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__texture.html">kinc_g5_texture</a>;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">struct </span><a class="code" href="structkinc__g5__vertex__buffer.html">kinc_g5_vertex_buffer</a>;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="structkinc__raytrace__pipeline.html">   22</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__raytrace__pipeline.html">kinc_raytrace_pipeline</a> {</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keyword">struct </span><a class="code" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a> *_constant_buffer;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    kinc_raytrace_pipeline_impl_t impl;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;} <a class="code" href="structkinc__raytrace__pipeline.html">kinc_raytrace_pipeline_t</a>;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_pipeline_init(<a class="code" href="structkinc__raytrace__pipeline.html">kinc_raytrace_pipeline_t</a> *pipeline, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a> *command_list, <span class="keywordtype">void</span> *ray_shader, <span class="keywordtype">int</span> ray_shader_size,</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;                                           <span class="keyword">struct</span> <a class="code" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a> *constant_buffer);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_pipeline_destroy(<a class="code" href="structkinc__raytrace__pipeline.html">kinc_raytrace_pipeline_t</a> *pipeline);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="structkinc__raytrace__acceleration__structure.html">   31</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__raytrace__acceleration__structure.html">kinc_raytrace_acceleration_structure</a> {</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    kinc_raytrace_acceleration_structure_impl_t impl;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;} <a class="code" href="structkinc__raytrace__acceleration__structure.html">kinc_raytrace_acceleration_structure_t</a>;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_acceleration_structure_init(<a class="code" href="structkinc__raytrace__acceleration__structure.html">kinc_raytrace_acceleration_structure_t</a> *accel, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a> *command_list,</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;                                                         <span class="keyword">struct</span> <a class="code" href="structkinc__g5__vertex__buffer.html">kinc_g5_vertex_buffer</a> *vb, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__index__buffer.html">kinc_g5_index_buffer</a> *ib);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_acceleration_structure_destroy(<a class="code" href="structkinc__raytrace__acceleration__structure.html">kinc_raytrace_acceleration_structure_t</a> *accel);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_set_acceleration_structure(<a class="code" href="structkinc__raytrace__acceleration__structure.html">kinc_raytrace_acceleration_structure_t</a> *accel);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_set_pipeline(<a class="code" href="structkinc__raytrace__pipeline.html">kinc_raytrace_pipeline_t</a> *pipeline);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_set_target(<span class="keyword">struct</span> <a class="code" href="structkinc__g5__texture.html">kinc_g5_texture</a> *output);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_dispatch_rays(<span class="keyword">struct</span> <a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a> *command_list);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_raytrace_copy(<span class="keyword">struct</span> <a class="code" href="structkinc__g5__command__list.html">kinc_g5_command_list</a> *command_list, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__render__target.html">kinc_g5_render_target</a> *target, <span class="keyword">struct</span> <a class="code" href="structkinc__g5__texture.html">kinc_g5_texture</a> *source);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <div class="ttc" id="astructkinc__g5__index__buffer_html"><div class="ttname"><a href="structkinc__g5__index__buffer.html">kinc_g5_index_buffer</a></div><div class="ttdef"><b>Definition:</b> indexbuffer.h:15</div></div>
 <div class="ttc" id="astructkinc__g5__command__list_html"><div class="ttname"><a href="structkinc__g5__command__list.html">kinc_g5_command_list</a></div><div class="ttdef"><b>Definition:</b> commandlist.h:29</div></div>
 <div class="ttc" id="astructkinc__g5__constant__buffer_html"><div class="ttname"><a href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a></div><div class="ttdef"><b>Definition:</b> constantbuffer.h:18</div></div>
+<div class="ttc" id="astructkinc__raytrace__acceleration__structure_html"><div class="ttname"><a href="structkinc__raytrace__acceleration__structure.html">kinc_raytrace_acceleration_structure</a></div><div class="ttdef"><b>Definition:</b> raytrace.h:31</div></div>
 <div class="ttc" id="astructkinc__g5__vertex__buffer_html"><div class="ttname"><a href="structkinc__g5__vertex__buffer.html">kinc_g5_vertex_buffer</a></div><div class="ttdef"><b>Definition:</b> vertexbuffer.h:17</div></div>
 <div class="ttc" id="astructkinc__g5__texture_html"><div class="ttname"><a href="structkinc__g5__texture.html">kinc_g5_texture</a></div><div class="ttdef"><b>Definition:</b> texture.h:19</div></div>
 <div class="ttc" id="astructkinc__g5__render__target_html"><div class="ttname"><a href="structkinc__g5__render__target.html">kinc_g5_render_target</a></div><div class="ttdef"><b>Definition:</b> rendertarget.h:27</div></div>
+<div class="ttc" id="astructkinc__raytrace__pipeline_html"><div class="ttname"><a href="structkinc__raytrace__pipeline.html">kinc_raytrace_pipeline</a></div><div class="ttdef"><b>Definition:</b> raytrace.h:22</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
