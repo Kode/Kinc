@@ -44,6 +44,9 @@ struct kinc_x11_window *window_from_window(Window window) {
 void kinc_internal_resize(int window_index, int width, int height);
 
 bool kinc_x11_init() {
+
+#undef LOAD_LIB
+#undef LOAD_FUN
 #define LOAD_LIB(name)                                                                                                                                         \
 	{                                                                                                                                                          \
 		x11_ctx.libs.name = dlopen("lib" #name ".so", RTLD_LAZY);                                                                                              \

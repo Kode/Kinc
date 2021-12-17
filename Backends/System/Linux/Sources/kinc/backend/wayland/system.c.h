@@ -25,6 +25,7 @@ bool kinc_wayland_load_procs() {
 		return false;
 	}
 	bool has_missing_symbol = false;
+#undef LOAD_FUN
 #define LOAD_FUN(lib, symbol, name)                                                                                                                            \
 	wl.symbol = dlsym(lib, name);                                                                                                                              \
 	if (wl.symbol == NULL) {                                                                                                                                   \
@@ -100,7 +101,7 @@ bool kinc_wayland_load_procs() {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Did not find symbol %s.", #symbol);                                                                                       \
 	}
 	void *xkb = dlopen("libxkbcommon.so", RTLD_LAZY);
-	if (wayland_egl == NULL) {
+	if (xkb == NULL) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to find libxkb_common.so");
 		return false;
 	}
@@ -112,6 +113,7 @@ bool kinc_wayland_load_procs() {
 	LOAD_FUN(xkb_state_key_get_utf32)
 	LOAD_FUN(xkb_state_serialize_mods)
 	LOAD_FUN(xkb_state_update_mask)
+#undef LOAD_FUN
 
 	if (has_missing_symbol) {
 		return false;

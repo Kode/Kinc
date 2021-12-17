@@ -1,15 +1,11 @@
 #include "OpenGL.h"
 #include "ogl.h"
-#include <GL/gl.h>
-#include <GL/glext.h>
 #ifdef KINC_EGL
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
 #endif
-#ifdef KINC_GLX
-#include <GL/glx.h>
-#endif
+
 #include <kinc/backend/graphics4/vertexbuffer.h>
 
 #include <kinc/graphics4/indexbuffer.h>
@@ -133,11 +129,11 @@ static EGLContext egl_context;
 static EGLConfig egl_config;
 #endif
 
-struct {
 #ifdef KINC_EGL
+struct {
 	EGLSurface surface;
+} kinc_egl_windows[16] = {0};
 #endif
-} kinc_opengl_windows[16] = {0};
 
 #ifdef KINC_EGL
 #define EGL_CHECK_ERROR()                                                                                                                                      \
@@ -153,11 +149,11 @@ struct {
 
 void kinc_g4_destroy(int window) {
 #ifdef KINC_EGL
-	eglMakeCurrent(egl_display, kinc_opengl_windows[window].surface, kinc_opengl_windows[window].surface, egl_context);
+	eglMakeCurrent(egl_display, kinc_egl_windows[window].surface, kinc_egl_windows[window].surface, egl_context);
 	EGL_CHECK_ERROR()
-	eglDestroySurface(egl_display, kinc_opengl_windows[window].surface);
+	eglDestroySurface(egl_display, kinc_egl_windows[window].surface);
 	EGL_CHECK_ERROR()
-	kinc_opengl_windows[window].surface = NULL;
+	kinc_egl_windows[window].surface = NULL;
 #endif
 #ifdef KORE_WINDOWS
 	if (Kinc_Internal_windows[window].glContext) {
@@ -202,8 +198,8 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	Kinc_Internal_initWindowsGLContext(windowId, depthBufferBits, stencilBufferBits);
 #endif
 #ifdef KINC_EGL
-	eglBindAPI(EGL_OPENGL_API);
 	if (!egl_display) {
+		eglBindAPI(EGL_OPENGL_API);
 		egl_display = kinc_egl_get_display();
 		eglInitialize(egl_display, NULL, NULL);
 		EGL_CHECK_ERROR()
@@ -221,8 +217,7 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	EGL_CHECK_ERROR()
 	eglMakeCurrent(egl_display, egl_surface, egl_surface, egl_context);
 	EGL_CHECK_ERROR()
-	kinc_opengl_windows[windowId].surface = egl_surface;
-
+	kinc_egl_windows[windowId].surface = egl_surface;
 #endif
 	initGLState(windowId);
 
@@ -485,13 +480,6 @@ void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 void androidSwapBuffers();
 #endif
 
-// #ifdef KORE_LINUX
-// #include <kinc/backend/Linux.h>
-// #include <kinc/backend/windowdata.h>
-// // #define MAXIMUM_WINDOWS 16
-// // extern struct KincWindowData kinc_internal_windows[MAXIMUM_WINDOWS];
-// #endif
-
 #ifdef KORE_MACOS
 void swapBuffersMac(int window);
 #endif
@@ -522,10 +510,10 @@ bool kinc_g4_swap_buffers() {
 	}
 #elif defined(KINC_EGL)
 	for (int window = 15; window >= 0; --window) {
-		if (kinc_opengl_windows[window].surface) {
-			eglMakeCurrent(egl_display, kinc_opengl_windows[window].surface, kinc_opengl_windows[window].surface, egl_context);
+		if (kinc_egl_windows[window].surface) {
+			eglMakeCurrent(egl_display, kinc_egl_windows[window].surface, kinc_egl_windows[window].surface, egl_context);
 			EGL_CHECK_ERROR()
-			eglSwapBuffers(egl_display, kinc_opengl_windows[window].surface);
+			eglSwapBuffers(egl_display, kinc_egl_windows[window].surface);
 			EGL_CHECK_ERROR()
 		}
 	}
@@ -544,7 +532,7 @@ void beginGL();
 void kinc_g4_begin(int window) {
 	currentWindow = window;
 #ifdef KINC_EGL
-	eglMakeCurrent(egl_display, kinc_opengl_windows[window].surface, kinc_opengl_windows[window].surface, egl_context);
+	eglMakeCurrent(egl_display, kinc_egl_windows[window].surface, kinc_egl_windows[window].surface, egl_context);
 	EGL_CHECK_ERROR()
 #elif defined(KINC_GLX)
 	glXMakeCurrent(kinc_linux_display, kinc_internal_windows[window].handle, kinc_internal_windows[window].context);
