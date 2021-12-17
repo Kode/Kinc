@@ -39,7 +39,8 @@ const wchar_t *windowClassName = L"KoreWindow";
 #endif
 
 #ifdef KORE_VULKAN
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_win32.h>
 
 VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
 	VkWin32SurfaceCreateInfoKHR createInfo = {0};
@@ -49,6 +50,11 @@ VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSur
 	createInfo.hinstance = GetModuleHandle(NULL);
 	createInfo.hwnd = windows[window_index].handle;
 	return vkCreateWin32SurfaceKHR(instance, &createInfo, NULL, surface);
+}
+
+void kinc_vulkan_get_instance_extensions(const char **names, int *index, int max) {
+	assert(*index + 1 < max);
+	names[(*index)++] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 }
 #endif
 
