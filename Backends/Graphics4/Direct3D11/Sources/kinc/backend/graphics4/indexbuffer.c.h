@@ -3,17 +3,20 @@
 
 void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format, kinc_g4_usage_t usage) {
 	buffer->impl.count = count;
+	buffer->impl.sixteen = format == KINC_G4_INDEX_BUFFER_FORMAT_16BIT;
+
+	uint32_t byte_size = buffer->impl.sixteen ? sizeof(uint16_t) * count : sizeof(uint32_t) * count;
 
 	if (usage == KINC_G4_USAGE_DYNAMIC) {
 		buffer->impl.indices = NULL;
 	}
 	else {
-		buffer->impl.indices = (int *)kinc_allocate(count * sizeof(int));
+		buffer->impl.indices = kinc_allocate(byte_size);
 	}
 
 	D3D11_BUFFER_DESC bufferDesc;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(unsigned int) * count;
+	bufferDesc.ByteWidth = byte_size;
 	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
@@ -47,8 +50,7 @@ int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		kinc_memset(&mappedResource, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
 		context->lpVtbl->Map(context, (ID3D11Resource *)buffer->impl.ib, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		int *data = (int *)mappedResource.pData;
-		return data;
+		return (int *)mappedResource.pData;
 	}
 	else {
 		return buffer->impl.indices;

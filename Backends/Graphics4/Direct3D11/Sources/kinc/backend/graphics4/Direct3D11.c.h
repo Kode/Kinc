@@ -409,7 +409,7 @@ static kinc_g4_index_buffer_t *currentIndexBuffer = NULL;
 
 void kinc_internal_g4_index_buffer_set(kinc_g4_index_buffer_t *buffer) {
 	currentIndexBuffer = buffer;
-	context->lpVtbl->IASetIndexBuffer(context, buffer->impl.ib, DXGI_FORMAT_R32_UINT, 0);
+	context->lpVtbl->IASetIndexBuffer(context, buffer->impl.ib, buffer->impl.sixteen ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
 }
 
 void kinc_g4_draw_indexed_vertices() {
