@@ -350,26 +350,28 @@ void kinc_g4_draw_indexed_vertices() {
 }
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
-	GLenum type = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
-	void *_start = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
-#ifdef KORE_OPENGL_ES
-	glDrawElements(GL_TRIANGLES, count, type, _start);
-	glCheckErrors();
-#else
+	bool sixteen = Kinc_Internal_CurrentIndexBuffer->impl.format == KINC_G4_INDEX_BUFFER_FORMAT_16BIT || kinc_internal_opengl_force_16bit_index_buffer;
+	GLenum type = sixteen ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+	void *_start = sixteen ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
+
+#ifndef KORE_OPENGL_ES
 	if (Kinc_Internal_ProgramUsesTessellation) {
 		glDrawElements(GL_PATCHES, count, type, _start);
 		glCheckErrors();
 	}
 	else {
+#endif
 		glDrawElements(GL_TRIANGLES, count, type, _start);
 		glCheckErrors();
+#ifndef KORE_OPENGL_ES
 	}
 #endif
 }
 
 void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
-	GLenum type = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
-	void *_start = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
+	bool sixteen = Kinc_Internal_CurrentIndexBuffer->impl.format == KINC_G4_INDEX_BUFFER_FORMAT_16BIT || kinc_internal_opengl_force_16bit_index_buffer;
+	GLenum type = sixteen ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+	void *_start = sixteen ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
 #ifdef KORE_OPENGL_ES
 	glDrawElements(GL_TRIANGLES, count, type, _start);
 	glCheckErrors();
@@ -390,8 +392,9 @@ void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 }
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
-	GLenum type = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
-	void *_start = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
+	bool sixteen = Kinc_Internal_CurrentIndexBuffer->impl.format == KINC_G4_INDEX_BUFFER_FORMAT_16BIT || kinc_internal_opengl_force_16bit_index_buffer;
+	GLenum type = sixteen ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+	void *_start = sixteen ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	((void (*)(GLenum, GLsizei, GLenum, void *, GLsizei))glesDrawElementsInstanced)(GL_TRIANGLES, count, type, _start, instanceCount);
 #elif !defined(KORE_OPENGL_ES)
