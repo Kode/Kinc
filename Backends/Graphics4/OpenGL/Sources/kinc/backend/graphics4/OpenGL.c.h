@@ -341,42 +341,36 @@ void kinc_g4_draw_indexed_vertices() {
 }
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
+	GLenum type = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+	void *_start = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
 #ifdef KORE_OPENGL_ES
-	if (Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL) {
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(uint16_t)));
-	}
-	else {
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)));
-	}
+	glDrawElements(GL_TRIANGLES, count, type, _start);
 	glCheckErrors();
 #else
 	if (Kinc_Internal_ProgramUsesTessellation) {
-		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)));
+		glDrawElements(GL_PATCHES, count, type, _start);
 		glCheckErrors();
 	}
 	else {
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)));
+		glDrawElements(GL_TRIANGLES, count, type, _start);
 		glCheckErrors();
 	}
 #endif
 }
 
 void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
+	GLenum type = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+	void *_start = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
 #ifdef KORE_OPENGL_ES
-	if (Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL) {
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(uint16_t)));
-	}
-	else {
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)));
-	}
+	glDrawElements(GL_TRIANGLES, count, type, _start);
 	glCheckErrors();
 #else
 	if (Kinc_Internal_ProgramUsesTessellation) {
-		glDrawElementsBaseVertex(GL_PATCHES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)), vertex_offset);
+		glDrawElementsBaseVertex(GL_PATCHES, count, type, _start, vertex_offset);
 		glCheckErrors();
 	}
 	else {
-		glDrawElementsBaseVertex(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)), vertex_offset);
+		glDrawElementsBaseVertex(GL_TRIANGLES, count, type, _start, vertex_offset);
 		glCheckErrors();
 	}
 #endif
@@ -387,16 +381,17 @@ void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 }
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
+	GLenum type = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+	void *_start = Kinc_Internal_CurrentIndexBuffer->impl.shortData != NULL ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
-	((void (*)(GLenum, GLsizei, GLenum, void *, GLsizei))glesDrawElementsInstanced)(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)),
-	                                                                                instanceCount);
+	((void (*)(GLenum, GLsizei, GLenum, void *, GLsizei))glesDrawElementsInstanced)(GL_TRIANGLES, count, type, _start, instanceCount);
 #elif !defined(KORE_OPENGL_ES)
 	if (Kinc_Internal_ProgramUsesTessellation) {
-		glDrawElementsInstanced(GL_PATCHES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)), instanceCount);
+		glDrawElementsInstanced(GL_PATCHES, count, type, _start, instanceCount);
 		glCheckErrors();
 	}
 	else {
-		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(uint32_t)), instanceCount);
+		glDrawElementsInstanced(GL_TRIANGLES, count, type, _start, instanceCount);
 		glCheckErrors();
 	}
 #endif
