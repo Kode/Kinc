@@ -146,9 +146,9 @@ void kinc_g5_command_list_clear(struct kinc_g5_command_list *list, kinc_g5_rende
 		                                                       clearColor, 0, NULL);
 	}
 	if ((flags & KINC_G5_CLEAR_DEPTH) || (flags & KINC_G5_CLEAR_STENCIL)) {
-		D3D12_CLEAR_FLAGS d3dflags = (flags & KINC_G5_CLEAR_DEPTH) && (flags & KINC_G5_CLEAR_STENCIL)
-		                                 ? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
-		                                 : (flags & KINC_G5_CLEAR_DEPTH) ? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
+		D3D12_CLEAR_FLAGS d3dflags = (flags & KINC_G5_CLEAR_DEPTH) && (flags & KINC_G5_CLEAR_STENCIL) ? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
+		                             : (flags & KINC_G5_CLEAR_DEPTH)                                  ? D3D12_CLEAR_FLAG_DEPTH
+		                                                                                              : D3D12_CLEAR_FLAG_STENCIL;
 		list->impl._commandList->lpVtbl->ClearDepthStencilView(list->impl._commandList, GetCPUDescriptorHandle(renderTarget->impl.depthStencilDescriptorHeap),
 		                                                       d3dflags, depth, stencil, 0, NULL);
 	}
@@ -353,7 +353,7 @@ void kinc_g5_command_list_set_vertex_buffers(struct kinc_g5_command_list *list, 
 
 void kinc_g5_command_list_set_index_buffer(struct kinc_g5_command_list *list, kinc_g5_index_buffer_t *buffer) {
 	list->impl._indexCount = kinc_g5_index_buffer_count(buffer);
-	list->impl._commandList->lpVtbl->IASetIndexBuffer(list->impl._commandList, (D3D12_INDEX_BUFFER_VIEW *)&buffer->impl.indexBufferView);
+	list->impl._commandList->lpVtbl->IASetIndexBuffer(list->impl._commandList, (D3D12_INDEX_BUFFER_VIEW *)&buffer->impl.index_buffer_view);
 }
 
 void kinc_g5_command_list_set_render_targets(struct kinc_g5_command_list *list, kinc_g5_render_target_t **targets, int count) {

@@ -1,3 +1,4 @@
+* 2021-12-21: A parameter specyfiying the index-format was added to kinc_g5_index_buffer_init
 * 2021-11-15: The input callbacks are now set using function calls like in other parts of the API.
 * 2021-07-05: kinc_g4_index_buffer_init now has an additional usage-parameter, just like kinc_g4_vertex_buffer_init. Pass KINC_G4_USAGE_STATIC to retain the previous behaviour.
 * 2021-05-24: The window-parameter has been removed from most of the mouse-locking functions. If you use them, just remove that parameter, too.

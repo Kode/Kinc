@@ -5,11 +5,13 @@
 
 kinc_g5_index_buffer_t *_current_index_buffer = NULL;
 
-void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, bool gpuMemory) {
-	buffer->impl.myCount = count;
-	buffer->impl._gpuMemory = gpuMemory;
+void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, kinc_g5_index_buffer_format_t format, bool gpuMemory) {
+	buffer->impl.count = count;
+	buffer->impl.gpu_memory = gpuMemory;
+	buffer->impl.format = format;
+
 	// static_assert(sizeof(D3D12IindexBufferView) == sizeof(D3D12_INDEX_BUFFER_VIEW), "Something is wrong with D3D12IindexBufferView");
-	int uploadBufferSize = sizeof(int) * count;
+	int uploadBufferSize = format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? sizeof(uint16_t) * count : sizeof(uint32_t) * count;
 
 	D3D12_HEAP_PROPERTIES heapProperties;
 	heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -32,7 +34,7 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, bool g
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	kinc_microsoft_affirm(device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,
-	                                                              D3D12_RESOURCE_STATE_GENERIC_READ, NULL, &IID_ID3D12Resource, &buffer->impl.uploadBuffer));
+	                                                              D3D12_RESOURCE_STATE_GENERIC_READ, NULL, &IID_ID3D12Resource, &buffer->impl.upload_buffer));
 
 	if (gpuMemory) {
 		D3D12_HEAP_PROPERTIES heapProperties;
@@ -43,41 +45,43 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, bool g
 		heapProperties.VisibleNodeMask = 1;
 
 		kinc_microsoft_affirm(device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,
-		                                                              D3D12_RESOURCE_STATE_COPY_DEST, NULL, &IID_ID3D12Resource, &buffer->impl.indexBuffer));
+		                                                              D3D12_RESOURCE_STATE_COPY_DEST, NULL, &IID_ID3D12Resource, &buffer->impl.index_buffer));
 
-		buffer->impl.indexBufferView.BufferLocation = buffer->impl.indexBuffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.indexBuffer);
+		buffer->impl.index_buffer_view.BufferLocation = buffer->impl.index_buffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.index_buffer);
 	}
 	else {
-		buffer->impl.indexBufferView.BufferLocation = buffer->impl.uploadBuffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.uploadBuffer);
+		buffer->impl.index_buffer_view.BufferLocation = buffer->impl.upload_buffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.upload_buffer);
 	}
-	buffer->impl.indexBufferView.SizeInBytes = uploadBufferSize;
-	buffer->impl.indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	buffer->impl.index_buffer_view.SizeInBytes = uploadBufferSize;
+	buffer->impl.index_buffer_view.Format = format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
 }
 
 void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
-	buffer->impl.indexBuffer->lpVtbl->Release(buffer->impl.indexBuffer);
-	buffer->impl.uploadBuffer->lpVtbl->Release(buffer->impl.uploadBuffer);
+	buffer->impl.index_buffer->lpVtbl->Release(buffer->impl.index_buffer);
+	buffer->impl.upload_buffer->lpVtbl->Release(buffer->impl.upload_buffer);
 }
 
 int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
 	void *p;
-	buffer->impl.uploadBuffer->lpVtbl->Map(buffer->impl.uploadBuffer, 0, NULL, &p);
+	buffer->impl.upload_buffer->lpVtbl->Map(buffer->impl.upload_buffer, 0, NULL, &p);
 	return (int *)p;
 }
 
 void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
-	buffer->impl.uploadBuffer->lpVtbl->Unmap(buffer->impl.uploadBuffer, 0, NULL);
+	buffer->impl.upload_buffer->lpVtbl->Unmap(buffer->impl.upload_buffer, 0, NULL);
 }
 
 void kinc_g5_internal_index_buffer_upload(kinc_g5_index_buffer_t *buffer, ID3D12GraphicsCommandList *commandList) {
-	if (!buffer->impl._gpuMemory) return;
+	if (!buffer->impl.gpu_memory) return;
 
-	commandList->lpVtbl->CopyBufferRegion(commandList, buffer->impl.indexBuffer, 0, buffer->impl.uploadBuffer, 0, sizeof(int) * buffer->impl.myCount);
+	commandList->lpVtbl->CopyBufferRegion(commandList, buffer->impl.index_buffer, 0, buffer->impl.upload_buffer, 0,
+	                                      buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? sizeof(uint16_t) * buffer->impl.count
+	                                                                                               : sizeof(uint32_t) * buffer->impl.count);
 
 	D3D12_RESOURCE_BARRIER barriers[1] = {0};
 	barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barriers[0].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barriers[0].Transition.pResource = buffer->impl.indexBuffer;
+	barriers[0].Transition.pResource = buffer->impl.index_buffer;
 	barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_INDEX_BUFFER;
 	barriers[0].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -90,5 +94,5 @@ void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
 }
 
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
-	return buffer->impl.myCount;
+	return buffer->impl.count;
 }

@@ -13,12 +13,12 @@ struct D3D12IindexBufferView {
 };
 
 typedef struct {
-	struct ID3D12Resource *indexBuffer;
-	struct D3D12IindexBufferView indexBufferView;
-	struct ID3D12Resource *uploadBuffer;
-	int myCount;
-	// static IndexBuffer5Impl *_current;
-	bool _gpuMemory;
+	struct ID3D12Resource *index_buffer;
+	struct D3D12IindexBufferView index_buffer_view;
+	struct ID3D12Resource *upload_buffer;
+	int count;
+	bool gpu_memory;
+	int format;
 } IndexBuffer5Impl;
 
 struct kinc_g5_index_buffer;
