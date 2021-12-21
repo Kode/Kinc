@@ -12,12 +12,14 @@ static void unset(kinc_g5_index_buffer_t *buffer) {
 	}
 }
 
-void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, bool gpuMemory) {
-	buffer->impl.myCount = indexCount;
+void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, kinc_g5_index_buffer_format_t format, bool gpuMemory) {
+	buffer->impl.count = indexCount;
+	buffer->impl.format = format;
+
 	VkBufferCreateInfo buf_info = {0};
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.pNext = NULL;
-	buf_info.size = indexCount * sizeof(int);
+	buf_info.size = format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? indexCount * sizeof(uint16_t) : indexCount * sizeof(uint32_t);
 	buf_info.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 #ifdef KORE_VKRT
 	buf_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
@@ -77,5 +79,5 @@ void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
 }
 
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
-	return buffer->impl.myCount;
+	return buffer->impl.count;
 }

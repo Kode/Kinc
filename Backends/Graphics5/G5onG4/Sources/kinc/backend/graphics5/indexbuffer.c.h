@@ -6,9 +6,9 @@
 
 kinc_g5_index_buffer_t *kinc_g5_internal_current_index_buffer = NULL;
 
-void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, bool gpuMemory) {
+void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, kinc_g5_index_buffer_format_t format, bool gpuMemory) {
 	buffer->impl.myCount = count;
-	kinc_g4_index_buffer_init(&buffer->impl.buffer, count, KINC_G4_INDEX_BUFFER_FORMAT_32BIT, gpuMemory ? KINC_G4_USAGE_STATIC : KINC_G4_USAGE_DYNAMIC);
+	kinc_g4_index_buffer_init(&buffer->impl.buffer, count, (kinc_g4_index_buffer_format_t)format, gpuMemory ? KINC_G4_USAGE_STATIC : KINC_G4_USAGE_DYNAMIC);
 }
 
 void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
