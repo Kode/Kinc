@@ -9,6 +9,7 @@ extern "C" {
 typedef struct {
 	WGPUBuffer buffer;
 	int count;
+	int format;
 } IndexBuffer5Impl;
 
 #ifdef __cplusplus
