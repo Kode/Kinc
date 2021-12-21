@@ -42,7 +42,7 @@ int VertexBuffer::stride() {
 }
 
 IndexBuffer::IndexBuffer(int count, bool gpuMemory) {
-	kinc_g5_index_buffer_init(&kincBuffer, count, gpuMemory);
+	kinc_g5_index_buffer_init(&kincBuffer, count, KINC_G5_INDEX_BUFFER_FORMAT_32BIT, gpuMemory);
 }
 
 IndexBuffer::~IndexBuffer() {
