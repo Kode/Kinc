@@ -1,9 +1,8 @@
 #pragma once
 
 typedef struct {
-	// void unset();
-	void *mtlBuffer;
-	int myCount;
-	bool gpuMemory;
-	// static Graphics5::IndexBuffer* current;
+	void *metal_buffer;
+	int count;
+	bool gpu_memory;
+	int format;
 } IndexBuffer5Impl;
