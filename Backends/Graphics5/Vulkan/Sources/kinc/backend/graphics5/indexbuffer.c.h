@@ -40,7 +40,6 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, k
 
 	VkMemoryRequirements mem_reqs = {0};
 	vkGetBufferMemoryRequirements(device, buffer->impl.buf, &mem_reqs);
-	assert(!err);
 
 	buffer->impl.mem_alloc.allocationSize = mem_reqs.size;
 	bool pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &buffer->impl.mem_alloc.memoryTypeIndex);
