@@ -9,6 +9,7 @@
 #include "wayland/xdg-decoration.c.h"
 #include "wayland/xdg-shell.c.h"
 #include "wayland/wayland-protocol.c.h"
+#include "wayland/wayland-viewporter.c.h"
 #endif
 
 #ifndef KINC_NO_X11

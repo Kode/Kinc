@@ -15,9 +15,6 @@
 
 struct kinc_wl_procs wl = {0};
 struct kinc_xkb_procs wl_xkb = {0};
-#ifdef KINC_EGL
-struct kinc_wl_egl_procs wl_egl = {0};
-#endif
 
 bool kinc_wayland_load_procs() {
 	void *wayland_client = dlopen("libwayland-client.so", RTLD_LAZY);
@@ -33,6 +30,8 @@ bool kinc_wayland_load_procs() {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Did not find symbol %s.", name);                                                                                       \
 	}
 	LOAD_FUN(wayland_client, _wl_event_queue_destroy, "wl_event_queue_destroy")
+	LOAD_FUN(wayland_client, _wl_proxy_marshal_flags, "wl_proxy_marshal_flags")
+	LOAD_FUN(wayland_client, _wl_proxy_marshal_array_flags, "wl_proxy_marshal_array_flags")
 	LOAD_FUN(wayland_client, _wl_proxy_marshal, "wl_proxy_marshal")
 	LOAD_FUN(wayland_client, _wl_proxy_marshal_array, "wl_proxy_marshal_array")
 	LOAD_FUN(wayland_client, _wl_proxy_create, "wl_proxy_create")
@@ -74,14 +73,19 @@ bool kinc_wayland_load_procs() {
 	LOAD_FUN(wayland_client, _wl_display_read_events, "wl_display_read_events")
 	LOAD_FUN(wayland_client, _wl_log_set_handler_client, "wl_log_set_handler_client")
 
-#ifdef KINC_EGL
-#undef LOAD_FUN
-#define LOAD_FUN(lib, symbol, name)                                                                                                                            \
-	wl_egl.symbol = dlsym(lib, name);                                                                                                                          \
-	if (wl_egl.symbol == NULL) {                                                                                                                               \
-		has_missing_symbol = true;                                                                                                                             \
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Did not find symbol %s.", name);                                                                                       \
+	void *wayland_cursor = dlopen("libwayland-cursor.so", RTLD_LAZY);
+	if (wayland_cursor == NULL) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to find libwayland-cursor.so");
+		return false;
 	}
+	LOAD_FUN(wayland_cursor, _wl_cursor_theme_load, "wl_cursor_theme_load")
+	LOAD_FUN(wayland_cursor, _wl_cursor_theme_destroy, "wl_cursor_theme_destroy")
+	LOAD_FUN(wayland_cursor, _wl_cursor_theme_get_cursor, "wl_cursor_theme_get_cursor")
+	LOAD_FUN(wayland_cursor, _wl_cursor_image_get_buffer, "wl_cursor_image_get_buffer")
+	LOAD_FUN(wayland_cursor, _wl_cursor_frame, "wl_cursor_frame")
+	LOAD_FUN(wayland_cursor, _wl_cursor_frame_and_duration, "wl_cursor_frame_and_duration")
+
+#ifdef KINC_EGL
 	void *wayland_egl = dlopen("libwayland-egl.so", RTLD_LAZY);
 	if (wayland_egl == NULL) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to find libwayland-egl.so");
@@ -94,11 +98,11 @@ bool kinc_wayland_load_procs() {
 #endif
 
 #undef LOAD_FUN
-#define LOAD_FUN(symbol)                                                                                                                            \
-	wl_xkb.symbol = dlsym(xkb, #symbol);                                                                                                                          \
+#define LOAD_FUN(symbol)                                                                                                                                       \
+	wl_xkb.symbol = dlsym(xkb, #symbol);                                                                                                                       \
 	if (wl_xkb.symbol == NULL) {                                                                                                                               \
 		has_missing_symbol = true;                                                                                                                             \
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Did not find symbol %s.", #symbol);                                                                                       \
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Did not find symbol %s.", #symbol);                                                                                    \
 	}
 	void *xkb = dlopen("libxkbcommon.so", RTLD_LAZY);
 	if (xkb == NULL) {
@@ -174,48 +178,129 @@ static const struct wl_output_listener wl_output_listener = {
     wl_output_handle_scale,
 };
 
-void wl_pointer_handle_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t surface_x,
-                             wl_fixed_t surface_y) {
+struct kinc_wl_window *kinc_wayland_window_from_surface(struct wl_surface *surface, enum kinc_wl_decoration_focus *focus) {
 	struct kinc_wl_window *window = wl_surface_get_user_data(surface);
 	if (window == NULL) {
 		for (int i = 0; i < MAXIMUM_WINDOWS; i++) {
-			if (wl_ctx.windows[i].surface == surface) {
-				window = &wl_ctx.windows[i];
+			struct kinc_wl_window *_window = &wl_ctx.windows[i];
+			if (_window->surface == surface) {
+				*focus = KINC_WL_DECORATION_FOCUS_MAIN;
+				window = _window;
+			}
+			else if (surface == _window->decorations.top.surface) {
+				*focus = KINC_WL_DECORATION_FOCUS_TOP;
+				window = _window;
+			}
+			else if (surface == _window->decorations.left.surface) {
+				*focus = KINC_WL_DECORATION_FOCUS_LEFT;
+				window = _window;
+			}
+			else if (surface == _window->decorations.right.surface) {
+				*focus = KINC_WL_DECORATION_FOCUS_RIGHT;
+				window = _window;
+			}
+			else if (surface == _window->decorations.bottom.surface) {
+				*focus = KINC_WL_DECORATION_FOCUS_BOTTOM;
+				window = _window;
 			}
 		}
 	}
+	return window;
+}
+
+void wl_pointer_handle_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t surface_x,
+                             wl_fixed_t surface_y) {
+	enum kinc_wl_decoration_focus focus = KINC_WL_DECORATION_FOCUS_MAIN;
+	struct kinc_wl_window *window = kinc_wayland_window_from_surface(surface, &focus);
+	struct kinc_wl_mouse *mouse = data;
+	mouse->enter_serial = serial;
+	window->decorations.focus = focus;
 	if (window != NULL) {
-		struct kinc_wl_mouse *mouse = data;
 		mouse->current_window = window->window_id;
 		kinc_internal_mouse_trigger_enter_window(window->window_id);
 	}
 }
 
 void wl_pointer_handle_leave(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface) {
-	struct kinc_wl_window *window = wl_surface_get_user_data(surface);
-	if (window == NULL) {
-		for (int i = 0; i < MAXIMUM_WINDOWS; i++) {
-			if (wl_ctx.windows[i].surface == surface) {
-				window = &wl_ctx.windows[i];
-			}
-		}
-	}
+	enum kinc_wl_decoration_focus focus = KINC_WL_DECORATION_FOCUS_MAIN;
+	struct kinc_wl_window *window = kinc_wayland_window_from_surface(surface, &focus);
+
 	if (window != NULL) {
 		kinc_internal_mouse_trigger_leave_window(window->window_id);
 	}
 }
 
+#include <wayland-cursor.h>
+
+void kinc_wayland_set_cursor(struct kinc_wl_mouse *mouse, const char *name) {
+	if(!name) return;
+	struct wl_cursor *cursor = wl_cursor_theme_get_cursor(wl_ctx.cursor_theme, name);
+	if (!cursor) return;
+	struct wl_cursor_image *image = cursor->images[0];
+	if (!image) return;
+	struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
+	if (!buffer) return;
+
+	wl_pointer_set_cursor(mouse->pointer, mouse->enter_serial, mouse->surface, image->hotspot_x, image->hotspot_y);
+	wl_surface_attach(mouse->surface, buffer, 0, 0);
+	wl_surface_damage(mouse->surface, 0, 0, image->width, image->height);
+	wl_surface_commit(mouse->surface);
+	mouse->previous_cursor_name = name;
+}
+
 void wl_pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y) {
 	struct kinc_wl_mouse *mouse = data;
+	struct kinc_wl_window *window = &wl_ctx.windows[mouse->current_window];
+
 	int x = wl_fixed_to_int(surface_x);
 	int y = wl_fixed_to_int(surface_y);
-	kinc_internal_mouse_trigger_move(mouse->current_window, x, y);
+
+	const char *cursor_name = NULL;
+
+	switch (window->decorations.focus) {
+	case KINC_WL_DECORATION_FOCUS_MAIN:
+		mouse->x = x;
+		mouse->y = y;
+		kinc_internal_mouse_trigger_move(mouse->current_window, x, y);
+		return;
+	case KINC_WL_DECORATION_FOCUS_TOP:
+		if (y < 10)
+			cursor_name = "n-resize";
+		else
+			cursor_name = "left_ptr";
+		break;
+	case KINC_WL_DECORATION_FOCUS_LEFT:
+		if (y < 10)
+			cursor_name = "nw-resize";
+		else
+			cursor_name = "w-resize";
+		break;
+	case KINC_WL_DECORATION_FOCUS_RIGHT:
+		if (y < 10)
+			cursor_name = "ne-resize";
+		else
+			cursor_name = "e-resize";
+		break;
+	case KINC_WL_DECORATION_FOCUS_BOTTOM:
+		if (x < 10)
+			cursor_name = "sw-resize";
+		else if (x > window->width + 10)
+			cursor_name = "se-resize";
+		else
+			cursor_name = "s-resize";
+		break;
+	}
+
+	if(mouse->previous_cursor_name != cursor_name) {
+		kinc_wayland_set_cursor(mouse, cursor_name);
+	}
 }
 
 #include <linux/input-event-codes.h>
 
 void wl_pointer_handle_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state) {
 	struct kinc_wl_mouse *mouse = data;
+	struct kinc_wl_window *window = &wl_ctx.windows[mouse->current_window];
 	int kinc_button = 0;
 	switch (button) {
 	case BTN_LEFT:
@@ -230,11 +315,52 @@ void wl_pointer_handle_button(void *data, struct wl_pointer *wl_pointer, uint32_
 	default:
 		break;
 	}
-	if (state == WL_POINTER_BUTTON_STATE_PRESSED) {
-		kinc_internal_mouse_trigger_press(mouse->current_window, kinc_button, mouse->x, mouse->y);
+
+	if (kinc_button == 0) {
+		enum xdg_toplevel_resize_edge edges = XDG_TOPLEVEL_RESIZE_EDGE_NONE;
+		switch (window->decorations.focus) {
+		case KINC_WL_DECORATION_FOCUS_MAIN:
+			break;
+		case KINC_WL_DECORATION_FOCUS_TOP:
+			if (mouse->y < 10)
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP;
+			else {
+				xdg_toplevel_move(window->toplevel, wl_ctx.seat.seat, serial);
+			}
+			break;
+		case KINC_WL_DECORATION_FOCUS_LEFT:
+			if (mouse->y < 10)
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT;
+			else
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_LEFT;
+			break;
+		case KINC_WL_DECORATION_FOCUS_RIGHT:
+			if (mouse->y < 10)
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT;
+			else
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_RIGHT;
+			break;
+		case KINC_WL_DECORATION_FOCUS_BOTTOM:
+			if (mouse->x < 10)
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT;
+			else if (mouse->x > window->width + 10)
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT;
+			else
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM;
+			break;
+		}
+		if (edges != XDG_TOPLEVEL_RESIZE_EDGE_NONE) {
+			xdg_toplevel_resize(window->toplevel, wl_ctx.seat.seat, serial, edges);
+		}
 	}
-	if (state == WL_POINTER_BUTTON_STATE_RELEASED) {
-		kinc_internal_mouse_trigger_release(mouse->current_window, kinc_button, mouse->x, mouse->y);
+
+	if (window->decorations.focus == KINC_WL_DECORATION_FOCUS_MAIN) {
+		if (state == WL_POINTER_BUTTON_STATE_PRESSED) {
+			kinc_internal_mouse_trigger_press(mouse->current_window, kinc_button, mouse->x, mouse->y);
+		}
+		if (state == WL_POINTER_BUTTON_STATE_RELEASED) {
+			kinc_internal_mouse_trigger_release(mouse->current_window, kinc_button, mouse->x, mouse->y);
+		}
 	}
 }
 
@@ -298,7 +424,7 @@ void wl_keyboard_handle_modifiers(void *data, struct wl_keyboard *wl_keyboard, u
 	if (keyboard->keymap && keyboard->state) {
 		wl_xkb.xkb_state_update_mask(keyboard->state, mods_depressed, mods_latched, mods_locked, 0, 0, group);
 		int mask = wl_xkb.xkb_state_serialize_mods(keyboard->state,
-		                                    XKB_STATE_MODS_DEPRESSED | XKB_STATE_LAYOUT_DEPRESSED | XKB_STATE_MODS_LATCHED | XKB_STATE_LAYOUT_LATCHED);
+		                                           XKB_STATE_MODS_DEPRESSED | XKB_STATE_LAYOUT_DEPRESSED | XKB_STATE_MODS_LATCHED | XKB_STATE_LAYOUT_LATCHED);
 	}
 }
 void wl_keyboard_handle_repeat_info(void *data, struct wl_keyboard *wl_keyboard, int32_t rate, int32_t delay) {}
@@ -319,6 +445,7 @@ void wl_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32_t capabili
 	}
 	if (capabilities & WL_SEAT_CAPABILITY_POINTER) {
 		seat->mouse.pointer = wl_seat_get_pointer(wl_seat);
+		seat->mouse.surface = wl_compositor_create_surface(wl_ctx.compositor);
 		wl_pointer_add_listener(seat->mouse.pointer, &wl_pointer_listener, &seat->mouse);
 	}
 	if (capabilities & WL_SEAT_CAPABILITY_TOUCH) {
@@ -339,6 +466,15 @@ static const struct wl_seat_listener wl_seat_listener = {
 static void wl_registry_handle_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
 	if (strcmp(interface, wl_compositor_interface.name) == 0) {
 		wl_ctx.compositor = wl_registry_bind(wl_ctx.registry, name, &wl_compositor_interface, 4);
+	}
+	else if (strcmp(interface, wl_shm_interface.name) == 0) {
+		wl_ctx.shm = wl_registry_bind(registry, name, &wl_shm_interface, 1);
+	}
+	else if (strcmp(interface, wl_subcompositor_interface.name) == 0) {
+		wl_ctx.subcompositor = wl_registry_bind(registry, name, &wl_subcompositor_interface, 1);
+	}
+	else if (strcmp(interface, wp_viewporter_interface.name) == 0) {
+		wl_ctx.viewporter = wl_registry_bind(registry, name, &wp_viewporter_interface, 1);
 	}
 	else if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
 		wl_ctx.xdg_wm_base = wl_registry_bind(registry, name, &xdg_wm_base_interface, 1);
@@ -403,6 +539,23 @@ bool kinc_wayland_init() {
 	wl_display_dispatch(wl_ctx.display);
 	wl_display_roundtrip(wl_ctx.display);
 	wl_display_roundtrip(wl_ctx.display);
+
+	if (wl_ctx.seat.mouse.pointer && wl_ctx.shm) {
+		const char *cursor_theme = getenv("XCURSOR_THEME");
+		const char *cursor_size_str = getenv("XCURSOR_SIZE");
+		int cursor_size = 32;
+
+		if (cursor_size_str) {
+			char *end_ptr;
+			long size = strtol(cursor_size_str, &end_ptr, 10);
+			if (!(*end_ptr) && size > 0 && size < INT32_MAX) {
+				cursor_size = (int)size;
+			}
+		}
+
+		wl_ctx.cursor_theme = wl_cursor_theme_load(cursor_theme, cursor_size, wl_ctx.shm);
+	}
+
 	return true;
 }
 

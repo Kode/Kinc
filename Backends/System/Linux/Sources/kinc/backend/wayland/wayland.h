@@ -1,9 +1,16 @@
 #pragma once
 
 #include <wayland-client-core.h>
+#include <wayland-cursor.h>
+
+struct wl_surface;
 
 struct kinc_wl_procs {
 	void (*_wl_event_queue_destroy)(struct wl_event_queue *queue);
+	struct wl_proxy *(*_wl_proxy_marshal_flags)(struct wl_proxy *proxy, uint32_t opcode, const struct wl_interface *interface, uint32_t version, uint32_t flags,
+	                                            ...);
+	struct wl_proxy *(*_wl_proxy_marshal_array_flags)(struct wl_proxy *proxy, uint32_t opcode, const struct wl_interface *interface, uint32_t version,
+	                                                  uint32_t flags, union wl_argument *args);
 	void (*_wl_proxy_marshal)(struct wl_proxy *p, uint32_t opcode, ...);
 	void (*_wl_proxy_marshal_array)(struct wl_proxy *p, uint32_t opcode, union wl_argument *args);
 	struct wl_proxy *(*_wl_proxy_create)(struct wl_proxy *factory, const struct wl_interface *interface);
@@ -47,9 +54,25 @@ struct kinc_wl_procs {
 	void (*_wl_display_cancel_read)(struct wl_display *display);
 	int (*_wl_display_read_events)(struct wl_display *display);
 	void (*_wl_log_set_handler_client)(wl_log_func_t handler);
+
+	struct wl_cursor_theme *(*_wl_cursor_theme_load)(const char *name, int size, struct wl_shm *shm);
+	void (*_wl_cursor_theme_destroy)(struct wl_cursor_theme *theme);
+	struct wl_cursor *(*_wl_cursor_theme_get_cursor)(struct wl_cursor_theme *theme, const char *name);
+	struct wl_buffer *(*_wl_cursor_image_get_buffer)(struct wl_cursor_image *image);
+	int (*_wl_cursor_frame)(struct wl_cursor *cursor, uint32_t time);
+	int (*_wl_cursor_frame_and_duration)(struct wl_cursor *cursor, uint32_t time, uint32_t *duration);
+
+#ifdef KINC_EGL
+	struct wl_egl_window *(*_wl_egl_window_create)(struct wl_surface *surface, int width, int height);
+	void (*_wl_egl_window_destroy)(struct wl_egl_window *egl_window);
+	void (*_wl_egl_window_resize)(struct wl_egl_window *egl_window, int width, int height, int dx, int dy);
+	void (*_wl_egl_window_get_attached_size)(struct wl_egl_window *egl_window, int *width, int *height);
+#endif
 };
 
 #define wl_event_queue_destroy wl._wl_event_queue_destroy
+#define wl_proxy_marshal_flags wl._wl_proxy_marshal_flags
+#define wl_proxy_marshal_array_flags wl._wl_proxy_marshal_array_flags
 #define wl_proxy_marshal wl._wl_proxy_marshal
 #define wl_proxy_marshal_array wl._wl_proxy_marshal_array
 #define wl_proxy_create wl._wl_proxy_create
@@ -91,26 +114,23 @@ struct kinc_wl_procs {
 #define wl_display_read_events wl._wl_display_read_events
 #define wl_log_set_handler_client wl._wl_log_set_handler_client
 
+#define wl_cursor_theme_load wl._wl_cursor_theme_load
+#define wl_cursor_theme_destroy wl._wl_cursor_theme_destroy
+#define wl_cursor_theme_get_cursor wl._wl_cursor_theme_get_cursor
+#define wl_cursor_image_get_buffer wl._wl_cursor_image_get_buffer
+#define wl_cursor_frame wl._wl_cursor_frame
+#define wl_cursor_frame_and_duration wl._wl_cursor_frame_and_duration
+
+#define wl_egl_window_create wl._wl_egl_window_create
+#define wl_egl_window_destroy wl._wl_egl_window_destroy
+#define wl_egl_window_resize wl._wl_egl_window_resize
+
 extern struct kinc_wl_procs wl;
 
-#include "wayland-client-protocol.h"
+#include "wayland-viewporter.h"
 #include "xdg-decoration.h"
 #include "xdg-shell.h"
-
-#ifdef KINC_EGL
-struct kinc_wl_egl_procs {
-	struct wl_egl_window *(*_wl_egl_window_create)(struct wl_surface *surface, int width, int height);
-	void (*_wl_egl_window_destroy)(struct wl_egl_window *egl_window);
-	void (*_wl_egl_window_resize)(struct wl_egl_window *egl_window, int width, int height, int dx, int dy);
-	void (*_wl_egl_window_get_attached_size)(struct wl_egl_window *egl_window, int *width, int *height);
-};
-
-#define wl_egl_window_create wl_egl._wl_egl_window_create
-#define wl_egl_window_destroy wl_egl._wl_egl_window_destroy
-#define wl_egl_window_resize wl_egl._wl_egl_window_resize
-
-extern struct kinc_wl_egl_procs wl_egl;
-#endif
+#include <wayland-client-protocol.h>
 
 #include <xkbcommon/xkbcommon.h>
 
@@ -124,8 +144,8 @@ struct kinc_xkb_procs {
 	uint32_t (*xkb_state_key_get_utf32)(struct xkb_state *state, xkb_keycode_t key);
 	xkb_mod_mask_t (*xkb_state_serialize_mods)(struct xkb_state *state, enum xkb_state_component components);
 	enum xkb_state_component (*xkb_state_update_mask)(struct xkb_state *state, xkb_mod_mask_t depressed_mods, xkb_mod_mask_t latched_mods,
-	                                               xkb_mod_mask_t locked_mods, xkb_layout_index_t depressed_layout, xkb_layout_index_t latched_layout,
-	                                               xkb_layout_index_t locked_layout);
+	                                                  xkb_mod_mask_t locked_mods, xkb_layout_index_t depressed_layout, xkb_layout_index_t latched_layout,
+	                                                  xkb_layout_index_t locked_layout);
 };
 
 extern struct kinc_xkb_procs wl_xkb;
@@ -135,11 +155,43 @@ extern struct kinc_xkb_procs wl_xkb;
 #include <kinc/system.h>
 #include <kinc/window.h>
 
-#include <xkbcommon/xkbcommon.h>
-
 #define MAXIMUM_WINDOWS 16
 #define MAXIMUM_DISPLAYS 16
 #define MAXIMUM_DISPLAY_MODES 16
+
+struct kinc_wl_decoration {
+	struct wl_surface *surface;
+	struct wl_subsurface *subsurface;
+	struct wp_viewport *viewport;
+};
+
+enum kinc_wl_decoration_focus {
+	KINC_WL_DECORATION_FOCUS_MAIN,
+	KINC_WL_DECORATION_FOCUS_TOP,
+	KINC_WL_DECORATION_FOCUS_LEFT,
+	KINC_WL_DECORATION_FOCUS_RIGHT,
+	KINC_WL_DECORATION_FOCUS_BOTTOM,
+};
+
+#define KINC_WL_DECORATION_TOP_X 0
+#define KINC_WL_DECORATION_TOP_Y 0
+#define KINC_WL_DECORATION_TOP_WIDTH window->width + 10
+#define KINC_WL_DECORATION_TOP_HEIGHT 10
+
+#define KINC_WL_DECORATION_LEFT_X 0
+#define KINC_WL_DECORATION_LEFT_Y 0
+#define KINC_WL_DECORATION_LEFT_WIDTH 10
+#define KINC_WL_DECORATION_LEFT_HEIGHT window->height
+
+#define KINC_WL_DECORATION_RIGHT_X window->width
+#define KINC_WL_DECORATION_RIGHT_Y 10
+#define KINC_WL_DECORATION_RIGHT_WIDTH 10
+#define KINC_WL_DECORATION_RIGHT_HEIGHT window->height
+
+#define KINC_WL_DECORATION_BOTTOM_X 0
+#define KINC_WL_DECORATION_BOTTOM_Y window->height
+#define KINC_WL_DECORATION_BOTTOM_WIDTH window->width + 10
+#define KINC_WL_DECORATION_BOTTOM_HEIGHT 10
 
 struct kinc_wl_window {
 	int display_index;
@@ -150,7 +202,18 @@ struct kinc_wl_window {
 	struct wl_surface *surface;
 	struct xdg_surface *xdg_surface;
 	struct xdg_toplevel *toplevel;
-	struct zxdg_toplevel_decoration_v1 *decoration;
+	struct zxdg_toplevel_decoration_v1 *xdg_decoration;
+
+	struct {
+		bool server_side;
+		enum kinc_wl_decoration_focus focus;
+		struct kinc_wl_decoration top;
+		struct kinc_wl_decoration left;
+		struct kinc_wl_decoration right;
+		struct kinc_wl_decoration bottom;
+
+		struct wl_buffer *buffer;
+	} decorations;
 #ifdef KINC_EGL
 	struct wl_egl_window *egl_window;
 #endif
@@ -176,7 +239,10 @@ struct kinc_wl_mouse {
 	int current_window;
 	int x;
 	int y;
+	int enter_serial;
+	const char *previous_cursor_name;
 	struct wl_pointer *pointer;
+	struct wl_surface *surface;
 };
 
 struct kinc_wl_keyboard {
@@ -198,11 +264,16 @@ struct wayland_context {
 	struct xkb_context *xkb_context;
 
 	struct wl_display *display;
+	struct wl_shm *shm;
 	struct wl_registry *registry;
 	struct wl_compositor *compositor;
+	struct wl_subcompositor *subcompositor;
+	struct wp_viewporter *viewporter;
 	struct kinc_wl_seat seat;
 	struct xdg_wm_base *xdg_wm_base;
 	struct zxdg_decoration_manager_v1 *decoration_manager;
+	struct wl_cursor_theme *cursor_theme;
+	int cursor_size;
 	int num_windows;
 	struct kinc_wl_window windows[MAXIMUM_WINDOWS];
 	int num_displays;

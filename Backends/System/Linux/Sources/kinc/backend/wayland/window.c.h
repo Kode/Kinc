@@ -1,5 +1,16 @@
 #include "wayland.h"
+#include "xdg-decoration.h"
+#include <kinc/image.h>
 #include <kinc/log.h>
+#include <kinc/memory.h>
+#include <kinc/string.h>
+// for all that shared memory stuff later on
+#include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <unistd.h>
 
 #ifdef KINC_EGL
 #include <EGL/egl.h>
@@ -40,6 +51,18 @@ static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *tople
 #ifdef KINC_EGL
 	wl_egl_window_resize(window->egl_window, width, height, 0, 0);
 #endif
+	wl_subsurface_set_position(window->decorations.top.subsurface, KINC_WL_DECORATION_TOP_X, KINC_WL_DECORATION_TOP_Y);
+	wp_viewport_set_destination(window->decorations.top.viewport, KINC_WL_DECORATION_TOP_WIDTH, KINC_WL_DECORATION_TOP_HEIGHT);
+	wl_surface_commit(window->decorations.top.surface);
+	wl_subsurface_set_position(window->decorations.left.subsurface, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_LEFT_Y);
+	wp_viewport_set_destination(window->decorations.left.viewport, KINC_WL_DECORATION_LEFT_WIDTH, KINC_WL_DECORATION_LEFT_HEIGHT);
+	wl_surface_commit(window->decorations.left.surface);
+	wl_subsurface_set_position(window->decorations.right.subsurface, KINC_WL_DECORATION_RIGHT_X, KINC_WL_DECORATION_RIGHT_Y);
+	wp_viewport_set_destination(window->decorations.right.viewport, KINC_WL_DECORATION_RIGHT_WIDTH, KINC_WL_DECORATION_RIGHT_HEIGHT);
+	wl_surface_commit(window->decorations.right.surface);
+	wl_subsurface_set_position(window->decorations.bottom.subsurface, KINC_WL_DECORATION_BOTTOM_X, KINC_WL_DECORATION_BOTTOM_Y);
+	wp_viewport_set_destination(window->decorations.bottom.viewport, KINC_WL_DECORATION_BOTTOM_WIDTH, KINC_WL_DECORATION_BOTTOM_HEIGHT);
+	wl_surface_commit(window->decorations.bottom.surface);
 }
 
 void kinc_wayland_window_destroy(int window_index);
@@ -55,12 +78,146 @@ static void xdg_toplevel_handle_close(void *data, struct xdg_toplevel *xdg_tople
 	}
 }
 
+static int create_anon_file(off_t size) {
+	static const char template[] = "/kinc-shared-XXXXXX";
+
+	const char *path = getenv("XDG_RUNTIME_DIR");
+	if (!path) {
+		errno = ENOENT;
+		return -1;
+	}
+
+	char *name = kinc_allocate(kinc_string_length(path) + sizeof(template));
+	kinc_string_copy(name, path);
+	kinc_string_append(name, template);
+
+	int fd = mkstemp(name);
+	fcntl(fd, F_SETFD, FD_CLOEXEC);
+	if (fd >= 0) unlink(name);
+
+	kinc_free(name);
+	if (fd < 0) return -1;
+
+	int ret = ftruncate(fd, size);
+	if (ret != 0) {
+		close(fd);
+		errno = ret;
+		return -1;
+	}
+	return fd;
+}
+
+struct wl_buffer *kinc_wayland_create_shm_buffer(const kinc_image_t *image) {
+	int stride = image->width * 4;
+	int length = image->width * image->height * 4;
+
+	const int fd = create_anon_file(length);
+	if (fd < 0) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Wayland: Creating a buffer file for %d B failed: %s", length, strerror(errno));
+		return NULL;
+	}
+
+	void *data = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (data == MAP_FAILED) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Wayland: mmap failed: %s", strerror(errno));
+		close(fd);
+		return NULL;
+	}
+
+	struct wl_shm_pool *pool = wl_shm_create_pool(wl_ctx.shm, fd, length);
+
+	close(fd);
+	kinc_memcpy(data, image->data, image->width * image->height * 4);
+	//  unsigned char *source = (unsigned char *)image->data;
+	// unsigned char *target = data;
+	// for (int i = 0; i < image->width * image->height; i++, source += 4) {
+	// 	unsigned int alpha = source[3];
+
+	// 	*target++ = (unsigned char)((source[2] * alpha) / 255);
+	// 	*target++ = (unsigned char)((source[1] * alpha) / 255);
+	// 	*target++ = (unsigned char)((source[0] * alpha) / 255);
+	// 	*target++ = (unsigned char)alpha;
+	// }
+
+	struct wl_buffer *buffer = wl_shm_pool_create_buffer(pool, 0, image->width, image->height, stride, WL_SHM_FORMAT_ARGB8888);
+	munmap(data, length);
+	wl_shm_pool_destroy(pool);
+
+	return buffer;
+}
+
+static char grey_data[] = {0xFF, 0xFF, 0x00, 0x00};
+
+static kinc_image_t grey_image = {1, 1, 0, KINC_IMAGE_FORMAT_RGBA32, 0, KINC_IMAGE_COMPRESSION_NONE, grey_data, sizeof(grey_data)};
+
+void kinc_wayland_create_decoration(struct kinc_wl_decoration *decoration, struct wl_surface *parent, struct wl_buffer *buffer, bool opaque, int x, int y,
+                                    int width, int height) {
+	decoration->surface = wl_compositor_create_surface(wl_ctx.compositor);
+	decoration->subsurface = wl_subcompositor_get_subsurface(wl_ctx.subcompositor, decoration->surface, parent);
+	wl_subsurface_set_position(decoration->subsurface, x, y);
+	decoration->viewport = wp_viewporter_get_viewport(wl_ctx.viewporter, decoration->surface);
+	wp_viewport_set_destination(decoration->viewport, width, height);
+	if (buffer) wl_surface_attach(decoration->surface, buffer, 0, 0);
+
+	if (opaque) {
+		struct wl_region *region = wl_compositor_create_region(wl_ctx.compositor);
+		wl_region_add(region, 0, 0, width, height);
+		wl_surface_set_opaque_region(decoration->surface, region);
+		wl_surface_commit(decoration->surface);
+		wl_region_destroy(region);
+	}
+	else
+		wl_surface_commit(decoration->surface);
+}
+
+void kinc_wayland_destroy_decoration(struct kinc_wl_decoration *decoration) {
+	if (decoration->subsurface) wl_subsurface_destroy(decoration->subsurface);
+	if (decoration->surface) wl_surface_destroy(decoration->surface);
+	if (decoration->viewport) wp_viewport_destroy(decoration->viewport);
+	decoration->surface = NULL;
+	decoration->subsurface = NULL;
+	decoration->viewport = NULL;
+}
+
+void kinc_wayland_destroy_decorations(struct kinc_wl_window *window) {
+	kinc_wayland_destroy_decoration(&window->decorations.top);
+	kinc_wayland_destroy_decoration(&window->decorations.left);
+	kinc_wayland_destroy_decoration(&window->decorations.right);
+	kinc_wayland_destroy_decoration(&window->decorations.bottom);
+}
+
+void kinc_wayland_create_decorations(struct kinc_wl_window *window) {
+	if (!window->decorations.buffer) {
+		window->decorations.buffer = kinc_wayland_create_shm_buffer(&grey_image);
+	}
+	kinc_wayland_create_decoration(&window->decorations.top, window->surface, window->decorations.buffer, true, KINC_WL_DECORATION_TOP_X,
+	                               KINC_WL_DECORATION_TOP_Y, KINC_WL_DECORATION_TOP_WIDTH, KINC_WL_DECORATION_TOP_HEIGHT);
+	kinc_wayland_create_decoration(&window->decorations.left, window->surface, window->decorations.buffer, true, KINC_WL_DECORATION_LEFT_X,
+	                               KINC_WL_DECORATION_LEFT_Y, KINC_WL_DECORATION_LEFT_WIDTH, KINC_WL_DECORATION_LEFT_HEIGHT);
+	kinc_wayland_create_decoration(&window->decorations.right, window->surface, window->decorations.buffer, true, KINC_WL_DECORATION_RIGHT_X,
+	                               KINC_WL_DECORATION_RIGHT_Y, KINC_WL_DECORATION_RIGHT_WIDTH, KINC_WL_DECORATION_RIGHT_HEIGHT);
+	kinc_wayland_create_decoration(&window->decorations.bottom, window->surface, window->decorations.buffer, true, KINC_WL_DECORATION_BOTTOM_X,
+	                               KINC_WL_DECORATION_BOTTOM_Y, KINC_WL_DECORATION_BOTTOM_WIDTH, KINC_WL_DECORATION_BOTTOM_HEIGHT);
+}
+
 void xdg_toplevel_decoration_configure(void *data, struct zxdg_toplevel_decoration_v1 *zxdg_toplevel_decoration_v1, uint32_t mode) {
 	struct kinc_wl_window *window = data;
-	if (mode & ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE) {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Client side decorations requested, but Kinc has not implemented those yet.");
+
+	if (mode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE) {
+		window->decorations.server_side = false;
+		if (window->decorations.top.surface) {
+			kinc_wayland_destroy_decorations(window);
+		}
+		kinc_wayland_create_decorations(window);
+	}
+	else if (mode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE) {
+		window->decorations.server_side = true;
+		if (window->decorations.top.surface) {
+			kinc_wayland_destroy_decorations(window);
+		}
 	}
 }
+
 void wl_surface_handle_enter(void *data, struct wl_surface *wl_surface, struct wl_output *output) {
 	struct kinc_wl_window *window = wl_surface_get_user_data(wl_surface);
 	struct kinc_wl_display *display = wl_output_get_user_data(output);
@@ -124,11 +281,15 @@ int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_opti
 	xdg_surface_set_window_geometry(window->xdg_surface, win->x, win->y, win->width, win->height);
 
 	if (wl_ctx.decoration_manager) {
-		window->decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(wl_ctx.decoration_manager, window->toplevel);
-		zxdg_toplevel_decoration_v1_add_listener(window->decoration, &xdg_toplevel_decoration_listener, window);
+		window->xdg_decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(wl_ctx.decoration_manager, window->toplevel);
+#ifdef KINC_WAYLAND_FORCE_CSD
+		zxdg_toplevel_decoration_v1_set_mode(window->xdg_decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE);
+#endif
+		zxdg_toplevel_decoration_v1_add_listener(window->xdg_decoration, &xdg_toplevel_decoration_listener, window);
 	}
 	else {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Client side decorations requested, but Kinc has not implemented those yet.");
+		window->decorations.server_side = false;
+		kinc_wayland_create_decorations(window);
 	}
 
 #ifdef KINC_EGL
@@ -144,8 +305,8 @@ void kinc_wayland_window_destroy(int window_index) {
 #ifdef KINC_EGL
 	wl_egl_window_destroy(window->egl_window);
 #endif
-	if (window->decoration) {
-		zxdg_toplevel_decoration_v1_destroy(window->decoration);
+	if (window->xdg_decoration) {
+		zxdg_toplevel_decoration_v1_destroy(window->xdg_decoration);
 	}
 
 	xdg_toplevel_destroy(window->toplevel);
