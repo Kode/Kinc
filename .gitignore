@@ -13,3 +13,8 @@
 **/Deployment/MultiWindow
 compile_commands.json
 .vscode/**
+
+Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.*
+Backends/System/Linux/Sources/kinc/backend/wayland/wayland-viewporter.*
+Backends/System/Linux/Sources/kinc/backend/wayland/xdg-decoration.*
+Backends/System/Linux/Sources/kinc/backend/wayland/xdg-shell.*

@@ -321,6 +321,29 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	project.addLib('asound');
 	project.addLib('dl');
 
+	const child_process = require("child_process");
+
+	function wl_protocol(protocol, file) {
+		const backend_path = path.resolve(__dirname, "Backends/System/Linux/Sources/kinc/backend/wayland");
+		const protocol_path = path.resolve("/usr/share/wayland-protocols", protocol);
+		child_process.spawn("wayland-scanner", ["private-code", protocol_path, path.resolve(backend_path, file + ".c.h")]).on("exit", code => {
+			if (code != 0) {
+				console.warn("Failed to generate wayland protocol files for", protocol);
+			}
+		});
+		child_process.spawn("wayland-scanner", ["client-header", protocol_path, path.resolve(backend_path, file + ".h")]).on("exit", code => {
+			if (code != 0) {
+				console.warn("Failed to generate wayland protocol header for", protocol);
+			}
+		});
+	}
+
+	child_process.spawn("wayland-scanner", ["private-code", "/usr/share/wayland/wayland.xml", path.resolve(__dirname, "Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.c.h")]);
+	child_process.spawn("wayland-scanner", ["client-header", "/usr/share/wayland/wayland.xml", path.resolve(__dirname, "Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.h")]);
+	wl_protocol("stable/viewporter/viewporter.xml", "wayland-viewporter");
+	wl_protocol("stable/xdg-shell/xdg-shell.xml", "xdg-shell");
+	wl_protocol("unstable/xdg-decoration/xdg-decoration-unstable-v1.xml", "xdg-decoration");
+
 	if (platform === Platform.Linux) {
 		project.addLib('udev');
 	}
