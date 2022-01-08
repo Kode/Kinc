@@ -182,6 +182,7 @@ void kinc_socket_destroy(kinc_socket_t *sock) {
 #elif defined(KORE_POSIX)
 	close(sock->handle);
 #endif
+	sock->handle = 0;
 
 	--counter;
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
