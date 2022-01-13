@@ -17,7 +17,5 @@ jobs:
     - uses: actions/checkout@v1
     - name: Get Submodules
       run: git submodule update --init --recursive
-    - name: Get Node.js
-      run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
     - name: Compile
-      run: .\nodejs_bin\node.exe make.js windowsapp -v vs2019 --kinc . --from Tests/Empty --noshaders --compile
+      run: .\Tools\kmake\kmake.exe windowsapp -v vs2019 --kinc . --from Tests/Empty --noshaders --compile
