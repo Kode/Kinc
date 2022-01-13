@@ -12,3 +12,8 @@
 	path = Tools/kincmake
 	url = https://github.com/Kode/kincmake.git
 	branch = master
+[submodule "Tools/kmake"]
+	path = Tools/kmake
+	url = https://github.com/Kode/kmake_bin.git
+	branch = main
+	shallow = true
