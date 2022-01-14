@@ -48,6 +48,17 @@ static void update(void) {
 
 	uint8_t *pixels = (uint8_t *)malloc(2048 * 2048 * 4);
 	kinc_g4_render_target_get_pixels(&render_target, pixels);
+	if (kinc_g4_render_targets_inverted_y()) {
+		uint8_t *inverted_pixels = (uint8_t *)malloc(2048 * 2048 * 4);
+		for (int y = 0; y < 2048; ++y) {
+			for (int x = 0; x < 2048; ++x) {
+				for (int c = 0; c < 4; ++c) {
+					inverted_pixels[y * 2048 * 4 + x * 4 + c] = pixels[(2047 - y) * 2048 * 4 + x * 4 + c];
+				}
+			}
+		}
+		pixels = inverted_pixels;
+	}
 	stbi_write_png("test.png", 2048, 2048, 4, pixels, 2048 * 4);
 	exit(0);
 }
