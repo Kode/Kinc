@@ -33,11 +33,11 @@ static void *allocate(size_t size) {
 
 static void update(void) {
 	kinc_g4_begin(0);
-	kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0, 0.0f, 0);
 
 	kinc_g4_render_target_t *render_targets = {&render_target};
 	kinc_g4_set_render_targets(&render_targets, 1);
 
+	kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xFF000000, 0.0f, 0);
 	kinc_g4_set_pipeline(&pipeline);
 	kinc_g4_set_vertex_buffer(&vertices);
 	kinc_g4_set_index_buffer(&indices);
@@ -48,7 +48,7 @@ static void update(void) {
 
 	uint8_t *pixels = (uint8_t *)malloc(2048 * 2048 * 4);
 	kinc_g4_render_target_get_pixels(&render_target, pixels);
-	stbi_write_tga("test.tga", 2048, 2048, 4, pixels);
+	stbi_write_png("test.png", 2048, 2048, 4, pixels, 2048 * 4);
 	exit(0);
 }
 

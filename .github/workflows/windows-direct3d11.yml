@@ -26,4 +26,4 @@ jobs:
     - name: Compile and run Test 1
       run: .\Tools\kmake\kmake.exe -v vs2019 -g direct3d11 --kinc . --from Tests/Shader --run
     - name: Check Test 1
-      run: .\ImageMagick\compare.exe -metric mae .\Tests\Shader\reference.png .\Tests\Shader\Deployment\test.tga difference.png
+      run: .\ImageMagick\compare.exe -metric mae .\Tests\Shader\reference.png .\Tests\Shader\Deployment\test.png difference.png
