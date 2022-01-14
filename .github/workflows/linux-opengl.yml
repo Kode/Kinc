@@ -14,15 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Apt Update
-      run: sudo apt-get update
+      run: sudo apt update
     - name: Apt Install
       run: sudo apt install libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libudev-dev --yes --quiet
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
       run: Tools/kmake/kmake-linux64 -g opengl --kinc . --from Tests/Empty --compile
+    - name: Clean
+      run: rm -r build
     - name: Get ImageMagick
       run: sudo apt install imagemagick
     - name: Compile and run Test 1
