@@ -21,9 +21,9 @@ jobs:
       run: .\Tools\kmake\kmake.exe -v vs2019 -g direct3d11 --kinc . --from Tests/Empty --compile
     - name: Get ImageMagick
       run: |
-          Invoke-WebRequest -Uri "https://download.imagemagick.org/ImageMagick/download/binaries/ImageMagick-7.1.0-portable-Q16-x64.zip" -OutFile ImageMagick.zip
-          7z x ImageMagick.zip -oImageMagick
+        choco install -y imagemagick.app --no-progress
+        Get-ChildItem -Path "${env:ProgramFiles}" | Where-Object {($_.Name -Like 'ImageMagick*')} | % { $_.FullName }
     - name: Compile and run Test 1
       run: .\Tools\kmake\kmake.exe -v vs2019 -g direct3d11 --kinc . --from Tests/Shader --run
     - name: Check Test 1
-      run: .\ImageMagick\compare.exe -metric mae .\Tests\Shader\reference.png .\Tests\Shader\Deployment\test.png difference.png
+      run: compare.exe -metric mae .\Tests\Shader\reference.png .\Tests\Shader\Deployment\test.png difference.png
