@@ -25,7 +25,13 @@ jobs:
       run: Tools/kmake/kmake-linux64 -g opengl --kinc . --from Tests/Empty --compile
     - name: Clean
       run: rm -r build
-    - name: Get ImageMagick
-      run: sudo apt install imagemagick
-    - name: Compile and run Test 1
-      run: Tools/kmake/kmake-linux64 -g opengl --kinc . --from Tests/Shader --run
+    - name: Get ImageMagick and xvfb
+      run: sudo apt install imagemagick xvfb
+    - name: Compile Test 1
+      run: Tools/kmake/kmake-linux64 -g opengl --kinc . --from Tests/Shader --compile
+    - name: Copy Test 1
+      run: cp build/Release/ShaderTest Tests/Shader/Deployment/ShaderTest
+    - name: Run Test 1
+      run: xvfb-run Tests/Shader/Deployment/ShaderTest
+    - name: Check Test 1
+      run: compare-im6 -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
