@@ -14,12 +14,8 @@ jobs:
     runs-on: macOS-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
-      run: Tools/kmake/kmake-osx -g metal --kinc . --from Tests/Empty --noshaders --compile
-    - name: Clean
-      run: rm -r build
-    - name: Compile and run Test 1
-      run: Tools/kmake/kmake-osx -g metal --kinc . --from Tests/Shader --run
+      run: Tools/kmake/kmake-osx -g metal --kinc . --from Tests/Empty --compile
