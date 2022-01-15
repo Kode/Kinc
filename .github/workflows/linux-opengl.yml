@@ -32,6 +32,7 @@ jobs:
     - name: Copy Test 1
       run: cp build/Release/ShaderTest Tests/Shader/Deployment/ShaderTest
     - name: Run Test 1
-      run: xvfb-run Tests/Shader/Deployment/ShaderTest
+      working-directory: ./Tests/Shader/Deployment
+      run: xvfb-run ShaderTest
     - name: Check Test 1
       run: compare-im6 -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
