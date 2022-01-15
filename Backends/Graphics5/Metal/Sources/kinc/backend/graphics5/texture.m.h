@@ -30,6 +30,29 @@ static MTLPixelFormat convert_image_format(kinc_image_format_t format) {
 	}
 }
 
+static int formatByteSize(kinc_image_format_t format) {
+	switch (format) {
+	case KINC_IMAGE_FORMAT_RGBA128:
+		return 16;
+	case KINC_IMAGE_FORMAT_RGBA64:
+		return 8;
+	case KINC_IMAGE_FORMAT_RGB24:
+		return 4;
+	case KINC_IMAGE_FORMAT_A32:
+		return 4;
+	case KINC_IMAGE_FORMAT_A16:
+		return 2;
+	case KINC_IMAGE_FORMAT_GREY8:
+		return 1;
+	case KINC_IMAGE_FORMAT_BGRA32:
+	case KINC_IMAGE_FORMAT_RGBA32:
+		return 4;
+	default:
+		assert(false);
+		return 4;
+	}
+}
+
 bool kinc_internal_bilinear_filtering = false;
 
 static id pointSampler;
@@ -56,6 +79,7 @@ void kinc_internal_init_samplers(void) {
 }
 
 static void create(kinc_g5_texture_t *texture, int width, int height, int format, bool writable) {
+	texture->impl.has_mipmaps = false;
 	id<MTLDevice> device = getMetalDevice();
 
 	MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert_image_format((kinc_image_format_t)format)
@@ -243,7 +267,57 @@ void kinc_g5_texture_clear(kinc_g5_texture_t *texture, int x, int y, int z, int 
 
 void kinc_g5_texture_generate_mipmaps(kinc_g5_texture_t *texture, int levels) {}
 
-void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_image_t *mipmap, int level) {}
+void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_image_t *mipmap, int level) {
+	if (!texture->impl.has_mipmaps) {
+		id<MTLDevice> device = getMetalDevice();
+		MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:convert_image_format((kinc_image_format_t)texture->format)
+		                                                                                      width:texture->texWidth
+		                                                                                     height:texture->texHeight
+		                                                                                  mipmapped:YES];
+		descriptor.textureType = MTLTextureType2D;
+		descriptor.width = texture->texWidth;
+		descriptor.height = texture->texHeight;
+		descriptor.depth = 1;
+		descriptor.pixelFormat = convert_image_format((kinc_image_format_t)texture->format);
+		descriptor.arrayLength = 1;
+		bool writable = true;
+		if (writable) {
+			descriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
+		}
+		void *mipmaptex = (__bridge_retained void *)[device newTextureWithDescriptor:descriptor];
+
+		id<MTLCommandQueue> commandQueue = getMetalQueue();
+		id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+		id<MTLBlitCommandEncoder> commandEncoder = [commandBuffer blitCommandEncoder];
+		[commandEncoder copyFromTexture:(__bridge id<MTLTexture>)texture->impl._tex
+		                    sourceSlice:0
+		                    sourceLevel:0
+		                   sourceOrigin:MTLOriginMake(0, 0, 0)
+		                     sourceSize:MTLSizeMake(texture->texWidth, texture->texHeight, 1)
+		                      toTexture:(__bridge id<MTLTexture>)mipmaptex
+		               destinationSlice:0
+		               destinationLevel:0
+		              destinationOrigin:MTLOriginMake(0, 0, 0)];
+#ifndef KINC_APPLE_SOC
+		[commandEncoder synchronizeResource:(__bridge id<MTLTexture>)mipmaptex];
+#endif
+		[commandEncoder endEncoding];
+		[commandBuffer commit];
+		[commandBuffer waitUntilCompleted];
+
+		id<MTLTexture> tex = (__bridge_transfer id<MTLTexture>)texture->impl._tex;
+		tex = nil;
+		texture->impl._tex = mipmaptex;
+
+		texture->impl.has_mipmaps = true;
+	}
+
+	id<MTLTexture> tex = (__bridge id<MTLTexture>)texture->impl._tex;
+	[tex replaceRegion:MTLRegionMake2D(0, 0, mipmap->width, mipmap->height)
+           mipmapLevel:level
+             withBytes:mipmap->data
+           bytesPerRow:mipmap->width * formatByteSize(mipmap->format)];
+}
 
 #include <kinc/graphics4/texture.h>
 
