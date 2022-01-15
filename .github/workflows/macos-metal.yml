@@ -19,3 +19,7 @@ jobs:
       run: git submodule update --init --recursive
     - name: Compile
       run: Tools/kmake/kmake-osx -g metal --kinc . --from Tests/Empty --noshaders --compile
+    - name: Clean
+      run: rm -r build
+    - name: Compile and run Test 1
+      run: Tools/kmake/kmake-osx -g metal --kinc . --from Tests/Shader --run
