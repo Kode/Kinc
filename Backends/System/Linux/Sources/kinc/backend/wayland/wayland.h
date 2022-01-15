@@ -174,11 +174,11 @@ enum kinc_wl_decoration_focus {
 };
 
 #define KINC_WL_DECORATION_TOP_X 0
-#define KINC_WL_DECORATION_TOP_Y 0
+#define KINC_WL_DECORATION_TOP_Y -20
 #define KINC_WL_DECORATION_TOP_WIDTH window->width + 10
-#define KINC_WL_DECORATION_TOP_HEIGHT 10
+#define KINC_WL_DECORATION_TOP_HEIGHT 20
 
-#define KINC_WL_DECORATION_LEFT_X 0
+#define KINC_WL_DECORATION_LEFT_X -10
 #define KINC_WL_DECORATION_LEFT_Y 0
 #define KINC_WL_DECORATION_LEFT_WIDTH 10
 #define KINC_WL_DECORATION_LEFT_HEIGHT window->height
@@ -188,9 +188,9 @@ enum kinc_wl_decoration_focus {
 #define KINC_WL_DECORATION_RIGHT_WIDTH 10
 #define KINC_WL_DECORATION_RIGHT_HEIGHT window->height
 
-#define KINC_WL_DECORATION_BOTTOM_X 0
+#define KINC_WL_DECORATION_BOTTOM_X -10
 #define KINC_WL_DECORATION_BOTTOM_Y window->height
-#define KINC_WL_DECORATION_BOTTOM_WIDTH window->width + 10
+#define KINC_WL_DECORATION_BOTTOM_WIDTH window->width + 20
 #define KINC_WL_DECORATION_BOTTOM_HEIGHT 10
 
 struct kinc_wl_window {

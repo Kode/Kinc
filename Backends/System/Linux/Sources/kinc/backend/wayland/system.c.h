@@ -233,9 +233,12 @@ void wl_pointer_handle_leave(void *data, struct wl_pointer *wl_pointer, uint32_t
 #include <wayland-cursor.h>
 
 void kinc_wayland_set_cursor(struct kinc_wl_mouse *mouse, const char *name) {
-	if(!name) return;
+	if (!name) return;
 	struct wl_cursor *cursor = wl_cursor_theme_get_cursor(wl_ctx.cursor_theme, name);
-	if (!cursor) return;
+	if (!cursor) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Wayland: No cursor found '%'.", name);
+		return;
+	}
 	struct wl_cursor_image *image = cursor->images[0];
 	if (!image) return;
 	struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
@@ -255,14 +258,14 @@ void wl_pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_
 	int x = wl_fixed_to_int(surface_x);
 	int y = wl_fixed_to_int(surface_y);
 
-	const char *cursor_name = NULL;
+	const char *cursor_name = "default";
 
 	switch (window->decorations.focus) {
 	case KINC_WL_DECORATION_FOCUS_MAIN:
 		mouse->x = x;
 		mouse->y = y;
 		kinc_internal_mouse_trigger_move(mouse->current_window, x, y);
-		return;
+		// return;
 	case KINC_WL_DECORATION_FOCUS_TOP:
 		if (y < 10)
 			cursor_name = "n-resize";
@@ -291,7 +294,7 @@ void wl_pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_
 		break;
 	}
 
-	if(mouse->previous_cursor_name != cursor_name) {
+	if (mouse->previous_cursor_name != cursor_name) {
 		kinc_wayland_set_cursor(mouse, cursor_name);
 	}
 }

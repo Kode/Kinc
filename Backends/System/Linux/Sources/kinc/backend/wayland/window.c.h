@@ -47,7 +47,7 @@ static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *tople
 		}
 	}
 	kinc_internal_resize(window->window_id, width, height);
-	xdg_surface_set_window_geometry(window->xdg_surface, 0, 0, window->width, window->height);
+	xdg_surface_set_window_geometry(window->xdg_surface, -10, -20, window->width + 20, window->height + 30);
 #ifdef KINC_EGL
 	wl_egl_window_resize(window->egl_window, width, height, 0, 0);
 #endif
@@ -277,8 +277,6 @@ int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_opti
 	xdg_toplevel_add_listener(window->toplevel, &xdg_toplevel_listener, window);
 
 	kinc_wayland_window_set_title(window_index, win->title);
-
-	xdg_surface_set_window_geometry(window->xdg_surface, win->x, win->y, win->width, win->height);
 
 	if (wl_ctx.decoration_manager) {
 		window->xdg_decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(wl_ctx.decoration_manager, window->toplevel);
