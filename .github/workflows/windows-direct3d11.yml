@@ -25,5 +25,9 @@ jobs:
         Get-ChildItem -Path "${env:ProgramFiles}" | Where-Object {($_.Name -Like 'ImageMagick*')} | % { $_.FullName } | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
     - name: Compile and run Test 1
       run: .\Tools\kmake\kmake.exe -v vs2019 -g direct3d11 --kinc . --from Tests/Shader --run
+    - name: Test ImageMagick
+      run: |
+        cmd /c "echo %PATH%"
+        magick -version
     - name: Check Test 1
       run: compare.exe -metric mae .\Tests\Shader\reference.png .\Tests\Shader\Deployment\test.png difference.png
