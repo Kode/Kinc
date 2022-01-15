@@ -82,7 +82,8 @@ extern struct DepthBuffer kinc_vulkan_internal_depth;
 extern VkBuffer *kinc_vulkan_internal_vertexUniformBuffer;
 extern VkBuffer *kinc_vulkan_internal_fragmentUniformBuffer;
 
-static void flush_init_cmd();
+static void flush_init_cmd(void);
+static void reuse_descriptor_sets(void);
 
 #include "Vulkan.c.h"
 #include "commandlist.c.h"
