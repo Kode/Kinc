@@ -36,7 +36,6 @@ extern VkCommandBuffer setup_cmd;
 }*/
 
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout) {
-
 	VkImageMemoryBarrier imageMemoryBarrier = {0};
 	imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	imageMemoryBarrier.pNext = NULL;
