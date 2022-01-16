@@ -576,7 +576,6 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 }
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
-
 	if (targets[0]->contextId < 0) {
 		kinc_internal_restore_render_target(list, targets[0]);
 		return;
@@ -815,8 +814,9 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	vkUnmapMemory(device, render_target->impl.readbackMemory);
 }
 
+// barriers are automatically implemented via the render-passes used by kinc_g5_command_list_set_render_targets
 void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
-	VkImageMemoryBarrier barrier = {0};
+	/*VkImageMemoryBarrier barrier = {0};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	barrier.pNext = NULL;
 	barrier.srcAccessMask = 0;
@@ -831,11 +831,11 @@ void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = 1;
-	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
+	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);*/
 }
 
 void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
-	VkImageMemoryBarrier barrier = {0};
+	/*VkImageMemoryBarrier barrier = {0};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	barrier.pNext = NULL;
 	barrier.srcAccessMask = 0;
@@ -850,7 +850,7 @@ void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = 1;
-	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
+	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);*/
 }
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {

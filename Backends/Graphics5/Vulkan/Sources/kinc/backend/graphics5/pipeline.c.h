@@ -663,6 +663,25 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	subpass.preserveAttachmentCount = 0;
 	subpass.pPreserveAttachments = NULL;
 
+	VkSubpassDependency dependencies[2];
+	memset(&dependencies, 0, sizeof(dependencies));
+
+	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependencies[0].dstSubpass = 0;
+	dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+	dependencies[1].srcSubpass = 0;
+	dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+	dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
 	VkRenderPassCreateInfo rp_info = {0};
 	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	rp_info.pNext = NULL;
@@ -670,8 +689,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	rp_info.pAttachments = attachments;
 	rp_info.subpassCount = 1;
 	rp_info.pSubpasses = &subpass;
-	rp_info.dependencyCount = 0;
-	rp_info.pDependencies = NULL;
+	rp_info.dependencyCount = 2;
+	rp_info.pDependencies = dependencies;
 
 	VkRenderPass render_pass;
 	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
