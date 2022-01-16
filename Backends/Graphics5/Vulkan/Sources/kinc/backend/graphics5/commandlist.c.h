@@ -426,7 +426,7 @@ void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_ren
 		count++;
 	}
 	if (((flags & KINC_G5_CLEAR_DEPTH) || (flags & KINC_G5_CLEAR_STENCIL)) && renderTarget->impl.depthBufferBits > 0) {
-		attachments[count].aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		attachments[count].aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT; // | VK_IMAGE_ASPECT_STENCIL_BIT;
 		attachments[count].clearValue.depthStencil.depth = depth;
 		attachments[count].clearValue.depthStencil.stencil = stencil;
 		count++;
