@@ -85,6 +85,9 @@ extern VkBuffer *kinc_vulkan_internal_fragmentUniformBuffer;
 static void flush_init_cmd(void);
 static void reuse_descriptor_sets(void);
 
+static VkRenderPass framebuffer_render_pass;
+static VkRenderPass rendertarget_render_pass;
+
 #include "Vulkan.c.h"
 #include "commandlist.c.h"
 #include "constantbuffer.c.h"

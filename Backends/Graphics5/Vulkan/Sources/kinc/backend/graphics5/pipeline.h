@@ -16,7 +16,8 @@ typedef struct PipelineState5Impl_s {
 	int *textureValues;
 	int textureCount;
 
-	VkPipeline pipeline;
+	VkPipeline framebuffer_pipeline;
+	VkPipeline rendertarget_pipeline;
 	VkShaderModule vert_shader_module;
 	VkShaderModule frag_shader_module;
 
