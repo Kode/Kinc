@@ -36,7 +36,7 @@ bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath) {
 #ifdef KORE_WINDOWS
 	wchar_t wpath[MAX_PATH];
 	MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_PATH);
-	writer->file = CreateFile(wpath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+	writer->file = CreateFile(wpath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 #else
 	writer->file = fopen(path, "wb");
 #endif
