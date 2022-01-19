@@ -107,7 +107,7 @@ $(function() {
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">wchar_t</span> wpath[MAX_PATH];</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_PATH);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    writer-&gt;file = CreateFile(wpath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    writer-&gt;file = CreateFile(wpath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    writer-&gt;file = fopen(path, <span class="stringliteral">&quot;wb&quot;</span>);</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#endif</span></div>
