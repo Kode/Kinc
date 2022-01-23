@@ -295,7 +295,6 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	assert(!err);
 
 	VkGraphicsPipelineCreateInfo pipeline_info = {};
-	VkPipelineCacheCreateInfo pipelineCache_info = {};
 
 	VkPipelineInputAssemblyStateCreateInfo ia = {};
 	VkPipelineRasterizationStateCreateInfo rs = {};
@@ -574,15 +573,9 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	pipeline_info.renderPass = render_pass;
 	pipeline_info.pDynamicState = &dynamicState;
 
-	memset(&pipelineCache_info, 0, sizeof(pipelineCache_info));
-	pipelineCache_info.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-
-	err = vkCreatePipelineCache(device, &pipelineCache_info, nullptr, &pipeline->impl.pipelineCache);
-	assert(!err);
-	err = vkCreateGraphicsPipelines(device, pipeline->impl.pipelineCache, 1, &pipeline_info, nullptr, &pipeline->impl.pipeline);
+	err = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline->impl.pipeline);
 	assert(!err);
 
-	vkDestroyPipelineCache(device, pipeline->impl.pipelineCache, nullptr);
 	vkDestroyShaderModule(device, pipeline->impl.frag_shader_module, nullptr);
 	vkDestroyShaderModule(device, pipeline->impl.vert_shader_module, nullptr);
 }
