@@ -658,6 +658,7 @@ int calc_descriptor_id(void) {
 
 struct destriptor_set {
 	int id;
+	bool in_use;
 	VkDescriptorSet set;
 };
 
@@ -706,10 +707,17 @@ static void update_textures(VkDescriptorSet descriptor_set) {
 	}
 }
 
+void reuse_descriptor_sets(void) {
+	for (int i = 0; i < descriptor_sets_count; ++i) {
+		descriptor_sets[i].in_use = false;
+	}
+}
+
 VkDescriptorSet getDescriptorSet() {
 	int id = calc_descriptor_id();
 	for (int i = 0; i < descriptor_sets_count; ++i) {
-		if (descriptor_sets[i].id == id) {
+		if (!descriptor_sets[i].in_use && descriptor_sets[i].id == id) {
+			descriptor_sets[i].in_use = true;
 			update_textures(descriptor_sets[i].set);
 			return descriptor_sets[i].set;
 		}
@@ -807,6 +815,7 @@ VkDescriptorSet getDescriptorSet() {
 
 	assert(descriptor_sets_count + 1 < MAX_DESCRIPTOR_SETS);
 	descriptor_sets[descriptor_sets_count].id = id;
+	descriptor_sets[descriptor_sets_count].in_use = true;
 	descriptor_sets[descriptor_sets_count].set = descriptor_set;
 	descriptor_sets_count += 1;
 

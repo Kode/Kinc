@@ -799,7 +799,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 }
 
 void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
-	/*VkImageMemoryBarrier barrier = {0};
+	VkImageMemoryBarrier barrier = {0};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	barrier.pNext = nullptr;
 	barrier.srcAccessMask = 0;
@@ -814,11 +814,11 @@ void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = 1;
-	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);*/
+	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 }
 
 void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
-	/*VkImageMemoryBarrier barrier = {0};
+	VkImageMemoryBarrier barrier = {0};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	barrier.pNext = nullptr;
 	barrier.srcAccessMask = 0;
@@ -833,7 +833,7 @@ void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = 1;
-	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);*/
+	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 }
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
@@ -851,6 +851,8 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {}
+
+void reuse_descriptor_sets(void);
 
 void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 	vkCmdEndRenderPass(list->impl._buffer);
@@ -877,6 +879,8 @@ void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 	assert(!err);
 
 	vkResetCommandBuffer(list->impl._buffer, 0);
+
+	reuse_descriptor_sets();
 
 	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
 	cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
