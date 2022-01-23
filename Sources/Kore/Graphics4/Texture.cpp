@@ -121,7 +121,7 @@ Graphics4::Texture::~Texture() {
 	kinc_g4_texture_destroy(&kincTexture);
 }
 
-#ifdef KORE_ANDROID
+#if defined(KORE_ANDROID) && !defined(KORE_VULKAN)
 Graphics4::Texture::Texture(unsigned texid) {
 	kinc_g4_texture_init_from_id(&kincTexture, texid);
 }

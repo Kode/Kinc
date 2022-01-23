@@ -27,7 +27,7 @@ namespace Kore {
 			Texture(void *data, int width, int height, Format format, bool readable = false);
 			Texture(void *data, int width, int height, int depth, Format format, bool readable = false);
 			virtual ~Texture();
-#ifdef KORE_ANDROID
+#if defined(KORE_ANDROID) && !defined(KORE_VULKAN)
 			Texture(unsigned texid);
 #endif
 			void _set(TextureUnit unit);
