@@ -57,10 +57,6 @@ void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 	}
 }
 
-int kinc_primary_display(void) {
-	return 0;
-}
-
 void kinc_window_destroy(int window_index) {}
 
 void kinc_window_show(int window_index) {}
