@@ -121,6 +121,7 @@ struct kinc_x11_procs {
 	void (*XDestroyIC)(XIC);
 	void (*XSetICFocus)(XIC);
 	int (*XMapWindow)(Display *, Window);
+	int (*XUnmapWindow)(Display *, Window);
 	int (*XSetWMProtocols)(Display *, Window, Atom *, int);
 
 	int (*XineramaQueryExtension)(Display *dpy, int *event_base, int *error_base);

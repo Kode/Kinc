@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 void kinc_window_options_set_defaults(kinc_window_options_t *win) {
+	kinc_display_init();
 	win->title = NULL;
 	win->display_index = kinc_primary_display();
 	win->mode = KINC_WINDOW_MODE_WINDOW;

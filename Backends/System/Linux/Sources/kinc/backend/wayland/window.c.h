@@ -51,18 +51,20 @@ static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *tople
 #ifdef KINC_EGL
 	wl_egl_window_resize(window->egl_window, width, height, 0, 0);
 #endif
-	wl_subsurface_set_position(window->decorations.top.subsurface, KINC_WL_DECORATION_TOP_X, KINC_WL_DECORATION_TOP_Y);
-	wp_viewport_set_destination(window->decorations.top.viewport, KINC_WL_DECORATION_TOP_WIDTH, KINC_WL_DECORATION_TOP_HEIGHT);
-	wl_surface_commit(window->decorations.top.surface);
-	wl_subsurface_set_position(window->decorations.left.subsurface, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_LEFT_Y);
-	wp_viewport_set_destination(window->decorations.left.viewport, KINC_WL_DECORATION_LEFT_WIDTH, KINC_WL_DECORATION_LEFT_HEIGHT);
-	wl_surface_commit(window->decorations.left.surface);
-	wl_subsurface_set_position(window->decorations.right.subsurface, KINC_WL_DECORATION_RIGHT_X, KINC_WL_DECORATION_RIGHT_Y);
-	wp_viewport_set_destination(window->decorations.right.viewport, KINC_WL_DECORATION_RIGHT_WIDTH, KINC_WL_DECORATION_RIGHT_HEIGHT);
-	wl_surface_commit(window->decorations.right.surface);
-	wl_subsurface_set_position(window->decorations.bottom.subsurface, KINC_WL_DECORATION_BOTTOM_X, KINC_WL_DECORATION_BOTTOM_Y);
-	wp_viewport_set_destination(window->decorations.bottom.viewport, KINC_WL_DECORATION_BOTTOM_WIDTH, KINC_WL_DECORATION_BOTTOM_HEIGHT);
-	wl_surface_commit(window->decorations.bottom.surface);
+	if (window->decorations.top.surface != NULL) {
+		wl_subsurface_set_position(window->decorations.top.subsurface, KINC_WL_DECORATION_TOP_X, KINC_WL_DECORATION_TOP_Y);
+		wp_viewport_set_destination(window->decorations.top.viewport, KINC_WL_DECORATION_TOP_WIDTH, KINC_WL_DECORATION_TOP_HEIGHT);
+		wl_surface_commit(window->decorations.top.surface);
+		wl_subsurface_set_position(window->decorations.left.subsurface, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_LEFT_Y);
+		wp_viewport_set_destination(window->decorations.left.viewport, KINC_WL_DECORATION_LEFT_WIDTH, KINC_WL_DECORATION_LEFT_HEIGHT);
+		wl_surface_commit(window->decorations.left.surface);
+		wl_subsurface_set_position(window->decorations.right.subsurface, KINC_WL_DECORATION_RIGHT_X, KINC_WL_DECORATION_RIGHT_Y);
+		wp_viewport_set_destination(window->decorations.right.viewport, KINC_WL_DECORATION_RIGHT_WIDTH, KINC_WL_DECORATION_RIGHT_HEIGHT);
+		wl_surface_commit(window->decorations.right.surface);
+		wl_subsurface_set_position(window->decorations.bottom.subsurface, KINC_WL_DECORATION_BOTTOM_X, KINC_WL_DECORATION_BOTTOM_Y);
+		wp_viewport_set_destination(window->decorations.bottom.viewport, KINC_WL_DECORATION_BOTTOM_WIDTH, KINC_WL_DECORATION_BOTTOM_HEIGHT);
+		wl_surface_commit(window->decorations.bottom.surface);
+	}
 }
 
 void kinc_wayland_window_destroy(int window_index);
@@ -208,7 +210,9 @@ void xdg_toplevel_decoration_configure(void *data, struct zxdg_toplevel_decorati
 		if (window->decorations.top.surface) {
 			kinc_wayland_destroy_decorations(window);
 		}
-		kinc_wayland_create_decorations(window);
+		if (window->mode == KINC_WINDOW_MODE_WINDOW) {
+			kinc_wayland_create_decorations(window);
+		}
 	}
 	else if (mode == ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE) {
 		window->decorations.server_side = true;
@@ -248,6 +252,7 @@ static const struct zxdg_toplevel_decoration_v1_listener xdg_toplevel_decoration
 };
 
 void kinc_wayland_window_set_title(int window_index, const char *title);
+void kinc_wayland_window_change_mode(int window_index, kinc_window_mode_t mode);
 
 int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	int window_index = -1;
@@ -265,7 +270,7 @@ int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_opti
 	window->window_id = window_index;
 	window->width = win->width;
 	window->height = win->height;
-	window->mode = win->mode;
+	window->mode = KINC_WINDOW_MODE_WINDOW;
 	window->surface = wl_compositor_create_surface(wl_ctx.compositor);
 	wl_surface_set_user_data(window->surface, window);
 	wl_surface_add_listener(window->surface, &wl_surface_listener, NULL);
@@ -294,6 +299,7 @@ int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_opti
 	window->egl_window = wl_egl_window_create(window->surface, window->width, window->height);
 #endif
 	wl_surface_commit(window->surface);
+	kinc_wayland_window_change_mode(window_index, win->mode);
 	wl_ctx.num_windows++;
 	return window_index;
 }
@@ -347,11 +353,11 @@ void kinc_wayland_window_resize(int window_index, int width, int height) {
 }
 
 void kinc_wayland_window_show(int window_index) {
-	// TODO: figure out what exactly this method is supposed to do
+	kinc_log(KINC_LOG_LEVEL_ERROR, "Wayland does not support unhiding windows.");
 }
 
 void kinc_wayland_window_hide(int window_index) {
-	// TODO: figure out what exactly this method is supposed to do
+	kinc_log(KINC_LOG_LEVEL_ERROR, "Wayland does not support hiding windows.");
 }
 
 kinc_window_mode_t kinc_wayland_window_get_mode(int window_index) {
@@ -365,13 +371,18 @@ void kinc_wayland_window_change_mode(int window_index, kinc_window_mode_t mode) 
 	}
 	switch (mode) {
 	case KINC_WINDOW_MODE_WINDOW:
-		if (window->mode == KINC_WINDOW_MODE_FULLSCREEN) {
+		if (window->mode == KINC_WINDOW_MODE_FULLSCREEN || window->mode == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN) {
 			window->mode = KINC_WINDOW_MODE_WINDOW;
 			xdg_toplevel_unset_fullscreen(window->toplevel);
 		}
 		break;
 	case KINC_WINDOW_MODE_FULLSCREEN:
 	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		if (window->mode == KINC_WINDOW_MODE_WINDOW) {
+			window->mode = mode;
+			struct kinc_wl_display *display = &wl_ctx.displays[window->display_index];
+			xdg_toplevel_set_fullscreen(window->toplevel, display->output);
+		}
 		break;
 	}
 }

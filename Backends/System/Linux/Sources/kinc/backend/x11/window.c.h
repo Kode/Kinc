@@ -134,12 +134,12 @@ void kinc_x11_window_resize(int window_index, int width, int height) {
 
 void kinc_x11_window_show(int window_index) {
 	struct kinc_x11_window *window = &x11_ctx.windows[window_index];
-	// XMapWindow(x11_ctx.display, window->window);
+	xlib.XMapWindow(x11_ctx.display, window->window);
 }
 
 void kinc_x11_window_hide(int window_index) {
 	struct kinc_x11_window *window = &x11_ctx.windows[window_index];
-	// XUnmapWindow(x11_ctx.display, window->window);
+	xlib.XUnmapWindow(x11_ctx.display, window->window);
 }
 
 kinc_window_mode_t kinc_x11_window_get_mode(int window_index) {

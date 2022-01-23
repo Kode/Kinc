@@ -112,6 +112,7 @@ bool kinc_x11_init() {
 	LOAD_FUN(X11, XDestroyIC)
 	LOAD_FUN(X11, XSetICFocus)
 	LOAD_FUN(X11, XMapWindow)
+	LOAD_FUN(X11, XUnmapWindow);
 	LOAD_FUN(X11, XSetWMProtocols)
 
 	LOAD_FUN(Xinerama, XineramaQueryExtension)

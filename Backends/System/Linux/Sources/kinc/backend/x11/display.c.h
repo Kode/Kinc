@@ -1,5 +1,4 @@
-#include "kinc/backend/wayland/wayland.h"
-#include "kinc/display.h"
+#include <kinc/display.h>
 #include "x11.h"
 
 #include <X11/extensions/Xinerama.h>
