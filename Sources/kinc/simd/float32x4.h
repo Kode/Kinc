@@ -71,7 +71,7 @@ static inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
 	return _mm_sqrt_ps(t);
 }
 
-#elif defined(KORE_IOS) || defined(KORE_SWITCH) || (defined(KORE_MACOS) && __arm64) || ((defined(KORE_LINUX) || defined(KORE_ANDROID)) && defined(__aarch64__))
+#elif defined(KORE_IOS) || defined(KORE_SWITCH) || defined(__aarch64__)) || defined(KORE_NEON)
 
 #include <arm_neon.h>
 
@@ -98,7 +98,7 @@ static inline kinc_float32x4_t kinc_float32x4_add(kinc_float32x4_t a, kinc_float
 }
 
 static inline kinc_float32x4_t kinc_float32x4_div(kinc_float32x4_t a, kinc_float32x4_t b) {
-#if defined(ARM64) || defined(KORE_SWITCH) || defined(__arm64) || defined(__aarch64__)
+#if defined(KORE_SWITCH) || defined(__aarch64__)
 	return vdivq_f32(a, b);
 #else
 	float32x4_t inv = vrecpeq_f32(b);
@@ -129,7 +129,7 @@ static inline kinc_float32x4_t kinc_float32x4_sub(kinc_float32x4_t a, kinc_float
 }
 
 static inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
-#if defined(ARM64) || defined(KORE_SWITCH) || defined(__arm64) || defined(__aarch64__)
+#if defined(KORE_SWITCH) || defined(__aarch64__)
 	return vsqrtq_f32(t);
 #else
 	return vmulq_f32(t, vrsqrteq_f32(t));
