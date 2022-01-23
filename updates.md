@@ -1,3 +1,4 @@
+* 2022-01-23: Blending has been reworked and blending-operations are actually blending-operations. The former blending-operations have been renamed to blending-factors.
 * 2021-12-21: A parameter specyfiying the index-format was added to kinc_g5_index_buffer_init
 * 2021-11-15: The input callbacks are now set using function calls like in other parts of the API.
 * 2021-07-05: kinc_g4_index_buffer_init now has an additional usage-parameter, just like kinc_g4_vertex_buffer_init. Pass KINC_G4_USAGE_STATIC to retain the previous behaviour.
