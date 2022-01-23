@@ -12,8 +12,8 @@
 #include <malloc.h>
 
 namespace {
-	_D3DBLEND convert(kinc_g4_blending_operation_t operation) {
-		switch (operation) {
+	_D3DBLEND convert_blend_factor(kinc_g4_blending_factor_t factor) {
+		switch (factor) {
 		case KINC_G4_BLEND_ONE:
 			return D3DBLEND_ONE;
 		case KINC_G4_BLEND_ZERO:
@@ -27,8 +27,26 @@ namespace {
 		case KINC_G4_BLEND_INV_DEST_ALPHA:
 			return D3DBLEND_INVDESTALPHA;
 		default:
-			//	throw Exception("Unknown blending operation.");
+			assert(false);
 			return D3DBLEND_SRCALPHA;
+		}
+	}
+
+	_D3DBLENDOP convert_blend_operation(kinc_g4_blending_operation_t op) {
+		switch (op) {
+		case KINC_G4_BLENDOP_ADD:
+			return D3DBLENDOP_ADD;
+		case KINC_G4_BLENDOP_SUBTRACT:
+			return D3DBLENDOP_SUBTRACT;
+		case KINC_G4_BLENDOP_REVERSE_SUBTRACT:
+			return D3DBLENDOP_REVSUBTRACT;
+		case KINC_G4_BLENDOP_MIN:
+			return D3DBLENDOP_MIN;
+		case KINC_G4_BLENDOP_MAX:
+			return D3DBLENDOP_MAX;
+		default:
+			assert(false);
+			return D3DBLENDOP_ADD;
 		}
 	}
 
@@ -269,8 +287,9 @@ void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE,
 	                       (pipeline->blend_source != KINC_G4_BLEND_ONE || pipeline->blend_destination != KINC_G4_BLEND_ZERO) ? TRUE : FALSE);
-	device->SetRenderState(D3DRS_SRCBLEND, convert(pipeline->blend_source));
-	device->SetRenderState(D3DRS_DESTBLEND, convert(pipeline->blend_destination));
+	device->SetRenderState(D3DRS_SRCBLEND, convert_blend_factor(pipeline->blend_source));
+	device->SetRenderState(D3DRS_DESTBLEND, convert_blend_factor(pipeline->blend_destination));
+	device->SetRenderState(D3DRS_BLENDOP, convert_blend_operation(pipeline->blend_operation));
 
 	switch (pipeline->cull_mode) {
 	case KINC_G4_CULL_CLOCKWISE:
