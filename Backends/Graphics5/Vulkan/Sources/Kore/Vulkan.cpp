@@ -541,8 +541,7 @@ void create_swapchain() {
 }
 
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	// depthBits = depthBufferBits;
-	depthBits = 0;
+	depthBits = depthBufferBits;
 	stencilBits = stencilBufferBits;
 	vsynced = vsync;
 	uint32_t instance_extension_count = 0;
