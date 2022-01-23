@@ -15,12 +15,13 @@
 #include <vulkan/vulkan.h>
 
 extern VkDevice device;
+extern VkRenderPass framebuffer_render_pass;
+extern VkRenderPass rendertarget_render_pass;
 extern VkCommandPool cmd_pool;
 extern PFN_vkQueuePresentKHR fpQueuePresentKHR;
 extern VkSwapchainKHR swapchain;
 extern VkQueue queue;
 extern VkFramebuffer *framebuffers;
-extern VkRenderPass render_pass;
 extern uint32_t current_buffer;
 extern int depthBits;
 extern VkSemaphore presentCompleteSemaphore;
@@ -31,6 +32,7 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 VkCommandBuffer setup_cmd;
 VkRenderPassBeginInfo currentRenderPassBeginInfo;
+VkPipeline currentVulkanPipeline;
 kinc_g5_render_target_t *currentRenderTargets[8] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 namespace {
@@ -307,7 +309,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rp_begin.pNext = NULL;
-	rp_begin.renderPass = render_pass;
+	rp_begin.renderPass = framebuffer_render_pass;
 	rp_begin.framebuffer = framebuffers[current_buffer];
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
@@ -498,7 +500,14 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 	lastVertexConstantBufferOffset = 0;
 	lastFragmentConstantBufferOffset = 0;
 
-	vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline);
+	if (onBackBuffer) {
+		currentVulkanPipeline = currentPipeline->impl.framebuffer_pipeline;
+		vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.framebuffer_pipeline);
+	}
+	else {
+		currentVulkanPipeline = currentPipeline->impl.rendertarget_pipeline;
+		vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.rendertarget_pipeline);
+	}
 }
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **vertexBuffers, int *offsets_, int count) {
@@ -550,7 +559,7 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	VkRenderPassBeginInfo rp_begin = {};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rp_begin.pNext = nullptr;
-	rp_begin.renderPass = render_pass;
+	rp_begin.renderPass = framebuffer_render_pass;
 	rp_begin.framebuffer = framebuffers[current_buffer];
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
@@ -560,6 +569,11 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	rp_begin.pClearValues = clear_values;
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 	currentRenderPassBeginInfo = rp_begin;
+
+	if (currentPipeline != NULL) {
+		currentVulkanPipeline = currentPipeline->impl.framebuffer_pipeline;
+		vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.framebuffer_pipeline);
+	}
 }
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
@@ -729,6 +743,11 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
 	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
+
+	if (currentPipeline != NULL) {
+		currentVulkanPipeline = currentPipeline->impl.rendertarget_pipeline;
+		vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.rendertarget_pipeline);
+	}
 }
 
 void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer) {}
@@ -905,6 +924,6 @@ void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 	set_viewport_and_scissor(list);
 
 	if (currentPipeline != nullptr) {
-		vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline);
+		vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentVulkanPipeline);
 	}
 }

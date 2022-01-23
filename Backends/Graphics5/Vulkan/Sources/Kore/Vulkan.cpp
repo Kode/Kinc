@@ -66,8 +66,9 @@ int newRenderTargetHeight;
 
 VkDevice device;
 VkFormat format;
-VkRenderPass render_pass;
 VkPhysicalDevice gpu;
+VkRenderPass framebuffer_render_pass;
+VkRenderPass rendertarget_render_pass;
 VkCommandPool cmd_pool;
 VkQueue queue;
 uint32_t swapchainImageCount;
@@ -509,7 +510,7 @@ void create_swapchain() {
 	rp_info.dependencyCount = 2;
 	rp_info.pDependencies = dependencies;
 
-	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
+	err = vkCreateRenderPass(device, &rp_info, NULL, &framebuffer_render_pass);
 	assert(!err);
 
 	VkImageView attachmentViews[2];
@@ -521,7 +522,7 @@ void create_swapchain() {
 	VkFramebufferCreateInfo fb_info = {};
 	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	fb_info.pNext = NULL;
-	fb_info.renderPass = render_pass;
+	fb_info.renderPass = framebuffer_render_pass;
 	fb_info.attachmentCount = depthBits > 0 ? 2 : 1;
 	fb_info.pAttachments = attachmentViews;
 	fb_info.width = renderTargetWidth;
@@ -538,6 +539,84 @@ void create_swapchain() {
 	}
 
 	flush_init_cmd();
+}
+
+void create_render_target_render_pass(void) {
+	VkAttachmentDescription attachments[2];
+	attachments[0].format = VK_FORMAT_B8G8R8A8_UNORM; // target->impl.format; // TODO
+	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	attachments[0].flags = 0;
+
+	// TODO
+	/*if (depthBufferBits > 0) {
+	    attachments[1].format = VK_FORMAT_D16_UNORM;
+	    attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+	    attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	    attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	    attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	    attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	    attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	    attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	    attachments[1].flags = 0;
+	}*/
+
+	VkAttachmentReference color_reference = {0};
+	color_reference.attachment = 0;
+	color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depth_reference = {0};
+	depth_reference.attachment = 1;
+	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass = {0};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.flags = 0;
+	subpass.inputAttachmentCount = 0;
+	subpass.pInputAttachments = NULL;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &color_reference;
+	subpass.pResolveAttachments = NULL;
+	subpass.pDepthStencilAttachment = /*depthBufferBits > 0 ? &depth_reference :*/ NULL; // TODO
+	subpass.preserveAttachmentCount = 0;
+	subpass.pPreserveAttachments = NULL;
+
+	VkSubpassDependency dependencies[2];
+	memset(&dependencies, 0, sizeof(dependencies));
+
+	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependencies[0].dstSubpass = 0;
+	dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+	dependencies[1].srcSubpass = 0;
+	dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+	dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+	VkRenderPassCreateInfo rp_info = {0};
+	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	rp_info.pNext = NULL;
+	rp_info.attachmentCount = /*depthBufferBits > 0 ? 2 :*/ 1; // TODO
+	rp_info.pAttachments = attachments;
+	rp_info.subpassCount = 1;
+	rp_info.pSubpasses = &subpass;
+	rp_info.dependencyCount = 2;
+	rp_info.pDependencies = dependencies;
+
+	VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &rendertarget_render_pass);
+	assert(!err);
 }
 
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
@@ -1009,6 +1088,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	assert(!err);
 
 	create_swapchain();
+	create_render_target_render_pass();
 
 	createDescriptorLayout();
 
@@ -1032,7 +1112,7 @@ bool kinc_g5_swap_buffers() {
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	if (renderTarget != nullptr) {
-		renderTarget->impl.renderPass = render_pass;
+		renderTarget->impl.renderPass = framebuffer_render_pass;
 		renderTarget->impl.framebuffer = framebuffers[current_buffer];
 	}
 

@@ -13,6 +13,8 @@
 #include <string>
 
 extern VkDevice device;
+extern VkRenderPass framebuffer_render_pass;
+extern VkRenderPass rendertarget_render_pass;
 VkDescriptorSetLayout desc_layout;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
@@ -500,87 +502,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	shaderStages[1].module = prepare_fs(pipeline->impl.frag_shader_module, pipeline->fragmentShader);
 	shaderStages[1].pName = "main";
-
-	VkAttachmentDescription attachments[9];
-	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
-		attachments[i].format = convert_format(pipeline->colorAttachment[i]);
-		attachments[i].samples = VK_SAMPLE_COUNT_1_BIT;
-		attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachments[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachments[i].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachments[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachments[i].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachments[i].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachments[i].flags = 0;
-	}
-
-	if (pipeline->depthAttachmentBits > 0) {
-		attachments[pipeline->colorAttachmentCount].format = VK_FORMAT_D16_UNORM;
-		attachments[pipeline->colorAttachmentCount].samples = VK_SAMPLE_COUNT_1_BIT;
-		attachments[pipeline->colorAttachmentCount].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachments[pipeline->colorAttachmentCount].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachments[pipeline->colorAttachmentCount].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachments[pipeline->colorAttachmentCount].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachments[pipeline->colorAttachmentCount].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		attachments[pipeline->colorAttachmentCount].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		attachments[pipeline->colorAttachmentCount].flags = 0;
-	}
-
-	VkAttachmentReference color_references[8];
-	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
-		color_references[i].attachment = i;
-		color_references[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	}
-
-	VkAttachmentReference depth_reference = {};
-	depth_reference.attachment = pipeline->colorAttachmentCount;
-	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.flags = 0;
-	subpass.inputAttachmentCount = 0;
-	subpass.pInputAttachments = nullptr;
-	subpass.colorAttachmentCount = pipeline->colorAttachmentCount;
-	subpass.pColorAttachments = color_references;
-	subpass.pResolveAttachments = nullptr;
-	subpass.pDepthStencilAttachment = pipeline->depthAttachmentBits > 0 ? &depth_reference : nullptr;
-	subpass.preserveAttachmentCount = 0;
-	subpass.pPreserveAttachments = nullptr;
-
-	VkSubpassDependency dependencies[2];
-	memset(&dependencies, 0, sizeof(dependencies));
-
-	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependencies[0].dstSubpass = 0;
-	dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-	dependencies[1].srcSubpass = 0;
-	dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-	dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-	VkRenderPassCreateInfo rp_info = {};
-	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	rp_info.pNext = nullptr;
-	rp_info.attachmentCount = pipeline->depthAttachmentBits > 0 ? pipeline->colorAttachmentCount + 1 : pipeline->colorAttachmentCount;
-	rp_info.pAttachments = attachments;
-	rp_info.subpassCount = 1;
-	rp_info.pSubpasses = &subpass;
-	rp_info.dependencyCount = 2;
-	rp_info.pDependencies = dependencies;
-
-	VkRenderPass render_pass;
-	err = vkCreateRenderPass(device, &rp_info, NULL, &render_pass);
-	assert(!err);
-
+	
 	pipeline_info.pVertexInputState = &vi;
 	pipeline_info.pInputAssemblyState = &ia;
 	pipeline_info.pRasterizationState = &rs;
@@ -589,10 +511,15 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	pipeline_info.pViewportState = &vp;
 	pipeline_info.pDepthStencilState = &ds;
 	pipeline_info.pStages = shaderStages;
-	pipeline_info.renderPass = render_pass;
+	pipeline_info.renderPass = framebuffer_render_pass;
 	pipeline_info.pDynamicState = &dynamicState;
 
-	err = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline->impl.pipeline);
+	err = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &pipeline->impl.framebuffer_pipeline);
+	assert(!err);
+
+	pipeline_info.renderPass = rendertarget_render_pass;
+
+	err = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &pipeline->impl.rendertarget_pipeline);
 	assert(!err);
 
 	vkDestroyShaderModule(device, pipeline->impl.frag_shader_module, nullptr);
