@@ -42,19 +42,6 @@ typedef enum kinc_g5_mipmap_filter {
 	KINC_G5_MIPMAP_FILTER_LINEAR // linear texture filter + linear mip filter -> trilinear filter
 } kinc_g5_mipmap_filter_t;
 
-typedef enum kinc_g5_blending_operation {
-	KINC_G5_BLEND_MODE_ONE,
-	KINC_G5_BLEND_MODE_ZERO,
-	KINC_G5_BLEND_MODE_SOURCE_ALPHA,
-	KINC_G5_BLEND_MODE_DEST_ALPHA,
-	KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA,
-	KINC_G5_BLEND_MODE_INV_DEST_ALPHA,
-	KINC_G5_BLEND_MODE_SOURCE_COLOR,
-	KINC_G5_BLEND_MODE_DEST_COLOR,
-	KINC_G5_BLEND_MODE_INV_SOURCE_COLOR,
-	KINC_G5_BLEND_MODE_INV_DEST_COLOR
-} kinc_g5_blending_operation_t;
-
 typedef enum kinc_g5_compare_mode {
 	KINC_G5_COMPARE_MODE_ALWAYS,
 	KINC_G5_COMPARE_MODE_NEVER,

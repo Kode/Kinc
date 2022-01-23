@@ -317,29 +317,49 @@ static VkCompareOp convert_compare_mode(kinc_g5_compare_mode_t compare) {
 	}
 }
 
-static VkBlendFactor convert_blend_mode(kinc_g5_blending_operation_t op) {
-	switch (op) {
-	default:
-	case KINC_G5_BLEND_MODE_ONE:
+static VkBlendFactor convert_blend_factor(kinc_g5_blending_factor_t factor) {
+	switch (factor) {
+	case KINC_G5_BLEND_ONE:
 		return VK_BLEND_FACTOR_ONE;
-	case KINC_G5_BLEND_MODE_ZERO:
+	case KINC_G5_BLEND_ZERO:
 		return VK_BLEND_FACTOR_ZERO;
-	case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
+	case KINC_G5_BLEND_SOURCE_ALPHA:
 		return VK_BLEND_FACTOR_SRC_ALPHA;
-	case KINC_G5_BLEND_MODE_DEST_ALPHA:
+	case KINC_G5_BLEND_DEST_ALPHA:
 		return VK_BLEND_FACTOR_DST_ALPHA;
-	case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
+	case KINC_G5_BLEND_INV_SOURCE_ALPHA:
 		return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-	case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
+	case KINC_G5_BLEND_INV_DEST_ALPHA:
 		return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
-	case KINC_G5_BLEND_MODE_SOURCE_COLOR:
+	case KINC_G5_BLEND_SOURCE_COLOR:
 		return VK_BLEND_FACTOR_SRC_COLOR;
-	case KINC_G5_BLEND_MODE_DEST_COLOR:
+	case KINC_G5_BLEND_DEST_COLOR:
 		return VK_BLEND_FACTOR_DST_COLOR;
-	case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
+	case KINC_G5_BLEND_INV_SOURCE_COLOR:
 		return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
-	case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
+	case KINC_G5_BLEND_INV_DEST_COLOR:
 		return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+	default:
+		assert(false);
+		return VK_BLEND_FACTOR_ONE;
+	}
+}
+
+static VkBlendOp convert_blend_operation(kinc_g5_blending_operation_t op) {
+	switch (op) {
+	case KINC_G5_BLENDOP_ADD:
+		return VK_BLEND_OP_ADD;
+	case KINC_G5_BLENDOP_SUBTRACT:
+		return VK_BLEND_OP_SUBTRACT;
+	case KINC_G5_BLENDOP_REVERSE_SUBTRACT:
+		return VK_BLEND_OP_REVERSE_SUBTRACT;
+	case KINC_G5_BLENDOP_MIN:
+		return VK_BLEND_OP_MIN;
+	case KINC_G5_BLENDOP_MAX:
+		return VK_BLEND_OP_MAX;
+	default:
+		assert(false);
+		return VK_BLEND_OP_ADD;
 	}
 }
 
@@ -566,14 +586,14 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		att_state[i].colorWriteMask =
 		    (pipeline->colorWriteMaskRed[i] ? VK_COLOR_COMPONENT_R_BIT : 0) | (pipeline->colorWriteMaskGreen[i] ? VK_COLOR_COMPONENT_G_BIT : 0) |
 		    (pipeline->colorWriteMaskBlue[i] ? VK_COLOR_COMPONENT_B_BIT : 0) | (pipeline->colorWriteMaskAlpha[i] ? VK_COLOR_COMPONENT_A_BIT : 0);
-		att_state[i].blendEnable = pipeline->blendSource != KINC_G5_BLEND_MODE_ONE || pipeline->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
-		                           pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
-		att_state[i].srcColorBlendFactor = convert_blend_mode(pipeline->blendSource);
-		att_state[i].dstColorBlendFactor = convert_blend_mode(pipeline->blendDestination);
-		att_state[i].colorBlendOp = VK_BLEND_OP_ADD;
-		att_state[i].srcAlphaBlendFactor = convert_blend_mode(pipeline->alphaBlendSource);
-		att_state[i].dstAlphaBlendFactor = convert_blend_mode(pipeline->alphaBlendDestination);
-		att_state[i].alphaBlendOp = VK_BLEND_OP_ADD;
+		att_state[i].blendEnable = pipeline->blend_source != KINC_G5_BLEND_ONE || pipeline->blend_destination != KINC_G5_BLEND_ZERO ||
+		                           pipeline->alpha_blend_source != KINC_G5_BLEND_ONE || pipeline->alpha_blend_destination != KINC_G5_BLEND_ZERO;
+		att_state[i].srcColorBlendFactor = convert_blend_factor(pipeline->blend_source);
+		att_state[i].dstColorBlendFactor = convert_blend_factor(pipeline->blend_destination);
+		att_state[i].colorBlendOp = convert_blend_operation(pipeline->blend_operation);
+		att_state[i].srcAlphaBlendFactor = convert_blend_factor(pipeline->alpha_blend_source);
+		att_state[i].dstAlphaBlendFactor = convert_blend_factor(pipeline->alpha_blend_destination);
+		att_state[i].alphaBlendOp = convert_blend_operation(pipeline->alpha_blend_operation);
 	}
 	cb.attachmentCount = pipeline->colorAttachmentCount;
 	cb.pAttachments = att_state;

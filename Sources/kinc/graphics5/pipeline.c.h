@@ -21,12 +21,12 @@ void kinc_g5_internal_pipeline_init(kinc_g5_pipeline_t *pipe) {
 	pipe->stencilReadMask = 0xff;
 	pipe->stencilWriteMask = 0xff;
 
-	pipe->blendSource = KINC_G5_BLEND_MODE_ONE;
-	pipe->blendDestination = KINC_G5_BLEND_MODE_ZERO;
-	// blendOperation = BlendingOperation.Add;
-	pipe->alphaBlendSource = KINC_G5_BLEND_MODE_ONE;
-	pipe->alphaBlendDestination = KINC_G5_BLEND_MODE_ZERO;
-	// alphaBlendOperation = BlendingOperation.Add;
+	pipe->blend_source = KINC_G5_BLEND_ONE;
+	pipe->blend_destination = KINC_G5_BLEND_ZERO;
+	pipe->blend_operation = KINC_G5_BLENDOP_ADD;
+	pipe->alpha_blend_source = KINC_G5_BLEND_ONE;
+	pipe->alpha_blend_destination = KINC_G5_BLEND_ZERO;
+	pipe->alpha_blend_operation = KINC_G5_BLENDOP_ADD;
 
 	for (int i = 0; i < 8; ++i) pipe->colorWriteMaskRed[i] = true;
 	for (int i = 0; i < 8; ++i) pipe->colorWriteMaskGreen[i] = true;

@@ -161,29 +161,49 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 	return unit;
 }
 
-static D3D12_BLEND convert(kinc_g5_blending_operation_t op) {
-	switch (op) {
-	default:
-	case KINC_G5_BLEND_MODE_ONE:
+static D3D12_BLEND convert_blend_factor(kinc_g5_blending_factor_t factor) {
+	switch (factor) {
+	case KINC_G5_BLEND_ONE:
 		return D3D12_BLEND_ONE;
-	case KINC_G5_BLEND_MODE_ZERO:
+	case KINC_G5_BLEND_ZERO:
 		return D3D12_BLEND_ZERO;
-	case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
+	case KINC_G5_BLEND_SOURCE_ALPHA:
 		return D3D12_BLEND_SRC_ALPHA;
-	case KINC_G5_BLEND_MODE_DEST_ALPHA:
+	case KINC_G5_BLEND_DEST_ALPHA:
 		return D3D12_BLEND_DEST_ALPHA;
-	case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
+	case KINC_G5_BLEND_INV_SOURCE_ALPHA:
 		return D3D12_BLEND_INV_SRC_ALPHA;
-	case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
+	case KINC_G5_BLEND_INV_DEST_ALPHA:
 		return D3D12_BLEND_INV_DEST_ALPHA;
-	case KINC_G5_BLEND_MODE_SOURCE_COLOR:
+	case KINC_G5_BLEND_SOURCE_COLOR:
 		return D3D12_BLEND_SRC_COLOR;
-	case KINC_G5_BLEND_MODE_DEST_COLOR:
+	case KINC_G5_BLEND_DEST_COLOR:
 		return D3D12_BLEND_DEST_COLOR;
-	case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
+	case KINC_G5_BLEND_INV_SOURCE_COLOR:
 		return D3D12_BLEND_INV_SRC_COLOR;
-	case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
+	case KINC_G5_BLEND_INV_DEST_COLOR:
 		return D3D12_BLEND_INV_DEST_COLOR;
+	default:
+		assert(false);
+		return D3D12_BLEND_ONE;
+	}
+}
+
+static D3D12_BLEND_OP convert_blend_operation(kinc_g5_blending_factor_t op) {
+	switch (op) {
+	case KINC_G5_BLENDOP_ADD:
+		return D3D12_BLEND_OP_ADD;
+	case KINC_G5_BLENDOP_SUBTRACT:
+		return D3D12_BLEND_OP_SUBTRACT;
+	case KINC_G5_BLENDOP_REVERSE_SUBTRACT:
+		return D3D12_BLEND_OP_REV_SUBTRACT;
+	case KINC_G5_BLENDOP_MIN:
+		return D3D12_BLEND_OP_MIN;
+	case KINC_G5_BLENDOP_MAX:
+		return D3D12_BLEND_OP_MAX;
+	default:
+		assert(false);
+		return KINC_G5_BLENDOP_ADD;
 	}
 }
 
@@ -244,14 +264,14 @@ static DXGI_FORMAT convert_format(kinc_g5_render_target_format_t format) {
 }
 
 static void set_blend_state(D3D12_BLEND_DESC *blend_desc, kinc_g5_pipeline_t *pipe, int target) {
-	blend_desc->RenderTarget[target].BlendEnable = pipe->blendSource != KINC_G5_BLEND_MODE_ONE || pipe->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
-	                                               pipe->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipe->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
-	blend_desc->RenderTarget[target].SrcBlend = convert(pipe->blendSource);
-	blend_desc->RenderTarget[target].DestBlend = convert(pipe->blendDestination);
-	blend_desc->RenderTarget[target].BlendOp = D3D12_BLEND_OP_ADD;
-	blend_desc->RenderTarget[target].SrcBlendAlpha = convert(pipe->alphaBlendSource);
-	blend_desc->RenderTarget[target].DestBlendAlpha = convert(pipe->alphaBlendDestination);
-	blend_desc->RenderTarget[target].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blend_desc->RenderTarget[target].BlendEnable = pipe->blend_source != KINC_G5_BLEND_ONE || pipe->blend_destination != KINC_G5_BLEND_ZERO ||
+	                                               pipe->alpha_blend_source != KINC_G5_BLEND_ONE || pipe->alpha_blend_destination != KINC_G5_BLEND_ZERO;
+	blend_desc->RenderTarget[target].SrcBlend = convert_blend_factor(pipe->blend_source);
+	blend_desc->RenderTarget[target].DestBlend = convert_blend_factor(pipe->blend_destination);
+	blend_desc->RenderTarget[target].BlendOp = convert_blend_operation(pipe->blend_operation);
+	blend_desc->RenderTarget[target].SrcBlendAlpha = convert_blend_factor(pipe->alpha_blend_source);
+	blend_desc->RenderTarget[target].DestBlendAlpha = convert_blend_factor(pipe->alpha_blend_destination);
+	blend_desc->RenderTarget[target].BlendOpAlpha = convert_blend_operation(pipe->alpha_blend_operation);
 	blend_desc->RenderTarget[target].RenderTargetWriteMask =
 	    (((pipe->colorWriteMaskRed[target] ? D3D12_COLOR_WRITE_ENABLE_RED : 0) | (pipe->colorWriteMaskGreen[target] ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0)) |
 	     (pipe->colorWriteMaskBlue[target] ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0)) |

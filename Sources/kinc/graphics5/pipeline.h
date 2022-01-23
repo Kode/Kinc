@@ -19,6 +19,29 @@ extern "C" {
 
 struct kinc_g5_shader;
 
+// identical to kinc_g4_blending_factor_t
+typedef enum {
+	KINC_G5_BLEND_ONE,
+	KINC_G5_BLEND_ZERO,
+	KINC_G5_BLEND_SOURCE_ALPHA,
+	KINC_G5_BLEND_DEST_ALPHA,
+	KINC_G5_BLEND_INV_SOURCE_ALPHA,
+	KINC_G5_BLEND_INV_DEST_ALPHA,
+	KINC_G5_BLEND_SOURCE_COLOR,
+	KINC_G5_BLEND_DEST_COLOR,
+	KINC_G5_BLEND_INV_SOURCE_COLOR,
+	KINC_G5_BLEND_INV_DEST_COLOR
+} kinc_g5_blending_factor_t;
+
+// identical to kinc_g4_blending_operation_t
+typedef enum {
+	KINC_G5_BLENDOP_ADD,
+	KINC_G5_BLENDOP_SUBTRACT,
+	KINC_G5_BLENDOP_REVERSE_SUBTRACT,
+	KINC_G5_BLENDOP_MIN,
+	KINC_G5_BLENDOP_MAX
+} kinc_g5_blending_operation_t;
+
 typedef struct kinc_g5_pipeline {
 	kinc_g5_vertex_structure_t *inputLayout[16];
 	struct kinc_g5_shader *vertexShader;
@@ -41,12 +64,12 @@ typedef struct kinc_g5_pipeline {
 	int stencilWriteMask;
 
 	// One, Zero deactivates blending
-	kinc_g5_blending_operation_t blendSource;
-	kinc_g5_blending_operation_t blendDestination;
-	// BlendingOperation blendOperation;
-	kinc_g5_blending_operation_t alphaBlendSource;
-	kinc_g5_blending_operation_t alphaBlendDestination;
-	// BlendingOperation alphaBlendOperation;
+	kinc_g5_blending_factor_t blend_source;
+	kinc_g5_blending_factor_t blend_destination;
+	kinc_g5_blending_operation_t blend_operation;
+	kinc_g5_blending_factor_t alpha_blend_source;
+	kinc_g5_blending_factor_t alpha_blend_destination;
+	kinc_g5_blending_operation_t alpha_blend_operation;
 
 	bool colorWriteMaskRed[8]; // Per render target
 	bool colorWriteMaskGreen[8];
