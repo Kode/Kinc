@@ -10,6 +10,8 @@
 #include <kinc/system.h>
 #include <kinc/window.h>
 
+#include <stdlib.h>
+
 #ifdef KORE_WINDOWS
 #include <Kore/Windows.h>
 #endif
@@ -87,6 +89,8 @@ uint32_t current_buffer;
 int depthBits;
 int stencilBits;
 bool vsynced;
+
+void flush_init_cmd();
 
 kinc_g5_texture_t *vulkanTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                          nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
@@ -180,7 +184,9 @@ namespace {
 #ifdef _MSC_VER
 		return _aligned_malloc(size, alignment);
 #else
-		return aligned_alloc(alignment, size);
+		void *ptr;
+		posix_memalign(&ptr, alignment, size);
+		return ptr;
 #endif
 	}
 
@@ -511,6 +517,8 @@ void create_swapchain() {
 		err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
 		assert(!err);
 	}
+
+	flush_init_cmd();
 }
 
 void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
@@ -819,8 +827,8 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
 
-	renderTargetWidth = kinc_window_width(window);
-	renderTargetHeight = kinc_window_height(window);
+	newRenderTargetWidth = kinc_window_width(window);
+	newRenderTargetHeight = kinc_window_height(window);
 
 #ifdef KORE_WINDOWS
 	windowHandle = (HWND)kinc_windows_window_handle(window);
