@@ -17,6 +17,9 @@
 #include <android_native_app_glue.h>
 #include <stdlib.h>
 
+#include <assert.h>
+#include <kinc/log.h>
+
 void pauseAudio();
 void resumeAudio();
 
@@ -38,21 +41,40 @@ namespace {
     bool appIsForeground = false;
 }
 
+#ifdef KORE_VULKAN
+#include <vulkan/vulkan.h>
+extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
+	assert(app->window != NULL);
+	VkAndroidSurfaceCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+	createInfo.pNext = NULL;
+	createInfo.flags = 0;
+	createInfo.window = app->window;
+	return vkCreateAndroidSurfaceKHR(instance, &createInfo, NULL, surface);
+}
+#endif
+
 void androidSwapBuffers() {
+#ifndef KORE_VULKAN
     if (glContext->Swap() != EGL_SUCCESS) {
         kinc_log(KINC_LOG_LEVEL_WARNING, "GL context lost.");
     }
+#endif
 }
 
 namespace {
 	void initDisplay() {
+#ifndef KORE_VULKAN
 		if (glContext->Resume(app->window) != EGL_SUCCESS) {
 			kinc_log(KINC_LOG_LEVEL_WARNING, "GL context lost.");
 		}
+#endif
 	}
 
 	void termDisplay() {
+#ifndef KORE_VULKAN
 		glContext->Suspend();
+#endif
 	}
 
 	void updateAppForegroundStatus(bool displayIsInitializedValue, bool appIsForegroundValue) {
@@ -622,13 +644,21 @@ const char* kinc_language() {
 }
 
 int glWidth() {
+#ifndef KORE_VULKAN
 	glContext->UpdateSize();
 	return glContext->GetScreenWidth();
+#else
+	return ANativeWindow_getWidth(app->window);
+#endif
 }
 
 int glHeight() {
+#ifndef KORE_VULKAN
 	glContext->UpdateSize();
 	return glContext->GetScreenHeight();
+#else
+	return ANativeWindow_getHeight(app->window);
+#endif
 }
 
 const char* kinc_internal_save_path() {
@@ -779,7 +809,9 @@ extern "C" void android_main(android_app* app) {
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
 
+#ifndef KORE_VULKAN
 	glContext = ndk_helper::GLContext::GetInstance();
+#endif
 	sensorManager = ASensorManager_getInstance();
 	accelerometerSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_ACCELEROMETER);
 	gyroSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_GYROSCOPE);

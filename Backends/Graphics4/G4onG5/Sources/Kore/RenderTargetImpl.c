@@ -17,7 +17,7 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *render_target, int widt
 	render_target->texHeight = render_target->height = height;
 	if (contextId >= 0) {
 		kinc_g5_command_list_texture_to_render_target_barrier(&commandList, &render_target->impl._renderTarget);
-		kinc_g5_command_list_clear(&commandList, &render_target->impl._renderTarget, KINC_G5_CLEAR_COLOR, 0, 0.0f, 0);
+		//kinc_g5_command_list_clear(&commandList, &render_target->impl._renderTarget, KINC_G5_CLEAR_COLOR, 0, 0.0f, 0);
 	}
 }
 

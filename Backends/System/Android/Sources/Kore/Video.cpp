@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 #include <OMXAL/OpenMAXAL.h>
 #include <OMXAL/OpenMAXAL_Android.h>
 #endif
@@ -20,7 +20,7 @@
 #include <assert.h>
 #include <jni.h>
 #include <pthread.h>
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/native_window_jni.h>
@@ -40,7 +40,7 @@ bool VideoSoundStream::ended() {
 	return false;
 }
 
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 
 namespace {
 	const int videosCount = 10;
@@ -434,7 +434,7 @@ namespace {
 #endif
 
 extern "C" JNIEXPORT void JNICALL Java_tech_kode_kore_KoreMoviePlayer_nativeCreate(JNIEnv* env, jobject jobj, jstring jpath, jobject surface, jint id) {
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	const char* path = env->GetStringUTFChars(jpath, NULL);
 	AndroidVideo* av = new AndroidVideo;
 	av->theNativeWindow = ANativeWindow_fromSurface(env, surface);
@@ -467,7 +467,7 @@ void KoreAndroidVideoInit() {
 }
 
 Video::Video(const char* filename) : playing(false), sound(nullptr) {
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	Kore::log(Kore::Info, "Opening video %s.", filename);
 	myWidth = 1023;
 	myHeight = 684;
@@ -504,7 +504,7 @@ Video::Video(const char* filename) : playing(false), sound(nullptr) {
 }
 
 Video::~Video() {
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	stop();
 	AndroidVideo* av = (AndroidVideo*)androidVideo;
 	av->shutdown();
@@ -518,20 +518,20 @@ Video::~Video() {
 }
 
 void Video::play() {
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	playing = true;
 	start = System::time();
 #endif
 }
 
 void Video::pause() {
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	playing = false;
 #endif
 }
 
 void Video::stop() {
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	pause();
 #endif
 }
@@ -541,7 +541,7 @@ void Video::updateImage() {}
 void Video::update(double time) {}
 
 int Video::width() {
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	return myWidth;
 #else
 	return 512;
@@ -549,7 +549,7 @@ int Video::width() {
 }
 
 int Video::height() {
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	return myHeight;
 #else
 	return 512;
@@ -557,7 +557,7 @@ int Video::height() {
 }
 
 Graphics4::Texture* Video::currentImage() {
-#if KORE_ANDROID_API >= 15
+#if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	return image;
 #else
 	return nullptr;

@@ -272,17 +272,20 @@ else if (platform === Platform.Android) {
 		g5 = true;
 		addBackend('Graphics5/Vulkan');
 		project.addDefine('KORE_VULKAN');
+		project.addDefine('VK_USE_PLATFORM_ANDROID_KHR');
+		project.addLib("vulkan");
+		project.addDefine('KORE_ANDROID_API=24');
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addDefine('KORE_OPENGL');
 		project.addDefine('KORE_OPENGL_ES');
+		project.addDefine('KORE_ANDROID_API=15');
 	}
 	else {
 		throw new Error('Graphics API ' + graphics + ' is not available for Android.');
 	}
-	project.addDefine('KORE_ANDROID_API=15');
 	project.addDefine('KORE_POSIX');
 	project.addLib('log');
 	project.addLib('android');

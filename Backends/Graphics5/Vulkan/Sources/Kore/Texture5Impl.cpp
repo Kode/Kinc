@@ -22,6 +22,11 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 void flush_init_cmd();
 
+#ifdef KORE_ANDROID
+struct kinc_g4_texture_t;
+extern "C" void kinc_g4_texture_init_from_id(kinc_g4_texture_t *, unsigned) {}
+#endif
+
 namespace {
 	void prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint32_t tex_height, texture_object* tex_obj, VkImageTiling tiling,
 	                                VkImageUsageFlags usage, VkFlags required_props, VkDeviceSize& deviceSize, VkFormat tex_format) {
