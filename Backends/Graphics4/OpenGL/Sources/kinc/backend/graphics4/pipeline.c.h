@@ -39,8 +39,8 @@ static GLenum convertStencilAction(kinc_g4_stencil_action_t action) {
 	}
 }
 
-static GLenum convertBlendingOperation(kinc_g4_blending_operation_t operation) {
-	switch (operation) {
+static GLenum convert_blend_factor(kinc_g4_blending_factor_t factor) {
+	switch (factor) {
 	case KINC_G4_BLEND_ZERO:
 		return GL_ZERO;
 	case KINC_G4_BLEND_ONE:
@@ -62,7 +62,26 @@ static GLenum convertBlendingOperation(kinc_g4_blending_operation_t operation) {
 	case KINC_G4_BLEND_INV_DEST_COLOR:
 		return GL_ONE_MINUS_DST_COLOR;
 	default:
+		assert(false);
 		return GL_ONE;
+	}
+}
+
+static GLenum convert_blend_operation(kinc_g4_blending_operation_t operation) {
+	switch (operation) {
+	case KINC_G4_BLENDOP_ADD:
+		return GL_FUNC_ADD;
+	case KINC_G4_BLENDOP_SUBTRACT:
+		return GL_FUNC_SUBTRACT;
+	case KINC_G4_BLENDOP_REVERSE_SUBTRACT:
+		return GL_FUNC_REVERSE_SUBTRACT;
+	case KINC_G4_BLENDOP_MIN:
+		return GL_MIN;
+	case KINC_G4_BLENDOP_MAX:
+		return GL_MAX;
+	default:
+		assert(false);
+		return GL_FUNC_ADD;
 	}
 }
 
@@ -367,8 +386,9 @@ void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 	}
 
 	// glBlendFunc(convert(pipeline->blendSource), convert(pipeline->blendDestination));
-	glBlendFuncSeparate(convertBlendingOperation(pipeline->blend_source), convertBlendingOperation(pipeline->blend_destination),
-	                    convertBlendingOperation(pipeline->alpha_blend_source), convertBlendingOperation(pipeline->alpha_blend_destination));
+	glBlendFuncSeparate(convert_blend_factor(pipeline->blend_source), convert_blend_factor(pipeline->blend_destination),
+	                    convert_blend_factor(pipeline->alpha_blend_source), convert_blend_factor(pipeline->alpha_blend_destination));
+	glBlendEquationSeparate(convert_blend_operation(pipeline->blend_operation), convert_blend_operation(pipeline->alpha_blend_operation));
 }
 
 kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name) {

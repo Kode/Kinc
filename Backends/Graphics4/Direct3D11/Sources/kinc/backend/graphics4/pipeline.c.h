@@ -22,8 +22,8 @@ static D3D11_CULL_MODE convert_cull_mode(kinc_g4_cull_mode_t cullMode) {
 	}
 }
 
-static D3D11_BLEND convert_blend_operation(kinc_g4_blending_operation_t operation) {
-	switch (operation) {
+static D3D11_BLEND convert_blend_factor(kinc_g4_blending_factor_t factor) {
+	switch (factor) {
 	case KINC_G4_BLEND_ONE:
 		return D3D11_BLEND_ONE;
 	case KINC_G4_BLEND_ZERO:
@@ -45,8 +45,26 @@ static D3D11_BLEND convert_blend_operation(kinc_g4_blending_operation_t operatio
 	case KINC_G4_BLEND_INV_DEST_COLOR:
 		return D3D11_BLEND_INV_DEST_COLOR;
 	default:
-		//	throw Exception("Unknown blending operation.");
+		assert(false);
 		return D3D11_BLEND_SRC_ALPHA;
+	}
+}
+
+static D3D11_BLEND_OP convert_blend_operation(kinc_g4_blending_operation_t operation) {
+	switch (operation) {
+	case KINC_G4_BLENDOP_ADD:
+		return D3D11_BLEND_OP_ADD;
+	case KINC_G4_BLENDOP_SUBTRACT:
+		return D3D11_BLEND_OP_SUBTRACT;
+	case KINC_G4_BLENDOP_REVERSE_SUBTRACT:
+		return D3D11_BLEND_OP_REV_SUBTRACT;
+	case KINC_G4_BLENDOP_MIN:
+		return D3D11_BLEND_OP_MIN;
+	case KINC_G4_BLENDOP_MAX:
+		return D3D11_BLEND_OP_MAX;
+	default:
+		assert(false);
+		return D3D11_BLEND_OP_ADD;
 	}
 }
 
@@ -382,12 +400,12 @@ static int getAttributeLocation(kinc_internal_hash_index_t *attributes, const ch
 static void createRenderTargetBlendDesc(struct kinc_g4_pipeline *pipe, D3D11_RENDER_TARGET_BLEND_DESC *rtbd, int targetNum) {
 	rtbd->BlendEnable = pipe->blend_source != KINC_G4_BLEND_ONE || pipe->blend_destination != KINC_G4_BLEND_ZERO ||
 	                    pipe->alpha_blend_source != KINC_G4_BLEND_ONE || pipe->alpha_blend_destination != KINC_G4_BLEND_ZERO;
-	rtbd->SrcBlend = convert_blend_operation(pipe->blend_source);
-	rtbd->DestBlend = convert_blend_operation(pipe->blend_destination);
-	rtbd->BlendOp = D3D11_BLEND_OP_ADD;
-	rtbd->SrcBlendAlpha = convert_blend_operation(pipe->alpha_blend_source);
-	rtbd->DestBlendAlpha = convert_blend_operation(pipe->alpha_blend_destination);
-	rtbd->BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtbd->SrcBlend = convert_blend_factor(pipe->blend_source);
+	rtbd->DestBlend = convert_blend_factor(pipe->blend_destination);
+	rtbd->BlendOp = convert_blend_operation(pipe->blend_operation);
+	rtbd->SrcBlendAlpha = convert_blend_factor(pipe->alpha_blend_source);
+	rtbd->DestBlendAlpha = convert_blend_factor(pipe->alpha_blend_destination);
+	rtbd->BlendOpAlpha = convert_blend_operation(pipe->alpha_blend_operation);
 	rtbd->RenderTargetWriteMask = (((pipe->color_write_mask_red[targetNum] ? D3D11_COLOR_WRITE_ENABLE_RED : 0) |
 	                                (pipe->color_write_mask_green[targetNum] ? D3D11_COLOR_WRITE_ENABLE_GREEN : 0)) |
 	                               (pipe->color_write_mask_blue[targetNum] ? D3D11_COLOR_WRITE_ENABLE_BLUE : 0)) |

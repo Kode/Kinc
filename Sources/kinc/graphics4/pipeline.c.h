@@ -23,10 +23,10 @@ void kinc_g4_internal_pipeline_set_defaults(kinc_g4_pipeline_t *state) {
 
 	state->blend_source = KINC_G4_BLEND_ONE;
 	state->blend_destination = KINC_G4_BLEND_ZERO;
-	// blendOperation = BlendingOperation.Add;
+	state->blend_operation = KINC_G4_BLENDOP_ADD;
 	state->alpha_blend_source = KINC_G4_BLEND_ONE;
 	state->alpha_blend_destination = KINC_G4_BLEND_ZERO;
-	// alphaBlendOperation = BlendingOperation.Add;
+	state->alpha_blend_operation = KINC_G4_BLENDOP_ADD;
 
 	for (int i = 0; i < 8; ++i) state->color_write_mask_red[i] = true;
 	for (int i = 0; i < 8; ++i) state->color_write_mask_green[i] = true;
