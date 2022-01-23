@@ -1,4 +1,4 @@
-name: Android
+name: Android (Vulkan)
 
 on:
   push:
@@ -22,4 +22,4 @@ jobs:
     - name: Setup Node.js
       run: nodejs_bin/copysysbin.sh
     - name: Compile
-      run: nodejs_bin/node make.js android --kinc . --from Tests/Empty --noshaders --compile
+      run: nodejs_bin/node make.js android -g vulkan --kinc . --from Tests/Empty --noshaders --compile
