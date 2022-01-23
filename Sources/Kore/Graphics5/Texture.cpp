@@ -122,7 +122,7 @@ Texture::~Texture() {
 	kinc_g5_texture_destroy(&kincTexture);
 }
 
-#ifdef KORE_ANDROID
+#if defined(KORE_ANDROID) && !defined(KORE_VULKAN)
 KINC_FUNC void kinc_g4_texture_init_from_id(kinc_g4_texture_t *texture, unsigned texid);
 
 Texture::Texture(unsigned texid) {
