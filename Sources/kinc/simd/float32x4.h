@@ -10,7 +10,8 @@
 extern "C" {
 #endif
 
-#if defined(__SSE__) || _M_IX86_FP == 2 || _M_IX86_FP == 1 || defined(KORE_WINDOWS) || (defined(KORE_MACOS) && __x86_64)
+#if defined(__SSE__) || _M_IX86_FP == 2 || _M_IX86_FP == 1 || (defined(KORE_WINDOWS) && !defined(__aarch64__)) ||                                              \
+    (defined(KORE_WINDOWSAPP) && !defined(__aarch64__)) || (defined(KORE_MACOS) && __x86_64)
 
 #include <xmmintrin.h>
 
@@ -71,7 +72,7 @@ static inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
 	return _mm_sqrt_ps(t);
 }
 
-#elif defined(KORE_IOS) || defined(KORE_SWITCH) || defined(__aarch64__)) || defined(KORE_NEON)
+#elif defined(KORE_IOS) || defined(KORE_SWITCH) || defined(__aarch64__) || defined(KORE_NEON)
 
 #include <arm_neon.h>
 
