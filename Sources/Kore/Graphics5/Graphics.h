@@ -69,7 +69,7 @@ namespace Kore {
 			AlphaReferenceState
 		};
 
-		enum BlendingOperation {
+		enum BlendingFactor {
 			BlendOne,
 			BlendZero,
 			SourceAlpha,
@@ -81,6 +81,8 @@ namespace Kore {
 			InverseSourceColor,
 			InverseDestinationColor
 		};
+
+		enum BlendingOperation { BlendOpAdd, BlendOpSubtract, BlendOpReverseSubtract, BlendOpMin, BlendOpMax };
 
 		enum ZCompareMode {
 			ZCompareAlways,

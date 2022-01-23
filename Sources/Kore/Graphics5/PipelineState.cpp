@@ -93,12 +93,12 @@ void PipelineState::compile() {
 	kincPipeline.stencilReadMask = stencilReadMask;
 	kincPipeline.stencilWriteMask = stencilWriteMask;
 
-	kincPipeline.blendSource = (kinc_g5_blending_operation_t)blendSource;
-	kincPipeline.blendDestination = (kinc_g5_blending_operation_t)blendDestination;
-	// blendOperation = BlendingOperation.Add;
-	kincPipeline.alphaBlendSource = (kinc_g5_blending_operation_t)alphaBlendSource;
-	kincPipeline.alphaBlendDestination = (kinc_g5_blending_operation_t)alphaBlendDestination;
-	// alphaBlendOperation = BlendingOperation.Add;
+	kincPipeline.blend_source = (kinc_g5_blending_factor_t)blendSource;
+	kincPipeline.blend_destination = (kinc_g5_blending_factor_t)blendDestination;
+	kincPipeline.blend_operation = (kinc_g5_blending_operation_t)blendOperation;
+	kincPipeline.alpha_blend_source = (kinc_g5_blending_factor_t)alphaBlendSource;
+	kincPipeline.alpha_blend_destination = (kinc_g5_blending_factor_t)alphaBlendDestination;
+	kincPipeline.alpha_blend_operation = (kinc_g5_blending_operation_t)alphaBlendOperation;
 
 	for (int i = 0; i < 8; ++i) {
 		kincPipeline.colorWriteMaskRed[i] = colorWriteMaskRed[i];

@@ -36,12 +36,12 @@ namespace Kore {
 			int stencilWriteMask;
 
 			// One, Zero deactivates blending
-			BlendingOperation blendSource;
-			BlendingOperation blendDestination;
-			// BlendingOperation blendOperation;
-			BlendingOperation alphaBlendSource;
-			BlendingOperation alphaBlendDestination;
-			// BlendingOperation alphaBlendOperation;
+			BlendingFactor blendSource;
+			BlendingFactor blendDestination;
+			BlendingOperation blendOperation;
+			BlendingFactor alphaBlendSource;
+			BlendingFactor alphaBlendDestination;
+			BlendingOperation alphaBlendOperation;
 
 			bool colorWriteMaskRed[8]; // Per render target
 			bool colorWriteMaskGreen[8];
