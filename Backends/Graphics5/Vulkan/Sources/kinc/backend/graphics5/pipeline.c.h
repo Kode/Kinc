@@ -692,25 +692,20 @@ void createDescriptorLayout() {
 	VkResult err = vkCreateDescriptorSetLayout(device, &descriptor_layout, NULL, &desc_layout);
 	assert(!err);
 
-	VkDescriptorPoolSize typeCounts[18];
+	VkDescriptorPoolSize typeCounts[3];
 	memset(typeCounts, 0, sizeof(typeCounts));
 
 	typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-	typeCounts[0].descriptorCount = 1;
+	typeCounts[0].descriptorCount = 2 * 1024;
 
-	typeCounts[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-	typeCounts[1].descriptorCount = 1;
-
-	for (int i = 2; i < 18; ++i) {
-		typeCounts[i].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		typeCounts[i].descriptorCount = 1;
-	}
+	typeCounts[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	typeCounts[2].descriptorCount = 16 * 1024;
 
 	VkDescriptorPoolCreateInfo pool_info = {0};
 	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	pool_info.pNext = NULL;
 	pool_info.maxSets = 1024;
-	pool_info.poolSizeCount = 18;
+	pool_info.poolSizeCount = 3;
 	pool_info.pPoolSizes = typeCounts;
 
 	err = vkCreateDescriptorPool(device, &pool_info, NULL, &descriptor_pool);
