@@ -1,5 +1,7 @@
 #include "raytrace.h"
 
+#ifndef KORE_ANDROID
+
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/graphics.h>
@@ -762,3 +764,5 @@ void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_tar
 
 	vkCmdBeginRenderPass(command_list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
+
+#endif

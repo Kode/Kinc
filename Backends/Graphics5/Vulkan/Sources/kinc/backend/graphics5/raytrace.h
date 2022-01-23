@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef KORE_ANDROID
+
 #include "MiniVulkan.h"
 
 #ifdef __cplusplus
@@ -25,4 +27,6 @@ typedef struct {
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
