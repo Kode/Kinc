@@ -11,28 +11,43 @@
 id getMetalDevice(void);
 id getMetalEncoder(void);
 
-static MTLBlendFactor convert_blending_operation(kinc_g5_blending_operation_t op) {
-	switch (op) {
-	case KINC_G5_BLEND_MODE_ONE:
+static MTLBlendFactor convert_blending_factor(kinc_g5_blending_factor_t factor) {
+	switch (factor) {
+	case KINC_G5_BLEND_ONE:
 		return MTLBlendFactorOne;
-	case KINC_G5_BLEND_MODE_ZERO:
+	case KINC_G5_BLEND_ZERO:
 		return MTLBlendFactorZero;
-	case KINC_G5_BLEND_MODE_SOURCE_ALPHA:
+	case KINC_G5_BLEND_SOURCE_ALPHA:
 		return MTLBlendFactorSourceAlpha;
-	case KINC_G5_BLEND_MODE_DEST_ALPHA:
+	case KINC_G5_BLEND_DEST_ALPHA:
 		return MTLBlendFactorDestinationAlpha;
-	case KINC_G5_BLEND_MODE_INV_SOURCE_ALPHA:
+	case KINC_G5_BLEND_INV_SOURCE_ALPHA:
 		return MTLBlendFactorOneMinusSourceAlpha;
-	case KINC_G5_BLEND_MODE_INV_DEST_ALPHA:
+	case KINC_G5_BLEND_INV_DEST_ALPHA:
 		return MTLBlendFactorOneMinusDestinationAlpha;
-	case KINC_G5_BLEND_MODE_SOURCE_COLOR:
+	case KINC_G5_BLEND_SOURCE_COLOR:
 		return MTLBlendFactorSourceColor;
-	case KINC_G5_BLEND_MODE_DEST_COLOR:
+	case KINC_G5_BLEND_DEST_COLOR:
 		return MTLBlendFactorDestinationColor;
-	case KINC_G5_BLEND_MODE_INV_SOURCE_COLOR:
+	case KINC_G5_BLEND_INV_SOURCE_COLOR:
 		return MTLBlendFactorOneMinusSourceColor;
-	case KINC_G5_BLEND_MODE_INV_DEST_COLOR:
+	case KINC_G5_BLEND_INV_DEST_COLOR:
 		return MTLBlendFactorOneMinusDestinationColor;
+	}
+}
+
+static MTLBlendOperation convert_blending_operation(kinc_g5_blending_operation_t op) {
+	switch (op) {
+		case KINC_G5_BLENDOP_ADD:
+			return MTLBlendOperationAdd;
+		case KINC_G5_BLENDOP_SUBTRACT:
+			return MTLBlendOperationSubtract;
+		case KINC_G5_BLENDOP_REVERSE_SUBTRACT:
+			return MTLBlendOperationReverseSubtract;
+		case KINC_G5_BLENDOP_MIN:
+			return MTLBlendOperationMin;
+		case KINC_G5_BLENDOP_MAX:
+			return MTLBlendOperationMax;
 	}
 }
 
@@ -131,12 +146,14 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
 		renderPipelineDesc.colorAttachments[i].pixelFormat = convert_render_target_format(pipeline->colorAttachment[i]);
 		renderPipelineDesc.colorAttachments[i].blendingEnabled =
-		    pipeline->blendSource != KINC_G5_BLEND_MODE_ONE || pipeline->blendDestination != KINC_G5_BLEND_MODE_ZERO ||
-		    pipeline->alphaBlendSource != KINC_G5_BLEND_MODE_ONE || pipeline->alphaBlendDestination != KINC_G5_BLEND_MODE_ZERO;
-		renderPipelineDesc.colorAttachments[i].sourceRGBBlendFactor = convert_blending_operation(pipeline->blendSource);
-		renderPipelineDesc.colorAttachments[i].sourceAlphaBlendFactor = convert_blending_operation(pipeline->alphaBlendSource);
-		renderPipelineDesc.colorAttachments[i].destinationRGBBlendFactor = convert_blending_operation(pipeline->blendDestination);
-		renderPipelineDesc.colorAttachments[i].destinationAlphaBlendFactor = convert_blending_operation(pipeline->alphaBlendDestination);
+		    pipeline->blend_source != KINC_G5_BLEND_ONE || pipeline->blend_destination != KINC_G5_BLEND_ZERO ||
+		    pipeline->alpha_blend_source != KINC_G5_BLEND_ONE || pipeline->alpha_blend_destination != KINC_G5_BLEND_ZERO;
+		renderPipelineDesc.colorAttachments[i].sourceRGBBlendFactor = convert_blending_factor(pipeline->blend_source);
+		renderPipelineDesc.colorAttachments[i].destinationRGBBlendFactor = convert_blending_factor(pipeline->blend_destination);
+		renderPipelineDesc.colorAttachments[i].rgbBlendOperation = convert_blending_operation(pipeline->blend_operation);
+		renderPipelineDesc.colorAttachments[i].sourceAlphaBlendFactor = convert_blending_factor(pipeline->alpha_blend_source);
+		renderPipelineDesc.colorAttachments[i].destinationAlphaBlendFactor = convert_blending_factor(pipeline->alpha_blend_destination);
+		renderPipelineDesc.colorAttachments[i].alphaBlendOperation = convert_blending_operation(pipeline->alpha_blend_operation);
 		renderPipelineDesc.colorAttachments[i].writeMask =
 		    (pipeline->colorWriteMaskRed[i] ? MTLColorWriteMaskRed : 0) | (pipeline->colorWriteMaskGreen[i] ? MTLColorWriteMaskGreen : 0) |
 		    (pipeline->colorWriteMaskBlue[i] ? MTLColorWriteMaskBlue : 0) | (pipeline->colorWriteMaskAlpha[i] ? MTLColorWriteMaskAlpha : 0);
