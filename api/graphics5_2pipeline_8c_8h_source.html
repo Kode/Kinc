@@ -92,12 +92,12 @@ $(function() {
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    pipe-&gt;stencilReadMask = 0xff;</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    pipe-&gt;stencilWriteMask = 0xff;</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    pipe-&gt;blendSource = KINC_G5_BLEND_MODE_ONE;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    pipe-&gt;blendDestination = KINC_G5_BLEND_MODE_ZERO;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="comment">// blendOperation = BlendingOperation.Add;</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    pipe-&gt;alphaBlendSource = KINC_G5_BLEND_MODE_ONE;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    pipe-&gt;alphaBlendDestination = KINC_G5_BLEND_MODE_ZERO;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="comment">// alphaBlendOperation = BlendingOperation.Add;</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    pipe-&gt;blend_source = KINC_G5_BLEND_ONE;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    pipe-&gt;blend_destination = KINC_G5_BLEND_ZERO;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    pipe-&gt;blend_operation = KINC_G5_BLENDOP_ADD;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    pipe-&gt;alpha_blend_source = KINC_G5_BLEND_ONE;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    pipe-&gt;alpha_blend_destination = KINC_G5_BLEND_ZERO;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    pipe-&gt;alpha_blend_operation = KINC_G5_BLENDOP_ADD;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    for (<span class="keywordtype">int</span> i = 0; i &lt; 8; ++i) pipe-&gt;colorWriteMaskRed[i] = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    for (<span class="keywordtype">int</span> i = 0; i &lt; 8; ++i) pipe-&gt;colorWriteMaskGreen[i] = <span class="keyword">true</span>;</div>
@@ -115,8 +115,8 @@ $(function() {
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    pipe-&gt;compute_shader = NULL;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="astructkinc__g5__compute__pipeline_html"><div class="ttname"><a href="structkinc__g5__compute__pipeline.html">kinc_g5_compute_pipeline</a></div><div class="ttdef"><b>Definition:</b> pipeline.h:67</div></div>
-<div class="ttc" id="astructkinc__g5__pipeline_html"><div class="ttname"><a href="structkinc__g5__pipeline.html">kinc_g5_pipeline</a></div><div class="ttdef"><b>Definition:</b> pipeline.h:22</div></div>
+<div class="ttc" id="astructkinc__g5__compute__pipeline_html"><div class="ttname"><a href="structkinc__g5__compute__pipeline.html">kinc_g5_compute_pipeline</a></div><div class="ttdef"><b>Definition:</b> pipeline.h:90</div></div>
+<div class="ttc" id="astructkinc__g5__pipeline_html"><div class="ttname"><a href="structkinc__g5__pipeline.html">kinc_g5_pipeline</a></div><div class="ttdef"><b>Definition:</b> pipeline.h:45</div></div>
 <div class="ttc" id="agraphics5_2pipeline_8h_html"><div class="ttname"><a href="graphics5_2pipeline_8h.html">pipeline.h</a></div><div class="ttdoc">Provides functions for creating and using pipelines which configure the GPU for rendering.</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
