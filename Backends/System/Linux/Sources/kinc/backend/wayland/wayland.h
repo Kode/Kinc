@@ -146,6 +146,7 @@ struct kinc_xkb_procs {
 	enum xkb_state_component (*xkb_state_update_mask)(struct xkb_state *state, xkb_mod_mask_t depressed_mods, xkb_mod_mask_t latched_mods,
 	                                                  xkb_mod_mask_t locked_mods, xkb_layout_index_t depressed_layout, xkb_layout_index_t latched_layout,
 	                                                  xkb_layout_index_t locked_layout);
+	int (*xkb_state_mod_name_is_active)(struct xkb_state *state, const char *name, enum xkb_state_component type)
 };
 
 extern struct kinc_xkb_procs wl_xkb;
@@ -246,9 +247,39 @@ struct kinc_wl_mouse {
 };
 
 struct kinc_wl_keyboard {
+	struct kinc_wl_seat *seat;
 	struct wl_keyboard *keyboard;
 	struct xkb_keymap *keymap;
 	struct xkb_state *state;
+	bool ctrlDown;
+};
+
+struct kinc_wl_data_offer {
+	struct wl_data_offer *id;
+
+	int mime_type_count;
+	char **mime_types;
+
+	uint32_t source_actions;
+	uint32_t dnd_action;
+
+	void (*callback)(void *data, size_t data_size, void *user_data);
+	void *user_data;
+	int read_fd;
+
+	void *buffer;
+	size_t buf_size;
+	size_t buf_pos;
+
+	struct kinc_wl_data_offer *next;
+};
+
+struct kinc_wl_data_source {
+	struct wl_data_source *source;
+	const char **mime_types;
+	int num_mime_types;
+	void *data;
+	size_t data_size;
 };
 
 struct kinc_wl_seat {
@@ -256,6 +287,9 @@ struct kinc_wl_seat {
 	struct kinc_wl_keyboard keyboard;
 	struct kinc_wl_mouse mouse;
 	struct wl_touch *touch;
+	struct wl_data_device *data_device;
+	struct kinc_wl_data_offer *current_selection_offer;
+	int current_serial;
 	uint32_t capabilities;
 	char name[64];
 };
@@ -272,12 +306,21 @@ struct wayland_context {
 	struct kinc_wl_seat seat;
 	struct xdg_wm_base *xdg_wm_base;
 	struct zxdg_decoration_manager_v1 *decoration_manager;
+	struct wl_data_device_manager *data_device_manager;
 	struct wl_cursor_theme *cursor_theme;
 	int cursor_size;
 	int num_windows;
 	struct kinc_wl_window windows[MAXIMUM_WINDOWS];
 	int num_displays;
 	struct kinc_wl_display displays[MAXIMUM_DISPLAYS];
+
+	struct kinc_wl_data_offer *data_offer_queue;
 };
 
 extern struct wayland_context wl_ctx;
+
+struct kinc_wl_data_source *kinc_wl_create_data_source(struct kinc_wl_seat *seat, const char *mime_types[], int num_mime_types, void *data, size_t data_size);
+void kinc_wl_data_source_destroy(struct kinc_wl_data_source *data_source);
+void kinc_wl_data_offer_accept(struct kinc_wl_data_offer *offer, void (*callback)(void *data, size_t data_size, void *user_data), void *user_data);
+void kinc_wl_destroy_data_offer(struct kinc_wl_data_offer *offer);
+void kinc_wayland_set_selection(struct kinc_wl_seat *seat, const char *text, int serial);

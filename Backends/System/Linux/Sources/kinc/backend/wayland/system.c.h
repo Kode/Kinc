@@ -1,3 +1,5 @@
+#include "kinc/memory.h"
+#include "kinc/system.h"
 #include "wayland.h"
 #include <kinc/display.h>
 #include <kinc/input/keyboard.h>
@@ -117,6 +119,7 @@ bool kinc_wayland_load_procs() {
 	LOAD_FUN(xkb_state_key_get_utf32)
 	LOAD_FUN(xkb_state_serialize_mods)
 	LOAD_FUN(xkb_state_update_mask)
+	LOAD_FUN(xkb_state_mod_name_is_active)
 #undef LOAD_FUN
 
 	if (has_missing_symbol) {
@@ -382,7 +385,8 @@ static const struct wl_pointer_listener wl_pointer_listener = {
 #include <unistd.h>
 
 void wl_keyboard_handle_keymap(void *data, struct wl_keyboard *wl_keyboard, uint32_t format, int32_t fd, uint32_t size) {
-	struct kinc_wl_keyboard *keyboard = data;
+	struct kinc_wl_seat *seat = data;
+	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
 	switch (format) {
 	case WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1: {
 		char *mapStr = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
@@ -394,6 +398,7 @@ void wl_keyboard_handle_keymap(void *data, struct wl_keyboard *wl_keyboard, uint
 		munmap(mapStr, size);
 		close(fd);
 		keyboard->state = wl_xkb.xkb_state_new(keyboard->keymap);
+		keyboard->ctrlDown = false;
 		break;
 	}
 	default:
@@ -401,35 +406,69 @@ void wl_keyboard_handle_keymap(void *data, struct wl_keyboard *wl_keyboard, uint
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Unsupported wayland keymap format %i", format);
 	}
 }
-void wl_keyboard_handle_enter(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array *keys) {}
-void wl_keyboard_handle_leave(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface) {}
+
+void wl_keyboard_handle_enter(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array *keys) {
+	struct kinc_wl_seat *seat = data;
+	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
+}
+
+void wl_keyboard_handle_leave(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface) {
+	struct kinc_wl_seat *seat = data;
+	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
+}
 
 int xkb_to_kinc(xkb_keysym_t symbol);
 
+void handle_paste(void *data, size_t data_size, void *user_data) {
+	kinc_internal_paste_callback(data);
+}
+
 void wl_keyboard_handle_key(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state) {
-	struct kinc_wl_keyboard *keyboard = data;
+	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
 	if (keyboard->keymap && keyboard->state) {
 		xkb_keysym_t symbol = wl_xkb.xkb_state_key_get_one_sym(keyboard->state, key + 8);
 		uint32_t character = wl_xkb.xkb_state_key_get_utf32(keyboard->state, key + 8);
 		int kinc_key = xkb_to_kinc(symbol);
 		if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+			if (keyboard->ctrlDown && (symbol == XKB_KEY_c || symbol == XKB_KEY_C)) {
+				char *text = kinc_internal_copy_callback();
+				if (text != NULL) {
+					kinc_wayland_set_selection(keyboard->seat, text, serial);
+				}
+			}
+			else if (keyboard->ctrlDown && (symbol == XKB_KEY_x || symbol == XKB_KEY_X)) {
+				char *text = kinc_internal_copy_callback();
+				if (text != NULL) {
+					kinc_wayland_set_selection(keyboard->seat, text, serial);
+				}
+			}
+			else if (keyboard->ctrlDown && (symbol == XKB_KEY_v || symbol == XKB_KEY_V)) {
+				if (keyboard->seat->current_selection_offer != NULL) {
+					kinc_wl_data_offer_accept(keyboard->seat->current_selection_offer, handle_paste, NULL);
+				}
+			}
 			kinc_internal_keyboard_trigger_key_down(kinc_key);
-			kinc_internal_keyboard_trigger_key_press(character);
+			if (character != 0) {
+				kinc_internal_keyboard_trigger_key_press(character);
+			}
 		}
 		if (state == WL_KEYBOARD_KEY_STATE_RELEASED) {
 			kinc_internal_keyboard_trigger_key_up(kinc_key);
 		}
 	}
 }
+
 void wl_keyboard_handle_modifiers(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched,
                                   uint32_t mods_locked, uint32_t group) {
-	struct kinc_wl_keyboard *keyboard = data;
+	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
 	if (keyboard->keymap && keyboard->state) {
 		wl_xkb.xkb_state_update_mask(keyboard->state, mods_depressed, mods_latched, mods_locked, 0, 0, group);
 		int mask = wl_xkb.xkb_state_serialize_mods(keyboard->state,
 		                                           XKB_STATE_MODS_DEPRESSED | XKB_STATE_LAYOUT_DEPRESSED | XKB_STATE_MODS_LATCHED | XKB_STATE_LAYOUT_LATCHED);
+		keyboard->ctrlDown = wl_xkb.xkb_state_mod_name_is_active(keyboard->state, XKB_MOD_NAME_CTRL, XKB_STATE_MODS_EFFECTIVE) > 0;
 	}
 }
+
 void wl_keyboard_handle_repeat_info(void *data, struct wl_keyboard *wl_keyboard, int32_t rate, int32_t delay) {}
 
 static const struct wl_keyboard_listener wl_keyboard_listener = {
@@ -444,6 +483,7 @@ void wl_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32_t capabili
 	seat->capabilities = capabilities;
 	if (capabilities & WL_SEAT_CAPABILITY_KEYBOARD) {
 		seat->keyboard.keyboard = wl_seat_get_keyboard(wl_seat);
+		seat->keyboard.seat = seat;
 		wl_keyboard_add_listener(seat->keyboard.keyboard, &wl_keyboard_listener, &seat->keyboard);
 	}
 	if (capabilities & WL_SEAT_CAPABILITY_POINTER) {
@@ -464,6 +504,321 @@ void wl_seat_name(void *data, struct wl_seat *wl_seat, const char *name) {
 static const struct wl_seat_listener wl_seat_listener = {
     wl_seat_capabilities,
     wl_seat_name,
+};
+
+/**
+ * a target accepts an offered mime type
+ *
+ * Sent when a target accepts pointer_focus or motion events. If
+ * a target does not accept any of the offered types, type is NULL.
+ *
+ * Used for feedback during drag-and-drop.
+ * @param mime_type mime type accepted by the target
+ */
+void wl_data_source_handle_target(void *data, struct wl_data_source *wl_data_source, const char *mime_type) {
+	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
+}
+/**
+ * send the data
+ *
+ * Request for data from the client. Send the data as the
+ * specified mime type over the passed file descriptor, then close
+ * it.
+ * @param mime_type mime type for the data
+ * @param fd file descriptor for the data
+ */
+void wl_data_source_handle_send(void *data, struct wl_data_source *wl_data_source, const char *mime_type, int32_t fd) {
+	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
+	write(fd, data_source->data, data_source->data_size);
+	close(fd);
+}
+/**
+ * selection was cancelled
+ *
+ * This data source is no longer valid. There are several reasons
+ * why this could happen:
+ *
+ * - The data source has been replaced by another data source. -
+ * The drag-and-drop operation was performed, but the drop
+ * destination did not accept any of the mime types offered through
+ * wl_data_source.target. - The drag-and-drop operation was
+ * performed, but the drop destination did not select any of the
+ * actions present in the mask offered through
+ * wl_data_source.action. - The drag-and-drop operation was
+ * performed but didn't happen over a surface. - The compositor
+ * cancelled the drag-and-drop operation (e.g. compositor dependent
+ * timeouts to avoid stale drag-and-drop transfers).
+ *
+ * The client should clean up and destroy this data source.
+ *
+ * For objects of version 2 or older, wl_data_source.cancelled will
+ * only be emitted if the data source was replaced by another data
+ * source.
+ */
+void wl_data_source_handle_cancelled(void *data, struct wl_data_source *wl_data_source) {
+	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
+}
+/**
+ * the drag-and-drop operation physically finished
+ *
+ * The user performed the drop action. This event does not
+ * indicate acceptance, wl_data_source.cancelled may still be
+ * emitted afterwards if the drop destination does not accept any
+ * mime type.
+ *
+ * However, this event might however not be received if the
+ * compositor cancelled the drag-and-drop operation before this
+ * event could happen.
+ *
+ * Note that the data_source may still be used in the future and
+ * should not be destroyed here.
+ * @since 3
+ */
+void wl_data_source_handle_dnd_drop_performed(void *data, struct wl_data_source *wl_data_source) {
+	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
+}
+/**
+ * the drag-and-drop operation concluded
+ *
+ * The drop destination finished interoperating with this data
+ * source, so the client is now free to destroy this data source
+ * and free all associated data.
+ *
+ * If the action used to perform the operation was "move", the
+ * source can now delete the transferred data.
+ * @since 3
+ */
+void wl_data_source_handle_dnd_finished(void *data, struct wl_data_source *wl_data_source) {
+	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
+}
+/**
+ * notify the selected action
+ *
+ * This event indicates the action selected by the compositor
+ * after matching the source/destination side actions. Only one
+ * action (or none) will be offered here.
+ *
+ * This event can be emitted multiple times during the
+ * drag-and-drop operation, mainly in response to destination side
+ * changes through wl_data_offer.set_actions, and as the data
+ * device enters/leaves surfaces.
+ *
+ * It is only possible to receive this event after
+ * wl_data_source.dnd_drop_performed if the drag-and-drop operation
+ * ended in an "ask" action, in which case the final
+ * wl_data_source.action event will happen immediately before
+ * wl_data_source.dnd_finished.
+ *
+ * Compositors may also change the selected action on the fly,
+ * mainly in response to keyboard modifier changes during the
+ * drag-and-drop operation.
+ *
+ * The most recent action received is always the valid one. The
+ * chosen action may change alongside negotiation (e.g. an "ask"
+ * action can turn into a "move" operation), so the effects of the
+ * final action must always be applied in
+ * wl_data_offer.dnd_finished.
+ *
+ * Clients can trigger cursor surface changes from this point, so
+ * they reflect the current action.
+ * @param dnd_action action selected by the compositor
+ * @since 3
+ */
+void wl_data_source_handle_action(void *data, struct wl_data_source *wl_data_source, uint32_t dnd_action) {
+	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
+}
+
+static const struct wl_data_source_listener wl_data_source_listener = {
+    wl_data_source_handle_target,       wl_data_source_handle_send,   wl_data_source_handle_cancelled, wl_data_source_handle_dnd_drop_performed,
+    wl_data_source_handle_dnd_finished, wl_data_source_handle_action,
+};
+
+struct kinc_wl_data_source *kinc_wl_create_data_source(struct kinc_wl_seat *seat, const char *mime_types[], int num_mime_types, void *data, size_t data_size) {
+	struct kinc_wl_data_source *data_source = kinc_allocate(sizeof *data_source);
+	data_source->source = wl_data_device_manager_create_data_source(wl_ctx.data_device_manager);
+	data_source->data = data;
+	data_source->data_size = data_size;
+	data_source->mime_types = mime_types;
+	data_source->num_mime_types = num_mime_types;
+
+	for (int i = 0; i < num_mime_types; i++) {
+		wl_data_source_offer(data_source->source, mime_types[i]);
+	}
+	// wl_data_source_set_actions(data_source->source, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
+	wl_data_source_set_user_data(data_source->source, data_source);
+	wl_data_source_add_listener(data_source->source, &wl_data_source_listener, data_source);
+	return data_source;
+}
+
+void kinc_wl_data_source_destroy(struct kinc_wl_data_source *data_source) {}
+
+void wl_data_offer_handle_offer(void *data, struct wl_data_offer *wl_data_offer, const char *mime_type) {
+	struct kinc_wl_data_offer *offer = wl_data_offer_get_user_data(wl_data_offer);
+	if (offer != NULL) {
+		offer->mime_type_count++;
+		offer->mime_types = kinc_reallocate(offer->mime_types, offer->mime_type_count * sizeof(const char*));
+		offer->mime_types[offer->mime_type_count - 1] = strdup(mime_type);
+	}
+}
+
+void wl_data_offer_handle_source_actions(void *data, struct wl_data_offer *wl_data_offer, uint32_t source_actions) {
+	struct kinc_wl_data_offer *offer = wl_data_offer_get_user_data(wl_data_offer);
+	offer->source_actions = source_actions;
+}
+
+void wl_data_offer_handle_action(void *data, struct wl_data_offer *wl_data_offer, uint32_t dnd_action) {
+	struct kinc_wl_data_offer *offer = wl_data_offer_get_user_data(wl_data_offer);
+	offer->dnd_action = dnd_action;
+}
+
+static const struct wl_data_offer_listener wl_data_offer_listener = {
+    wl_data_offer_handle_offer,
+    wl_data_offer_handle_source_actions,
+    wl_data_offer_handle_action,
+};
+
+void kinc_wl_init_data_offer(struct wl_data_offer *id) {
+	struct kinc_wl_data_offer *offer = kinc_allocate(sizeof *offer);
+	kinc_memset(offer, 0, sizeof *offer);
+	offer->id = id;
+	offer->mime_type_count = 0;
+	offer->mime_types = NULL;
+
+	wl_data_offer_set_user_data(id, offer);
+	wl_data_offer_add_listener(id, &wl_data_offer_listener, offer);
+}
+
+void kinc_wl_data_offer_accept(struct kinc_wl_data_offer *offer, void (*callback)(void *data, size_t data_size, void *user_data), void *user_data) {
+	offer->callback = callback;
+	offer->user_data = user_data;
+
+	int fds[2];
+	pipe(fds);
+	wl_data_offer_receive(offer->id, "text/plain", fds[1]);
+	close(fds[1]);
+
+	wl_display_roundtrip(wl_ctx.display);
+
+	offer->read_fd = fds[0];
+
+	struct kinc_wl_data_offer **queue = &wl_ctx.data_offer_queue;
+
+	while (*queue != NULL) queue = &(*queue)->next;
+	*queue = offer;
+}
+
+void kinc_wl_destroy_data_offer(struct kinc_wl_data_offer *offer) {
+	wl_data_offer_destroy(offer->id);
+	if (offer->buffer != NULL) {
+		kinc_free(offer->buffer);
+	}
+	for (int i = 0; i < offer->mime_type_count; i++) {
+		free((void *)offer->mime_types[i]);
+	}
+	kinc_free(offer->mime_types);
+	kinc_free(offer);
+}
+
+/**
+ * introduce a new wl_data_offer
+ *
+ * The data_offer event introduces a new wl_data_offer object,
+ * which will subsequently be used in either the data_device.enter
+ * event (for drag-and-drop) or the data_device.selection event
+ * (for selections). Immediately following the
+ * data_device_data_offer event, the new data_offer object will
+ * send out data_offer.offer events to describe the mime types it
+ * offers.
+ * @param id the new data_offer object
+ */
+void wl_data_device_handle_data_offer(void *data, struct wl_data_device *wl_data_device, struct wl_data_offer *id) {
+	struct kinc_wl_seat *seat = data;
+	kinc_wl_init_data_offer(id);
+}
+
+/**
+ * initiate drag-and-drop session
+ *
+ * This event is sent when an active drag-and-drop pointer enters
+ * a surface owned by the client. The position of the pointer at
+ * enter time is provided by the x and y arguments, in
+ * surface-local coordinates.
+ * @param serial serial number of the enter event
+ * @param surface client surface entered
+ * @param x surface-local x coordinate
+ * @param y surface-local y coordinate
+ * @param id source data_offer object
+ */
+void wl_data_device_handle_enter(void *data, struct wl_data_device *wl_data_device, uint32_t serial, struct wl_surface *surface, wl_fixed_t x, wl_fixed_t y,
+                                 struct wl_data_offer *id) {
+	struct kinc_wl_seat *seat = data;
+}
+
+/**
+ * end drag-and-drop session
+ *
+ * This event is sent when the drag-and-drop pointer leaves the
+ * surface and the session ends. The client must destroy the
+ * wl_data_offer introduced at enter time at this point.
+ */
+void wl_data_device_handle_leave(void *data, struct wl_data_device *wl_data_device) {
+	struct kinc_wl_seat *seat = data;
+}
+
+/**
+ * drag-and-drop session motion
+ *
+ * This event is sent when the drag-and-drop pointer moves within
+ * the currently focused surface. The new position of the pointer
+ * is provided by the x and y arguments, in surface-local
+ * coordinates.
+ * @param time timestamp with millisecond granularity
+ * @param x surface-local x coordinate
+ * @param y surface-local y coordinate
+ */
+void wl_data_device_handle_motion(void *data, struct wl_data_device *wl_data_device, uint32_t time, wl_fixed_t x, wl_fixed_t y) {
+	struct kinc_wl_seat *seat = data;
+}
+
+/**
+ * end drag-and-drop session successfully
+ *
+ * The event is sent when a drag-and-drop operation is ended
+ * because the implicit grab is removed.
+ *
+ * The drag-and-drop destination is expected to honor the last
+ * action received through wl_data_offer.action, if the resulting
+ * action is "copy" or "move", the destination can still perform
+ * wl_data_offer.receive requests, and is expected to end all
+ * transfers with a wl_data_offer.finish request.
+ *
+ * If the resulting action is "ask", the action will not be
+ * considered final. The drag-and-drop destination is expected to
+ * perform one last wl_data_offer.set_actions request, or
+ * wl_data_offer.destroy in order to cancel the operation.
+ */
+void wl_data_device_handle_drop(void *data, struct wl_data_device *wl_data_device) {
+	struct kinc_wl_seat *seat = data;
+}
+
+void wl_data_device_handle_selection(void *data, struct wl_data_device *wl_data_device, struct wl_data_offer *id) {
+	struct kinc_wl_seat *seat = data;
+	if (seat->current_selection_offer != NULL) {
+		kinc_wl_destroy_data_offer(seat->current_selection_offer);
+		seat->current_selection_offer = NULL;
+	}
+
+	if (id != NULL) {
+		if (wl_data_offer_get_user_data(id) == NULL) {
+			kinc_wl_init_data_offer(id);
+		}
+		seat->current_selection_offer = wl_data_offer_get_user_data(id);
+	}
+}
+
+static const struct wl_data_device_listener wl_data_device_listener = {
+    wl_data_device_handle_data_offer, wl_data_device_handle_enter, wl_data_device_handle_leave,
+    wl_data_device_handle_motion,     wl_data_device_handle_drop,  wl_data_device_handle_selection,
 };
 
 static void wl_registry_handle_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
@@ -491,6 +846,10 @@ static void wl_registry_handle_global(void *data, struct wl_registry *registry, 
 		wl_ctx.seat.seat = wl_registry_bind(registry, name, &wl_seat_interface, 1);
 
 		wl_seat_add_listener(wl_ctx.seat.seat, &wl_seat_listener, &wl_ctx.seat);
+		if (wl_ctx.data_device_manager != NULL) {
+			wl_ctx.seat.data_device = wl_data_device_manager_get_data_device(wl_ctx.data_device_manager, wl_ctx.seat.seat);
+			wl_data_device_add_listener(wl_ctx.seat.data_device, &wl_data_device_listener, &wl_ctx.seat);
+		}
 	}
 	else if (strcmp(interface, wl_output_interface.name) == 0) {
 		int display_index = -1;
@@ -514,6 +873,13 @@ static void wl_registry_handle_global(void *data, struct wl_registry *registry, 
 	}
 	else if (strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0) {
 		wl_ctx.decoration_manager = wl_registry_bind(registry, name, &zxdg_decoration_manager_v1_interface, 1);
+	}
+	else if (strcmp(interface, wl_data_device_manager_interface.name) == 0) {
+		wl_ctx.data_device_manager = wl_registry_bind(registry, name, &wl_data_device_manager_interface, 3);
+		if (wl_ctx.seat.seat != NULL) {
+			wl_ctx.seat.data_device = wl_data_device_manager_get_data_device(wl_ctx.data_device_manager, wl_ctx.seat.seat);
+			wl_data_device_add_listener(wl_ctx.seat.data_device, &wl_data_device_listener, &wl_ctx.seat);
+		}
 	}
 }
 
@@ -567,7 +933,16 @@ void kinc_wayland_shutdown() {
 	wl_xkb.xkb_context_unref(wl_ctx.xkb_context);
 }
 
+void kinc_wayland_set_selection(struct kinc_wl_seat *seat, const char *text, int serial) {
+	static const char *mime_types[] = {"text/plain"};
+	struct kinc_wl_data_source *data_source =
+	    kinc_wl_create_data_source(seat, mime_types, sizeof mime_types / sizeof mime_types[0], strdup(text), strlen(text));
+	wl_data_device_set_selection(seat->data_device, data_source->source, serial);
+}
+
 void kinc_wayland_copy_to_clipboard(const char *text) {}
+
+#define READ_SIZE 64
 
 bool kinc_wayland_handle_messages() {
 	wl_display_dispatch(wl_ctx.display);
@@ -575,8 +950,40 @@ bool kinc_wayland_handle_messages() {
 	wl_display_flush(wl_ctx.display);
 	wl_display_read_events(wl_ctx.display);
 	wl_display_dispatch_pending(wl_ctx.display);
+	wl_display_roundtrip(wl_ctx.display);
+
+	struct kinc_wl_data_offer **offer = &wl_ctx.data_offer_queue;
+	while (*offer != NULL) {
+		struct kinc_wl_data_offer *current = *offer;
+		struct kinc_wl_data_offer **next = &current->next;
+		if (current->buf_pos + READ_SIZE > current->buf_size) {
+			current->buffer = kinc_reallocate(current->buffer, current->buf_size + READ_SIZE);
+			current->buf_size += READ_SIZE;
+		}
+
+		ssize_t n = read(current->read_fd, current->buffer + current->buf_pos, READ_SIZE);
+		if (n <= 0) {
+			*offer = *next;
+			close(current->read_fd);
+
+			current->callback(current->buffer, current->buf_pos, current->user_data);
+
+			kinc_free(current->buffer);
+			current->buffer = NULL;
+			current->buf_pos = 0;
+			current->buf_size = 0;
+			current->read_fd = 0;
+			current->next = NULL;
+		}
+		else {
+			current->buf_pos += n;
+			offer = next;
+		}
+	}
 	return false;
 }
+
+#undef READ_SIZE
 
 #ifdef KINC_EGL
 EGLDisplay kinc_wayland_egl_get_display() {
