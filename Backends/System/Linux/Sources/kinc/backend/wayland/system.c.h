@@ -656,7 +656,7 @@ void wl_data_offer_handle_offer(void *data, struct wl_data_offer *wl_data_offer,
 	struct kinc_wl_data_offer *offer = wl_data_offer_get_user_data(wl_data_offer);
 	if (offer != NULL) {
 		offer->mime_type_count++;
-		offer->mime_types = kinc_reallocate(offer->mime_types, offer->mime_type_count * sizeof(const char*));
+		offer->mime_types = kinc_reallocate(offer->mime_types, offer->mime_type_count * sizeof(const char *));
 		offer->mime_types[offer->mime_type_count - 1] = strdup(mime_type);
 	}
 }
@@ -752,6 +752,8 @@ void wl_data_device_handle_data_offer(void *data, struct wl_data_device *wl_data
 void wl_data_device_handle_enter(void *data, struct wl_data_device *wl_data_device, uint32_t serial, struct wl_surface *surface, wl_fixed_t x, wl_fixed_t y,
                                  struct wl_data_offer *id) {
 	struct kinc_wl_seat *seat = data;
+	seat->current_dnd_offer = wl_data_offer_get_user_data(id);
+	wl_data_offer_set_actions(id, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY | WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
 }
 
 /**
@@ -763,6 +765,8 @@ void wl_data_device_handle_enter(void *data, struct wl_data_device *wl_data_devi
  */
 void wl_data_device_handle_leave(void *data, struct wl_data_device *wl_data_device) {
 	struct kinc_wl_seat *seat = data;
+	kinc_wl_destroy_data_offer(seat->current_dnd_offer);
+	seat->current_dnd_offer = NULL;
 }
 
 /**
@@ -797,8 +801,24 @@ void wl_data_device_handle_motion(void *data, struct wl_data_device *wl_data_dev
  * perform one last wl_data_offer.set_actions request, or
  * wl_data_offer.destroy in order to cancel the operation.
  */
+
+static void dnd_callback(void *data, size_t data_size, void *user_data) {
+	char *str = data;
+	if (strncmp(data, "file://", strlen("file://")) == 0) {
+		str += strlen("file://");
+	}
+	size_t wide_size = mbstowcs(NULL, str, 0) + 1;
+	wchar_t *dest = kinc_allocate(wide_size * sizeof(wchar_t));
+	mbstowcs(dest, str, wide_size);
+	kinc_internal_drop_files_callback(dest);
+	kinc_free(dest);
+}
+
 void wl_data_device_handle_drop(void *data, struct wl_data_device *wl_data_device) {
 	struct kinc_wl_seat *seat = data;
+	if (seat->current_dnd_offer != NULL) {
+		kinc_wl_data_offer_accept(seat->current_dnd_offer, dnd_callback, NULL);
+	}
 }
 
 void wl_data_device_handle_selection(void *data, struct wl_data_device *wl_data_device, struct wl_data_offer *id) {
@@ -809,9 +829,6 @@ void wl_data_device_handle_selection(void *data, struct wl_data_device *wl_data_
 	}
 
 	if (id != NULL) {
-		if (wl_data_offer_get_user_data(id) == NULL) {
-			kinc_wl_init_data_offer(id);
-		}
 		seat->current_selection_offer = wl_data_offer_get_user_data(id);
 	}
 }

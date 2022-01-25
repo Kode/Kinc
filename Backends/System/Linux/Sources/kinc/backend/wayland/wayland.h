@@ -289,6 +289,7 @@ struct kinc_wl_seat {
 	struct wl_touch *touch;
 	struct wl_data_device *data_device;
 	struct kinc_wl_data_offer *current_selection_offer;
+	struct kinc_wl_data_offer *current_dnd_offer;
 	int current_serial;
 	uint32_t capabilities;
 	char name[64];
