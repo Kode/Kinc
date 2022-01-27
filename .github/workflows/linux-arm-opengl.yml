@@ -65,5 +65,5 @@ jobs:
             cd Tests/Shader/Deployment
             xvfb-run ./ShaderTest
             cd ../../..
-            echo " * Run Test 1"
+            echo " * Check Test 1"
             compare-im6 -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
