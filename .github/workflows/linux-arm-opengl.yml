@@ -20,8 +20,8 @@ jobs:
         include:
           - arch: aarch64
             distro: stretch
-          - arch: armv6
-            distro: jessie
+          - arch: armv7
+            distro: stretch
 
     steps:
       - uses: actions/checkout@v2
