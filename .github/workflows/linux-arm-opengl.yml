@@ -19,9 +19,9 @@ jobs:
       matrix:
         include:
           - arch: aarch64
-            distro: stretch
+            distro: ubuntu:latest
           - arch: armv7
-            distro: stretch
+            distro: ubuntu:latest
 
     steps:
       - uses: actions/checkout@v2
