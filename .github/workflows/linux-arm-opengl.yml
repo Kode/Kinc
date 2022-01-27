@@ -12,9 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
     name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
 
     # Run steps for both armv6 and aarch64
