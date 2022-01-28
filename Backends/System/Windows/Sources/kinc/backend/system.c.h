@@ -1029,7 +1029,7 @@ bool handleDirectInputPad(int padIndex) {
 				// cardinal press || cardinal + counter-clockwise || cardinal + clockwise
 				kinc_internal_gamepad_trigger_button(padIndex, 12, (*now == 0 || *now == 31500 || *now == 4500));
 				kinc_internal_gamepad_trigger_button(padIndex, 13, (*now == 18000 || *now == 13500 || *now == 22500));
-				kinc_internal_gamepad_trigger_button(padIndex, 14, (*now == 27500 || *now == 23000 || *now == 32000));
+				kinc_internal_gamepad_trigger_button(padIndex, 14, (*now == 27000 || *now == 22500 || *now == 31500));
 				kinc_internal_gamepad_trigger_button(padIndex, 15, (*now == 9000 || *now == 4500 || *now == 13500));
 			}
 		}
