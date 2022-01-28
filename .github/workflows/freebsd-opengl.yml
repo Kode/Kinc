@@ -27,6 +27,7 @@ jobs:
         mem: 2048
         prepare: pkg install -y alsa-lib libXinerama mesa-libs libXi xorg-vfbserver libXrandr libXi libXcursor ImageMagick7
         run: |
+          echo "$(ls) - $(pwd)"
           echo " * Compile"
           ./make -g opengl --kinc . --from Tests/Empty --compile
           echo " * Clean"
