@@ -25,7 +25,7 @@ jobs:
       with:
         usesh: true
         mem: 2048
-        prepare: pkg install -y alsa-lib libXinerama mesa-libs libXi xorg-vfbserver libXrandr libXi libXcursor ImageMagick7
+        prepare: pkg install -y bash alsa-lib libXinerama mesa-libs libXi xorg-vfbserver libXrandr libXi libXcursor evdev-proto libinotify ImageMagick7
         run: |
           echo " * Compile"
           ./make -g opengl --kinc . --from Tests/Empty --compile
