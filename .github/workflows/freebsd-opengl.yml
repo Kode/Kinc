@@ -1,0 +1,43 @@
+name: FreeBSD
+
+on:
+  push:
+    branches:
+    - master
+    - ARMandFreeBSDCI
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: macos-10.15
+    name: FreeBSD build
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get Submodules
+      run: git submodule update --init --recursive
+    - name: Compile in FreeBSD VM
+      id: build
+      uses: vmactions/freebsd-vm@v0.1.5
+      with:
+        usesh: true
+        mem: 2048
+        prepare: pkg install -y alsa-lib libXinerama mesa-libs libXi xorg-vfbserver libXrandr libXi libXcursor ImageMagick7
+        run: |
+          echo " * Compile"
+          ./make -g opengl --kinc . --from Tests/Empty --compile
+          echo " * Clean"
+          rm -r build
+          echo " * Compile Test 1"
+          ./make -g opengl --kinc . --from Tests/Shader --compile
+          echo " * Copy Test 1"
+          cp build/Release/ShaderTest Tests/Shader/Deployment/ShaderTest
+          echo " * Run Test 1"
+          cd Tests/Shader/Deployment
+          ../../../Tools/freebsd-xvfb-run ./ShaderTest
+          cd ../../..
+          echo " * Check Test 1"
+          compare -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
