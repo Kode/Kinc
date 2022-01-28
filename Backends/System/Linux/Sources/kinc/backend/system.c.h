@@ -945,7 +945,9 @@ bool kinc_internal_handle_messages() {
 		}
 		}
 	}
+#ifndef __FreeBSD__
 	kinc_linux_updateHIDGamepads();
+#endif
 	return true;
 }
 
@@ -1068,7 +1070,9 @@ void kinc_unlock_achievement(int id) {}
 
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	clipboardString = (char *)malloc(clipboardStringSize);
+#ifndef __FreeBSD__
 	kinc_linux_initHIDGamepads();
+#endif
 
 	gettimeofday(&start, NULL);
 	kinc_display_init();
@@ -1096,7 +1100,9 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 
 void kinc_internal_shutdown() {
 	free(clipboardString);
+#ifndef __FreeBSD__
 	kinc_linux_closeHIDGamepads();
+#endif
 	kinc_internal_shutdown_callback();
 }
 
