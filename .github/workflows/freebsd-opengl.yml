@@ -37,7 +37,7 @@ jobs:
           cp build/Release/ShaderTest Tests/Shader/Deployment/ShaderTest
           echo " * Run Test 1"
           cd Tests/Shader/Deployment
-          bash -c ''../../../Tools/freebsd-xvfb-run ./ShaderTest'
+          bash -c '../../../Tools/freebsd-xvfb-run ./ShaderTest'
           cd ../../..
           echo " * Check Test 1"
           compare -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
