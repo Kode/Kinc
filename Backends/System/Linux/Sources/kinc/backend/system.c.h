@@ -8,7 +8,9 @@
 #include <kinc/video.h>
 #include <kinc/window.h>
 
+#ifndef __FreeBSD__
 #include "gamepad.h"
+#endif
 
 #include <kinc/backend/Linux.h>
 #include <kinc/display.h>
