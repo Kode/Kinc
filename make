@@ -10,4 +10,6 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
 	`dirname "$0"`/Tools/kmake/kmake-osx "$@"
+elif [[ "$OSTYPE" == "FreeBSD"* ]]; then
+	`dirname "$0"`/Tools/kmake/kmake-freebsd "$@"
 fi

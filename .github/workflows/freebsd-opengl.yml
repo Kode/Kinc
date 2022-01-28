@@ -1,4 +1,4 @@
-name: FreeBSD
+name: FreeBSD (OpenGL)
 
 on:
   push:
