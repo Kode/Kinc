@@ -1018,6 +1018,20 @@ bool handleDirectInputPad(int padIndex) {
 			}
 		}
 
+		for (int povIndex = 0; povIndex < 4; ++povIndex) {
+			DWORD *now = &di_padState[padIndex].rgdwPOV[povIndex];
+			DWORD *last = &di_lastPadState[padIndex].rgdwPOV[povIndex];
+
+			if (*now != *last) {
+				// Maybe this could use fewer conditionals with some clever math
+				// cardinal press || cardinal + counter-clockwise || cardinal + clockwise
+				kinc_internal_gamepad_trigger_button(padIndex, 12, (*now == 0 || *now == 31500 || *now == 4500));
+				kinc_internal_gamepad_trigger_button(padIndex, 13, (*now == 18000 || *now == 13500 || *now == 22500));
+				kinc_internal_gamepad_trigger_button(padIndex, 14, (*now == 27000 || *now == 22500 || *now == 31500));
+				kinc_internal_gamepad_trigger_button(padIndex, 15, (*now == 9000 || *now == 4500 || *now == 13500));
+			}
+		}
+
 		kinc_memcpy(&di_lastPadState[padIndex], &di_padState[padIndex], sizeof(DIJOYSTATE2));
 		break;
 	}
