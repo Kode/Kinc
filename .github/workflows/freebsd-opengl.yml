@@ -29,11 +29,11 @@ jobs:
         run: |
           echo "$(ls -lah) - $(pwd)"
           echo " * Compile"
-          Tools/kmake/kamke-freebsd -g opengl --kinc . --from Tests/Empty --compile
+          Tools/kmake/kmake-freebsd -g opengl --kinc . --from Tests/Empty --compile
           echo " * Clean"
           rm -r build
           echo " * Compile Test 1"
-          Tools/kmake/kamke-freebsd -g opengl --kinc . --from Tests/Shader --compile
+          Tools/kmake/kmake-freebsd -g opengl --kinc . --from Tests/Shader --compile
           echo " * Copy Test 1"
           cp build/Release/ShaderTest Tests/Shader/Deployment/ShaderTest
           echo " * Run Test 1"
