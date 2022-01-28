@@ -1,7 +1,7 @@
 #include "display.c.h"
 #include "Display_Xinerama.c.h"
 #include "Display_XRandr.c.h"
-#ifndef __FREEBSD__
+#ifndef __FreeBSD__
 #include "gamepad.c.h"
 #endif
 #include "mouse.c.h"
