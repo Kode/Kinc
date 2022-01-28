@@ -1018,6 +1018,15 @@ bool handleDirectInputPad(int padIndex) {
 			}
 		}
 
+		for (int povIndex = 0; povIndex < 4; ++povIndex) {
+			DWORD *now = &di_padState[padIndex].rgdwPOV[povIndex];
+			DWORD *last = &di_lastPadState[padIndex].rgdwPOV[povIndex];
+
+			if (*now != *last) {
+				kinc_log(KINC_LOG_LEVEL_INFO, "POV Hat change: %lu / %ld", *now);
+			}
+		}
+
 		kinc_memcpy(&di_lastPadState[padIndex], &di_padState[padIndex], sizeof(DIJOYSTATE2));
 		break;
 	}
