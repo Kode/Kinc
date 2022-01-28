@@ -1024,6 +1024,13 @@ bool handleDirectInputPad(int padIndex) {
 
 			if (*now != *last) {
 				kinc_log(KINC_LOG_LEVEL_INFO, "POV Hat change: %lu / %ld", *now, *now);
+
+				// Maybe this could use fewer conditionals with some clever math
+				// cardinal press || cardinal + counter-clockwise || cardinal + clockwise
+				kinc_internal_gamepad_trigger_button(padIndex, 12, (*now == 0 || *now == 31500 || *now == 4500));
+				kinc_internal_gamepad_trigger_button(padIndex, 13, (*now == 18000 || *now == 13500 || *now == 22500));
+				kinc_internal_gamepad_trigger_button(padIndex, 14, (*now == 27500 || *now == 23000 || *now == 32000));
+				kinc_internal_gamepad_trigger_button(padIndex, 15, (*now == 9000 || *now == 4500 || *now == 13500));
 			}
 		}
 
