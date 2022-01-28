@@ -8,7 +8,9 @@
 #include <kinc/video.h>
 #include <kinc/window.h>
 
+#ifndef __FreeBSD__
 #include "gamepad.h"
+#endif
 
 #include <kinc/backend/Linux.h>
 #include <kinc/display.h>
@@ -943,7 +945,9 @@ bool kinc_internal_handle_messages() {
 		}
 		}
 	}
+#ifndef __FreeBSD__
 	kinc_linux_updateHIDGamepads();
+#endif  // TODO: add #else with proper call to FreeBSD backend impl
 	return true;
 }
 
@@ -1066,7 +1070,9 @@ void kinc_unlock_achievement(int id) {}
 
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	clipboardString = (char *)malloc(clipboardStringSize);
+#ifndef __FreeBSD__
 	kinc_linux_initHIDGamepads();
+#endif  // TODO: add #else with proper call to FreeBSD backend impl
 
 	gettimeofday(&start, NULL);
 	kinc_display_init();
@@ -1094,7 +1100,9 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 
 void kinc_internal_shutdown() {
 	free(clipboardString);
+#ifndef __FreeBSD__
 	kinc_linux_closeHIDGamepads();
+#endif  // TODO: add #else with proper call to FreeBSD backend impl
 	kinc_internal_shutdown_callback();
 }
 

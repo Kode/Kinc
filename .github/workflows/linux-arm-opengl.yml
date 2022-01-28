@@ -1,0 +1,69 @@
+name: Linux on ARM (OpenGL)
+
+on:
+  push:
+    branches:
+    - master
+    - ARMandFreeBSDCI
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
+
+    # Run steps for both armv6 and aarch64
+    strategy:
+      matrix:
+        include:
+          - arch: aarch64
+            distro: ubuntu20.04
+          - arch: armv7
+            distro: ubuntu20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: uraimo/run-on-arch-action@v2.0.9
+        name: Run Tests in ${{ matrix.distro }} ${{ matrix.arch }}
+        id: build
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+
+          # The shell to run commands with in the container
+          shell: /bin/bash
+
+          # Install some dependencies in the container. This speeds up builds if
+          # you are also using githubToken. Any dependencies installed here will
+          # be part of the container image that gets cached, so subsequent
+          # builds don't have to re-install them. The image layer is cached
+          # publicly in your project's package repository, so it is vital that
+          # no secrets are present in the container state or logs.
+          install: |
+              apt-get update -y -q
+              apt-get upgrade -y -q
+              apt-get install -y -q libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libudev-dev git build-essential imagemagick xvfb
+
+          # Produce a binary artifact and place it in the mounted volume
+          run: |
+            echo " * Get Submodules"
+            git submodule update --init --recursive
+            echo " * Compile"
+            ./make -g opengl --kinc . --from Tests/Empty --compile
+            echo " * Clean"
+            rm -rf build
+            echo " * Compile Test 1"
+            ./make -g opengl --kinc . --from Tests/Shader --compile
+            echo " * Copy Test 1"
+            cp build/Release/ShaderTest Tests/Shader/Deployment/ShaderTest
+            echo " * Run Test 1"
+            cd Tests/Shader/Deployment
+            xvfb-run ./ShaderTest
+            cd ../../..
+            echo " * Check Test 1"
+            compare-im6 -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
