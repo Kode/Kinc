@@ -1023,7 +1023,7 @@ bool handleDirectInputPad(int padIndex) {
 			DWORD *last = &di_lastPadState[padIndex].rgdwPOV[povIndex];
 
 			if (*now != *last) {
-				kinc_log(KINC_LOG_LEVEL_INFO, "POV Hat change: %lu / %ld", *now);
+				kinc_log(KINC_LOG_LEVEL_INFO, "POV Hat change: %lu / %ld", *now, *now);
 			}
 		}
 
