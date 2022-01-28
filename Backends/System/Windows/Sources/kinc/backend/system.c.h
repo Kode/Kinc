@@ -1023,8 +1023,6 @@ bool handleDirectInputPad(int padIndex) {
 			DWORD *last = &di_lastPadState[padIndex].rgdwPOV[povIndex];
 
 			if (*now != *last) {
-				kinc_log(KINC_LOG_LEVEL_INFO, "POV Hat change: %lu / %ld", *now, *now);
-
 				// Maybe this could use fewer conditionals with some clever math
 				// cardinal press || cardinal + counter-clockwise || cardinal + clockwise
 				kinc_internal_gamepad_trigger_button(padIndex, 12, (*now == 0 || *now == 31500 || *now == 4500));
