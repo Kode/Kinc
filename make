@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	MACHINE_TYPE=`uname -m`
 	if [[ "$MACHINE_TYPE" == "armv"* ]]; then

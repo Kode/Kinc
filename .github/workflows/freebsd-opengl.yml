@@ -27,13 +27,12 @@ jobs:
         mem: 2048
         prepare: pkg install -y alsa-lib libXinerama mesa-libs libXi xorg-vfbserver libXrandr libXi libXcursor ImageMagick7
         run: |
-          echo "$(ls -lah) - $(pwd)"
           echo " * Compile"
-          Tools/kmake/kmake-freebsd -g opengl --kinc . --from Tests/Empty --compile
+          ./make -g opengl --kinc . --from Tests/Empty --compile
           echo " * Clean"
           rm -r build
           echo " * Compile Test 1"
-          Tools/kmake/kmake-freebsd -g opengl --kinc . --from Tests/Shader --compile
+          ./make -g opengl --kinc . --from Tests/Shader --compile
           echo " * Copy Test 1"
           cp build/Release/ShaderTest Tests/Shader/Deployment/ShaderTest
           echo " * Run Test 1"
