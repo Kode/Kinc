@@ -10,7 +10,7 @@
 
 #define KINC_ATOMIC_INCREMENT(pointer) (OSAtomicIncrement32Barrier(pointer) - 1)
 
-#define KINC_ATOMIC_DECREMENT(pointer) (OSAtomicDecrement32Barrier(ioWhere) + 1)
+#define KINC_ATOMIC_DECREMENT(pointer) (OSAtomicDecrement32Barrier(pointer) + 1)
 
 #define KINC_ATOMIC_EXCHANGE_32(pointer, value) (__sync_swap(pointer, value))
 

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+export PATH='/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin'
+
+i=0
+while [ -f /tmp/.X$i-lock ]; do
+	i=$(($i + 1))
+done
+
+Xvfb :$i &
+XVFBPID=$!
+
+env DISPLAY=:$i $@
+
+kill $XVFBPID
+
+exit 0
