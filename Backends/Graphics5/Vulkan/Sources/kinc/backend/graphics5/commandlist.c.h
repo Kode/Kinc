@@ -32,6 +32,8 @@ static int mrtIndex = 0;
 static VkFramebuffer mrtFramebuffer[16];
 static VkRenderPass mrtRenderPass[16];
 
+static void set_barriers(kinc_g5_command_list_t *list);
+
 static void endPass(kinc_g5_command_list_t *list) {
 	vkCmdEndRenderPass(list->impl._buffer);
 	if (currentRenderTargets[0] != NULL && currentRenderTargets[0]->contextId >= 0) {
@@ -526,6 +528,8 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 
 	endPass(list);
 
+	set_barriers(list);
+
 	currentRenderTargets[0] = NULL;
 	onBackBuffer = true;
 
@@ -564,6 +568,8 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	}
 
 	endPass(list);
+
+	set_barriers(list);
 
 	for (int i = 0; i < count; ++i) {
 		currentRenderTargets[i] = targets[i];
@@ -649,6 +655,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		VkSubpassDependency dependencies[2];
 		memset(&dependencies, 0, sizeof(dependencies));
 
+		// TODO: For multi-targets-rendering
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependencies[0].dstSubpass = 0;
 		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
@@ -801,43 +808,22 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	vkUnmapMemory(device, render_target->impl.readbackMemory);
 }
 
+static struct kinc_g5_render_target *texture_to_render_target_barriers[256];
+static int texture_to_render_target_barriers_count = 0;
+
+static struct kinc_g5_render_target *render_target_to_texture_barriers[256];
+static int render_target_to_texture_barriers_count = 0;
+
 // barriers are automatically implemented via the render-passes used by kinc_g5_command_list_set_render_targets
+// but doppelt haelt besser
 void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
-	/*VkImageMemoryBarrier barrier = {0};
-	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.pNext = NULL;
-	barrier.srcAccessMask = 0;
-	barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	barrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.image = renderTarget->impl.sourceImage;
-	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	barrier.subresourceRange.baseMipLevel = 0;
-	barrier.subresourceRange.levelCount = 1;
-	barrier.subresourceRange.baseArrayLayer = 0;
-	barrier.subresourceRange.layerCount = 1;
-	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);*/
+	assert(texture_to_render_target_barriers_count < 256);
+	texture_to_render_target_barriers[texture_to_render_target_barriers_count++] = renderTarget;
 }
 
 void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
-	/*VkImageMemoryBarrier barrier = {0};
-	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.pNext = NULL;
-	barrier.srcAccessMask = 0;
-	barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.image = renderTarget->impl.sourceImage;
-	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	barrier.subresourceRange.baseMipLevel = 0;
-	barrier.subresourceRange.levelCount = 1;
-	barrier.subresourceRange.baseArrayLayer = 0;
-	barrier.subresourceRange.layerCount = 1;
-	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);*/
+	assert(render_target_to_texture_barriers_count < 256);
+	render_target_to_texture_barriers[render_target_to_texture_barriers_count++] = renderTarget;
 }
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
@@ -850,6 +836,48 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 	VkDescriptorSet descriptor_set = getDescriptorSet();
 	uint32_t offsets[2] = {lastVertexConstantBufferOffset, lastFragmentConstantBufferOffset};
 	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &descriptor_set, 2, offsets);
+}
+
+static void set_barriers(kinc_g5_command_list_t *list) {
+	for (int i = 0; i < texture_to_render_target_barriers_count; ++i) {
+		VkImageMemoryBarrier barrier = {0};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.pNext = NULL;
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		barrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image = texture_to_render_target_barriers[i]->impl.sourceImage;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseMipLevel = 0;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+		vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
+	}
+	texture_to_render_target_barriers_count = 0;
+
+	for (int i = 0; i < render_target_to_texture_barriers_count; ++i) {
+		VkImageMemoryBarrier barrier = {0};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.pNext = NULL;
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image = render_target_to_texture_barriers[i]->impl.sourceImage;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseMipLevel = 0;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+		vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier);
+	}
+	render_target_to_texture_barriers_count = 0;
 }
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
@@ -891,6 +919,8 @@ void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 	cmd_buf_info.pInheritanceInfo = NULL;
 
 	err = vkBeginCommandBuffer(list->impl._buffer, &cmd_buf_info);
+
+	set_barriers(list);
 
 	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 

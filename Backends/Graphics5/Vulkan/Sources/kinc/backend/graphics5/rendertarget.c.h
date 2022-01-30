@@ -350,6 +350,7 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 		VkSubpassDependency dependencies[2];
 		memset(&dependencies, 0, sizeof(dependencies));
 
+		// TODO: depth-stencil-something
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependencies[0].dstSubpass = 0;
 		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
