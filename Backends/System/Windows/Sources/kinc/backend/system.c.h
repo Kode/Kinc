@@ -1022,20 +1022,28 @@ bool handleDirectInputPad(int padIndex) {
 			DWORD *now = &di_padState[padIndex].rgdwPOV[povIndex];
 			DWORD *last = &di_lastPadState[padIndex].rgdwPOV[povIndex];
 
-			int up    = (*now == 0     || *now == 31500 || *now == 4500);
-			int down  = (*now == 18000 || *now == 13500 || *now == 22500);
-			int left  = (*now == 27000 || *now == 22500 || *now == 31500);
-			int right = (*now == 9000  || *now == 4500  || *now == 13500);
+			bool up = (*now == 0 || *now == 31500 || *now == 4500);
+			bool down = (*now == 18000 || *now == 13500 || *now == 22500);
+			bool left = (*now == 27000 || *now == 22500 || *now == 31500);
+			bool right = (*now == 9000 || *now == 4500 || *now == 13500);
 
-			int lastUp    = (*last == 0     || *last == 31500 || *last == 4500);
-			int lastDown  = (*last == 18000 || *last == 13500 || *last == 22500);
-			int lastLeft  = (*last == 27000 || *last == 22500 || *last == 31500);
-			int lastRight = (*last == 9000  || *last == 4500  || *last == 13500);
+			bool lastUp = (*last == 0 || *last == 31500 || *last == 4500);
+			bool lastDown = (*last == 18000 || *last == 13500 || *last == 22500);
+			bool lastLeft = (*last == 27000 || *last == 22500 || *last == 31500);
+			bool lastRight = (*last == 9000 || *last == 4500 || *last == 13500);
 
-			if (up != lastUp)       kinc_internal_gamepad_trigger_button(padIndex, 12, up);
-			if (down != lastDown)   kinc_internal_gamepad_trigger_button(padIndex, 13, down);
-			if (left != lastLeft)   kinc_internal_gamepad_trigger_button(padIndex, 14, left);
-			if (right != lastRight) kinc_internal_gamepad_trigger_button(padIndex, 15, right);
+			if (up != lastUp) {
+				kinc_internal_gamepad_trigger_button(padIndex, 12, up ? 1.0f : 0.0f);
+			}
+			if (down != lastDown) {
+				kinc_internal_gamepad_trigger_button(padIndex, 13, down ? 1.0f : 0.0f);
+			}
+			if (left != lastLeft) {
+				kinc_internal_gamepad_trigger_button(padIndex, 14, left ? 1.0f : 0.0f);
+			}
+			if (right != lastRight) {
+				kinc_internal_gamepad_trigger_button(padIndex, 15, right ? 1.0f : 0.0f);
+			}
 		}
 
 		kinc_memcpy(&di_lastPadState[padIndex], &di_padState[padIndex], sizeof(DIJOYSTATE2));
