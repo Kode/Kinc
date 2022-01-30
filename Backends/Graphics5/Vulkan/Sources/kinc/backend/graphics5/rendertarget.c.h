@@ -253,8 +253,6 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			assert(!err);
 		}
 
-		target->impl.renderPass = rendertarget_render_pass;
-
 		VkImageView attachments[2];
 		attachments[0] = target->impl.sourceView;
 
@@ -265,7 +263,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		VkFramebufferCreateInfo fbufCreateInfo = {0};
 		fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		fbufCreateInfo.pNext = NULL;
-		fbufCreateInfo.renderPass = target->impl.renderPass;
+		fbufCreateInfo.renderPass = contextId >= 0 ? rendertarget_render_pass : framebuffer_render_pass;
 		fbufCreateInfo.attachmentCount = depthBufferBits > 0 ? 2 : 1;
 		fbufCreateInfo.pAttachments = attachments;
 		fbufCreateInfo.width = width;
@@ -377,8 +375,9 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 		rp_info.dependencyCount = 2;
 		rp_info.pDependencies = dependencies;
 
-		VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &target->impl.renderPass);
-		assert(!err);
+		// TODO
+		// VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &target->impl.renderPass);
+		// assert(!err);
 	}
 
 	{
@@ -392,7 +391,7 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 		VkFramebufferCreateInfo fbufCreateInfo = {0};
 		fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		fbufCreateInfo.pNext = NULL;
-		fbufCreateInfo.renderPass = target->impl.renderPass;
+		fbufCreateInfo.renderPass = VK_NULL_HANDLE; // target->impl.renderPass; // TODO
 		fbufCreateInfo.attachmentCount = target->impl.depthBufferBits > 0 ? 2 : 1;
 		fbufCreateInfo.pAttachments = attachments;
 		fbufCreateInfo.width = target->width;
