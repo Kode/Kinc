@@ -928,6 +928,8 @@ double kinc_time() {
 	return (double)(now.tv_sec - start_sec) + (now.tv_usec / 1000000.0);
 }
 
+extern "C" void kinc_internal_resize(int window, int width, int height);
+
 bool kinc_internal_handle_messages(void) {
 	kinc_mutex_lock(&unicode_mutex);
 	for (int i = 0; i < unicode_stack_index; ++i) {
@@ -970,6 +972,9 @@ bool kinc_internal_handle_messages(void) {
 		activityJustResized = false;
 		int32_t width = ANativeWindow_getWidth(app->window);
 		int32_t height = ANativeWindow_getHeight(app->window);
+#ifdef KORE_VULKAN
+		kinc_internal_resize(0, width, height);
+#endif
 		kinc_internal_call_resize_callback(0, width, height);
 	}
 
