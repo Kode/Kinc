@@ -845,12 +845,20 @@ const char *kinc_language() {
 	return str;
 }
 
+extern "C" bool kinc_vulkan_internal_get_size(int *width, int *height);
+
 extern "C" int glWidth() {
 #ifndef KORE_VULKAN
 	glContext->UpdateSize();
 	return glContext->GetScreenWidth();
 #else
-	return ANativeWindow_getWidth(app->window);
+	int width, height;
+	if (kinc_vulkan_internal_get_size(&width, &height)) {
+		return width;
+	}
+	else {
+		return ANativeWindow_getWidth(app->window);
+	}
 #endif
 }
 
@@ -859,7 +867,13 @@ extern "C" int glHeight() {
 	glContext->UpdateSize();
 	return glContext->GetScreenHeight();
 #else
-	return ANativeWindow_getHeight(app->window);
+	int width, height;
+	if (kinc_vulkan_internal_get_size(&width, &height)) {
+		return height;
+	}
+	else {
+		return ANativeWindow_getHeight(app->window);
+	}
 #endif
 }
 
