@@ -225,11 +225,19 @@ void kinc_memory_emergency() {}
 static float safe_zone = 0.9f;
 
 float kinc_safe_zone(void) {
+#ifdef KORE_ANDROID
+	return 1.0f;
+#else
 	return safe_zone;
+#endif
 }
 
 bool kinc_automatic_safe_zone() {
+#ifdef KORE_ANDROID
+	return true;
+#else
 	return false;
+#endif
 }
 
 void kinc_set_safe_zone(float value) {
