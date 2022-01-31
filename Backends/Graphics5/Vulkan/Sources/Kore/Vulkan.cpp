@@ -97,6 +97,8 @@ bool vsynced;
 
 void flush_init_cmd();
 
+static bool has_surface = false;
+
 kinc_g5_texture_t *vulkanTextures[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                          nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 kinc_g5_render_target_t *vulkanRenderTargets[16] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
@@ -922,6 +924,8 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
         err = kinc_vulkan_create_surface(inst, window, &surface);
         assert(!err);
 
+		has_surface = true;
+
 		// Iterate over each queue to learn whether it supports presenting:
 		VkBool32 *supportsPresent = (VkBool32 *)malloc(queue_count * sizeof(VkBool32));
 		for (i = 0; i < queue_count; i++) {
@@ -1173,3 +1177,17 @@ bool kinc_g5_are_query_results_available(unsigned occlusionQuery) {
 }
 
 void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {}
+
+bool kinc_vulkan_internal_get_size(int *width, int *height) {
+	if (has_surface) {
+		VkSurfaceCapabilitiesKHR capabilities;
+		VkResult err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &capabilities);
+		assert(!err);
+		*width = capabilities.currentExtent.width;
+		*height = capabilities.currentExtent.height;
+		return true;
+	}
+	else {
+		return false;
+	}
+}
