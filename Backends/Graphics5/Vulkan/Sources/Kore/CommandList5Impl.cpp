@@ -91,21 +91,11 @@ void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayou
 		err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
 		assert(!err);
 
-		VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-		cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-		cmd_buf_hinfo.pNext = nullptr;
-		cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
-		cmd_buf_hinfo.subpass = 0;
-		cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
-		cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
-		cmd_buf_hinfo.queryFlags = 0;
-		cmd_buf_hinfo.pipelineStatistics = 0;
-
 		VkCommandBufferBeginInfo cmd_buf_info = {};
 		cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		cmd_buf_info.pNext = nullptr;
 		cmd_buf_info.flags = 0;
-		cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+		cmd_buf_info.pInheritanceInfo = NULL;
 
 		err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
 		assert(!err);
@@ -175,21 +165,11 @@ void setup_init_cmd() {
 		VkResult err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
 		assert(!err);
 
-		VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-		cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-		cmd_buf_hinfo.pNext = NULL;
-		cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
-		cmd_buf_hinfo.subpass = 0;
-		cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
-		cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
-		cmd_buf_hinfo.queryFlags = 0;
-		cmd_buf_hinfo.pipelineStatistics = 0;
-
 		VkCommandBufferBeginInfo cmd_buf_info = {};
 		cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		cmd_buf_info.pNext = NULL;
 		cmd_buf_info.flags = 0;
-		cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+		cmd_buf_info.pInheritanceInfo = NULL;
 
 		err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
 		assert(!err);
@@ -279,21 +259,11 @@ void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
-	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-	cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-	cmd_buf_hinfo.pNext = NULL;
-	cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
-	cmd_buf_hinfo.subpass = 0;
-	cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
-	cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
-	cmd_buf_hinfo.queryFlags = 0;
-	cmd_buf_hinfo.pipelineStatistics = 0;
-
 	VkCommandBufferBeginInfo cmd_buf_info = {};
 	cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	cmd_buf_info.pNext = NULL;
 	cmd_buf_info.flags = 0;
-	cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+	cmd_buf_info.pInheritanceInfo = NULL;
 
 	VkClearValue clear_values[2];
 	memset(clear_values, 0, sizeof(VkClearValue) * 2);
@@ -901,21 +871,11 @@ void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 
 	reuse_descriptor_sets();
 
-	VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-	cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-	cmd_buf_hinfo.pNext = NULL;
-	cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
-	cmd_buf_hinfo.subpass = 0;
-	cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
-	cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
-	cmd_buf_hinfo.queryFlags = 0;
-	cmd_buf_hinfo.pipelineStatistics = 0;
-
 	VkCommandBufferBeginInfo cmd_buf_info = {};
 	cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	cmd_buf_info.pNext = NULL;
 	cmd_buf_info.flags = 0;
-	cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
+	cmd_buf_info.pInheritanceInfo = NULL;
 
 	err = vkBeginCommandBuffer(list->impl._buffer, &cmd_buf_info);
 
