@@ -32,7 +32,9 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *render_target) {
 }
 
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
+#ifndef KORE_VULKAN
 	kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);
+#endif
 	kinc_g5_render_target_use_color_as_texture(&render_target->impl._renderTarget, unit.impl._unit);
 }
 
