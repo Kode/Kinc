@@ -171,7 +171,7 @@ namespace {
 				float y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0);
 				// int id = AInputEvent_getDeviceId(event);
 				kinc_internal_gamepad_trigger_axis(0, 0, x);
-				kinc_internal_gamepad_trigger_axis(0, 1, y);
+				kinc_internal_gamepad_trigger_axis(0, 1, -y);
 				return 1;
 			}
 		}
@@ -194,7 +194,7 @@ namespace {
 					return 1;
 				case AKEYCODE_DPAD_CENTER:
 				case AKEYCODE_BUTTON_B:
-					kinc_internal_gamepad_trigger_button(0, 0, 1);
+					kinc_internal_gamepad_trigger_button(0, 1, 1);
 					return 1;
 				case AKEYCODE_BACK:
 					if (AKeyEvent_getMetaState(event) & AMETA_ALT_ON) { // Xperia Play
@@ -206,13 +206,13 @@ namespace {
 						return 1;
 					}
 				case AKEYCODE_BUTTON_A:
-					kinc_internal_gamepad_trigger_button(0, 1, 1);
+					kinc_internal_gamepad_trigger_button(0, 0, 1);
 					return 1;
 				case AKEYCODE_BUTTON_Y:
-					kinc_internal_gamepad_trigger_button(0, 2, 1);
+					kinc_internal_gamepad_trigger_button(0, 3, 1);
 					return 1;
 				case AKEYCODE_BUTTON_X:
-					kinc_internal_gamepad_trigger_button(0, 3, 1);
+					kinc_internal_gamepad_trigger_button(0, 2, 1);
 					return 1;
 				case AKEYCODE_BUTTON_L1:
 					kinc_internal_gamepad_trigger_button(0, 4, 1);
@@ -358,7 +358,7 @@ namespace {
 					return 1;
 				case AKEYCODE_DPAD_CENTER:
 				case AKEYCODE_BUTTON_B:
-					kinc_internal_gamepad_trigger_button(0, 0, 0);
+					kinc_internal_gamepad_trigger_button(0, 1, 0);
 					return 1;
 				case AKEYCODE_BACK:
 					if (AKeyEvent_getMetaState(event) & AMETA_ALT_ON) { // Xperia Play
@@ -370,13 +370,13 @@ namespace {
 						return 1;
 					}
 				case AKEYCODE_BUTTON_A:
-					kinc_internal_gamepad_trigger_button(0, 1, 0);
+					kinc_internal_gamepad_trigger_button(0, 0, 0);
 					return 1;
 				case AKEYCODE_BUTTON_Y:
-					kinc_internal_gamepad_trigger_button(0, 2, 0);
+					kinc_internal_gamepad_trigger_button(0, 3, 0);
 					return 1;
 				case AKEYCODE_BUTTON_X:
-					kinc_internal_gamepad_trigger_button(0, 3, 0);
+					kinc_internal_gamepad_trigger_button(0, 2, 0);
 					return 1;
 				case AKEYCODE_BUTTON_L1:
 					kinc_internal_gamepad_trigger_button(0, 4, 0);
