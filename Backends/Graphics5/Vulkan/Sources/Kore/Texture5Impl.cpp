@@ -297,7 +297,12 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	view.flags = 0;
 
 	// create sampler
-	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.sampler);
+	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.bilinear_sampler);
+	assert(!err);
+
+	sampler.magFilter = VK_FILTER_NEAREST;
+	sampler.minFilter = VK_FILTER_NEAREST;
+	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.point_sampler);
 	assert(!err);
 
 	// create image view
@@ -352,7 +357,12 @@ void kinc_g5_texture_init(kinc_g5_texture_t* texture, int width, int height, kin
 	view.flags = 0;
 
 	// create sampler
-	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.sampler);
+	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.bilinear_sampler);
+	assert(!err);
+
+	sampler.magFilter = VK_FILTER_NEAREST;
+	sampler.minFilter = VK_FILTER_NEAREST;
+	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.point_sampler);
 	assert(!err);
 
 	// create image view
@@ -411,7 +421,12 @@ void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int wid
 	view.flags = 0;
 
 	// create sampler
-	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.sampler);
+	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.bilinear_sampler);
+	assert(!err);
+
+	sampler.magFilter = VK_FILTER_NEAREST;
+	sampler.minFilter = VK_FILTER_NEAREST;
+	err = vkCreateSampler(device, &sampler, NULL, &texture->impl.texture.point_sampler);
 	assert(!err);
 
 	// create image view

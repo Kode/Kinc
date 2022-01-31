@@ -568,7 +568,7 @@ void createDescriptorLayout() {
 	typeCounts[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	typeCounts[1].descriptorCount = 16 * 1024;
 
-	VkDescriptorPoolCreateInfo pool_info = {0};
+	VkDescriptorPoolCreateInfo pool_info = {};
 	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	pool_info.pNext = NULL;
 	pool_info.maxSets = 1024;
@@ -606,6 +606,8 @@ struct destriptor_set {
 static struct destriptor_set descriptor_sets[MAX_DESCRIPTOR_SETS] = {0};
 static int descriptor_sets_count = 0;
 
+extern bool kinc_vulkan_internal_bilinear;
+
 static void update_textures(VkDescriptorSet descriptor_set) {
 	VkDescriptorImageInfo tex_desc[16];
 	memset(&tex_desc, 0, sizeof(tex_desc));
@@ -613,12 +615,22 @@ static void update_textures(VkDescriptorSet descriptor_set) {
 	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
 		if (vulkanTextures[i] != NULL) {
-			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
+			if (kinc_vulkan_internal_bilinear) {
+				tex_desc[i].sampler = vulkanTextures[i]->impl.texture.bilinear_sampler;
+			}
+			else {
+				tex_desc[i].sampler = vulkanTextures[i]->impl.texture.point_sampler;
+			}
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
 			texture_count++;
 		}
 		else if (vulkanRenderTargets[i] != NULL) {
-			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
+			if (kinc_vulkan_internal_bilinear) {
+				tex_desc[i].sampler = vulkanRenderTargets[i]->impl.bilinear_sampler;
+			}
+			else {
+				tex_desc[i].sampler = vulkanRenderTargets[i]->impl.point_sampler;
+			}
 			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.depthView;
 				vulkanRenderTargets[i]->impl.stage_depth = -1;
@@ -696,12 +708,22 @@ VkDescriptorSet getDescriptorSet() {
 	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
 		if (vulkanTextures[i] != nullptr) {
-			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
+			if (kinc_vulkan_internal_bilinear) {
+				tex_desc[i].sampler = vulkanTextures[i]->impl.texture.bilinear_sampler;
+			}
+			else {
+				tex_desc[i].sampler = vulkanTextures[i]->impl.texture.point_sampler;
+			}
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
 			texture_count++;
 		}
 		else if (vulkanRenderTargets[i] != nullptr) {
-			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
+			if (kinc_vulkan_internal_bilinear) {
+				tex_desc[i].sampler = vulkanRenderTargets[i]->impl.bilinear_sampler;
+			}
+			else {
+				tex_desc[i].sampler = vulkanRenderTargets[i]->impl.point_sampler;
+			}
 			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.depthView;
 				vulkanRenderTargets[i]->impl.stage_depth = -1;

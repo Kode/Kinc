@@ -127,7 +127,12 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 	samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
-	VkResult err = vkCreateSampler(device, &samplerInfo, nullptr, &target->impl.sampler);
+	VkResult err = vkCreateSampler(device, &samplerInfo, nullptr, &target->impl.bilinear_sampler);
+	assert(!err);
+
+	samplerInfo.magFilter = VK_FILTER_NEAREST;
+	samplerInfo.minFilter = VK_FILTER_NEAREST;
+	err = vkCreateSampler(device, &samplerInfo, NULL, &target->impl.point_sampler);
 	assert(!err);
 
 	if (contextId >= 0) {

@@ -1118,9 +1118,25 @@ void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *t
 
 void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
 
-void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
+bool kinc_vulkan_internal_bilinear = false;
 
-void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
+void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
+	if (filter == KINC_G5_TEXTURE_FILTER_POINT) {
+		kinc_vulkan_internal_bilinear = false;
+	}
+	else {
+		kinc_vulkan_internal_bilinear = true;
+	}
+}
+
+void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
+	if (filter == KINC_G5_TEXTURE_FILTER_POINT) {
+		kinc_vulkan_internal_bilinear = false;
+	}
+	else {
+		kinc_vulkan_internal_bilinear = true;
+	}
+}
 
 void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 

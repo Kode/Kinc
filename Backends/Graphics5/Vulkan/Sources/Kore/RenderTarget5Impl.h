@@ -13,7 +13,8 @@ typedef struct {
 	int depthBufferBits;
 
 	VkFramebuffer framebuffer;
-	VkSampler sampler;
+	VkSampler bilinear_sampler;
+	VkSampler point_sampler;
 
 	VkFormat format;
 

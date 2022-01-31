@@ -825,7 +825,7 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 
 static void set_barriers(kinc_g5_command_list_t *list) {
 	for (int i = 0; i < texture_to_render_target_barriers_count; ++i) {
-		VkImageMemoryBarrier barrier = {0};
+		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		barrier.pNext = NULL;
 		barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -845,7 +845,7 @@ static void set_barriers(kinc_g5_command_list_t *list) {
 	texture_to_render_target_barriers_count = 0;
 
 	for (int i = 0; i < render_target_to_texture_barriers_count; ++i) {
-		VkImageMemoryBarrier barrier = {0};
+		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		barrier.pNext = NULL;
 		barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;

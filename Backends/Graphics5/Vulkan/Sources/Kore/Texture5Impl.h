@@ -3,7 +3,8 @@
 #include "MiniVulkan.h"
 
 struct texture_object {
-	VkSampler sampler;
+	VkSampler point_sampler;
+	VkSampler bilinear_sampler;
 
 	VkImage image;
 	VkImageLayout imageLayout;
