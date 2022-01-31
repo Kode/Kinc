@@ -590,7 +590,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	rp_begin.pClearValues = clear_values;
 
 	if (count == 1) {
-		rp_begin.renderPass = targets[0]->impl.renderPass;
+		rp_begin.renderPass = rendertarget_render_pass;
 		rp_begin.framebuffer = targets[0]->impl.framebuffer;
 	}
 	else {

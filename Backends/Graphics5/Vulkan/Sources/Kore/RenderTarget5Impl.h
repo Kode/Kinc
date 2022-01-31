@@ -14,7 +14,6 @@ typedef struct {
 
 	VkFramebuffer framebuffer;
 	VkSampler sampler;
-	VkRenderPass renderPass;
 
 	VkFormat format;
 

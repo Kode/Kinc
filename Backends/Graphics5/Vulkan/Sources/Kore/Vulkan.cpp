@@ -1078,7 +1078,6 @@ bool kinc_g5_swap_buffers() {
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	if (renderTarget != nullptr) {
-		renderTarget->impl.renderPass = framebuffer_render_pass;
 		renderTarget->impl.framebuffer = framebuffers[current_buffer];
 	}
 
