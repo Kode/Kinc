@@ -158,6 +158,15 @@ namespace {
 		}
 	}
 
+	float last_x = 0.0f;
+	float last_y = 0.0f;
+	float last_l = 0.0f;
+	float last_r = 0.0f;
+	bool last_hat_left = false;
+	bool last_hat_right = false;
+	bool last_hat_up = false;
+	bool last_hat_down = false;
+
 	int32_t input(android_app* app, AInputEvent* event) {
 		if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
 			int source = AInputEvent_getSource(event);
@@ -167,11 +176,74 @@ namespace {
 				return 1;
 			}
 			else if ((source & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK) {
-				float x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0);
-				float y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0);
 				// int id = AInputEvent_getDeviceId(event);
-				kinc_internal_gamepad_trigger_axis(0, 0, x);
-				kinc_internal_gamepad_trigger_axis(0, 1, -y);
+
+				float x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0);
+				if (x != last_x) {
+					kinc_internal_gamepad_trigger_axis(0, 0, x);
+					last_x = x;
+				}
+
+				float y = -AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0);
+				if (y != last_y) {
+					kinc_internal_gamepad_trigger_axis(0, 1, y);
+					last_y = y;
+				}
+
+				float l = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_LTRIGGER, 0);
+				if (l != last_l) {
+					kinc_internal_gamepad_trigger_button(0, 6, l);
+					last_l = l;
+				}
+
+				float r = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RTRIGGER, 0);
+				if (r != last_r) {
+					kinc_internal_gamepad_trigger_button(0, 7, r);
+					last_r = r;
+				}
+
+				float hat_x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HAT_X, 0);
+
+				bool hat_left = false;
+				bool hat_right = false;
+				if (hat_x < -0.5f) {
+					hat_left = true;
+				}
+				else if (hat_x > 0.5f) {
+					hat_right = true;
+				}
+
+				float hat_y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_HAT_Y, 0);
+
+				bool hat_up = false;
+				bool hat_down = false;
+				if (hat_y < -0.5f) {
+					hat_up = true;
+				}
+				else if (hat_y > 0.5f) {
+					hat_down = true;
+				}
+
+				if (hat_left != last_hat_left) {
+					kinc_internal_gamepad_trigger_button(0, 14, hat_left ? 1.0f : 0.0f);
+					last_hat_left = hat_left;
+				}
+
+				if (hat_right != last_hat_right) {
+					kinc_internal_gamepad_trigger_button(0, 15, hat_right ? 1.0f : 0.0f);
+					last_hat_right = hat_right;
+				}
+
+				if (hat_up != last_hat_up) {
+					kinc_internal_gamepad_trigger_button(0, 12, hat_up ? 1.0f : 0.0f);
+					last_hat_up = hat_up;
+				}
+
+				if (hat_down != last_hat_down) {
+					kinc_internal_gamepad_trigger_button(0, 13, hat_down ? 1.0f : 0.0f);
+					last_hat_down = hat_down;
+				}
+
 				return 1;
 			}
 		}
