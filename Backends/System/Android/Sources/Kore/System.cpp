@@ -39,6 +39,7 @@ namespace {
     bool paused = true;
     bool displayIsInitialized = false;
     bool appIsForeground = false;
+	bool activityJustResized = false;
 }
 
 #ifdef KORE_VULKAN
@@ -569,6 +570,10 @@ namespace {
 		}
 		}
 	}
+
+	void resize(ANativeActivity *activity, ANativeWindow *window) {
+		activityJustResized = true;
+	}
 }
 
 ANativeActivity* KoreAndroid::getActivity() {
@@ -727,6 +732,8 @@ double kinc_time() {
 	return (double)(now.tv_sec - start_sec) + (now.tv_usec / 1000000.0);
 }
 
+extern "C" void kinc_internal_resize(int window, int width, int height);
+
 bool kinc_internal_handle_messages(void) {
 	int ident;
 	int events;
@@ -753,6 +760,16 @@ bool kinc_internal_handle_messages(void) {
 					}
 				}
 			}
+		}
+
+		if (activityJustResized && app->window != NULL) {
+			activityJustResized = false;
+			int32_t width = glWidth();
+			int32_t height = glHeight();
+#ifdef KORE_VULKAN
+			kinc_internal_resize(0, width, height);
+#endif
+			//kinc_internal_call_resize_callback(0, width, height);
 		}
 
 		if (app->destroyRequested != 0) {
@@ -822,7 +839,7 @@ extern "C" void android_main(android_app* app) {
 	KoreAndroidVideoInit();
 	app->onAppCmd = cmd;
 	app->onInputEvent = input;
-
+	activity->callbacks->onNativeWindowResized = resize;
 #ifndef KORE_VULKAN
 	glContext = ndk_helper::GLContext::GetInstance();
 #endif
