@@ -970,8 +970,8 @@ bool kinc_internal_handle_messages(void) {
 
 	if (activityJustResized && app->window != NULL) {
 		activityJustResized = false;
-		int32_t width = ANativeWindow_getWidth(app->window);
-		int32_t height = ANativeWindow_getHeight(app->window);
+		int32_t width = glWidth();
+		int32_t height = glHeight();
 #ifdef KORE_VULKAN
 		kinc_internal_resize(0, width, height);
 #endif
