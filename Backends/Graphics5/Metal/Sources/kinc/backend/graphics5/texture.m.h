@@ -125,6 +125,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, struct kinc_ima
 	texture->texWidth = image->width;
 	texture->texHeight = image->height;
 	texture->format = image->format;
+	texture->impl.data = NULL;
 	create(texture, image->width, image->height, image->format, true);
 	id<MTLTexture> tex = (__bridge id<MTLTexture>)texture->impl._tex;
 	[tex replaceRegion:MTLRegionMake2D(0, 0, texture->texWidth, texture->texHeight)
