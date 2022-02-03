@@ -351,6 +351,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		addBackend('System/FreeBSD');
 		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.cpp');
 		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.h');
+		project.addDefine("KINC_NO_WAYLAND");
 	}
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
