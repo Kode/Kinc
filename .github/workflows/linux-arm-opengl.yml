@@ -47,7 +47,7 @@ jobs:
           install: |
               apt-get update -y -q
               apt-get upgrade -y -q
-              apt-get install -y -q libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libudev-dev git build-essential imagemagick xvfb
+              apt-get install -y -q libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libudev-dev git build-essential imagemagick xvfb libwayland-dev wayland-protocols libxkbcommon-dev
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
