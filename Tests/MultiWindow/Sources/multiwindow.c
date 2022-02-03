@@ -5,6 +5,7 @@
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/input/mouse.h>
 #include <kinc/io/filereader.h>
+#include <kinc/log.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
 
@@ -17,7 +18,7 @@ static kinc_g4_pipeline_t pipeline;
 static kinc_g4_vertex_buffer_t vertices;
 static kinc_g4_index_buffer_t indices;
 
-#define WINDOW_COUNT 2
+#define WINDOW_COUNT 1
 
 static struct window {
 	int index;
@@ -77,8 +78,26 @@ static bool window_close(void *data) {
 	return true;
 }
 
+static char *copy_callback() {
+	return "Hello World!";
+}
+
+static void paste_callback(char *text) {
+	kinc_log(KINC_LOG_LEVEL_INFO, "Pasted: %s", text);
+}
+
+static void drop_files_callback(wchar_t *text) {
+	char dest[1024];
+	wcstombs(dest, text, sizeof(dest));
+	kinc_log(KINC_LOG_LEVEL_INFO, "Dropped: %s", dest);
+}
+
 int kickstart(int argc, char **argv) {
-	int first_window = kinc_init("Shader", 1024, 768, NULL, NULL);
+	kinc_window_options_t first_window_options;
+	kinc_window_options_set_defaults(&first_window_options);
+	// first_window_options.mode = KINC_WINDOW_MODE_FULLSCREEN;
+	int first_window = kinc_init("MultiWindow", 1024, 768, &first_window_options, NULL);
+	// return 0;
 	kinc_set_update_callback(update);
 
 	heap = (uint8_t *)malloc(HEAP_SIZE);
@@ -125,21 +144,23 @@ int kickstart(int argc, char **argv) {
 		i[2] = 2;
 		kinc_g4_index_buffer_unlock(&indices);
 	}
-	kinc_window_options_t options;
-	kinc_framebuffer_options_t frame_options;
-	kinc_window_options_set_defaults(&options);
-	kinc_framebuffer_options_set_defaults(&frame_options);
-	int window_two = kinc_window_create(&options, &frame_options);
+	// kinc_window_options_t options;
+	// kinc_framebuffer_options_t frame_options;
+	// kinc_window_options_set_defaults(&options);
+	// kinc_framebuffer_options_set_defaults(&frame_options);
+	// int window_two = kinc_window_create(&options, &frame_options);
 	windows[0].index = 0;
 	windows[0].open = true;
-	windows[1].index = 1;
-	windows[1].open = true;
+	// windows[1].index = 1;
+	// windows[1].open = true;
 	kinc_window_set_close_callback(first_window, window_close, &windows[0]);
-	kinc_window_set_close_callback(window_two, window_close, &windows[1]);
+	// kinc_window_set_close_callback(window_two, window_close, &windows[1]);
 
 	kinc_mouse_set_press_callback(mouse_down);
 	kinc_mouse_set_release_callback(mouse_up);
-
+	kinc_set_copy_callback(copy_callback);
+	kinc_set_paste_callback(paste_callback);
+	kinc_set_drop_files_callback(drop_files_callback);
 	kinc_start();
 
 	return 0;
