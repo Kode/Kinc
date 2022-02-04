@@ -1,9 +1,7 @@
 #include "wayland.h"
-#include "xdg-decoration.h"
+
 #include <kinc/image.h>
-#include <kinc/log.h>
-#include <kinc/memory.h>
-#include <kinc/string.h>
+
 // for all that shared memory stuff later on
 #include <errno.h>
 #include <fcntl.h>

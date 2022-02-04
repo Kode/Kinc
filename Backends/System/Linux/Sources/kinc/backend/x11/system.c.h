@@ -1,20 +1,12 @@
 #include "x11.h"
 
-#include <dlfcn.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
-#include <kinc/log.h>
-
-#include <X11/XKBlib.h>
-#include <X11/Xcursor/Xcursor.h>
-#include <X11/extensions/XInput.h>
-#include <X11/keysym.h>
 
 #include <assert.h>
+#include <dlfcn.h>
 #include <limits.h>
-
 #include <stdlib.h>
-#include <string.h>
 
 struct kinc_x11_procs xlib = {0};
 struct x11_context x11_ctx = {0};
@@ -159,12 +151,12 @@ bool kinc_x11_init() {
 
 	assert((sizeof atom_names / sizeof atom_names[0]) == (sizeof(struct kinc_x11_atoms) / sizeof(Atom)));
 	xlib.XInternAtoms(x11_ctx.display, atom_names, sizeof atom_names / sizeof atom_names[0], False, (Atom *)&x11_ctx.atoms);
-	clipboardString = (char *)malloc(clipboardStringSize);
+	clipboardString = (char *)kinc_allocate(clipboardStringSize);
 	return true;
 }
 
 void kinc_x11_shutdown() {
-	free(clipboardString);
+	kinc_free(clipboardString);
 	xlib.XCloseDisplay(x11_ctx.display);
 }
 
@@ -250,12 +242,12 @@ bool kinc_x11_handle_messages() {
 			else if (controlDown && (ksKey == XK_c || ksKey == XK_C)) {
 				xlib.XSetSelectionOwner(x11_ctx.display, x11_ctx.atoms.CLIPBOARD, window, CurrentTime);
 				char *text = kinc_internal_copy_callback();
-				if (text != NULL) kinc_copy_to_clipboard(text);
+				if (text != NULL) kinc_x11_copy_to_clipboard(text);
 			}
 			else if (controlDown && (ksKey == XK_x || ksKey == XK_X)) {
 				xlib.XSetSelectionOwner(x11_ctx.display, x11_ctx.atoms.CLIPBOARD, window, CurrentTime);
 				char *text = kinc_internal_cut_callback();
-				if (text != NULL) kinc_copy_to_clipboard(text);
+				if (text != NULL) kinc_x11_copy_to_clipboard(text);
 			}
 
 			if (event.xkey.keycode == ignoreKeycode) {
@@ -625,7 +617,7 @@ bool kinc_x11_handle_messages() {
 			if (event.xclient.message_type == x11_ctx.atoms.XdndEnter) {
 				Window source_window = event.xclient.data.l[0];
 				XEvent m;
-				memset(&m, 0, sizeof(m));
+				kinc_memset(&m, 0, sizeof(m));
 				m.type = ClientMessage;
 				m.xclient.window = event.xclient.data.l[0];
 				m.xclient.message_type = x11_ctx.atoms.XdndStatus;
@@ -702,7 +694,7 @@ bool kinc_x11_handle_messages() {
 				send.xselection.property = event.xselectionrequest.property;
 				send.xselection.time = event.xselectionrequest.time;
 				xlib.XChangeProperty(x11_ctx.display, send.xselection.requestor, send.xselection.property, send.xselection.target, 8, PropModeReplace,
-				                     (const unsigned char *)clipboardString, strlen(clipboardString));
+				                     (const unsigned char *)clipboardString, kinc_string_length(clipboardString));
 				xlib.XSendEvent(x11_ctx.display, send.xselection.requestor, True, 0, &send);
 			}
 			break;
@@ -733,13 +725,13 @@ bool kinc_x11_handle_messages() {
 }
 
 void kinc_x11_copy_to_clipboard(const char *text) {
-	size_t textLength = strlen(text);
+	size_t textLength = kinc_string_length(text);
 	if (textLength >= clipboardStringSize) {
-		free(clipboardString);
+		kinc_free(clipboardString);
 		clipboardStringSize = textLength + 1;
-		clipboardString = (char *)malloc(clipboardStringSize);
+		clipboardString = (char *)kinc_allocate(clipboardStringSize);
 	}
-	strcpy(clipboardString, text);
+	kinc_string_copy(clipboardString, text);
 }
 
 #ifdef KINC_EGL

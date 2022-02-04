@@ -1,12 +1,16 @@
 #pragma once
 
 #include <kinc/display.h>
+#include <kinc/log.h>
+#include <kinc/memory.h>
+#include <kinc/string.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
 
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/XInput.h>
 #include <X11/extensions/Xinerama.h>
 #include <X11/extensions/Xrandr.h>
 
@@ -150,3 +154,5 @@ struct x11_context {
 
 struct kinc_x11_procs xlib;
 struct x11_context x11_ctx;
+
+void kinc_x11_copy_to_clipboard(const char *text);

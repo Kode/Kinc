@@ -1,5 +1,11 @@
 #pragma once
 
+#include <kinc/display.h>
+#include <kinc/log.h>
+#include <kinc/memory.h>
+#include <kinc/string.h>
+#include <kinc/system.h>
+
 #include <wayland-client-core.h>
 #include <wayland-cursor.h>
 
@@ -146,7 +152,7 @@ struct kinc_xkb_procs {
 	enum xkb_state_component (*xkb_state_update_mask)(struct xkb_state *state, xkb_mod_mask_t depressed_mods, xkb_mod_mask_t latched_mods,
 	                                                  xkb_mod_mask_t locked_mods, xkb_layout_index_t depressed_layout, xkb_layout_index_t latched_layout,
 	                                                  xkb_layout_index_t locked_layout);
-	int (*xkb_state_mod_name_is_active)(struct xkb_state *state, const char *name, enum xkb_state_component type)
+	int (*xkb_state_mod_name_is_active)(struct xkb_state *state, const char *name, enum xkb_state_component type);
 };
 
 extern struct kinc_xkb_procs wl_xkb;

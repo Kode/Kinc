@@ -1,11 +1,5 @@
-#include <kinc/display.h>
+
 #include "x11.h"
-
-#include <X11/extensions/Xinerama.h>
-#include <X11/extensions/Xrandr.h>
-
-#include <kinc/log.h>
-#include <stdio.h>
 
 // TODO: deal with monitor hotplugging and such
 
@@ -42,7 +36,7 @@ void kinc_x11_display_init(void) {
 		x11_ctx.num_displays++;
 		struct kinc_x11_display *display = &x11_ctx.displays[i];
 		display->index = i;
-		snprintf(display->name, sizeof(display->name), "%s", output_info->name);
+		kinc_string_copy_limited(display->name, output_info->name, sizeof(display->name));
 		display->x = crtc_info->x;
 		display->y = crtc_info->y;
 		display->width = crtc_info->width;

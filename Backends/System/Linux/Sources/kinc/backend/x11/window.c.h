@@ -1,10 +1,6 @@
-#include "kinc/window.h"
 #include "x11.h"
 
-#include <X11/Xlib.h>
-#include <kinc/log.h>
 #include <stdlib.h>
-#include <string.h>
 
 struct MwmHints {
 	// These correspond to XmRInt resources. (VendorSE.c)
@@ -54,10 +50,10 @@ int kinc_x11_window_create(kinc_window_options_t *win, kinc_framebuffer_options_
 
 	static char nameClass[256];
 	static const char *nameClassAddendum = "_KincApplication";
-	strncpy(nameClass, kinc_application_name(), sizeof(nameClass) - strlen(nameClassAddendum) - 1);
-	strcat(nameClass, nameClassAddendum);
+	kinc_string_copy_limited(nameClass, kinc_application_name(), sizeof(nameClass) - kinc_string_length(nameClassAddendum) - 1);
+	kinc_string_append(nameClass, nameClassAddendum);
 	char resNameBuffer[256];
-	strncpy(resNameBuffer, kinc_application_name(), 256);
+	kinc_string_copy_limited(resNameBuffer, kinc_application_name(), 256);
 	XClassHint classHint = {.res_name = resNameBuffer, .res_class = nameClass};
 	xlib.XSetClassHint(x11_ctx.display, window->window, &classHint);
 
@@ -96,10 +92,10 @@ void kinc_x11_window_set_title(int window_index, const char *_title) {
 	const char *title = _title == NULL ? "" : _title;
 	struct kinc_x11_window *window = &x11_ctx.windows[window_index];
 	xlib.XChangeProperty(x11_ctx.display, window->window, x11_ctx.atoms.NET_WM_NAME, x11_ctx.atoms.UTF8_STRING, 8, PropModeReplace, (unsigned char *)title,
-	                     strlen(title));
+	                     kinc_string_length(title));
 
 	xlib.XChangeProperty(x11_ctx.display, window->window, x11_ctx.atoms.NET_WM_ICON_NAME, x11_ctx.atoms.UTF8_STRING, 8, PropModeReplace, (unsigned char *)title,
-	                     strlen(title));
+	                     kinc_string_length(title));
 
 	xlib.XFlush(x11_ctx.display);
 }
@@ -177,7 +173,7 @@ void kinc_x11_window_change_mode(int window_index, kinc_window_mode_t mode) {
 	}
 
 	XEvent xev;
-	memset(&xev, 0, sizeof(xev));
+	kinc_memset(&xev, 0, sizeof(xev));
 	xev.type = ClientMessage;
 	xev.xclient.window = window->window;
 	xev.xclient.message_type = x11_ctx.atoms.NET_WM_STATE;
