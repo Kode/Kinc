@@ -293,7 +293,7 @@ kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(struct kinc_g
 		location.impl.tessEvalRows = constant->rows;
 	}
 
-	if (location.impl.vertexSize == 0 && location.impl.fragmentSize == 0 && location.impl.geometrySize == 0 && location.impl.tessControlSize &&
+	if (location.impl.vertexSize == 0 && location.impl.fragmentSize == 0 && location.impl.geometrySize == 0 && location.impl.tessControlSize == 0 &&
 	    location.impl.tessEvalSize == 0) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
 	}
