@@ -1,5 +1,7 @@
 #pragma once
-
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE // put this here too, to make clangd happy
+#endif
 #include <kinc/display.h>
 #include <kinc/log.h>
 #include <kinc/memory.h>
@@ -180,25 +182,27 @@ enum kinc_wl_decoration_focus {
 	KINC_WL_DECORATION_FOCUS_BOTTOM,
 };
 
+#define KINC_WL_DECORATION_WIDTH 10
+
 #define KINC_WL_DECORATION_TOP_X 0
 #define KINC_WL_DECORATION_TOP_Y -20
-#define KINC_WL_DECORATION_TOP_WIDTH window->width + 10
-#define KINC_WL_DECORATION_TOP_HEIGHT 20
+#define KINC_WL_DECORATION_TOP_WIDTH window->width
+#define KINC_WL_DECORATION_TOP_HEIGHT KINC_WL_DECORATION_WIDTH * 2
 
 #define KINC_WL_DECORATION_LEFT_X -10
-#define KINC_WL_DECORATION_LEFT_Y 0
-#define KINC_WL_DECORATION_LEFT_WIDTH 10
-#define KINC_WL_DECORATION_LEFT_HEIGHT window->height
+#define KINC_WL_DECORATION_LEFT_Y -20
+#define KINC_WL_DECORATION_LEFT_WIDTH KINC_WL_DECORATION_WIDTH
+#define KINC_WL_DECORATION_LEFT_HEIGHT window->height + 30
 
 #define KINC_WL_DECORATION_RIGHT_X window->width
-#define KINC_WL_DECORATION_RIGHT_Y 10
+#define KINC_WL_DECORATION_RIGHT_Y -20
 #define KINC_WL_DECORATION_RIGHT_WIDTH 10
-#define KINC_WL_DECORATION_RIGHT_HEIGHT window->height
+#define KINC_WL_DECORATION_RIGHT_HEIGHT window->height + 30
 
-#define KINC_WL_DECORATION_BOTTOM_X -10
+#define KINC_WL_DECORATION_BOTTOM_X 0
 #define KINC_WL_DECORATION_BOTTOM_Y window->height
-#define KINC_WL_DECORATION_BOTTOM_WIDTH window->width + 20
-#define KINC_WL_DECORATION_BOTTOM_HEIGHT 10
+#define KINC_WL_DECORATION_BOTTOM_WIDTH window->width
+#define KINC_WL_DECORATION_BOTTOM_HEIGHT KINC_WL_DECORATION_WIDTH
 
 struct kinc_wl_window {
 	int display_index;

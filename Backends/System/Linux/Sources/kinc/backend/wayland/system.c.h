@@ -1,3 +1,4 @@
+#include "kinc/backend/wayland/xdg-shell.h"
 #include "wayland.h"
 
 #include <kinc/input/keyboard.h>
@@ -262,22 +263,26 @@ void wl_pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_
 		mouse->x = x;
 		mouse->y = y;
 		kinc_internal_mouse_trigger_move(mouse->current_window, x, y);
-		// return;
+		break;
 	case KINC_WL_DECORATION_FOCUS_TOP:
-		if (y < 10)
+		if (y < KINC_WL_DECORATION_WIDTH)
 			cursor_name = "n-resize";
 		else
-			cursor_name = "left_ptr";
+			cursor_name = "move";
 		break;
 	case KINC_WL_DECORATION_FOCUS_LEFT:
-		if (y < 10)
+		if (y < KINC_WL_DECORATION_WIDTH)
 			cursor_name = "nw-resize";
+		else if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT - KINC_WL_DECORATION_WIDTH)
+			cursor_name = "sw-resize";
 		else
 			cursor_name = "w-resize";
 		break;
 	case KINC_WL_DECORATION_FOCUS_RIGHT:
-		if (y < 10)
+		if (y < KINC_WL_DECORATION_WIDTH)
 			cursor_name = "ne-resize";
+		else if (mouse->y > KINC_WL_DECORATION_RIGHT_HEIGHT - KINC_WL_DECORATION_WIDTH)
+			cursor_name = "se-resize";
 		else
 			cursor_name = "e-resize";
 		break;
@@ -322,31 +327,30 @@ void wl_pointer_handle_button(void *data, struct wl_pointer *wl_pointer, uint32_
 		case KINC_WL_DECORATION_FOCUS_MAIN:
 			break;
 		case KINC_WL_DECORATION_FOCUS_TOP:
-			if (mouse->y < 10)
+			if (mouse->y > KINC_WL_DECORATION_WIDTH)
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP;
 			else {
 				xdg_toplevel_move(window->toplevel, wl_ctx.seat.seat, serial);
 			}
 			break;
 		case KINC_WL_DECORATION_FOCUS_LEFT:
-			if (mouse->y < 10)
+			if (mouse->y < KINC_WL_DECORATION_WIDTH)
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT;
+			else if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT - KINC_WL_DECORATION_WIDTH)
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT;
 			else
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_LEFT;
 			break;
 		case KINC_WL_DECORATION_FOCUS_RIGHT:
-			if (mouse->y < 10)
+			if (mouse->y < KINC_WL_DECORATION_WIDTH)
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT;
+			else if (mouse->y > KINC_WL_DECORATION_RIGHT_HEIGHT - KINC_WL_DECORATION_WIDTH)
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT;
 			else
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_RIGHT;
 			break;
 		case KINC_WL_DECORATION_FOCUS_BOTTOM:
-			if (mouse->x < 10)
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT;
-			else if (mouse->x > window->width + 10)
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT;
-			else
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM;
+			edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM;
 			break;
 		}
 		if (edges != XDG_TOPLEVEL_RESIZE_EDGE_NONE) {

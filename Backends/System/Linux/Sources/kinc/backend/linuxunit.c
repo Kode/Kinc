@@ -1,15 +1,18 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE // memfd_create and mkostemp
+#endif
 #include "funcs.h"
-#include <kinc/log.h>
 #include <dlfcn.h>
+// #include <kinc/log.h>
 
 #ifndef KINC_NO_WAYLAND
 #include "wayland/display.c.h"
 #include "wayland/system.c.h"
+#include "wayland/wayland-protocol.c.h"
+#include "wayland/wayland-viewporter.c.h"
 #include "wayland/window.c.h"
 #include "wayland/xdg-decoration.c.h"
 #include "wayland/xdg-shell.c.h"
-#include "wayland/wayland-protocol.c.h"
-#include "wayland/wayland-viewporter.c.h"
 #endif
 
 #ifndef KINC_NO_X11

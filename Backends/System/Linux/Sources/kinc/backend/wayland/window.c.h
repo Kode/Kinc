@@ -25,11 +25,11 @@ void kinc_internal_resize(int, int, int);
 
 static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *toplevel, int32_t width, int32_t height, struct wl_array *states) {
 	struct kinc_wl_window *window = data;
-	if (width <= 0 || height <= 0) {
+	if ((width <= 0 || height <= 0) || (width == window->width + (KINC_WL_DECORATION_WIDTH * 2) && height == window->height + (KINC_WL_DECORATION_WIDTH * 2))) {
 		return;
 	}
-	window->width = width;
-	window->height = height;
+	window->width = width - (KINC_WL_DECORATION_WIDTH * 2);
+	window->height = height - (KINC_WL_DECORATION_WIDTH * 2);
 	enum xdg_toplevel_state *state;
 	wl_array_for_each(state, states) {
 		switch (*state) {
@@ -44,10 +44,11 @@ static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *tople
 			break;
 		}
 	}
-	kinc_internal_resize(window->window_id, width, height);
-	xdg_surface_set_window_geometry(window->xdg_surface, -10, -20, window->width + 20, window->height + 30);
+	kinc_internal_resize(window->window_id, window->width, window->height);
+	xdg_surface_set_window_geometry(window->xdg_surface, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_TOP_Y, window->width + (KINC_WL_DECORATION_WIDTH * 2),
+	                                window->height + (KINC_WL_DECORATION_WIDTH * 3));
 #ifdef KINC_EGL
-	wl_egl_window_resize(window->egl_window, width, height, 0, 0);
+	wl_egl_window_resize(window->egl_window, window->width, window->height, 0, 0);
 #endif
 	if (window->decorations.top.surface != NULL) {
 		wl_subsurface_set_position(window->decorations.top.subsurface, KINC_WL_DECORATION_TOP_X, KINC_WL_DECORATION_TOP_Y);
@@ -78,32 +79,60 @@ static void xdg_toplevel_handle_close(void *data, struct xdg_toplevel *xdg_tople
 	}
 }
 
-static int create_anon_file(off_t size) {
-	static const char template[] = "/kinc-shared-XXXXXX";
+static int create_shm_fd(off_t size) {
+	int fd = -1;
+#if defined(__linux__)
+#if defined(__GLIBC__) && !__GLIBC_PREREQ(2, 27)
+#else
+	// memfd_create is available since glibc 2.27 and musl 1.1.20
+	// the syscall is available since linux 3.17
+	// at the time of writing (04/02/2022) these requirements are fullfilled for the "LTS" versions of the following distributions
+	// Ubuntu 18.04
+	// Debian Stretch
+	// Alpine 3.12
+	// Fedora 34
 
-	const char *path = getenv("XDG_RUNTIME_DIR");
-	if (!path) {
-		errno = ENOENT;
-		return -1;
+	fd = memfd_create("kinc-wayland-shm", MFD_CLOEXEC | MFD_ALLOW_SEALING);
+	if (fd >= 0) {
+		fcntl(fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_SEAL);
+		int ret = posix_fallocate(fd, 0, size);
+		if (ret != 0) {
+			close(fd);
+			errno = ret;
+			return -1;
+		}
+	}
+	else // fall back to a temp file
+#endif
+#endif
+	{
+
+		static const char template[] = "/kinc-shared-XXXXXX";
+
+		const char *path = getenv("XDG_RUNTIME_DIR");
+		if (!path) {
+			errno = ENOENT;
+			return -1;
+		}
+
+		char *name = kinc_allocate(kinc_string_length(path) + sizeof(template));
+		kinc_string_copy(name, path);
+		kinc_string_append(name, template);
+
+		fd = mkostemp(name, O_CLOEXEC);
+		if (fd >= 0) unlink(name);
+
+		kinc_free(name);
+		if (fd < 0) return -1;
+
+		int ret = ftruncate(fd, size);
+		if (ret != 0) {
+			close(fd);
+			errno = ret;
+			return -1;
+		}
 	}
 
-	char *name = kinc_allocate(kinc_string_length(path) + sizeof(template));
-	kinc_string_copy(name, path);
-	kinc_string_append(name, template);
-
-	int fd = mkstemp(name);
-	fcntl(fd, F_SETFD, FD_CLOEXEC);
-	if (fd >= 0) unlink(name);
-
-	kinc_free(name);
-	if (fd < 0) return -1;
-
-	int ret = ftruncate(fd, size);
-	if (ret != 0) {
-		close(fd);
-		errno = ret;
-		return -1;
-	}
 	return fd;
 }
 
@@ -111,7 +140,7 @@ struct wl_buffer *kinc_wayland_create_shm_buffer(const kinc_image_t *image) {
 	int stride = image->width * 4;
 	int length = image->width * image->height * 4;
 
-	const int fd = create_anon_file(length);
+	const int fd = create_shm_fd(length);
 	if (fd < 0) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Wayland: Creating a buffer file for %d B failed: %s", length, strerror(errno));
 		return NULL;
@@ -128,16 +157,6 @@ struct wl_buffer *kinc_wayland_create_shm_buffer(const kinc_image_t *image) {
 
 	close(fd);
 	kinc_memcpy(data, image->data, image->width * image->height * 4);
-	//  unsigned char *source = (unsigned char *)image->data;
-	// unsigned char *target = data;
-	// for (int i = 0; i < image->width * image->height; i++, source += 4) {
-	// 	unsigned int alpha = source[3];
-
-	// 	*target++ = (unsigned char)((source[2] * alpha) / 255);
-	// 	*target++ = (unsigned char)((source[1] * alpha) / 255);
-	// 	*target++ = (unsigned char)((source[0] * alpha) / 255);
-	// 	*target++ = (unsigned char)alpha;
-	// }
 
 	struct wl_buffer *buffer = wl_shm_pool_create_buffer(pool, 0, image->width, image->height, stride, WL_SHM_FORMAT_ARGB8888);
 	munmap(data, length);

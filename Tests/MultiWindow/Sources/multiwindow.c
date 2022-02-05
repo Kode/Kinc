@@ -18,7 +18,7 @@ static kinc_g4_pipeline_t pipeline;
 static kinc_g4_vertex_buffer_t vertices;
 static kinc_g4_index_buffer_t indices;
 
-#define WINDOW_COUNT 1
+#define WINDOW_COUNT 2
 
 static struct window {
 	int index;
@@ -144,17 +144,17 @@ int kickstart(int argc, char **argv) {
 		i[2] = 2;
 		kinc_g4_index_buffer_unlock(&indices);
 	}
-	// kinc_window_options_t options;
-	// kinc_framebuffer_options_t frame_options;
-	// kinc_window_options_set_defaults(&options);
-	// kinc_framebuffer_options_set_defaults(&frame_options);
-	// int window_two = kinc_window_create(&options, &frame_options);
+	kinc_window_options_t options;
+	kinc_framebuffer_options_t frame_options;
+	kinc_window_options_set_defaults(&options);
+	kinc_framebuffer_options_set_defaults(&frame_options);
+	int window_two = kinc_window_create(&options, &frame_options);
 	windows[0].index = 0;
 	windows[0].open = true;
-	// windows[1].index = 1;
-	// windows[1].open = true;
+	windows[1].index = 1;
+	windows[1].open = true;
 	kinc_window_set_close_callback(first_window, window_close, &windows[0]);
-	// kinc_window_set_close_callback(window_two, window_close, &windows[1]);
+	kinc_window_set_close_callback(window_two, window_close, &windows[1]);
 
 	kinc_mouse_set_press_callback(mouse_down);
 	kinc_mouse_set_release_callback(mouse_up);
