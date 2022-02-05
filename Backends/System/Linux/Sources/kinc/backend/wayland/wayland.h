@@ -180,29 +180,37 @@ enum kinc_wl_decoration_focus {
 	KINC_WL_DECORATION_FOCUS_LEFT,
 	KINC_WL_DECORATION_FOCUS_RIGHT,
 	KINC_WL_DECORATION_FOCUS_BOTTOM,
+	KINC_WL_DECORATION_FOCUS_CLOSE_BUTTON,
+	KINC_WL_DECORATION_FOCUS_MAX_BUTTON,
+	KINC_WL_DECORATION_FOCUS_MIN_BUTTON
 };
 
 #define KINC_WL_DECORATION_WIDTH 10
 
 #define KINC_WL_DECORATION_TOP_X 0
-#define KINC_WL_DECORATION_TOP_Y -20
+#define KINC_WL_DECORATION_TOP_Y -(KINC_WL_DECORATION_TOP_HEIGHT)
 #define KINC_WL_DECORATION_TOP_WIDTH window->width
-#define KINC_WL_DECORATION_TOP_HEIGHT KINC_WL_DECORATION_WIDTH * 2
+#define KINC_WL_DECORATION_TOP_HEIGHT KINC_WL_DECORATION_WIDTH * 3
 
 #define KINC_WL_DECORATION_LEFT_X -10
-#define KINC_WL_DECORATION_LEFT_Y -20
+#define KINC_WL_DECORATION_LEFT_Y -(KINC_WL_DECORATION_TOP_HEIGHT)
 #define KINC_WL_DECORATION_LEFT_WIDTH KINC_WL_DECORATION_WIDTH
-#define KINC_WL_DECORATION_LEFT_HEIGHT window->height + 30
+#define KINC_WL_DECORATION_LEFT_HEIGHT window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT
 
 #define KINC_WL_DECORATION_RIGHT_X window->width
-#define KINC_WL_DECORATION_RIGHT_Y -20
+#define KINC_WL_DECORATION_RIGHT_Y -(KINC_WL_DECORATION_TOP_HEIGHT)
 #define KINC_WL_DECORATION_RIGHT_WIDTH 10
-#define KINC_WL_DECORATION_RIGHT_HEIGHT window->height + 30
+#define KINC_WL_DECORATION_RIGHT_HEIGHT window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT
 
 #define KINC_WL_DECORATION_BOTTOM_X 0
 #define KINC_WL_DECORATION_BOTTOM_Y window->height
 #define KINC_WL_DECORATION_BOTTOM_WIDTH window->width
 #define KINC_WL_DECORATION_BOTTOM_HEIGHT KINC_WL_DECORATION_WIDTH
+
+#define KINC_WL_DECORATION_CLOSE_X window->width - 10
+#define KINC_WL_DECORATION_CLOSE_Y -20
+#define KINC_WL_DECORATION_CLOSE_WIDTH 9
+#define KINC_WL_DECORATION_CLOSE_HEIGHT 9
 
 struct kinc_wl_window {
 	int display_index;
@@ -223,7 +231,14 @@ struct kinc_wl_window {
 		struct kinc_wl_decoration right;
 		struct kinc_wl_decoration bottom;
 
-		struct wl_buffer *buffer;
+		struct kinc_wl_decoration close;
+		struct kinc_wl_decoration max;
+		struct kinc_wl_decoration min;
+
+		struct wl_buffer *dec_buffer;
+		struct wl_buffer *close_buffer;
+		struct wl_buffer *max_buffer;
+		struct wl_buffer *min_buffer;
 	} decorations;
 #ifdef KINC_EGL
 	struct wl_egl_window *egl_window;
@@ -247,6 +262,7 @@ struct kinc_wl_display {
 };
 
 struct kinc_wl_mouse {
+	struct kinc_wl_seat *seat;
 	int current_window;
 	int x;
 	int y;
@@ -335,3 +351,4 @@ void kinc_wl_data_source_destroy(struct kinc_wl_data_source *data_source);
 void kinc_wl_data_offer_accept(struct kinc_wl_data_offer *offer, void (*callback)(void *data, size_t data_size, void *user_data), void *user_data);
 void kinc_wl_destroy_data_offer(struct kinc_wl_data_offer *offer);
 void kinc_wayland_set_selection(struct kinc_wl_seat *seat, const char *text, int serial);
+void kinc_wayland_window_destroy(int window_index);

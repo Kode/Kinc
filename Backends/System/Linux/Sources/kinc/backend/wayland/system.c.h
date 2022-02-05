@@ -201,6 +201,10 @@ struct kinc_wl_window *kinc_wayland_window_from_surface(struct wl_surface *surfa
 				*focus = KINC_WL_DECORATION_FOCUS_BOTTOM;
 				window = _window;
 			}
+			else if (surface == _window->decorations.close.surface) {
+				*focus = KINC_WL_DECORATION_FOCUS_CLOSE_BUTTON;
+				window = _window;
+			}
 		}
 	}
 	return window;
@@ -256,19 +260,20 @@ void wl_pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_
 	int x = wl_fixed_to_int(surface_x);
 	int y = wl_fixed_to_int(surface_y);
 
+	mouse->x = x;
+	mouse->y = y;
+
 	const char *cursor_name = "default";
 
 	switch (window->decorations.focus) {
 	case KINC_WL_DECORATION_FOCUS_MAIN:
-		mouse->x = x;
-		mouse->y = y;
 		kinc_internal_mouse_trigger_move(mouse->current_window, x, y);
 		break;
 	case KINC_WL_DECORATION_FOCUS_TOP:
-		if (y < KINC_WL_DECORATION_WIDTH)
+		if (y < KINC_WL_DECORATION_TOP_HEIGHT / 2)
 			cursor_name = "n-resize";
 		else
-			cursor_name = "move";
+			cursor_name = "left_ptr";
 		break;
 	case KINC_WL_DECORATION_FOCUS_LEFT:
 		if (y < KINC_WL_DECORATION_WIDTH)
@@ -293,6 +298,10 @@ void wl_pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_
 			cursor_name = "se-resize";
 		else
 			cursor_name = "s-resize";
+		break;
+	case KINC_WL_DECORATION_FOCUS_CLOSE_BUTTON:
+		break;
+	default:
 		break;
 	}
 
@@ -327,24 +336,24 @@ void wl_pointer_handle_button(void *data, struct wl_pointer *wl_pointer, uint32_
 		case KINC_WL_DECORATION_FOCUS_MAIN:
 			break;
 		case KINC_WL_DECORATION_FOCUS_TOP:
-			if (mouse->y > KINC_WL_DECORATION_WIDTH)
+			if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT / 2)
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP;
 			else {
 				xdg_toplevel_move(window->toplevel, wl_ctx.seat.seat, serial);
 			}
 			break;
 		case KINC_WL_DECORATION_FOCUS_LEFT:
-			if (mouse->y < KINC_WL_DECORATION_WIDTH)
+			if (mouse->y < KINC_WL_DECORATION_TOP_HEIGHT / 2)
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT;
-			else if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT - KINC_WL_DECORATION_WIDTH)
+			else if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT - (KINC_WL_DECORATION_TOP_HEIGHT / 2))
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT;
 			else
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_LEFT;
 			break;
 		case KINC_WL_DECORATION_FOCUS_RIGHT:
-			if (mouse->y < KINC_WL_DECORATION_WIDTH)
+			if (mouse->y < KINC_WL_DECORATION_TOP_HEIGHT / 2)
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT;
-			else if (mouse->y > KINC_WL_DECORATION_RIGHT_HEIGHT - KINC_WL_DECORATION_WIDTH)
+			else if (mouse->y > KINC_WL_DECORATION_RIGHT_HEIGHT - (KINC_WL_DECORATION_TOP_HEIGHT / 2))
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT;
 			else
 				edges = XDG_TOPLEVEL_RESIZE_EDGE_RIGHT;
@@ -352,9 +361,27 @@ void wl_pointer_handle_button(void *data, struct wl_pointer *wl_pointer, uint32_
 		case KINC_WL_DECORATION_FOCUS_BOTTOM:
 			edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM;
 			break;
+		case KINC_WL_DECORATION_FOCUS_CLOSE_BUTTON:
+			if (kinc_button == 0) {
+				if (kinc_internal_call_close_callback(window->window_id)) {
+					kinc_window_destroy(window->window_id);
+					if (wl_ctx.num_windows <= 0) {
+						// no windows left, stop
+						kinc_stop();
+					}
+				}
+			}
+			break;
+		default:
+			break;
 		}
 		if (edges != XDG_TOPLEVEL_RESIZE_EDGE_NONE) {
 			xdg_toplevel_resize(window->toplevel, wl_ctx.seat.seat, serial, edges);
+		}
+	}
+	else if (kinc_button == 1) {
+		if (window->decorations.focus == KINC_WL_DECORATION_FOCUS_TOP) {
+			xdg_toplevel_show_window_menu(window->toplevel, mouse->seat->seat, serial, mouse->x, mouse->y);
 		}
 	}
 
@@ -487,6 +514,7 @@ void wl_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32_t capabili
 	if (capabilities & WL_SEAT_CAPABILITY_POINTER) {
 		seat->mouse.pointer = wl_seat_get_pointer(wl_seat);
 		seat->mouse.surface = wl_compositor_create_surface(wl_ctx.compositor);
+		seat->mouse.seat = seat;
 		wl_pointer_add_listener(seat->mouse.pointer, &wl_pointer_listener, &seat->mouse);
 	}
 	if (capabilities & WL_SEAT_CAPABILITY_TOUCH) {
