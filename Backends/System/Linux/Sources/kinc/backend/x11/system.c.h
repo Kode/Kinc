@@ -34,6 +34,7 @@ struct kinc_x11_window *window_from_window(Window window) {
 }
 
 void kinc_internal_resize(int window_index, int width, int height);
+static void init_pen_device(XDeviceInfo *info, struct x11_pen_device *pen, bool eraser);
 
 bool kinc_x11_init() {
 
@@ -67,7 +68,7 @@ bool kinc_x11_init() {
 	LOAD_FUN(X11, XOpenDisplay)
 	LOAD_FUN(X11, XCloseDisplay)
 	LOAD_FUN(X11, XSetErrorHandler)
-	LOAD_FUN(X11, XGetErrorText);
+	LOAD_FUN(X11, XGetErrorText)
 	LOAD_FUN(X11, XInternAtoms)
 	LOAD_FUN(X11, XPending)
 	LOAD_FUN(X11, XFlush)
@@ -77,8 +78,8 @@ bool kinc_x11_init() {
 	LOAD_FUN(X11, XFilterEvent)
 	LOAD_FUN(X11, XConvertSelection)
 	LOAD_FUN(X11, XSetSelectionOwner)
-	LOAD_FUN(X11, XLookupString);
-	LOAD_FUN(X11, XkbKeycodeToKeysym);
+	LOAD_FUN(X11, XLookupString)
+	LOAD_FUN(X11, XkbKeycodeToKeysym)
 	LOAD_FUN(X11, XSendEvent)
 	LOAD_FUN(X11, XGetWindowProperty)
 	LOAD_FUN(X11, XFree)
@@ -104,8 +105,14 @@ bool kinc_x11_init() {
 	LOAD_FUN(X11, XDestroyIC)
 	LOAD_FUN(X11, XSetICFocus)
 	LOAD_FUN(X11, XMapWindow)
-	LOAD_FUN(X11, XUnmapWindow);
+	LOAD_FUN(X11, XUnmapWindow)
 	LOAD_FUN(X11, XSetWMProtocols)
+
+	LOAD_FUN(Xi, XListInputDevices)
+	LOAD_FUN(Xi, XFreeDeviceList)
+	LOAD_FUN(Xi, XOpenDevice)
+	LOAD_FUN(Xi, XCloseDevice)
+	LOAD_FUN(Xi, XSelectExtensionEvent)
 
 	LOAD_FUN(Xinerama, XineramaQueryExtension)
 	LOAD_FUN(Xinerama, XineramaIsActive)
@@ -129,35 +136,124 @@ bool kinc_x11_init() {
 	xlib.XSetErrorHandler(kinc_x11_error_handler);
 
 	// this should be kept in sync with the x11_atoms struct
-	static char *atom_names[] = {"XdndAware",
-	                             "XdndDrop",
-	                             "XdndEnter",
-	                             "text/uri-list",
-	                             "XdndStatus",
-	                             "XdndActionCopy",
-	                             "XdndSelection",
-	                             "CLIPBOARD",
-	                             "UTF8_STRING",
-	                             "XSEL_DATA",
-	                             "TARGETS",
-	                             "MULTIPLE",
-	                             "text/plain;charset=utf-8",
-	                             "WM_DELETE_WINDOW",
-	                             "_MOTIF_WM_HINTS",
-	                             "_NET_WM_NAME",
-	                             "_NET_WM_ICON_NAME",
-	                             "_NET_WM_STATE",
-	                             "_NET_WM_STATE_FULLSCREEN"};
+	static char *atom_names[] = {
+	    "XdndAware",
+	    "XdndDrop",
+	    "XdndEnter",
+	    "text/uri-list",
+	    "XdndStatus",
+	    "XdndActionCopy",
+	    "XdndSelection",
+	    "CLIPBOARD",
+	    "UTF8_STRING",
+	    "XSEL_DATA",
+	    "TARGETS",
+	    "MULTIPLE",
+	    "text/plain;charset=utf-8",
+	    "WM_DELETE_WINDOW",
+	    "_MOTIF_WM_HINTS",
+	    "_NET_WM_NAME",
+	    "_NET_WM_ICON_NAME",
+	    "_NET_WM_STATE",
+	    "_NET_WM_STATE_FULLSCREEN",
+	    XI_MOUSE,
+	    XI_TABLET,
+	    XI_KEYBOARD,
+	    XI_TOUCHSCREEN,
+	    XI_TOUCHPAD,
+	    XI_BUTTONBOX,
+	    XI_BARCODE,
+	    XI_TRACKBALL,
+	    XI_QUADRATURE,
+	    XI_ID_MODULE,
+	    XI_ONE_KNOB,
+	    XI_NINE_KNOB,
+	    XI_KNOB_BOX,
+	    XI_SPACEBALL,
+	    XI_DATAGLOVE,
+	    XI_EYETRACKER,
+	    XI_CURSORKEYS,
+	    XI_FOOTMOUSE,
+	    XI_JOYSTICK,
+	};
 
 	assert((sizeof atom_names / sizeof atom_names[0]) == (sizeof(struct kinc_x11_atoms) / sizeof(Atom)));
 	xlib.XInternAtoms(x11_ctx.display, atom_names, sizeof atom_names / sizeof atom_names[0], False, (Atom *)&x11_ctx.atoms);
 	clipboardString = (char *)kinc_allocate(clipboardStringSize);
+
+	x11_ctx.pen.id = -1;
+	x11_ctx.eraser.id = -1;
+
+	int count;
+	XDeviceInfoPtr devices = (XDeviceInfoPtr)xlib.XListInputDevices(x11_ctx.display, &count);
+	for (int i = 0; i < count; i++) {
+		if (kinc_string_find(devices[i].name, "stylus")) {
+			init_pen_device(&devices[i], &x11_ctx.pen, false);
+		}
+		if (kinc_string_find(devices[i].name, "eraser")) {
+			init_pen_device(&devices[i], &x11_ctx.eraser, true);
+		}
+	}
+
+	if (devices != NULL) {
+		xlib.XFreeDeviceList(devices);
+	}
+
 	return true;
 }
 
 void kinc_x11_shutdown() {
 	kinc_free(clipboardString);
 	xlib.XCloseDisplay(x11_ctx.display);
+}
+
+#include <kinc/input/pen.h>
+
+static void init_pen_device(XDeviceInfo *info, struct x11_pen_device *pen, bool eraser) {
+	XDevice *device = xlib.XOpenDevice(x11_ctx.display, info->id);
+	XAnyClassPtr c = info->inputclassinfo;
+	for (int j = 0; j < device->num_classes; j++) {
+		if (c->class == ValuatorClass) {
+			XValuatorInfo *valuator_info = (XValuatorInfo *)c;
+			if (valuator_info->num_axes > 2) {
+				pen->maxPressure = valuator_info->axes[2].max_value;
+			}
+			pen->id = info->id;
+			DeviceMotionNotify(device, pen->motionEvent, pen->motionClass);
+			if (eraser) {
+				pen->press = kinc_internal_eraser_trigger_press;
+				pen->move = kinc_internal_eraser_trigger_move;
+				pen->release = kinc_internal_eraser_trigger_release;
+			}
+			else {
+				pen->press = kinc_internal_pen_trigger_press;
+				pen->move = kinc_internal_pen_trigger_move;
+				pen->release = kinc_internal_pen_trigger_release;
+			}
+			return;
+		}
+		c = (XAnyClassPtr)((uint8_t *)c + c->length);
+	}
+	xlib.XCloseDevice(x11_ctx.display, device);
+}
+
+static void check_pen_device(struct kinc_x11_window *window, XEvent *event, struct x11_pen_device *pen) {
+	if (event->type == pen->motionEvent) {
+		XDeviceMotionEvent *motion = (XDeviceMotionEvent *)(event);
+		if (motion->deviceid == pen->id) {
+			float p = (float)motion->axis_data[2] / (float)pen->maxPressure;
+			if (p > 0 && x11_ctx.pen.current_pressure == 0) {
+				pen->press(window->window_index, motion->x, motion->y, p);
+			}
+			else if (p == 0 && pen->current_pressure > 0) {
+				pen->release(window->window_index, motion->x, motion->y, p);
+			}
+			else if (p > 0) {
+				pen->move(window->window_index, motion->x, motion->y, p);
+			}
+			pen->current_pressure = p;
+		}
+	}
 }
 
 bool kinc_x11_handle_messages() {
@@ -171,40 +267,8 @@ bool kinc_x11_handle_messages() {
 		if (k_window == NULL) {
 			continue;
 		}
-		// 	if (event.type == penMotionEvent) {
-		// 		XDeviceMotionEvent *motion = (XDeviceMotionEvent *)(&event);
-		// 		if (motion->deviceid == penDevice) {
-		// 			int windowId = idFromWindow(motion->window);
-		// 			float p = (float)motion->axis_data[2] / (float)penMaxPressure;
-		// 			if (p > 0 && penPressureLast == 0) {
-		// 				kinc_internal_pen_trigger_press(windowId, motion->x, motion->y, p);
-		// 			}
-		// 			else if (p == 0 && penPressureLast > 0) {
-		// 				kinc_internal_pen_trigger_release(windowId, motion->x, motion->y, p);
-		// 			}
-		// 			else if (p > 0) {
-		// 				kinc_internal_pen_trigger_move(windowId, motion->x, motion->y, p);
-		// 			}
-		// 			penPressureLast = p;
-		// 		}
-		// 	}
-		// 	if (event.type == eraserMotionEvent) {
-		// 		XDeviceMotionEvent *motion = (XDeviceMotionEvent *)(&event);
-		// 		if (motion->deviceid == eraserDevice) {
-		// 			int windowId = idFromWindow(motion->window);
-		// 			float p = (float)motion->axis_data[2] / (float)eraserMaxPressure;
-		// 			if (p > 0 && eraserPressureLast == 0) {
-		// 				kinc_internal_eraser_trigger_press(windowId, motion->x, motion->y, p);
-		// 			}
-		// 			else if (p == 0 && eraserPressureLast > 0) {
-		// 				kinc_internal_eraser_trigger_release(windowId, motion->x, motion->y, p);
-		// 			}
-		// 			else if (p > 0) {
-		// 				kinc_internal_eraser_trigger_move(windowId, motion->x, motion->y, p);
-		// 			}
-		// 			eraserPressureLast = p;
-		// 		}
-		// 	}
+		check_pen_device(k_window, &event, &x11_ctx.pen);
+		check_pen_device(k_window, &event, &x11_ctx.eraser);
 		switch (event.type) {
 		case MappingNotify: {
 			xlib.XRefreshKeyboardMapping(&event.xmapping);

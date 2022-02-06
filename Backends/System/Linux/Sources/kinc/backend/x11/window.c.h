@@ -34,7 +34,6 @@ int kinc_x11_window_create(kinc_window_options_t *win, kinc_framebuffer_options_
 	window->width = win->width;
 	window->height = win->height;
 
-	Colormap colormap = None;
 	Visual *visual = NULL;
 	XSetWindowAttributes set_window_attribs = {0};
 
@@ -72,6 +71,14 @@ int kinc_x11_window_create(kinc_window_options_t *win, kinc_framebuffer_options_
 	xlib.XSetWMProtocols(x11_ctx.display, window->window, &x11_ctx.atoms.WM_DELETE_WINDOW, 1);
 
 	kinc_x11_window_set_title(window_index, win->title);
+
+	if(x11_ctx.pen.id != -1) {
+		xlib.XSelectExtensionEvent(x11_ctx.display, window->window, &x11_ctx.pen.motionClass, 1);
+	}
+
+	if (x11_ctx.eraser.id != -1) {
+		xlib.XSelectExtensionEvent(x11_ctx.display, window->window, &x11_ctx.eraser.motionClass, 1);
+	}
 
 	x11_ctx.num_windows++;
 	return window_index;

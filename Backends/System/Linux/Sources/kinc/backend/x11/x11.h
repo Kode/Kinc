@@ -73,6 +73,26 @@ struct kinc_x11_atoms {
 	Atom NET_WM_ICON_NAME;
 	Atom NET_WM_STATE;
 	Atom NET_WM_STATE_FULLSCREEN;
+
+	Atom MOUSE;
+	Atom TABLET;
+	Atom KEYBOARD;
+	Atom TOUCHSCREEN;
+	Atom TOUCHPAD;
+	Atom BUTTONBOX;
+	Atom BARCODE;
+	Atom TRACKBALL;
+	Atom QUADRATURE;
+	Atom ID_MODULE;
+	Atom ONE_KNOB;
+	Atom NINE_KNOB;
+	Atom KNOB_BOX;
+	Atom SPACEBALL;
+	Atom DATAGLOVE;
+	Atom EYETRACKER;
+	Atom CURSORKEYS;
+	Atom FOOTMOUSE;
+	Atom JOYSTICK;
 };
 
 struct kinc_x11_libs {
@@ -128,6 +148,12 @@ struct kinc_x11_procs {
 	int (*XUnmapWindow)(Display *, Window);
 	int (*XSetWMProtocols)(Display *, Window, Atom *, int);
 
+	XDeviceInfo *(*XListInputDevices)(Display *, int *);
+	void (*XFreeDeviceList)(XDeviceInfo *);
+	XDevice *(*XOpenDevice)(Display *display, XID device_id);
+	int (*XCloseDevice)(Display *display, XDevice *device);
+	int (*XSelectExtensionEvent)(Display *, Window, XEventClass *, int);
+
 	int (*XineramaQueryExtension)(Display *dpy, int *event_base, int *error_base);
 	int (*XineramaIsActive)(Display *dpy);
 	XineramaScreenInfo *(*XineramaQueryScreens)(Display *dpy, int *number);
@@ -141,11 +167,27 @@ struct kinc_x11_procs {
 	void (*XRRFreeScreenResources)(XRRScreenResources *resources);
 };
 
+struct x11_pen_device {
+	XID id;
+	uint32_t motionEvent;
+	XEventClass motionClass;
+	uint32_t maxPressure;
+	float current_pressure;
+
+	void (*press)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+	void (*move)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+	void (*release)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+};
+
 struct x11_context {
 	Display *display;
 	struct kinc_x11_libs libs;
 	struct kinc_x11_atoms atoms;
 	struct kinc_x11_mouse mouse;
+
+	struct x11_pen_device pen;
+	struct x11_pen_device eraser;
+
 	int num_windows;
 	struct kinc_x11_window windows[MAXIMUM_WINDOWS];
 	int num_displays;
