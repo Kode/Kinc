@@ -1,6 +1,9 @@
+#include "kinc/backend/wayland/wayland-pointer-constraint.h"
+#include "kinc/backend/wayland/wayland-relative-pointer.h"
 #include "kinc/backend/wayland/wayland-tablet.h"
 #include "kinc/backend/wayland/xdg-shell.h"
 #include "kinc/input/pen.h"
+#include "kinc/log.h"
 #include "kinc/memory.h"
 #include "wayland.h"
 
@@ -268,50 +271,55 @@ void wl_pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_
 	mouse->x = x;
 	mouse->y = y;
 
-	const char *cursor_name = "default";
+	if (!window->decorations.server_side) {
+		const char *cursor_name = "default";
 
-	switch (window->decorations.focus) {
-	case KINC_WL_DECORATION_FOCUS_MAIN:
-		kinc_internal_mouse_trigger_move(mouse->current_window, x, y);
-		break;
-	case KINC_WL_DECORATION_FOCUS_TOP:
-		if (y < KINC_WL_DECORATION_TOP_HEIGHT / 2)
-			cursor_name = "n-resize";
-		else
-			cursor_name = "left_ptr";
-		break;
-	case KINC_WL_DECORATION_FOCUS_LEFT:
-		if (y < KINC_WL_DECORATION_WIDTH)
-			cursor_name = "nw-resize";
-		else if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT - KINC_WL_DECORATION_WIDTH)
-			cursor_name = "sw-resize";
-		else
-			cursor_name = "w-resize";
-		break;
-	case KINC_WL_DECORATION_FOCUS_RIGHT:
-		if (y < KINC_WL_DECORATION_WIDTH)
-			cursor_name = "ne-resize";
-		else if (mouse->y > KINC_WL_DECORATION_RIGHT_HEIGHT - KINC_WL_DECORATION_WIDTH)
-			cursor_name = "se-resize";
-		else
-			cursor_name = "e-resize";
-		break;
-	case KINC_WL_DECORATION_FOCUS_BOTTOM:
-		if (x < 10)
-			cursor_name = "sw-resize";
-		else if (x > window->width + 10)
-			cursor_name = "se-resize";
-		else
-			cursor_name = "s-resize";
-		break;
-	case KINC_WL_DECORATION_FOCUS_CLOSE_BUTTON:
-		break;
-	default:
-		break;
+		switch (window->decorations.focus) {
+		case KINC_WL_DECORATION_FOCUS_MAIN:
+			kinc_internal_mouse_trigger_move(mouse->current_window, x, y);
+			break;
+		case KINC_WL_DECORATION_FOCUS_TOP:
+			if (y < KINC_WL_DECORATION_TOP_HEIGHT / 2)
+				cursor_name = "n-resize";
+			else
+				cursor_name = "left_ptr";
+			break;
+		case KINC_WL_DECORATION_FOCUS_LEFT:
+			if (y < KINC_WL_DECORATION_WIDTH)
+				cursor_name = "nw-resize";
+			else if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT - KINC_WL_DECORATION_WIDTH)
+				cursor_name = "sw-resize";
+			else
+				cursor_name = "w-resize";
+			break;
+		case KINC_WL_DECORATION_FOCUS_RIGHT:
+			if (y < KINC_WL_DECORATION_WIDTH)
+				cursor_name = "ne-resize";
+			else if (mouse->y > KINC_WL_DECORATION_RIGHT_HEIGHT - KINC_WL_DECORATION_WIDTH)
+				cursor_name = "se-resize";
+			else
+				cursor_name = "e-resize";
+			break;
+		case KINC_WL_DECORATION_FOCUS_BOTTOM:
+			if (x < 10)
+				cursor_name = "sw-resize";
+			else if (x > window->width + 10)
+				cursor_name = "se-resize";
+			else
+				cursor_name = "s-resize";
+			break;
+		case KINC_WL_DECORATION_FOCUS_CLOSE_BUTTON:
+			break;
+		default:
+			break;
+		}
+
+		if (mouse->previous_cursor_name != cursor_name) {
+			kinc_wayland_set_cursor(mouse, cursor_name);
+		}
 	}
-
-	if (mouse->previous_cursor_name != cursor_name) {
-		kinc_wayland_set_cursor(mouse, cursor_name);
+	else {
+		kinc_internal_mouse_trigger_move(mouse->current_window, x, y);
 	}
 }
 
@@ -334,59 +342,60 @@ void wl_pointer_handle_button(void *data, struct wl_pointer *wl_pointer, uint32_
 	default:
 		break;
 	}
-
-	if (kinc_button == 0) {
-		enum xdg_toplevel_resize_edge edges = XDG_TOPLEVEL_RESIZE_EDGE_NONE;
-		switch (window->decorations.focus) {
-		case KINC_WL_DECORATION_FOCUS_MAIN:
-			break;
-		case KINC_WL_DECORATION_FOCUS_TOP:
-			if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT / 2)
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP;
-			else {
-				xdg_toplevel_move(window->toplevel, wl_ctx.seat.seat, serial);
-			}
-			break;
-		case KINC_WL_DECORATION_FOCUS_LEFT:
-			if (mouse->y < KINC_WL_DECORATION_TOP_HEIGHT / 2)
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT;
-			else if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT - (KINC_WL_DECORATION_TOP_HEIGHT / 2))
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT;
-			else
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_LEFT;
-			break;
-		case KINC_WL_DECORATION_FOCUS_RIGHT:
-			if (mouse->y < KINC_WL_DECORATION_TOP_HEIGHT / 2)
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT;
-			else if (mouse->y > KINC_WL_DECORATION_RIGHT_HEIGHT - (KINC_WL_DECORATION_TOP_HEIGHT / 2))
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT;
-			else
-				edges = XDG_TOPLEVEL_RESIZE_EDGE_RIGHT;
-			break;
-		case KINC_WL_DECORATION_FOCUS_BOTTOM:
-			edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM;
-			break;
-		case KINC_WL_DECORATION_FOCUS_CLOSE_BUTTON:
-			if (kinc_button == 0) {
-				if (kinc_internal_call_close_callback(window->window_id)) {
-					kinc_window_destroy(window->window_id);
-					if (wl_ctx.num_windows <= 0) {
-						// no windows left, stop
-						kinc_stop();
+	if (!window->decorations.server_side) {
+		if (kinc_button == 0) {
+			enum xdg_toplevel_resize_edge edges = XDG_TOPLEVEL_RESIZE_EDGE_NONE;
+			switch (window->decorations.focus) {
+			case KINC_WL_DECORATION_FOCUS_MAIN:
+				break;
+			case KINC_WL_DECORATION_FOCUS_TOP:
+				if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT / 2)
+					edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP;
+				else {
+					xdg_toplevel_move(window->toplevel, wl_ctx.seat.seat, serial);
+				}
+				break;
+			case KINC_WL_DECORATION_FOCUS_LEFT:
+				if (mouse->y < KINC_WL_DECORATION_TOP_HEIGHT / 2)
+					edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT;
+				else if (mouse->y > KINC_WL_DECORATION_TOP_HEIGHT - (KINC_WL_DECORATION_TOP_HEIGHT / 2))
+					edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT;
+				else
+					edges = XDG_TOPLEVEL_RESIZE_EDGE_LEFT;
+				break;
+			case KINC_WL_DECORATION_FOCUS_RIGHT:
+				if (mouse->y < KINC_WL_DECORATION_TOP_HEIGHT / 2)
+					edges = XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT;
+				else if (mouse->y > KINC_WL_DECORATION_RIGHT_HEIGHT - (KINC_WL_DECORATION_TOP_HEIGHT / 2))
+					edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT;
+				else
+					edges = XDG_TOPLEVEL_RESIZE_EDGE_RIGHT;
+				break;
+			case KINC_WL_DECORATION_FOCUS_BOTTOM:
+				edges = XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM;
+				break;
+			case KINC_WL_DECORATION_FOCUS_CLOSE_BUTTON:
+				if (kinc_button == 0) {
+					if (kinc_internal_call_close_callback(window->window_id)) {
+						kinc_window_destroy(window->window_id);
+						if (wl_ctx.num_windows <= 0) {
+							// no windows left, stop
+							kinc_stop();
+						}
 					}
 				}
+				break;
+			default:
+				break;
 			}
-			break;
-		default:
-			break;
+			if (edges != XDG_TOPLEVEL_RESIZE_EDGE_NONE) {
+				xdg_toplevel_resize(window->toplevel, wl_ctx.seat.seat, serial, edges);
+			}
 		}
-		if (edges != XDG_TOPLEVEL_RESIZE_EDGE_NONE) {
-			xdg_toplevel_resize(window->toplevel, wl_ctx.seat.seat, serial, edges);
-		}
-	}
-	else if (kinc_button == 1) {
-		if (window->decorations.focus == KINC_WL_DECORATION_FOCUS_TOP) {
-			xdg_toplevel_show_window_menu(window->toplevel, mouse->seat->seat, serial, mouse->x, mouse->y);
+		else if (kinc_button == 1) {
+			if (window->decorations.focus == KINC_WL_DECORATION_FOCUS_TOP) {
+				xdg_toplevel_show_window_menu(window->toplevel, mouse->seat->seat, serial, mouse->x, mouse->y);
+			}
 		}
 	}
 
@@ -409,6 +418,20 @@ void wl_pointer_handle_axis(void *data, struct wl_pointer *wl_pointer, uint32_t 
 
 static const struct wl_pointer_listener wl_pointer_listener = {
     wl_pointer_handle_enter, wl_pointer_handle_leave, wl_pointer_handle_motion, wl_pointer_handle_button, wl_pointer_handle_axis, 0, 0, 0, 0,
+};
+
+void zwp_relative_pointer_v1_handle_relative_motion(void *data, struct zwp_relative_pointer_v1 *zwp_relative_pointer_v1, uint32_t utime_hi, uint32_t utime_lo,
+                                                    wl_fixed_t dx, wl_fixed_t dy, wl_fixed_t dx_unaccel, wl_fixed_t dy_unaccel) {
+	struct kinc_wl_mouse *mouse = data;
+	if (mouse->locked) {
+		mouse->x += wl_fixed_to_int(dx);
+		mouse->y += wl_fixed_to_int(dy);
+		kinc_internal_mouse_trigger_move(mouse->current_window, mouse->x, mouse->y);
+	}
+}
+
+static const struct zwp_relative_pointer_v1_listener zwp_relative_pointer_v1_listener = {
+    zwp_relative_pointer_v1_handle_relative_motion,
 };
 
 #include <sys/mman.h>
@@ -520,6 +543,10 @@ void wl_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32_t capabili
 		seat->mouse.surface = wl_compositor_create_surface(wl_ctx.compositor);
 		seat->mouse.seat = seat;
 		wl_pointer_add_listener(seat->mouse.pointer, &wl_pointer_listener, &seat->mouse);
+		if (wl_ctx.relative_pointer_manager) {
+			seat->mouse.relative = zwp_relative_pointer_manager_v1_get_relative_pointer(wl_ctx.relative_pointer_manager, seat->mouse.pointer);
+			zwp_relative_pointer_v1_add_listener(seat->mouse.relative, &zwp_relative_pointer_v1_listener, &seat->mouse);
+		}
 	}
 	if (capabilities & WL_SEAT_CAPABILITY_TOUCH) {
 		seat->touch = wl_seat_get_touch(wl_seat);
@@ -948,6 +975,12 @@ static void wl_registry_handle_global(void *data, struct wl_registry *registry, 
 			zwp_tablet_seat_v2_add_listener(wl_ctx.seat.tablet_seat.seat, &zwp_tablet_seat_v2_listener, &wl_ctx.seat.tablet_seat);
 		}
 	}
+	else if (kinc_string_compare(interface, zwp_pointer_constraints_v1_interface.name) == 0) {
+		wl_ctx.pointer_constraints = wl_registry_bind(registry, name, &zwp_pointer_constraints_v1_interface, 1);
+	}
+	else if (kinc_string_compare(interface, zwp_relative_pointer_manager_v1_interface.name) == 0) {
+		wl_ctx.relative_pointer_manager = wl_registry_bind(registry, name, &zwp_relative_pointer_manager_v1_interface, 1);
+	}
 }
 
 static void wl_registry_handle_global_remove(void *data, struct wl_registry *registry, uint32_t name) {
@@ -1087,3 +1120,125 @@ VkBool32 kinc_wayland_vulkan_get_physical_device_presentation_support(VkPhysical
 }
 #undef VK_USE_PLATFORM_WAYLAND_KHR
 #endif
+
+void zwp_locked_pointer_v1_handle_locked(void *data, struct zwp_locked_pointer_v1 *zwp_locked_pointer_v1) {
+	struct kinc_wl_mouse *mouse = data;
+	mouse->locked = true;
+}
+
+void zwp_locked_pointer_v1_handle_unlocked(void *data, struct zwp_locked_pointer_v1 *zwp_locked_pointer_v1) {
+	struct kinc_wl_mouse *mouse = data;
+	mouse->locked = false;
+}
+
+static const struct zwp_locked_pointer_v1_listener zwp_locked_pointer_v1_listener = {
+    zwp_locked_pointer_v1_handle_locked,
+    zwp_locked_pointer_v1_handle_unlocked,
+};
+
+void kinc_wl_mouse_show() {
+	kinc_wayland_set_cursor(&wl_ctx.seat.mouse, "default"); // TODO: should use the last set cursor instead
+}
+
+void kinc_wl_mouse_hide() {
+	wl_pointer_set_cursor(wl_ctx.seat.mouse.pointer, wl_ctx.seat.mouse.serial, NULL, 0, 0);
+}
+
+void kinc_wl_mouse_lock(int window) {
+	struct kinc_wl_mouse *mouse = &wl_ctx.seat.mouse;
+	struct wl_region *region = wl_compositor_create_region(wl_ctx.compositor);
+	wl_region_add(region, mouse->x, mouse->y, 0, 0);
+	mouse->lock = zwp_pointer_constraints_v1_lock_pointer(wl_ctx.pointer_constraints, wl_ctx.windows[window].surface, wl_ctx.seat.mouse.pointer, region,
+	                                                      ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
+	zwp_locked_pointer_v1_add_listener(mouse->lock, &zwp_locked_pointer_v1_listener, mouse);
+
+}
+
+void kinc_wl_mouse_unlock(void) {
+	zwp_locked_pointer_v1_destroy(wl_ctx.seat.mouse.lock);
+	wl_ctx.seat.mouse.lock = NULL;
+	wl_ctx.seat.mouse.locked = false;
+	kinc_wl_mouse_show();
+}
+
+bool kinc_wl_mouse_can_lock(void) {
+	return true;
+}
+
+void kinc_wl_mouse_set_cursor(int cursorIndex) {
+	const char *name;
+	switch (cursorIndex) {
+	case 0: {
+		name = "arrow";
+		break;
+	}
+	case 1: {
+		name = "hand1";
+		break;
+	}
+	case 2: {
+		name = "xterm";
+		break;
+	}
+	case 3: {
+		name = "sb_h_double_arrow";
+		break;
+	}
+	case 4: {
+		name = "sb_v_double_arrow";
+		break;
+	}
+	case 5: {
+		name = "top_right_corner";
+		break;
+	}
+	case 6: {
+		name = "bottom_right_corner";
+		break;
+	}
+	case 7: {
+		name = "top_left_corner";
+		break;
+	}
+	case 8: {
+		name = "bottom_left_corner";
+		break;
+	}
+	case 9: {
+		name = "grab";
+		break;
+	}
+	case 10: {
+		name = "grabbing";
+		break;
+	}
+	case 11: {
+		name = "not-allowed";
+		break;
+	}
+	case 12: {
+		name = "watch";
+		break;
+	}
+	case 13: {
+		name = "crosshair";
+		break;
+	}
+	default: {
+		name = "arrow";
+		break;
+	}
+	}
+	if (!wl_ctx.seat.mouse.hidden) {
+		kinc_wayland_set_cursor(&wl_ctx.seat.mouse, name);
+	}
+}
+
+void kinc_wl_mouse_set_position(int window_index, int x, int y) {
+	kinc_log(KINC_LOG_LEVEL_ERROR, "Wayland: cannot set the mouse position.");
+}
+
+void kinc_wl_mouse_get_position(int window_index, int *x, int *y) {
+	*x = wl_ctx.seat.mouse.x;
+	*y = wl_ctx.seat.mouse.y;
+}

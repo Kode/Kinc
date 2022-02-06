@@ -6,7 +6,6 @@
 void kinc_x11_display_init(void) {
 	int eventBase;
 	int errorBase;
-	int displayCounter;
 
 	bool hasXinerama = (xlib.XineramaQueryExtension(x11_ctx.display, &eventBase, &errorBase) && xlib.XineramaIsActive(x11_ctx.display));
 	XineramaScreenInfo *xinerama_screens = NULL;

@@ -16,8 +16,6 @@
 #endif
 
 static void xdg_surface_handle_configure(void *data, struct xdg_surface *surface, uint32_t serial) {
-	struct kinc_wl_window *window = data;
-
 	xdg_surface_ack_configure(surface, serial);
 }
 
@@ -27,11 +25,18 @@ void kinc_wayland_resize_decoration(struct kinc_wl_decoration *, int x, int y, i
 static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *toplevel, int32_t width, int32_t height, struct wl_array *states) {
 	struct kinc_wl_window *window = data;
 	if ((width <= 0 || height <= 0) || (width == window->width + (KINC_WL_DECORATION_WIDTH * 2) &&
-	                                    height == window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT)) {
+	                                  height == window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT)) {
 		return;
 	}
-	window->width = width - (KINC_WL_DECORATION_WIDTH * 2);
-	window->height = height - KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT;
+	if (window->decorations.server_side) {
+		window->width = width;
+		window->height = height;
+	}
+	else {
+		window->width = width - (KINC_WL_DECORATION_WIDTH * 2);
+		window->height = height - KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT;
+	}
+
 	enum xdg_toplevel_state *state;
 	wl_array_for_each(state, states) {
 		switch (*state) {
@@ -47,8 +52,14 @@ static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *tople
 		}
 	}
 	kinc_internal_resize(window->window_id, window->width, window->height);
-	xdg_surface_set_window_geometry(window->xdg_surface, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_TOP_Y, window->width + (KINC_WL_DECORATION_WIDTH * 2),
-	                                window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT);
+	if (window->decorations.server_side) {
+		xdg_surface_set_window_geometry(window->xdg_surface, 0, 0, window->width, window->height);
+	}
+	else {
+		xdg_surface_set_window_geometry(window->xdg_surface, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_TOP_Y,
+		                                window->width + (KINC_WL_DECORATION_WIDTH * 2),
+		                                window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT);
+	}
 #ifdef KINC_EGL
 	wl_egl_window_resize(window->egl_window, window->width, window->height, 0, 0);
 #endif
@@ -395,7 +406,6 @@ int kinc_wayland_window_height(int window_index) {
 }
 
 void kinc_wayland_window_resize(int window_index, int width, int height) {
-	struct kinc_wl_window *window = &wl_ctx.windows[window_index];
 	kinc_log(KINC_LOG_LEVEL_WARNING, "TODO: resizing windows");
 }
 

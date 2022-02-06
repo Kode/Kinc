@@ -1,2 +1,2 @@
 CompileFlags:
-    Add: [-D,KINC_EDITOR_SUPPORT]
+    Add: [-D,KINC_EDITOR_SUPPORT, -Wall]

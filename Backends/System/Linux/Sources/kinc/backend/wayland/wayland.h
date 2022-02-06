@@ -135,6 +135,8 @@ struct kinc_wl_procs {
 
 extern struct kinc_wl_procs wl;
 
+#include "wayland-pointer-constraint.h"
+#include "wayland-relative-pointer.h"
 #include "wayland-tablet.h"
 #include "wayland-viewporter.h"
 #include "xdg-decoration.h"
@@ -271,6 +273,11 @@ struct kinc_wl_mouse {
 	const char *previous_cursor_name;
 	struct wl_pointer *pointer;
 	struct wl_surface *surface;
+	bool hidden;
+	bool locked;
+	struct zwp_locked_pointer_v1 *lock;
+	struct zwp_relative_pointer_v1 *relative;
+	int serial;
 };
 
 struct kinc_wl_keyboard {
@@ -370,6 +377,8 @@ struct wayland_context {
 	struct zxdg_decoration_manager_v1 *decoration_manager;
 	struct wl_data_device_manager *data_device_manager;
 	struct zwp_tablet_manager_v2 *tablet_manager;
+	struct zwp_pointer_constraints_v1 *pointer_constraints;
+	struct zwp_relative_pointer_manager_v1 *relative_pointer_manager;
 	struct wl_cursor_theme *cursor_theme;
 	int cursor_size;
 	int num_windows;

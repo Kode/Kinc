@@ -19,3 +19,5 @@ Backends/System/Linux/Sources/kinc/backend/wayland/wayland-viewporter.*
 Backends/System/Linux/Sources/kinc/backend/wayland/xdg-decoration.*
 Backends/System/Linux/Sources/kinc/backend/wayland/xdg-shell.*
 Backends/System/Linux/Sources/kinc/backend/wayland/wayland-tablet.*
+Backends/System/Linux/Sources/kinc/backend/wayland/wayland-pointer-constraint.*
+Backends/System/Linux/Sources/kinc/backend/wayland/wayland-relative-pointer.*

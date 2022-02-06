@@ -8,12 +8,14 @@
 #ifndef KINC_NO_WAYLAND
 #include "wayland/display.c.h"
 #include "wayland/system.c.h"
+#include "wayland/wayland-pointer-constraint.c.h"
 #include "wayland/wayland-protocol.c.h"
+#include "wayland/wayland-relative-pointer.c.h"
+#include "wayland/wayland-tablet.c.h"
 #include "wayland/wayland-viewporter.c.h"
 #include "wayland/window.c.h"
 #include "wayland/xdg-decoration.c.h"
 #include "wayland/xdg-shell.c.h"
-#include "wayland/wayland-tablet.c.h"
 #endif
 
 #ifndef KINC_NO_X11
@@ -48,6 +50,14 @@ void kinc_linux_init_procs() {
 		procs.window_show = kinc_wayland_window_show;
 		procs.window_hide = kinc_wayland_window_hide;
 		procs.count_windows = kinc_wayland_count_windows;
+
+		procs.mouse_can_lock = kinc_wl_mouse_can_lock;
+		procs.mouse_lock = kinc_wl_mouse_lock;
+		procs.mouse_unlock = kinc_wl_mouse_unlock;
+		procs.mouse_show = kinc_wl_mouse_show;
+		procs.mouse_hide = kinc_wl_mouse_hide;
+		procs.mouse_set_position = kinc_wl_mouse_set_position;
+		procs.mouse_get_position = kinc_wl_mouse_get_position;
 
 		procs.display_init = kinc_wayland_display_init;
 		procs.display_available = kinc_wayland_display_available;

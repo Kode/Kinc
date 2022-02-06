@@ -343,6 +343,9 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	wl_protocol("stable/viewporter/viewporter.xml", "wayland-viewporter");
 	wl_protocol("stable/xdg-shell/xdg-shell.xml", "xdg-shell");
 	wl_protocol("unstable/xdg-decoration/xdg-decoration-unstable-v1.xml", "xdg-decoration");
+	wl_protocol("unstable/tablet/tablet-unstable-v2.xml", "wayland-tablet");
+	wl_protocol("unstable/pointer-constraints/pointer-constraints-unstable-v1.xml", "wayland-pointer-constraint");
+	wl_protocol("unstable/relative-pointer/relative-pointer-unstable-v1", "wayland-relative-pointer");
 
 	if (platform === Platform.Linux) {
 		project.addLib('udev');
