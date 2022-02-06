@@ -135,6 +135,7 @@ struct kinc_wl_procs {
 
 extern struct kinc_wl_procs wl;
 
+#include "wayland-tablet.h"
 #include "wayland-viewporter.h"
 #include "xdg-decoration.h"
 #include "xdg-shell.h"
@@ -308,11 +309,45 @@ struct kinc_wl_data_source {
 	size_t data_size;
 };
 
+struct kinc_wl_tablet_tool {
+	struct zwp_tablet_tool_v2 *id;
+	enum zwp_tablet_tool_v2_type type;
+	uint32_t capabilities;
+	uint64_t hardware_serial;
+	uint64_t hardware_id_wacom;
+
+	int current_window;
+	int x;
+	int y;
+	float current_pressure;
+	float current_distance;
+
+	void (*press)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+	void (*move)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+	void (*release)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/);
+
+	struct kinc_wl_tablet_seat *seat;
+	struct kinc_wl_tablet_tool *next;
+};
+
+struct kinc_wl_tablet {
+	struct zwp_tablet_v2 *id;
+	struct kinc_wl_tablet_seat *seat;
+	struct kinc_wl_tablet *next;
+};
+
+struct kinc_wl_tablet_seat {
+	struct zwp_tablet_seat_v2 *seat;
+	struct kinc_wl_tablet *tablets;
+	struct kinc_wl_tablet_tool *tablet_tools;
+};
+
 struct kinc_wl_seat {
 	struct wl_seat *seat;
 	struct kinc_wl_keyboard keyboard;
 	struct kinc_wl_mouse mouse;
 	struct wl_touch *touch;
+	struct kinc_wl_tablet_seat tablet_seat;
 	struct wl_data_device *data_device;
 	struct kinc_wl_data_offer *current_selection_offer;
 	struct kinc_wl_data_offer *current_dnd_offer;
@@ -334,6 +369,7 @@ struct wayland_context {
 	struct xdg_wm_base *xdg_wm_base;
 	struct zxdg_decoration_manager_v1 *decoration_manager;
 	struct wl_data_device_manager *data_device_manager;
+	struct zwp_tablet_manager_v2 *tablet_manager;
 	struct wl_cursor_theme *cursor_theme;
 	int cursor_size;
 	int num_windows;

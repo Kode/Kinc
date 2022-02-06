@@ -13,6 +13,7 @@
 #include "wayland/window.c.h"
 #include "wayland/xdg-decoration.c.h"
 #include "wayland/xdg-shell.c.h"
+#include "wayland/wayland-tablet.c.h"
 #endif
 
 #ifndef KINC_NO_X11

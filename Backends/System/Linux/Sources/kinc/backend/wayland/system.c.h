@@ -1,8 +1,13 @@
+#include "kinc/backend/wayland/wayland-tablet.h"
 #include "kinc/backend/wayland/xdg-shell.h"
+#include "kinc/input/pen.h"
+#include "kinc/memory.h"
 #include "wayland.h"
 
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
+#include <wayland-client-protocol.h>
+#include <wayland-util.h>
 
 #ifdef KINC_EGL
 #include <EGL/egl.h>
@@ -162,7 +167,7 @@ static void wl_output_handle_mode(void *data, struct wl_output *wl_output, uint3
 	}
 }
 static void wl_output_handle_done(void *data, struct wl_output *wl_output) {
-	struct kinc_wl_display *display = data;
+	// struct kinc_wl_display *display = data;
 }
 static void wl_output_handle_scale(void *data, struct wl_output *wl_output, int32_t factor) {
 	struct kinc_wl_display *display = data;
@@ -410,7 +415,6 @@ static const struct wl_pointer_listener wl_pointer_listener = {
 #include <unistd.h>
 
 void wl_keyboard_handle_keymap(void *data, struct wl_keyboard *wl_keyboard, uint32_t format, int32_t fd, uint32_t size) {
-	struct kinc_wl_seat *seat = data;
 	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
 	switch (format) {
 	case WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1: {
@@ -433,13 +437,13 @@ void wl_keyboard_handle_keymap(void *data, struct wl_keyboard *wl_keyboard, uint
 }
 
 void wl_keyboard_handle_enter(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface, struct wl_array *keys) {
-	struct kinc_wl_seat *seat = data;
-	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
+	// struct kinc_wl_seat *seat = data;
+	// struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
 }
 
 void wl_keyboard_handle_leave(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, struct wl_surface *surface) {
-	struct kinc_wl_seat *seat = data;
-	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
+	// struct kinc_wl_seat *seat = data;
+	// struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
 }
 
 int xkb_to_kinc(xkb_keysym_t symbol);
@@ -488,8 +492,8 @@ void wl_keyboard_handle_modifiers(void *data, struct wl_keyboard *wl_keyboard, u
 	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
 	if (keyboard->keymap && keyboard->state) {
 		wl_xkb.xkb_state_update_mask(keyboard->state, mods_depressed, mods_latched, mods_locked, 0, 0, group);
-		int mask = wl_xkb.xkb_state_serialize_mods(keyboard->state,
-		                                           XKB_STATE_MODS_DEPRESSED | XKB_STATE_LAYOUT_DEPRESSED | XKB_STATE_MODS_LATCHED | XKB_STATE_LAYOUT_LATCHED);
+		wl_xkb.xkb_state_serialize_mods(keyboard->state,
+		                                XKB_STATE_MODS_DEPRESSED | XKB_STATE_LAYOUT_DEPRESSED | XKB_STATE_MODS_LATCHED | XKB_STATE_LAYOUT_LATCHED);
 		keyboard->ctrlDown = wl_xkb.xkb_state_mod_name_is_active(keyboard->state, XKB_MOD_NAME_CTRL, XKB_STATE_MODS_EFFECTIVE) > 0;
 	}
 }
@@ -532,127 +536,21 @@ static const struct wl_seat_listener wl_seat_listener = {
     wl_seat_name,
 };
 
-/**
- * a target accepts an offered mime type
- *
- * Sent when a target accepts pointer_focus or motion events. If
- * a target does not accept any of the offered types, type is NULL.
- *
- * Used for feedback during drag-and-drop.
- * @param mime_type mime type accepted by the target
- */
-void wl_data_source_handle_target(void *data, struct wl_data_source *wl_data_source, const char *mime_type) {
-	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
-}
-/**
- * send the data
- *
- * Request for data from the client. Send the data as the
- * specified mime type over the passed file descriptor, then close
- * it.
- * @param mime_type mime type for the data
- * @param fd file descriptor for the data
- */
+void wl_data_source_handle_target(void *data, struct wl_data_source *wl_data_source, const char *mime_type) {}
+
 void wl_data_source_handle_send(void *data, struct wl_data_source *wl_data_source, const char *mime_type, int32_t fd) {
 	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
 	write(fd, data_source->data, data_source->data_size);
 	close(fd);
 }
-/**
- * selection was cancelled
- *
- * This data source is no longer valid. There are several reasons
- * why this could happen:
- *
- * - The data source has been replaced by another data source. -
- * The drag-and-drop operation was performed, but the drop
- * destination did not accept any of the mime types offered through
- * wl_data_source.target. - The drag-and-drop operation was
- * performed, but the drop destination did not select any of the
- * actions present in the mask offered through
- * wl_data_source.action. - The drag-and-drop operation was
- * performed but didn't happen over a surface. - The compositor
- * cancelled the drag-and-drop operation (e.g. compositor dependent
- * timeouts to avoid stale drag-and-drop transfers).
- *
- * The client should clean up and destroy this data source.
- *
- * For objects of version 2 or older, wl_data_source.cancelled will
- * only be emitted if the data source was replaced by another data
- * source.
- */
-void wl_data_source_handle_cancelled(void *data, struct wl_data_source *wl_data_source) {
-	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
-}
-/**
- * the drag-and-drop operation physically finished
- *
- * The user performed the drop action. This event does not
- * indicate acceptance, wl_data_source.cancelled may still be
- * emitted afterwards if the drop destination does not accept any
- * mime type.
- *
- * However, this event might however not be received if the
- * compositor cancelled the drag-and-drop operation before this
- * event could happen.
- *
- * Note that the data_source may still be used in the future and
- * should not be destroyed here.
- * @since 3
- */
-void wl_data_source_handle_dnd_drop_performed(void *data, struct wl_data_source *wl_data_source) {
-	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
-}
-/**
- * the drag-and-drop operation concluded
- *
- * The drop destination finished interoperating with this data
- * source, so the client is now free to destroy this data source
- * and free all associated data.
- *
- * If the action used to perform the operation was "move", the
- * source can now delete the transferred data.
- * @since 3
- */
-void wl_data_source_handle_dnd_finished(void *data, struct wl_data_source *wl_data_source) {
-	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
-}
-/**
- * notify the selected action
- *
- * This event indicates the action selected by the compositor
- * after matching the source/destination side actions. Only one
- * action (or none) will be offered here.
- *
- * This event can be emitted multiple times during the
- * drag-and-drop operation, mainly in response to destination side
- * changes through wl_data_offer.set_actions, and as the data
- * device enters/leaves surfaces.
- *
- * It is only possible to receive this event after
- * wl_data_source.dnd_drop_performed if the drag-and-drop operation
- * ended in an "ask" action, in which case the final
- * wl_data_source.action event will happen immediately before
- * wl_data_source.dnd_finished.
- *
- * Compositors may also change the selected action on the fly,
- * mainly in response to keyboard modifier changes during the
- * drag-and-drop operation.
- *
- * The most recent action received is always the valid one. The
- * chosen action may change alongside negotiation (e.g. an "ask"
- * action can turn into a "move" operation), so the effects of the
- * final action must always be applied in
- * wl_data_offer.dnd_finished.
- *
- * Clients can trigger cursor surface changes from this point, so
- * they reflect the current action.
- * @param dnd_action action selected by the compositor
- * @since 3
- */
-void wl_data_source_handle_action(void *data, struct wl_data_source *wl_data_source, uint32_t dnd_action) {
-	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
-}
+
+void wl_data_source_handle_cancelled(void *data, struct wl_data_source *wl_data_source) {}
+
+void wl_data_source_handle_dnd_drop_performed(void *data, struct wl_data_source *wl_data_source) {}
+
+void wl_data_source_handle_dnd_finished(void *data, struct wl_data_source *wl_data_source) {}
+
+void wl_data_source_handle_action(void *data, struct wl_data_source *wl_data_source, uint32_t dnd_action) {}
 
 static const struct wl_data_source_listener wl_data_source_listener = {
     wl_data_source_handle_target,       wl_data_source_handle_send,   wl_data_source_handle_cancelled, wl_data_source_handle_dnd_drop_performed,
@@ -745,36 +643,11 @@ void kinc_wl_destroy_data_offer(struct kinc_wl_data_offer *offer) {
 	kinc_free(offer);
 }
 
-/**
- * introduce a new wl_data_offer
- *
- * The data_offer event introduces a new wl_data_offer object,
- * which will subsequently be used in either the data_device.enter
- * event (for drag-and-drop) or the data_device.selection event
- * (for selections). Immediately following the
- * data_device_data_offer event, the new data_offer object will
- * send out data_offer.offer events to describe the mime types it
- * offers.
- * @param id the new data_offer object
- */
 void wl_data_device_handle_data_offer(void *data, struct wl_data_device *wl_data_device, struct wl_data_offer *id) {
-	struct kinc_wl_seat *seat = data;
+	// struct kinc_wl_seat *seat = data;
 	kinc_wl_init_data_offer(id);
 }
 
-/**
- * initiate drag-and-drop session
- *
- * This event is sent when an active drag-and-drop pointer enters
- * a surface owned by the client. The position of the pointer at
- * enter time is provided by the x and y arguments, in
- * surface-local coordinates.
- * @param serial serial number of the enter event
- * @param surface client surface entered
- * @param x surface-local x coordinate
- * @param y surface-local y coordinate
- * @param id source data_offer object
- */
 void wl_data_device_handle_enter(void *data, struct wl_data_device *wl_data_device, uint32_t serial, struct wl_surface *surface, wl_fixed_t x, wl_fixed_t y,
                                  struct wl_data_offer *id) {
 	struct kinc_wl_seat *seat = data;
@@ -782,51 +655,15 @@ void wl_data_device_handle_enter(void *data, struct wl_data_device *wl_data_devi
 	wl_data_offer_set_actions(id, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY | WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
 }
 
-/**
- * end drag-and-drop session
- *
- * This event is sent when the drag-and-drop pointer leaves the
- * surface and the session ends. The client must destroy the
- * wl_data_offer introduced at enter time at this point.
- */
 void wl_data_device_handle_leave(void *data, struct wl_data_device *wl_data_device) {
 	struct kinc_wl_seat *seat = data;
 	kinc_wl_destroy_data_offer(seat->current_dnd_offer);
 	seat->current_dnd_offer = NULL;
 }
 
-/**
- * drag-and-drop session motion
- *
- * This event is sent when the drag-and-drop pointer moves within
- * the currently focused surface. The new position of the pointer
- * is provided by the x and y arguments, in surface-local
- * coordinates.
- * @param time timestamp with millisecond granularity
- * @param x surface-local x coordinate
- * @param y surface-local y coordinate
- */
 void wl_data_device_handle_motion(void *data, struct wl_data_device *wl_data_device, uint32_t time, wl_fixed_t x, wl_fixed_t y) {
-	struct kinc_wl_seat *seat = data;
+	// struct kinc_wl_seat *seat = data;
 }
-
-/**
- * end drag-and-drop session successfully
- *
- * The event is sent when a drag-and-drop operation is ended
- * because the implicit grab is removed.
- *
- * The drag-and-drop destination is expected to honor the last
- * action received through wl_data_offer.action, if the resulting
- * action is "copy" or "move", the destination can still perform
- * wl_data_offer.receive requests, and is expected to end all
- * transfers with a wl_data_offer.finish request.
- *
- * If the resulting action is "ask", the action will not be
- * considered final. The drag-and-drop destination is expected to
- * perform one last wl_data_offer.set_actions request, or
- * wl_data_offer.destroy in order to cancel the operation.
- */
 
 static void dnd_callback(void *data, size_t data_size, void *user_data) {
 	char *str = data;
@@ -862,6 +699,186 @@ void wl_data_device_handle_selection(void *data, struct wl_data_device *wl_data_
 static const struct wl_data_device_listener wl_data_device_listener = {
     wl_data_device_handle_data_offer, wl_data_device_handle_enter, wl_data_device_handle_leave,
     wl_data_device_handle_motion,     wl_data_device_handle_drop,  wl_data_device_handle_selection,
+};
+
+void kinc_wl_tablet_tool_destroy(struct kinc_wl_tablet_tool *tool) {
+	zwp_tablet_tool_v2_destroy(tool->id);
+	kinc_free(tool);
+}
+
+void zwp_tablet_tool_v2_handle_type(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t tool_type) {
+	struct kinc_wl_tablet_tool *tool = data;
+	tool->type = tool_type;
+}
+
+#ifdef KORE_LITTLE_ENDIAN
+#define HI_LO_TO_64(hi, lo) (uint64_t) lo | ((uint64_t)hi << 32)
+#else
+#define HI_LO_TO_64(hi, lo) (uint64_t) hi | ((uint64_t)lo << 32)
+#endif
+
+void zwp_tablet_tool_v2_handle_hardware_serial(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t hardware_serial_hi,
+                                               uint32_t hardware_serial_lo) {
+	struct kinc_wl_tablet_tool *tool = data;
+	tool->hardware_serial = HI_LO_TO_64(hardware_serial_hi, hardware_serial_lo);
+}
+
+void zwp_tablet_tool_v2_handle_hardware_id_wacom(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t hardware_id_hi, uint32_t hardware_id_lo) {
+	struct kinc_wl_tablet_tool *tool = data;
+	tool->hardware_id_wacom = HI_LO_TO_64(hardware_id_hi, hardware_id_lo);
+}
+
+void zwp_tablet_tool_v2_handle_capability(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t capability) {
+	struct kinc_wl_tablet_tool *tool = data;
+	tool->capabilities |= capability;
+}
+
+void zwp_tablet_tool_v2_handle_done(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2) {
+	struct kinc_wl_tablet_tool *tool = data;
+	switch (tool->type) {
+	case ZWP_TABLET_TOOL_V2_TYPE_PEN:
+		tool->press = kinc_internal_pen_trigger_press;
+		tool->move = kinc_internal_pen_trigger_move;
+		tool->release = kinc_internal_pen_trigger_release;
+		break;
+	case ZWP_TABLET_TOOL_V2_TYPE_ERASER:
+		tool->press = kinc_internal_eraser_trigger_press;
+		tool->move = kinc_internal_eraser_trigger_move;
+		tool->release = kinc_internal_eraser_trigger_release;
+		break;
+	default:
+		break;
+	}
+}
+
+void zwp_tablet_tool_v2_handle_removed(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2) {
+	struct kinc_wl_tablet_tool *tool = data;
+	struct kinc_wl_tablet_seat *seat = tool->seat;
+	struct kinc_wl_tablet_tool **tools = &seat->tablet_tools;
+	while (*tools != NULL) {
+		struct kinc_wl_tablet_tool *current = *tools;
+		struct kinc_wl_tablet_tool **next = &current->next;
+
+		if (current == tool) {
+			*tools = *next;
+
+			break;
+		}
+		else {
+			tools = next;
+		}
+	}
+
+	kinc_wl_tablet_tool_destroy(tool);
+}
+
+void zwp_tablet_tool_v2_handle_proximity_in(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t serial, struct zwp_tablet_v2 *tablet,
+                                            struct wl_surface *surface) {
+	struct kinc_wl_tablet_tool *tool = data;
+	enum kinc_wl_decoration_focus focus;
+	struct kinc_wl_window *window = kinc_wayland_window_from_surface(surface, &focus);
+	tool->current_window = window->window_id;
+}
+
+void zwp_tablet_tool_v2_handle_proximity_out(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2) {
+	struct kinc_wl_tablet_tool *tool = data;
+	tool->current_window = -1;
+}
+
+void zwp_tablet_tool_v2_handle_down(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t serial) {
+	struct kinc_wl_tablet_tool *tool = data;
+	if (tool->current_window >= 0 && tool->press) {
+		tool->press(tool->current_window, tool->x, tool->y, tool->current_pressure);
+	}
+}
+
+void zwp_tablet_tool_v2_handle_up(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2) {
+	struct kinc_wl_tablet_tool *tool = data;
+	if (tool->current_window >= 0 && tool->release) {
+		tool->release(tool->current_window, tool->x, tool->y, tool->current_pressure);
+	}
+}
+
+void zwp_tablet_tool_v2_handle_motion(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, wl_fixed_t x, wl_fixed_t y) {
+	struct kinc_wl_tablet_tool *tool = data;
+	tool->x = wl_fixed_to_int(x);
+	tool->y = wl_fixed_to_int(y);
+	if (tool->current_window >= 0 && tool->move) {
+		tool->move(tool->current_window, tool->x, tool->y, tool->current_pressure);
+	}
+}
+
+void zwp_tablet_tool_v2_handle_pressure(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t pressure) {
+	struct kinc_wl_tablet_tool *tool = data;
+	// TODO: verify what the other backends give
+	tool->current_pressure = (float)pressure / 65535.f;
+}
+
+void zwp_tablet_tool_v2_handle_distance(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t distance) {
+	struct kinc_wl_tablet_tool *tool = data;
+	tool->current_distance = (float)distance / 65535.f;
+}
+
+void zwp_tablet_tool_v2_handle_tilt(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, wl_fixed_t tilt_x, wl_fixed_t tilt_y) {}
+
+void zwp_tablet_tool_v2_handle_rotation(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, wl_fixed_t degrees) {}
+
+void zwp_tablet_tool_v2_handle_slider(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, int32_t position) {}
+
+void zwp_tablet_tool_v2_handle_wheel(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, wl_fixed_t degrees, int32_t clicks) {}
+
+void zwp_tablet_tool_v2_handle_button(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t serial, uint32_t button, uint32_t state) {}
+
+void zwp_tablet_tool_v2_handle_frame(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t time) {}
+
+static const struct zwp_tablet_tool_v2_listener zwp_tablet_tool_v2_listener = {
+    zwp_tablet_tool_v2_handle_type,
+    zwp_tablet_tool_v2_handle_hardware_serial,
+    zwp_tablet_tool_v2_handle_hardware_id_wacom,
+    zwp_tablet_tool_v2_handle_capability,
+    zwp_tablet_tool_v2_handle_done,
+    zwp_tablet_tool_v2_handle_removed,
+    zwp_tablet_tool_v2_handle_proximity_in,
+    zwp_tablet_tool_v2_handle_proximity_out,
+    zwp_tablet_tool_v2_handle_down,
+    zwp_tablet_tool_v2_handle_up,
+    zwp_tablet_tool_v2_handle_motion,
+    zwp_tablet_tool_v2_handle_pressure,
+    zwp_tablet_tool_v2_handle_distance,
+    zwp_tablet_tool_v2_handle_tilt,
+    zwp_tablet_tool_v2_handle_rotation,
+    zwp_tablet_tool_v2_handle_slider,
+    zwp_tablet_tool_v2_handle_wheel,
+    zwp_tablet_tool_v2_handle_button,
+    zwp_tablet_tool_v2_handle_frame,
+};
+
+void zwp_tablet_seat_v2_handle_tablet_added(void *data, struct zwp_tablet_seat_v2 *zwp_tablet_seat_v2, struct zwp_tablet_v2 *id) {
+	struct kinc_wl_tablet *tablet = kinc_allocate(sizeof *tablet);
+	tablet->id = id;
+	tablet->seat = zwp_tablet_seat_v2_get_user_data(zwp_tablet_seat_v2);
+	tablet->next = tablet->seat->tablets;
+	tablet->seat->tablets = tablet;
+
+	// zwp_tablet_v2_add_listener(tablet->id, NULL, tablet);
+}
+
+void zwp_tablet_seat_v2_handle_tool_added(void *data, struct zwp_tablet_seat_v2 *zwp_tablet_seat_v2, struct zwp_tablet_tool_v2 *id) {
+	struct kinc_wl_tablet_tool *tool = kinc_allocate(sizeof *tool);
+	tool->id = id;
+	tool->seat = zwp_tablet_seat_v2_get_user_data(zwp_tablet_seat_v2);
+	tool->next = tool->seat->tablet_tools;
+	tool->seat->tablet_tools = tool;
+
+	zwp_tablet_tool_v2_add_listener(tool->id, &zwp_tablet_tool_v2_listener, tool);
+}
+
+void zwp_tablet_seat_v2_handle_pad_added(void *data, struct zwp_tablet_seat_v2 *zwp_tablet_seat_v2, struct zwp_tablet_pad_v2 *id) {}
+
+static const struct zwp_tablet_seat_v2_listener zwp_tablet_seat_v2_listener = {
+    zwp_tablet_seat_v2_handle_tablet_added,
+    zwp_tablet_seat_v2_handle_tool_added,
+    zwp_tablet_seat_v2_handle_pad_added,
 };
 
 static void wl_registry_handle_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
@@ -922,6 +939,13 @@ static void wl_registry_handle_global(void *data, struct wl_registry *registry, 
 		if (wl_ctx.seat.seat != NULL) {
 			wl_ctx.seat.data_device = wl_data_device_manager_get_data_device(wl_ctx.data_device_manager, wl_ctx.seat.seat);
 			wl_data_device_add_listener(wl_ctx.seat.data_device, &wl_data_device_listener, &wl_ctx.seat);
+		}
+	}
+	else if (kinc_string_compare(interface, zwp_tablet_manager_v2_interface.name) == 0) {
+		wl_ctx.tablet_manager = wl_registry_bind(registry, name, &zwp_tablet_manager_v2_interface, 1);
+		if (wl_ctx.seat.seat != NULL) {
+			wl_ctx.seat.tablet_seat.seat = zwp_tablet_manager_v2_get_tablet_seat(wl_ctx.tablet_manager, wl_ctx.seat.seat);
+			zwp_tablet_seat_v2_add_listener(wl_ctx.seat.tablet_seat.seat, &zwp_tablet_seat_v2_listener, &wl_ctx.seat.tablet_seat);
 		}
 	}
 }
