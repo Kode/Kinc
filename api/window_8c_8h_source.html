@@ -75,31 +75,33 @@ $(function() {
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keywordtype">void</span> kinc_window_options_set_defaults(<a class="code" href="structkinc__window__options.html">kinc_window_options_t</a> *win) {</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    win-&gt;title = NULL;</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    win-&gt;display_index = <a class="code" href="display_8h.html#a00f1fc3895508128d33ff4619327ccf2">kinc_primary_display</a>();</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    win-&gt;mode = KINC_WINDOW_MODE_WINDOW;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    win-&gt;x = -1;</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    win-&gt;y = -1;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    win-&gt;width = 800;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    win-&gt;height = 600;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    win-&gt;visible = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    win-&gt;window_features = KINC_WINDOW_FEATURE_RESIZEABLE | KINC_WINDOW_FEATURE_MINIMIZABLE | KINC_WINDOW_FEATURE_MAXIMIZABLE;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;}</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keywordtype">void</span> kinc_framebuffer_options_set_defaults(<a class="code" href="structkinc__framebuffer__options.html">kinc_framebuffer_options_t</a> *frame) {</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    frame-&gt;frequency = 60;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    frame-&gt;vertical_sync = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    frame-&gt;color_bits = 32;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    frame-&gt;depth_bits = 16;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    frame-&gt;stencil_bits = 8;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    frame-&gt;samples_per_pixel = 1;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;}</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    <a class="code" href="display_8h.html#a5e152044362942c03daa51235092c6d2">kinc_display_init</a>();</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    win-&gt;title = NULL;</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    win-&gt;display_index = <a class="code" href="display_8h.html#a00f1fc3895508128d33ff4619327ccf2">kinc_primary_display</a>();</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    win-&gt;mode = KINC_WINDOW_MODE_WINDOW;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    win-&gt;x = -1;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    win-&gt;y = -1;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    win-&gt;width = 800;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    win-&gt;height = 600;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    win-&gt;visible = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    win-&gt;window_features = KINC_WINDOW_FEATURE_RESIZEABLE | KINC_WINDOW_FEATURE_MINIMIZABLE | KINC_WINDOW_FEATURE_MAXIMIZABLE;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;}</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keywordtype">void</span> kinc_framebuffer_options_set_defaults(<a class="code" href="structkinc__framebuffer__options.html">kinc_framebuffer_options_t</a> *frame) {</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    frame-&gt;frequency = 60;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    frame-&gt;vertical_sync = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    frame-&gt;color_bits = 32;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    frame-&gt;depth_bits = 16;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    frame-&gt;stencil_bits = 8;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    frame-&gt;samples_per_pixel = 1;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="astructkinc__window__options_html"><div class="ttname"><a href="structkinc__window__options.html">kinc_window_options</a></div><div class="ttdef"><b>Definition:</b> window.h:36</div></div>
 <div class="ttc" id="adisplay_8h_html_a00f1fc3895508128d33ff4619327ccf2"><div class="ttname"><a href="display_8h.html#a00f1fc3895508128d33ff4619327ccf2">kinc_primary_display</a></div><div class="ttdeci">KINC_FUNC int kinc_primary_display(void)</div><div class="ttdoc">Retrieves the index of the primary display.</div></div>
 <div class="ttc" id="astructkinc__framebuffer__options_html"><div class="ttname"><a href="structkinc__framebuffer__options.html">kinc_framebuffer_options</a></div><div class="ttdef"><b>Definition:</b> window.h:15</div></div>
 <div class="ttc" id="adisplay_8h_html"><div class="ttname"><a href="display_8h.html">display.h</a></div><div class="ttdoc">Provides information for the active displays.</div></div>
 <div class="ttc" id="awindow_8h_html"><div class="ttname"><a href="window_8h.html">window.h</a></div><div class="ttdoc">Provides functionality for creating and handling windows.</div></div>
+<div class="ttc" id="adisplay_8h_html_a5e152044362942c03daa51235092c6d2"><div class="ttname"><a href="display_8h.html#a5e152044362942c03daa51235092c6d2">kinc_display_init</a></div><div class="ttdeci">KINC_FUNC void kinc_display_init(void)</div><div class="ttdoc">Allows to retrieve display values prior to the kinc_init call.</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

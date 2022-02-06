@@ -190,6 +190,9 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_frameb
 <tr class="memitem:a68f92844e49c3a2f1a44e351ee7873b6"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="window_8h.html#a68f92844e49c3a2f1a44e351ee7873b6">kinc_window_set_ppi_changed_callback</a> (int window, void(*callback)(int ppi, void *data), void *data)</td></tr>
 <tr class="memdesc:a68f92844e49c3a2f1a44e351ee7873b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a ppi callback that's called whenever the window moves to a display that uses a different ppi-setting.  <a href="window_8h.html#a68f92844e49c3a2f1a44e351ee7873b6">More...</a><br /></td></tr>
 <tr class="separator:a68f92844e49c3a2f1a44e351ee7873b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6a4857ec50ffe931809d96c00060676"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="window_8h.html#aa6a4857ec50ffe931809d96c00060676">kinc_window_set_close_callback</a> (int window, bool(*callback)(void *data), void *data)</td></tr>
+<tr class="memdesc:aa6a4857ec50ffe931809d96c00060676"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a close callback that's called when the window is about to close. Returning false from the callback tries stops the window from closing.  <a href="window_8h.html#aa6a4857ec50ffe931809d96c00060676">More...</a><br /></td></tr>
+<tr class="separator:aa6a4857ec50ffe931809d96c00060676"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a886363fd9543a5b121222132c1575772"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="window_8h.html#a886363fd9543a5b121222132c1575772">kinc_window_vsynced</a> (int window)</td></tr>
 <tr class="memdesc:a886363fd9543a5b121222132c1575772"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns Whether the window is vsynced or not.  <a href="window_8h.html#a886363fd9543a5b121222132c1575772">More...</a><br /></td></tr>
 <tr class="separator:a886363fd9543a5b121222132c1575772"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -511,6 +514,42 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_frameb
 </div><div class="memdoc">
 
 <p>Resizes a window. </p>
+
+</div>
+</div>
+<a id="aa6a4857ec50ffe931809d96c00060676"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6a4857ec50ffe931809d96c00060676">&#9670;&nbsp;</a></span>kinc_window_set_close_callback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_window_set_close_callback </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>window</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool(*)(void *data)&#160;</td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets a close callback that's called when the window is about to close. Returning false from the callback tries stops the window from closing. </p>
 
 </div>
 </div>
