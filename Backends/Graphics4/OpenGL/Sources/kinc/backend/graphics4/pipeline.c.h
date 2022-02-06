@@ -139,7 +139,7 @@ static void compileShader(unsigned *id, const char *source, size_t length, kinc_
 	int result;
 	glGetShaderiv(*id, GL_COMPILE_STATUS, &result);
 	if (result != GL_TRUE) {
-		int length;
+		int length = 0;
 		glGetShaderiv(*id, GL_INFO_LOG_LENGTH, &length);
 		char *errormessage = (char *)malloc(length);
 		glGetShaderInfoLog(*id, length, NULL, errormessage);
@@ -200,7 +200,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 	int result;
 	glGetProgramiv(state->impl.programId, GL_LINK_STATUS, &result);
 	if (result != GL_TRUE) {
-		int length;
+		int length = 0;
 		glGetProgramiv(state->impl.programId, GL_INFO_LOG_LENGTH, &length);
 		char *errormessage = (char *)malloc(length);
 		glGetProgramInfoLog(state->impl.programId, length, NULL, errormessage);

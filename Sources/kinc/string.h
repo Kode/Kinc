@@ -22,6 +22,8 @@ KINC_FUNC int kinc_string_compare(const char *str1, const char *str2);
 
 KINC_FUNC int kinc_string_compare_limited(const char *str1, const char *str2, size_t num);
 
+KINC_FUNC char *kinc_string_duplicate(const char *str);
+
 KINC_FUNC size_t kinc_wstring_length(const wchar_t *str);
 
 KINC_FUNC wchar_t *kinc_wstring_copy(wchar_t *destination, const wchar_t *source);

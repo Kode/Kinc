@@ -1,4 +1,23 @@
 /build
 /Tests/Empty/build
 .DS_Store
+# clangd cache
+.cache
+# ignore all build directories
+**/build/**
+# Shaders
+*.vert
+*.frag
+*.comp
+**/Deployment/Empty
+**/Deployment/MultiWindow
+compile_commands.json
+.vscode/**
 
+Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.*
+Backends/System/Linux/Sources/kinc/backend/wayland/wayland-viewporter.*
+Backends/System/Linux/Sources/kinc/backend/wayland/xdg-decoration.*
+Backends/System/Linux/Sources/kinc/backend/wayland/xdg-shell.*
+Backends/System/Linux/Sources/kinc/backend/wayland/wayland-tablet.*
+Backends/System/Linux/Sources/kinc/backend/wayland/wayland-pointer-constraint.*
+Backends/System/Linux/Sources/kinc/backend/wayland/wayland-relative-pointer.*

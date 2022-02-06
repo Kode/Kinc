@@ -43,7 +43,8 @@ namespace {
 #include <kinc/log.h>
 
 #ifdef KORE_VULKAN
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_android.h>
 extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
 	assert(app->window != NULL);
 	VkAndroidSurfaceCreateInfoKHR createInfo = {};
@@ -52,6 +53,11 @@ extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_i
 	createInfo.flags = 0;
 	createInfo.window = app->window;
 	return vkCreateAndroidSurfaceKHR(instance, &createInfo, NULL, surface);
+}
+
+extern "C" void kinc_vulkan_get_instance_extensions(const char **names, int *index, int max) {
+	assert(*index + 1 < max);
+	names[(*index)++] = VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
 }
 #endif
 

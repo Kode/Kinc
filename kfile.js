@@ -320,11 +320,33 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	addBackend('System/POSIX');
 	project.addLib('asound');
 	project.addLib('dl');
-	project.addLib('X11');
-	project.addLib('Xcursor');
-	project.addLib('Xinerama');
-	project.addLib('Xrandr');
-	project.addLib('Xi');
+
+	const child_process = require("child_process");
+
+	function wl_protocol(protocol, file) {
+		const backend_path = path.resolve(__dirname, "Backends/System/Linux/Sources/kinc/backend/wayland");
+		const protocol_path = path.resolve("/usr/share/wayland-protocols", protocol);
+		child_process.spawn("wayland-scanner", ["private-code", protocol_path, path.resolve(backend_path, file + ".c.h")]).on("exit", code => {
+			if (code != 0) {
+				console.warn("Failed to generate wayland protocol files for", protocol);
+			}
+		});
+		child_process.spawn("wayland-scanner", ["client-header", protocol_path, path.resolve(backend_path, file + ".h")]).on("exit", code => {
+			if (code != 0) {
+				console.warn("Failed to generate wayland protocol header for", protocol);
+			}
+		});
+	}
+
+	child_process.spawn("wayland-scanner", ["private-code", "/usr/share/wayland/wayland.xml", path.resolve(__dirname, "Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.c.h")]);
+	child_process.spawn("wayland-scanner", ["client-header", "/usr/share/wayland/wayland.xml", path.resolve(__dirname, "Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.h")]);
+	wl_protocol("stable/viewporter/viewporter.xml", "wayland-viewporter");
+	wl_protocol("stable/xdg-shell/xdg-shell.xml", "xdg-shell");
+	wl_protocol("unstable/xdg-decoration/xdg-decoration-unstable-v1.xml", "xdg-decoration");
+	wl_protocol("unstable/tablet/tablet-unstable-v2.xml", "wayland-tablet");
+	wl_protocol("unstable/pointer-constraints/pointer-constraints-unstable-v1.xml", "wayland-pointer-constraint");
+	wl_protocol("unstable/relative-pointer/relative-pointer-unstable-v1.xml", "wayland-relative-pointer");
+
 	if (platform === Platform.Linux) {
 		project.addLib('udev');
 	}
@@ -332,6 +354,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		addBackend('System/FreeBSD');
 		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.cpp');
 		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.h');
+		project.addDefine("KINC_NO_WAYLAND");
 	}
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
@@ -339,7 +362,6 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		addBackend('Graphics5/Vulkan');
 		project.addLib('vulkan');
 		project.addDefine('KORE_VULKAN');
-		project.addDefine('VK_USE_PLATFORM_XLIB_KHR');
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
@@ -347,6 +369,8 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/glew.c');
 		project.addLib('GL');
 		project.addDefine('KORE_OPENGL');
+		project.addLib("EGL");
+		project.addDefine("KINC_EGL");
 	}
 	else {
 		throw new Error('Graphics API ' + graphics + ' is not available for Linux.');

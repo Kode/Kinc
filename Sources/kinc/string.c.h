@@ -1,4 +1,5 @@
 #include "string.h"
+#include "memory.h"
 
 #include <string.h>
 #include <wchar.h>
@@ -120,6 +121,12 @@ int kinc_string_compare_limited(const char *str1, const char *str2, size_t num) 
 #else
 	return strncmp(str1, str2, num);
 #endif
+}
+
+char *kinc_string_duplicate(const char *str) {
+	char * ret = kinc_allocate(kinc_string_length(str) + 1);
+	kinc_string_copy(ret, str);
+	return ret;
 }
 
 size_t kinc_wstring_length(const wchar_t *str) {
