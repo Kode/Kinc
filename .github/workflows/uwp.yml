@@ -18,4 +18,4 @@ jobs:
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
-      run: .\Tools\kmake\kmake.exe windowsapp -v vs2019 --kinc . --from Tests/Empty --noshaders --compile
+      run: .\Tools\kmake\kmake.exe windowsapp -v vs2022 --kinc . --from Tests/Empty --noshaders --compile
