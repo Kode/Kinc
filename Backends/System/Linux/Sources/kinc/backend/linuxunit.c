@@ -8,14 +8,14 @@
 #ifndef KINC_NO_WAYLAND
 #include "wayland/display.c.h"
 #include "wayland/system.c.h"
-#include "wayland/wayland-pointer-constraint.c.h"
-#include "wayland/wayland-protocol.c.h"
-#include "wayland/wayland-relative-pointer.c.h"
-#include "wayland/wayland-tablet.c.h"
-#include "wayland/wayland-viewporter.c.h"
+#include <wayland-generated/wayland-pointer-constraint.c.h>
+#include <wayland-generated/wayland-protocol.c.h>
+#include <wayland-generated/wayland-relative-pointer.c.h>
+#include <wayland-generated/wayland-tablet.c.h>
+#include <wayland-generated/wayland-viewporter.c.h>
 #include "wayland/window.c.h"
-#include "wayland/xdg-decoration.c.h"
-#include "wayland/xdg-shell.c.h"
+#include <wayland-generated/xdg-decoration.c.h>
+#include <wayland-generated/xdg-shell.c.h>
 #endif
 
 #ifndef KINC_NO_X11

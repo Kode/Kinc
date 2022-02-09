@@ -1,7 +1,7 @@
-#include "kinc/backend/wayland/wayland-pointer-constraint.h"
-#include "kinc/backend/wayland/wayland-relative-pointer.h"
-#include "kinc/backend/wayland/wayland-tablet.h"
-#include "kinc/backend/wayland/xdg-shell.h"
+#include <wayland-generated/wayland-pointer-constraint.h>
+#include <wayland-generated/wayland-relative-pointer.h>
+#include <wayland-generated/wayland-tablet.h>
+#include <wayland-generated/xdg-shell.h>
 #include "kinc/input/pen.h"
 #include "kinc/log.h"
 #include "kinc/memory.h"

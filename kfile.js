@@ -321,34 +321,47 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	project.addLib('asound');
 	project.addLib('dl');
 
-	const child_process = require("child_process");
-
-	function wl_protocol(protocol, file) {
-		const backend_path = path.resolve(__dirname, "Backends/System/Linux/Sources/kinc/backend/wayland");
-		const protocol_path = path.resolve("/usr/share/wayland-protocols", protocol);
-		child_process.spawn("wayland-scanner", ["private-code", protocol_path, path.resolve(backend_path, file + ".c.h")]).on("exit", code => {
-			if (code != 0) {
-				console.warn("Failed to generate wayland protocol files for", protocol);
-			}
-		});
-		child_process.spawn("wayland-scanner", ["client-header", protocol_path, path.resolve(backend_path, file + ".h")]).on("exit", code => {
-			if (code != 0) {
-				console.warn("Failed to generate wayland protocol header for", protocol);
-			}
-		});
-	}
-
-	child_process.spawn("wayland-scanner", ["private-code", "/usr/share/wayland/wayland.xml", path.resolve(__dirname, "Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.c.h")]);
-	child_process.spawn("wayland-scanner", ["client-header", "/usr/share/wayland/wayland.xml", path.resolve(__dirname, "Backends/System/Linux/Sources/kinc/backend/wayland/wayland-protocol.h")]);
-	wl_protocol("stable/viewporter/viewporter.xml", "wayland-viewporter");
-	wl_protocol("stable/xdg-shell/xdg-shell.xml", "xdg-shell");
-	wl_protocol("unstable/xdg-decoration/xdg-decoration-unstable-v1.xml", "xdg-decoration");
-	wl_protocol("unstable/tablet/tablet-unstable-v2.xml", "wayland-tablet");
-	wl_protocol("unstable/pointer-constraints/pointer-constraints-unstable-v1.xml", "wayland-pointer-constraint");
-	wl_protocol("unstable/relative-pointer/relative-pointer-unstable-v1.xml", "wayland-relative-pointer");
-
 	if (platform === Platform.Linux) {
 		project.addLib('udev');
+
+		if (!fs.existsSync(targetDirectory)) {
+			fs.mkdirSync(targetDirectory);
+		}
+		if (!fs.existsSync(path.join(targetDirectory, 'wayland'))) {
+			fs.mkdirSync(path.join(targetDirectory, 'wayland'));
+		}
+		const waylandDir = path.join(targetDirectory, 'wayland', 'wayland-generated');
+		if (!fs.existsSync(waylandDir)) {
+			fs.mkdirSync(waylandDir);
+		}
+
+		const child_process = require("child_process");
+
+		function wl_protocol(protocol, file) {
+			const backend_path = path.resolve(waylandDir);
+			const protocol_path = path.resolve("/usr/share/wayland-protocols", protocol);
+			child_process.spawn("wayland-scanner", ["private-code", protocol_path, path.resolve(backend_path, file + ".c.h")]).on("exit", code => {
+				if (code != 0) {
+					console.warn("Failed to generate wayland protocol files for", protocol);
+				}
+			});
+			child_process.spawn("wayland-scanner", ["client-header", protocol_path, path.resolve(backend_path, file + ".h")]).on("exit", code => {
+				if (code != 0) {
+					console.warn("Failed to generate wayland protocol header for", protocol);
+				}
+			});
+		}
+
+		child_process.spawn("wayland-scanner", ["private-code", "/usr/share/wayland/wayland.xml", path.resolve(waylandDir, "wayland-protocol.c.h")]);
+		child_process.spawn("wayland-scanner", ["client-header", "/usr/share/wayland/wayland.xml", path.resolve(waylandDir, "wayland-protocol.h")]);
+		wl_protocol("stable/viewporter/viewporter.xml", "wayland-viewporter");
+		wl_protocol("stable/xdg-shell/xdg-shell.xml", "xdg-shell");
+		wl_protocol("unstable/xdg-decoration/xdg-decoration-unstable-v1.xml", "xdg-decoration");
+		wl_protocol("unstable/tablet/tablet-unstable-v2.xml", "wayland-tablet");
+		wl_protocol("unstable/pointer-constraints/pointer-constraints-unstable-v1.xml", "wayland-pointer-constraint");
+		wl_protocol("unstable/relative-pointer/relative-pointer-unstable-v1.xml", "wayland-relative-pointer");
+
+		project.addIncludeDir(path.join(targetDirectory, 'wayland'));
 	}
 	else if (platform === Platform.FreeBSD) {
 		addBackend('System/FreeBSD');
@@ -356,6 +369,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.h');
 		project.addDefine("KINC_NO_WAYLAND");
 	}
+	
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
