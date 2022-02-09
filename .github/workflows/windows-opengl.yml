@@ -18,4 +18,4 @@ jobs:
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
-      run: .\Tools\kmake\kmake.exe -v vs2019 -g opengl --kinc . --from Tests/Empty --noshaders --compile
+      run: .\Tools\kmake\kmake.exe -v vs2022 -g opengl --kinc . --from Tests/Empty --noshaders --compile
