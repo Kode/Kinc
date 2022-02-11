@@ -9,6 +9,7 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <wayland-client-core.h>
 
 #ifdef KINC_EGL
 #include <EGL/egl.h>
@@ -17,6 +18,8 @@
 
 static void xdg_surface_handle_configure(void *data, struct xdg_surface *surface, uint32_t serial) {
 	xdg_surface_ack_configure(surface, serial);
+	struct kinc_wl_window *window = data;
+	window->configured = true;
 }
 
 void kinc_internal_resize(int, int, int);
@@ -359,6 +362,11 @@ int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_opti
 	wl_surface_commit(window->surface);
 	kinc_wayland_window_change_mode(window_index, win->mode);
 	wl_ctx.num_windows++;
+
+	while(!window->configured) {
+		wl_display_roundtrip(wl_ctx.display);
+	}
+
 	return window_index;
 }
 
