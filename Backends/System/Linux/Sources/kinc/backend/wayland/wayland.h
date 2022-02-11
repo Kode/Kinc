@@ -226,6 +226,8 @@ struct kinc_wl_window {
 	struct xdg_toplevel *toplevel;
 	struct zxdg_toplevel_decoration_v1 *xdg_decoration;
 
+	bool configured;
+
 	struct {
 		bool server_side;
 		enum kinc_wl_decoration_focus focus;
