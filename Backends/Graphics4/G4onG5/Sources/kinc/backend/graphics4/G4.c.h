@@ -1,4 +1,5 @@
 #include "G4.h"
+#include "kinc/graphics4/graphics.h"
 
 #include <kinc/backend/graphics4/indexbuffer.h>
 #include <kinc/backend/graphics4/pipeline.h>
@@ -42,12 +43,20 @@ static kinc_g5_constant_buffer_t fragmentConstantBuffer;
 #define constantBufferMultiply 100
 static int constantBufferIndex = 0;
 
-void kinc_g4_destroy(int window) {
-	kinc_g5_destroy(window);
+void kinc_g4_internal_init() {
+	kinc_g5_internal_init();
 }
 
-void kinc_g4_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	kinc_g5_init(window, depthBufferBits, stencilBufferBits, vsync);
+void kinc_g4_internal_destroy() {
+	kinc_g5_internal_destroy();
+}
+
+void kinc_g4_internal_destroy_window(int window) {
+	kinc_g5_internal_destroy_window(window);
+}
+
+void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+	kinc_g5_internal_init_window(window, depthBufferBits, stencilBufferBits, vsync);
 	kinc_g5_command_list_init(&commandList);
 	for (int i = 0; i < bufferCount; ++i) {
 		kinc_g5_render_target_init(&framebuffers[i], kinc_width(), kinc_height(), depthBufferBits, false, KINC_G5_RENDER_TARGET_FORMAT_32BIT, -1,

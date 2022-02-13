@@ -447,9 +447,13 @@ void waitForGpu() {
     fenceValues[currentFrame]++;
 }*/
 
-void kinc_g5_destroy(int window) {}
+void kinc_g5_destroy_window(int window) {}
 
-void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool verticalSync) {
+void kinc_g5_destroy() {}
+
+void kinc_g5_init() {}
+
+void kinc_g5_init_window(int window, int depthBufferBits, int stencilBufferBits, bool verticalSync) {
 #ifdef KORE_WINDOWS
 	HWND hwnd = kinc_windows_window_handle(window);
 #else

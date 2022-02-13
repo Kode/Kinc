@@ -102,7 +102,9 @@ static ID3D11RenderTargetView *currentRenderTargetViews[D3D11_SIMULTANEOUS_RENDE
 static int renderTargetCount = 1;
 static ID3D11DepthStencilView *currentDepthStencilView;
 
-void kinc_g4_destroy(int window) {}
+void kinc_g4_internal_destroy_window(int window) {}
+
+void kinc_g4_internal_destroy() {}
 
 static void createBackbuffer(int antialiasingSamples) {
 	kinc_microsoft_affirm(swapChain->lpVtbl->GetBuffer(swapChain, 0, &IID_ID3D11Texture2D, (void **)&backBuffer));
@@ -170,7 +172,9 @@ static bool isWindows10OrGreater() {
 }
 #endif
 
-void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
+void kinc_g4_internal_init() {}
+
+void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
 #ifdef KORE_VR
 	vsync = false;
 #else

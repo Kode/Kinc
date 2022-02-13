@@ -1,3 +1,4 @@
+#include "kinc/graphics4/graphics.h"
 #include <kinc/display.h>
 #include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
@@ -159,6 +160,8 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 
 	kinc_set_application_name(name);
 
+	kinc_g4_internal_init();
+
 	kinc_window_options_t defaultWin;
 	if (win == NULL) {
 		kinc_window_options_set_defaults(&defaultWin);
@@ -179,6 +182,7 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 }
 
 void kinc_internal_shutdown() {
+	kinc_g4_internal_destroy();
 #ifndef __FreeBSD__
 	kinc_linux_closeHIDGamepads();
 #endif // TODO: add #else with proper call to FreeBSD backend impl

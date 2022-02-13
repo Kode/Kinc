@@ -25,7 +25,7 @@
 #endif
 
 void kinc_vulkan_get_instance_extensions(const char **extensions, int *index, int max);
-VkBool32 kinc_wayland_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
+VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
 VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface);
 
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                                                                               \
@@ -202,9 +202,9 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 	return false;
 }
 
-void kinc_g5_destroy(int window) {}
+void kinc_g5_internal_destroy_window(int window) {}
 
-void kinc_internal_g5_resize(int window, int width, int height) {}
+void kinc_g5_internal_destroy() {}
 
 void kinc_internal_resize(int window, int width, int height) {
 	if (width == 0 || height == 0) return;
@@ -597,7 +597,9 @@ void create_render_target_render_pass(void) {
 	assert(!err);
 }
 
-void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g5_internal_init() {}
+
+void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	depthBits = depthBufferBits;
 	stencilBits = stencilBufferBits;
 	vsynced = vsync;

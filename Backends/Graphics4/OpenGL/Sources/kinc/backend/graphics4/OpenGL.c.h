@@ -147,7 +147,11 @@ struct {
 	} while (0);
 #endif
 
-void kinc_g4_destroy(int window) {
+void kinc_g4_internal_destroy() {
+
+}
+
+void kinc_g4_internal_destroy_window(int window) {
 #ifdef KINC_EGL
 	eglMakeCurrent(egl_display, kinc_egl_windows[window].surface, kinc_egl_windows[window].surface, egl_context);
 	EGL_CHECK_ERROR()
@@ -189,7 +193,11 @@ EGLDisplay kinc_egl_get_display(void);
 EGLNativeWindowType kinc_egl_get_native_window(int);
 #endif
 
-void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g4_internal_init() {
+	
+}
+
+void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	for (int i = 0; i < 256; ++i) {
 		texModesU[i] = GL_CLAMP_TO_EDGE;
 		texModesV[i] = GL_CLAMP_TO_EDGE;

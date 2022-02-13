@@ -6,12 +6,20 @@
 
 // extern kinc_g5_pipeline_t *currentProgram;
 
-void kinc_g5_destroy(int windowId) {}
+void kinc_g5_internal_destroy_window(int window) {
+	kinc_g4_internal_destroy_window(window);
+}
 
-void kinc_internal_g5_resize(int window, int width, int height) {}
+void kinc_g5_internal_destroy() {
+	kinc_g4_internal_destroy();
+}
 
-void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	kinc_g4_init(window, depthBufferBits, stencilBufferBits, vsync);
+void kinc_g5_internal_init() {
+	kinc_g4_internal_init();
+}
+
+void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+	kinc_g4_internal_init_window(window, depthBufferBits, stencilBufferBits, vsync);
 }
 
 // void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
