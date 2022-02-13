@@ -1,10 +1,10 @@
+#include "vulkan.h"
+
 #include "shader.h"
 #include "vertexbuffer.h"
 
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/vertexbuffer.h>
-
-extern VkDevice device;
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
@@ -14,7 +14,7 @@ extern kinc_g5_index_buffer_t *currentIndexBuffer;
 void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount, kinc_g5_vertex_structure_t *structure, bool gpuMemory,
                                 int instanceDataStepRate) {
 	buffer->impl.myCount = vertexCount;
-	instanceDataStepRate = instanceDataStepRate;
+	buffer->impl.instanceDataStepRate = instanceDataStepRate;
 	buffer->impl.myStride = 0;
 	for (int i = 0; i < structure->size; ++i) {
 		kinc_g5_vertex_element_t element = structure->elements[i];
@@ -32,7 +32,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 #endif
 	buf_info.flags = 0;
 
-	memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+	kinc_memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
 	buffer->impl.mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	buffer->impl.mem_alloc.pNext = NULL;
 	buffer->impl.mem_alloc.allocationSize = 0;
@@ -42,12 +42,12 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 	VkResult err;
 	bool pass;
 
-	memset(&buffer->impl.vertices, 0, sizeof(buffer->impl.vertices));
+	kinc_memset(&buffer->impl.vertices, 0, sizeof(buffer->impl.vertices));
 
-	err = vkCreateBuffer(device, &buf_info, NULL, &buffer->impl.vertices.buf);
+	err = vkCreateBuffer(vk_ctx.device, &buf_info, NULL, &buffer->impl.vertices.buf);
 	assert(!err);
 
-	vkGetBufferMemoryRequirements(device, buffer->impl.vertices.buf, &mem_reqs);
+	vkGetBufferMemoryRequirements(vk_ctx.device, buffer->impl.vertices.buf, &mem_reqs);
 	assert(!err);
 
 	buffer->impl.mem_alloc.allocationSize = mem_reqs.size;
@@ -61,10 +61,10 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 	buffer->impl.mem_alloc.pNext = &memory_allocate_flags_info;
 #endif
 
-	err = vkAllocateMemory(device, &buffer->impl.mem_alloc, NULL, &buffer->impl.vertices.mem);
+	err = vkAllocateMemory(vk_ctx.device, &buffer->impl.mem_alloc, NULL, &buffer->impl.vertices.mem);
 	assert(!err);
 
-	err = vkBindBufferMemory(device, buffer->impl.vertices.buf, buffer->impl.vertices.mem, 0);
+	err = vkBindBufferMemory(vk_ctx.device, buffer->impl.vertices.buf, buffer->impl.vertices.mem, 0);
 	assert(!err);
 }
 
@@ -83,17 +83,17 @@ float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {
 }
 
 float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buffer, int start, int count) {
-	VkResult err = vkMapMemory(device, buffer->impl.vertices.mem, start * buffer->impl.myStride, count * buffer->impl.myStride, 0, (void **)&buffer->impl.data);
+	VkResult err = vkMapMemory(vk_ctx.device, buffer->impl.vertices.mem, start * buffer->impl.myStride, count * buffer->impl.myStride, 0, (void **)&buffer->impl.data);
 	assert(!err);
 	return buffer->impl.data;
 }
 
 void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buffer) {
-	vkUnmapMemory(device, buffer->impl.vertices.mem);
+	vkUnmapMemory(vk_ctx.device, buffer->impl.vertices.mem);
 }
 
 void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buffer, int count) {
-	vkUnmapMemory(device, buffer->impl.vertices.mem);
+	vkUnmapMemory(vk_ctx.device, buffer->impl.vertices.mem);
 }
 
 static int setVertexAttributes(int offset) {

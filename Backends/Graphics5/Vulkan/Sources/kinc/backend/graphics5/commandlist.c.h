@@ -1,25 +1,19 @@
+#include "vulkan.h"
+
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/vertexbuffer.h>
 #include <kinc/log.h>
-#include <kinc/system.h>
+#include <kinc/window.h>
 
-extern VkDevice device;
-extern VkCommandPool cmd_pool;
-extern PFN_vkQueuePresentKHR fpQueuePresentKHR;
-extern VkSwapchainKHR swapchain;
-extern VkQueue queue;
-extern VkFramebuffer *framebuffers;
-extern uint32_t current_buffer;
-extern int depthBits;
 extern VkSemaphore presentCompleteSemaphore;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 VkDescriptorSet getDescriptorSet(void);
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
-VkCommandBuffer setup_cmd;
+
 VkRenderPassBeginInfo currentRenderPassBeginInfo;
 VkPipeline currentVulkanPipeline;
 kinc_g5_render_target_t *currentRenderTargets[8] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
@@ -68,15 +62,15 @@ static int formatSize(VkFormat format) {
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout) {
 	VkResult err;
 
-	if (setup_cmd == VK_NULL_HANDLE) {
+	if (vk_ctx.setup_cmd == VK_NULL_HANDLE) {
 		VkCommandBufferAllocateInfo cmd = {0};
 		cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		cmd.pNext = NULL;
-		cmd.commandPool = cmd_pool;
+		cmd.commandPool = vk_ctx.cmd_pool;
 		cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		cmd.commandBufferCount = 1;
 
-		err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
+		err = vkAllocateCommandBuffers(vk_ctx.device, &cmd, &vk_ctx.setup_cmd);
 		assert(!err);
 
 		VkCommandBufferBeginInfo cmd_buf_info = {0};
@@ -85,7 +79,7 @@ void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayou
 		cmd_buf_info.flags = 0;
 		cmd_buf_info.pInheritanceInfo = NULL;
 
-		err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
+		err = vkBeginCommandBuffer(vk_ctx.setup_cmd, &cmd_buf_info);
 		assert(!err);
 	}
 
@@ -138,19 +132,19 @@ void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayou
 		dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	}
 
-	vkCmdPipelineBarrier(setup_cmd, srcStageMask, dstStageMask, 0, 0, NULL, 0, NULL, 1, &image_memory_barrier);
+	vkCmdPipelineBarrier(vk_ctx.setup_cmd, srcStageMask, dstStageMask, 0, 0, NULL, 0, NULL, 1, &image_memory_barrier);
 }
 
 void setup_init_cmd() {
-	if (setup_cmd == VK_NULL_HANDLE) {
+	if (vk_ctx.setup_cmd == VK_NULL_HANDLE) {
 		VkCommandBufferAllocateInfo cmd = {0};
 		cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		cmd.pNext = NULL;
-		cmd.commandPool = cmd_pool;
+		cmd.commandPool = vk_ctx.cmd_pool;
 		cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		cmd.commandBufferCount = 1;
 
-		VkResult err = vkAllocateCommandBuffers(device, &cmd, &setup_cmd);
+		VkResult err = vkAllocateCommandBuffers(vk_ctx.device, &cmd, &vk_ctx.setup_cmd);
 		assert(!err);
 
 		VkCommandBufferBeginInfo cmd_buf_info = {0};
@@ -159,20 +153,20 @@ void setup_init_cmd() {
 		cmd_buf_info.flags = 0;
 		cmd_buf_info.pInheritanceInfo = NULL;
 
-		err = vkBeginCommandBuffer(setup_cmd, &cmd_buf_info);
+		err = vkBeginCommandBuffer(vk_ctx.setup_cmd, &cmd_buf_info);
 		assert(!err);
 	}
 }
 
-static void flush_init_cmd() {
+void flush_init_cmd() {
 	VkResult err;
 
-	if (setup_cmd == VK_NULL_HANDLE) return;
+	if (vk_ctx.setup_cmd == VK_NULL_HANDLE) return;
 
-	err = vkEndCommandBuffer(setup_cmd);
+	err = vkEndCommandBuffer(vk_ctx.setup_cmd);
 	assert(!err);
 
-	const VkCommandBuffer cmd_bufs[] = {setup_cmd};
+	const VkCommandBuffer cmd_bufs[] = {vk_ctx.setup_cmd};
 	VkFence nullFence = {VK_NULL_HANDLE};
 	VkSubmitInfo submit_info = {0};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -185,31 +179,31 @@ static void flush_init_cmd() {
 	submit_info.signalSemaphoreCount = 0;
 	submit_info.pSignalSemaphores = NULL;
 
-	err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
+	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, nullFence);
 	assert(!err);
 
-	err = vkQueueWaitIdle(queue);
+	err = vkQueueWaitIdle(vk_ctx.queue);
 	assert(!err);
 
-	vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
-	setup_cmd = VK_NULL_HANDLE;
+	vkFreeCommandBuffers(vk_ctx.device, vk_ctx.cmd_pool, 1, cmd_bufs);
+	vk_ctx.setup_cmd = VK_NULL_HANDLE;
 }
 
 void set_viewport_and_scissor(kinc_g5_command_list_t *list) {
 	VkViewport viewport;
-	memset(&viewport, 0, sizeof(viewport));
+	kinc_memset(&viewport, 0, sizeof(viewport));
 	VkRect2D scissor;
-	memset(&scissor, 0, sizeof(scissor));
+	kinc_memset(&scissor, 0, sizeof(scissor));
 
 	if (currentRenderTargets[0] == NULL || currentRenderTargets[0]->contextId < 0) {
 		viewport.x = 0;
-		viewport.y = (float)kinc_height();
-		viewport.width = (float)kinc_width();
-		viewport.height = -(float)kinc_height();
+		viewport.y = (float)kinc_window_height(vk_ctx.current_window);
+		viewport.width = (float)kinc_window_width(vk_ctx.current_window);
+		viewport.height = -(float)kinc_window_height(vk_ctx.current_window);
 		viewport.minDepth = (float)0.0f;
 		viewport.maxDepth = (float)1.0f;
-		scissor.extent.width = kinc_width();
-		scissor.extent.height = kinc_height();
+		scissor.extent.width = kinc_window_width(vk_ctx.current_window);
+		scissor.extent.height = kinc_window_height(vk_ctx.current_window);
 		scissor.offset.x = 0;
 		scissor.offset.y = 0;
 	}
@@ -234,11 +228,11 @@ void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 	VkCommandBufferAllocateInfo cmd = {0};
 	cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	cmd.pNext = NULL;
-	cmd.commandPool = cmd_pool;
+	cmd.commandPool = vk_ctx.cmd_pool;
 	cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	cmd.commandBufferCount = 1;
 
-	VkResult err = vkAllocateCommandBuffers(device, &cmd, &list->impl._buffer);
+	VkResult err = vkAllocateCommandBuffers(vk_ctx.device, &cmd, &list->impl._buffer);
 	assert(!err);
 
 	list->impl._indexCount = 0;
@@ -254,12 +248,12 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	cmd_buf_info.pInheritanceInfo = NULL;
 
 	VkClearValue clear_values[2];
-	memset(clear_values, 0, sizeof(VkClearValue) * 2);
+	kinc_memset(clear_values, 0, sizeof(VkClearValue) * 2);
 	clear_values[0].color.float32[0] = 0.0f;
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
 	clear_values[0].color.float32[3] = 1.0f;
-	if (depthBits > 0) {
+	if (vk_ctx.windows[vk_ctx.current_window].depth_bits > 0) {
 		clear_values[1].depthStencil.depth = 1.0;
 		clear_values[1].depthStencil.stencil = 0;
 	}
@@ -267,13 +261,13 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	VkRenderPassBeginInfo rp_begin = {0};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rp_begin.pNext = NULL;
-	rp_begin.renderPass = framebuffer_render_pass;
-	rp_begin.framebuffer = framebuffers[current_buffer];
+	rp_begin.renderPass = vk_ctx.windows[vk_ctx.current_window].framebuffer_render_pass;
+	rp_begin.framebuffer = vk_ctx.windows[vk_ctx.current_window].framebuffers[vk_ctx.windows[vk_ctx.current_window].current_image];
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
-	rp_begin.renderArea.extent.width = kinc_width();
-	rp_begin.renderArea.extent.height = kinc_height();
-	rp_begin.clearValueCount = depthBits > 0 ? 2 : 1;
+	rp_begin.renderArea.extent.width = vk_ctx.windows[vk_ctx.current_window].width;
+	rp_begin.renderArea.extent.height = vk_ctx.windows[vk_ctx.current_window].height;
+	rp_begin.clearValueCount = vk_ctx.windows[vk_ctx.current_window].depth_bits > 0 ? 2 : 1;
 	rp_begin.pClearValues = clear_values;
 
 	VkResult err = vkBeginCommandBuffer(list->impl._buffer, &cmd_buf_info);
@@ -294,7 +288,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	prePresentBarrier.subresourceRange.baseArrayLayer = 0;
 	prePresentBarrier.subresourceRange.layerCount = 1;
 
-	prePresentBarrier.image = kinc_vulkan_internal_buffers[current_buffer].image;
+	prePresentBarrier.image = vk_ctx.windows[vk_ctx.current_window].images[vk_ctx.windows[vk_ctx.current_window].current_image];
 	VkImageMemoryBarrier *pmemory_barrier = &prePresentBarrier;
 	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, NULL, 0, NULL, 1,
 	                     pmemory_barrier);
@@ -307,8 +301,8 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	onBackBuffer = true;
 
 	for (int i = 0; i < mrtIndex; ++i) {
-		vkDestroyFramebuffer(device, mrtFramebuffer[i], NULL);
-		vkDestroyRenderPass(device, mrtRenderPass[i], NULL);
+		vkDestroyFramebuffer(vk_ctx.device, mrtFramebuffer[i], NULL);
+		vkDestroyRenderPass(vk_ctx.device, mrtRenderPass[i], NULL);
 	}
 	mrtIndex = 0;
 }
@@ -331,7 +325,7 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 	prePresentBarrier.subresourceRange.baseArrayLayer = 0;
 	prePresentBarrier.subresourceRange.layerCount = 1;
 
-	prePresentBarrier.image = kinc_vulkan_internal_buffers[current_buffer].image;
+	prePresentBarrier.image = vk_ctx.windows[vk_ctx.current_window].images[vk_ctx.windows[vk_ctx.current_window].current_image];
 	VkImageMemoryBarrier *pmemory_barrier = &prePresentBarrier;
 	vkCmdPipelineBarrier(list->impl._buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
 
@@ -351,26 +345,26 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 	submit_info.signalSemaphoreCount = 0;
 	submit_info.pSignalSemaphores = NULL;
 
-	err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
+	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, nullFence);
 	assert(!err);
 
 	VkPresentInfoKHR present = {0};
 	present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	present.pNext = NULL;
 	present.swapchainCount = 1;
-	present.pSwapchains = &swapchain;
-	present.pImageIndices = &current_buffer;
+	present.pSwapchains = &vk_ctx.windows[vk_ctx.current_window].swapchain;
+	present.pImageIndices = &vk_ctx.windows[vk_ctx.current_window].current_image;
 
-	err = fpQueuePresentKHR(queue, &present);
-	err = vkQueueWaitIdle(queue);
+	err = vk.fpQueuePresentKHR(vk_ctx.queue, &present);
+	err = vkQueueWaitIdle(vk_ctx.queue);
 	assert(err == VK_SUCCESS);
 
-	vkDestroySemaphore(device, presentCompleteSemaphore, NULL);
+	vkDestroySemaphore(vk_ctx.device, presentCompleteSemaphore, NULL);
 
 	vkResetCommandBuffer(list->impl._buffer, 0);
 
 #ifndef KORE_WINDOWS
-	vkDeviceWaitIdle(device);
+	vkDeviceWaitIdle(vk_ctx.device);
 #endif
 }
 
@@ -432,7 +426,7 @@ void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_comman
 
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
 	VkViewport viewport;
-	memset(&viewport, 0, sizeof(viewport));
+	kinc_memset(&viewport, 0, sizeof(viewport));
 	viewport.x = (float)x;
 	viewport.y = y + (float)height;
 	viewport.width = (float)width;
@@ -444,7 +438,7 @@ void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, i
 
 void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
 	VkRect2D scissor;
-	memset(&scissor, 0, sizeof(scissor));
+	kinc_memset(&scissor, 0, sizeof(scissor));
 	scissor.extent.width = width;
 	scissor.extent.height = height;
 	scissor.offset.x = x;
@@ -454,10 +448,10 @@ void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, in
 
 void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {
 	VkRect2D scissor;
-	memset(&scissor, 0, sizeof(scissor));
+	kinc_memset(&scissor, 0, sizeof(scissor));
 	if (currentRenderTargets[0] == NULL || currentRenderTargets[0]->contextId < 0) {
-		scissor.extent.width = kinc_width();
-		scissor.extent.height = kinc_height();
+		scissor.extent.width = kinc_window_width(vk_ctx.current_window);
+		scissor.extent.height = kinc_window_height(vk_ctx.current_window);
 	}
 	else {
 		scissor.extent.width = currentRenderTargets[0]->width;
@@ -506,18 +500,18 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 
 void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct kinc_g5_render_target *target) {
 	VkViewport viewport;
-	memset(&viewport, 0, sizeof(viewport));
+	kinc_memset(&viewport, 0, sizeof(viewport));
 	viewport.x = 0;
-	viewport.y = (float)kinc_height();
-	viewport.width = (float)kinc_width();
-	viewport.height = -(float)kinc_height();
+	viewport.y = (float)kinc_window_height(vk_ctx.current_window);
+	viewport.width = (float)kinc_window_width(vk_ctx.current_window);
+	viewport.height = -(float)kinc_window_height(vk_ctx.current_window);
 	viewport.minDepth = (float)0.0f;
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
 	VkRect2D scissor;
-	memset(&scissor, 0, sizeof(scissor));
-	scissor.extent.width = kinc_width();
-	scissor.extent.height = kinc_height();
+	kinc_memset(&scissor, 0, sizeof(scissor));
+	scissor.extent.width = kinc_window_width(vk_ctx.current_window);
+	scissor.extent.height = kinc_window_height(vk_ctx.current_window);
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
 	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
@@ -534,7 +528,7 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	onBackBuffer = true;
 
 	VkClearValue clear_values[2];
-	memset(clear_values, 0, sizeof(VkClearValue) * 2);
+	kinc_memset(clear_values, 0, sizeof(VkClearValue) * 2);
 	clear_values[0].color.float32[0] = 0.0f;
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
@@ -544,12 +538,12 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	VkRenderPassBeginInfo rp_begin = {0};
 	rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rp_begin.pNext = NULL;
-	rp_begin.renderPass = framebuffer_render_pass;
-	rp_begin.framebuffer = framebuffers[current_buffer];
+	rp_begin.renderPass = vk_ctx.windows[vk_ctx.current_window].framebuffer_render_pass;
+	rp_begin.framebuffer = vk_ctx.windows[vk_ctx.current_window].framebuffers[vk_ctx.windows[vk_ctx.current_window].current_image];
 	rp_begin.renderArea.offset.x = 0;
 	rp_begin.renderArea.offset.y = 0;
-	rp_begin.renderArea.extent.width = kinc_width();
-	rp_begin.renderArea.extent.height = kinc_height();
+	rp_begin.renderArea.extent.width = kinc_window_width(vk_ctx.current_window);
+	rp_begin.renderArea.extent.height = kinc_window_height(vk_ctx.current_window);
 	rp_begin.clearValueCount = 2;
 	rp_begin.pClearValues = clear_values;
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
@@ -580,7 +574,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	onBackBuffer = false;
 
 	VkClearValue clear_values[9];
-	memset(clear_values, 0, sizeof(VkClearValue));
+	kinc_memset(clear_values, 0, sizeof(VkClearValue));
 	for (int i = 0; i < count; ++i) {
 		clear_values[i].color.float32[0] = 0.0f;
 		clear_values[i].color.float32[1] = 0.0f;
@@ -601,7 +595,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	rp_begin.pClearValues = clear_values;
 
 	if (count == 1) {
-		rp_begin.renderPass = rendertarget_render_pass;
+		rp_begin.renderPass = vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass;
 		rp_begin.framebuffer = targets[0]->impl.framebuffer;
 	}
 	else {
@@ -653,7 +647,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		subpass.pPreserveAttachments = NULL;
 
 		VkSubpassDependency dependencies[2];
-		memset(&dependencies, 0, sizeof(dependencies));
+		kinc_memset(&dependencies, 0, sizeof(dependencies));
 
 		// TODO: For multi-targets-rendering
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -682,7 +676,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		rp_info.dependencyCount = 2;
 		rp_info.pDependencies = dependencies;
 
-		VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &mrtRenderPass[mrtIndex]);
+		VkResult err = vkCreateRenderPass(vk_ctx.device, &rp_info, NULL, &mrtRenderPass[mrtIndex]);
 		assert(!err);
 
 		VkImageView attachmentsViews[9];
@@ -703,7 +697,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		fbufCreateInfo.height = targets[0]->height;
 		fbufCreateInfo.layers = 1;
 
-		err = vkCreateFramebuffer(device, &fbufCreateInfo, NULL, &mrtFramebuffer[mrtIndex]);
+		err = vkCreateFramebuffer(vk_ctx.device, &fbufCreateInfo, NULL, &mrtFramebuffer[mrtIndex]);
 		assert(!err);
 
 		rp_begin.renderPass = mrtRenderPass[mrtIndex];
@@ -715,7 +709,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	currentRenderPassBeginInfo = rp_begin;
 
 	VkViewport viewport;
-	memset(&viewport, 0, sizeof(viewport));
+	kinc_memset(&viewport, 0, sizeof(viewport));
 	viewport.x = 0;
 	viewport.y = (float)targets[0]->height;
 	viewport.width = (float)targets[0]->width;
@@ -725,7 +719,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
 
 	VkRect2D scissor;
-	memset(&scissor, 0, sizeof(scissor));
+	kinc_memset(&scissor, 0, sizeof(scissor));
 	scissor.extent.width = targets[0]->width;
 	scissor.extent.height = targets[0]->height;
 	scissor.offset.x = 0;
@@ -756,21 +750,21 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 		buf_info.size = render_target->width * render_target->height * formatByteSize;
 		buf_info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 		buf_info.flags = 0;
-		vkCreateBuffer(device, &buf_info, NULL, &render_target->impl.readbackBuffer);
+		vkCreateBuffer(vk_ctx.device, &buf_info, NULL, &render_target->impl.readbackBuffer);
 
 		VkMemoryRequirements mem_reqs = {0};
-		vkGetBufferMemoryRequirements(device, render_target->impl.readbackBuffer, &mem_reqs);
+		vkGetBufferMemoryRequirements(vk_ctx.device, render_target->impl.readbackBuffer, &mem_reqs);
 
 		VkMemoryAllocateInfo mem_alloc;
-		memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+		kinc_memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
 		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		mem_alloc.pNext = NULL;
 		mem_alloc.allocationSize = 0;
 		mem_alloc.memoryTypeIndex = 0;
 		mem_alloc.allocationSize = mem_reqs.size;
 		memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
-		vkAllocateMemory(device, &mem_alloc, NULL, &render_target->impl.readbackMemory);
-		vkBindBufferMemory(device, render_target->impl.readbackBuffer, render_target->impl.readbackMemory, 0);
+		vkAllocateMemory(vk_ctx.device, &mem_alloc, NULL, &render_target->impl.readbackMemory);
+		vkBindBufferMemory(vk_ctx.device, render_target->impl.readbackBuffer, render_target->impl.readbackMemory, 0);
 
 		render_target->impl.readbackBufferCreated = true;
 	}
@@ -803,9 +797,9 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 
 	// Read buffer
 	void *p;
-	vkMapMemory(device, render_target->impl.readbackMemory, 0, VK_WHOLE_SIZE, 0, (void **)&p);
-	memcpy(data, p, render_target->texWidth * render_target->texHeight * formatByteSize);
-	vkUnmapMemory(device, render_target->impl.readbackMemory);
+	vkMapMemory(vk_ctx.device, render_target->impl.readbackMemory, 0, VK_WHOLE_SIZE, 0, (void **)&p);
+	kinc_memcpy(data, p, render_target->texWidth * render_target->texHeight * formatByteSize);
+	vkUnmapMemory(vk_ctx.device, render_target->impl.readbackMemory);
 }
 
 static struct kinc_g5_render_target *texture_to_render_target_barriers[256];
@@ -902,10 +896,10 @@ void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
 	submit_info.signalSemaphoreCount = 0;
 	submit_info.pSignalSemaphores = NULL;
 
-	err = vkQueueSubmit(queue, 1, &submit_info, nullFence);
+	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, nullFence);
 	assert(!err);
 
-	err = vkQueueWaitIdle(queue);
+	err = vkQueueWaitIdle(vk_ctx.queue);
 	assert(!err);
 
 	vkResetCommandBuffer(list->impl._buffer, 0);

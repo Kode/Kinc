@@ -1,5 +1,6 @@
 #include "x11.h"
 
+#include <X11/Xlib.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 
@@ -672,8 +673,8 @@ bool kinc_x11_handle_messages() {
 			if (event.xconfigure.width != k_window->width || event.xconfigure.height != k_window->height) {
 				k_window->width = event.xconfigure.width;
 				k_window->height = event.xconfigure.height;
-				kinc_internal_call_resize_callback(k_window->window_index, event.xconfigure.width, event.xconfigure.height);
 				kinc_internal_resize(k_window->window_index, event.xconfigure.width, event.xconfigure.height);
+				kinc_internal_call_resize_callback(k_window->window_index, event.xconfigure.width, event.xconfigure.height);
 			}
 			break;
 		}
@@ -829,9 +830,8 @@ void kinc_x11_vulkan_get_instance_extensions(const char **names, int *index, int
 }
 
 VkBool32 kinc_x11_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
-	return vkGetPhysicalDeviceXlibPresentationSupportKHR(physicalDevice, queueFamilyIndex, x11_ctx.display, 0);
+	return vkGetPhysicalDeviceXlibPresentationSupportKHR(physicalDevice, queueFamilyIndex, x11_ctx.display, DefaultVisual(x11_ctx.display, DefaultScreen(x11_ctx.display))->visualid);
 }
-#undef VK_USE_PLATFORM_x11_KHR
 #endif
 
 void kinc_x11_mouse_lock(int window) {

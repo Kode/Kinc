@@ -1,3 +1,4 @@
+#include "kinc/window.h"
 #include "wayland.h"
 
 #include <kinc/image.h>
@@ -55,6 +56,7 @@ static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *tople
 		}
 	}
 	kinc_internal_resize(window->window_id, window->width, window->height);
+	kinc_internal_call_resize_callback(window->window_id, window->width, window->height);
 	if (window->decorations.server_side) {
 		xdg_surface_set_window_geometry(window->xdg_surface, 0, 0, window->width, window->height);
 	}

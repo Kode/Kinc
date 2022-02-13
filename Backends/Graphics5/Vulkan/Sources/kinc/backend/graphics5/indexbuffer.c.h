@@ -1,6 +1,6 @@
-#include <kinc/graphics5/indexbuffer.h>
+#include "vulkan.h"
 
-extern VkDevice device;
+#include <kinc/graphics5/indexbuffer.h>
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 
@@ -26,20 +26,20 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, k
 #endif
 	buf_info.flags = 0;
 
-	memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+	kinc_memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
 	buffer->impl.mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	buffer->impl.mem_alloc.pNext = NULL;
 	buffer->impl.mem_alloc.allocationSize = 0;
 	buffer->impl.mem_alloc.memoryTypeIndex = 0;
 
-	memset(&buffer->impl.buf, 0, sizeof(buffer->impl.buf));
-	memset(&buffer->impl.mem, 0, sizeof(buffer->impl.mem));
+	buffer->impl.buf = NULL;
+	buffer->impl.mem = NULL;
 
-	VkResult err = vkCreateBuffer(device, &buf_info, NULL, &buffer->impl.buf);
+	VkResult err = vkCreateBuffer(vk_ctx.device, &buf_info, NULL, &buffer->impl.buf);
 	assert(!err);
 
 	VkMemoryRequirements mem_reqs = {0};
-	vkGetBufferMemoryRequirements(device, buffer->impl.buf, &mem_reqs);
+	vkGetBufferMemoryRequirements(vk_ctx.device, buffer->impl.buf, &mem_reqs);
 
 	buffer->impl.mem_alloc.allocationSize = mem_reqs.size;
 	bool pass = memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &buffer->impl.mem_alloc.memoryTypeIndex);
@@ -52,10 +52,10 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, k
 	buffer->impl.mem_alloc.pNext = &memory_allocate_flags_info;
 #endif
 
-	err = vkAllocateMemory(device, &buffer->impl.mem_alloc, NULL, &buffer->impl.mem);
+	err = vkAllocateMemory(vk_ctx.device, &buffer->impl.mem_alloc, NULL, &buffer->impl.mem);
 	assert(!err);
 
-	err = vkBindBufferMemory(device, buffer->impl.buf, buffer->impl.mem, 0);
+	err = vkBindBufferMemory(vk_ctx.device, buffer->impl.buf, buffer->impl.mem, 0);
 	assert(!err);
 }
 
@@ -64,13 +64,13 @@ void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 }
 
 int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
-	VkResult err = vkMapMemory(device, buffer->impl.mem, 0, buffer->impl.mem_alloc.allocationSize, 0, (void **)&buffer->impl.data);
+	VkResult err = vkMapMemory(vk_ctx.device, buffer->impl.mem, 0, buffer->impl.mem_alloc.allocationSize, 0, (void **)&buffer->impl.data);
 	assert(!err);
 	return buffer->impl.data;
 }
 
 void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
-	vkUnmapMemory(device, buffer->impl.mem);
+	vkUnmapMemory(vk_ctx.device, buffer->impl.mem);
 }
 
 void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {

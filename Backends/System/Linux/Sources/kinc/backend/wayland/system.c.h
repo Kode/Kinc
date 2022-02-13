@@ -1118,7 +1118,6 @@ void kinc_wayland_vulkan_get_instance_extensions(const char **names, int *index,
 VkBool32 kinc_wayland_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
 	return vkGetPhysicalDeviceWaylandPresentationSupportKHR(physicalDevice, queueFamilyIndex, wl_ctx.display);
 }
-#undef VK_USE_PLATFORM_WAYLAND_KHR
 #endif
 
 void zwp_locked_pointer_v1_handle_locked(void *data, struct zwp_locked_pointer_v1 *zwp_locked_pointer_v1) {

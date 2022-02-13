@@ -76,6 +76,7 @@ void kinc_linux_init_procs() {
 #ifdef KORE_VULKAN
 		procs.vulkan_create_surface = kinc_wayland_vulkan_create_surface;
 		procs.vulkan_get_instance_extensions = kinc_wayland_vulkan_get_instance_extensions;
+		procs.vulkan_get_physical_device_presentation_support = kinc_wayland_vulkan_get_physical_device_presentation_support;
 #endif
 	}
 	else
@@ -126,6 +127,7 @@ void kinc_linux_init_procs() {
 #ifdef KORE_VULKAN
 		procs.vulkan_create_surface = kinc_x11_vulkan_create_surface;
 		procs.vulkan_get_instance_extensions = kinc_x11_vulkan_get_instance_extensions;
+		procs.vulkan_get_physical_device_presentation_support = kinc_x11_vulkan_get_physical_device_presentation_support;
 #endif
 	}
 	else
