@@ -148,7 +148,9 @@ struct {
 #endif
 
 void kinc_g4_internal_destroy() {
-
+#ifdef KINC_EGL
+	eglDestroyContext(egl_display, egl_context);
+#endif
 }
 
 void kinc_g4_internal_destroy_window(int window) {
@@ -194,7 +196,21 @@ EGLNativeWindowType kinc_egl_get_native_window(int);
 #endif
 
 void kinc_g4_internal_init() {
-	
+#ifdef KINC_EGL
+#ifdef KORE_OPENGL
+	eglBindAPI(EGL_OPENGL_API);
+#else
+	eglBindAPI(EGL_OPENGL_ES_API);
+#endif
+	egl_display = kinc_egl_get_display();
+	eglInitialize(egl_display, NULL, NULL);
+	EGL_CHECK_ERROR()
+	EGLint num_configs = 0;
+	eglChooseConfig(egl_display, NULL, &egl_config, 1, &num_configs);
+	EGL_CHECK_ERROR()
+	egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, NULL);
+	EGL_CHECK_ERROR()
+#endif
 }
 
 void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
@@ -206,21 +222,6 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	Kinc_Internal_initWindowsGLContext(windowId, depthBufferBits, stencilBufferBits);
 #endif
 #ifdef KINC_EGL
-	if (!egl_display) {
-		eglBindAPI(EGL_OPENGL_API);
-		egl_display = kinc_egl_get_display();
-		eglInitialize(egl_display, NULL, NULL);
-		EGL_CHECK_ERROR()
-		const EGLint attribs[] = {
-		    EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,  EGL_SURFACE_TYPE, EGL_WINDOW_BIT,    EGL_BLUE_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_RED_SIZE, 8,
-		    EGL_DEPTH_SIZE,      depthBufferBits, EGL_STENCIL_SIZE, stencilBufferBits, EGL_NONE};
-		EGLint num_configs = 0;
-		eglChooseConfig(egl_display, NULL, &egl_config, 1, &num_configs);
-		EGL_CHECK_ERROR()
-		egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, NULL);
-		EGL_CHECK_ERROR()
-	}
-
 	EGLSurface egl_surface = eglCreateWindowSurface(egl_display, egl_config, kinc_egl_get_native_window(windowId), NULL);
 	EGL_CHECK_ERROR()
 	eglMakeCurrent(egl_display, egl_surface, egl_surface, egl_context);
