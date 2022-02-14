@@ -1,3 +1,5 @@
+#include "graphics4/Direct3D11.h"
+
 #include <kinc/compute/compute.h>
 #include <kinc/graphics4/texture.h>
 #include <kinc/log.h>
@@ -17,9 +19,6 @@
 #endif
 
 #include <assert.h>
-
-extern ID3D11Device *device;
-extern ID3D11DeviceContext *context;
 
 static uint8_t constantsMemory[1024 * 4];
 
@@ -185,7 +184,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	assert(shader->impl.data != NULL);
 	kinc_memcpy(shader->impl.data, &data[index], shader->impl.length);
 
-	HRESULT hr = device->lpVtbl->CreateComputeShader(device, shader->impl.data, shader->impl.length, NULL, (ID3D11ComputeShader **)&shader->impl.shader);
+	HRESULT hr = dx_ctx.device->lpVtbl->CreateComputeShader(dx_ctx.device, shader->impl.data, shader->impl.length, NULL, (ID3D11ComputeShader **)&shader->impl.shader);
 
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
@@ -199,7 +198,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 	desc.StructureByteStride = 0;
-	kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &shader->impl.constantBuffer));
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateBuffer(dx_ctx.device, &desc, NULL, &shader->impl.constantBuffer));
 }
 
 void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {}
@@ -321,9 +320,9 @@ void kinc_compute_set_matrix3(kinc_compute_constant_location_t location, kinc_ma
 
 void kinc_compute_set_texture(kinc_compute_texture_unit_t unit, struct kinc_g4_texture *texture, kinc_compute_access_t access) {
 	ID3D11ShaderResourceView *nullView = NULL;
-	context->lpVtbl->PSSetShaderResources(context, 0, 1, &nullView);
+	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, 0, 1, &nullView);
 
-	context->lpVtbl->CSSetUnorderedAccessViews(context, unit.impl.unit, 1, &texture->impl.computeView, NULL);
+	dx_ctx.context->lpVtbl->CSSetUnorderedAccessViews(dx_ctx.context, unit.impl.unit, 1, &texture->impl.computeView, NULL);
 }
 
 void kinc_compute_set_render_target(kinc_compute_texture_unit_t unit, struct kinc_g4_render_target *texture, kinc_compute_access_t access) {}
@@ -351,15 +350,15 @@ void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t 
 void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
 
 void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
-	context->lpVtbl->CSSetShader(context, (ID3D11ComputeShader *)shader->impl.shader, NULL, 0);
+	dx_ctx.context->lpVtbl->CSSetShader(dx_ctx.context, (ID3D11ComputeShader *)shader->impl.shader, NULL, 0);
 
-	context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)shader->impl.constantBuffer, 0, NULL, constantsMemory, 0, 0);
-	context->lpVtbl->CSSetConstantBuffers(context, 0, 1, &shader->impl.constantBuffer);
+	dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)shader->impl.constantBuffer, 0, NULL, constantsMemory, 0, 0);
+	dx_ctx.context->lpVtbl->CSSetConstantBuffers(dx_ctx.context, 0, 1, &shader->impl.constantBuffer);
 }
 
 void kinc_compute(int x, int y, int z) {
-	context->lpVtbl->Dispatch(context, x, y, z);
+	dx_ctx.context->lpVtbl->Dispatch(dx_ctx.context, x, y, z);
 
 	ID3D11UnorderedAccessView *nullView = NULL;
-	context->lpVtbl->CSSetUnorderedAccessViews(context, 0, 1, &nullView, NULL);
+	dx_ctx.context->lpVtbl->CSSetUnorderedAccessViews(dx_ctx.context, 0, 1, &nullView, NULL);
 }

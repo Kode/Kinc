@@ -92,24 +92,24 @@ static D3D11_STENCIL_OP get_stencil_action(kinc_g4_stencil_action_t action) {
 
 void kinc_internal_set_constants(void) {
 	if (currentPipeline->vertex_shader->impl.constantsSize > 0) {
-		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.vertexConstantBuffer, 0, NULL, vertexConstants, 0, 0);
-		context->lpVtbl->VSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.vertexConstantBuffer);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.vertexConstantBuffer, 0, NULL, vertexConstants, 0, 0);
+		dx_ctx.context->lpVtbl->VSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.vertexConstantBuffer);
 	}
 	if (currentPipeline->fragment_shader->impl.constantsSize > 0) {
-		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.fragmentConstantBuffer, 0, NULL, fragmentConstants, 0, 0);
-		context->lpVtbl->PSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.fragmentConstantBuffer);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.fragmentConstantBuffer, 0, NULL, fragmentConstants, 0, 0);
+		dx_ctx.context->lpVtbl->PSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.fragmentConstantBuffer);
 	}
 	if (currentPipeline->geometry_shader != NULL && currentPipeline->geometry_shader->impl.constantsSize > 0) {
-		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.geometryConstantBuffer, 0, NULL, geometryConstants, 0, 0);
-		context->lpVtbl->GSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.geometryConstantBuffer);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.geometryConstantBuffer, 0, NULL, geometryConstants, 0, 0);
+		dx_ctx.context->lpVtbl->GSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.geometryConstantBuffer);
 	}
 	if (currentPipeline->tessellation_control_shader != NULL && currentPipeline->tessellation_control_shader->impl.constantsSize > 0) {
-		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.tessControlConstantBuffer, 0, NULL, tessControlConstants, 0, 0);
-		context->lpVtbl->HSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.tessControlConstantBuffer);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.tessControlConstantBuffer, 0, NULL, tessControlConstants, 0, 0);
+		dx_ctx.context->lpVtbl->HSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.tessControlConstantBuffer);
 	}
 	if (currentPipeline->tessellation_evaluation_shader != NULL && currentPipeline->tessellation_evaluation_shader->impl.constantsSize > 0) {
-		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)currentPipeline->impl.tessEvalConstantBuffer, 0, NULL, tessEvalConstants, 0, 0);
-		context->lpVtbl->DSSetConstantBuffers(context, 0, 1, &currentPipeline->impl.tessEvalConstantBuffer);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.tessEvalConstantBuffer, 0, NULL, tessEvalConstants, 0, 0);
+		dx_ctx.context->lpVtbl->DSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.tessEvalConstantBuffer);
 	}
 }
 
@@ -173,31 +173,31 @@ void kinc_g4_pipeline_destroy(struct kinc_g4_pipeline *state) {
 
 void kinc_internal_set_rasterizer_state(struct kinc_g4_pipeline *pipeline, bool scissoring) {
 	if (scissoring && pipeline->impl.rasterizerStateScissor != NULL)
-		context->lpVtbl->RSSetState(context, pipeline->impl.rasterizerStateScissor);
+		dx_ctx.context->lpVtbl->RSSetState(dx_ctx.context, pipeline->impl.rasterizerStateScissor);
 	else if (pipeline->impl.rasterizerState != NULL)
-		context->lpVtbl->RSSetState(context, pipeline->impl.rasterizerState);
+		dx_ctx.context->lpVtbl->RSSetState(dx_ctx.context, pipeline->impl.rasterizerState);
 }
 
 void kinc_internal_set_pipeline(struct kinc_g4_pipeline *pipeline, bool scissoring) {
 	currentPipeline = pipeline;
 
-	context->lpVtbl->OMSetDepthStencilState(context, pipeline->impl.depthStencilState, pipeline->stencil_reference_value);
+	dx_ctx.context->lpVtbl->OMSetDepthStencilState(dx_ctx.context, pipeline->impl.depthStencilState, pipeline->stencil_reference_value);
 	float blendFactor[] = {0, 0, 0, 0};
 	UINT sampleMask = 0xffffffff;
-	context->lpVtbl->OMSetBlendState(context, pipeline->impl.blendState, blendFactor, sampleMask);
+	dx_ctx.context->lpVtbl->OMSetBlendState(dx_ctx.context, pipeline->impl.blendState, blendFactor, sampleMask);
 	kinc_internal_set_rasterizer_state(pipeline, scissoring);
 
-	context->lpVtbl->VSSetShader(context, (ID3D11VertexShader *)pipeline->vertex_shader->impl.shader, NULL, 0);
-	context->lpVtbl->PSSetShader(context, (ID3D11PixelShader *)pipeline->fragment_shader->impl.shader, NULL, 0);
+	dx_ctx.context->lpVtbl->VSSetShader(dx_ctx.context, (ID3D11VertexShader *)pipeline->vertex_shader->impl.shader, NULL, 0);
+	dx_ctx.context->lpVtbl->PSSetShader(dx_ctx.context, (ID3D11PixelShader *)pipeline->fragment_shader->impl.shader, NULL, 0);
 
-	context->lpVtbl->GSSetShader(context, pipeline->geometry_shader != NULL ? (ID3D11GeometryShader *)pipeline->geometry_shader->impl.shader : NULL, NULL, 0);
-	context->lpVtbl->HSSetShader(
-	    context, pipeline->tessellation_control_shader != NULL ? (ID3D11HullShader *)pipeline->tessellation_control_shader->impl.shader : NULL, NULL, 0);
-	context->lpVtbl->DSSetShader(
-	    context, pipeline->tessellation_evaluation_shader != NULL ? (ID3D11DomainShader *)pipeline->tessellation_evaluation_shader->impl.shader : NULL, NULL,
+	dx_ctx.context->lpVtbl->GSSetShader(dx_ctx.context, pipeline->geometry_shader != NULL ? (ID3D11GeometryShader *)pipeline->geometry_shader->impl.shader : NULL, NULL, 0);
+	dx_ctx.context->lpVtbl->HSSetShader(
+	    dx_ctx.context, pipeline->tessellation_control_shader != NULL ? (ID3D11HullShader *)pipeline->tessellation_control_shader->impl.shader : NULL, NULL, 0);
+	dx_ctx.context->lpVtbl->DSSetShader(
+	    dx_ctx.context, pipeline->tessellation_evaluation_shader != NULL ? (ID3D11DomainShader *)pipeline->tessellation_evaluation_shader->impl.shader : NULL, NULL,
 	    0);
 
-	context->lpVtbl->IASetInputLayout(context, pipeline->impl.d3d11inputLayout);
+	dx_ctx.context->lpVtbl->IASetInputLayout(dx_ctx.context, pipeline->impl.d3d11inputLayout);
 }
 
 static kinc_internal_shader_constant_t *findConstant(kinc_internal_shader_constant_t *constants, uint32_t hash) {
@@ -421,7 +421,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 		desc.StructureByteStride = 0;
-		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.vertexConstantBuffer));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateBuffer(dx_ctx.device, &desc, NULL, &state->impl.vertexConstantBuffer));
 	}
 	if (state->fragment_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
@@ -431,7 +431,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 		desc.StructureByteStride = 0;
-		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.fragmentConstantBuffer));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateBuffer(dx_ctx.device, &desc, NULL, &state->impl.fragmentConstantBuffer));
 	}
 	if (state->geometry_shader != NULL && state->geometry_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
@@ -441,7 +441,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 		desc.StructureByteStride = 0;
-		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.geometryConstantBuffer));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateBuffer(dx_ctx.device, &desc, NULL, &state->impl.geometryConstantBuffer));
 	}
 	if (state->tessellation_control_shader != NULL && state->tessellation_control_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
@@ -451,7 +451,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 		desc.StructureByteStride = 0;
-		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.tessControlConstantBuffer));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateBuffer(dx_ctx.device, &desc, NULL, &state->impl.tessControlConstantBuffer));
 	}
 	if (state->tessellation_evaluation_shader != NULL && state->tessellation_evaluation_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
@@ -461,7 +461,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 		desc.StructureByteStride = 0;
-		kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &desc, NULL, &state->impl.tessEvalConstantBuffer));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateBuffer(dx_ctx.device, &desc, NULL, &state->impl.tessEvalConstantBuffer));
 	}
 
 	int all = 0;
@@ -759,7 +759,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		}
 	}
 
-	kinc_microsoft_affirm(device->lpVtbl->CreateInputLayout(device, vertexDesc, all, state->vertex_shader->impl.data, state->vertex_shader->impl.length,
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateInputLayout(dx_ctx.device, vertexDesc, all, state->vertex_shader->impl.data, state->vertex_shader->impl.length,
 	                                                        &state->impl.d3d11inputLayout));
 
 	{
@@ -777,7 +777,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = get_stencil_action(state->stencil_both_pass);
 		desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = get_stencil_action(state->stencil_fail);
 
-		device->lpVtbl->CreateDepthStencilState(device, &desc, &state->impl.depthStencilState);
+		dx_ctx.device->lpVtbl->CreateDepthStencilState(dx_ctx.device, &desc, &state->impl.depthStencilState);
 	}
 
 	{
@@ -793,16 +793,16 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		rasterDesc.MultisampleEnable = FALSE;
 		rasterDesc.AntialiasedLineEnable = FALSE;
 
-		device->lpVtbl->CreateRasterizerState(device, &rasterDesc, &state->impl.rasterizerState);
+		dx_ctx.device->lpVtbl->CreateRasterizerState(dx_ctx.device, &rasterDesc, &state->impl.rasterizerState);
 		rasterDesc.ScissorEnable = TRUE;
-		device->lpVtbl->CreateRasterizerState(device, &rasterDesc, &state->impl.rasterizerStateScissor);
+		dx_ctx.device->lpVtbl->CreateRasterizerState(dx_ctx.device, &rasterDesc, &state->impl.rasterizerStateScissor);
 
 		// We need d3d11_3 for conservative raster
 		// D3D11_RASTERIZER_DESC2 rasterDesc;
 		// rasterDesc.ConservativeRaster = conservativeRasterization ? D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D11_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-		// device->CreateRasterizerState2(&rasterDesc, &rasterizerState);
+		// dx_ctx.device->CreateRasterizerState2(&rasterDesc, &rasterizerState);
 		// rasterDesc.ScissorEnable = TRUE;
-		// device->CreateRasterizerState2(&rasterDesc, &rasterizerStateScissor);
+		// dx_ctx.device->CreateRasterizerState2(&rasterDesc, &rasterizerStateScissor);
 	}
 
 	{
@@ -831,6 +831,6 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 			}
 		}
 
-		device->lpVtbl->CreateBlendState(device, &blendDesc, &state->impl.blendState);
+		dx_ctx.device->lpVtbl->CreateBlendState(dx_ctx.device, &blendDesc, &state->impl.blendState);
 	}
 }

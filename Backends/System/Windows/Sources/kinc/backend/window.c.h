@@ -408,6 +408,10 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 		frame = &defaultFrame;
 	}
 
+	if(win->title == NULL) {
+		win->title = "";
+	}
+
 	wchar_t wbuffer[1024];
 	MultiByteToWideChar(CP_UTF8, 0, win->title, -1, wbuffer, 1024);
 

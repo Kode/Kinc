@@ -133,9 +133,9 @@ struct DirectX11 {
 
 	void SetAndClearRenderTarget(ID3D11RenderTargetView *rendertarget, DepthBuffer *depthbuffer, float R = 0, float G = 0, float B = 0, float A = 0) {
 		float black[] = {R, G, B, A}; // Important that alpha=0, if want pixels to be transparent, for manual layers
-		context->OMSetRenderTargets(1, &rendertarget, (depthbuffer ? depthbuffer->TexDsv : nullptr));
-		context->ClearRenderTargetView(rendertarget, black);
-		if (depthbuffer) context->ClearDepthStencilView(depthbuffer->TexDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+		dx_ctx.context->OMSetRenderTargets(1, &rendertarget, (depthbuffer ? depthbuffer->TexDsv : nullptr));
+		dx_ctx.context->ClearRenderTargetView(rendertarget, black);
+		if (depthbuffer) dx_ctx.context->ClearDepthStencilView(depthbuffer->TexDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 	}
 
 	void SetViewport(float vpX, float vpY, float vpW, float vpH) {
@@ -146,7 +146,7 @@ struct DirectX11 {
 		D3Dvp.MaxDepth = 1;
 		D3Dvp.TopLeftX = vpX;
 		D3Dvp.TopLeftY = vpY;
-		context->RSSetViewports(1, &D3Dvp);
+		dx_ctx.context->RSSetViewports(1, &D3Dvp);
 	}
 
 	void ReleaseDevice() {}
@@ -175,7 +175,7 @@ struct OculusTexture {
 		desc.BindFlags = ovrTextureBind_DX_RenderTarget;
 		desc.StaticImage = ovrFalse;
 
-		ovrResult result = ovr_CreateTextureSwapChainDX(session, device, &desc, &TextureChain);
+		ovrResult result = ovr_CreateTextureSwapChainDX(session, dx_ctx.device, &desc, &TextureChain);
 
 		int textureCount = 0;
 		ovr_GetTextureSwapChainLength(Session, TextureChain, &textureCount);
@@ -187,7 +187,7 @@ struct OculusTexture {
 				rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				rtvd.ViewDimension = (sampleCount > 1) ? D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
 				ID3D11RenderTargetView *rtv;
-				device->CreateRenderTargetView(tex, &rtvd, &rtv);
+				dx_ctx.device->CreateRenderTargetView(tex, &rtvd, &rtv);
 				TexRtv.push_back(rtv);
 				tex->Release();
 			}
@@ -218,7 +218,7 @@ struct OculusTexture {
 //---------------------------------------------------------------------
 
 namespace {
-	// Initialize these to nullptr here to handle device lost failures cleanly
+	// Initialize these to nullptr here to handle dx_ctx.device lost failures cleanly
 	ovrMirrorTexture mirrorTexture = nullptr;
 	OculusTexture *pEyeRenderTexture[2] = {nullptr, nullptr};
 	DepthBuffer *pEyeDepthBuffer[2] = {nullptr, nullptr};
@@ -257,7 +257,7 @@ namespace {
 		mirrorDesc.Height = Platform.WinSizeH;
 		mirrorDesc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
 		mirrorDesc.MirrorOptions = ovrMirrorOption_Default;
-		HRESULT result = ovr_CreateMirrorTextureWithOptionsDX(session, device, &mirrorDesc, &mirrorTexture);
+		HRESULT result = ovr_CreateMirrorTextureWithOptionsDX(session, dx_ctx.device, &mirrorDesc, &mirrorTexture);
 		if (!OVR_SUCCESS(result)) {
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to create mirror texture.");
 			done();
@@ -267,7 +267,7 @@ namespace {
 		for (int eye = 0; eye < 2; ++eye) {
 			ovrSizei idealSize = ovr_GetFovTextureSize(session, ovrEyeType(eye), hmdDesc.DefaultEyeFov[eye], 1);
 			pEyeRenderTexture[eye] = new OculusTexture(session, idealSize.w, idealSize.h);
-			pEyeDepthBuffer[eye] = new DepthBuffer(device, idealSize.w, idealSize.h);
+			pEyeDepthBuffer[eye] = new DepthBuffer(dx_ctx.device, idealSize.w, idealSize.h);
 			eyeRenderViewport[eye].Pos.x = 0;
 			eyeRenderViewport[eye].Pos.y = 0;
 			eyeRenderViewport[eye].Size = idealSize;
@@ -306,7 +306,7 @@ void *kinc_vr_interface_init(void *hinst, const char *title, const char *windowC
 	// Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
 	windowSize = {hmdDesc.Resolution.w / 2, hmdDesc.Resolution.h / 2};
 	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID *>(&luid))) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to init device.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to init dx_ctx.device.");
 		done();
 	}
 
@@ -456,7 +456,7 @@ void kinc_vr_interface_warp_swap() {
 	ID3D11Texture2D *tex = nullptr;
 	ovr_GetMirrorTextureBufferDX(session, mirrorTexture, IID_PPV_ARGS(&tex));
 
-	context->CopyResource(backBuffer, tex);
+	dx_ctx.context->CopyResource(backBuffer, tex);
 	tex->Release();
 }
 

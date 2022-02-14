@@ -1,3 +1,5 @@
+#include "Direct3D11.h"
+
 #include <kinc/log.h>
 
 #include <kinc/math/core.h>
@@ -42,15 +44,15 @@ void kinc_internal_set_constants(void);
 
 bool kinc_internal_scissoring = false;
 
-static unsigned hz;
-static bool vsync;
+// static unsigned hz;
+// static bool vsync;
 
 static D3D_FEATURE_LEVEL featureLevel;
-#ifdef KORE_WINDOWSAPP
-static IDXGISwapChain1 *swapChain = NULL;
-#else
-static IDXGISwapChain *swapChain = NULL;
-#endif
+// #ifdef KORE_WINDOWSAPP
+// static IDXGISwapChain1 *swapChain = NULL;
+// #else
+// static IDXGISwapChain *swapChain = NULL;
+// #endif
 static D3D11_SAMPLER_DESC lastSamplers[16];
 
 struct Sampler {
@@ -70,7 +72,7 @@ static ID3D11SamplerState *getSamplerState(D3D11_SAMPLER_DESC *desc) {
 	}
 	struct Sampler s;
 	s.desc = *desc;
-	device->lpVtbl->CreateSamplerState(device, &s.desc, &s.state);
+	dx_ctx.device->lpVtbl->CreateSamplerState(dx_ctx.device, &s.desc, &s.state);
 	assert(samplers_size < MAX_SAMPLERS);
 	samplers[samplers_size++] = s;
 	return s.state;
@@ -87,15 +89,15 @@ static void initSamplers() {
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	ID3D11SamplerState *state;
-	device->lpVtbl->CreateSamplerState(device, &samplerDesc, &state);
+	dx_ctx.device->lpVtbl->CreateSamplerState(dx_ctx.device, &samplerDesc, &state);
 
 	ID3D11SamplerState *states[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT];
 	for (int i = 0; i < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT; ++i) {
 		states[i] = state;
 	}
 
-	context->lpVtbl->VSSetSamplers(context, 0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
-	context->lpVtbl->PSSetSamplers(context, 0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
+	dx_ctx.context->lpVtbl->VSSetSamplers(dx_ctx.context, 0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, 0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, states);
 }
 
 static ID3D11RenderTargetView *currentRenderTargetViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
@@ -106,15 +108,25 @@ void kinc_g4_internal_destroy_window(int window) {}
 
 void kinc_g4_internal_destroy() {}
 
-static void createBackbuffer(int antialiasingSamples) {
-	kinc_microsoft_affirm(swapChain->lpVtbl->GetBuffer(swapChain, 0, &IID_ID3D11Texture2D, (void **)&backBuffer));
+static void createBackbuffer(struct dx_window *window, int antialiasingSamples) {
+	if (window->depthStencil) {
+		window->depthStencil->lpVtbl->Release(window->depthStencil);
+		window->depthStencilView->lpVtbl->Release(window->depthStencilView);
+		window->renderTargetView->lpVtbl->Release(window->renderTargetView);
+		window->backBuffer->lpVtbl->Release(window->backBuffer);
+		window->depthStencil = window->depthStencilView = window->renderTargetView = window->backBuffer = NULL;
+	}
 
-	kinc_microsoft_affirm(device->lpVtbl->CreateRenderTargetView(device, (ID3D11Resource *)backBuffer, NULL, &renderTargetView));
+	window->swapChain->lpVtbl->ResizeBuffers(window->swapChain, 1, window->width, window->height, DXGI_FORMAT_B8G8R8A8_UNORM, 0);
+
+	kinc_microsoft_affirm(window->swapChain->lpVtbl->GetBuffer(window->swapChain, 0, &IID_ID3D11Texture2D, (void **)&window->backBuffer));
+
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateRenderTargetView(dx_ctx.device, (ID3D11Resource *)window->backBuffer, NULL, &window->renderTargetView));
 
 	D3D11_TEXTURE2D_DESC backBufferDesc;
-	backBuffer->lpVtbl->GetDesc(backBuffer, &backBufferDesc);
-	newRenderTargetWidth = renderTargetWidth = backBufferDesc.Width;
-	newRenderTargetHeight = renderTargetHeight = backBufferDesc.Height;
+	window->backBuffer->lpVtbl->GetDesc(window->backBuffer, &backBufferDesc);
+	window->width = window->new_width = backBufferDesc.Width;
+	window->height = window->new_height = backBufferDesc.Height;
 
 	// TODO (DK) map depth/stencilBufferBits arguments
 	D3D11_TEXTURE2D_DESC depth_stencil_desc;
@@ -129,7 +141,7 @@ static void createBackbuffer(int antialiasingSamples) {
 	depth_stencil_desc.SampleDesc.Count = antialiasingSamples > 1 ? antialiasingSamples : 1,
 	depth_stencil_desc.SampleDesc.Quality = antialiasingSamples > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
 	depth_stencil_desc.MiscFlags = 0;
-	kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &depth_stencil_desc, NULL, &depthStencil));
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateTexture2D(dx_ctx.device, &depth_stencil_desc, NULL, &window->depthStencil));
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
 	depth_stencil_view_desc.ViewDimension = antialiasingSamples > 1 ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -138,7 +150,8 @@ static void createBackbuffer(int antialiasingSamples) {
 	if (antialiasingSamples <= 1) {
 		depth_stencil_view_desc.Texture2D.MipSlice = 0;
 	}
-	kinc_microsoft_affirm(device->lpVtbl->CreateDepthStencilView(device, (ID3D11Resource *)depthStencil, &depth_stencil_view_desc, &depthStencilView));
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateDepthStencilView(dx_ctx.device, (ID3D11Resource *)window->depthStencil, &depth_stencil_view_desc,
+	                                                                    &window->depthStencilView));
 }
 
 #ifdef KORE_WINDOWS
@@ -172,194 +185,89 @@ static bool isWindows10OrGreater() {
 }
 #endif
 
-void kinc_g4_internal_init() {}
-
-void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
-#ifdef KORE_VR
-	vsync = false;
-#else
-	vsync = vSync;
-#endif
-	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
-	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
-
-#ifdef KORE_WINDOWS
-	HWND hwnd = kinc_windows_window_handle(windowId);
-#endif
-
-	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-#ifdef _DEBUG
-	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
+void kinc_g4_internal_init() {
 	D3D_FEATURE_LEVEL featureLevels[] = {
 #ifdef KORE_WINDOWSAPP
 	    D3D_FEATURE_LEVEL_11_1,
 #endif
-	    D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0};
+	    D3D_FEATURE_LEVEL_11_0,
+	    D3D_FEATURE_LEVEL_10_1,
+	    D3D_FEATURE_LEVEL_10_0,
+	};
+	UINT flags = 0;
 
-#ifdef KORE_WINDOWSAPP
+#ifdef _DEBUG
+	flags = D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
 	IDXGIAdapter *adapter = NULL;
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	kinc_microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
-	                                        &device, &featureLevel, &context));
+	AFFIRM(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &dx_ctx.device,
+	                         &featureLevel, &dx_ctx.context));
+	AFFIRM(dx_ctx.device->lpVtbl->QueryInterface(dx_ctx.device, &IID_IDXGIDevice, (void **)&dx_ctx.dxgiDevice));
+	AFFIRM(dx_ctx.dxgiDevice->lpVtbl->GetAdapter(dx_ctx.dxgiDevice, &dx_ctx.dxgiAdapter));
+	AFFIRM(dx_ctx.dxgiAdapter->lpVtbl->GetParent(dx_ctx.dxgiAdapter, &IID_IDXGIFactory, (void **)&dx_ctx.dxgiFactory));
+}
 
-#elif KORE_OCULUS
-	IDXGIFactory *dxgiFactory = NULL;
-	kinc_microsoft_affirm(CreateDXGIFactory1(__uuidof(IDXGIFactory), (void **)(&dxgiFactory)));
+void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
+	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
+	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
-	kinc_microsoft_affirm(D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
-	                                        &device, &featureLevel, &context));
-#endif
-	// affirm(device0.As(&device));
-	// affirm(context0.As(&context));
-
-	// m_windowBounds = m_window->Bounds;
+	struct dx_window *window = &dx_ctx.windows[windowId];
+	window->hwnd = kinc_windows_window_handle(windowId);
+	window->depth_bits = depthBufferBits;
+	window->stencil_bits = stencilBufferBits;
+	window->vsync = vSync;
 
 	const int _DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL = 3;
 	const int _DXGI_SWAP_EFFECT_FLIP_DISCARD = 4;
 
-	if (swapChain != NULL) {
-		kinc_microsoft_affirm(swapChain->lpVtbl->ResizeBuffers(swapChain, 2, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
+	DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1; // 60Hz
+	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+	swapChainDesc.BufferDesc.Width = kinc_window_width(windowId); // use automatic sizing
+	swapChainDesc.BufferDesc.Height = kinc_window_height(windowId);
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
+	// swapChainDesc.Stereo = false;
+	swapChainDesc.SampleDesc.Count = kinc_g4_antialiasing_samples() > 1 ? kinc_g4_antialiasing_samples() : 1;
+	swapChainDesc.SampleDesc.Quality = kinc_g4_antialiasing_samples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
+	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
+	if (isWindows10OrGreater()) {
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		//(DXGI_SWAP_EFFECT) _DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	}
+	else if (isWindows8OrGreater()) {
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		//(DXGI_SWAP_EFFECT) _DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 	}
 	else {
-#ifdef KORE_WINDOWS
-		DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1; // 60Hz
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-		swapChainDesc.BufferDesc.Width = kinc_window_width(windowId); // use automatic sizing
-		swapChainDesc.BufferDesc.Height = kinc_window_height(windowId);
-		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
-		// swapChainDesc.Stereo = false;
-		swapChainDesc.SampleDesc.Count = kinc_g4_antialiasing_samples() > 1 ? kinc_g4_antialiasing_samples() : 1;
-		swapChainDesc.SampleDesc.Quality = kinc_g4_antialiasing_samples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
-		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
-		if (isWindows10OrGreater()) {
-			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-			//(DXGI_SWAP_EFFECT) _DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		}
-		else if (isWindows8OrGreater()) {
-			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-			//(DXGI_SWAP_EFFECT) _DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-		}
-		else {
-			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-		}
-		swapChainDesc.Flags = 0;
-		swapChainDesc.OutputWindow = kinc_windows_window_handle(windowId);
-		swapChainDesc.Windowed = true;
-#endif
-
-#if defined(KORE_WINDOWSAPP)
-#ifdef KORE_HOLOLENS
-		// The Windows::Graphics::Holographic::HolographicSpace owns its own swapchain so we don't need to create one here
-#else
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
-		swapChainDesc.Width = 0; // use automatic sizing
-		swapChainDesc.Height = 0;
-		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
-		swapChainDesc.Stereo = false;
-		swapChainDesc.SampleDesc.Count = antialiasingSamples() > 1 ? antialiasingSamples() : 1;
-		swapChainDesc.SampleDesc.Quality = antialiasingSamples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
-		swapChainDesc.Scaling = DXGI_SCALING_NONE;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // we recommend using this swap effect for all applications
-		swapChainDesc.Flags = 0;
-
-		IDXGIDevice1 *dxgiDevice;
-		kinc_microsoft_affirm(device->lpVtbl->QueryInterface(device, &IID_IDXGIDevice1, (void **)&dxgiDevice));
-
-		IDXGIAdapter *dxgiAdapter;
-		kinc_microsoft_affirm(dxgiDevice->lpVtbl->GetAdapter(dxgiDevice, &dxgiAdapter));
-
-		IDXGIFactory2 *dxgiFactory;
-		kinc_microsoft_affirm(dxgiAdapter->lpVtbl->GetParent(dxgiAdapter, &IID_IDXGIFactory2, (void **)&dxgiFactory));
-
-		kinc_microsoft_affirm(dxgiFactory->lpVtbl->CreateSwapChainForCoreWindow(dxgiFactory, (IUnknown *)device, kinc_winapp_internal_get_window(),
-		                                                                        &swapChainDesc, NULL, &swapChain));
-		kinc_microsoft_affirm(dxgiDevice->lpVtbl->SetMaximumFrameLatency(dxgiDevice, 1));
-#endif
-
-#elif KORE_OCULUS
-		DXGI_SWAP_CHAIN_DESC scDesc = {0};
-		scDesc.BufferCount = 2;
-		scDesc.BufferDesc.Width = kinc_window_width(windowId);
-		scDesc.BufferDesc.Height = kinc_window_height(windowId);
-		scDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		scDesc.BufferDesc.RefreshRate.Denominator = 1;
-		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scDesc.OutputWindow = (HWND)kinc_windows_window_handle(windowId);
-		;
-		scDesc.SampleDesc.Count = kinc_g4_antialiasing_samples() > 1 ? kinc_g4_antialiasing_samples() : 1;
-		scDesc.SampleDesc.Quality = kinc_g4_antialiasing_samples() > 1 ? D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
-		scDesc.Windowed = true;
-		scDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
-
-		kinc_microsoft_affirm(dxgiFactory->CreateSwapChain(device, &scDesc, &swapChain));
-		dxgiFactory->Release();
-
-		IDXGIDevice1 *dxgiDevice = nullptr;
-		kinc_microsoft_affirm(device->QueryInterface(__uuidof(IDXGIDevice1), (void **)&dxgiDevice));
-		kinc_microsoft_affirm(dxgiDevice->SetMaximumFrameLatency(1));
-		dxgiDevice->Release();
-#else
-		UINT flags = 0;
-
-#ifdef _DEBUG
-		flags = D3D11_CREATE_DEVICE_DEBUG;
-#endif
-		HRESULT result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
-		                                               &swapChain, &device, NULL, &context);
-		if (result != S_OK) {
-			kinc_microsoft_affirm(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_WARP, NULL, flags, featureLevels, 3, D3D11_SDK_VERSION, &swapChainDesc,
-			                                                    &swapChain, &device, NULL, &context));
-		}
-
-		IDXGIDevice *pDXGIDevice;
-		result = device->lpVtbl->QueryInterface(device, &IID_IDXGIDevice, (void **)&pDXGIDevice);
-		IDXGIAdapter *pDXGIAdapter;
-		result = pDXGIDevice->lpVtbl->GetParent(pDXGIDevice, &IID_IDXGIAdapter, (void **)&pDXGIAdapter);
-		IDXGIFactory *pIDXGIFactory;
-		pDXGIAdapter->lpVtbl->GetParent(pDXGIAdapter, &IID_IDXGIFactory, (void **)&pIDXGIFactory);
-		pIDXGIFactory->lpVtbl->MakeWindowAssociation(pIDXGIFactory, hwnd, DXGI_MWA_NO_ALT_ENTER);
-#endif
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	}
+	swapChainDesc.Flags = 0;
+	swapChainDesc.OutputWindow = window->hwnd;
+	swapChainDesc.Windowed = true;
 
-#ifdef KORE_HOLOLENS
-	// holographicFrameController manages the targets and views for hololens.
-	// the views have to be created/deleted on the CameraAdded/Removed events
-	// at this point we don't know if this event has alread occured so we cannot
-	// simply set the renderTargetWidth, renderTargetHeight, currentRenderTargetViews and currentDepthStencilView.
-	// to bind the targets for hololens one has to use the VrInterface::beginRender(eye) instead of the methods in this class.
-	ComPtr<ID3D11Device> devicePtr = device;
-	ComPtr<ID3D11DeviceContext> contextPtr = context;
-	Microsoft::WRL::ComPtr<ID3D11Device4> device4Ptr;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext3> context3Ptr;
-	affirm(devicePtr.As(&device4Ptr));
-	affirm(contextPtr.As(&context3Ptr));
-	holographicFrameController->setDeviceAndContext(device4Ptr, context3Ptr);
-#else
-	createBackbuffer(kinc_g4_antialiasing_samples());
-	currentRenderTargetViews[0] = renderTargetView;
-	currentDepthStencilView = depthStencilView;
-	context->lpVtbl->OMSetRenderTargets(context, 1, &renderTargetView, depthStencilView);
+	AFFIRM(dx_ctx.dxgiFactory->lpVtbl->CreateSwapChain(dx_ctx.dxgiFactory, dx_ctx.dxgiDevice, &swapChainDesc, &window->swapChain));
+
+	createBackbuffer(window, kinc_g4_antialiasing_samples());
+	currentRenderTargetViews[0] = window->renderTargetView;
+	currentDepthStencilView = window->depthStencilView;
+	dx_ctx.context->lpVtbl->OMSetRenderTargets(dx_ctx.context, 1, &window->renderTargetView, window->depthStencilView);
 
 	D3D11_VIEWPORT viewPort;
 	viewPort.TopLeftX = 0.0f;
 	viewPort.TopLeftY = 0.0f;
-	viewPort.Width = (float)renderTargetWidth;
-	viewPort.Height = (float)renderTargetHeight;
+	viewPort.Width = (float)window->width;
+	viewPort.Height = (float)window->height;
 	viewPort.MinDepth = D3D11_MIN_DEPTH;
 	viewPort.MaxDepth = D3D11_MAX_DEPTH;
-	context->lpVtbl->RSSetViewports(context, 1, &viewPort);
-#endif
+	dx_ctx.context->lpVtbl->RSSetViewports(dx_ctx.context, 1, &viewPort);
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	kinc_memset(&samplerDesc, 0, sizeof(samplerDesc));
@@ -399,10 +307,10 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	blendDesc.RenderTarget[0] = rtbd;
 
 	ID3D11BlendState *blending;
-	device->lpVtbl->CreateBlendState(device, &blendDesc, &blending);
+	dx_ctx.device->lpVtbl->CreateBlendState(dx_ctx.device, &blendDesc, &blending);
 
-	kinc_microsoft_affirm(device->lpVtbl->CreateBlendState(device, &blendDesc, &blending));
-	context->lpVtbl->OMSetBlendState(context, blending, NULL, 0xffffffff);
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateBlendState(dx_ctx.device, &blendDesc, &blending));
+	dx_ctx.context->lpVtbl->OMSetBlendState(dx_ctx.context, blending, NULL, 0xffffffff);
 }
 
 void kinc_g4_flush() {}
@@ -413,20 +321,20 @@ static kinc_g4_index_buffer_t *currentIndexBuffer = NULL;
 
 void kinc_internal_g4_index_buffer_set(kinc_g4_index_buffer_t *buffer) {
 	currentIndexBuffer = buffer;
-	context->lpVtbl->IASetIndexBuffer(context, buffer->impl.ib, buffer->impl.sixteen ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
+	dx_ctx.context->lpVtbl->IASetIndexBuffer(dx_ctx.context, buffer->impl.ib, buffer->impl.sixteen ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT, 0);
 }
 
 void kinc_g4_draw_indexed_vertices() {
 	if (currentPipeline->tessellation_control_shader != NULL) {
-		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+		dx_ctx.context->lpVtbl->IASetPrimitiveTopology(dx_ctx.context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
-		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		dx_ctx.context->lpVtbl->IASetPrimitiveTopology(dx_ctx.context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	kinc_internal_set_constants();
-	context->lpVtbl->DrawIndexed(context, currentIndexBuffer->impl.count, 0, 0);
+	dx_ctx.context->lpVtbl->DrawIndexed(dx_ctx.context, currentIndexBuffer->impl.count, 0, 0);
 
-	context->lpVtbl->PSSetShaderResources(context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
+	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
@@ -435,15 +343,15 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 
 void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
 	if (currentPipeline->tessellation_control_shader != NULL) {
-		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+		dx_ctx.context->lpVtbl->IASetPrimitiveTopology(dx_ctx.context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
-		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		dx_ctx.context->lpVtbl->IASetPrimitiveTopology(dx_ctx.context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	kinc_internal_set_constants();
-	context->lpVtbl->DrawIndexed(context, count, start, vertex_offset);
+	dx_ctx.context->lpVtbl->DrawIndexed(dx_ctx.context, count, start, vertex_offset);
 
-	context->lpVtbl->PSSetShaderResources(context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
+	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
@@ -452,15 +360,15 @@ void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
 	if (currentPipeline->tessellation_control_shader != NULL) {
-		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+		dx_ctx.context->lpVtbl->IASetPrimitiveTopology(dx_ctx.context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
 	else {
-		context->lpVtbl->IASetPrimitiveTopology(context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		dx_ctx.context->lpVtbl->IASetPrimitiveTopology(dx_ctx.context, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	kinc_internal_set_constants();
-	context->lpVtbl->DrawIndexedInstanced(context, count, instanceCount, start, 0, 0);
+	dx_ctx.context->lpVtbl->DrawIndexedInstanced(dx_ctx.context, count, instanceCount, start, 0, 0);
 
-	context->lpVtbl->PSSetShaderResources(context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
+	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 static D3D11_TEXTURE_ADDRESS_MODE convertAddressing(kinc_g4_texture_addressing_t addressing) {
@@ -495,7 +403,7 @@ void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture
 	}
 
 	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
@@ -511,29 +419,28 @@ void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 	                            ((color & 0xff000000) >> 24) / 255.0f};
 	for (int i = 0; i < renderTargetCount; ++i) {
 		if (currentRenderTargetViews[i] != NULL && flags & KINC_G4_CLEAR_COLOR) {
-			context->lpVtbl->ClearRenderTargetView(context, currentRenderTargetViews[i], clearColor);
+			dx_ctx.context->lpVtbl->ClearRenderTargetView(dx_ctx.context, currentRenderTargetViews[i], clearColor);
 		}
 	}
 	if (currentDepthStencilView != NULL && (flags & KINC_G4_CLEAR_DEPTH) || (flags & KINC_G4_CLEAR_STENCIL)) {
 		unsigned d3dflags = ((flags & KINC_G4_CLEAR_DEPTH) ? D3D11_CLEAR_DEPTH : 0) | ((flags & KINC_G4_CLEAR_STENCIL) ? D3D11_CLEAR_STENCIL : 0);
-		context->lpVtbl->ClearDepthStencilView(context, currentDepthStencilView, d3dflags, kinc_clamp(depth, 0.0f, 1.0f), stencil);
+		dx_ctx.context->lpVtbl->ClearDepthStencilView(dx_ctx.context, currentDepthStencilView, d3dflags, kinc_clamp(depth, 0.0f, 1.0f), stencil);
 	}
 }
 
 void kinc_g4_begin(int windowId) {
-	if (newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight) {
-		depthStencil->lpVtbl->Release(depthStencil);
-		depthStencilView->lpVtbl->Release(depthStencilView);
-		renderTargetView->lpVtbl->Release(renderTargetView);
-		backBuffer->lpVtbl->Release(backBuffer);
-		kinc_microsoft_affirm(swapChain->lpVtbl->ResizeBuffers(swapChain, 2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_B8G8R8A8_UNORM, 0));
-		createBackbuffer(kinc_g4_antialiasing_samples());
-		kinc_g4_restore_render_target();
+	dx_ctx.current_window = windowId;
+	struct dx_window *window = &dx_ctx.windows[windowId];
+	if (window->new_width != window->width || window->new_height != window->height) {
+		window->width = window->new_width;
+		window->height = window->new_height;
+		createBackbuffer(window, kinc_g4_antialiasing_samples());
 	}
-#ifdef KORE_WINDOWSAPP
-	// TODO (DK) do i need to do something here?
-	context->lpVtbl->OMSetRenderTargets(context, 1, &renderTargetView, depthStencilView);
-#endif
+	kinc_g4_restore_render_target();
+// #ifdef KORE_WINDOWSAPP
+// 	// TODO (DK) do i need to do something here?
+// 	dx_ctx.context->lpVtbl->OMSetRenderTargets(dx_ctx.context, 1, &renderTargetView, depthStencilView);
+// #endif
 }
 
 void kinc_g4_viewport(int x, int y, int width, int height) {
@@ -544,7 +451,7 @@ void kinc_g4_viewport(int x, int y, int width, int height) {
 	viewport.Height = (float)height;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	context->lpVtbl->RSSetViewports(context, 1, &viewport);
+	dx_ctx.context->lpVtbl->RSSetViewports(dx_ctx.context, 1, &viewport);
 }
 
 void kinc_internal_set_rasterizer_state(kinc_g4_pipeline_t *pipeline, bool scissoring);
@@ -555,7 +462,7 @@ void kinc_g4_scissor(int x, int y, int width, int height) {
 	rect.top = y;
 	rect.right = x + width;
 	rect.bottom = y + height;
-	context->lpVtbl->RSSetScissorRects(context, 1, &rect);
+	dx_ctx.context->lpVtbl->RSSetScissorRects(dx_ctx.context, 1, &rect);
 	kinc_internal_scissoring = true;
 	if (currentPipeline != NULL) {
 		kinc_internal_set_rasterizer_state(currentPipeline, kinc_internal_scissoring);
@@ -563,7 +470,7 @@ void kinc_g4_scissor(int x, int y, int width, int height) {
 }
 
 void kinc_g4_disable_scissor() {
-	context->lpVtbl->RSSetScissorRects(context, 0, NULL);
+	dx_ctx.context->lpVtbl->RSSetScissorRects(dx_ctx.context, 0, NULL);
 	kinc_internal_scissoring = false;
 	if (currentPipeline != NULL) {
 		kinc_internal_set_rasterizer_state(currentPipeline, kinc_internal_scissoring);
@@ -578,14 +485,21 @@ void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 
 void kinc_g4_set_stencil_reference_value(int value) {
 	if (currentPipeline != NULL) {
-		context->lpVtbl->OMSetDepthStencilState(context, currentPipeline->impl.depthStencilState, value);
+		dx_ctx.context->lpVtbl->OMSetDepthStencilState(dx_ctx.context, currentPipeline->impl.depthStencilState, value);
 	}
 }
 
 void kinc_g4_end(int windowId) {}
 
 bool kinc_g4_swap_buffers() {
-	HRESULT hr = swapChain->lpVtbl->Present(swapChain, vsync, 0);
+	bool success = true;
+	for (int i = 0; i < MAXIMUM_WINDOWS; i++) {
+		if (dx_ctx.windows[i].swapChain) {
+			if (!SUCCEEDED(dx_ctx.windows[i].swapChain->lpVtbl->Present(dx_ctx.windows[i].swapChain, dx_ctx.windows[i].vsync, 0))) {
+				success = false;
+			}
+		}
+	}
 	// TODO: if (hr == DXGI_STATUS_OCCLUDED)...
 	// http://www.pouet.net/topic.php?which=10454
 	// "Proper handling of DXGI_STATUS_OCCLUDED would be to pause the application,
@@ -595,7 +509,7 @@ bool kinc_g4_swap_buffers() {
 	//	Initialize(m_window);
 	//}
 	// else {
-	return SUCCEEDED(hr);
+	return success;
 	//}
 }
 
@@ -931,7 +845,7 @@ void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_
 	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
 	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -995,7 +909,7 @@ void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g
 	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
 	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -1061,7 +975,7 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipm
 	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
 	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
@@ -1080,7 +994,7 @@ void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled)
 	}
 
 	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
@@ -1089,7 +1003,7 @@ void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compa
 	lastSamplers[unit.impl.unit].ComparisonFunc = get_comparison(mode);
 
 	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
@@ -1105,7 +1019,7 @@ void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t ma
 	lastSamplers[unit.impl.unit].MaxAnisotropy = max_anisotropy;
 
 	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
@@ -1118,7 +1032,7 @@ void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, f
 	lastSamplers[unit.impl.unit].MaxLOD = lod_max_clamp;
 
 	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	context->lpVtbl->PSSetSamplers(context, unit.impl.unit, 1, &sampler);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
 }
 
 void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
@@ -1134,18 +1048,19 @@ bool kinc_g4_non_pow2_textures_supported() {
 }
 
 void kinc_g4_restore_render_target() {
-	currentRenderTargetViews[0] = renderTargetView;
-	currentDepthStencilView = depthStencilView;
-	context->lpVtbl->OMSetRenderTargets(context, 1, &renderTargetView, depthStencilView);
+	struct dx_window *window = &dx_ctx.windows[dx_ctx.current_window];
+	currentRenderTargetViews[0] = window->renderTargetView;
+	currentDepthStencilView = window->depthStencilView;
+	dx_ctx.context->lpVtbl->OMSetRenderTargets(dx_ctx.context, 1, &window->renderTargetView, window->depthStencilView);
 	renderTargetCount = 1;
 	D3D11_VIEWPORT viewPort;
 	viewPort.TopLeftX = 0.0f;
 	viewPort.TopLeftY = 0.0f;
-	viewPort.Width = (float)renderTargetWidth;
-	viewPort.Height = (float)renderTargetHeight;
+	viewPort.Width = (float)window->width;
+	viewPort.Height = (float)window->height;
 	viewPort.MinDepth = D3D11_MIN_DEPTH;
 	viewPort.MaxDepth = D3D11_MAX_DEPTH;
-	context->lpVtbl->RSSetViewports(context, 1, &viewPort);
+	dx_ctx.context->lpVtbl->RSSetViewports(dx_ctx.context, 1, &viewPort);
 }
 
 void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int count) {
@@ -1156,7 +1071,7 @@ void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int coun
 		currentRenderTargetViews[i] = targets[i]->impl.renderTargetViewRender[0];
 	}
 
-	context->lpVtbl->OMSetRenderTargets(context, count, currentRenderTargetViews, currentDepthStencilView);
+	dx_ctx.context->lpVtbl->OMSetRenderTargets(dx_ctx.context, count, currentRenderTargetViews, currentDepthStencilView);
 	D3D11_VIEWPORT viewPort;
 	viewPort.TopLeftX = 0.0f;
 	viewPort.TopLeftY = 0.0f;
@@ -1164,14 +1079,14 @@ void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int coun
 	viewPort.Height = (float)targets[0]->height;
 	viewPort.MinDepth = D3D11_MIN_DEPTH;
 	viewPort.MaxDepth = D3D11_MAX_DEPTH;
-	context->lpVtbl->RSSetViewports(context, 1, &viewPort);
+	dx_ctx.context->lpVtbl->RSSetViewports(dx_ctx.context, 1, &viewPort);
 }
 
 void kinc_g4_set_render_target_face(struct kinc_g4_render_target *texture, int face) {
 	renderTargetCount = 1;
 	currentRenderTargetViews[0] = texture->impl.renderTargetViewRender[face];
 	currentDepthStencilView = texture->impl.depthStencilView[face];
-	context->lpVtbl->OMSetRenderTargets(context, 1, currentRenderTargetViews, currentDepthStencilView);
+	dx_ctx.context->lpVtbl->OMSetRenderTargets(dx_ctx.context, 1, currentRenderTargetViews, currentDepthStencilView);
 	D3D11_VIEWPORT viewPort;
 	viewPort.TopLeftX = 0.0f;
 	viewPort.TopLeftY = 0.0f;
@@ -1179,7 +1094,7 @@ void kinc_g4_set_render_target_face(struct kinc_g4_render_target *texture, int f
 	viewPort.Height = (float)texture->height;
 	viewPort.MinDepth = D3D11_MIN_DEPTH;
 	viewPort.MaxDepth = D3D11_MAX_DEPTH;
-	context->lpVtbl->RSSetViewports(context, 1, &viewPort);
+	dx_ctx.context->lpVtbl->RSSetViewports(dx_ctx.context, 1, &viewPort);
 }
 
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
@@ -1200,7 +1115,7 @@ void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 		internaloffsets[i] = 0;
 	}
 
-	context->lpVtbl->IASetVertexBuffers(context, 0, count, d3dbuffers, strides, internaloffsets);
+	dx_ctx.context->lpVtbl->IASetVertexBuffers(dx_ctx.context, 0, count, d3dbuffers, strides, internaloffsets);
 }
 
 void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *buffer) {
@@ -1229,7 +1144,7 @@ bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 	queryDesc.Query = D3D11_QUERY_OCCLUSION;
 	queryDesc.MiscFlags = 0;
 	ID3D11Query *pQuery = NULL;
-	HRESULT result = device->lpVtbl->CreateQuery(device, &queryDesc, &pQuery);
+	HRESULT result = dx_ctx.device->lpVtbl->CreateQuery(dx_ctx.device, &queryDesc, &pQuery);
 
 	if (FAILED(result)) {
 		kinc_log(KINC_LOG_LEVEL_INFO, "Internal query creation failed, result: 0x%X.", result);
@@ -1253,21 +1168,21 @@ void kinc_g4_delete_occlusion_query(unsigned occlusionQuery) {
 void kinc_g4_start_occlusion_query(unsigned occlusionQuery) {
 	ID3D11Query *pQuery = queryPool[occlusionQuery];
 	if (pQuery != NULL) {
-		context->lpVtbl->Begin(context, (ID3D11Asynchronous *)pQuery);
+		dx_ctx.context->lpVtbl->Begin(dx_ctx.context, (ID3D11Asynchronous *)pQuery);
 	}
 }
 
 void kinc_g4_end_occlusion_query(unsigned occlusionQuery) {
 	ID3D11Query *pQuery = queryPool[occlusionQuery];
 	if (pQuery != NULL) {
-		context->lpVtbl->End(context, (ID3D11Asynchronous *)pQuery);
+		dx_ctx.context->lpVtbl->End(dx_ctx.context, (ID3D11Asynchronous *)pQuery);
 	}
 }
 
 bool kinc_g4_are_query_results_available(unsigned occlusionQuery) {
 	ID3D11Query *pQuery = queryPool[occlusionQuery];
 	if (pQuery != NULL) {
-		if (S_OK == context->lpVtbl->GetData(context, (ID3D11Asynchronous *)pQuery, 0, 0, 0)) {
+		if (S_OK == dx_ctx.context->lpVtbl->GetData(dx_ctx.context, (ID3D11Asynchronous *)pQuery, 0, 0, 0)) {
 			return true;
 		}
 	}
@@ -1278,7 +1193,7 @@ void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {
 	ID3D11Query *pQuery = queryPool[occlusionQuery];
 	if (pQuery != NULL) {
 		UINT64 numberOfPixelsDrawn;
-		HRESULT result = context->lpVtbl->GetData(context, (ID3D11Asynchronous *)pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
+		HRESULT result = dx_ctx.context->lpVtbl->GetData(dx_ctx.context, (ID3D11Asynchronous *)pQuery, &numberOfPixelsDrawn, sizeof(UINT64), 0);
 		if (S_OK == result) {
 			*pixelCount = (unsigned)numberOfPixelsDrawn;
 		}
@@ -1295,16 +1210,19 @@ void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, kinc_g4_texture_arra
 	kinc_internal_texture_array_set(array, unit);
 }
 
-void kinc_internal_resize(int window, int width, int height) {
-	newRenderTargetWidth = width;
-	newRenderTargetHeight = height;
+void kinc_internal_resize(int windowId, int width, int height) {
+	struct dx_window *window = &dx_ctx.windows[windowId];
+	window->new_width = width;
+	window->new_height = height;
 }
 
-void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {
+void kinc_internal_change_framebuffer(int window_index, kinc_framebuffer_options_t *frame) {
+	struct dx_window *window = &dx_ctx.windows[window_index];
 	kinc_g4_set_antialiasing_samples(frame->samples_per_pixel);
-	vsync = frame->vertical_sync;
+	window->vsync = frame->vertical_sync;
 }
 
 bool kinc_window_vsynced(int window_index) {
-	return vsync;
+	struct dx_window *window = &dx_ctx.windows[window_index];
+	return window->vsync;
 }
