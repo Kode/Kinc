@@ -165,9 +165,6 @@ namespace Kore {
 		const uint ClearDepthFlag = 2;
 		const uint ClearStencilFlag = 4;
 
-		void init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync = true);
-		void destroy(int windowId);
-
 		extern bool fullscreen;
 
 		void flush();

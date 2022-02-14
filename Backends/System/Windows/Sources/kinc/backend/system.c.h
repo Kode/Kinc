@@ -1,10 +1,4 @@
-#ifdef KORE_G4ONG5
-#include <kinc/graphics5/graphics.h>
-#elif KORE_G4
 #include <kinc/graphics4/graphics.h>
-#else
-#include <Kore/Graphics3/Graphics.h>
-#endif
 
 #include <kinc/input/gamepad.h>
 
@@ -329,9 +323,16 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		}
 		break;
 	}
-	case WM_DESTROY:
-		kinc_stop();
-		return 0;
+	case WM_CLOSE:
+		int window_index = kinc_windows_window_index_from_hwnd(hWnd);
+		if (kinc_internal_call_close_callback(window_index)) {
+			kinc_window_destroy(window_index);
+			if (kinc_count_windows() <= 0) {
+				kinc_stop();
+				return 0;
+			}
+		}
+		break;
 	case WM_ERASEBKGND:
 		return 1;
 	case WM_ACTIVATE:
@@ -1363,6 +1364,9 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	if (win->title == NULL) {
 		win->title = name;
 	}
+
+	kinc_g4_internal_init();
+
 	int window = kinc_window_create(win, frame);
 	loadXInput();
 	initializeDirectInput();
@@ -1373,6 +1377,7 @@ void kinc_internal_shutdown() {
 	kinc_windows_hide_windows();
 	kinc_internal_shutdown_callback();
 	kinc_windows_destroy_windows();
+	kinc_g4_internal_destroy();
 	kinc_windows_restore_displays();
 }
 
