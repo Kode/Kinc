@@ -353,9 +353,9 @@ kinc_window_mode_t kinc_window_get_mode(int window_index) {
 }
 
 void kinc_window_destroy(int window_index) {
-	kinc_g4_internal_destroy_window(window_index);
 	WindowData *win = &windows[window_index];
 	if (win->handle != NULL) {
+		kinc_g4_internal_destroy_window(window_index);
 		DestroyWindow(win->handle);
 		win->handle = NULL;
 		--window_counter;
@@ -408,7 +408,7 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 		frame = &defaultFrame;
 	}
 
-	if(win->title == NULL) {
+	if (win->title == NULL) {
 		win->title = "";
 	}
 
