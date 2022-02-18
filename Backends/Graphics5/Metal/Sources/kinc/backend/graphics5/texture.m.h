@@ -315,9 +315,9 @@ void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_image_t *mipmap
 
 	id<MTLTexture> tex = (__bridge id<MTLTexture>)texture->impl._tex;
 	[tex replaceRegion:MTLRegionMake2D(0, 0, mipmap->width, mipmap->height)
-           mipmapLevel:level
-             withBytes:mipmap->data
-           bytesPerRow:mipmap->width * formatByteSize(mipmap->format)];
+	       mipmapLevel:level
+	         withBytes:mipmap->data
+	       bytesPerRow:mipmap->width * formatByteSize(mipmap->format)];
 }
 
 #include <kinc/graphics4/texture.h>

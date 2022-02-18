@@ -72,7 +72,7 @@ int kinc_x11_window_create(kinc_window_options_t *win, kinc_framebuffer_options_
 
 	kinc_x11_window_set_title(window_index, win->title);
 
-	if(x11_ctx.pen.id != -1) {
+	if (x11_ctx.pen.id != -1) {
 		xlib.XSelectExtensionEvent(x11_ctx.display, window->window, &x11_ctx.pen.motionClass, 1);
 	}
 

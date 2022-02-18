@@ -43,8 +43,8 @@ namespace {
 #include <kinc/log.h>
 
 #ifdef KORE_VULKAN
-#include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_android.h>
+#include <vulkan/vulkan_core.h>
 extern "C" VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
 	assert(app->window != NULL);
 	VkAndroidSurfaceCreateInfoKHR createInfo = {};
@@ -180,7 +180,7 @@ namespace {
 			}
 			else if ((source & AINPUT_SOURCE_JOYSTICK) == AINPUT_SOURCE_JOYSTICK) {
 				// int id = AInputEvent_getDeviceId(event);
-				
+
 				float x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0);
 				if (x != last_x) {
 					kinc_internal_gamepad_trigger_axis(0, 0, x);

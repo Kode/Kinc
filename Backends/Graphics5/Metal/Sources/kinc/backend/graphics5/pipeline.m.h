@@ -38,16 +38,16 @@ static MTLBlendFactor convert_blending_factor(kinc_g5_blending_factor_t factor) 
 
 static MTLBlendOperation convert_blending_operation(kinc_g5_blending_operation_t op) {
 	switch (op) {
-		case KINC_G5_BLENDOP_ADD:
-			return MTLBlendOperationAdd;
-		case KINC_G5_BLENDOP_SUBTRACT:
-			return MTLBlendOperationSubtract;
-		case KINC_G5_BLENDOP_REVERSE_SUBTRACT:
-			return MTLBlendOperationReverseSubtract;
-		case KINC_G5_BLENDOP_MIN:
-			return MTLBlendOperationMin;
-		case KINC_G5_BLENDOP_MAX:
-			return MTLBlendOperationMax;
+	case KINC_G5_BLENDOP_ADD:
+		return MTLBlendOperationAdd;
+	case KINC_G5_BLENDOP_SUBTRACT:
+		return MTLBlendOperationSubtract;
+	case KINC_G5_BLENDOP_REVERSE_SUBTRACT:
+		return MTLBlendOperationReverseSubtract;
+	case KINC_G5_BLENDOP_MIN:
+		return MTLBlendOperationMin;
+	case KINC_G5_BLENDOP_MAX:
+		return MTLBlendOperationMax;
 	}
 }
 

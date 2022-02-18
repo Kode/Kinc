@@ -1132,15 +1132,15 @@ bool kinc_g5_are_query_results_available(unsigned occlusionQuery) {
 void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {}
 
 bool kinc_vulkan_internal_get_size(int *width, int *height) {
-    if (has_surface) {
-        VkSurfaceCapabilitiesKHR capabilities;
-        VkResult err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &capabilities);
-        assert(!err);
-        *width = capabilities.currentExtent.width;
-        *height = capabilities.currentExtent.height;
-        return true;
-    }
-    else {
-        return false;
-    }
+	if (has_surface) {
+		VkSurfaceCapabilitiesKHR capabilities;
+		VkResult err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &capabilities);
+		assert(!err);
+		*width = capabilities.currentExtent.width;
+		*height = capabilities.currentExtent.height;
+		return true;
+	}
+	else {
+		return false;
+	}
 }

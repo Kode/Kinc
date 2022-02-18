@@ -28,7 +28,7 @@ void kinc_wayland_resize_decoration(struct kinc_wl_decoration *, int x, int y, i
 static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *toplevel, int32_t width, int32_t height, struct wl_array *states) {
 	struct kinc_wl_window *window = data;
 	if ((width <= 0 || height <= 0) || (width == window->width + (KINC_WL_DECORATION_WIDTH * 2) &&
-	                                  height == window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT)) {
+	                                    height == window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT)) {
 		return;
 	}
 	if (window->decorations.server_side) {
@@ -363,7 +363,7 @@ int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_opti
 	kinc_wayland_window_change_mode(window_index, win->mode);
 	wl_ctx.num_windows++;
 
-	while(!window->configured) {
+	while (!window->configured) {
 		wl_display_roundtrip(wl_ctx.display);
 	}
 

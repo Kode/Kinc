@@ -135,13 +135,13 @@ struct kinc_wl_procs {
 
 extern struct kinc_wl_procs wl;
 
+#include <wayland-client-protocol.h>
 #include <wayland-generated/wayland-pointer-constraint.h>
 #include <wayland-generated/wayland-relative-pointer.h>
 #include <wayland-generated/wayland-tablet.h>
 #include <wayland-generated/wayland-viewporter.h>
 #include <wayland-generated/xdg-decoration.h>
 #include <wayland-generated/xdg-shell.h>
-#include <wayland-client-protocol.h>
 
 #include <xkbcommon/xkbcommon.h>
 

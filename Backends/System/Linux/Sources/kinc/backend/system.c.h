@@ -31,7 +31,7 @@ bool kinc_internal_handle_messages() {
 	}
 #ifndef __FreeBSD__
 	kinc_linux_updateHIDGamepads();
-#endif  // TODO: add #else with proper call to FreeBSD backend impl
+#endif // TODO: add #else with proper call to FreeBSD backend impl
 	return true;
 }
 
@@ -151,7 +151,7 @@ void kinc_linux_init_procs();
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 #ifndef __FreeBSD__
 	kinc_linux_initHIDGamepads();
-#endif  // TODO: add #else with proper call to FreeBSD backend impl
+#endif // TODO: add #else with proper call to FreeBSD backend impl
 
 	gettimeofday(&start, NULL);
 	kinc_linux_init_procs();
@@ -181,7 +181,7 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 void kinc_internal_shutdown() {
 #ifndef __FreeBSD__
 	kinc_linux_closeHIDGamepads();
-#endif  // TODO: add #else with proper call to FreeBSD backend impl
+#endif // TODO: add #else with proper call to FreeBSD backend impl
 	procs.shutdown();
 	kinc_internal_shutdown_callback();
 }

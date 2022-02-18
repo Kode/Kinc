@@ -1,11 +1,11 @@
-#include <wayland-generated/wayland-pointer-constraint.h>
-#include <wayland-generated/wayland-relative-pointer.h>
-#include <wayland-generated/wayland-tablet.h>
-#include <wayland-generated/xdg-shell.h>
 #include "kinc/input/pen.h"
 #include "kinc/log.h"
 #include "kinc/memory.h"
 #include "wayland.h"
+#include <wayland-generated/wayland-pointer-constraint.h>
+#include <wayland-generated/wayland-relative-pointer.h>
+#include <wayland-generated/wayland-tablet.h>
+#include <wayland-generated/xdg-shell.h>
 
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
@@ -1151,7 +1151,6 @@ void kinc_wl_mouse_lock(int window) {
 	mouse->lock = zwp_pointer_constraints_v1_lock_pointer(wl_ctx.pointer_constraints, wl_ctx.windows[window].surface, wl_ctx.seat.mouse.pointer, region,
 	                                                      ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
 	zwp_locked_pointer_v1_add_listener(mouse->lock, &zwp_locked_pointer_v1_listener, mouse);
-
 }
 
 void kinc_wl_mouse_unlock(void) {
