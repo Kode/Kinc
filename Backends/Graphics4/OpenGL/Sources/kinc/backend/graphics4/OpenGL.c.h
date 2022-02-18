@@ -109,7 +109,9 @@ static int texModesU[256];
 static int texModesV[256];
 
 void kinc_internal_resize(int window, int width, int height) {
+#ifdef KORE_WINDOWS
 	Kinc_Internal_resizeWindowRenderTarget(window, width, height);
+#endif
 	glViewport(0, 0, width, height);
 }
 
