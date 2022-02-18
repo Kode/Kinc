@@ -58,6 +58,7 @@ void kinc_linux_init_procs() {
 		procs.mouse_hide = kinc_wl_mouse_hide;
 		procs.mouse_set_position = kinc_wl_mouse_set_position;
 		procs.mouse_get_position = kinc_wl_mouse_get_position;
+		procs.mouse_set_cursor = kinc_wl_mouse_set_cursor;
 
 		procs.display_init = kinc_wayland_display_init;
 		procs.display_available = kinc_wayland_display_available;
@@ -115,6 +116,7 @@ void kinc_linux_init_procs() {
 		procs.mouse_hide = kinc_x11_mouse_hide;
 		procs.mouse_set_position = kinc_x11_mouse_set_position;
 		procs.mouse_get_position = kinc_x11_mouse_get_position;
+		procs.mouse_set_cursor = kinc_x11_mouse_set_cursor;
 
 		procs.copy_to_clipboard = kinc_x11_copy_to_clipboard;
 #ifdef KINC_EGL
