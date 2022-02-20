@@ -522,6 +522,8 @@ bool kinc_g4_swap_buffers() {
 }
 
 #ifdef KORE_IOS
+int kinc_ios_gl_framebuffer = -1;
+
 void beginGL();
 #endif
 
@@ -910,7 +912,11 @@ void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) 
 }
 
 void kinc_g4_restore_render_target() {
+#ifdef KORE_IOS
+	glBindFramebuffer(GL_FRAMEBUFFER, kinc_ios_gl_framebuffer);
+#else
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+#endif
 	glCheckErrors();
 	int w = kinc_window_width(currentWindow);
 	int h = kinc_window_height(currentWindow);
