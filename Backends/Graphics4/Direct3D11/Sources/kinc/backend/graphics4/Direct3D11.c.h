@@ -238,6 +238,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
 	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
+#ifdef KORE_WINDOWS
 	if (isWindows10OrGreater()) {
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		//(DXGI_SWAP_EFFECT) _DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -246,7 +247,9 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		//(DXGI_SWAP_EFFECT) _DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 	}
-	else {
+	else
+#endif
+	{
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	}
 	swapChainDesc.Flags = 0;
@@ -437,10 +440,10 @@ void kinc_g4_begin(int windowId) {
 		createBackbuffer(window, kinc_g4_antialiasing_samples());
 	}
 	kinc_g4_restore_render_target();
-// #ifdef KORE_WINDOWSAPP
-// 	// TODO (DK) do i need to do something here?
-// 	dx_ctx.context->lpVtbl->OMSetRenderTargets(dx_ctx.context, 1, &renderTargetView, depthStencilView);
-// #endif
+	// #ifdef KORE_WINDOWSAPP
+	// 	// TODO (DK) do i need to do something here?
+	// 	dx_ctx.context->lpVtbl->OMSetRenderTargets(dx_ctx.context, 1, &renderTargetView, depthStencilView);
+	// #endif
 }
 
 void kinc_g4_viewport(int x, int y, int width, int height) {
