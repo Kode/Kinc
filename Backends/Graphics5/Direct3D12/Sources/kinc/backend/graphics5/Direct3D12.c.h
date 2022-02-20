@@ -535,8 +535,8 @@ static bool began = false;
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 	if (began) return;
 	began = true;
-
 	struct dx_window *window = &dx_ctx.windows[windowId];
+	dx_ctx.current_window = windowId;
 
 	window->current_backbuffer = (window->current_backbuffer + 1) % QUEUE_SLOT_COUNT;
 
