@@ -73,7 +73,7 @@ int kinc_window_height(int window) {
 #endif
 
 #ifdef KORE_OPENGL
-extern "C" int kinc_ios_gl_framebuffer;
+extern int kinc_ios_gl_framebuffer;
 #endif
 
 #ifdef KORE_METAL

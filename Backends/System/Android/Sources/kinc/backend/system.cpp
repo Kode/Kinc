@@ -60,7 +60,7 @@ extern "C" void kinc_vulkan_get_instance_extensions(const char **names, int *ind
 	names[(*index)++] = VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
 }
 
-VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
+extern "C" VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
 	// https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_android_surface.html#_issues
 	//
 	// 1) Does Android need a way to query for compatibility between a particular physical device (and queue family?)
