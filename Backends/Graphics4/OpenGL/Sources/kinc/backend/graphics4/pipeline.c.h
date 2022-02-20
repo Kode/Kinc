@@ -98,7 +98,6 @@ void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state) {
 		state->impl.textures[i][0] = 0;
 	}
 	state->impl.textureValues = (int *)malloc(sizeof(int) * 16);
-
 	state->impl.programId = glCreateProgram();
 	glCheckErrors();
 }
