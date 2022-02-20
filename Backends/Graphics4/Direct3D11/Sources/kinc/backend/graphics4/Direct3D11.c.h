@@ -216,7 +216,10 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
 
 	struct dx_window *window = &dx_ctx.windows[windowId];
+	// TODO: make WindowsApp actually work again
+#ifdef KORE_WINDOWS
 	window->hwnd = kinc_windows_window_handle(windowId);
+#endif
 	window->depth_bits = depthBufferBits;
 	window->stencil_bits = stencilBufferBits;
 	window->vsync = vSync;
