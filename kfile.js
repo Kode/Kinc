@@ -174,7 +174,7 @@ else if (platform === Platform.WindowsApp) {
 	project.addDefine('_CRT_SECURE_NO_WARNINGS');
 	project.vsdeploy = true;
 
-	if (vr === VrApi.Hololens) {
+	if (vr === VrApi.HoloLens) {
 		project.addDefine('KORE_VR');
 		project.addDefine('KORE_HOLOLENS');
 	}

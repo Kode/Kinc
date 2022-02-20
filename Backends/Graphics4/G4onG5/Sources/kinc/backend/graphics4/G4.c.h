@@ -53,27 +53,25 @@ static struct {
 	int currentBuffer;
 	kinc_g5_render_target_t framebuffers[bufferCount];
 	kinc_g5_render_target_t *currentRenderTargets[renderTargetCount];
-	bool resized;	
+	bool resized;
 } windows[16] = {0};
 
 static int current_window;
 
-static void g4_resize_callback(int width, int height, void *data) {
-	bool *resized = data;
-	*resized = true;
+void kinc_g4_internal_resize(int window, int width, int height) {
+	windows[window].resized = true;
 }
 
 void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	kinc_g5_internal_init_window(window, depthBufferBits, stencilBufferBits, vsync);
 	kinc_g5_command_list_init(&commandList);
+	windows[window].currentBuffer = -1;
 	for (int i = 0; i < bufferCount; ++i) {
-		kinc_g5_render_target_init(&windows[window].framebuffers[i], kinc_window_width(window), kinc_window_height(window), depthBufferBits, false, KINC_G5_RENDER_TARGET_FORMAT_32BIT, -1,
-		                           -i - 1 /* hack in an index for backbuffer render targets */);
+		kinc_g5_render_target_init(&windows[window].framebuffers[i], kinc_window_width(window), kinc_window_height(window), depthBufferBits, false,
+		                           KINC_G5_RENDER_TARGET_FORMAT_32BIT, -1, -i - 1 /* hack in an index for backbuffer render targets */);
 	}
 	kinc_g5_constant_buffer_init(&vertexConstantBuffer, constantBufferSize * constantBufferMultiply);
 	kinc_g5_constant_buffer_init(&fragmentConstantBuffer, constantBufferSize * constantBufferMultiply);
-
-	kinc_window_set_resize_callback(window, g4_resize_callback, &windows[window].resized);
 #ifndef KORE_VULKAN
 	kinc_g5_command_list_begin(&commandList);
 #endif
@@ -176,6 +174,7 @@ void kinc_g4_begin(int window) {
 			kinc_g5_render_target_init(&windows[current_window].framebuffers[i], kinc_window_width(window), kinc_window_height(window), 32, false,
 			                           KINC_G5_RENDER_TARGET_FORMAT_32BIT, -1, -i - 1 /* hack in an index for backbuffer render targets */);
 		}
+		windows[window].resized = false;
 	}
 
 	windows[current_window].currentRenderTargets[0] = &windows[current_window].framebuffers[windows[current_window].currentBuffer];
