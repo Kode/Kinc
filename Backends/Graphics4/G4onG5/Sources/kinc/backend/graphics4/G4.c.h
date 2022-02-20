@@ -58,7 +58,7 @@ static struct {
 
 static int current_window;
 
-void kinc_g4_internal_resize(int window, int width, int height) {
+void kinc_g4_on_g5_internal_resize(int window, int width, int height) {
 	windows[window].resized = true;
 }
 

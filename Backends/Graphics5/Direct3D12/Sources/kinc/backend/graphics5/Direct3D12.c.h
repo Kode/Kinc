@@ -587,14 +587,14 @@ bool kinc_window_vsynced(int window) {
 	return true;
 }
 
-extern void kinc_g4_internal_resize(int, int, int);
+extern void kinc_g4_on_g5_internal_resize(int, int, int);
 
 void kinc_internal_resize(int windowId, int width, int height) {
 	if (width == 0 || height == 0) return;
 	struct dx_window *window = &dx_ctx.windows[windowId];
 	window->new_width = width;
 	window->new_height = height;
-	kinc_g4_internal_resize(windowId, width, height);
+	kinc_g4_on_g5_internal_resize(windowId, width, height);
 }
 
 void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}

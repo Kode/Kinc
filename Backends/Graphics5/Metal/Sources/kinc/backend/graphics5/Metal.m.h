@@ -31,7 +31,11 @@ void kinc_g5_internal_destroy_window(int window) {}
 
 void kinc_g5_internal_destroy() {}
 
-void kinc_internal_resize(int window, int width, int height) {}
+extern void kinc_g4_on_g5_internal_resize(int, int, int);
+
+void kinc_internal_resize(int window, int width, int height) {
+	kinc_g4_on_g5_internal_resize(window, width, height);
+}
 
 extern void kinc_internal_init_samplers(void);
 

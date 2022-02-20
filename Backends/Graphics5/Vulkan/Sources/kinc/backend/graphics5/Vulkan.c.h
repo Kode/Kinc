@@ -135,10 +135,14 @@ void kinc_g5_internal_destroy_window(int window) {}
 
 void kinc_g5_internal_destroy() {}
 
+extern void kinc_g4_on_g5_internal_resize(int, int, int);
+
 void kinc_internal_resize(int window_index, int width, int height) {
 	struct vk_window *window = &vk_ctx.windows[window_index];
 	window->new_width = width;
 	window->new_height = height;
+
+	kinc_g4_on_g5_internal_resize(window_index, width, height);
 }
 
 void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
