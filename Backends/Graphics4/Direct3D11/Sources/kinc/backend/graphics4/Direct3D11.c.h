@@ -204,11 +204,11 @@ void kinc_g4_internal_init() {
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	AFFIRM(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &dx_ctx.device,
-	                         &featureLevel, &dx_ctx.context));
-	AFFIRM(dx_ctx.device->lpVtbl->QueryInterface(dx_ctx.device, &IID_IDXGIDevice, (void **)&dx_ctx.dxgiDevice));
-	AFFIRM(dx_ctx.dxgiDevice->lpVtbl->GetAdapter(dx_ctx.dxgiDevice, &dx_ctx.dxgiAdapter));
-	AFFIRM(dx_ctx.dxgiAdapter->lpVtbl->GetParent(dx_ctx.dxgiAdapter, &IID_IDXGIFactory, (void **)&dx_ctx.dxgiFactory));
+	kinc_microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+	                                        &dx_ctx.device, &featureLevel, &dx_ctx.context));
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->QueryInterface(dx_ctx.device, &IID_IDXGIDevice, (void **)&dx_ctx.dxgiDevice));
+	kinc_microsoft_affirm(dx_ctx.dxgiDevice->lpVtbl->GetAdapter(dx_ctx.dxgiDevice, &dx_ctx.dxgiAdapter));
+	kinc_microsoft_affirm(dx_ctx.dxgiAdapter->lpVtbl->GetParent(dx_ctx.dxgiAdapter, &IID_IDXGIFactory, (void **)&dx_ctx.dxgiFactory));
 }
 
 void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
@@ -259,7 +259,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	swapChainDesc.OutputWindow = window->hwnd;
 	swapChainDesc.Windowed = true;
 
-	AFFIRM(dx_ctx.dxgiFactory->lpVtbl->CreateSwapChain(dx_ctx.dxgiFactory, dx_ctx.dxgiDevice, &swapChainDesc, &window->swapChain));
+	kinc_microsoft_affirm(dx_ctx.dxgiFactory->lpVtbl->CreateSwapChain(dx_ctx.dxgiFactory, dx_ctx.dxgiDevice, &swapChainDesc, &window->swapChain));
 
 	createBackbuffer(window, kinc_g4_antialiasing_samples());
 	currentRenderTargetViews[0] = window->renderTargetView;

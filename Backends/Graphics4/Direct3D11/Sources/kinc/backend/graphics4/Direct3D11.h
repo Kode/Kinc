@@ -39,4 +39,3 @@ struct dx_context {
 extern struct dx_context dx_ctx;
 
 #include <kinc/backend/SystemMicrosoft.h>
-#define AFFIRM(result) kinc_microsoft_affirm(result)
