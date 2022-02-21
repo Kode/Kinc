@@ -131,12 +131,6 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a7e80e1c927ce024bb5a796635bded1d6"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#a7e80e1c927ce024bb5a796635bded1d6">kinc_g4_init</a> (int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync)</td></tr>
-<tr class="memdesc:a7e80e1c927ce024bb5a796635bded1d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the G4-API and is usually called at the start of a program.  <a href="graphics4_2graphics_8h.html#a7e80e1c927ce024bb5a796635bded1d6">More...</a><br /></td></tr>
-<tr class="separator:a7e80e1c927ce024bb5a796635bded1d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8c512ec2a6f5aa116104b01e07de639"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#ad8c512ec2a6f5aa116104b01e07de639">kinc_g4_destroy</a> (int window)</td></tr>
-<tr class="memdesc:ad8c512ec2a6f5aa116104b01e07de639"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroy the G4-API for a window.  <a href="graphics4_2graphics_8h.html#ad8c512ec2a6f5aa116104b01e07de639">More...</a><br /></td></tr>
-<tr class="separator:ad8c512ec2a6f5aa116104b01e07de639"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7f8648e87e714370445bee920373b99"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#ae7f8648e87e714370445bee920373b99">kinc_g4_flush</a> (void)</td></tr>
 <tr class="memdesc:ae7f8648e87e714370445bee920373b99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kicks of lingering work - may or may not actually do anything depending on the underlying graphics-API.  <a href="graphics4_2graphics_8h.html#ae7f8648e87e714370445bee920373b99">More...</a><br /></td></tr>
 <tr class="separator:ae7f8648e87e714370445bee920373b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -323,6 +317,18 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
 <tr class="memitem:a1408a2b2b00d74cf5a45fc63c9d9ff7b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#a1408a2b2b00d74cf5a45fc63c9d9ff7b">kinc_g4_set_antialiasing_samples</a> (int samples)</td></tr>
 <tr class="memdesc:a1408a2b2b00d74cf5a45fc63c9d9ff7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the number of samples used for hardware-antialiasing. This typically uses multisampling and typically only works with a few specific numbers of sample-counts - 2 and 4 are pretty save bets. It also might do nothing at all.  <a href="graphics4_2graphics_8h.html#a1408a2b2b00d74cf5a45fc63c9d9ff7b">More...</a><br /></td></tr>
 <tr class="separator:a1408a2b2b00d74cf5a45fc63c9d9ff7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad92c982dd005e1bc9edfe88e6044dcb4"><td class="memItemLeft" align="right" valign="top"><a id="ad92c982dd005e1bc9edfe88e6044dcb4"></a>
+KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_internal_init</b> (void)</td></tr>
+<tr class="separator:ad92c982dd005e1bc9edfe88e6044dcb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23493f6a7af8147657d6270183da1dd9"><td class="memItemLeft" align="right" valign="top"><a id="a23493f6a7af8147657d6270183da1dd9"></a>
+KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_internal_init_window</b> (int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync)</td></tr>
+<tr class="separator:a23493f6a7af8147657d6270183da1dd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9b4a7d85ed6231e542ae7000c9f2896"><td class="memItemLeft" align="right" valign="top"><a id="ac9b4a7d85ed6231e542ae7000c9f2896"></a>
+KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_internal_destroy_window</b> (int window)</td></tr>
+<tr class="separator:ac9b4a7d85ed6231e542ae7000c9f2896"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63f2ef34438f856551d49949b8e8f54e"><td class="memItemLeft" align="right" valign="top"><a id="a63f2ef34438f856551d49949b8e8f54e"></a>
+KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_internal_destroy</b> (void)</td></tr>
+<tr class="separator:a63f2ef34438f856551d49949b8e8f54e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Contains the base G4-functionality. </p>
@@ -422,33 +428,6 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
   </table>
   </dd>
 </dl>
-
-</div>
-</div>
-<a id="ad8c512ec2a6f5aa116104b01e07de639"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8c512ec2a6f5aa116104b01e07de639">&#9670;&nbsp;</a></span>kinc_g4_destroy()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g4_destroy </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>window</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Destroy the G4-API for a window. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">window</td><td>The window to destroy the G4-API for</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
@@ -617,57 +596,6 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
 </div><div class="memdoc">
 
 <p>Kicks of lingering work - may or may not actually do anything depending on the underlying graphics-API. </p>
-
-</div>
-</div>
-<a id="a7e80e1c927ce024bb5a796635bded1d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7e80e1c927ce024bb5a796635bded1d6">&#9670;&nbsp;</a></span>kinc_g4_init()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g4_init </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>window</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>depth_buffer_bits</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>stencil_buffer_bits</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>vsync</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Initializes the G4-API and is usually called at the start of a program. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">window</td><td>The window to initialize G4 for</td></tr>
-    <tr><td class="paramname">depth_buffer_bits</td><td>The number of bits for the depth buffer - 16 and 24 are typical values</td></tr>
-    <tr><td class="paramname">stencil_buffer_bits</td><td>The number of bits for the stencil-buffer - typically 8</td></tr>
-    <tr><td class="paramname">vsync</td><td>Whether or not to enable vertical-sync</td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>
