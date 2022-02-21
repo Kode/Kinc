@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
 #include <stdbool.h>
+#include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
 struct vk_funs {
@@ -38,11 +38,11 @@ struct vk_window {
 
 	bool vsynced;
 
-	uint32_t  current_image;
+	uint32_t current_image;
 
 	VkSurfaceKHR surface;
 	VkSurfaceFormatKHR format;
-	
+
 	VkSwapchainKHR swapchain;
 	uint32_t image_count;
 	VkImage *images;

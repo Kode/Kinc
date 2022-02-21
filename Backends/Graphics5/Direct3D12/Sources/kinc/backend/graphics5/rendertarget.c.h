@@ -238,7 +238,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 		swapChain->lpVtbl->GetBuffer(swapChain, -contextId - 1, &IID_ID3D12Resource, &render_target->impl.renderTarget);
 		wchar_t *buffer = malloc(128);
 		wsprintf(buffer, L"Backbuffer, contextId: %i", contextId);
-		render_target->impl.renderTarget->lpVtbl->SetName(render_target->impl.renderTarget,buffer);
+		render_target->impl.renderTarget->lpVtbl->SetName(render_target->impl.renderTarget, buffer);
 #endif
 		createRenderTargetView(render_target->impl.renderTarget, render_target->impl.renderTargetDescriptorHeap, dxgiFormat);
 	}

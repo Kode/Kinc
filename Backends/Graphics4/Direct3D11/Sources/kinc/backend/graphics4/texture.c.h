@@ -152,7 +152,8 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 		du.Format = desc.Format;
 		du.Texture2D.MipSlice = 0;
 		du.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateUnorderedAccessView(dx_ctx.device, (ID3D11Resource *)texture->impl.texture, &du, &texture->impl.computeView));
+		kinc_microsoft_affirm(
+		    dx_ctx.device->lpVtbl->CreateUnorderedAccessView(dx_ctx.device, (ID3D11Resource *)texture->impl.texture, &du, &texture->impl.computeView));
 	}
 }
 
@@ -226,7 +227,8 @@ void kinc_internal_texture_set_image(kinc_g4_texture_t *texture, kinc_g4_texture
 		du.Texture3D.FirstWSlice = 0;
 		du.Texture3D.WSize = -1;
 		du.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE3D;
-		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateUnorderedAccessView(dx_ctx.device, (ID3D11Resource *)texture->impl.texture3D, &du, &texture->impl.computeView));
+		kinc_microsoft_affirm(
+		    dx_ctx.device->lpVtbl->CreateUnorderedAccessView(dx_ctx.device, (ID3D11Resource *)texture->impl.texture3D, &du, &texture->impl.computeView));
 	}
 	dx_ctx.context->lpVtbl->OMSetRenderTargetsAndUnorderedAccessViews(dx_ctx.context, 0, NULL, NULL, unit.impl.unit, 1, &texture->impl.computeView, NULL);
 }
@@ -251,9 +253,10 @@ void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
 
 void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {
 	if (texture->impl.renderView == NULL) {
-		texture->tex_depth > 1
-		    ? kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateRenderTargetView(dx_ctx.device, (ID3D11Resource *)texture->impl.texture3D, 0, &texture->impl.renderView))
-		    : kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateRenderTargetView(dx_ctx.device, (ID3D11Resource *)texture->impl.texture, 0, &texture->impl.renderView));
+		texture->tex_depth > 1 ? kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateRenderTargetView(dx_ctx.device, (ID3D11Resource *)texture->impl.texture3D,
+		                                                                                             0, &texture->impl.renderView))
+		                       : kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateRenderTargetView(dx_ctx.device, (ID3D11Resource *)texture->impl.texture, 0,
+		                                                                                             &texture->impl.renderView));
 	}
 	static float clearColor[4];
 	clearColor[0] = ((color & 0x00ff0000) >> 16) / 255.0f;
@@ -293,7 +296,8 @@ static void enableMipmaps(kinc_g4_texture_t *texture, int texWidth, int texHeigh
 	sourceRegion.bottom = texHeight;
 	sourceRegion.front = 0;
 	sourceRegion.back = 1;
-	dx_ctx.context->lpVtbl->CopySubresourceRegion(dx_ctx.context, (ID3D11Resource *)mipMappedTexture, 0, 0, 0, 0, (ID3D11Resource *)texture->impl.texture, 0, &sourceRegion);
+	dx_ctx.context->lpVtbl->CopySubresourceRegion(dx_ctx.context, (ID3D11Resource *)mipMappedTexture, 0, 0, 0, 0, (ID3D11Resource *)texture->impl.texture, 0,
+	                                              &sourceRegion);
 
 	if (texture->impl.texture != NULL) {
 		texture->impl.texture->lpVtbl->Release(texture->impl.texture);
@@ -327,5 +331,5 @@ void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image_t *mipmap
 	dstRegion.front = 0;
 	dstRegion.back = 1;
 	dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)texture->impl.texture, level, &dstRegion, mipmap->data,
-	                                   mipmap->width * formatByteSize(mipmap->format), 0);
+	                                          mipmap->width * formatByteSize(mipmap->format), 0);
 }

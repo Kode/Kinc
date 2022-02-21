@@ -83,7 +83,8 @@ float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {
 }
 
 float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buffer, int start, int count) {
-	VkResult err = vkMapMemory(vk_ctx.device, buffer->impl.vertices.mem, start * buffer->impl.myStride, count * buffer->impl.myStride, 0, (void **)&buffer->impl.data);
+	VkResult err =
+	    vkMapMemory(vk_ctx.device, buffer->impl.vertices.mem, start * buffer->impl.myStride, count * buffer->impl.myStride, 0, (void **)&buffer->impl.data);
 	assert(!err);
 	return buffer->impl.data;
 }

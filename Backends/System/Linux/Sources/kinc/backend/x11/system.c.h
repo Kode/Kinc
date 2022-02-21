@@ -830,7 +830,8 @@ void kinc_x11_vulkan_get_instance_extensions(const char **names, int *index, int
 }
 
 VkBool32 kinc_x11_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
-	return vkGetPhysicalDeviceXlibPresentationSupportKHR(physicalDevice, queueFamilyIndex, x11_ctx.display, DefaultVisual(x11_ctx.display, DefaultScreen(x11_ctx.display))->visualid);
+	return vkGetPhysicalDeviceXlibPresentationSupportKHR(physicalDevice, queueFamilyIndex, x11_ctx.display,
+	                                                     DefaultVisual(x11_ctx.display, DefaultScreen(x11_ctx.display))->visualid);
 }
 #endif
 

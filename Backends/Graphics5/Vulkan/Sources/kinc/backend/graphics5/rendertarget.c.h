@@ -172,7 +172,8 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			assert(!err);
 
 			setup_init_cmd();
-			setImageLayout(vk_ctx.setup_cmd, target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			setImageLayout(vk_ctx.setup_cmd, target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+			               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 			flush_init_cmd();
 
 			colorImageView.image = target->impl.sourceImage;

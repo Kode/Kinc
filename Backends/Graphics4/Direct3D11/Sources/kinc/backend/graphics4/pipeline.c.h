@@ -96,19 +96,23 @@ void kinc_internal_set_constants(void) {
 		dx_ctx.context->lpVtbl->VSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.vertexConstantBuffer);
 	}
 	if (currentPipeline->fragment_shader->impl.constantsSize > 0) {
-		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.fragmentConstantBuffer, 0, NULL, fragmentConstants, 0, 0);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.fragmentConstantBuffer, 0, NULL, fragmentConstants, 0,
+		                                          0);
 		dx_ctx.context->lpVtbl->PSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.fragmentConstantBuffer);
 	}
 	if (currentPipeline->geometry_shader != NULL && currentPipeline->geometry_shader->impl.constantsSize > 0) {
-		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.geometryConstantBuffer, 0, NULL, geometryConstants, 0, 0);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.geometryConstantBuffer, 0, NULL, geometryConstants, 0,
+		                                          0);
 		dx_ctx.context->lpVtbl->GSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.geometryConstantBuffer);
 	}
 	if (currentPipeline->tessellation_control_shader != NULL && currentPipeline->tessellation_control_shader->impl.constantsSize > 0) {
-		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.tessControlConstantBuffer, 0, NULL, tessControlConstants, 0, 0);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.tessControlConstantBuffer, 0, NULL,
+		                                          tessControlConstants, 0, 0);
 		dx_ctx.context->lpVtbl->HSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.tessControlConstantBuffer);
 	}
 	if (currentPipeline->tessellation_evaluation_shader != NULL && currentPipeline->tessellation_evaluation_shader->impl.constantsSize > 0) {
-		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.tessEvalConstantBuffer, 0, NULL, tessEvalConstants, 0, 0);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.tessEvalConstantBuffer, 0, NULL, tessEvalConstants, 0,
+		                                          0);
 		dx_ctx.context->lpVtbl->DSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.tessEvalConstantBuffer);
 	}
 }
@@ -190,12 +194,13 @@ void kinc_internal_set_pipeline(struct kinc_g4_pipeline *pipeline, bool scissori
 	dx_ctx.context->lpVtbl->VSSetShader(dx_ctx.context, (ID3D11VertexShader *)pipeline->vertex_shader->impl.shader, NULL, 0);
 	dx_ctx.context->lpVtbl->PSSetShader(dx_ctx.context, (ID3D11PixelShader *)pipeline->fragment_shader->impl.shader, NULL, 0);
 
-	dx_ctx.context->lpVtbl->GSSetShader(dx_ctx.context, pipeline->geometry_shader != NULL ? (ID3D11GeometryShader *)pipeline->geometry_shader->impl.shader : NULL, NULL, 0);
+	dx_ctx.context->lpVtbl->GSSetShader(dx_ctx.context,
+	                                    pipeline->geometry_shader != NULL ? (ID3D11GeometryShader *)pipeline->geometry_shader->impl.shader : NULL, NULL, 0);
 	dx_ctx.context->lpVtbl->HSSetShader(
 	    dx_ctx.context, pipeline->tessellation_control_shader != NULL ? (ID3D11HullShader *)pipeline->tessellation_control_shader->impl.shader : NULL, NULL, 0);
 	dx_ctx.context->lpVtbl->DSSetShader(
-	    dx_ctx.context, pipeline->tessellation_evaluation_shader != NULL ? (ID3D11DomainShader *)pipeline->tessellation_evaluation_shader->impl.shader : NULL, NULL,
-	    0);
+	    dx_ctx.context, pipeline->tessellation_evaluation_shader != NULL ? (ID3D11DomainShader *)pipeline->tessellation_evaluation_shader->impl.shader : NULL,
+	    NULL, 0);
 
 	dx_ctx.context->lpVtbl->IASetInputLayout(dx_ctx.context, pipeline->impl.d3d11inputLayout);
 }
@@ -759,8 +764,8 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		}
 	}
 
-	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateInputLayout(dx_ctx.device, vertexDesc, all, state->vertex_shader->impl.data, state->vertex_shader->impl.length,
-	                                                        &state->impl.d3d11inputLayout));
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateInputLayout(dx_ctx.device, vertexDesc, all, state->vertex_shader->impl.data,
+	                                                               state->vertex_shader->impl.length, &state->impl.d3d11inputLayout));
 
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
