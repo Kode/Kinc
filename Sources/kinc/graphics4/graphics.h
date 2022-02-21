@@ -385,10 +385,10 @@ KINC_FUNC int kinc_g4_antialiasing_samples(void);
 /// <param name="samples">The number of samples</param>
 KINC_FUNC void kinc_g4_set_antialiasing_samples(int samples);
 
-KINC_FUNC void kinc_g4_internal_init(void);
-KINC_FUNC void kinc_g4_internal_init_window(int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync);
-KINC_FUNC void kinc_g4_internal_destroy_window(int window);
-KINC_FUNC void kinc_g4_internal_destroy(void);
+void kinc_g4_internal_init(void);
+void kinc_g4_internal_init_window(int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync);
+void kinc_g4_internal_destroy_window(int window);
+void kinc_g4_internal_destroy(void);
 
 #ifdef __cplusplus
 }
