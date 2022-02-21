@@ -27,13 +27,21 @@ id getMetalEncoder(void) {
 	return commandEncoder;
 }
 
-void kinc_g5_destroy(int window) {}
+void kinc_g5_internal_destroy_window(int window) {}
 
-void kinc_internal_resize(int window, int width, int height) {}
+void kinc_g5_internal_destroy() {}
+
+extern void kinc_g4_on_g5_internal_resize(int, int, int);
+
+void kinc_internal_resize(int window, int width, int height) {
+	kinc_g4_on_g5_internal_resize(window, width, height);
+}
 
 extern void kinc_internal_init_samplers(void);
 
-void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g5_internal_init() {}
+
+void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	depthBits = depthBufferBits;
 	stencilBits = stencilBufferBits;
 	kinc_internal_init_samplers();

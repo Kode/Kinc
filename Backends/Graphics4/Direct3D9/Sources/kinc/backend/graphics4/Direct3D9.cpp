@@ -91,7 +91,8 @@ namespace {
 	}
 }
 
-void kinc_g4_destroy(int window) {}
+void kinc_g4_internal_destroy_window(int window) {}
+void kinc_g4_internal_destroy() {}
 
 extern "C" void kinc_internal_resize(int width, int height) {
 	if (!resizable) {
@@ -129,7 +130,9 @@ extern "C" void kinc_internal_resize(int width, int height) {
 
 extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
 
-void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g4_internal_init() {}
+
+void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	bool fullscreen = kinc_window_get_mode(windowId) == KINC_WINDOW_MODE_FULLSCREEN || kinc_window_get_mode(windowId) == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN;
 
 	d3d = Direct3DCreate9(D3D_SDK_VERSION);

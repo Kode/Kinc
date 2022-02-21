@@ -81,25 +81,25 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 		renderTarget->impl.renderTargetViewSample[i] = NULL;
 	}
 	if (!renderTarget->isDepthAttachment) {
-		kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &desc, NULL, &renderTarget->impl.textureRender));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateTexture2D(dx_ctx.device, &desc, NULL, &renderTarget->impl.textureRender));
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		renderTargetViewDesc.Format = desc.Format;
 		renderTargetViewDesc.ViewDimension = antialiasing ? D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
-		kinc_microsoft_affirm(device->lpVtbl->CreateRenderTargetView(device, (ID3D11Resource *)renderTarget->impl.textureRender, &renderTargetViewDesc,
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateRenderTargetView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.textureRender, &renderTargetViewDesc,
 		                                                             &renderTarget->impl.renderTargetViewRender[0]));
 
 		if (antialiasing) {
 			desc.SampleDesc.Count = 1;
 			desc.SampleDesc.Quality = 0;
-			kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &desc, NULL, &renderTarget->impl.textureSample));
+			kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateTexture2D(dx_ctx.device, &desc, NULL, &renderTarget->impl.textureSample));
 
 			D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 			renderTargetViewDesc.Format = desc.Format;
 			renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 			renderTargetViewDesc.Texture2D.MipSlice = 0;
-			kinc_microsoft_affirm(device->lpVtbl->CreateRenderTargetView(device, (ID3D11Resource *)renderTarget->impl.textureSample, &renderTargetViewDesc,
+			kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateRenderTargetView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.textureSample, &renderTargetViewDesc,
 			                                                             &renderTarget->impl.renderTargetViewSample[0]));
 		}
 		else {
@@ -147,7 +147,7 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 			depthStencilDesc.SampleDesc.Count = 1;
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
-		kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &depthStencilDesc, NULL, &renderTarget->impl.depthStencil));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateTexture2D(dx_ctx.device, &depthStencilDesc, NULL, &renderTarget->impl.depthStencil));
 		D3D11_DEPTH_STENCIL_VIEW_DESC viewDesc;
 		viewDesc.Format = depthViewFormat;
 		viewDesc.ViewDimension = antialiasing ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -155,7 +155,7 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 		if (!antialiasing) {
 			viewDesc.Texture2D.MipSlice = 0;
 		}
-		kinc_microsoft_affirm(device->lpVtbl->CreateDepthStencilView(device, (ID3D11Resource *)renderTarget->impl.depthStencil, &viewDesc,
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateDepthStencilView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.depthStencil, &viewDesc,
 		                                                             &renderTarget->impl.depthStencilView[0]));
 	}
 
@@ -165,7 +165,7 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 		shaderResourceViewDesc.ViewDimension = antialiasing ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		kinc_microsoft_affirm(device->lpVtbl->CreateShaderResourceView(device, (ID3D11Resource *)renderTarget->impl.textureSample, &shaderResourceViewDesc,
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateShaderResourceView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.textureSample, &shaderResourceViewDesc,
 		                                                               &renderTarget->impl.renderTargetSRV));
 	}
 
@@ -174,13 +174,13 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 		shaderResourceViewDesc.ViewDimension = antialiasing ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		kinc_microsoft_affirm(device->lpVtbl->CreateShaderResourceView(device, (ID3D11Resource *)renderTarget->impl.depthStencil, &shaderResourceViewDesc,
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateShaderResourceView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.depthStencil, &shaderResourceViewDesc,
 		                                                               &renderTarget->impl.depthStencilSRV));
 	}
 
 	if (renderTarget->impl.renderTargetViewRender[0] != NULL) {
 		FLOAT colors[4] = {0, 0, 0, 0};
-		context->lpVtbl->ClearRenderTargetView(context, renderTarget->impl.renderTargetViewRender[0], colors);
+		dx_ctx.context->lpVtbl->ClearRenderTargetView(dx_ctx.context, renderTarget->impl.renderTargetViewRender[0], colors);
 	}
 }
 
@@ -230,7 +230,7 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 		renderTarget->impl.renderTargetViewSample[i] = NULL;
 	}
 	if (!renderTarget->isDepthAttachment) {
-		kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &desc, NULL, &renderTarget->impl.textureRender));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateTexture2D(dx_ctx.device, &desc, NULL, &renderTarget->impl.textureRender));
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		renderTargetViewDesc.Format = desc.Format;
@@ -240,14 +240,14 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 
 		for (int i = 0; i < 6; i++) {
 			renderTargetViewDesc.Texture2DArray.FirstArraySlice = i;
-			kinc_microsoft_affirm(device->lpVtbl->CreateRenderTargetView(device, (ID3D11Resource *)renderTarget->impl.textureRender, &renderTargetViewDesc,
+			kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateRenderTargetView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.textureRender, &renderTargetViewDesc,
 			                                                             &renderTarget->impl.renderTargetViewRender[i]));
 		}
 
 		if (antialiasing) {
 			desc.SampleDesc.Count = 1;
 			desc.SampleDesc.Quality = 0;
-			kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &desc, NULL, &renderTarget->impl.textureSample));
+			kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateTexture2D(dx_ctx.device, &desc, NULL, &renderTarget->impl.textureSample));
 
 			D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 			renderTargetViewDesc.Format = desc.Format;
@@ -256,7 +256,7 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 			renderTargetViewDesc.Texture2DArray.ArraySize = 1;
 			for (int i = 0; i < 6; i++) {
 				renderTargetViewDesc.Texture2DArray.FirstArraySlice = i;
-				kinc_microsoft_affirm(device->lpVtbl->CreateRenderTargetView(device, (ID3D11Resource *)renderTarget->impl.textureSample, &renderTargetViewDesc,
+				kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateRenderTargetView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.textureSample, &renderTargetViewDesc,
 				                                                             &renderTarget->impl.renderTargetViewSample[i]));
 			}
 		}
@@ -308,7 +308,7 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 			depthStencilDesc.SampleDesc.Count = 1;
 			depthStencilDesc.SampleDesc.Quality = 0;
 		}
-		kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &depthStencilDesc, NULL, &renderTarget->impl.depthStencil));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateTexture2D(dx_ctx.device, &depthStencilDesc, NULL, &renderTarget->impl.depthStencil));
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 		depthStencilViewDesc.Format = depthViewFormat;
@@ -318,7 +318,7 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 		depthStencilViewDesc.Flags = 0;
 		for (int i = 0; i < 6; i++) {
 			depthStencilViewDesc.Texture2DArray.FirstArraySlice = i;
-			kinc_microsoft_affirm(device->lpVtbl->CreateDepthStencilView(device, (ID3D11Resource *)renderTarget->impl.depthStencil, &depthStencilViewDesc,
+			kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateDepthStencilView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.depthStencil, &depthStencilViewDesc,
 			                                                             &renderTarget->impl.depthStencilView[i]));
 		}
 	}
@@ -329,7 +329,7 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
 		shaderResourceViewDesc.TextureCube.MipLevels = 1;
-		kinc_microsoft_affirm(device->lpVtbl->CreateShaderResourceView(device, (ID3D11Resource *)renderTarget->impl.textureSample, &shaderResourceViewDesc,
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateShaderResourceView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.textureSample, &shaderResourceViewDesc,
 		                                                               &renderTarget->impl.renderTargetSRV));
 	}
 
@@ -338,14 +338,14 @@ void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int 
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
 		shaderResourceViewDesc.TextureCube.MipLevels = 1;
-		kinc_microsoft_affirm(device->lpVtbl->CreateShaderResourceView(device, (ID3D11Resource *)renderTarget->impl.depthStencil, &shaderResourceViewDesc,
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateShaderResourceView(dx_ctx.device, (ID3D11Resource *)renderTarget->impl.depthStencil, &shaderResourceViewDesc,
 		                                                               &renderTarget->impl.depthStencilSRV));
 	}
 
 	if (!renderTarget->isDepthAttachment) {
 		FLOAT colors[4] = {0, 0, 0, 0};
 		for (int i = 0; i < 6; i++) {
-			context->lpVtbl->ClearRenderTargetView(context, renderTarget->impl.renderTargetViewRender[i], colors);
+			dx_ctx.context->lpVtbl->ClearRenderTargetView(dx_ctx.context, renderTarget->impl.renderTargetViewRender[i], colors);
 		}
 	}
 }
@@ -371,15 +371,15 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	if (renderTarget->impl.textureSample != renderTarget->impl.textureRender) {
-		context->lpVtbl->ResolveSubresource(context, (ID3D11Resource *)renderTarget->impl.textureSample, 0, (ID3D11Resource *)renderTarget->impl.textureRender,
+		dx_ctx.context->lpVtbl->ResolveSubresource(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureSample, 0, (ID3D11Resource *)renderTarget->impl.textureRender,
 		                                    0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
 	if (unit.impl.vertex) {
-		context->lpVtbl->VSSetShaderResources(context, unit.impl.unit, 1,
+		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.impl.unit, 1,
 		                                      renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
 	}
 	else {
-		context->lpVtbl->PSSetShaderResources(context, unit.impl.unit, 1,
+		dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.impl.unit, 1,
 		                                      renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
 	}
 }
@@ -387,10 +387,10 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderT
 void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
 	if (unit.impl.vertex) {
-		context->lpVtbl->VSSetShaderResources(context, unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
+		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
 	}
 	else {
-		context->lpVtbl->PSSetShaderResources(context, unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
+		dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
 	}
 }
 
@@ -416,7 +416,7 @@ void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uin
 		desc.BindFlags = 0;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 		desc.MiscFlags = 0;
-		kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &desc, NULL, &renderTarget->impl.textureStaging));
+		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateTexture2D(dx_ctx.device, &desc, NULL, &renderTarget->impl.textureStaging));
 	}
 
 	D3D11_BOX sourceRegion;
@@ -426,14 +426,14 @@ void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uin
 	sourceRegion.bottom = renderTarget->texHeight;
 	sourceRegion.front = 0;
 	sourceRegion.back = 1;
-	context->lpVtbl->CopySubresourceRegion(context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0, 0, 0, 0,
+	dx_ctx.context->lpVtbl->CopySubresourceRegion(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0, 0, 0, 0,
 	                                       (ID3D11Resource *)renderTarget->impl.textureRender, 0, &sourceRegion);
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	context->lpVtbl->Map(context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0, D3D11_MAP_READ, 0, &mappedResource);
+	dx_ctx.context->lpVtbl->Map(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0, D3D11_MAP_READ, 0, &mappedResource);
 	kinc_memcpy(data, mappedResource.pData,
 	            renderTarget->texWidth * renderTarget->texHeight * formatRenderTargetByteSize((kinc_g4_render_target_format_t)renderTarget->impl.format));
-	context->lpVtbl->Unmap(context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0);
+	dx_ctx.context->lpVtbl->Unmap(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0);
 }
 
 void kinc_g4_render_target_generate_mipmaps(kinc_g4_render_target_t *renderTarget, int levels) {}

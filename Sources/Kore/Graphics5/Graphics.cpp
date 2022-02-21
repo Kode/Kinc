@@ -171,14 +171,6 @@ void Kore::Graphics5::getQueryResults(uint occlusionQuery, uint *pixelCount) {
 	kinc_g5_get_query_result(occlusionQuery, pixelCount);
 }
 
-void Kore::Graphics5::init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	kinc_g5_init(window, depthBufferBits, stencilBufferBits, vsync);
-}
-
-void Kore::Graphics5::destroy(int window) {
-	kinc_g5_destroy(window);
-}
-
 bool Kore::Graphics5::fullscreen = false;
 
 void Kore::Graphics5::flush() {

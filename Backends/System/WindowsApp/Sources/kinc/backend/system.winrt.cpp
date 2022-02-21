@@ -177,7 +177,8 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 		frame = &defaultFrame;
 	}
 
-	kinc_g4_init(0, frame->depth_bits, frame->stencil_bits, true);
+	kinc_g4_internal_init();
+	kinc_g4_internal_init_window(0, frame->depth_bits, frame->stencil_bits, true);
 	return 0;
 }
 
@@ -213,9 +214,6 @@ const char *kinc_language() {
 	}
 	return "en";
 }
-
-extern "C" int renderTargetWidth;
-extern "C" int renderTargetHeight;
 
 Win8Application::Win8Application() : closed(false) {}
 
@@ -263,9 +261,14 @@ void Win8Application::Run() {
 
 void Win8Application::Uninitialize() {}
 
+int kinc_uwp_window_width;
+int kinc_uwp_window_height;
+
 extern "C" void kinc_internal_resize(int window, int width, int height);
 
 void Win8Application::OnWindowSizeChanged(CoreWindow ^ sender, WindowSizeChangedEventArgs ^ args) {
+	kinc_uwp_window_width = (int)args->Size.Width;
+	kinc_uwp_window_height = (int)args->Size.Height;
 	kinc_internal_resize(0, (int)args->Size.Width, (int)args->Size.Height);
 }
 
@@ -373,11 +376,11 @@ const char **kinc_video_formats() {
 }
 
 int kinc_window_width(int window_index) {
-	return renderTargetWidth;
+	return kinc_uwp_window_width;
 }
 
 int kinc_window_height(int window_index) {
-	return renderTargetHeight;
+	return kinc_uwp_window_height;
 }
 
 double kinc_frequency() {

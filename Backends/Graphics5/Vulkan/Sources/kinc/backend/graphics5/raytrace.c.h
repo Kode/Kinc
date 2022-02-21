@@ -1,3 +1,5 @@
+#include "vulkan.h"
+
 #include "raytrace.h"
 
 #ifndef KORE_ANDROID
@@ -10,10 +12,6 @@
 #include <kinc/graphics5/raytrace.h>
 #include <kinc/graphics5/vertexbuffer.h>
 
-extern VkDevice device;
-extern VkQueue queue;
-extern VkCommandPool cmd_pool;
-extern VkPhysicalDevice gpu;
 extern VkRenderPassBeginInfo currentRenderPassBeginInfo;
 extern VkFramebuffer *framebuffers;
 extern uint32_t current_buffer;
@@ -71,7 +69,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		layout_info.pNext = NULL;
 		layout_info.bindingCount = 3;
 		layout_info.pBindings = &bindings[0];
-		vkCreateDescriptorSetLayout(device, &layout_info, NULL, &pipeline->impl.descriptor_set_layout);
+		vkCreateDescriptorSetLayout(vk_ctx.device, &layout_info, NULL, &pipeline->impl.descriptor_set_layout);
 
 		VkPipelineLayoutCreateInfo pipeline_layout_create_info = {0};
 		pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -79,17 +77,17 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		pipeline_layout_create_info.setLayoutCount = 1;
 		pipeline_layout_create_info.pSetLayouts = &pipeline->impl.descriptor_set_layout;
 
-		vkCreatePipelineLayout(device, &pipeline_layout_create_info, NULL, &pipeline->impl.pipeline_layout);
+		vkCreatePipelineLayout(vk_ctx.device, &pipeline_layout_create_info, NULL, &pipeline->impl.pipeline_layout);
 
 		VkShaderModuleCreateInfo module_create_info = {0};
-		memset(&module_create_info, 0, sizeof(VkShaderModuleCreateInfo));
+		kinc_memset(&module_create_info, 0, sizeof(VkShaderModuleCreateInfo));
 		module_create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		module_create_info.codeSize = ray_shader_size;
 		module_create_info.pCode = (const uint32_t *)ray_shader;
 		module_create_info.pNext = NULL;
 		module_create_info.flags = 0;
 		VkShaderModule shader_module;
-		vkCreateShaderModule(device, &module_create_info, NULL, &shader_module);
+		vkCreateShaderModule(vk_ctx.device, &module_create_info, NULL, &shader_module);
 
 		VkPipelineShaderStageCreateInfo shader_stages[3];
 		shader_stages[INDEX_RAYGEN].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -154,8 +152,8 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		raytracing_pipeline_create_info.pGroups = &groups[0];
 		raytracing_pipeline_create_info.maxPipelineRayRecursionDepth = 1;
 		raytracing_pipeline_create_info.layout = pipeline->impl.pipeline_layout;
-		_vkCreateRayTracingPipelinesKHR = (void *)vkGetDeviceProcAddr(device, "vkCreateRayTracingPipelinesKHR");
-		_vkCreateRayTracingPipelinesKHR(device, VK_NULL_HANDLE, VK_NULL_HANDLE, 1, &raytracing_pipeline_create_info, NULL, &pipeline->impl.pipeline);
+		_vkCreateRayTracingPipelinesKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkCreateRayTracingPipelinesKHR");
+		_vkCreateRayTracingPipelinesKHR(vk_ctx.device, VK_NULL_HANDLE, VK_NULL_HANDLE, 1, &raytracing_pipeline_create_info, NULL, &pipeline->impl.pipeline);
 	}
 
 	{
@@ -165,9 +163,9 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		VkPhysicalDeviceProperties2 device_properties = {0};
 		device_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
 		device_properties.pNext = &ray_tracing_pipeline_properties;
-		vkGetPhysicalDeviceProperties2(gpu, &device_properties);
+		vkGetPhysicalDeviceProperties2(vk_ctx.gpu, &device_properties);
 
-		_vkGetRayTracingShaderGroupHandlesKHR = (void *)vkGetDeviceProcAddr(device, "vkGetRayTracingShaderGroupHandlesKHR");
+		_vkGetRayTracingShaderGroupHandlesKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkGetRayTracingShaderGroupHandlesKHR");
 		uint32_t handle_size = ray_tracing_pipeline_properties.shaderGroupHandleSize;
 		uint32_t handle_size_aligned =
 		    (ray_tracing_pipeline_properties.shaderGroupHandleSize + ray_tracing_pipeline_properties.shaderGroupHandleAlignment - 1) &
@@ -180,12 +178,12 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		buf_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 		buf_info.flags = 0;
 
-		vkCreateBuffer(device, &buf_info, NULL, &pipeline->impl.raygen_shader_binding_table);
-		vkCreateBuffer(device, &buf_info, NULL, &pipeline->impl.hit_shader_binding_table);
-		vkCreateBuffer(device, &buf_info, NULL, &pipeline->impl.miss_shader_binding_table);
+		vkCreateBuffer(vk_ctx.device, &buf_info, NULL, &pipeline->impl.raygen_shader_binding_table);
+		vkCreateBuffer(vk_ctx.device, &buf_info, NULL, &pipeline->impl.hit_shader_binding_table);
+		vkCreateBuffer(vk_ctx.device, &buf_info, NULL, &pipeline->impl.miss_shader_binding_table);
 
 		uint8_t shader_handle_storage[1024];
-		_vkGetRayTracingShaderGroupHandlesKHR(device, pipeline->impl.pipeline, 0, 3, handle_size_aligned * 3, shader_handle_storage);
+		_vkGetRayTracingShaderGroupHandlesKHR(vk_ctx.device, pipeline->impl.pipeline, 0, 3, handle_size_aligned * 3, shader_handle_storage);
 
 		VkMemoryAllocateFlagsInfo memory_allocate_flags_info = {0};
 		memory_allocate_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
@@ -196,43 +194,43 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		memory_allocate_info.pNext = &memory_allocate_flags_info;
 
 		VkMemoryRequirements mem_reqs = {0};
-		vkGetBufferMemoryRequirements(device, pipeline->impl.raygen_shader_binding_table, &mem_reqs);
+		vkGetBufferMemoryRequirements(vk_ctx.device, pipeline->impl.raygen_shader_binding_table, &mem_reqs);
 		memory_allocate_info.allocationSize = mem_reqs.size;
 		memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
 		                            &memory_allocate_info.memoryTypeIndex);
 
 		VkDeviceMemory mem;
 		void *data;
-		vkAllocateMemory(device, &memory_allocate_info, NULL, &mem);
-		vkBindBufferMemory(device, pipeline->impl.raygen_shader_binding_table, mem, 0);
-		vkMapMemory(device, mem, 0, handle_size, 0, (void **)&data);
-		memcpy(data, shader_handle_storage, handle_size);
-		vkUnmapMemory(device, mem);
+		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &mem);
+		vkBindBufferMemory(vk_ctx.device, pipeline->impl.raygen_shader_binding_table, mem, 0);
+		vkMapMemory(vk_ctx.device, mem, 0, handle_size, 0, (void **)&data);
+		kinc_memcpy(data, shader_handle_storage, handle_size);
+		vkUnmapMemory(vk_ctx.device, mem);
 
-		vkGetBufferMemoryRequirements(device, pipeline->impl.miss_shader_binding_table, &mem_reqs);
+		vkGetBufferMemoryRequirements(vk_ctx.device, pipeline->impl.miss_shader_binding_table, &mem_reqs);
 		memory_allocate_info.allocationSize = mem_reqs.size;
 		memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &memory_allocate_info.memoryTypeIndex);
 
-		vkAllocateMemory(device, &memory_allocate_info, NULL, &mem);
-		vkBindBufferMemory(device, pipeline->impl.miss_shader_binding_table, mem, 0);
-		vkMapMemory(device, mem, 0, handle_size, 0, (void **)&data);
-		memcpy(data, shader_handle_storage + handle_size_aligned, handle_size);
-		vkUnmapMemory(device, mem);
+		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &mem);
+		vkBindBufferMemory(vk_ctx.device, pipeline->impl.miss_shader_binding_table, mem, 0);
+		vkMapMemory(vk_ctx.device, mem, 0, handle_size, 0, (void **)&data);
+		kinc_memcpy(data, shader_handle_storage + handle_size_aligned, handle_size);
+		vkUnmapMemory(vk_ctx.device, mem);
 
-		vkGetBufferMemoryRequirements(device, pipeline->impl.hit_shader_binding_table, &mem_reqs);
+		vkGetBufferMemoryRequirements(vk_ctx.device, pipeline->impl.hit_shader_binding_table, &mem_reqs);
 		memory_allocate_info.allocationSize = mem_reqs.size;
 		memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &memory_allocate_info.memoryTypeIndex);
 
-		vkAllocateMemory(device, &memory_allocate_info, NULL, &mem);
-		vkBindBufferMemory(device, pipeline->impl.hit_shader_binding_table, mem, 0);
-		vkMapMemory(device, mem, 0, handle_size, 0, (void **)&data);
-		memcpy(data, shader_handle_storage + handle_size_aligned * 2, handle_size);
-		vkUnmapMemory(device, mem);
+		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &mem);
+		vkBindBufferMemory(vk_ctx.device, pipeline->impl.hit_shader_binding_table, mem, 0);
+		vkMapMemory(vk_ctx.device, mem, 0, handle_size, 0, (void **)&data);
+		kinc_memcpy(data, shader_handle_storage + handle_size_aligned * 2, handle_size);
+		vkUnmapMemory(vk_ctx.device, mem);
 	}
 
 	{
 		VkDescriptorPoolSize type_counts[3];
-		memset(type_counts, 0, sizeof(type_counts));
+		kinc_memset(type_counts, 0, sizeof(type_counts));
 
 		type_counts[0].type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
 		type_counts[0].descriptorCount = 1;
@@ -250,7 +248,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		descriptor_pool_create_info.poolSizeCount = 3;
 		descriptor_pool_create_info.pPoolSizes = type_counts;
 
-		vkCreateDescriptorPool(device, &descriptor_pool_create_info, NULL, &raytrace_descriptor_pool);
+		vkCreateDescriptorPool(vk_ctx.device, &descriptor_pool_create_info, NULL, &raytrace_descriptor_pool);
 
 		VkDescriptorSetAllocateInfo alloc_info = {0};
 		alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -258,30 +256,30 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		alloc_info.descriptorPool = raytrace_descriptor_pool;
 		alloc_info.descriptorSetCount = 1;
 		alloc_info.pSetLayouts = &pipeline->impl.descriptor_set_layout;
-		vkAllocateDescriptorSets(device, &alloc_info, &pipeline->impl.descriptor_set);
+		vkAllocateDescriptorSets(vk_ctx.device, &alloc_info, &pipeline->impl.descriptor_set);
 	}
 }
 
 void kinc_raytrace_pipeline_destroy(kinc_raytrace_pipeline_t *pipeline) {
-	vkDestroyPipeline(device, pipeline->impl.pipeline, NULL);
-	vkDestroyPipelineLayout(device, pipeline->impl.pipeline_layout, NULL);
-	vkDestroyDescriptorSetLayout(device, pipeline->impl.descriptor_set_layout, NULL);
+	vkDestroyPipeline(vk_ctx.device, pipeline->impl.pipeline, NULL);
+	vkDestroyPipelineLayout(vk_ctx.device, pipeline->impl.pipeline_layout, NULL);
+	vkDestroyDescriptorSetLayout(vk_ctx.device, pipeline->impl.descriptor_set_layout, NULL);
 }
 
 uint64_t get_buffer_device_address(VkBuffer buffer) {
 	VkBufferDeviceAddressInfoKHR buffer_device_address_info = {0};
 	buffer_device_address_info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
 	buffer_device_address_info.buffer = buffer;
-	_vkGetBufferDeviceAddressKHR = (void *)vkGetDeviceProcAddr(device, "vkGetBufferDeviceAddressKHR");
-	return _vkGetBufferDeviceAddressKHR(device, &buffer_device_address_info);
+	_vkGetBufferDeviceAddressKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkGetBufferDeviceAddressKHR");
+	return _vkGetBufferDeviceAddressKHR(vk_ctx.device, &buffer_device_address_info);
 }
 
 void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_structure_t *accel, kinc_g5_command_list_t *command_list, kinc_g5_vertex_buffer_t *vb,
                                                kinc_g5_index_buffer_t *ib) {
-	_vkGetBufferDeviceAddressKHR = (void *)vkGetDeviceProcAddr(device, "vkGetBufferDeviceAddressKHR");
-	_vkCreateAccelerationStructureKHR = (void *)vkGetDeviceProcAddr(device, "vkCreateAccelerationStructureKHR");
-	_vkGetAccelerationStructureDeviceAddressKHR = (void *)vkGetDeviceProcAddr(device, "vkGetAccelerationStructureDeviceAddressKHR");
-	_vkGetAccelerationStructureBuildSizesKHR = (void *)vkGetDeviceProcAddr(device, "vkGetAccelerationStructureBuildSizesKHR");
+	_vkGetBufferDeviceAddressKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkGetBufferDeviceAddressKHR");
+	_vkCreateAccelerationStructureKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkCreateAccelerationStructureKHR");
+	_vkGetAccelerationStructureDeviceAddressKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkGetAccelerationStructureDeviceAddressKHR");
+	_vkGetAccelerationStructureBuildSizesKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkGetAccelerationStructureBuildSizesKHR");
 
 	{
 		VkDeviceOrHostAddressConstKHR vertex_data_device_address = {0};
@@ -311,7 +309,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		VkAccelerationStructureBuildSizesInfoKHR acceleration_build_sizes_info = {0};
 		acceleration_build_sizes_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
 		const uint32_t primitive_count = 1;
-		_vkGetAccelerationStructureBuildSizesKHR(device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, &acceleration_structure_build_geometry_info,
+		_vkGetAccelerationStructureBuildSizesKHR(vk_ctx.device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, &acceleration_structure_build_geometry_info,
 		                                         &primitive_count, &acceleration_build_sizes_info);
 
 		VkBufferCreateInfo buffer_create_info = {0};
@@ -320,10 +318,10 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		buffer_create_info.usage = VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
 		buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		VkBuffer bottom_level_buffer = VK_NULL_HANDLE;
-		vkCreateBuffer(device, &buffer_create_info, NULL, &bottom_level_buffer);
+		vkCreateBuffer(vk_ctx.device, &buffer_create_info, NULL, &bottom_level_buffer);
 
 		VkMemoryRequirements memory_requirements2;
-		vkGetBufferMemoryRequirements(device, bottom_level_buffer, &memory_requirements2);
+		vkGetBufferMemoryRequirements(vk_ctx.device, bottom_level_buffer, &memory_requirements2);
 
 		VkMemoryAllocateFlagsInfo memory_allocate_flags_info2 = {0};
 		memory_allocate_flags_info2.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
@@ -335,15 +333,15 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		memory_allocate_info.allocationSize = memory_requirements2.size;
 		memory_type_from_properties(memory_requirements2.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &memory_allocate_info.memoryTypeIndex);
 		VkDeviceMemory mem;
-		vkAllocateMemory(device, &memory_allocate_info, NULL, &mem);
-		vkBindBufferMemory(device, bottom_level_buffer, mem, 0);
+		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &mem);
+		vkBindBufferMemory(vk_ctx.device, bottom_level_buffer, mem, 0);
 
 		VkAccelerationStructureCreateInfoKHR acceleration_create_info = {0};
 		acceleration_create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
 		acceleration_create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
 		acceleration_create_info.buffer = bottom_level_buffer;
 		acceleration_create_info.size = acceleration_build_sizes_info.accelerationStructureSize;
-		_vkCreateAccelerationStructureKHR(device, &acceleration_create_info, NULL, &accel->impl.bottom_level_acceleration_structure);
+		_vkCreateAccelerationStructureKHR(vk_ctx.device, &acceleration_create_info, NULL, &accel->impl.bottom_level_acceleration_structure);
 
 		VkBuffer scratch_buffer = VK_NULL_HANDLE;
 		VkDeviceMemory scratch_memory = VK_NULL_HANDLE;
@@ -352,10 +350,10 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		buffer_create_info.size = acceleration_build_sizes_info.buildScratchSize;
 		buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 		buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		vkCreateBuffer(device, &buffer_create_info, NULL, &scratch_buffer);
+		vkCreateBuffer(vk_ctx.device, &buffer_create_info, NULL, &scratch_buffer);
 
 		VkMemoryRequirements memory_requirements;
-		vkGetBufferMemoryRequirements(device, scratch_buffer, &memory_requirements);
+		vkGetBufferMemoryRequirements(vk_ctx.device, scratch_buffer, &memory_requirements);
 
 		VkMemoryAllocateFlagsInfo memory_allocate_flags_info = {0};
 		memory_allocate_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
@@ -365,13 +363,13 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		memory_allocate_info.pNext = &memory_allocate_flags_info;
 		memory_allocate_info.allocationSize = memory_requirements.size;
 		memory_type_from_properties(memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &memory_allocate_info.memoryTypeIndex);
-		vkAllocateMemory(device, &memory_allocate_info, NULL, &scratch_memory);
-		vkBindBufferMemory(device, scratch_buffer, scratch_memory, 0);
+		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &scratch_memory);
+		vkBindBufferMemory(vk_ctx.device, scratch_buffer, scratch_memory, 0);
 
 		VkBufferDeviceAddressInfoKHR buffer_device_address_info = {0};
 		buffer_device_address_info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
 		buffer_device_address_info.buffer = scratch_buffer;
-		uint64_t scratch_buffer_device_address = _vkGetBufferDeviceAddressKHR(device, &buffer_device_address_info);
+		uint64_t scratch_buffer_device_address = _vkGetBufferDeviceAddressKHR(vk_ctx.device, &buffer_device_address_info);
 
 		VkAccelerationStructureBuildGeometryInfoKHR acceleration_build_geometry_info = {0};
 		acceleration_build_geometry_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
@@ -389,23 +387,23 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		acceleration_build_range_info.firstVertex = 0;
 		acceleration_build_range_info.transformOffset = 0x0;
 
-		VkAccelerationStructureBuildRangeInfoKHR *acceleration_build_infos[1] = {&acceleration_build_range_info};
+		const VkAccelerationStructureBuildRangeInfoKHR *acceleration_build_infos[1] = {&acceleration_build_range_info};
 
 		{
 			VkCommandBufferAllocateInfo cmd_buf_allocate_info = {0};
 			cmd_buf_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			cmd_buf_allocate_info.commandPool = cmd_pool;
+			cmd_buf_allocate_info.commandPool = vk_ctx.cmd_pool;
 			cmd_buf_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			cmd_buf_allocate_info.commandBufferCount = 1;
 
 			VkCommandBuffer command_buffer;
-			vkAllocateCommandBuffers(device, &cmd_buf_allocate_info, &command_buffer);
+			vkAllocateCommandBuffers(vk_ctx.device, &cmd_buf_allocate_info, &command_buffer);
 
 			VkCommandBufferBeginInfo command_buffer_info = {0};
 			command_buffer_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			vkBeginCommandBuffer(command_buffer, &command_buffer_info);
 
-			_vkCmdBuildAccelerationStructuresKHR = (void *)vkGetDeviceProcAddr(device, "vkCmdBuildAccelerationStructuresKHR");
+			_vkCmdBuildAccelerationStructuresKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkCmdBuildAccelerationStructuresKHR");
 			_vkCmdBuildAccelerationStructuresKHR(command_buffer, 1, &acceleration_build_geometry_info, &acceleration_build_infos[0]);
 
 			vkEndCommandBuffer(command_buffer);
@@ -420,22 +418,23 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 			fence_info.flags = 0;
 
 			VkFence fence;
-			vkCreateFence(device, &fence_info, NULL, &fence);
+			vkCreateFence(vk_ctx.device, &fence_info, NULL, &fence);
 
-			VkResult result = vkQueueSubmit(queue, 1, &submit_info, fence);
-			vkWaitForFences(device, 1, &fence, VK_TRUE, 100000000000);
-			vkDestroyFence(device, fence, NULL);
-			vkFreeCommandBuffers(device, cmd_pool, 1, &command_buffer);
+			VkResult result = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, fence);
+			assert(!result);
+			vkWaitForFences(vk_ctx.device, 1, &fence, VK_TRUE, 100000000000);
+			vkDestroyFence(vk_ctx.device, fence, NULL);
+			vkFreeCommandBuffers(vk_ctx.device, vk_ctx.cmd_pool, 1, &command_buffer);
 		}
 
 		VkAccelerationStructureDeviceAddressInfoKHR acceleration_device_address_info = {0};
 		acceleration_device_address_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
 		acceleration_device_address_info.accelerationStructure = accel->impl.bottom_level_acceleration_structure;
 
-		accel->impl.bottom_level_acceleration_structure_handle = _vkGetAccelerationStructureDeviceAddressKHR(device, &acceleration_device_address_info);
+		accel->impl.bottom_level_acceleration_structure_handle = _vkGetAccelerationStructureDeviceAddressKHR(vk_ctx.device, &acceleration_device_address_info);
 
-		vkFreeMemory(device, scratch_memory, NULL);
-		vkDestroyBuffer(device, scratch_buffer, NULL);
+		vkFreeMemory(vk_ctx.device, scratch_memory, NULL);
+		vkDestroyBuffer(vk_ctx.device, scratch_buffer, NULL);
 	}
 
 	{
@@ -457,17 +456,17 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		buf_info.flags = 0;
 
 		VkMemoryAllocateInfo mem_alloc;
-		memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+		kinc_memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
 		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		mem_alloc.pNext = NULL;
 		mem_alloc.allocationSize = 0;
 		mem_alloc.memoryTypeIndex = 0;
 
 		VkBuffer instances_buffer;
-		vkCreateBuffer(device, &buf_info, NULL, &instances_buffer);
+		vkCreateBuffer(vk_ctx.device, &buf_info, NULL, &instances_buffer);
 
 		VkMemoryRequirements mem_reqs = {0};
-		vkGetBufferMemoryRequirements(device, instances_buffer, &mem_reqs);
+		vkGetBufferMemoryRequirements(vk_ctx.device, instances_buffer, &mem_reqs);
 
 		mem_alloc.allocationSize = mem_reqs.size;
 		memory_type_from_properties(mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &mem_alloc.memoryTypeIndex);
@@ -478,13 +477,13 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		mem_alloc.pNext = &memory_allocate_flags_info;
 
 		VkDeviceMemory mem;
-		vkAllocateMemory(device, &mem_alloc, NULL, &mem);
+		vkAllocateMemory(vk_ctx.device, &mem_alloc, NULL, &mem);
 
-		vkBindBufferMemory(device, instances_buffer, mem, 0);
+		vkBindBufferMemory(vk_ctx.device, instances_buffer, mem, 0);
 		void *data;
-		vkMapMemory(device, mem, 0, sizeof(VkAccelerationStructureInstanceKHR), 0, (void **)&data);
-		memcpy(data, &instance, sizeof(VkAccelerationStructureInstanceKHR));
-		vkUnmapMemory(device, mem);
+		vkMapMemory(vk_ctx.device, mem, 0, sizeof(VkAccelerationStructureInstanceKHR), 0, (void **)&data);
+		kinc_memcpy(data, &instance, sizeof(VkAccelerationStructureInstanceKHR));
+		vkUnmapMemory(vk_ctx.device, mem);
 
 		VkDeviceOrHostAddressConstKHR instance_data_device_address = {0};
 		instance_data_device_address.deviceAddress = get_buffer_device_address(instances_buffer);
@@ -507,7 +506,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		VkAccelerationStructureBuildSizesInfoKHR acceleration_build_sizes_info = {0};
 		acceleration_build_sizes_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
 		const uint32_t primitive_count = 1;
-		_vkGetAccelerationStructureBuildSizesKHR(device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, &acceleration_structure_build_geometry_info,
+		_vkGetAccelerationStructureBuildSizesKHR(vk_ctx.device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR, &acceleration_structure_build_geometry_info,
 		                                         &primitive_count, &acceleration_build_sizes_info);
 
 		VkBufferCreateInfo buffer_create_info = {0};
@@ -516,10 +515,10 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		buffer_create_info.usage = VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
 		buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		VkBuffer top_level_buffer = VK_NULL_HANDLE;
-		vkCreateBuffer(device, &buffer_create_info, NULL, &top_level_buffer);
+		vkCreateBuffer(vk_ctx.device, &buffer_create_info, NULL, &top_level_buffer);
 
 		VkMemoryRequirements memory_requirements2;
-		vkGetBufferMemoryRequirements(device, top_level_buffer, &memory_requirements2);
+		vkGetBufferMemoryRequirements(vk_ctx.device, top_level_buffer, &memory_requirements2);
 
 		memory_allocate_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
 		memory_allocate_flags_info.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR;
@@ -529,15 +528,15 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		memory_allocate_info.pNext = &memory_allocate_flags_info;
 		memory_allocate_info.allocationSize = memory_requirements2.size;
 		memory_type_from_properties(memory_requirements2.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &memory_allocate_info.memoryTypeIndex);
-		vkAllocateMemory(device, &memory_allocate_info, NULL, &mem);
-		vkBindBufferMemory(device, top_level_buffer, mem, 0);
+		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &mem);
+		vkBindBufferMemory(vk_ctx.device, top_level_buffer, mem, 0);
 
 		VkAccelerationStructureCreateInfoKHR acceleration_create_info = {0};
 		acceleration_create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
 		acceleration_create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
 		acceleration_create_info.buffer = top_level_buffer;
 		acceleration_create_info.size = acceleration_build_sizes_info.accelerationStructureSize;
-		_vkCreateAccelerationStructureKHR(device, &acceleration_create_info, NULL, &accel->impl.top_level_acceleration_structure);
+		_vkCreateAccelerationStructureKHR(vk_ctx.device, &acceleration_create_info, NULL, &accel->impl.top_level_acceleration_structure);
 
 		VkBuffer scratch_buffer = VK_NULL_HANDLE;
 		VkDeviceMemory scratch_memory = VK_NULL_HANDLE;
@@ -546,10 +545,10 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		buffer_create_info.size = acceleration_build_sizes_info.buildScratchSize;
 		buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 		buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		vkCreateBuffer(device, &buffer_create_info, NULL, &scratch_buffer);
+		vkCreateBuffer(vk_ctx.device, &buffer_create_info, NULL, &scratch_buffer);
 
 		VkMemoryRequirements memory_requirements;
-		vkGetBufferMemoryRequirements(device, scratch_buffer, &memory_requirements);
+		vkGetBufferMemoryRequirements(vk_ctx.device, scratch_buffer, &memory_requirements);
 
 		memory_allocate_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
 		memory_allocate_flags_info.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR;
@@ -558,13 +557,13 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		memory_allocate_info.pNext = &memory_allocate_flags_info;
 		memory_allocate_info.allocationSize = memory_requirements.size;
 		memory_type_from_properties(memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &memory_allocate_info.memoryTypeIndex);
-		vkAllocateMemory(device, &memory_allocate_info, NULL, &scratch_memory);
-		vkBindBufferMemory(device, scratch_buffer, scratch_memory, 0);
+		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &scratch_memory);
+		vkBindBufferMemory(vk_ctx.device, scratch_buffer, scratch_memory, 0);
 
 		VkBufferDeviceAddressInfoKHR buffer_device_address_info = {0};
 		buffer_device_address_info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
 		buffer_device_address_info.buffer = scratch_buffer;
-		uint64_t scratch_buffer_device_address = _vkGetBufferDeviceAddressKHR(device, &buffer_device_address_info);
+		uint64_t scratch_buffer_device_address = _vkGetBufferDeviceAddressKHR(vk_ctx.device, &buffer_device_address_info);
 
 		VkAccelerationStructureBuildGeometryInfoKHR acceleration_build_geometry_info = {0};
 		acceleration_build_geometry_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
@@ -583,23 +582,23 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		acceleration_build_range_info.firstVertex = 0;
 		acceleration_build_range_info.transformOffset = 0x0;
 
-		VkAccelerationStructureBuildRangeInfoKHR *acceleration_build_infos[1] = {&acceleration_build_range_info};
+		const VkAccelerationStructureBuildRangeInfoKHR *acceleration_build_infos[1] = {&acceleration_build_range_info};
 
 		{
 			VkCommandBufferAllocateInfo cmd_buf_allocate_info = {0};
 			cmd_buf_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			cmd_buf_allocate_info.commandPool = cmd_pool;
+			cmd_buf_allocate_info.commandPool = vk_ctx.cmd_pool;
 			cmd_buf_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			cmd_buf_allocate_info.commandBufferCount = 1;
 
 			VkCommandBuffer command_buffer;
-			vkAllocateCommandBuffers(device, &cmd_buf_allocate_info, &command_buffer);
+			vkAllocateCommandBuffers(vk_ctx.device, &cmd_buf_allocate_info, &command_buffer);
 
 			VkCommandBufferBeginInfo command_buffer_info = {0};
 			command_buffer_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			vkBeginCommandBuffer(command_buffer, &command_buffer_info);
 
-			_vkCmdBuildAccelerationStructuresKHR = (void *)vkGetDeviceProcAddr(device, "vkCmdBuildAccelerationStructuresKHR");
+			_vkCmdBuildAccelerationStructuresKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkCmdBuildAccelerationStructuresKHR");
 			_vkCmdBuildAccelerationStructuresKHR(command_buffer, 1, &acceleration_build_geometry_info, &acceleration_build_infos[0]);
 
 			vkEndCommandBuffer(command_buffer);
@@ -614,30 +613,31 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 			fence_info.flags = 0;
 
 			VkFence fence;
-			vkCreateFence(device, &fence_info, NULL, &fence);
+			vkCreateFence(vk_ctx.device, &fence_info, NULL, &fence);
 
-			VkResult result = vkQueueSubmit(queue, 1, &submit_info, fence);
-			vkWaitForFences(device, 1, &fence, VK_TRUE, 100000000000);
-			vkDestroyFence(device, fence, NULL);
+			VkResult result = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, fence);
+			assert(!result);
+			vkWaitForFences(vk_ctx.device, 1, &fence, VK_TRUE, 100000000000);
+			vkDestroyFence(vk_ctx.device, fence, NULL);
 
-			vkFreeCommandBuffers(device, cmd_pool, 1, &command_buffer);
+			vkFreeCommandBuffers(vk_ctx.device, vk_ctx.cmd_pool, 1, &command_buffer);
 		}
 
 		VkAccelerationStructureDeviceAddressInfoKHR acceleration_device_address_info = {0};
 		acceleration_device_address_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
 		acceleration_device_address_info.accelerationStructure = accel->impl.top_level_acceleration_structure;
 
-		accel->impl.top_level_acceleration_structure_handle = _vkGetAccelerationStructureDeviceAddressKHR(device, &acceleration_device_address_info);
+		accel->impl.top_level_acceleration_structure_handle = _vkGetAccelerationStructureDeviceAddressKHR(vk_ctx.device, &acceleration_device_address_info);
 
-		vkFreeMemory(device, scratch_memory, NULL);
-		vkDestroyBuffer(device, scratch_buffer, NULL);
+		vkFreeMemory(vk_ctx.device, scratch_memory, NULL);
+		vkDestroyBuffer(vk_ctx.device, scratch_buffer, NULL);
 	}
 }
 
 void kinc_raytrace_acceleration_structure_destroy(kinc_raytrace_acceleration_structure_t *accel) {
-	_vkDestroyAccelerationStructureKHR = (void *)vkGetDeviceProcAddr(device, "vkDestroyAccelerationStructureKHR");
-	_vkDestroyAccelerationStructureKHR(device, accel->impl.bottom_level_acceleration_structure, NULL);
-	_vkDestroyAccelerationStructureKHR(device, accel->impl.top_level_acceleration_structure, NULL);
+	_vkDestroyAccelerationStructureKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkDestroyAccelerationStructureKHR");
+	_vkDestroyAccelerationStructureKHR(vk_ctx.device, accel->impl.bottom_level_acceleration_structure, NULL);
+	_vkDestroyAccelerationStructureKHR(vk_ctx.device, accel->impl.top_level_acceleration_structure, NULL);
 }
 
 void kinc_raytrace_set_acceleration_structure(kinc_raytrace_acceleration_structure_t *_accel) {
@@ -694,7 +694,7 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	uniform_buffer_write.pBufferInfo = &buffer_descriptor;
 
 	VkWriteDescriptorSet write_descriptor_sets[3] = {acceleration_structure_write, result_image_write, uniform_buffer_write};
-	vkUpdateDescriptorSets(device, 3, write_descriptor_sets, 0, VK_NULL_HANDLE);
+	vkUpdateDescriptorSets(vk_ctx.device, 3, write_descriptor_sets, 0, VK_NULL_HANDLE);
 
 	VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_pipeline_properties;
 	ray_tracing_pipeline_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
@@ -702,7 +702,7 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	VkPhysicalDeviceProperties2 device_properties = {0};
 	device_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
 	device_properties.pNext = &ray_tracing_pipeline_properties;
-	vkGetPhysicalDeviceProperties2(gpu, &device_properties);
+	vkGetPhysicalDeviceProperties2(vk_ctx.gpu, &device_properties);
 
 	// Setup the strided buffer regions pointing to the shaders in our shader binding table
 	const uint32_t handle_size_aligned =
@@ -733,7 +733,7 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	vkCmdBindDescriptorSets(command_list->impl._buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline->impl.pipeline_layout, 0, 1,
 	                        &pipeline->impl.descriptor_set, 0, 0);
 
-	_vkCmdTraceRaysKHR = (void *)vkGetDeviceProcAddr(device, "vkCmdTraceRaysKHR");
+	_vkCmdTraceRaysKHR = (void *)vkGetDeviceProcAddr(vk_ctx.device, "vkCmdTraceRaysKHR");
 	_vkCmdTraceRaysKHR(command_list->impl._buffer, &raygen_shader_sbt_entry, &miss_shader_sbt_entry, &hit_shader_sbt_entry, &callable_shader_sbt_entry,
 	                   output->texWidth, output->texHeight, 1);
 
@@ -755,7 +755,8 @@ void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_tar
 
 	if (target->contextId < 0) {
 		vkCmdCopyImage(command_list->impl._buffer, output->impl.texture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-		               kinc_vulkan_internal_buffers[current_buffer].image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
+		               vk_ctx.windows[vk_ctx.current_window].images[vk_ctx.windows[vk_ctx.current_window].current_image], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		               1, &copy_region);
 	}
 	else {
 		vkCmdCopyImage(command_list->impl._buffer, output->impl.texture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, target->impl.sourceImage,

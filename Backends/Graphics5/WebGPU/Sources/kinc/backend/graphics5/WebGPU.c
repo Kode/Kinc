@@ -18,11 +18,13 @@ WGPUDevice device;
 WGPUQueue queue;
 WGPUSwapChain swapChain;
 
-void kinc_g5_destroy(int windowId) {}
+void kinc_g5_internal_destroy_window(int windowId) {}
 
-void kinc_internal_g5_resize(int window, int width, int height) {}
+void kinc_g5_internal_destroy() {}
 
-void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g5_internal_init() {}
+
+void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	newRenderTargetWidth = renderTargetWidth = kinc_width();
 	newRenderTargetHeight = renderTargetHeight = kinc_height();
 

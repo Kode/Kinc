@@ -1,13 +1,16 @@
+#include "vulkan.h"
+
 #include <kinc/error.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/log.h>
-#include <kinc/math/core.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <vulkan/vulkan_core.h>
+
+struct vk_funs vk = {0};
+struct vk_context vk_ctx = {0};
 
 #ifdef KORE_WINDOWS
 #define ERR_EXIT(err_msg, err_class)                                                                                                                           \
@@ -18,20 +21,19 @@
 #else
 #define ERR_EXIT(err_msg, err_class)                                                                                                                           \
 	do {                                                                                                                                                       \
-		printf(err_msg);                                                                                                                                       \
-		fflush(stdout);                                                                                                                                        \
+		kinc_log(KINC_LOG_LEVEL_ERROR, "%s", err_msg);                                                                                                         \
 		exit(1);                                                                                                                                               \
 	} while (0)
 #endif
 
 void kinc_vulkan_get_instance_extensions(const char **extensions, int *index, int max);
-VkBool32 kinc_wayland_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
+VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
 VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface);
 
-#define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                                                                                                               \
+#define GET_INSTANCE_PROC_ADDR(instance, entrypoint)                                                                                                           \
 	{                                                                                                                                                          \
-		fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(inst, "vk" #entrypoint);                                                                    \
-		if (fp##entrypoint == NULL) {                                                                                                                          \
+		vk.fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(instance, "vk" #entrypoint);                                                             \
+		if (vk.fp##entrypoint == NULL) {                                                                                                                       \
 			ERR_EXIT("vkGetInstanceProcAddr failed to find vk" #entrypoint, "vkGetInstanceProcAddr Failure");                                                  \
 		}                                                                                                                                                      \
 	}
@@ -40,20 +42,6 @@ VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSur
 
 #define APP_NAME_STR_LEN 80
 
-int renderTargetWidth;
-int renderTargetHeight;
-int newRenderTargetWidth;
-int newRenderTargetHeight;
-
-VkDevice device;
-VkFormat format;
-VkPhysicalDevice gpu;
-VkCommandPool cmd_pool;
-VkQueue queue;
-uint32_t swapchainImageCount;
-VkFramebuffer *framebuffers;
-PFN_vkQueuePresentKHR fpQueuePresentKHR;
-PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
 VkSemaphore presentCompleteSemaphore;
 void createDescriptorLayout(void);
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
@@ -62,92 +50,43 @@ void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayou
 #define VALIDATE
 #endif
 
-struct SwapchainBuffers *kinc_vulkan_internal_buffers;
-struct DepthBuffer kinc_vulkan_internal_depth;
-VkSwapchainKHR swapchain;
-uint32_t current_buffer;
-int depthBits;
-int stencilBits;
-bool vsynced;
-
-static bool has_surface = false;
+// uint32_t current_buffer;
 
 kinc_g5_texture_t *vulkanTextures[16] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 kinc_g5_render_target_t *vulkanRenderTargets[16] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 static bool began = false;
-#ifdef KORE_WINDOWS
-static HWND windowHandle;
 
-static HINSTANCE connection;        // hInstance - Windows Instance
-static char name[APP_NAME_STR_LEN]; // Name to put on the window/icon
-static HWND window;                 // hWnd - window handle
-#endif
-static VkSurfaceKHR surface;
-static bool prepared;
 #ifndef KORE_ANDROID
 static VkAllocationCallbacks allocator;
 #endif
-static VkInstance inst;
+
 static VkPhysicalDeviceProperties gpu_props;
 static VkQueueFamilyProperties *queue_props;
 static uint32_t graphics_queue_node_index;
 
-static uint32_t enabled_extension_count;
-#ifdef VALIDATE
-static uint32_t enabled_layer_count;
-#endif
-static char *extension_names[64];
-#ifdef VALIDATE
-static char *device_validation_layers[64];
-#endif
-
-static VkColorSpaceKHR color_space;
-
-static PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR;
-static PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fpGetPhysicalDeviceSurfaceCapabilitiesKHR;
-static PFN_vkGetPhysicalDeviceSurfaceFormatsKHR fpGetPhysicalDeviceSurfaceFormatsKHR;
-static PFN_vkGetPhysicalDeviceSurfacePresentModesKHR fpGetPhysicalDeviceSurfacePresentModesKHR;
-static PFN_vkCreateSwapchainKHR fpCreateSwapchainKHR;
-static PFN_vkDestroySwapchainKHR fpDestroySwapchainKHR;
-static PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR;
-
 static VkPhysicalDeviceMemoryProperties memory_properties;
 
-static PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallback;
-static PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportCallback;
-static VkDebugReportCallbackEXT msg_callback;
-
-static bool quit;
 static uint32_t queue_count;
 
-static VkBool32 check_layers(uint32_t check_count, char **check_names, uint32_t layer_count, VkLayerProperties *layers) {
-	for (uint32_t i = 0; i < check_count; ++i) {
-		VkBool32 found = 0;
-		for (uint32_t j = 0; j < layer_count; ++j) {
-			if (!strcmp(check_names[i], layers[j].layerName)) {
-				found = 1;
-				break;
-			}
-		}
-		if (!found) {
-			kinc_log(KINC_LOG_LEVEL_WARNING, "Cannot find layer: %s\n", check_names[i]);
-			return 0;
-		}
+static VkBool32 vkDebugUtilsMessengerCallbackEXT(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+                                                 const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData) {
+	if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Vulkan ERROR: Code %d : %s", pCallbackData->messageIdNumber, pCallbackData->pMessage);
+		#ifndef NDEBUG
+		#ifdef __has_builtin
+		#if __has_builtin(__builtin_trap)
+		__builtin_trap();
+		#endif
+		#endif
+		#endif
 	}
-	return 1;
+	else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Vulkan WARNING: Code %d : %s", pCallbackData->messageIdNumber, pCallbackData->pMessage);
+	}
+	return VK_FALSE;
 }
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL dbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject, size_t location, int32_t msgCode,
-                                              const char *pLayerPrefix, const char *pMsg, void *pUserData) {
-	if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-	}
-	else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
-	}
-	return false;
-}
 #ifndef KORE_ANDROID
 static VKAPI_ATTR void *VKAPI_CALL myrealloc(void *pUserData, void *pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
 #ifdef _MSC_VER
@@ -175,16 +114,6 @@ static VKAPI_ATTR void VKAPI_CALL myfree(void *pUserData, void *pMemory) {
 #endif
 }
 #endif
-static int powi(int power) {
-	int ret = 1;
-	for (int i = 0; i < power; ++i) ret *= 2;
-	return ret;
-}
-
-static int getPower2(int i) {
-	for (int power = 0;; ++power)
-		if (powi(power) >= i) return powi(power);
-}
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
 	// Search memtypes to find first index with those properties
@@ -202,32 +131,36 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 	return false;
 }
 
-void kinc_g5_destroy(int window) {}
+void kinc_g5_internal_destroy_window(int window) {}
 
-void kinc_internal_g5_resize(int window, int width, int height) {}
+void kinc_g5_internal_destroy() {}
 
-void kinc_internal_resize(int window, int width, int height) {
-	if (width == 0 || height == 0) return;
-	newRenderTargetWidth = width;
-	newRenderTargetHeight = height;
+extern void kinc_g4_on_g5_internal_resize(int, int, int);
+
+void kinc_internal_resize(int window_index, int width, int height) {
+	struct vk_window *window = &vk_ctx.windows[window_index];
+	window->new_width = width;
+	window->new_height = height;
+
+	kinc_g4_on_g5_internal_resize(window_index, width, height);
 }
 
 void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
 
-void create_swapchain(void) {
-	VkSwapchainKHR oldSwapchain = swapchain;
+void create_swapchain(struct vk_window *window) {
+	VkSwapchainKHR oldSwapchain = window->swapchain;
 
 	// Check the surface capabilities and formats
 	VkSurfaceCapabilitiesKHR surfCapabilities = {0};
-	VkResult err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &surfCapabilities);
+	VkResult err = vk.fpGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_ctx.gpu, window->surface, &surfCapabilities);
 	assert(!err);
 
 	uint32_t presentModeCount;
-	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, NULL);
+	err = vk.fpGetPhysicalDeviceSurfacePresentModesKHR(vk_ctx.gpu, window->surface, &presentModeCount, NULL);
 	assert(!err);
-	VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
+	VkPresentModeKHR *presentModes = (VkPresentModeKHR *)kinc_allocate(presentModeCount * sizeof(VkPresentModeKHR));
 	assert(presentModes);
-	err = fpGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, presentModes);
+	err = vk.fpGetPhysicalDeviceSurfacePresentModesKHR(vk_ctx.gpu, window->surface, &presentModeCount, presentModes);
 	assert(!err);
 
 	VkExtent2D swapchainExtent;
@@ -235,17 +168,17 @@ void create_swapchain(void) {
 	if (surfCapabilities.currentExtent.width == (uint32_t)-1) {
 		// If the surface size is undefined, the size is set to
 		// the size of the images requested.
-		swapchainExtent.width = renderTargetWidth;
-		swapchainExtent.height = renderTargetHeight;
+		swapchainExtent.width = window->width;
+		swapchainExtent.height = window->height;
 	}
 	else {
 		// If the surface size is defined, the swap chain size must match
 		swapchainExtent = surfCapabilities.currentExtent;
-		renderTargetWidth = surfCapabilities.currentExtent.width;
-		renderTargetHeight = surfCapabilities.currentExtent.height;
+		window->width = surfCapabilities.currentExtent.width;
+		window->height = surfCapabilities.currentExtent.height;
 	}
 
-	VkPresentModeKHR swapchainPresentMode = vsynced ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_MAILBOX_KHR;
+	VkPresentModeKHR swapchainPresentMode = window->vsynced ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_MAILBOX_KHR;
 
 	// Determine the number of VkImage's to use in the swap chain (we desire to
 	// own only 1 image at a time, besides the images being displayed and
@@ -267,10 +200,10 @@ void create_swapchain(void) {
 	VkSwapchainCreateInfoKHR swapchain_info = {0};
 	swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	swapchain_info.pNext = NULL;
-	swapchain_info.surface = surface;
+	swapchain_info.surface = window->surface;
 	swapchain_info.minImageCount = desiredNumberOfSwapchainImages;
-	swapchain_info.imageFormat = format;
-	swapchain_info.imageColorSpace = color_space;
+	swapchain_info.imageFormat = window->format.format;
+	swapchain_info.imageColorSpace = window->format.colorSpace;
 	swapchain_info.imageExtent.width = swapchainExtent.width;
 	swapchain_info.imageExtent.height = swapchainExtent.height;
 	swapchain_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -284,9 +217,7 @@ void create_swapchain(void) {
 	swapchain_info.oldSwapchain = oldSwapchain;
 	swapchain_info.clipped = true;
 
-	uint32_t i;
-
-	err = fpCreateSwapchainKHR(device, &swapchain_info, NULL, &swapchain);
+	err = vk.fpCreateSwapchainKHR(vk_ctx.device, &swapchain_info, NULL, &window->swapchain);
 	assert(!err);
 
 	// If we just re-created an existing swapchain, we should destroy the old
@@ -294,25 +225,36 @@ void create_swapchain(void) {
 	// Note: destroying the swapchain also cleans up all its associated
 	// presentable images once the platform is done with them.
 	if (oldSwapchain != VK_NULL_HANDLE) {
-		fpDestroySwapchainKHR(device, oldSwapchain, NULL);
+		vk.fpDestroySwapchainKHR(vk_ctx.device, oldSwapchain, NULL);
 	}
 
-	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, NULL);
+	err = vk.fpGetSwapchainImagesKHR(vk_ctx.device, window->swapchain, &window->image_count, NULL);
 	assert(!err);
 
-	VkImage *swapchainImages = (VkImage *)malloc(swapchainImageCount * sizeof(VkImage));
-	assert(swapchainImages);
-	err = fpGetSwapchainImagesKHR(device, swapchain, &swapchainImageCount, swapchainImages);
+	if (window->images) {
+		kinc_free(window->images);
+		window->images = NULL;
+	}
+
+	if (window->views) {
+		kinc_free(window->views);
+		window->views = NULL;
+	}
+
+	window->images = (VkImage *)kinc_allocate(window->image_count * sizeof(VkImage));
+	assert(window->images);
+
+	err = vk.fpGetSwapchainImagesKHR(vk_ctx.device, window->swapchain, &window->image_count, window->images);
 	assert(!err);
 
-	kinc_vulkan_internal_buffers = (struct SwapchainBuffers *)malloc(sizeof(struct SwapchainBuffers) * swapchainImageCount);
-	assert(kinc_vulkan_internal_buffers != NULL);
+	window->views = (VkImageView *)kinc_allocate(window->image_count * sizeof(VkImageView));
+	assert(window->views);
 
-	for (i = 0; i < swapchainImageCount; i++) {
+	for (int i = 0; i < window->image_count; i++) {
 		VkImageViewCreateInfo color_attachment_view = {0};
 		color_attachment_view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		color_attachment_view.pNext = NULL;
-		color_attachment_view.format = format;
+		color_attachment_view.format = window->format.format;
 		color_attachment_view.components.r = VK_COMPONENT_SWIZZLE_R;
 		color_attachment_view.components.g = VK_COMPONENT_SWIZZLE_G;
 		color_attachment_view.components.b = VK_COMPONENT_SWIZZLE_B;
@@ -325,36 +267,34 @@ void create_swapchain(void) {
 		color_attachment_view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		color_attachment_view.flags = 0;
 
-		kinc_vulkan_internal_buffers[i].image = swapchainImages[i];
-
 		// Render loop will expect image to have been used before and in
 		// VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 		// layout and will change to COLOR_ATTACHMENT_OPTIMAL, so init the image
 		// to that state
-		set_image_layout(kinc_vulkan_internal_buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		set_image_layout(window->images[i], VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-		color_attachment_view.image = kinc_vulkan_internal_buffers[i].image;
+		color_attachment_view.image = window->images[i];
 
-		err = vkCreateImageView(device, &color_attachment_view, NULL, &kinc_vulkan_internal_buffers[i].view);
+		err = vkCreateImageView(vk_ctx.device, &color_attachment_view, NULL, &window->views[i]);
 		assert(!err);
 	}
 
-	current_buffer = 0;
+	window->current_image = 0;
 
 	if (NULL != presentModes) {
-		free(presentModes);
+		kinc_free(presentModes);
 	}
 
 	const VkFormat depth_format = VK_FORMAT_D16_UNORM;
 
-	if (depthBits > 0) {
+	if (window->depth_bits > 0) {
 		VkImageCreateInfo image = {0};
 		image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		image.pNext = NULL;
 		image.imageType = VK_IMAGE_TYPE_2D;
 		image.format = depth_format;
-		image.extent.width = renderTargetWidth;
-		image.extent.height = renderTargetHeight;
+		image.extent.width = window->width;
+		image.extent.height = window->height;
 		image.extent.depth = 1;
 		image.mipLevels = 1;
 		image.arrayLayers = 1;
@@ -386,11 +326,11 @@ void create_swapchain(void) {
 		bool pass;
 
 		/* create image */
-		err = vkCreateImage(device, &image, NULL, &kinc_vulkan_internal_depth.image);
+		err = vkCreateImage(vk_ctx.device, &image, NULL, &window->depth.image);
 		assert(!err);
 
 		/* get memory requirements for this object */
-		vkGetImageMemoryRequirements(device, kinc_vulkan_internal_depth.image, &mem_reqs);
+		vkGetImageMemoryRequirements(vk_ctx.device, window->depth.image, &mem_reqs);
 
 		/* select memory size and type */
 		mem_alloc.allocationSize = mem_reqs.size;
@@ -398,24 +338,23 @@ void create_swapchain(void) {
 		assert(pass);
 
 		/* allocate memory */
-		err = vkAllocateMemory(device, &mem_alloc, NULL, &kinc_vulkan_internal_depth.mem);
+		err = vkAllocateMemory(vk_ctx.device, &mem_alloc, NULL, &window->depth.memory);
 		assert(!err);
 
 		/* bind memory */
-		err = vkBindImageMemory(device, kinc_vulkan_internal_depth.image, kinc_vulkan_internal_depth.mem, 0);
+		err = vkBindImageMemory(vk_ctx.device, window->depth.image, window->depth.memory, 0);
 		assert(!err);
 
-		set_image_layout(kinc_vulkan_internal_depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-		                 VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		set_image_layout(window->depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 		/* create image view */
-		view.image = kinc_vulkan_internal_depth.image;
-		err = vkCreateImageView(device, &view, NULL, &kinc_vulkan_internal_depth.view);
+		view.image = window->depth.image;
+		err = vkCreateImageView(vk_ctx.device, &view, NULL, &window->depth.view);
 		assert(!err);
 	}
 
 	VkAttachmentDescription attachments[2];
-	attachments[0].format = format;
+	attachments[0].format = window->format.format;
 	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
 	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -425,7 +364,7 @@ void create_swapchain(void) {
 	attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	attachments[0].flags = 0;
 
-	if (depthBits > 0) {
+	if (window->depth_bits > 0) {
 		attachments[1].format = depth_format;
 		attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
@@ -453,12 +392,12 @@ void create_swapchain(void) {
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &color_reference;
 	subpass.pResolveAttachments = NULL;
-	subpass.pDepthStencilAttachment = depthBits > 0 ? &depth_reference : NULL;
+	subpass.pDepthStencilAttachment = window->depth_bits > 0 ? &depth_reference : NULL;
 	subpass.preserveAttachmentCount = 0;
 	subpass.pPreserveAttachments = NULL;
 
 	VkSubpassDependency dependencies[2];
-	memset(&dependencies, 0, sizeof(dependencies));
+	kinc_memset(&dependencies, 0, sizeof(dependencies));
 
 	// for the frame-buffer
 	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -480,45 +419,50 @@ void create_swapchain(void) {
 	VkRenderPassCreateInfo rp_info = {0};
 	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	rp_info.pNext = NULL;
-	rp_info.attachmentCount = depthBits > 0 ? 2 : 1;
+	rp_info.attachmentCount = window->depth_bits > 0 ? 2 : 1;
 	rp_info.pAttachments = attachments;
 	rp_info.subpassCount = 1;
 	rp_info.pSubpasses = &subpass;
 	rp_info.dependencyCount = 2;
 	rp_info.pDependencies = dependencies;
 
-	err = vkCreateRenderPass(device, &rp_info, NULL, &framebuffer_render_pass);
+	err = vkCreateRenderPass(vk_ctx.device, &rp_info, NULL, &window->framebuffer_render_pass);
 	assert(!err);
 
-	VkImageView attachmentViews[2];
+	VkImageView attachmentViews[2] = {VK_NULL_HANDLE, VK_NULL_HANDLE};
 
-	if (depthBits > 0) {
-		attachmentViews[1] = kinc_vulkan_internal_depth.view;
+	if (window->depth_bits > 0) {
+		attachmentViews[1] = window->depth.view;
 	}
 
 	VkFramebufferCreateInfo fb_info = {0};
 	fb_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	fb_info.pNext = NULL;
-	fb_info.renderPass = framebuffer_render_pass;
-	fb_info.attachmentCount = depthBits > 0 ? 2 : 1;
+	fb_info.renderPass = window->framebuffer_render_pass;
+	fb_info.attachmentCount = window->depth_bits > 0 ? 2 : 1;
 	fb_info.pAttachments = attachmentViews;
-	fb_info.width = renderTargetWidth;
-	fb_info.height = renderTargetHeight;
+	fb_info.width = window->width;
+	fb_info.height = window->height;
 	fb_info.layers = 1;
 
-	framebuffers = (VkFramebuffer *)malloc(swapchainImageCount * sizeof(VkFramebuffer));
-	assert(framebuffers);
+	if (window->framebuffers) {
+		kinc_free(window->framebuffers);
+		window->framebuffers = NULL;
+	}
 
-	for (uint32_t i = 0; i < swapchainImageCount; i++) {
-		attachmentViews[0] = kinc_vulkan_internal_buffers[i].view;
-		err = vkCreateFramebuffer(device, &fb_info, NULL, &framebuffers[i]);
+	window->framebuffers = (VkFramebuffer *)kinc_allocate(window->image_count * sizeof(VkFramebuffer));
+	assert(window->framebuffers);
+
+	for (uint32_t i = 0; i < window->image_count; i++) {
+		attachmentViews[0] = window->views[i];
+		err = vkCreateFramebuffer(vk_ctx.device, &fb_info, NULL, &window->framebuffers[i]);
 		assert(!err);
 	}
 
 	flush_init_cmd();
 }
 
-void create_render_target_render_pass(void) {
+void create_render_target_render_pass(struct vk_window *window) {
 	VkAttachmentDescription attachments[2];
 	attachments[0].format = VK_FORMAT_B8G8R8A8_UNORM; // target->impl.format; // TODO
 	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
@@ -565,7 +509,7 @@ void create_render_target_render_pass(void) {
 
 	// for render-targets
 	VkSubpassDependency dependencies[2];
-	memset(&dependencies, 0, sizeof(dependencies));
+	kinc_memset(&dependencies, 0, sizeof(dependencies));
 
 	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
 	dependencies[0].dstSubpass = 0;
@@ -593,89 +537,90 @@ void create_render_target_render_pass(void) {
 	rp_info.dependencyCount = 2;
 	rp_info.pDependencies = dependencies;
 
-	VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &rendertarget_render_pass);
+	VkResult err = vkCreateRenderPass(vk_ctx.device, &rp_info, NULL, &window->rendertarget_render_pass);
 	assert(!err);
 }
 
-void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	depthBits = depthBufferBits;
-	stencilBits = stencilBufferBits;
-	vsynced = vsync;
-	uint32_t instance_extension_count = 0;
-	uint32_t instance_layer_count = 0;
-#ifdef VALIDATE
-	uint32_t device_validation_layer_count = 0;
-#endif
+static bool check_extensions(const char **wanted_extensions, int wanted_extension_count, VkExtensionProperties *extensions, int extension_count) {
+	bool *found_extensions = kinc_allocate(wanted_extension_count);
 
-#ifdef VALIDATE
-	char *instance_validation_layers[] = {"VK_LAYER_KHRONOS_validation"};
-#endif
-
-#ifdef VALIDATE
-	device_validation_layers[0] = "VK_LAYER_KHRONOS_validation";
-	device_validation_layer_count = 1;
-#endif
-
-	VkBool32 validation_found = 0;
-	VkResult err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
-	assert(!err);
-
-	if (instance_layer_count > 0) {
-		VkLayerProperties *instance_layers = (VkLayerProperties *)malloc(sizeof(VkLayerProperties) * instance_layer_count);
-		err = vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers);
-		assert(!err);
-
-#ifdef VALIDATE
-		validation_found = check_layers(ARRAY_SIZE(instance_validation_layers), instance_validation_layers, instance_layer_count, instance_layers);
-		enabled_layer_count = ARRAY_SIZE(instance_validation_layers);
-#endif
-		free(instance_layers);
-	}
-
-	// Look for instance extensions
-	VkBool32 surfaceExtFound = 0;
-	VkBool32 platformSurfaceExtFound = 0;
-	memset(extension_names, 0, sizeof(extension_names));
-
-	err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, NULL);
-	assert(!err);
-
-	static const char *wanted_extensions[64];
-	static bool found_extensions[64];
-	int num_found_extensions;
-	int wanted_extension_count = 0;
-	int max = 64;
-#ifdef VALIDATE
-	wanted_extensions[wanted_extension_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-#endif
-	wanted_extensions[wanted_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
-	kinc_vulkan_get_instance_extensions(wanted_extensions, &wanted_extension_count, max);
-
-	if (instance_extension_count > 0) {
-		VkExtensionProperties *instance_extensions = (VkExtensionProperties *)malloc(sizeof(VkExtensionProperties) * instance_extension_count);
-		err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, instance_extensions);
-		assert(!err);
-		for (uint32_t i = 0; i < instance_extension_count; i++) {
-			for (int i2 = 0; i2 < wanted_extension_count; i2++) {
-				if (strcmp(wanted_extensions[i2], instance_extensions[i].extensionName) == 0) {
-					found_extensions[i2] = true;
-				}
+	for (uint32_t i = 0; i < extension_count; i++) {
+		for (int i2 = 0; i2 < wanted_extension_count; i2++) {
+			if (kinc_string_compare(wanted_extensions[i2], extensions[i].extensionName) == 0) {
+				found_extensions[i2] = true;
 			}
 		}
-
-		free(instance_extensions);
 	}
 
 	bool missing_extensions = false;
 
 	for (int i = 0; i < wanted_extension_count; i++) {
 		if (!found_extensions[i]) {
-			kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to find required extension %s", wanted_extensions[i]);
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to find extension %s", wanted_extensions[i]);
 			missing_extensions = true;
 		}
 	}
 
-	if (missing_extensions) {
+	kinc_free(found_extensions);
+
+	return missing_extensions;
+}
+
+static bool find_layer(VkLayerProperties *layers, int layer_count, const char *wanted_layer) {
+	for (uint32_t i = 0; i < layer_count; i++) {
+		if (kinc_string_compare(wanted_layer, layers[i].layerName) == 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void kinc_g5_internal_init() {
+	VkResult err;
+	uint32_t instance_layer_count = 0;
+
+	static const char *wanted_instance_layers[64];
+	int wanted_instance_layer_count = 0;
+
+	err = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
+	assert(!err);
+
+	if (instance_layer_count > 0) {
+		VkLayerProperties *instance_layers = (VkLayerProperties *)kinc_allocate(sizeof(VkLayerProperties) * instance_layer_count);
+		err = vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers);
+		assert(!err);
+
+#ifdef VALIDATE
+		vk_ctx.validation_found = find_layer(instance_layers, instance_layer_count, "VK_LAYER_KHRONOS_validation");
+		if (vk_ctx.validation_found) {
+			wanted_instance_layers[wanted_instance_layer_count++] = "VK_LAYER_KHRONOS_validation";
+		}
+#endif
+
+		kinc_free(instance_layers);
+	}
+
+	static const char *wanted_instance_extensions[64];
+	int wanted_instance_extension_count = 0;
+
+	uint32_t instance_extension_count = 0;
+
+#ifdef VALIDATE
+	wanted_instance_extensions[wanted_instance_extension_count++] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+#endif
+	wanted_instance_extensions[wanted_instance_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
+	kinc_vulkan_get_instance_extensions(wanted_instance_extensions, &wanted_instance_extension_count, ARRAY_SIZE(wanted_instance_extensions));
+
+	err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, NULL);
+	assert(!err);
+	VkExtensionProperties *instance_extensions = (VkExtensionProperties *)kinc_allocate(sizeof(VkExtensionProperties) * instance_extension_count);
+	err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, instance_extensions);
+	assert(!err);
+	bool missing_instance_extensions =
+	    check_extensions(wanted_instance_extensions, wanted_instance_extension_count, instance_extensions, instance_extension_count);
+
+	if (missing_instance_extensions) {
 		exit(1);
 	}
 
@@ -697,24 +642,22 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 	info.pNext = NULL;
 	info.pApplicationInfo = &app;
 #ifdef VALIDATE
-	info.enabledLayerCount = enabled_layer_count;
-	info.ppEnabledLayerNames = (const char *const *)instance_validation_layers;
+	info.enabledLayerCount = wanted_instance_layer_count;
+	info.ppEnabledLayerNames = (const char *const *)wanted_instance_layers;
 #else
 	info.enabledLayerCount = 0;
 	info.ppEnabledLayerNames = NULL;
 #endif
-	info.enabledExtensionCount = wanted_extension_count;
-	info.ppEnabledExtensionNames = (const char *const *)wanted_extensions;
-
-	uint32_t gpu_count;
+	info.enabledExtensionCount = wanted_instance_extension_count;
+	info.ppEnabledExtensionNames = (const char *const *)wanted_instance_extensions;
 
 #ifndef KORE_ANDROID
 	allocator.pfnAllocation = myalloc;
 	allocator.pfnFree = myfree;
 	allocator.pfnReallocation = myrealloc;
-	err = vkCreateInstance(&info, &allocator, &inst);
+	err = vkCreateInstance(&info, &allocator, &vk_ctx.instance);
 #else
-	err = vkCreateInstance(&info, NULL, &inst);
+	err = vkCreateInstance(&info, NULL, &vk_ctx.instance);
 #endif
 	if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
 		ERR_EXIT("Cannot find a compatible Vulkan installable client driver "
@@ -734,17 +677,18 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 		         "vkCreateInstance Failure");
 	}
 
-	/* Make initial call to query gpu_count, then second call for gpu info*/
-	err = vkEnumeratePhysicalDevices(inst, &gpu_count, NULL);
+	uint32_t gpu_count;
+
+	err = vkEnumeratePhysicalDevices(vk_ctx.instance, &gpu_count, NULL);
 	assert(!err && gpu_count > 0);
 
 	if (gpu_count > 0) {
-		VkPhysicalDevice *physical_devices = (VkPhysicalDevice *)malloc(sizeof(VkPhysicalDevice) * gpu_count);
-		err = vkEnumeratePhysicalDevices(inst, &gpu_count, physical_devices);
+		VkPhysicalDevice *physical_devices = (VkPhysicalDevice *)kinc_allocate(sizeof(VkPhysicalDevice) * gpu_count);
+		err = vkEnumeratePhysicalDevices(vk_ctx.instance, &gpu_count, physical_devices);
 		assert(!err);
-		/* For tri demo we just grab the first physical device */
-		gpu = physical_devices[0];
-		free(physical_devices);
+		// TODO: expose gpu selection to user?
+		vk_ctx.gpu = physical_devices[0];
+		kinc_free(physical_devices);
 	}
 	else {
 		ERR_EXIT("vkEnumeratePhysicalDevices reported zero accessible devices."
@@ -754,156 +698,113 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 		         "vkEnumeratePhysicalDevices Failure");
 	}
 
-	/* Look for validation layers */
-	validation_found = 0;
-#ifdef VALIDATE
-	enabled_layer_count = 0;
-#endif
+	static const char *wanted_device_layers[64];
+	int wanted_device_layer_count = 0;
+
 	uint32_t device_layer_count = 0;
-	err = vkEnumerateDeviceLayerProperties(gpu, &device_layer_count, NULL);
+	err = vkEnumerateDeviceLayerProperties(vk_ctx.gpu, &device_layer_count, NULL);
 	assert(!err);
 
 	if (device_layer_count > 0) {
-		VkLayerProperties *device_layers = (VkLayerProperties *)malloc(sizeof(VkLayerProperties) * device_layer_count);
-		err = vkEnumerateDeviceLayerProperties(gpu, &device_layer_count, device_layers);
+		VkLayerProperties *device_layers = (VkLayerProperties *)kinc_allocate(sizeof(VkLayerProperties) * device_layer_count);
+		err = vkEnumerateDeviceLayerProperties(vk_ctx.gpu, &device_layer_count, device_layers);
 		assert(!err);
 
 #ifdef VALIDATE
-		validation_found = check_layers(device_validation_layer_count, device_validation_layers, device_layer_count, device_layers);
-		enabled_layer_count = device_validation_layer_count;
+		vk_ctx.validation_found = find_layer(device_layers, device_layer_count, "VK_LAYER_KHRONOS_validation");
+		if (vk_ctx.validation_found) {
+			wanted_device_layers[wanted_device_layer_count++] = "VK_LAYER_KHRONOS_validation";
+		}
 #endif
 
-		free(device_layers);
+		kinc_free(device_layers);
 	}
 
-	/* Loog for device extensions */
-	uint32_t device_extension_count = 0;
-	VkBool32 swapchainExtFound = 0;
-	enabled_extension_count = 0;
-	memset(extension_names, 0, sizeof(extension_names));
+	const char *wanted_device_extensions[64];
+	int wanted_device_extension_count = 0;
 
-	err = vkEnumerateDeviceExtensionProperties(gpu, NULL, &device_extension_count, NULL);
+	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+	// Allows negative viewport height to flip viewport
+	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
+
+#ifdef KORE_VKRT
+	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME;
+	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME;
+	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME;
+	wanted_device_extensions[wanted_device_extension_count++] = VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME;
+	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME;
+	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_SPIRV_1_4_EXTENSION_NAME;
+	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME;
+#endif
+
+	uint32_t device_extension_count;
+
+	err = vkEnumerateDeviceExtensionProperties(vk_ctx.gpu, NULL, &device_extension_count, NULL);
 	assert(!err);
 
-	if (device_extension_count > 0) {
-		VkExtensionProperties *device_extensions = (VkExtensionProperties *)malloc(sizeof(VkExtensionProperties) * device_extension_count);
-		err = vkEnumerateDeviceExtensionProperties(gpu, NULL, &device_extension_count, device_extensions);
-		assert(!err);
+	VkExtensionProperties *device_extensions = (VkExtensionProperties *)kinc_allocate(sizeof(VkExtensionProperties) * device_extension_count);
+	err = vkEnumerateDeviceExtensionProperties(vk_ctx.gpu, NULL, &device_extension_count, device_extensions);
+	assert(!err);
 
-		for (uint32_t i = 0; i < device_extension_count; i++) {
-			if (!strcmp(VK_KHR_SWAPCHAIN_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				swapchainExtFound = 1;
-				extension_names[enabled_extension_count++] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
-			}
-			if (!strcmp(VK_KHR_MAINTENANCE1_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				// Allows negative viewport height to flip viewport
-				extension_names[enabled_extension_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
-			}
-#ifdef KORE_VKRT
-			if (!strcmp(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME;
-			}
-			if (!strcmp(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME;
-			}
-			if (!strcmp(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME;
-			}
-			if (!strcmp(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME;
-			}
-			if (!strcmp(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME;
-			}
-			if (!strcmp(VK_KHR_SPIRV_1_4_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_SPIRV_1_4_EXTENSION_NAME;
-			}
-			if (!strcmp(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME, device_extensions[i].extensionName)) {
-				extension_names[enabled_extension_count++] = VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME;
-			}
-#endif
-			assert(enabled_extension_count < 64);
-		}
+	bool missing_device_extensions = check_extensions(wanted_device_extensions, wanted_device_extension_count, device_extensions, device_extension_count);
 
-		free(device_extensions);
-	}
+	kinc_free(device_extensions);
 
-	if (!swapchainExtFound) {
-		ERR_EXIT("vkEnumerateDeviceExtensionProperties failed to find "
-		         "the " VK_KHR_SWAPCHAIN_EXTENSION_NAME " extension.\n\nDo you have a compatible "
-		         "Vulkan installable client driver (ICD) installed?\nPlease "
-		         "look at the Getting Started guide for additional "
-		         "information.\n",
-		         "vkCreateInstance Failure");
+	if (missing_device_extensions) {
+		exit(1);
 	}
 
 #ifdef VALIDATE
-	CreateDebugReportCallback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(inst, "vkCreateDebugReportCallbackEXT");
-	if (!CreateDebugReportCallback) {
-		ERR_EXIT("GetProcAddr: Unable to find vkCreateDebugReportCallbackEXT\n", "vkGetProcAddr Failure");
-	}
-	VkDebugReportCallbackCreateInfoEXT dbgCreateInfo = {0};
-	dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-	dbgCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-	dbgCreateInfo.pfnCallback = dbgFunc;
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, CreateDebugUtilsMessengerEXT);
+
+	VkDebugUtilsMessengerCreateInfoEXT dbgCreateInfo = {0};
+	dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	dbgCreateInfo.flags = 0;
+	dbgCreateInfo.pfnUserCallback = vkDebugUtilsMessengerCallbackEXT;
 	dbgCreateInfo.pUserData = NULL;
 	dbgCreateInfo.pNext = NULL;
-	err = CreateDebugReportCallback(inst, &dbgCreateInfo, NULL, &msg_callback);
-	switch (err) {
-	case VK_SUCCESS:
-		break;
-	case VK_ERROR_OUT_OF_HOST_MEMORY:
-		ERR_EXIT("CreateDebugReportCallback: out of host memory\n", "CreateDebugReportCallback Failure");
-		break;
-	default:
-		ERR_EXIT("CreateDebugReportCallback: unknown failure\n", "CreateDebugReportCallback Failure");
-		break;
-	}
+	dbgCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+	dbgCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+	err = vk.fpCreateDebugUtilsMessengerEXT(vk_ctx.instance, &dbgCreateInfo, NULL, &vk_ctx.debug_messenger);
+	assert(!err);
 #endif
 
-	// Having these GIPA queries of device extension entry points both
+	// Having these GIPA queries of vk_ctx.device extension entry points both
 	// BEFORE and AFTER vkCreateDevice is a good test for the loader
-	GET_INSTANCE_PROC_ADDR(inst, GetPhysicalDeviceSurfaceCapabilitiesKHR);
-	GET_INSTANCE_PROC_ADDR(inst, GetPhysicalDeviceSurfaceFormatsKHR);
-	GET_INSTANCE_PROC_ADDR(inst, GetPhysicalDeviceSurfacePresentModesKHR);
-	GET_INSTANCE_PROC_ADDR(inst, GetPhysicalDeviceSurfaceSupportKHR);
-	GET_INSTANCE_PROC_ADDR(inst, CreateSwapchainKHR);
-	GET_INSTANCE_PROC_ADDR(inst, DestroySwapchainKHR);
-	GET_INSTANCE_PROC_ADDR(inst, GetSwapchainImagesKHR);
-	GET_INSTANCE_PROC_ADDR(inst, AcquireNextImageKHR);
-	GET_INSTANCE_PROC_ADDR(inst, QueuePresentKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, GetPhysicalDeviceSurfaceCapabilitiesKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, GetPhysicalDeviceSurfaceFormatsKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, GetPhysicalDeviceSurfacePresentModesKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, GetPhysicalDeviceSurfaceSupportKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, CreateSwapchainKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, DestroySwapchainKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, GetSwapchainImagesKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, AcquireNextImageKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, QueuePresentKHR);
 
-	vkGetPhysicalDeviceProperties(gpu, &gpu_props);
+	vkGetPhysicalDeviceProperties(vk_ctx.gpu, &gpu_props);
 
 	// Query with NULL data to get count
-	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, NULL);
+	vkGetPhysicalDeviceQueueFamilyProperties(vk_ctx.gpu, &queue_count, NULL);
 
-	queue_props = (VkQueueFamilyProperties *)malloc(queue_count * sizeof(VkQueueFamilyProperties));
-	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
+	queue_props = (VkQueueFamilyProperties *)kinc_allocate(queue_count * sizeof(VkQueueFamilyProperties));
+	vkGetPhysicalDeviceQueueFamilyProperties(vk_ctx.gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
 
-	newRenderTargetWidth = renderTargetWidth = kinc_window_width(window);
-	newRenderTargetHeight = renderTargetHeight = kinc_window_height(window);
+	bool headless = false;
 
-	{
-		VkResult err;
-		uint32_t i;
-		err = kinc_vulkan_create_surface(inst, window, &surface);
-		assert(!err);
-
-		has_surface = true;
-
+	if (!headless) {
 		// Iterate over each queue to learn whether it supports presenting:
-		VkBool32 *supportsPresent = (VkBool32 *)malloc(queue_count * sizeof(VkBool32));
-		for (i = 0; i < queue_count; i++) {
-			fpGetPhysicalDeviceSurfaceSupportKHR(gpu, i, surface, &supportsPresent[i]);
+		VkBool32 *supportsPresent = (VkBool32 *)kinc_allocate(queue_count * sizeof(VkBool32));
+		for (int i = 0; i < queue_count; i++) {
+			supportsPresent[i] = kinc_vulkan_get_physical_device_presentation_support(vk_ctx.gpu, i);
+			// vk.fpGetPhysicalDeviceSurfaceSupportKHR(vk_ctx.gpu, i, surface, &supportsPresent[i]);
 		}
 
 		// Search for a graphics and a present queue in the array of queue
 		// families, try to find one that supports both
 		uint32_t graphicsQueueNodeIndex = UINT32_MAX;
 		uint32_t presentQueueNodeIndex = UINT32_MAX;
-		for (i = 0; i < queue_count; i++) {
+		for (int i = 0; i < queue_count; i++) {
 			if ((queue_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0) {
 				if (graphicsQueueNodeIndex == UINT32_MAX) {
 					graphicsQueueNodeIndex = i;
@@ -926,7 +827,7 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 				}
 			}
 		}
-		free(supportsPresent);
+		kinc_free(supportsPresent);
 
 		// Generate error if could not find both a graphics and a present queue
 		if (graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX) {
@@ -958,15 +859,12 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 			deviceinfo.pNext = NULL;
 			deviceinfo.queueCreateInfoCount = 1;
 			deviceinfo.pQueueCreateInfos = &queue;
-#ifdef VALIDATE
-			deviceinfo.enabledLayerCount = enabled_layer_count;
-			deviceinfo.ppEnabledLayerNames = (const char *const *)device_validation_layers;
-#else
-			deviceinfo.enabledLayerCount = 0;
-			deviceinfo.ppEnabledLayerNames = NULL;
-#endif
-			deviceinfo.enabledExtensionCount = enabled_extension_count;
-			deviceinfo.ppEnabledExtensionNames = (const char *const *)extension_names;
+
+			deviceinfo.enabledLayerCount = wanted_device_layer_count;
+			deviceinfo.ppEnabledLayerNames = (const char *const *)wanted_device_layers;
+
+			deviceinfo.enabledExtensionCount = wanted_device_extension_count;
+			deviceinfo.ppEnabledExtensionNames = (const char *const *)wanted_device_extensions;
 
 #ifdef KORE_VKRT
 			VkPhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineExt = {0};
@@ -987,48 +885,58 @@ void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool v
 			deviceinfo.pNext = &bufferDeviceAddressExt;
 #endif
 
-			err = vkCreateDevice(gpu, &deviceinfo, NULL, &device);
+			err = vkCreateDevice(vk_ctx.gpu, &deviceinfo, NULL, &vk_ctx.device);
 			assert(!err);
 		}
 
-		vkGetDeviceQueue(device, graphics_queue_node_index, 0, &queue);
+		vkGetDeviceQueue(vk_ctx.device, graphics_queue_node_index, 0, &vk_ctx.queue);
 
-		// Get the list of VkFormat's that are supported:
-		uint32_t formatCount;
-		err = fpGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, NULL);
-		assert(!err);
-		VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
-		err = fpGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, surfFormats);
-		assert(!err);
-		// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
-		// the surface has no preferred format.  Otherwise, at least one
-		// supported format will be returned.
-		if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) {
-			format = VK_FORMAT_B8G8R8A8_UNORM;
-		}
-		else {
-			assert(formatCount >= 1);
-			format = surfFormats[0].format;
-		}
-		color_space = surfFormats[0].colorSpace;
+		vkGetPhysicalDeviceMemoryProperties(vk_ctx.gpu, &memory_properties);
 
-		// Get Memory information and properties
-		vkGetPhysicalDeviceMemoryProperties(gpu, &memory_properties);
+		VkCommandPoolCreateInfo cmd_pool_info = {0};
+		cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		cmd_pool_info.pNext = NULL;
+		cmd_pool_info.queueFamilyIndex = graphics_queue_node_index;
+		cmd_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+		err = vkCreateCommandPool(vk_ctx.device, &cmd_pool_info, NULL, &vk_ctx.cmd_pool);
+
+		createDescriptorLayout();
+		assert(!err);
 	}
+}
 
-	VkCommandPoolCreateInfo cmd_pool_info = {0};
-	cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	cmd_pool_info.pNext = NULL;
-	cmd_pool_info.queueFamilyIndex = graphics_queue_node_index;
-	cmd_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int stencilBufferBits, bool vsync) {
+	assert(window_index < MAXIMUM_WINDOWS);
+	struct vk_window *window = &vk_ctx.windows[window_index];
 
-	err = vkCreateCommandPool(device, &cmd_pool_info, NULL, &cmd_pool);
+	window->depth_bits = depthBufferBits;
+	window->stencil_bits = stencilBufferBits;
+	window->vsynced = vsync;
+
+	VkResult err = kinc_vulkan_create_surface(vk_ctx.instance, window_index, &window->surface);
 	assert(!err);
 
-	create_swapchain();
-	create_render_target_render_pass();
-
-	createDescriptorLayout();
+	uint32_t formatCount;
+	err = vk.fpGetPhysicalDeviceSurfaceFormatsKHR(vk_ctx.gpu, window->surface, &formatCount, NULL);
+	assert(!err);
+	VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)kinc_allocate(formatCount * sizeof(VkSurfaceFormatKHR));
+	err = vk.fpGetPhysicalDeviceSurfaceFormatsKHR(vk_ctx.gpu, window->surface, &formatCount, surfFormats);
+	assert(!err);
+	// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
+	// the surface has no preferred format.  Otherwise, at least one
+	// supported format will be returned.
+	if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) {
+		window->format = surfFormats[0];
+	}
+	else {
+		assert(formatCount >= 1);
+		window->format = surfFormats[0];
+	}
+	window->width = window->new_width = kinc_window_width(window_index);
+	window->height = window->new_height = kinc_window_height(window_index);
+	create_swapchain(window);
+	create_render_target_render_pass(window);
 
 	began = false;
 	kinc_g5_begin(NULL, 0);
@@ -1038,28 +946,23 @@ bool kinc_window_vsynced(int window) {
 	return true;
 }
 
-// void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {
-// 	// drawIndexedVerticesInstanced(instanceCount, 0, IndexBufferImpl::current->count());
-// }
-
-// void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
-
 bool kinc_g5_swap_buffers() {
 	return true;
 }
 
-void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
+void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window_index) {
+	struct vk_window *window = &vk_ctx.windows[window_index];
 	if (renderTarget != NULL) {
-		renderTarget->impl.framebuffer = framebuffers[current_buffer];
+		renderTarget->impl.framebuffer = window->framebuffers[window->current_image];
 	}
 
 	if (began) return;
 
-	if (newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight) {
-		renderTargetWidth = newRenderTargetWidth;
-		renderTargetHeight = newRenderTargetHeight;
-		vkDeviceWaitIdle(device);
-		create_swapchain();
+	if (window->new_width != window->width || window->new_height != window->height) {
+		window->width = window->new_width;
+		window->height = window->new_height;
+		vkDeviceWaitIdle(vk_ctx.device);
+		create_swapchain(window);
 	}
 
 	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {0};
@@ -1067,14 +970,16 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	presentCompleteSemaphoreCreateInfo.pNext = NULL;
 	presentCompleteSemaphoreCreateInfo.flags = 0;
 
-	VkResult err = vkCreateSemaphore(device, &presentCompleteSemaphoreCreateInfo, NULL, &presentCompleteSemaphore);
+	VkResult err = vkCreateSemaphore(vk_ctx.device, &presentCompleteSemaphoreCreateInfo, NULL, &presentCompleteSemaphore);
 	assert(!err);
 
 	// Get the index of the next available swapchain image:
-	err = fpAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
-	                            &current_buffer);
+	err = vk.fpAcquireNextImageKHR(vk_ctx.device, window->swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
+	                               &window->current_image);
+	assert(!err);
 
 	began = true;
+	vk_ctx.current_window = window_index;
 }
 
 void kinc_g5_end(int window) {
@@ -1103,7 +1008,7 @@ void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) 
 
 int kinc_g5_max_bound_textures(void) {
 	VkPhysicalDeviceProperties props;
-	vkGetPhysicalDeviceProperties(gpu, &props);
+	vkGetPhysicalDeviceProperties(vk_ctx.gpu, &props);
 	return props.limits.maxPerStageDescriptorSamplers;
 }
 
@@ -1131,10 +1036,11 @@ bool kinc_g5_are_query_results_available(unsigned occlusionQuery) {
 
 void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {}
 
+// this is exclusively used by the Android backend at the moment
 bool kinc_vulkan_internal_get_size(int *width, int *height) {
-	if (has_surface) {
+	if (vk_ctx.windows[0].surface) {
 		VkSurfaceCapabilitiesKHR capabilities;
-		VkResult err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &capabilities);
+		VkResult err = vk.fpGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_ctx.gpu, vk_ctx.windows[0].surface, &capabilities);
 		assert(!err);
 		*width = capabilities.currentExtent.width;
 		*height = capabilities.currentExtent.height;

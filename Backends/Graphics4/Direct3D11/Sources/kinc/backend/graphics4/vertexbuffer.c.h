@@ -37,7 +37,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = 0;
 
-	kinc_microsoft_affirm(device->lpVtbl->CreateBuffer(device, &bufferDesc, NULL, &buffer->impl.vb));
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateBuffer(dx_ctx.device, &bufferDesc, NULL, &buffer->impl.vb));
 }
 
 void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
@@ -57,7 +57,7 @@ float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, in
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		kinc_memset(&mappedResource, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
-		context->lpVtbl->Map(context, (ID3D11Resource *)buffer->impl.vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		dx_ctx.context->lpVtbl->Map(dx_ctx.context, (ID3D11Resource *)buffer->impl.vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		float *data = (float *)mappedResource.pData;
 		return &data[start * buffer->impl.stride / 4];
 	}
@@ -72,17 +72,17 @@ void kinc_g4_vertex_buffer_unlock_all(kinc_g4_vertex_buffer_t *buffer) {
 
 void kinc_g4_vertex_buffer_unlock(kinc_g4_vertex_buffer_t *buffer, int count) {
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
-		context->lpVtbl->Unmap(context, (ID3D11Resource *)buffer->impl.vb, 0);
+		dx_ctx.context->lpVtbl->Unmap(dx_ctx.context, (ID3D11Resource *)buffer->impl.vb, 0);
 	}
 	else {
-		context->lpVtbl->UpdateSubresource(context, (ID3D11Resource *)buffer->impl.vb, 0, NULL, buffer->impl.vertices, 0, 0);
+		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)buffer->impl.vb, 0, NULL, buffer->impl.vertices, 0, 0);
 	}
 }
 
 int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offset) {
 	// UINT stride = myStride;
 	// UINT internaloffset = 0;
-	// context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
+	// dx_ctx.context->IASetVertexBuffers(0, 1, &vb, &stride, &internaloffset);
 	return 0;
 }
 

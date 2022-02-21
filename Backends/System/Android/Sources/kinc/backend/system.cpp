@@ -59,6 +59,16 @@ extern "C" void kinc_vulkan_get_instance_extensions(const char **names, int *ind
 	assert(*index + 1 < max);
 	names[(*index)++] = VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
 }
+
+extern "C" VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
+	// https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_android_surface.html#_issues
+	//
+	// 1) Does Android need a way to query for compatibility between a particular physical device (and queue family?)
+	// and a specific Android display?
+	// RESOLVED: No. Currently on Android, any physical device is expected to be able to present to the system compositor,
+	// and all queue families must support the necessary image layout transitions and synchronization operations.
+	return true;
+}
 #endif
 
 extern "C" void androidSwapBuffers() {
@@ -1163,7 +1173,8 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 		frame = &default_frame;
 	}
 
-	kinc_g4_init(0, frame->depth_bits, frame->stencil_bits, true);
+	kinc_g4_internal_init();
+	kinc_g4_internal_init_window(0, frame->depth_bits, frame->stencil_bits, true);
 	return 0;
 }
 

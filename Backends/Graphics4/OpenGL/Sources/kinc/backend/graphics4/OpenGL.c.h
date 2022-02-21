@@ -109,6 +109,9 @@ static int texModesU[256];
 static int texModesV[256];
 
 void kinc_internal_resize(int window, int width, int height) {
+#ifdef KORE_WINDOWS
+	Kinc_Internal_resizeWindowRenderTarget(window, width, height);
+#endif
 	glViewport(0, 0, width, height);
 }
 
@@ -127,9 +130,7 @@ void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *fr
 static EGLDisplay egl_display;
 static EGLContext egl_context;
 static EGLConfig egl_config;
-#endif
 
-#ifdef KINC_EGL
 struct {
 	EGLSurface surface;
 } kinc_egl_windows[16] = {0};
@@ -147,7 +148,13 @@ struct {
 	} while (0);
 #endif
 
-void kinc_g4_destroy(int window) {
+void kinc_g4_internal_destroy() {
+#ifdef KINC_EGL
+	eglDestroyContext(egl_display, egl_context);
+#endif
+}
+
+void kinc_g4_internal_destroy_window(int window) {
 #ifdef KINC_EGL
 	eglMakeCurrent(egl_display, kinc_egl_windows[window].surface, kinc_egl_windows[window].surface, egl_context);
 	EGL_CHECK_ERROR()
@@ -175,7 +182,28 @@ void kinc_g4_destroy(int window) {
 #undef CreateWindow
 #endif
 
-static void initGLState(int window) {
+#ifdef KINC_EGL
+EGLDisplay kinc_egl_get_display(void);
+EGLNativeWindowType kinc_egl_get_native_window(int);
+#endif
+
+void kinc_g4_internal_init() {
+#ifdef KINC_EGL
+#ifdef KORE_OPENGL
+	eglBindAPI(EGL_OPENGL_API);
+#else
+	eglBindAPI(EGL_OPENGL_ES_API);
+#endif
+	egl_display = kinc_egl_get_display();
+	eglInitialize(egl_display, NULL, NULL);
+	EGL_CHECK_ERROR()
+	EGLint num_configs = 0;
+	eglChooseConfig(egl_display, NULL, &egl_config, 1, &num_configs);
+	EGL_CHECK_ERROR()
+	egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, NULL);
+	EGL_CHECK_ERROR()
+#endif
+
 #ifndef VR_RIFT
 	for (int i = 0; i < 32; ++i) {
 		minFilters[i] = KINC_G4_TEXTURE_FILTER_LINEAR;
@@ -184,12 +212,7 @@ static void initGLState(int window) {
 #endif
 }
 
-#ifdef KINC_EGL
-EGLDisplay kinc_egl_get_display(void);
-EGLNativeWindowType kinc_egl_get_native_window(int);
-#endif
-
-void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	for (int i = 0; i < 256; ++i) {
 		texModesU[i] = GL_CLAMP_TO_EDGE;
 		texModesV[i] = GL_CLAMP_TO_EDGE;
@@ -198,28 +221,12 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	Kinc_Internal_initWindowsGLContext(windowId, depthBufferBits, stencilBufferBits);
 #endif
 #ifdef KINC_EGL
-	if (!egl_display) {
-		eglBindAPI(EGL_OPENGL_API);
-		egl_display = kinc_egl_get_display();
-		eglInitialize(egl_display, NULL, NULL);
-		EGL_CHECK_ERROR()
-		const EGLint attribs[] = {
-		    EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,  EGL_SURFACE_TYPE, EGL_WINDOW_BIT,    EGL_BLUE_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_RED_SIZE, 8,
-		    EGL_DEPTH_SIZE,      depthBufferBits, EGL_STENCIL_SIZE, stencilBufferBits, EGL_NONE};
-		EGLint num_configs = 0;
-		eglChooseConfig(egl_display, NULL, &egl_config, 1, &num_configs);
-		EGL_CHECK_ERROR()
-		egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, NULL);
-		EGL_CHECK_ERROR()
-	}
-
 	EGLSurface egl_surface = eglCreateWindowSurface(egl_display, egl_config, kinc_egl_get_native_window(windowId), NULL);
 	EGL_CHECK_ERROR()
 	eglMakeCurrent(egl_display, egl_surface, egl_surface, egl_context);
 	EGL_CHECK_ERROR()
 	kinc_egl_windows[windowId].surface = egl_surface;
 #endif
-	initGLState(windowId);
 
 #ifdef KORE_WINDOWS
 	if (windowId == 0) {
@@ -230,10 +237,6 @@ void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool
 	}
 #endif
 
-	_width = kinc_window_width(0);
-	_height = kinc_window_height(0);
-	_renderTargetWidth = _width;
-	_renderTargetHeight = _height;
 	renderToBackbuffer = true;
 
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
@@ -501,13 +504,6 @@ bool kinc_g4_swap_buffers() {
 	}
 #elif defined(KORE_ANDROID)
 	androidSwapBuffers();
-#elif defined(KINC_GLX)
-	for (int window = 9; window >= 0; --window) {
-		if (kinc_internal_windows[window].handle) {
-			glXMakeCurrent(kinc_linux_display, kinc_internal_windows[window].handle, kinc_internal_windows[window].context);
-			glXSwapBuffers(kinc_linux_display, kinc_internal_windows[window].handle);
-		}
-	}
 #elif defined(KINC_EGL)
 	for (int window = 15; window >= 0; --window) {
 		if (kinc_egl_windows[window].surface) {
@@ -526,24 +522,22 @@ bool kinc_g4_swap_buffers() {
 }
 
 #ifdef KORE_IOS
+int kinc_ios_gl_framebuffer = -1;
+
 void beginGL();
 #endif
 
 void kinc_g4_begin(int window) {
 	currentWindow = window;
+
 #ifdef KINC_EGL
 	eglMakeCurrent(egl_display, kinc_egl_windows[window].surface, kinc_egl_windows[window].surface, egl_context);
 	EGL_CHECK_ERROR()
-#elif defined(KINC_GLX)
-	glXMakeCurrent(kinc_linux_display, kinc_internal_windows[window].handle, kinc_internal_windows[window].context);
-#else
-	Kinc_Internal_setWindowRenderTarget(window);
 #endif
 #ifdef KORE_IOS
 	beginGL();
 #endif
-	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
-	glViewport(0, 0, kinc_window_width(window), kinc_window_height(window));
+	kinc_g4_restore_render_target();
 	glCheckErrors();
 #ifdef KORE_ANDROID
 	// if rendered to a texture, strange things happen if the backbuffer is not cleared
@@ -918,8 +912,11 @@ void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) 
 }
 
 void kinc_g4_restore_render_target() {
-	// Kinc_Internal_setWindowRenderTarget(currentWindow);
+#ifdef KORE_IOS
+	glBindFramebuffer(GL_FRAMEBUFFER, kinc_ios_gl_framebuffer);
+#else
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+#endif
 	glCheckErrors();
 	int w = kinc_window_width(currentWindow);
 	int h = kinc_window_height(currentWindow);
@@ -928,6 +925,9 @@ void kinc_g4_restore_render_target() {
 	_renderTargetHeight = h;
 	renderToBackbuffer = true;
 	glCheckErrors();
+#ifdef KORE_WINDOWS
+	Kinc_Internal_setWindowRenderTarget(currentWindow);
+#endif
 }
 
 bool kinc_g4_render_targets_inverted_y() {

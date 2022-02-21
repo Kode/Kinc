@@ -68,7 +68,7 @@ int kinc_window_display(int window_index) {
 }
 
 void kinc_window_destroy(int window_index) {
-	kinc_g4_destroy(window_index);
+	kinc_g4_internal_destroy_window(window_index);
 	procs.window_destroy(window_index);
 }
 
@@ -86,7 +86,7 @@ void kinc_window_set_title(int window_index, const char *title) {
 
 int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	int index = procs.window_create(win, frame);
-	kinc_g4_init(index, frame->depth_bits, frame->stencil_bits, frame->vertical_sync);
+	kinc_g4_internal_init_window(index, frame->depth_bits, frame->stencil_bits, frame->vertical_sync);
 	return index;
 }
 

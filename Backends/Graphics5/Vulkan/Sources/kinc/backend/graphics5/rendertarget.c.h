@@ -1,21 +1,17 @@
+#include "vulkan.h"
+
 #include "rendertarget.h"
 
 #include <kinc/graphics5/rendertarget.h>
 #include <kinc/graphics5/texture.h>
 #include <kinc/log.h>
 
-extern VkDevice device;
 extern uint32_t swapchainImageCount;
-extern VkPhysicalDevice gpu;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 void setup_init_cmd();
-
-extern VkCommandPool cmd_pool;
-extern VkQueue queue;
-extern VkCommandBuffer setup_cmd;
 
 /*static VkFormat convert_format(kinc_g5_render_target_format_t format) {
     switch (format) {
@@ -117,7 +113,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 	samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
-	VkResult err = vkCreateSampler(device, &samplerInfo, NULL, &target->impl.sampler);
+	VkResult err = vkCreateSampler(vk_ctx.device, &samplerInfo, NULL, &target->impl.sampler);
 	assert(!err);
 
 	if (contextId >= 0) {
@@ -125,7 +121,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			VkFormatProperties formatProperties;
 			VkResult err;
 
-			vkGetPhysicalDeviceFormatProperties(gpu, target->impl.format, &formatProperties);
+			vkGetPhysicalDeviceFormatProperties(vk_ctx.gpu, target->impl.format, &formatProperties);
 			assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT);
 
 			VkImageCreateInfo image = {0};
@@ -155,11 +151,11 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			colorImageView.subresourceRange.baseArrayLayer = 0;
 			colorImageView.subresourceRange.layerCount = 1;
 
-			err = vkCreateImage(device, &image, NULL, &target->impl.sourceImage);
+			err = vkCreateImage(vk_ctx.device, &image, NULL, &target->impl.sourceImage);
 			assert(!err);
 
 			VkMemoryRequirements memoryRequirements;
-			vkGetImageMemoryRequirements(device, target->impl.sourceImage, &memoryRequirements);
+			vkGetImageMemoryRequirements(vk_ctx.device, target->impl.sourceImage, &memoryRequirements);
 
 			VkMemoryAllocateInfo allocationInfo = {0};
 			allocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -169,18 +165,18 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			bool pass = memory_type_from_properties(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &allocationInfo.memoryTypeIndex);
 			assert(pass);
 
-			err = vkAllocateMemory(device, &allocationInfo, NULL, &target->impl.sourceMemory);
+			err = vkAllocateMemory(vk_ctx.device, &allocationInfo, NULL, &target->impl.sourceMemory);
 			assert(!err);
 
-			err = vkBindImageMemory(device, target->impl.sourceImage, target->impl.sourceMemory, 0);
+			err = vkBindImageMemory(vk_ctx.device, target->impl.sourceImage, target->impl.sourceMemory, 0);
 			assert(!err);
 
 			setup_init_cmd();
-			setImageLayout(setup_cmd, target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			setImageLayout(vk_ctx.setup_cmd, target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 			flush_init_cmd();
 
 			colorImageView.image = target->impl.sourceImage;
-			err = vkCreateImageView(device, &colorImageView, NULL, &target->impl.sourceView);
+			err = vkCreateImageView(vk_ctx.device, &colorImageView, NULL, &target->impl.sourceView);
 			assert(!err);
 		}
 
@@ -202,7 +198,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			image.flags = 0;
 
 			/* create image */
-			err = vkCreateImage(device, &image, NULL, &target->impl.depthImage);
+			err = vkCreateImage(vk_ctx.device, &image, NULL, &target->impl.depthImage);
 			assert(!err);
 
 			VkMemoryAllocateInfo mem_alloc = {0};
@@ -228,7 +224,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			bool pass;
 
 			/* get memory requirements for this object */
-			vkGetImageMemoryRequirements(device, target->impl.depthImage, &mem_reqs);
+			vkGetImageMemoryRequirements(vk_ctx.device, target->impl.depthImage, &mem_reqs);
 
 			/* select memory size and type */
 			mem_alloc.allocationSize = mem_reqs.size;
@@ -236,20 +232,20 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 			assert(pass);
 
 			/* allocate memory */
-			err = vkAllocateMemory(device, &mem_alloc, NULL, &target->impl.depthMemory);
+			err = vkAllocateMemory(vk_ctx.device, &mem_alloc, NULL, &target->impl.depthMemory);
 			assert(!err);
 
 			/* bind memory */
-			err = vkBindImageMemory(device, target->impl.depthImage, target->impl.depthMemory, 0);
+			err = vkBindImageMemory(vk_ctx.device, target->impl.depthImage, target->impl.depthMemory, 0);
 			assert(!err);
 
 			setup_init_cmd();
-			setImageLayout(setup_cmd, target->impl.depthImage, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+			setImageLayout(vk_ctx.setup_cmd, target->impl.depthImage, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
 			               VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 			flush_init_cmd();
 
 			/* create image view */
-			err = vkCreateImageView(device, &view, NULL, &target->impl.depthView);
+			err = vkCreateImageView(vk_ctx.device, &view, NULL, &target->impl.depthView);
 			assert(!err);
 		}
 
@@ -263,14 +259,15 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		VkFramebufferCreateInfo fbufCreateInfo = {0};
 		fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		fbufCreateInfo.pNext = NULL;
-		fbufCreateInfo.renderPass = contextId >= 0 ? rendertarget_render_pass : framebuffer_render_pass;
+		fbufCreateInfo.renderPass =
+		    contextId >= 0 ? vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass : vk_ctx.windows[vk_ctx.current_window].framebuffer_render_pass;
 		fbufCreateInfo.attachmentCount = depthBufferBits > 0 ? 2 : 1;
 		fbufCreateInfo.pAttachments = attachments;
 		fbufCreateInfo.width = width;
 		fbufCreateInfo.height = height;
 		fbufCreateInfo.layers = 1;
 
-		err = vkCreateFramebuffer(device, &fbufCreateInfo, NULL, &target->impl.framebuffer);
+		err = vkCreateFramebuffer(vk_ctx.device, &fbufCreateInfo, NULL, &target->impl.framebuffer);
 		assert(!err);
 	}
 }
@@ -298,8 +295,8 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 	target->impl.depthView = source->impl.depthView;
 	target->impl.depthBufferBits = source->impl.depthBufferBits;
 
-	// vkDestroyFramebuffer(device, target->impl.framebuffer, nullptr);
-	// vkDestroyRenderPass(device, target->impl.renderPass, nullptr);
+	// vkDestroyFramebuffer(vk_ctx.device, target->impl.framebuffer, nullptr);
+	// vkDestroyRenderPass(vk_ctx.device, target->impl.renderPass, nullptr);
 
 	{
 		VkAttachmentDescription attachments[2];
@@ -346,7 +343,7 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 		subpass.pPreserveAttachments = NULL;
 
 		VkSubpassDependency dependencies[2];
-		memset(&dependencies, 0, sizeof(dependencies));
+		kinc_memset(&dependencies, 0, sizeof(dependencies));
 
 		// TODO: depth-stencil-something
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -376,7 +373,7 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 		rp_info.pDependencies = dependencies;
 
 		// TODO
-		// VkResult err = vkCreateRenderPass(device, &rp_info, NULL, &target->impl.renderPass);
+		// VkResult err = vkCreateRenderPass(vk_ctx.device, &rp_info, NULL, &target->impl.renderPass);
 		// assert(!err);
 	}
 
@@ -398,7 +395,7 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 		fbufCreateInfo.height = target->height;
 		fbufCreateInfo.layers = 1;
 
-		VkResult err = vkCreateFramebuffer(device, &fbufCreateInfo, NULL, &target->impl.framebuffer);
+		VkResult err = vkCreateFramebuffer(vk_ctx.device, &fbufCreateInfo, NULL, &target->impl.framebuffer);
 		assert(!err);
 	}
 }

@@ -90,22 +90,6 @@ typedef enum kinc_g5_texture_argument { KINC_G5_TEXTURE_ARGUMENT_CURRENT_COLOR, 
 #define KINC_G5_CLEAR_DEPTH 2
 #define KINC_G5_CLEAR_STENCIL 4
 
-/// <summary>
-/// Initializes the G5-API and is usually called at the start of a program.
-/// </summary>
-/// <param name="window">The window to initialize G4 for</param>
-/// <param name="depth_buffer_bits">The number of bits for the depth buffer - 16 and 24 are typical values</param>
-/// <param name="stencil_buffer_bits">The number of bits for the stencil-buffer - typically 8</param>
-/// <param name="vsync">Whether or not to enable vertical-sync</param>
-KINC_FUNC void kinc_g5_init(int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync);
-
-/// <summary>
-/// Destroy the G4-API for a window.
-/// </summary>
-/// <param name="window">The window to destroy the G4-API for</param>
-/// <returns></returns>
-KINC_FUNC void kinc_g5_destroy(int window);
-
 KINC_FUNC extern bool kinc_g5_fullscreen;
 
 /// <summary>
@@ -168,8 +152,6 @@ KINC_FUNC void kinc_g5_end(int window);
 /// </summary>
 KINC_FUNC bool kinc_g5_swap_buffers(void);
 
-void kinc_internal_g5_resize(int window, int width, int height);
-
 KINC_FUNC void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing);
 
 /// <summary>
@@ -207,6 +189,11 @@ KINC_FUNC void kinc_g5_delete_occlusion_query(unsigned occlusionQuery);
 KINC_FUNC void kinc_g5_render_occlusion_query(unsigned occlusionQuery, int triangles);
 KINC_FUNC bool kinc_g5_are_query_results_available(unsigned occlusionQuery);
 KINC_FUNC void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount);
+
+KINC_FUNC void kinc_g5_internal_init(void);
+KINC_FUNC void kinc_g5_internal_init_window(int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync);
+KINC_FUNC void kinc_g5_internal_destroy_window(int window);
+KINC_FUNC void kinc_g5_internal_destroy(void);
 
 #ifdef __cplusplus
 }

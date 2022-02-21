@@ -47,22 +47,6 @@ typedef enum {
 } kinc_g4_mipmap_filter_t;
 
 /// <summary>
-/// Initializes the G4-API and is usually called at the start of a program.
-/// </summary>
-/// <param name="window">The window to initialize G4 for</param>
-/// <param name="depth_buffer_bits">The number of bits for the depth buffer - 16 and 24 are typical values</param>
-/// <param name="stencil_buffer_bits">The number of bits for the stencil-buffer - typically 8</param>
-/// <param name="vsync">Whether or not to enable vertical-sync</param>
-KINC_FUNC void kinc_g4_init(int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync);
-
-/// <summary>
-/// Destroy the G4-API for a window.
-/// </summary>
-/// <param name="window">The window to destroy the G4-API for</param>
-/// <returns></returns>
-KINC_FUNC void kinc_g4_destroy(int window);
-
-/// <summary>
 /// Kicks of lingering work - may or may not actually do anything depending on the underlying graphics-API.
 /// </summary>
 KINC_FUNC void kinc_g4_flush(void);
@@ -400,6 +384,11 @@ KINC_FUNC int kinc_g4_antialiasing_samples(void);
 /// </summary>
 /// <param name="samples">The number of samples</param>
 KINC_FUNC void kinc_g4_set_antialiasing_samples(int samples);
+
+KINC_FUNC void kinc_g4_internal_init(void);
+KINC_FUNC void kinc_g4_internal_init_window(int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync);
+KINC_FUNC void kinc_g4_internal_destroy_window(int window);
+KINC_FUNC void kinc_g4_internal_destroy(void);
 
 #ifdef __cplusplus
 }

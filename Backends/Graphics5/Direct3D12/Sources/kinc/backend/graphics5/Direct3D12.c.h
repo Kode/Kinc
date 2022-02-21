@@ -22,7 +22,7 @@ ID3D12CommandQueue* commandQueue;
 ID3D12CommandAllocator* commandAllocators[frameCount];
 unsigned currentFrame = 0;
 ID3D12Fence* fence;
-UINT64 fenceValues[frameCount];
+UINT64 window->current_fence_value[frameCount];
 HANDLE fenceEvent;
 ID3D12Resource* renderTargets[frameCount];
 ID3D12DescriptorHeap* rtvHeap;
@@ -37,18 +37,18 @@ ID3D12DescriptorHeap* cbvHeap;*/
 // ID3D12DepthStencilView* depthStencilView;
 
 // ID3D12GraphicsCommandList* commandList;
-ID3D12Resource *depthStencilTexture;
+
 ID3D12CommandQueue *commandQueue;
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
 #else
-IDXGISwapChain *swapChain;
+// IDXGISwapChain *swapChain;
 #endif
 
-int renderTargetWidth;
-int renderTargetHeight;
-int newRenderTargetWidth;
-int newRenderTargetHeight;
+// int window->width;
+// int window->height;
+// int window->new_width;
+// int window->new_height;
 
 #ifndef KORE_WINDOWS
 #define DXGI_SWAP_CHAIN_DESC DXGI_SWAP_CHAIN_DESC1
@@ -80,11 +80,11 @@ static D3D12_VIEWPORT viewport;
 static D3D12_RECT rectScissor;
 // ID3D12Resource* renderTarget;
 // ID3D12DescriptorHeap* renderTargetDescriptorHeap;
-static ID3D12DescriptorHeap *depthStencilDescriptorHeap;
-static UINT64 currentFenceValue;
-static UINT64 fenceValues[QUEUE_SLOT_COUNT];
-static HANDLE frameFenceEvents[QUEUE_SLOT_COUNT];
-static ID3D12Fence *frameFences[QUEUE_SLOT_COUNT];
+
+// static UINT64 window->current_fence_value;
+// static UINT64 window->current_fence_value[QUEUE_SLOT_COUNT];
+// static HANDLE window->frame_fence_events[QUEUE_SLOT_COUNT];
+// static ID3D12Fence *window->frame_fences[QUEUE_SLOT_COUNT];
 static ID3D12Fence *uploadFence;
 static ID3D12GraphicsCommandList *initCommandList;
 static ID3D12CommandAllocator *initCommandAllocator;
@@ -123,7 +123,7 @@ static void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE wait
 	}
 }
 
-static void setupSwapChain() {
+static void setupSwapChain(struct dx_window *window) {
 	/*D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -134,13 +134,13 @@ static void setupSwapChain() {
 	dsvHeapDesc.NumDescriptors = 1;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	kinc_microsoft_affirm(device->lpVtbl->CreateDescriptorHeap(device, &dsvHeapDesc, &IID_ID3D12DescriptorHeap, &depthStencilDescriptorHeap));
+	kinc_microsoft_affirm(device->lpVtbl->CreateDescriptorHeap(device, &dsvHeapDesc, &IID_ID3D12DescriptorHeap, &window->depthStencilDescriptorHeap));
 
 	D3D12_RESOURCE_DESC depthTexture = {0};
 	depthTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	depthTexture.Alignment = 0;
-	depthTexture.Width = renderTargetWidth;
-	depthTexture.Height = renderTargetHeight;
+	depthTexture.Width = window->width;
+	depthTexture.Height = window->height;
 	depthTexture.DepthOrArraySize = 1;
 	depthTexture.MipLevels = 1;
 	depthTexture.Format = DXGI_FORMAT_D32_FLOAT;
@@ -162,19 +162,20 @@ static void setupSwapChain() {
 	heapProperties.VisibleNodeMask = 1;
 
 	kinc_microsoft_affirm(device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture,
-	                                                              D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, &IID_ID3D12Resource, &depthStencilTexture));
+	                                                              D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, &IID_ID3D12Resource,
+	                                                              &window->depthStencilTexture));
 
-	device->lpVtbl->CreateDepthStencilView(device, depthStencilTexture, NULL, GetCPUDescriptorHandle(depthStencilDescriptorHeap));
+	device->lpVtbl->CreateDepthStencilView(device, window->depthStencilTexture, NULL, GetCPUDescriptorHandle(window->depthStencilDescriptorHeap));
 
-	currentFenceValue = 0;
+	window->current_fence_value = 0;
 
 	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-		frameFenceEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
-		fenceValues[i] = 0;
-		device->lpVtbl->CreateFence(device, currentFenceValue, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, &frameFences[i]);
+		window->frame_fence_events[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+		window->fence_values[i] = 0;
+		device->lpVtbl->CreateFence(device, window->current_fence_value, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, &window->frame_fences[i]);
 	}
 
-	//**swapChain->GetBuffer(currentBackBuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
+	//**swapChain->GetBuffer(window->current_backbuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
 	//**createRenderTargetView();
 }
 
@@ -211,10 +212,10 @@ static void createDeviceAndSwapChain(int width, int height, HWND window) {
 		swapChainRenderTargets[i] = renderEnv.renderTargets[i];
 	}
 #else
-	swapChain = renderEnv.swapChain;
+	// swapChain = renderEnv.swapChain;
 #endif
 
-	setupSwapChain();
+	setupSwapChain(NULL);
 }
 
 static void createViewportScissor(int width, int height) {
@@ -423,82 +424,105 @@ static void initialize(int width, int height, HWND window) {
 
 static void shutdown() {
 	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-		waitForFence(frameFences[i], fenceValues[i], frameFenceEvents[i]);
+		// waitForFence(window->frame_fences[i], window->current_fence_value[i], window->frame_fence_events[i]);
 	}
 
 	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-		CloseHandle(frameFenceEvents[i]);
+		// CloseHandle(window->frame_fence_events[i]);
 	}
 }
 
-static unsigned hz;
-static bool vsync;
+void initWindow(struct dx_window *window, int windowIndex) {
+	HWND hwnd = kinc_windows_window_handle(windowIndex);
 
-// D3D_FEATURE_LEVEL featureLevel;
-// ID3D11DepthStencilState* depthTestState = nullptr;
-// ID3D11DepthStencilState* noDepthTestState = nullptr;
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
-/*IDXGISwapChain1* swapChain;
+	swapChainDesc.BufferCount = QUEUE_SLOT_COUNT;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferDesc.Width = kinc_window_width(windowIndex);
+	swapChainDesc.BufferDesc.Height = kinc_window_height(windowIndex);
+	swapChainDesc.OutputWindow = hwnd;
+	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.Windowed = true;
 
-void waitForGpu() {
-    Microsoft::affirm(commandQueue->Signal(fence, fenceValues[currentFrame]));
-    Microsoft::affirm(fence->SetEventOnCompletion(fenceValues[currentFrame], fenceEvent));
-    WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
-    fenceValues[currentFrame]++;
-}*/
+	IDXGIFactory4 *dxgiFactory;
+	kinc_microsoft_affirm(CreateDXGIFactory1(&IID_IDXGIFactory4, &dxgiFactory));
 
-void kinc_g5_destroy(int window) {}
+	kinc_microsoft_affirm(dxgiFactory->lpVtbl->CreateSwapChain(dxgiFactory, (IUnknown *)commandQueue, &swapChainDesc, &window->swapChain));
 
-void kinc_g5_init(int window, int depthBufferBits, int stencilBufferBits, bool verticalSync) {
+	setupSwapChain(window);
+}
+
+void kinc_g5_internal_destroy_window(int window) {}
+
+void kinc_g5_internal_destroy() {
 #ifdef KORE_WINDOWS
-	HWND hwnd = kinc_windows_window_handle(window);
+	if (device) {
+		device->lpVtbl->Release(device);
+		device = NULL;
+	}
+#endif
+}
+
+void kinc_g5_internal_init() {
+#ifdef _DEBUG
+	ID3D12Debug *debugController = NULL;
+	D3D12GetDebugInterface(&IID_ID3D12Debug, &debugController);
+	debugController->lpVtbl->EnableDebugLayer(debugController);
+#endif
+#ifdef KORE_WINDOWS
+	D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_11_0, &IID_ID3D12Device, &device);
+
+	createRootSignature();
+	createComputeRootSignature();
+
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {0};
+	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+	kinc_microsoft_affirm(device->lpVtbl->CreateCommandQueue(device, &queueDesc, &IID_ID3D12CommandQueue, &commandQueue));
+
+	device->lpVtbl->CreateFence(device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, &uploadFence);
+
+	device->lpVtbl->CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, &IID_ID3D12CommandAllocator, &initCommandAllocator);
+	device->lpVtbl->CreateCommandList(device, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, &IID_ID3D12CommandList, &initCommandList);
+
+	initCommandList->lpVtbl->Close(initCommandList);
+
+	ID3D12CommandList *commandLists[] = {(ID3D12CommandList *)initCommandList};
+	commandQueue->lpVtbl->ExecuteCommandLists(commandQueue, 1, commandLists);
+	commandQueue->lpVtbl->Signal(commandQueue, uploadFence, 1);
+
+	HANDLE waitEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	waitForFence(uploadFence, 1, waitEvent);
+
+	initCommandAllocator->lpVtbl->Reset(initCommandAllocator);
+	initCommandList->lpVtbl->Release(initCommandList);           // check me
+	initCommandAllocator->lpVtbl->Release(initCommandAllocator); // check me
+
+	CloseHandle(waitEvent);
+#endif
+}
+
+void kinc_g5_internal_init_window(int windowIndex, int depthBufferBits, int stencilBufferBits, bool verticalSync) {
+	struct dx_window *window = &dx_ctx.windows[windowIndex];
+	window->vsync = verticalSync;
+	window->width = window->new_width = kinc_window_width(windowIndex);
+	window->height = window->new_height = kinc_window_height(windowIndex);
+#ifdef KORE_WINDOWS
+	HWND hwnd = kinc_windows_window_handle(windowIndex);
+	initWindow(window, windowIndex);
 #else
 	HWND hwnd = nullptr;
+	window->vsync = verticalSync;
+	window->new_width = window->width = kinc_width();
+	window->new_height = window->height = kinc_height();
+	initialize(window->width, window->height, hwnd);
 #endif
-	vsync = verticalSync;
-	newRenderTargetWidth = renderTargetWidth = kinc_width();
-	newRenderTargetHeight = renderTargetHeight = kinc_height();
-	initialize(renderTargetWidth, renderTargetHeight, hwnd);
 }
-
-/*void Graphics5::drawIndexedVertices() {
-    // Program::setConstants();
-    // context->DrawIndexed(IndexBuffer::_current->count(), 0, 0);
-
-    drawIndexedVertices(0, IndexBuffer::_current->myCount);
-}
-
-void Graphics5::drawIndexedVertices(int start, int count) {
-    //commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
-    //commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->view);
-    //commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
-
-    PipelineState5Impl::setConstants();
-
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandList->IASetVertexBuffers(0, 1, (D3D12_VERTEX_BUFFER_VIEW*)&VertexBuffer::_current->view);
-    commandList->IASetIndexBuffer((D3D12_INDEX_BUFFER_VIEW*)&IndexBuffer::_current->indexBufferView);
-
-    u8* data;
-    vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
-    memcpy(data, vertexConstants, sizeof(vertexConstants));
-    vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
-
-    fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Map(0, nullptr, (void**)&data);
-    memcpy(data, fragmentConstants, sizeof(fragmentConstants));
-    fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->Unmap(0, nullptr);
-
-    commandList->SetGraphicsRootConstantBufferView(1, vertexConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootConstantBufferView(2, fragmentConstantBuffers[currentBackBuffer * 128 + currentInstance]->GetGPUVirtualAddress());
-    if (++currentInstance >= 128) currentInstance = 0;
-
-    commandList->DrawIndexedInstanced(count, 1, 0, 0, 0);
-
-}
-*/
-// void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
-
-// void kinc_g5_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {}
 
 void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
 
@@ -506,42 +530,40 @@ int kinc_g5_max_bound_textures(void) {
 	return D3D12_COMMONSHADER_SAMPLER_SLOT_COUNT;
 }
 
-// (DK) fancy macro's to generate a clickable warning message in visual studio, can be removed when setColorMask() is implemented
-#define Stringize(L) #L
-#define MakeString(M, L) M(L)
-#define $Line MakeString(Stringize, __LINE__)
-#define Warning __FILE__ "(" $Line ") : warning: "
-
 static bool began = false;
 
-void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
+void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 	if (began) return;
 	began = true;
+	struct dx_window *window = &dx_ctx.windows[windowId];
+	dx_ctx.current_window = windowId;
 
-	currentBackBuffer = (currentBackBuffer + 1) % QUEUE_SLOT_COUNT;
+	window->current_backbuffer = (window->current_backbuffer + 1) % QUEUE_SLOT_COUNT;
 
-	if (newRenderTargetWidth != renderTargetWidth || newRenderTargetHeight != renderTargetHeight) {
-		depthStencilDescriptorHeap->lpVtbl->Release(depthStencilDescriptorHeap);
-		depthStencilTexture->lpVtbl->Release(depthStencilTexture);
+	if (window->new_width != window->width || window->new_height != window->height) {
+		window->depthStencilDescriptorHeap->lpVtbl->Release(window->depthStencilDescriptorHeap);
+		window->depthStencilTexture->lpVtbl->Release(window->depthStencilTexture);
 #ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-		kinc_microsoft_affirm(swapChain->lpVtbl->ResizeBuffers(swapChain, 2, newRenderTargetWidth, newRenderTargetHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+		kinc_microsoft_affirm(
+		    window->swapChain->lpVtbl->ResizeBuffers(window->swapChain, 2, window->new_width, window->new_height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 #endif
-		setupSwapChain();
-		renderTargetWidth = newRenderTargetWidth;
-		renderTargetHeight = newRenderTargetHeight;
-		currentBackBuffer = 0;
+		setupSwapChain(window);
+		window->width = window->new_width;
+		window->height = window->new_height;
+		window->current_backbuffer = 0;
 	}
 
-	const UINT64 fenceValue = currentFenceValue;
-	commandQueue->lpVtbl->Signal(commandQueue, frameFences[currentBackBuffer], fenceValue);
-	fenceValues[currentBackBuffer] = fenceValue;
-	++currentFenceValue;
+	const UINT64 fenceValue = window->current_fence_value;
+	commandQueue->lpVtbl->Signal(commandQueue, window->frame_fences[window->current_backbuffer], fenceValue);
+	window->fence_values[window->current_backbuffer] = fenceValue;
+	++window->current_fence_value;
 
 #ifdef KORE_WINDOWSAPP
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
 
-	waitForFence(frameFences[currentBackBuffer], fenceValues[currentBackBuffer], frameFenceEvents[currentBackBuffer]);
+	waitForFence(window->frame_fences[window->current_backbuffer], window->fence_values[window->current_backbuffer],
+	             window->frame_fence_events[window->current_backbuffer]);
 
 	// static const float clearColor[] = {0.042f, 0.042f, 0.042f, 1};
 
@@ -565,17 +587,26 @@ bool kinc_window_vsynced(int window) {
 	return true;
 }
 
-void kinc_internal_resize(int window, int width, int height) {
+extern void kinc_g4_on_g5_internal_resize(int, int, int);
+
+void kinc_internal_resize(int windowId, int width, int height) {
 	if (width == 0 || height == 0) return;
-	newRenderTargetWidth = width;
-	newRenderTargetHeight = height;
+	struct dx_window *window = &dx_ctx.windows[windowId];
+	window->new_width = width;
+	window->new_height = height;
+	kinc_g4_on_g5_internal_resize(windowId, width, height);
 }
 
 void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
 
 #ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 bool kinc_g5_swap_buffers() {
-	kinc_microsoft_affirm(swapChain->lpVtbl->Present(swapChain, vsync, 0));
+	for (int i = 0; i < MAXIMUM_WINDOWS; i++) {
+		struct dx_window *window = &dx_ctx.windows[i];
+		if (window->swapChain) {
+			kinc_microsoft_affirm(window->swapChain->lpVtbl->Present(window->swapChain, window->vsync, 0));
+		}
+	}
 	return true;
 }
 #endif

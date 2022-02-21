@@ -23,15 +23,15 @@ void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *te
 	}
 
 	array->impl.texture = NULL;
-	kinc_microsoft_affirm(device->lpVtbl->CreateTexture2D(device, &desc, resdata, &array->impl.texture));
-	kinc_microsoft_affirm(device->lpVtbl->CreateShaderResourceView(device, (ID3D11Resource *)array->impl.texture, NULL, &array->impl.view));
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateTexture2D(dx_ctx.device, &desc, resdata, &array->impl.texture));
+	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateShaderResourceView(dx_ctx.device, (ID3D11Resource *)array->impl.texture, NULL, &array->impl.view));
 }
 
 void kinc_g4_texture_array_destroy(kinc_g4_texture_array_t *array) {}
 
 void kinc_internal_texture_array_set(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {
 	if (unit.impl.unit < 0) return;
-	context->lpVtbl->PSSetShaderResources(context, unit.impl.unit, 1, &array->impl.view);
+	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &array->impl.view);
 	// this->stage = unit.unit;
 	// setTextures[stage] = this;
 }

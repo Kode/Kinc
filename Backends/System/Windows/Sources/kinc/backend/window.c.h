@@ -24,6 +24,8 @@ typedef struct {
 	void *resizeCallbackData;
 	void (*ppiCallback)(int ppi, void *data);
 	void *ppiCallbackData;
+	bool (*closeCallback)(void *data);
+	void *closeCallbackData;
 } WindowData;
 
 LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -57,6 +59,10 @@ VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSur
 void kinc_vulkan_get_instance_extensions(const char **names, int *index, int max) {
 	assert(*index + 1 < max);
 	names[(*index)++] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
+}
+
+VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
+	return vkGetPhysicalDeviceWin32PresentationSupportKHR(physicalDevice, queueFamilyIndex);
 }
 #endif
 
@@ -349,6 +355,7 @@ kinc_window_mode_t kinc_window_get_mode(int window_index) {
 void kinc_window_destroy(int window_index) {
 	WindowData *win = &windows[window_index];
 	if (win->handle != NULL) {
+		kinc_g4_internal_destroy_window(window_index);
 		DestroyWindow(win->handle);
 		win->handle = NULL;
 		--window_counter;
@@ -401,6 +408,10 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 		frame = &defaultFrame;
 	}
 
+	if (win->title == NULL) {
+		win->title = "";
+	}
+
 	wchar_t wbuffer[1024];
 	MultiByteToWideChar(CP_UTF8, 0, win->title, -1, wbuffer, 1024);
 
@@ -412,7 +423,7 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 #ifdef KORE_OCULUS
 	vsync = false;
 #endif
-	kinc_g4_init(windowId, frame->depth_bits, frame->stencil_bits, vsync);
+	kinc_g4_internal_init_window(windowId, frame->depth_bits, frame->stencil_bits, vsync);
 
 	if (win->visible) {
 		kinc_window_show(windowId);
@@ -429,6 +440,11 @@ void kinc_window_set_resize_callback(int window_index, void (*callback)(int x, i
 void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int ppi, void *data), void *data) {
 	windows[window_index].ppiCallback = callback;
 	windows[window_index].ppiCallbackData = data;
+}
+
+void kinc_window_set_close_callback(int window_index, bool (*callback)(void *data), void *data) {
+	windows[window_index].closeCallback = callback;
+	windows[window_index].closeCallbackData = data;
 }
 
 int kinc_window_display(int window_index) {
@@ -457,4 +473,11 @@ void kinc_internal_call_ppi_changed_callback(int window_index, int ppi) {
 	if (windows[window_index].ppiCallback != NULL) {
 		windows[window_index].ppiCallback(ppi, windows[window_index].ppiCallbackData);
 	}
+}
+
+bool kinc_internal_call_close_callback(int window_index) {
+	if (windows[window_index].closeCallback != NULL) {
+		return windows[window_index].closeCallback(windows[window_index].closeCallbackData);
+	}
+	return true;
 }

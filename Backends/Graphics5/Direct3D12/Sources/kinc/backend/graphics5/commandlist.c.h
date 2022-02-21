@@ -124,7 +124,7 @@ void kinc_g5_command_list_destroy(struct kinc_g5_command_list *list) {}
 void kinc_g5_command_list_begin(struct kinc_g5_command_list *list) {
 	if (list->impl.closed) {
 		list->impl.closed = false;
-		waitForFence(renderFence, list->impl.currentFenceValue, renderFenceEvent);
+		waitForFence(renderFence, list->impl.current_fence_value, renderFenceEvent);
 		list->impl._commandAllocator->lpVtbl->Reset(list->impl._commandAllocator);
 		list->impl._commandList->lpVtbl->Reset(list->impl._commandList, list->impl._commandAllocator, NULL);
 	}
@@ -133,8 +133,8 @@ void kinc_g5_command_list_begin(struct kinc_g5_command_list *list) {
 void kinc_g5_command_list_end(struct kinc_g5_command_list *list) {
 	graphicsFlush(list, list->impl._commandAllocator);
 
-	list->impl.currentFenceValue = ++renderFenceValue;
-	commandQueue->lpVtbl->Signal(commandQueue, renderFence, list->impl.currentFenceValue);
+	list->impl.current_fence_value = ++renderFenceValue;
+	commandQueue->lpVtbl->Signal(commandQueue, renderFence, list->impl.current_fence_value);
 }
 
 void kinc_g5_command_list_clear(struct kinc_g5_command_list *list, kinc_g5_render_target_t *renderTarget, unsigned flags, unsigned color, float depth,

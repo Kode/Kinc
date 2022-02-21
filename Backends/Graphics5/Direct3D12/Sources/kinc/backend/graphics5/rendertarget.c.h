@@ -13,8 +13,6 @@ extern kinc_g5_texture_t *currentTextures[textureCount];
 extern kinc_g5_render_target_t *currentRenderTargets[textureCount];
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 extern ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
-#else
-extern IDXGISwapChain *swapChain;
 #endif
 
 static void WaitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
@@ -236,7 +234,11 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 		render_target->impl.renderTarget = swapChainRenderTargets[-contextId - 1];
 #else
+		IDXGISwapChain *swapChain = kinc_dx_current_window()->swapChain;
 		swapChain->lpVtbl->GetBuffer(swapChain, -contextId - 1, &IID_ID3D12Resource, &render_target->impl.renderTarget);
+		wchar_t *buffer = malloc(128);
+		wsprintf(buffer, L"Backbuffer, contextId: %i", contextId);
+		render_target->impl.renderTarget->lpVtbl->SetName(render_target->impl.renderTarget,buffer);
 #endif
 		createRenderTargetView(render_target->impl.renderTarget, render_target->impl.renderTargetDescriptorHeap, dxgiFormat);
 	}

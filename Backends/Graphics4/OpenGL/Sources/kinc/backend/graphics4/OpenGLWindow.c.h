@@ -1,3 +1,4 @@
+#ifdef KORE_WINDOWS
 #include "OpenGLWindow.h"
 
 #include <kinc/graphics4/graphics.h>
@@ -9,31 +10,27 @@
 #include <kinc/system.h>
 #include <kinc/window.h>
 
-#ifdef KORE_WINDOWS
 #include <kinc/backend/Windows.h>
-#endif
 
 #include "ogl.h"
 
-#ifdef KORE_WINDOWS
 #include <GL/wglew.h>
-#endif
 
 Kinc_Internal_OpenGLWindow Kinc_Internal_windows[10] = {0};
 
 static kinc_g4_vertex_buffer_t windowVertexBuffer;
 static kinc_g4_index_buffer_t windowIndexBuffer;
 static kinc_g4_pipeline_t windowPipeline;
-#ifdef KORE_WINDOWS
+
 static bool initialized = false;
 static kinc_g4_shader_t windowVertexShader;
 static kinc_g4_shader_t windowFragmentShader;
 static bool glewInitialized = false;
-#endif
 
-#ifdef KORE_WINDOWS
 void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int stencilBufferBits) {
 	HWND windowHandle = kinc_windows_window_handle(window);
+
+	Kinc_Internal_windows[window].depthBufferBits = depthBufferBits;
 
 #ifndef VR_RIFT
 	PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
@@ -108,7 +105,7 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 	if (window != 0) {
 		wglShareLists(Kinc_Internal_windows[0].glContext, Kinc_Internal_windows[window].glContext);
 		wglMakeCurrent(Kinc_Internal_windows[0].deviceContext, Kinc_Internal_windows[0].glContext);
-		kinc_g4_render_target_init(Kinc_Internal_windows[window].renderTarget, kinc_windows_manual_width(window), kinc_windows_manual_height(window),
+		kinc_g4_render_target_init(&Kinc_Internal_windows[window].renderTarget, kinc_windows_manual_width(window), kinc_windows_manual_height(window),
 		                           depthBufferBits, false, KINC_G4_RENDER_TARGET_FORMAT_32BIT, -1, 0);
 		if (!initialized) {
 			wglMakeCurrent(Kinc_Internal_windows[window].deviceContext, Kinc_Internal_windows[window].glContext);
@@ -171,41 +168,45 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 	}
 	wglMakeCurrent(Kinc_Internal_windows[window].deviceContext, Kinc_Internal_windows[window].glContext);
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &Kinc_Internal_windows[window].framebuffer);
-#ifdef KORE_IOS
-	glGenVertexArraysOES(1, &arrayId[windowId]);
-	glCheckErrors();
-#elif !defined(KORE_ANDROID) && !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_PI)
+
 	glGenVertexArrays(1, &Kinc_Internal_windows[window].vertexArray);
 	glCheckErrors();
-#endif
+
 	wglMakeCurrent(Kinc_Internal_windows[0].deviceContext, Kinc_Internal_windows[0].glContext);
 	glBindVertexArray(Kinc_Internal_windows[0].vertexArray);
 	glCheckErrors();
 }
-#endif
 
 void Kinc_Internal_blitWindowContent(int window) {
 	glBindFramebuffer(GL_FRAMEBUFFER, Kinc_Internal_windows[window].framebuffer);
 	kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xff00ffff, 0.0f, 0);
 	kinc_g4_set_pipeline(&windowPipeline);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Kinc_Internal_windows[window].renderTarget->impl._texture);
+	glBindTexture(GL_TEXTURE_2D, Kinc_Internal_windows[window].renderTarget.impl._texture);
 	kinc_g4_set_index_buffer(&windowIndexBuffer);
 
-#ifndef KORE_OPENGL_ES
 	glBindVertexArray(Kinc_Internal_windows[window].vertexArray);
-#endif
+
 	glCheckErrors();
 	kinc_g4_vertex_buffer_t *vertexBuffers[1] = {&windowVertexBuffer};
 	kinc_g4_set_vertex_buffers(vertexBuffers, 1);
 
+	glViewport(0, 0, kinc_window_width(window), kinc_window_height(window));
+
 	kinc_g4_draw_indexed_vertices();
 	glCheckErrors();
 
-#ifndef KORE_OPENGL_ES
 	glBindVertexArray(Kinc_Internal_windows[0].vertexArray);
-#endif
+
 	glCheckErrors();
+}
+
+void Kinc_Internal_resizeWindowRenderTarget(int window, int width, int height) {
+	if (window != 0) {
+		kinc_g4_render_target_destroy(&Kinc_Internal_windows[window].renderTarget);
+		kinc_g4_render_target_init(&Kinc_Internal_windows[window].renderTarget, width, height, &Kinc_Internal_windows[window].depthBufferBits, false,
+		                           KINC_G4_RENDER_TARGET_FORMAT_32BIT, -1, 0);
+	}
 }
 
 void Kinc_Internal_setWindowRenderTarget(int window) {
@@ -213,7 +214,8 @@ void Kinc_Internal_setWindowRenderTarget(int window) {
 		glBindFramebuffer(GL_FRAMEBUFFER, Kinc_Internal_windows[window].framebuffer);
 	}
 	else {
-		kinc_g4_render_target_t *renderTargets[1] = {Kinc_Internal_windows[window].renderTarget};
+		kinc_g4_render_target_t *renderTargets[1] = {&Kinc_Internal_windows[window].renderTarget};
 		kinc_g4_set_render_targets(renderTargets, 1);
 	}
 }
+#endif

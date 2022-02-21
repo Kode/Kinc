@@ -52,21 +52,13 @@
 #include <d3d11.h>
 #endif
 
+#include "Direct3D11.h"
+
 #include <assert.h>
 #include <malloc.h>
 #include <stdint.h>
 
-ID3D11Device *device;
-ID3D11DeviceContext *context;
-static ID3D11RenderTargetView *renderTargetView;
-static ID3D11Texture2D *depthStencil;
-static ID3D11DepthStencilView *depthStencilView;
-static ID3D11Texture2D *backBuffer;
-
-int renderTargetWidth = 4096;
-int renderTargetHeight = 4096;
-static int newRenderTargetWidth = 4096;
-static int newRenderTargetHeight = 4096;
+struct dx_context dx_ctx = {0};
 
 static uint8_t vertexConstants[1024 * 4];
 static uint8_t fragmentConstants[1024 * 4];
