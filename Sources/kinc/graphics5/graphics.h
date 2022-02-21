@@ -190,7 +190,7 @@ KINC_FUNC void kinc_g5_render_occlusion_query(unsigned occlusionQuery, int trian
 KINC_FUNC bool kinc_g5_are_query_results_available(unsigned occlusionQuery);
 KINC_FUNC void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef KINC_DOCS
 void kinc_g5_internal_init(void);
 void kinc_g5_internal_init_window(int window, int depth_buffer_bits, int stencil_buffer_bits, bool vsync);
 void kinc_g5_internal_destroy_window(int window);
