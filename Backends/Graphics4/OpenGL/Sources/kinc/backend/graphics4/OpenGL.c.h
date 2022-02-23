@@ -1056,7 +1056,7 @@ bool kinc_g4_non_pow2_textures_supported() {
 
 #if (defined(KORE_OPENGL) && !defined(KORE_PI) && !defined(KORE_ANDROID)) || (defined(KORE_ANDROID) && KORE_ANDROID_API >= 18)
 bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
-#ifdef KORE_OPENGL_ES
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	if (gles_version >= 3 && glesGenQueries) {
 		glesGenQueries(1, occlusionQuery);
 	}
@@ -1067,7 +1067,7 @@ bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 }
 
 void kinc_g4_delete_occlusion_query(unsigned occlusionQuery) {
-#ifdef KORE_OPENGL_ES
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	if (gles_version >= 3 && glesGenQueries) {
 		glesDeleteQueries(1, &occlusionQuery);
 	}
@@ -1083,7 +1083,7 @@ void kinc_g4_delete_occlusion_query(unsigned occlusionQuery) {
 #endif
 
 void kinc_g4_render_occlusion_query(unsigned occlusionQuery, int triangles) {
-#ifdef KORE_OPENGL_ES
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	if (gles_version >= 3 && glesGenQueries) {
 		glesBeginQuery(SAMPLES_PASSED, occlusionQuery);
 		glDrawArrays(GL_TRIANGLES, 0, triangles);
@@ -1100,7 +1100,7 @@ void kinc_g4_render_occlusion_query(unsigned occlusionQuery, int triangles) {
 
 bool kinc_g4_are_query_results_available(unsigned occlusionQuery) {
 	unsigned available = 0;
-#ifdef KORE_OPENGL_ES
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	if (gles_version >= 3 && glesGetQueryObjectuiv) {
 		glesGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT_AVAILABLE, &available);
 	}
@@ -1111,7 +1111,7 @@ bool kinc_g4_are_query_results_available(unsigned occlusionQuery) {
 }
 
 void kinc_g4_get_query_results(unsigned occlusionQuery, unsigned *pixelCount) {
-#ifdef KORE_OPENGL_ES
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	if (gles_version >= 3 && glesGetQueryObjectuiv) {
 		glesGetQueryObjectuiv(occlusionQuery, GL_QUERY_RESULT, pixelCount);
 	}
