@@ -1090,7 +1090,7 @@ EGLDisplay kinc_wayland_egl_get_display() {
 	return eglGetDisplay(wl_ctx.display);
 }
 
-EGLNativeWindowType kinc_wayland_egl_get_native_window(int window_index) {
+EGLNativeWindowType kinc_wayland_egl_get_native_window(EGLDisplay display, EGLConfig config, int window_index) {
 	return (EGLNativeWindowType)wl_ctx.windows[window_index].egl_window;
 }
 #endif

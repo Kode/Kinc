@@ -52,7 +52,7 @@ struct linux_procs {
 	void (*copy_to_clipboard)(const char *text);
 #ifdef KINC_EGL
 	EGLDisplay (*egl_get_display)(void);
-	EGLNativeWindowType (*egl_get_native_window)(int window_index);
+	EGLNativeWindowType (*egl_get_native_window)(EGLDisplay display, EGLConfig config, int window_index);
 #endif
 #ifdef KORE_VULKAN
 	void (*vulkan_get_instance_extensions)(const char **extensions, int *count, int max);

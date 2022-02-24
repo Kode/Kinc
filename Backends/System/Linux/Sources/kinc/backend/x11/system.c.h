@@ -804,7 +804,7 @@ EGLDisplay kinc_x11_egl_get_display() {
 	return eglGetDisplay(x11_ctx.display);
 }
 
-EGLNativeWindowType kinc_x11_egl_get_native_window(int window_index) {
+EGLNativeWindowType kinc_x11_egl_get_native_window(EGLDisplay display, EGLConfig config, int window_index) {
 	return (EGLNativeWindowType)x11_ctx.windows[window_index].window;
 }
 #endif

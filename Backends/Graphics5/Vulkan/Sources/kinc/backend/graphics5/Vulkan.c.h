@@ -46,10 +46,6 @@ VkSemaphore presentCompleteSemaphore;
 void createDescriptorLayout(void);
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 
-#ifdef _DEBUG
-#define VALIDATE
-#endif
-
 // uint32_t current_buffer;
 
 kinc_g5_texture_t *vulkanTextures[16] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
@@ -208,7 +204,24 @@ void create_swapchain(struct vk_window *window) {
 	swapchain_info.imageExtent.height = swapchainExtent.height;
 	swapchain_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	swapchain_info.preTransform = preTransform;
-	swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+	if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR) {
+		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	}
+	else if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) {
+		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+	}
+	else if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR) {
+		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
+	}
+	else if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR) {
+		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR;
+	}
+	else {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "No supported composite alpha, this should not happen.\nPlease go complain to the writers of your Vulkan driver.");
+		exit(1);
+	}
+
 	swapchain_info.imageArrayLayers = 1;
 	swapchain_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	swapchain_info.queueFamilyIndexCount = 0;
@@ -976,10 +989,16 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window_index) {
 	// Get the index of the next available swapchain image:
 	err = vk.fpAcquireNextImageKHR(vk_ctx.device, window->swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
 	                               &window->current_image);
-	assert(!err);
-
-	began = true;
-	vk_ctx.current_window = window_index;
+	// TODO: handle this somehow, currently this will just crash on Android
+	if (err == VK_ERROR_SURFACE_LOST_KHR) {
+		kinc_g5_internal_destroy_window(window_index);
+		kinc_g5_internal_init_window(window_index, window->depth_bits, window->stencil_bits, window->vsynced);
+	}
+	else {
+		assert(!err);
+		began = true;
+		vk_ctx.current_window = window_index;
+	}
 }
 
 void kinc_g5_end(int window) {

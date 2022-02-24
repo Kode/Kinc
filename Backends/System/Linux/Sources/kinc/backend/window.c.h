@@ -9,8 +9,8 @@
 EGLDisplay kinc_egl_get_display() {
 	return procs.egl_get_display();
 }
-EGLNativeWindowType kinc_egl_get_native_window(int window_index) {
-	return procs.egl_get_native_window(window_index);
+EGLNativeWindowType kinc_egl_get_native_window(EGLDisplay display, EGLConfig config, int window_index) {
+	return procs.egl_get_native_window(display, config, window_index);
 }
 #endif
 

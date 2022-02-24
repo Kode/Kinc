@@ -2,17 +2,6 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/window.h>
 
-/*namespace {
-	Window window;
-}
-
-Window* Window::get(int window) {
-	if (window > 0) {
-		return nullptr;
-	}
-	return &::window;
-}*/
-
 static void (*resizeCallback)(int x, int y, void *data);
 static void *resizeCallbackData;
 
@@ -28,55 +17,39 @@ int kinc_window_y(int window_index) {
 	return 0;
 }
 
-int glWidth();
+int kinc_android_width();
 
 int kinc_window_width(int window_index) {
-	return glWidth();
+	return kinc_android_width();
 }
 
-int glHeight();
+int kinc_android_height();
 
 int kinc_window_height(int window_index) {
-	return glHeight();
+	return kinc_android_height();
 }
 
-void kinc_window_resize(int window_index, int width, int height) {
-	
-}
+void kinc_window_resize(int window_index, int width, int height) {}
 
-void kinc_window_move(int window_index, int x, int y) {
-	
-}
+void kinc_window_move(int window_index, int x, int y) {}
 
 void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame);
 
 void kinc_window_change_framebuffer(int window_index, kinc_framebuffer_options_t *frame) {
-    kinc_internal_change_framebuffer(0, frame);
+	kinc_internal_change_framebuffer(0, frame);
 }
 
-void kinc_window_change_features(int window_index, int features) {
-	
-}
+void kinc_window_change_features(int window_index, int features) {}
 
-void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
-	
-}
+void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {}
 
-void kinc_window_destroy(int window_index) {
-	
-}
+void kinc_window_destroy(int window_index) {}
 
-void kinc_window_show(int window_index) {
-	
-}
+void kinc_window_show(int window_index) {}
 
-void kinc_window_hide(int window_index) {
-	
-}
+void kinc_window_hide(int window_index) {}
 
-void kinc_window_set_title(int window_index, const char *title) {
-	
-}
+void kinc_window_set_title(int window_index, const char *title) {}
 
 int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	return 0;
@@ -93,9 +66,7 @@ void kinc_internal_call_resize_callback(int window_index, int width, int height)
 	}
 }
 
-void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int ppi, void *data), void *data) {
-
-}
+void kinc_window_set_ppi_changed_callback(int window_index, void (*callback)(int ppi, void *data), void *data) {}
 
 kinc_window_mode_t kinc_window_get_mode(int window_index) {
 	return KINC_WINDOW_MODE_FULLSCREEN;
