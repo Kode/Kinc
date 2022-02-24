@@ -35,7 +35,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 }
 
 void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
-	wgpuRenderPassEncoderEndPass(list->impl.pass);
+	wgpuRenderPassEncoderEnd(list->impl.pass);
 
 	WGPUCommandBufferDescriptor cbDesc;
 	memset(&cbDesc, 0, sizeof(cbDesc));
