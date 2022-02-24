@@ -282,6 +282,7 @@ else if (platform === Platform.Android) {
 		project.addDefine('KORE_OPENGL');
 		project.addDefine('KORE_OPENGL_ES');
 		project.addDefine('KORE_ANDROID_API=19');
+		project.addDefine('KINC_EGL');
 	}
 	else {
 		throw new Error('Graphics API ' + graphics + ' is not available for Android.');

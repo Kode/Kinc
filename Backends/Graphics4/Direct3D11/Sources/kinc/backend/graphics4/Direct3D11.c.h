@@ -114,7 +114,10 @@ static void createBackbuffer(struct dx_window *window, int antialiasingSamples) 
 		window->depthStencilView->lpVtbl->Release(window->depthStencilView);
 		window->renderTargetView->lpVtbl->Release(window->renderTargetView);
 		window->backBuffer->lpVtbl->Release(window->backBuffer);
-		window->depthStencil = window->depthStencilView = window->renderTargetView = window->backBuffer = NULL;
+		window->depthStencil = NULL;
+		window->depthStencilView = NULL;
+		window->renderTargetView = NULL;
+		window->backBuffer = NULL;
 	}
 
 	window->swapChain->lpVtbl->ResizeBuffers(window->swapChain, 1, window->width, window->height, DXGI_FORMAT_B8G8R8A8_UNORM, 0);
@@ -259,7 +262,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	swapChainDesc.OutputWindow = window->hwnd;
 	swapChainDesc.Windowed = true;
 
-	kinc_microsoft_affirm(dx_ctx.dxgiFactory->lpVtbl->CreateSwapChain(dx_ctx.dxgiFactory, dx_ctx.dxgiDevice, &swapChainDesc, &window->swapChain));
+	kinc_microsoft_affirm(dx_ctx.dxgiFactory->lpVtbl->CreateSwapChain(dx_ctx.dxgiFactory, (IUnknown *)dx_ctx.dxgiDevice, &swapChainDesc, &window->swapChain));
 
 	createBackbuffer(window, kinc_g4_antialiasing_samples());
 	currentRenderTargetViews[0] = window->renderTargetView;

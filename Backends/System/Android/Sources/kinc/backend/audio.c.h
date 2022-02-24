@@ -1,3 +1,4 @@
+#include "kinc/memory.h"
 #include <kinc/audio2/audio.h>
 
 #include <SLES/OpenSLES.h>
@@ -5,38 +6,36 @@
 
 #include <string.h>
 
-namespace {
-	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
-	kinc_a2_buffer_t a2_buffer;
+static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
+static kinc_a2_buffer_t a2_buffer;
 
-	SLObjectItf engineObject;
-	SLEngineItf engineEngine;
-	SLObjectItf outputMixObject;
-	SLObjectItf bqPlayerObject;
-	SLPlayItf bqPlayerPlay = NULL;
-	SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
-	const int bufferSize = 1 * 1024;
-	int16_t tempBuffer[bufferSize];
+static SLObjectItf engineObject;
+static SLEngineItf engineEngine;
+static SLObjectItf outputMixObject;
+static SLObjectItf bqPlayerObject;
+static SLPlayItf bqPlayerPlay = NULL;
+static SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
+#define AUDIO_BUFFER_SIZE 1 * 1024
+static int16_t tempBuffer[AUDIO_BUFFER_SIZE];
 
-	void copySample(void *buffer) {
-		float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
-		a2_buffer.read_location += 4;
-		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
-		*(int16_t *)buffer = static_cast<int16_t>(value * 32767);
+static void copySample(void *buffer) {
+	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
+	a2_buffer.read_location += 4;
+	if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
+	*(int16_t *)buffer = (int16_t)(value * 32767);
+}
+
+static void bqPlayerCallback(SLAndroidSimpleBufferQueueItf caller, void *context) {
+	if (a2_callback != NULL) {
+		a2_callback(&a2_buffer, AUDIO_BUFFER_SIZE);
+		for (int i = 0; i < AUDIO_BUFFER_SIZE; i++) {
+			copySample(&tempBuffer[i]);
+		}
+		SLresult result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, AUDIO_BUFFER_SIZE * 2);
 	}
-
-	void bqPlayerCallback(SLAndroidSimpleBufferQueueItf caller, void *context) {
-		if (a2_callback != nullptr) {
-			a2_callback(&a2_buffer, bufferSize);
-			for (int i = 0; i < bufferSize; i += 1) {
-				copySample(&tempBuffer[i]);
-			}
-			SLresult result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, bufferSize * 2);
-		}
-		else {
-			memset(tempBuffer, 0, sizeof(tempBuffer));
-			SLresult result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, bufferSize * 2);
-		}
+	else {
+		memset(tempBuffer, 0, sizeof(tempBuffer));
+		SLresult result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, AUDIO_BUFFER_SIZE * 2);
 	}
 }
 
@@ -45,10 +44,10 @@ void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = new uint8_t[a2_buffer.data_size];
+	a2_buffer.data = kinc_allocate(a2_buffer.data_size);
 
 	SLresult result;
-	result = slCreateEngine(&engineObject, 0, nullptr, 0, nullptr, nullptr);
+	result = slCreateEngine(&engineObject, 0, NULL, 0, NULL, NULL);
 	result = (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
 	result = (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
 
@@ -65,7 +64,7 @@ void kinc_a2_init() {
 	SLDataSource audioSrc = {&loc_bufq, &format_pcm};
 
 	SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
-	SLDataSink audioSnk = {&loc_outmix, nullptr};
+	SLDataSink audioSnk = {&loc_outmix, NULL};
 
 	const SLInterfaceID ids1[] = {SL_IID_ANDROIDSIMPLEBUFFERQUEUE};
 	const SLboolean req1[] = {SL_BOOLEAN_TRUE};
@@ -76,12 +75,12 @@ void kinc_a2_init() {
 
 	result = (*bqPlayerObject)->GetInterface(bqPlayerObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &(bqPlayerBufferQueue));
 
-	result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, nullptr);
+	result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, NULL);
 
 	result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
 
 	memset(tempBuffer, 0, sizeof(tempBuffer));
-	result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, bufferSize * 2);
+	result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, AUDIO_BUFFER_SIZE * 2);
 }
 
 void pauseAudio() {
@@ -97,20 +96,20 @@ void resumeAudio() {
 void kinc_a2_update() {}
 
 void kinc_a2_shutdown() {
-	if (bqPlayerObject != nullptr) {
+	if (bqPlayerObject != NULL) {
 		(*bqPlayerObject)->Destroy(bqPlayerObject);
-		bqPlayerObject = nullptr;
-		bqPlayerPlay = nullptr;
-		bqPlayerBufferQueue = nullptr;
+		bqPlayerObject = NULL;
+		bqPlayerPlay = NULL;
+		bqPlayerBufferQueue = NULL;
 	}
-	if (outputMixObject != nullptr) {
+	if (outputMixObject != NULL) {
 		(*outputMixObject)->Destroy(outputMixObject);
-		outputMixObject = nullptr;
+		outputMixObject = NULL;
 	}
-	if (engineObject != nullptr) {
+	if (engineObject != NULL) {
 		(*engineObject)->Destroy(engineObject);
-		engineObject = nullptr;
-		engineEngine = nullptr;
+		engineObject = NULL;
+		engineEngine = NULL;
 	}
 }
 

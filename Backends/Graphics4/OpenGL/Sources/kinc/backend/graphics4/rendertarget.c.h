@@ -49,17 +49,17 @@ static int getPower2(int i) {
 		if (pow2(power) >= i) return pow2(power);
 }
 
-bool kinc_opengl_internal_nonPow2RenderTargetsSupported(void);
+#ifdef KORE_OPENGL_ES
+extern int gles_version;
+#endif
 
-#ifndef KORE_ANDROID
 bool kinc_opengl_internal_nonPow2RenderTargetsSupported() {
 #ifdef KORE_OPENGL_ES
-	return true;
+	return gles_version >= 3;
 #else
 	return true;
 #endif
 }
-#endif
 
 static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texType, int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {

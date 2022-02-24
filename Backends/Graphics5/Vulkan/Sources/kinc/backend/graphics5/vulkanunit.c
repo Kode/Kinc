@@ -48,6 +48,11 @@
 
 #endif
 
+#ifdef _DEBUG
+#define VALIDATE
+#endif
+
+
 #include <vulkan/vulkan.h>
 
 #include <assert.h>
