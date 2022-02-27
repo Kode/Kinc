@@ -10,7 +10,7 @@
 
 #define KINC_ATOMIC_DECREMENT(pointer) (_InterlockedDecrement((volatile long *)pointer) + 1)
 
-#define KINC_ATOMIC_EXCHANGE_32(pointer, value) (_InterlockedExchange(pointer, value))
+#define KINC_ATOMIC_EXCHANGE_32(pointer, value) (_InterlockedExchange((volatile long *)pointer, value))
 
 #define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value) (_InterlockedExchange((volatile long *)pointer, *(long *)&value))
 
