@@ -525,7 +525,11 @@ void kinc_egl_init() {
 
 	// clang-format off
 	const EGLint attribs[] = {
+		#ifdef KORE_OPENGL
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+		#else
 		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+		#endif
 		EGL_SURFACE_TYPE, 	 EGL_WINDOW_BIT,
 		EGL_BLUE_SIZE, 		 8, 
 		EGL_GREEN_SIZE, 	 8,
@@ -544,7 +548,11 @@ void kinc_egl_init() {
 	if (!num_configs) {
 		// clang-format off
 		const EGLint attribs[] = {
-			EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT, // Request opengl ES2.0
+			#ifdef KORE_OPENGL
+			EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+			#else
+			EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+			#endif
 			EGL_SURFACE_TYPE,    EGL_WINDOW_BIT,
 			EGL_BLUE_SIZE, 		 8,
 			EGL_GREEN_SIZE, 	 8,
@@ -563,9 +571,11 @@ void kinc_egl_init() {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Unable to choose EGL config");
 	}
 
-	EGLint contextAttribs[] = {EGL_CONTEXT_MAJOR_VERSION, 2, // Specifies OpenGL ES 2.0.
-	                           EGL_NONE};
-
+#ifdef KORE_OPENGL
+	EGLint contextAttribs[] = {EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 3, EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_NONE};
+#else
+	EGLint contextAttribs[] = {EGL_CONTEXT_MAJOR_VERSION, 2, EGL_NONE};
+#endif
 	egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, contextAttribs);
 	EGL_CHECK_ERROR()
 }
