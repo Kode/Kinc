@@ -110,8 +110,9 @@ const char *kinc_internal_save_path() {
 			}
 			strcat(save, kinc_application_name());
 			strcat(save, "/");
-			if (mkdir(save, 0700) != 0) {
-				kinc_log(KINC_LOG_LEVEL_ERROR, "Could not create save directory '%s'.", save);
+			int res = mkdir(save, 0700);
+			if (res != 0 && errno != EEXIST) {
+				kinc_log(KINC_LOG_LEVEL_ERROR, "Could not create save directory '%s'. Error %d", save, errno);
 			}
 		}
 
