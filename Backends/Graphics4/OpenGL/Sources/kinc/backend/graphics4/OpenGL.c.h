@@ -587,7 +587,7 @@ void kinc_egl_init() {
 			EGLint error = eglGetError();
 			if (error == EGL_SUCCESS) {
 				gl_initialized = true;
-				kinc_log(KINC_LOG_LEVEL_INFO, "Using OpenGL version %i.%i", gl_versions[i][0], gl_versions[i][1]);
+				kinc_log(KINC_LOG_LEVEL_INFO, "Using OpenGL version %i.%i (forward-compatible).", gl_versions[i][0], gl_versions[i][1]);
 				break;
 			}
 		}
@@ -598,7 +598,7 @@ void kinc_egl_init() {
 			EGLint error = eglGetError();
 			if (error == EGL_SUCCESS) {
 				gl_initialized = true;
-				kinc_log(KINC_LOG_LEVEL_INFO, "Using OpenGL version %i.%i", gl_versions[i][0], gl_versions[i][1]);
+				kinc_log(KINC_LOG_LEVEL_INFO, "Using OpenGL version %i.%i.", gl_versions[i][0], gl_versions[i][1]);
 				break;
 			}
 		}
