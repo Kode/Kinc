@@ -150,14 +150,14 @@ void kinc_egl_destroy_window(int window);
 
 #ifdef KINC_EGL
 #define EGL_CHECK_ERROR()                                                                                                                                      \
-	do {                                                                                                                                                       \
+	{                                                                                                                                                          \
 		EGLint error = eglGetError();                                                                                                                          \
 		if (error != EGL_SUCCESS) {                                                                                                                            \
-			kinc_log(KINC_LOG_LEVEL_ERROR, "EGL Error : %i", error);                                                                                           \
+			kinc_log(KINC_LOG_LEVEL_ERROR, "EGL Error at line %i: %i", __LINE__, error);                                                                       \
 			__builtin_trap();                                                                                                                                  \
 			exit(1);                                                                                                                                           \
 		}                                                                                                                                                      \
-	} while (0);
+	}
 #endif
 
 void kinc_g4_internal_destroy() {
@@ -572,12 +572,47 @@ void kinc_egl_init() {
 	}
 
 #ifdef KORE_OPENGL
-	EGLint contextAttribs[] = {EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 3, EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_TRUE, EGL_NONE};
+	EGLint gl_versions[][2] = {{4, 6}, {4, 5}, {4, 4}, {4, 3}, {4, 2}, {4, 1}, {4, 0}, {3, 3}, {3, 2}, {3, 1}, {3, 0}, {2, 1}, {2, 0}};
+	bool gl_initialized = false;
+	for (int i = 0; i < sizeof(gl_versions) / sizeof(EGLint) / 2; ++i) {
+		{
+			EGLint contextAttribs[] = {EGL_CONTEXT_MAJOR_VERSION,
+			                           gl_versions[i][0],
+			                           EGL_CONTEXT_MINOR_VERSION,
+			                           gl_versions[i][1],
+			                           EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE,
+			                           EGL_TRUE,
+			                           EGL_NONE};
+			egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, contextAttribs);
+			EGLint error = eglGetError();
+			if (error == EGL_SUCCESS) {
+				gl_initialized = true;
+				kinc_log(KINC_LOG_LEVEL_INFO, "Using OpenGL version %i.%i", gl_versions[i][0], gl_versions[i][1]);
+				break;
+			}
+		}
+
+		{
+			EGLint contextAttribs[] = {EGL_CONTEXT_MAJOR_VERSION, gl_versions[i][0], EGL_CONTEXT_MINOR_VERSION, gl_versions[i][1], EGL_NONE};
+			egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, contextAttribs);
+			EGLint error = eglGetError();
+			if (error == EGL_SUCCESS) {
+				gl_initialized = true;
+				kinc_log(KINC_LOG_LEVEL_INFO, "Using OpenGL version %i.%i", gl_versions[i][0], gl_versions[i][1]);
+				break;
+			}
+		}
+	}
+
+	if (!gl_initialized) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not create OpenGL-context.");
+		exit(1);
+	}
 #else
 	EGLint contextAttribs[] = {EGL_CONTEXT_MAJOR_VERSION, 2, EGL_NONE};
-#endif
 	egl_context = eglCreateContext(egl_display, egl_config, EGL_NO_CONTEXT, contextAttribs);
 	EGL_CHECK_ERROR()
+#endif
 }
 
 int kinc_egl_width(int window) {
