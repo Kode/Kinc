@@ -1182,7 +1182,17 @@ bool kinc_keyboard_active() {
 	return keyboardshown;
 }
 
-void kinc_load_url(const char *url) {}
+void kinc_load_url(const char *url) {
+	if (strstr(url, "http://") || strstr(url, "https://")) {
+		wchar_t wurl[1024];
+		MultiByteToWideChar(CP_UTF8, 0, url, -1, wurl, 1024);
+		INT_PTR ret = (INT_PTR) ShellExecuteW(NULL, L"open", wurl, NULL, NULL, SW_SHOWNORMAL);
+		// According to ShellExecuteW's documentation return values > 32 indicate a success.
+		if (ret <= 32) {
+			kinc_log(KINC_LOG_LEVEL_WARNING, "Error opening url %s", url);
+		}
+	}
+}
 
 void kinc_set_keep_screen_on(bool on) {}
 void kinc_vibrate(int ms) {}
