@@ -1183,15 +1183,21 @@ bool kinc_keyboard_active() {
 }
 
 void kinc_load_url(const char *url) {
-	if (strstr(url, "http://") || strstr(url, "https://")) {
-		wchar_t wurl[1024];
-		MultiByteToWideChar(CP_UTF8, 0, url, -1, wurl, 1024);
-		INT_PTR ret = (INT_PTR) ShellExecuteW(NULL, L"open", wurl, NULL, NULL, SW_SHOWNORMAL);
+#define WURL_SIZE 1024
+#define HTTP "http://"
+#define HTTPS "https://"
+	if (strncmp(url, HTTP, sizeof(HTTP) - 1) == 0 || strncmp(url, HTTPS, sizeof(HTTPS) - 1) == 0) {
+		wchar_t wurl[WURL_SIZE];
+		MultiByteToWideChar(CP_UTF8, 0, url, -1, wurl, WURL_SIZE);
+		INT_PTR ret = (INT_PTR)ShellExecuteW(NULL, L"open", wurl, NULL, NULL, SW_SHOWNORMAL);
 		// According to ShellExecuteW's documentation return values > 32 indicate a success.
 		if (ret <= 32) {
 			kinc_log(KINC_LOG_LEVEL_WARNING, "Error opening url %s", url);
 		}
 	}
+#undef HTTPS
+#undef HTTP
+#undef WURL_SIZE
 }
 
 void kinc_set_keep_screen_on(bool on) {}

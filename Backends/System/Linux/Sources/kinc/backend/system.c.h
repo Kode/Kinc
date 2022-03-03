@@ -52,8 +52,9 @@ bool kinc_keyboard_active() {
 
 void kinc_load_url(const char *url) {
 #define MAX_COMMAND_BUFFER_SIZE 256
-
-	if (strstr(url, "http://") || strstr(url, "https://")) {
+#define HTTP "http://"
+#define HTTPS "https://"
+	if (strncmp(url, HTTP, sizeof(HTTP) - 1) == 0 || strncmp(url, HTTPS, sizeof(HTTPS) - 1) == 0) {
 		char openUrlCommand[MAX_COMMAND_BUFFER_SIZE];
 		snprintf(openUrlCommand, MAX_COMMAND_BUFFER_SIZE, "xdg-open %s", url);
 		int err = system(openUrlCommand);
@@ -61,7 +62,8 @@ void kinc_load_url(const char *url) {
 			kinc_log(KINC_LOG_LEVEL_WARNING, "Error opening url %s", url);
 		}
 	}
-
+#undef HTTPS
+#undef HTTP
 #undef MAX_COMMAND_BUFFER_SIZE
 }
 
