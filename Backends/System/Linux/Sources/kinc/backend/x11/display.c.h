@@ -98,7 +98,7 @@ kinc_display_mode_t kinc_x11_display_current_mode(int display_index) {
 	Window root_window = DefaultRootWindow(x11_ctx.display);
 	XRRScreenResources *screen_resources = xlib.XRRGetScreenResourcesCurrent(x11_ctx.display, root_window);
 
-	XRROutputInfo *output_info = xlib.XRRGetOutputInfo(x11_ctx.display, screen_resources, display->output);
+	XRROutputInfo *output_info = xlib.XRRGetOutputInfo(x11_ctx.display, screen_resources, screen_resources->outputs[display_index]);
 	if (output_info->connection != RR_Connected || output_info->crtc == None) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Display %i not connected.", display_index);
 		xlib.XRRFreeOutputInfo(output_info);
