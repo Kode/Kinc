@@ -48,7 +48,7 @@
 
 #endif
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 #define VALIDATE
 #endif
 
