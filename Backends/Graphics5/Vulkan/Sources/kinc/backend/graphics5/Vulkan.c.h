@@ -97,7 +97,9 @@ static VKAPI_ATTR void *VKAPI_CALL myalloc(void *pUserData, size_t size, size_t 
 	return _aligned_malloc(size, alignment);
 #else
 	void *ptr;
-	posix_memalign(&ptr, alignment, size);
+	if(posix_memalign(&ptr, alignment, size) != 0) {
+		return NULL;
+	}
 	return ptr;
 #endif
 }
@@ -607,6 +609,7 @@ void kinc_g5_internal_init() {
 #ifdef VALIDATE
 		vk_ctx.validation_found = find_layer(instance_layers, instance_layer_count, "VK_LAYER_KHRONOS_validation");
 		if (vk_ctx.validation_found) {
+			kinc_log(KINC_LOG_LEVEL_INFO, "Running with Vulkan validation layers enabled.");
 			wanted_instance_layers[wanted_instance_layer_count++] = "VK_LAYER_KHRONOS_validation";
 		}
 #endif
@@ -655,12 +658,16 @@ void kinc_g5_internal_init() {
 	info.pNext = NULL;
 	info.pApplicationInfo = &app;
 #ifdef VALIDATE
-	info.enabledLayerCount = wanted_instance_layer_count;
-	info.ppEnabledLayerNames = (const char *const *)wanted_instance_layers;
-#else
-	info.enabledLayerCount = 0;
-	info.ppEnabledLayerNames = NULL;
+	if (vk_ctx.validation_found) {
+		info.enabledLayerCount = wanted_instance_layer_count;
+		info.ppEnabledLayerNames = (const char *const *)wanted_instance_layers;
+	}
+	else
 #endif
+	{
+		info.enabledLayerCount = 0;
+		info.ppEnabledLayerNames = NULL;
+	}
 	info.enabledExtensionCount = wanted_instance_extension_count;
 	info.ppEnabledExtensionNames = (const char *const *)wanted_instance_extensions;
 
