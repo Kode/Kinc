@@ -332,7 +332,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 				return 0;
 			}
 		}
-		break;
+		return 0;
 	case WM_ERASEBKGND:
 		return 1;
 	case WM_ACTIVATE:
