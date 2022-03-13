@@ -51,6 +51,8 @@ void kinc_window_set_resize_callback(int window, void (*callback)(int x, int y, 
 
 void kinc_window_set_ppi_changed_callback(int window, void (*callback)(int ppi, void *data), void *data) {}
 
+void kinc_window_set_close_callback(int window, bool (*callback)(void *), void *data) {}
+
 kinc_window_mode_t kinc_window_get_mode(int window) {
 	return KINC_WINDOW_MODE_FULLSCREEN;
 }
