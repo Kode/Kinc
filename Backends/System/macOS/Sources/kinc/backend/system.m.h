@@ -156,6 +156,11 @@ void kinc_window_change_window_mode(int window_index, kinc_window_mode_t mode) {
 	}
 }
 
+void kinc_window_set_close_callback(int window, bool (*callback)(void *), void *data) {
+	windows[window].closeCallback = callback;
+	windows[window].closeCallbackData = data;
+}
+
 static void addMenubar() {
 	NSString *appName = [[NSProcessInfo processInfo] processName];
 
@@ -276,6 +281,17 @@ int main(int argc, char **argv) {
 @end
 
 @implementation KincAppDelegate
+- (BOOL)windowShouldClose:(NSWindow *)sender {
+	if (windows[0].closeCallback != NULL) {
+		if (windows[0].closeCallback(windows[0].closeCallbackData)) {
+			return YES;
+		}
+		else {
+			return NO;
+		}
+	}
+	return YES;
+}
 
 - (void)windowWillClose:(NSNotification *)notification {
 	kinc_stop();
