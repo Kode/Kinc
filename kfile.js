@@ -341,7 +341,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		function wl_protocol(protocol, file) {
 			const backend_path = path.resolve(waylandDir);
 			const protocol_path = path.resolve("/usr/share/wayland-protocols", protocol);
-			child_process.spawn("wayland-scanner", ["private-code", protocol_path, path.resolve(backend_path, file + ".c.h")]).on("exit", code => {
+			child_process.spawn("wayland-scanner", ["private-code", protocol_path, path.resolve(backend_path, file + ".c")]).on("exit", code => {
 				if (code != 0) {
 					console.warn("Failed to generate wayland protocol files for", protocol);
 				}
@@ -353,7 +353,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 			});
 		}
 
-		child_process.spawn("wayland-scanner", ["private-code", "/usr/share/wayland/wayland.xml", path.resolve(waylandDir, "wayland-protocol.c.h")]);
+		child_process.spawn("wayland-scanner", ["private-code", "/usr/share/wayland/wayland.xml", path.resolve(waylandDir, "wayland-protocol.c")]);
 		child_process.spawn("wayland-scanner", ["client-header", "/usr/share/wayland/wayland.xml", path.resolve(waylandDir, "wayland-protocol.h")]);
 		wl_protocol("stable/viewporter/viewporter.xml", "wayland-viewporter");
 		wl_protocol("stable/xdg-shell/xdg-shell.xml", "xdg-shell");
@@ -363,6 +363,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		wl_protocol("unstable/relative-pointer/relative-pointer-unstable-v1.xml", "wayland-relative-pointer");
 
 		project.addIncludeDir(path.join(targetDirectory, 'wayland'));
+		project.addFile(waylandDir + "/**");
 	}
 	else if (platform === Platform.FreeBSD) {
 		addBackend('System/FreeBSD');
@@ -370,7 +371,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		project.addExclude('Backends/System/Linux/Sources/kinc/backend/input/gamepad.h');
 		project.addDefine("KINC_NO_WAYLAND");
 	}
-	
+
 	if (graphics === GraphicsApi.Vulkan) {
 		g4 = true;
 		g5 = true;
