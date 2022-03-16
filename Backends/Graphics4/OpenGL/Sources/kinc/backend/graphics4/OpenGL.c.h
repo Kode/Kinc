@@ -207,7 +207,7 @@ void kinc_g4_internal_destroy_window(int window) {
 
 void kinc_g4_internal_init() {
 #ifdef KINC_EGL
-#ifdef KORE_OPENGL
+#if !defined(KORE_OPENGL_ES)
 	eglBindAPI(EGL_OPENGL_API);
 #else
 	eglBindAPI(EGL_OPENGL_ES_API);
@@ -525,7 +525,7 @@ void kinc_egl_init() {
 
 	// clang-format off
 	const EGLint attribs[] = {
-		#ifdef KORE_OPENGL
+		#if !defined(KORE_OPENGL_ES)
 		EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
 		#else
 		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
