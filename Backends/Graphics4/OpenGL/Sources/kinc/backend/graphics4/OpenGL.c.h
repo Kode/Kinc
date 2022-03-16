@@ -531,7 +531,7 @@ void kinc_egl_init() {
 		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
 		#endif
 		EGL_SURFACE_TYPE, 	 EGL_WINDOW_BIT,
-		EGL_BLUE_SIZE, 		 8, 
+		EGL_BLUE_SIZE, 		 8,
 		EGL_GREEN_SIZE, 	 8,
 		EGL_RED_SIZE, 		 8,
 		EGL_DEPTH_SIZE, 	 24,
@@ -548,7 +548,7 @@ void kinc_egl_init() {
 	if (!num_configs) {
 		// clang-format off
 		const EGLint attribs[] = {
-			#ifdef KORE_OPENGL
+			#if !defined(KORE_OPENGL_ES)
 			EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
 			#else
 			EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
@@ -571,7 +571,7 @@ void kinc_egl_init() {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Unable to choose EGL config");
 	}
 
-#ifdef KORE_OPENGL
+#if !defined(KORE_OPENGL_ES)
 	EGLint gl_versions[][2] = {{4, 6}, {4, 5}, {4, 4}, {4, 3}, {4, 2}, {4, 1}, {4, 0}, {3, 3}, {3, 2}, {3, 1}, {3, 0}, {2, 1}, {2, 0}};
 	bool gl_initialized = false;
 	for (int i = 0; i < sizeof(gl_versions) / sizeof(EGLint) / 2; ++i) {
