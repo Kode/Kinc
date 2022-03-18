@@ -3,11 +3,10 @@ name: FreeBSD (OpenGL)
 on:
   push:
     branches:
-    - master
-    - ARMandFreeBSDCI
+    - main
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   build:

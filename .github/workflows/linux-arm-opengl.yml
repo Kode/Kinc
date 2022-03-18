@@ -3,11 +3,10 @@ name: Linux on ARM (OpenGL)
 on:
   push:
     branches:
-    - master
-    - ARMandFreeBSDCI
+    - main
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   build:
