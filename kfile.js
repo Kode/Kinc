@@ -338,10 +338,38 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 
 		const child_process = require('child_process');
 
+		const scanner_versions = child_process.spawnSync('wayland-scanner', ['--version'], {encoding: 'utf-8'}).stderr.split(' ')[1].split('.');
+		const w_x = parseInt(scanner_versions[0]);
+		const w_y = parseInt(scanner_versions[1]);
+		const w_z = parseInt(scanner_versions[2]);
+
+		let good_wayland = false;
+		if (w_x > 1) {
+			good_wayland = true;
+		}
+		else if (w_x === 1) {
+			if (w_y > 17) {
+				good_wayland = true;
+			}
+			else if (w_y === 17) {
+				if (w_z >= 91) {
+					good_wayland = true;
+				}
+			}
+		}
+
+		let c_ending = '.c';
+		if (good_wayland) {
+			c_ending = '.c.h';
+		}
+
+		let chfiles = [];
+
 		function wl_protocol(protocol, file) {
+			chfiles.push(file);
 			const backend_path = path.resolve(waylandDir);
 			const protocol_path = path.resolve('/usr/share/wayland-protocols', protocol);
-			if (child_process.spawnSync('wayland-scanner', ['private-code', protocol_path, path.resolve(backend_path, file + '.c')]).status !== 0) {
+			if (child_process.spawnSync('wayland-scanner', ['private-code', protocol_path, path.resolve(backend_path, file + c_ending)]).status !== 0) {
 				log.error('Failed to generate wayland protocol files for' + protocol);
 			}
 			if (child_process.spawnSync('wayland-scanner', ['client-header', protocol_path, path.resolve(backend_path, file + '.h')]).status !== 0) {
@@ -349,7 +377,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 			}
 		}
 
-		if (child_process.spawnSync('wayland-scanner', ['private-code', '/usr/share/wayland/wayland.xml', path.resolve(waylandDir, 'wayland-protocol.c')]).status !== 0) {
+		if (child_process.spawnSync('wayland-scanner', ['private-code', '/usr/share/wayland/wayland.xml', path.resolve(waylandDir, 'wayland-protocol' + c_ending)]).status !== 0) {
 			log.error('Failed to generate wayland protocol files for /usr/share/wayland/wayland.xml');
 		}
 		if (child_process.spawnSync('wayland-scanner', ['client-header', '/usr/share/wayland/wayland.xml', path.resolve(waylandDir, 'wayland-protocol.h')]).status !== 0) {
@@ -361,6 +389,14 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		wl_protocol('unstable/tablet/tablet-unstable-v2.xml', 'wayland-tablet');
 		wl_protocol('unstable/pointer-constraints/pointer-constraints-unstable-v1.xml', 'wayland-pointer-constraint');
 		wl_protocol('unstable/relative-pointer/relative-pointer-unstable-v1.xml', 'wayland-relative-pointer');
+
+		if (good_wayland) {
+			let cfile = '#include "wayland-protocol.c.h"\n';
+			for (const chfile of chfiles) {
+				cfile += '#include "' + chfile + '.c.h"\n';
+			}
+			fs.writeFileSync(path.resolve(waylandDir, 'waylandunit.c'), cfile);
+		}
 
 		project.addIncludeDir(path.join(targetDirectory, 'wayland'));
 		project.addFile(path.resolve(waylandDir, '**'));
