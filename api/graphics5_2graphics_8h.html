@@ -126,12 +126,6 @@ typedef enum kinc_g5_texture_direction&#160;</td><td class="memItemRight" valign
 <tr class="memitem:a43ec27d0cf9afd20d4586e9a8a1f7c3b"><td class="memItemLeft" align="right" valign="top"><a id="a43ec27d0cf9afd20d4586e9a8a1f7c3b"></a>
 typedef enum kinc_g5_stencil_action&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_stencil_action_t</b></td></tr>
 <tr class="separator:a43ec27d0cf9afd20d4586e9a8a1f7c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12bef15542d9cfef0a1cb84db11ea8d8"><td class="memItemLeft" align="right" valign="top"><a id="a12bef15542d9cfef0a1cb84db11ea8d8"></a>
-typedef enum kinc_g5_texture_operation&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_operation_t</b></td></tr>
-<tr class="separator:a12bef15542d9cfef0a1cb84db11ea8d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a59751f5403c0c7a5e7478b41b87dc48f"><td class="memItemLeft" align="right" valign="top"><a id="a59751f5403c0c7a5e7478b41b87dc48f"></a>
-typedef enum kinc_g5_texture_argument&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_argument_t</b></td></tr>
-<tr class="separator:a59751f5403c0c7a5e7478b41b87dc48f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -187,15 +181,6 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a39c81dbdbba21966ed705eca1f548c9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad650058be98f5cd45f4a91e1c94e3fb4"><td class="memItemLeft" align="right" valign="top"><a id="ad650058be98f5cd45f4a91e1c94e3fb4"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_operation</b> { <b>KINC_G5_TEXTURE_OPERATION_MODULATE</b>, 
-<b>KINC_G5_TEXTURE_OPERATION_SELECT_FIRST</b>, 
-<b>KINC_G5_TEXTURE_OPERATION_SELECT_SECOND</b>
- }</td></tr>
-<tr class="separator:ad650058be98f5cd45f4a91e1c94e3fb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfc7c28ca7902d5ab7d7499e77d0f6e5"><td class="memItemLeft" align="right" valign="top"><a id="adfc7c28ca7902d5ab7d7499e77d0f6e5"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_argument</b> { <b>KINC_G5_TEXTURE_ARGUMENT_CURRENT_COLOR</b>, 
-<b>KINC_G5_TEXTURE_ARGUMENT_TEXTURE_COLOR</b>
- }</td></tr>
-<tr class="separator:adfc7c28ca7902d5ab7d7499e77d0f6e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -244,9 +229,6 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_set
 <tr class="memitem:a339970aee8da4f531410be9fc48ae46a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2graphics_8h.html#a339970aee8da4f531410be9fc48ae46a">kinc_g5_set_texture_mipmap_filter</a> (<a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> texunit, kinc_g5_mipmap_filter_t filter)</td></tr>
 <tr class="memdesc:a339970aee8da4f531410be9fc48ae46a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the mipmap-sampling-mode which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly interoplated.  <a href="graphics5_2graphics_8h.html#a339970aee8da4f531410be9fc48ae46a">More...</a><br /></td></tr>
 <tr class="separator:a339970aee8da4f531410be9fc48ae46a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8c0284e9286cc9c8412e49defef19eb"><td class="memItemLeft" align="right" valign="top"><a id="aa8c0284e9286cc9c8412e49defef19eb"></a>
-KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_set_texture_operation</b> (kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2)</td></tr>
-<tr class="separator:aa8c0284e9286cc9c8412e49defef19eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cfb63a47cba2ee46c11fa0c196c3046"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2graphics_8h.html#a2cfb63a47cba2ee46c11fa0c196c3046">kinc_g5_max_bound_textures</a> (void)</td></tr>
 <tr class="memdesc:a2cfb63a47cba2ee46c11fa0c196c3046"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns how many textures can be used at the same time in a fragment-shader.  <a href="graphics5_2graphics_8h.html#a2cfb63a47cba2ee46c11fa0c196c3046">More...</a><br /></td></tr>
 <tr class="separator:a2cfb63a47cba2ee46c11fa0c196c3046"><td class="memSeparator" colspan="2">&#160;</td></tr>
