@@ -134,8 +134,6 @@ void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kin
 
 void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 
-void kinc_g5_set_texture_operation(kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2) {}
-
 void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) {}
 
 bool kinc_g5_render_targets_inverted_y() {

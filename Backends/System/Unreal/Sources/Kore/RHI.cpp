@@ -25,8 +25,6 @@ void Graphics::flush() {}
 
 void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {}
 
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
-
 void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilterType filter) {}
 
 void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilterType filter) {}

@@ -78,14 +78,6 @@ typedef enum kinc_g5_stencil_action {
 	KINC_G5_STENCIL_ACTION_INVERT
 } kinc_g5_stencil_action_t;
 
-typedef enum kinc_g5_texture_operation {
-	KINC_G5_TEXTURE_OPERATION_MODULATE,
-	KINC_G5_TEXTURE_OPERATION_SELECT_FIRST,
-	KINC_G5_TEXTURE_OPERATION_SELECT_SECOND
-} kinc_g5_texture_operation_t;
-
-typedef enum kinc_g5_texture_argument { KINC_G5_TEXTURE_ARGUMENT_CURRENT_COLOR, KINC_G5_TEXTURE_ARGUMENT_TEXTURE_COLOR } kinc_g5_texture_argument_t;
-
 #define KINC_G5_CLEAR_COLOR 1
 #define KINC_G5_CLEAR_DEPTH 2
 #define KINC_G5_CLEAR_STENCIL 4
@@ -174,8 +166,6 @@ KINC_FUNC void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t te
 /// <param name="unit">The texture-unit to set the mipmap-sampling-mode for</param>
 /// <param name="filter">The mode to set</param>
 KINC_FUNC void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter);
-
-KINC_FUNC void kinc_g5_set_texture_operation(kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2);
 
 /// <summary>
 /// Returns how many textures can be used at the same time in a fragment-shader.

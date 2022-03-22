@@ -149,7 +149,6 @@ namespace Kore {
 		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
 		void setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter);
-		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
 		int maxBoundTextures();
 
 		bool nonPow2TexturesSupported();

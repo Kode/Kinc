@@ -197,7 +197,6 @@ namespace Kore {
 		void setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter);
 		void setTextureCompareMode(TextureUnit texunit, bool enabled);
 		void setCubeMapCompareMode(TextureUnit texunit, bool enabled);
-		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
 		int maxBoundTextures();
 
 		bool nonPow2TexturesSupported();
