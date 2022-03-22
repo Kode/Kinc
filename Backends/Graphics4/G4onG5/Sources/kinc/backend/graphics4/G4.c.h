@@ -234,10 +234,6 @@ void kinc_g4_flush() {
 
 void kinc_g4_set_stencil_reference_value(int value) {}
 
-void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2) {
-	kinc_g5_set_texture_operation((kinc_g5_texture_operation_t)operation, (kinc_g5_texture_argument_t)arg1, (kinc_g5_texture_argument_t)arg2);
-}
-
 void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
 	if (location.impl._location.impl.vertexOffset >= 0)
 		kinc_g5_constant_buffer_set_int(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);

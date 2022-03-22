@@ -139,10 +139,6 @@ void Kore::Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter f
 	kinc_g5_set_texture_mipmap_filter(texunit.kincTextureUnit, (kinc_g5_mipmap_filter_t)filter);
 }
 
-void Kore::Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
-	kinc_g5_set_texture_operation((kinc_g5_texture_operation_t)operation, (kinc_g5_texture_argument_t)arg1, (kinc_g5_texture_argument_t)arg2);
-}
-
 int Kore::Graphics5::maxBoundTextures() {
 	return kinc_g5_max_bound_textures();
 }

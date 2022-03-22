@@ -30,14 +30,6 @@ typedef enum {
 
 typedef enum { KINC_G4_TEXTURE_DIRECTION_U, KINC_G4_TEXTURE_DIRECTION_V, KINC_G4_TEXTURE_DIRECTION_W } kinc_g4_texture_direction_t;
 
-typedef enum {
-	KINC_G4_TEXTURE_OPERATION_MODULATE,
-	KINC_G4_TEXTURE_OPERATION_SELECT_FIRST,
-	KINC_G4_TEXTURE_OPERATION_SELECT_SECOND
-} kinc_g4_texture_operation_t;
-
-typedef enum { KINC_G4_TEXTURE_ARGUMENT_CURRENT_COLOR, KINC_G4_TEXTURE_ARGUMENT_TEXTURE_COLOR } kinc_g4_texture_argument_t;
-
 typedef enum { KINC_G4_TEXTURE_FILTER_POINT, KINC_G4_TEXTURE_FILTER_LINEAR, KINC_G4_TEXTURE_FILTER_ANISOTROPIC } kinc_g4_texture_filter_t;
 
 typedef enum {
@@ -144,8 +136,6 @@ KINC_FUNC void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kin
 KINC_FUNC void kinc_g4_set_pipeline(struct kinc_g4_pipeline *pipeline);
 
 KINC_FUNC void kinc_g4_set_stencil_reference_value(int value);
-
-KINC_FUNC void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2);
 
 /// <summary>
 /// Assigns an integer to a constant/uniform in the currently set pipeline.
