@@ -2,6 +2,8 @@
 
 #include <kinc/graphics5/commandlist.h>
 
+#include "Graphics.h"
+
 namespace Kore {
 	namespace Graphics5 {
 		class ConstantBuffer;
@@ -42,6 +44,21 @@ namespace Kore {
 			void setPipelineLayout();
 			void execute();
 			void executeAndWait();
+
+			void setTexture(TextureUnit unit, Texture *texture);
+			void setImageTexture(TextureUnit unit, Texture *texture);
+			void setRenderTargetFace(RenderTarget *texture, int face = 0);
+			void setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
+			void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
+			void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
+			void setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter);
+
+			// Occlusion Query
+			bool initOcclusionQuery(uint *occlusionQuery);
+			void deleteOcclusionQuery(uint occlusionQuery);
+			void renderOcclusionQuery(uint occlusionQuery, int triangles);
+			bool isQueryResultsAvailable(uint occlusionQuery);
+			void getQueryResults(uint occlusionQuery, uint *pixelCount);
 
 			kinc_g5_command_list_t kincCommandList;
 		};

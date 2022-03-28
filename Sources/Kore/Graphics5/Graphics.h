@@ -130,14 +130,10 @@ namespace Kore {
 			kinc_g5_render_target_t kincRenderTarget;
 		};
 
-		void setTexture(TextureUnit unit, Texture *texture);
-		void setImageTexture(TextureUnit unit, Texture *texture);
-
 		int antialiasingSamples();
 		void setAntialiasingSamples(int samples);
 
 		bool renderTargetsInvertedY();
-		void setRenderTargetFace(RenderTarget *texture, int face = 0);
 
 		void begin(RenderTarget *renderTarget, int window = 0);
 		void end(int window = 0);
@@ -145,20 +141,9 @@ namespace Kore {
 
 		// void _resize(int window, int width, int height);
 
-		void setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing);
-		void setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter);
-		void setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter);
-		void setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter);
 		int maxBoundTextures();
 
 		bool nonPow2TexturesSupported();
-
-		// Occlusion Query
-		bool initOcclusionQuery(uint *occlusionQuery);
-		void deleteOcclusionQuery(uint occlusionQuery);
-		void renderOcclusionQuery(uint occlusionQuery, int triangles);
-		bool isQueryResultsAvailable(uint occlusionQuery);
-		void getQueryResults(uint occlusionQuery, uint *pixelCount);
 
 		const uint ClearColorFlag = 1;
 		const uint ClearDepthFlag = 2;

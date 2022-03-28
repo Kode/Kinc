@@ -129,3 +129,52 @@ void CommandList::execute() {
 void CommandList::executeAndWait() {
 	kinc_g5_command_list_execute_and_wait(&kincCommandList);
 }
+
+void CommandList::setTexture(TextureUnit unit, Texture *texture) {
+	kinc_g5_command_list_set_texture(&kincCommandList, unit.kincTextureUnit, &texture->kincTexture);
+}
+
+void CommandList::setImageTexture(TextureUnit unit, Texture *texture) {
+	kinc_g5_command_list_set_image_texture(&kincCommandList, unit.kincTextureUnit, &texture->kincTexture);
+}
+
+void CommandList::setRenderTargetFace(RenderTarget *texture, int face) {
+	kinc_g5_command_list_set_render_target_face(&kincCommandList, &texture->kincRenderTarget, face);
+}
+
+void CommandList::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
+	kinc_g5_command_list_set_texture_addressing(&kincCommandList, unit.kincTextureUnit, (kinc_g5_texture_direction_t)dir,
+	                                            (kinc_g5_texture_addressing_t)addressing);
+}
+
+void CommandList::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
+	kinc_g5_command_list_set_texture_magnification_filter(&kincCommandList, texunit.kincTextureUnit, (kinc_g5_texture_filter_t)filter);
+}
+
+void CommandList::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
+	kinc_g5_command_list_set_texture_minification_filter(&kincCommandList, texunit.kincTextureUnit, (kinc_g5_texture_filter_t)filter);
+}
+
+void CommandList::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
+	kinc_g5_command_list_set_texture_mipmap_filter(&kincCommandList, texunit.kincTextureUnit, (kinc_g5_mipmap_filter_t)filter);
+}
+
+bool CommandList::initOcclusionQuery(uint *occlusionQuery) {
+	return kinc_g5_command_list_init_occlusion_query(&kincCommandList, occlusionQuery);
+}
+
+void CommandList::deleteOcclusionQuery(uint occlusionQuery) {
+	kinc_g5_command_list_delete_occlusion_query(&kincCommandList, occlusionQuery);
+}
+
+void CommandList::renderOcclusionQuery(uint occlusionQuery, int triangles) {
+	kinc_g5_command_list_render_occlusion_query(&kincCommandList, occlusionQuery, triangles);
+}
+
+bool CommandList::isQueryResultsAvailable(uint occlusionQuery) {
+	return kinc_g5_command_list_are_query_results_available(&kincCommandList, occlusionQuery);
+}
+
+void CommandList::getQueryResults(uint occlusionQuery, uint *pixelCount) {
+	kinc_g5_command_list_get_query_result(&kincCommandList, occlusionQuery, pixelCount);
+}
