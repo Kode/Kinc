@@ -274,7 +274,6 @@ void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_
 
 void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
 
-
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
 	kinc_g5_internal_texture_set(texture, unit.impl.index);
 }
@@ -305,7 +304,8 @@ void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list
 
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
 
-void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
+void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
+                                                 kinc_g5_texture_addressing_t addressing) {}
 
 void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
 	kinc_internal_bilinear_filtering = filter != KINC_G5_TEXTURE_FILTER_POINT;
