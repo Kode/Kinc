@@ -4,6 +4,8 @@
 #include <kinc/system.h>
 #include <kinc/window.h>
 
+#include <kinc/graphics5/commandlist.h>
+
 #import <Metal/Metal.h>
 #import <MetalKit/MTKView.h>
 

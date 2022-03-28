@@ -295,6 +295,8 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
 
+extern bool kinc_internal_bilinear_filtering;
+
 void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
 	kinc_internal_bilinear_filtering = filter != KINC_G5_TEXTURE_FILTER_POINT;
 }
@@ -302,8 +304,6 @@ void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t
 void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
-
-extern bool kinc_internal_bilinear_filtering;
 
 void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
 
