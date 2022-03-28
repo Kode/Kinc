@@ -127,7 +127,7 @@ void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 }
 
 void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
-	kinc_g5_set_texture_addressing(unit.impl._unit, (kinc_g5_texture_direction_t)dir, (kinc_g5_texture_addressing_t)addressing);
+	kinc_g5_command_list_set_texture_addressing(&commandList, unit.impl._unit, (kinc_g5_texture_direction_t)dir, (kinc_g5_texture_addressing_t)addressing);
 }
 
 void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
@@ -306,7 +306,7 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	kinc_g5_set_texture_magnification_filter(texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
+	kinc_g5_command_list_set_texture_magnification_filter(&commandList, texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
 }
 
 void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -314,7 +314,7 @@ void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, 
 }
 
 void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	kinc_g5_set_texture_minification_filter(texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
+	kinc_g5_command_list_set_texture_minification_filter(&commandList, texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
 }
 
 void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -322,7 +322,7 @@ void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, k
 }
 
 void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
-	kinc_g5_set_texture_mipmap_filter(texunit.impl._unit, (kinc_g5_mipmap_filter_t)filter);
+	kinc_g5_command_list_set_texture_mipmap_filter(&commandList, texunit.impl._unit, (kinc_g5_mipmap_filter_t)filter);
 }
 
 void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
@@ -360,7 +360,7 @@ void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
 }
 
 void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) {
-	kinc_g5_set_render_target_face(&texture->impl._renderTarget, face);
+	kinc_g5_command_list_set_render_target_face(&commandList, &texture->impl._renderTarget, face);
 }
 
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
@@ -390,7 +390,7 @@ void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture
 		kinc_g5_command_list_upload_texture(&commandList, &texture->impl._texture);
 		texture->impl._uploaded = true;
 	}
-	kinc_g5_set_texture(unit.impl._unit, &texture->impl._texture);
+	kinc_g5_command_list_set_texture(&commandList, unit.impl._unit, &texture->impl._texture);
 }
 
 void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {}
@@ -400,19 +400,19 @@ int kinc_g4_max_bound_textures(void) {
 }
 
 bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
-	return kinc_g5_init_occlusion_query(occlusionQuery);
+	return kinc_g5_command_list_init_occlusion_query(&commandList, occlusionQuery);
 }
 
 void kinc_g4_delete_occlusion_query(unsigned occlusionQuery) {
-	kinc_g5_delete_occlusion_query(occlusionQuery);
+	kinc_g5_command_list_delete_occlusion_query(&commandList, occlusionQuery);
 }
 
 bool kinc_g4_are_query_results_available(unsigned occlusionQuery) {
-	return kinc_g5_are_query_results_available(occlusionQuery);
+	return kinc_g5_command_list_are_query_results_available(&commandList, occlusionQuery);
 }
 
 void kinc_g4_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {
-	kinc_g5_get_query_result(occlusionQuery, pixelCount);
+	kinc_g5_command_list_get_query_result(&commandList, occlusionQuery, pixelCount);
 }
 
 void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {

@@ -524,8 +524,6 @@ void kinc_g5_internal_init_window(int windowIndex, int depthBufferBits, int sten
 #endif
 }
 
-void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
-
 int kinc_g5_max_bound_textures(void) {
 	return D3D12_COMMONSHADER_SAMPLER_SLOT_COUNT;
 }
@@ -613,16 +611,6 @@ bool kinc_g5_swap_buffers() {
 
 void kinc_g5_flush() {}
 
-void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
-	bilinearFiltering = filter != KINC_G5_TEXTURE_FILTER_POINT;
-}
-
-void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
-	bilinearFiltering = filter != KINC_G5_TEXTURE_FILTER_POINT;
-}
-
-void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
-
 bool kinc_g5_render_targets_inverted_y() {
 	return false;
 }
@@ -630,37 +618,3 @@ bool kinc_g5_render_targets_inverted_y() {
 bool kinc_g5_non_pow2_textures_supported() {
 	return true;
 }
-
-void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) {}
-/*
-void Graphics5::setVertexBuffers(VertexBuffer** buffers, int count) {
-    buffers[0]->_set(0);
-}
-
-void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
-    buffer._set();
-}
-*/
-void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	kinc_g5_internal_texture_set(texture, unit.impl.unit);
-}
-
-bool kinc_g5_init_occlusion_query(unsigned *occlusionQuery) {
-	return false;
-}
-
-void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
-
-void kinc_g5_delete_occlusion_query(unsigned occlusionQuery) {}
-
-void kinc_g5_render_occlusion_query(unsigned occlusionQuery, int triangles) {}
-
-bool kinc_g5_are_query_results_available(unsigned occlusionQuery) {
-	return false;
-}
-
-void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {}
-
-/*void Graphics5::setPipeline(PipelineState* pipeline) {
-    pipeline->set(pipeline);
-}*/
