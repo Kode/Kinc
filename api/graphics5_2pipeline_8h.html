@@ -94,6 +94,15 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:a352979a9330556e2080addce48e3a317"><td class="memItemLeft" align="right" valign="top"><a id="a352979a9330556e2080addce48e3a317"></a>
+typedef enum kinc_g5_cull_mode&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_cull_mode_t</b></td></tr>
+<tr class="separator:a352979a9330556e2080addce48e3a317"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19b502eab85c9e146b9706980b4ae053"><td class="memItemLeft" align="right" valign="top"><a id="a19b502eab85c9e146b9706980b4ae053"></a>
+typedef enum kinc_g5_compare_mode&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_compare_mode_t</b></td></tr>
+<tr class="separator:a19b502eab85c9e146b9706980b4ae053"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43ec27d0cf9afd20d4586e9a8a1f7c3b"><td class="memItemLeft" align="right" valign="top"><a id="a43ec27d0cf9afd20d4586e9a8a1f7c3b"></a>
+typedef enum kinc_g5_stencil_action&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_stencil_action_t</b></td></tr>
+<tr class="separator:a43ec27d0cf9afd20d4586e9a8a1f7c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a333897b5c306054aa634d66a932c1190"><td class="memItemLeft" align="right" valign="top"><a id="a333897b5c306054aa634d66a932c1190"></a>
 typedef struct <a class="el" href="structkinc__g5__pipeline.html">kinc_g5_pipeline</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_pipeline_t</b></td></tr>
 <tr class="separator:a333897b5c306054aa634d66a932c1190"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -129,6 +138,37 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a25ce0cb378aeaa459fd682987244bfd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae80983176ad847ca115b0a561c59348e"><td class="memItemLeft" align="right" valign="top"><a id="ae80983176ad847ca115b0a561c59348e"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_cull_mode</b> { <b>KINC_G5_CULL_MODE_CLOCKWISE</b>, 
+<b>KINC_G5_CULL_MODE_COUNTERCLOCKWISE</b>, 
+<b>KINC_G5_CULL_MODE_NEVER</b>
+ }</td></tr>
+<tr class="separator:ae80983176ad847ca115b0a561c59348e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03da6e4ef8499e8ace737cf5e3fdd9a9"><td class="memItemLeft" align="right" valign="top"><a id="a03da6e4ef8499e8ace737cf5e3fdd9a9"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_compare_mode</b> { <br />
+&#160;&#160;<b>KINC_G5_COMPARE_MODE_ALWAYS</b>, 
+<b>KINC_G5_COMPARE_MODE_NEVER</b>, 
+<b>KINC_G5_COMPARE_MODE_EQUAL</b>, 
+<b>KINC_G5_COMPARE_MODE_NOT_EQUAL</b>, 
+<br />
+&#160;&#160;<b>KINC_G5_COMPARE_MODE_LESS</b>, 
+<b>KINC_G5_COMPARE_MODE_LESS_EQUAL</b>, 
+<b>KINC_G5_COMPARE_MODE_GREATER</b>, 
+<b>KINC_G5_COMPARE_MODE_GREATER_EQUAL</b>
+<br />
+ }</td></tr>
+<tr class="separator:a03da6e4ef8499e8ace737cf5e3fdd9a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39c81dbdbba21966ed705eca1f548c9b"><td class="memItemLeft" align="right" valign="top"><a id="a39c81dbdbba21966ed705eca1f548c9b"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_stencil_action</b> { <br />
+&#160;&#160;<b>KINC_G5_STENCIL_ACTION_KEEP</b>, 
+<b>KINC_G5_STENCIL_ACTION_ZERO</b>, 
+<b>KINC_G5_STENCIL_ACTION_REPLACE</b>, 
+<b>KINC_G5_STENCIL_ACTION_INCREMENT</b>, 
+<br />
+&#160;&#160;<b>KINC_G5_STENCIL_ACTION_INCREMENT_WRAP</b>, 
+<b>KINC_G5_STENCIL_ACTION_DECREMENT</b>, 
+<b>KINC_G5_STENCIL_ACTION_DECREMENT_WRAP</b>, 
+<b>KINC_G5_STENCIL_ACTION_INVERT</b>
+<br />
+ }</td></tr>
+<tr class="separator:a39c81dbdbba21966ed705eca1f548c9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
