@@ -11,9 +11,9 @@ kinc_g4_pipeline_t *currentPipeline = NULL;
 static D3D11_CULL_MODE convert_cull_mode(kinc_g4_cull_mode_t cullMode) {
 	switch (cullMode) {
 	case KINC_G4_CULL_CLOCKWISE:
-		return D3D11_CULL_FRONT;
-	case KINC_G4_CULL_COUNTER_CLOCKWISE:
 		return D3D11_CULL_BACK;
+	case KINC_G4_CULL_COUNTER_CLOCKWISE:
+		return D3D11_CULL_FRONT;
 	case KINC_G4_CULL_NOTHING:
 		return D3D11_CULL_NONE;
 	default:
@@ -789,7 +789,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		D3D11_RASTERIZER_DESC rasterDesc;
 		rasterDesc.CullMode = convert_cull_mode(state->cull_mode);
 		rasterDesc.FillMode = D3D11_FILL_SOLID;
-		rasterDesc.FrontCounterClockwise = FALSE;
+		rasterDesc.FrontCounterClockwise = TRUE;
 		rasterDesc.DepthBias = 0;
 		rasterDesc.SlopeScaledDepthBias = 0.0f;
 		rasterDesc.DepthBiasClamp = 0.0f;
