@@ -204,7 +204,7 @@ void Kinc_Internal_blitWindowContent(int window) {
 void Kinc_Internal_resizeWindowRenderTarget(int window, int width, int height) {
 	if (window != 0) {
 		kinc_g4_render_target_destroy(&Kinc_Internal_windows[window].renderTarget);
-		kinc_g4_render_target_init(&Kinc_Internal_windows[window].renderTarget, width, height, &Kinc_Internal_windows[window].depthBufferBits, false,
+		kinc_g4_render_target_init(&Kinc_Internal_windows[window].renderTarget, width, height, Kinc_Internal_windows[window].depthBufferBits, false,
 		                           KINC_G4_RENDER_TARGET_FORMAT_32BIT, -1, 0);
 	}
 }
