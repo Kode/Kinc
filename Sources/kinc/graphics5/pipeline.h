@@ -42,6 +42,30 @@ typedef enum {
 	KINC_G5_BLENDOP_MAX
 } kinc_g5_blending_operation_t;
 
+typedef enum kinc_g5_cull_mode { KINC_G5_CULL_MODE_CLOCKWISE, KINC_G5_CULL_MODE_COUNTERCLOCKWISE, KINC_G5_CULL_MODE_NEVER } kinc_g5_cull_mode_t;
+
+typedef enum kinc_g5_compare_mode {
+	KINC_G5_COMPARE_MODE_ALWAYS,
+	KINC_G5_COMPARE_MODE_NEVER,
+	KINC_G5_COMPARE_MODE_EQUAL,
+	KINC_G5_COMPARE_MODE_NOT_EQUAL,
+	KINC_G5_COMPARE_MODE_LESS,
+	KINC_G5_COMPARE_MODE_LESS_EQUAL,
+	KINC_G5_COMPARE_MODE_GREATER,
+	KINC_G5_COMPARE_MODE_GREATER_EQUAL
+} kinc_g5_compare_mode_t;
+
+typedef enum kinc_g5_stencil_action {
+	KINC_G5_STENCIL_ACTION_KEEP,
+	KINC_G5_STENCIL_ACTION_ZERO,
+	KINC_G5_STENCIL_ACTION_REPLACE,
+	KINC_G5_STENCIL_ACTION_INCREMENT,
+	KINC_G5_STENCIL_ACTION_INCREMENT_WRAP,
+	KINC_G5_STENCIL_ACTION_DECREMENT,
+	KINC_G5_STENCIL_ACTION_DECREMENT_WRAP,
+	KINC_G5_STENCIL_ACTION_INVERT
+} kinc_g5_stencil_action_t;
+
 typedef struct kinc_g5_pipeline {
 	kinc_g5_vertex_structure_t *inputLayout[16];
 	struct kinc_g5_shader *vertexShader;

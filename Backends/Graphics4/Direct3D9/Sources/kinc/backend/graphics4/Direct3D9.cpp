@@ -266,38 +266,6 @@ namespace {
 			return D3DTEXF_NONE;
 		}
 	}
-
-	_D3DTEXTUREOP convert(kinc_g4_texture_operation_t operation) {
-		switch (operation) {
-		case KINC_G4_TEXTURE_OPERATION_MODULATE:
-			return D3DTOP_MODULATE;
-		case KINC_G4_TEXTURE_OPERATION_SELECT_FIRST:
-			return D3DTOP_SELECTARG1;
-		case KINC_G4_TEXTURE_OPERATION_SELECT_SECOND:
-			return D3DTOP_SELECTARG2;
-		default:
-			//	throw Exception("Unknown texture operation.");
-			return D3DTOP_MODULATE;
-		}
-	}
-
-	int convert(kinc_g4_texture_argument_t arg) {
-		switch (arg) {
-		case KINC_G4_TEXTURE_ARGUMENT_CURRENT_COLOR:
-			return D3DTA_CURRENT;
-		case KINC_G4_TEXTURE_ARGUMENT_TEXTURE_COLOR:
-			return D3DTA_TEXTURE;
-		default:
-			//	throw Exception("Unknown texture argument.");
-			return D3DTA_CURRENT;
-		}
-	}
-}
-
-void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2) {
-	device->SetTextureStageState(0, D3DTSS_COLOROP, convert(operation));
-	device->SetTextureStageState(0, D3DTSS_COLORARG1, convert(arg1));
-	device->SetTextureStageState(0, D3DTSS_COLORARG2, convert(arg2));
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {

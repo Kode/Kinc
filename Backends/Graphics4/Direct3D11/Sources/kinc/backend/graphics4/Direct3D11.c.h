@@ -522,10 +522,6 @@ bool kinc_g4_swap_buffers() {
 	//}
 }
 
-void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2) {
-	// TODO
-}
-
 static void setInt(uint8_t *constants, uint32_t offset, uint32_t size, int value) {
 	if (size == 0) return;
 	int *ints = (int *)&constants[offset];

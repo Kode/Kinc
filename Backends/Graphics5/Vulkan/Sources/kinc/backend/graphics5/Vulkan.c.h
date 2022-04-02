@@ -97,7 +97,7 @@ static VKAPI_ATTR void *VKAPI_CALL myalloc(void *pUserData, size_t size, size_t 
 	return _aligned_malloc(size, alignment);
 #else
 	void *ptr;
-	if(posix_memalign(&ptr, alignment, size) != 0) {
+	if (posix_memalign(&ptr, alignment, size) != 0) {
 		return NULL;
 	}
 	return ptr;
@@ -265,7 +265,7 @@ void create_swapchain(struct vk_window *window) {
 	window->views = (VkImageView *)kinc_allocate(window->image_count * sizeof(VkImageView));
 	assert(window->views);
 
-	for (int i = 0; i < window->image_count; i++) {
+	for (uint32_t i = 0; i < window->image_count; i++) {
 		VkImageViewCreateInfo color_attachment_view = {0};
 		color_attachment_view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		color_attachment_view.pNext = NULL;
@@ -559,7 +559,7 @@ void create_render_target_render_pass(struct vk_window *window) {
 static bool check_extensions(const char **wanted_extensions, int wanted_extension_count, VkExtensionProperties *extensions, int extension_count) {
 	bool *found_extensions = kinc_allocate(wanted_extension_count);
 
-	for (uint32_t i = 0; i < extension_count; i++) {
+	for (int i = 0; i < extension_count; i++) {
 		for (int i2 = 0; i2 < wanted_extension_count; i2++) {
 			if (kinc_string_compare(wanted_extensions[i2], extensions[i].extensionName) == 0) {
 				found_extensions[i2] = true;
@@ -582,7 +582,7 @@ static bool check_extensions(const char **wanted_extensions, int wanted_extensio
 }
 
 static bool find_layer(VkLayerProperties *layers, int layer_count, const char *wanted_layer) {
-	for (uint32_t i = 0; i < layer_count; i++) {
+	for (int i = 0; i < layer_count; i++) {
 		if (kinc_string_compare(wanted_layer, layers[i].layerName) == 0) {
 			return true;
 		}
@@ -815,7 +815,7 @@ void kinc_g5_internal_init() {
 	if (!headless) {
 		// Iterate over each queue to learn whether it supports presenting:
 		VkBool32 *supportsPresent = (VkBool32 *)kinc_allocate(queue_count * sizeof(VkBool32));
-		for (int i = 0; i < queue_count; i++) {
+		for (uint32_t i = 0; i < queue_count; i++) {
 			supportsPresent[i] = kinc_vulkan_get_physical_device_presentation_support(vk_ctx.gpu, i);
 			// vk.fpGetPhysicalDeviceSurfaceSupportKHR(vk_ctx.gpu, i, surface, &supportsPresent[i]);
 		}
@@ -824,7 +824,7 @@ void kinc_g5_internal_init() {
 		// families, try to find one that supports both
 		uint32_t graphicsQueueNodeIndex = UINT32_MAX;
 		uint32_t presentQueueNodeIndex = UINT32_MAX;
-		for (int i = 0; i < queue_count; i++) {
+		for (uint32_t i = 0; i < queue_count; i++) {
 			if ((queue_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0) {
 				if (graphicsQueueNodeIndex == UINT32_MAX) {
 					graphicsQueueNodeIndex = i;
@@ -1012,26 +1012,6 @@ void kinc_g5_end(int window) {
 	began = false;
 }
 
-void kinc_g5_set_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	assert(unit.impl.binding >= 2); // Make sure the spirv-bindings have been read correctly
-	vulkanTextures[unit.impl.binding - 2] = texture;
-	vulkanRenderTargets[unit.impl.binding - 2] = NULL;
-}
-
-void kinc_g5_set_image_texture(kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
-
-void kinc_g5_set_texture_addressing(kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}
-
-void kinc_g5_set_texture_magnification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
-
-void kinc_g5_set_texture_minification_filter(kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
-
-void kinc_g5_set_texture_mipmap_filter(kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
-
-void kinc_g5_set_texture_operation(kinc_g5_texture_operation_t operation, kinc_g5_texture_argument_t arg1, kinc_g5_texture_argument_t arg2) {}
-
-void kinc_g5_set_render_target_face(kinc_g5_render_target_t *texture, int face) {}
-
 int kinc_g5_max_bound_textures(void) {
 	VkPhysicalDeviceProperties props;
 	vkGetPhysicalDeviceProperties(vk_ctx.gpu, &props);
@@ -1047,20 +1027,6 @@ bool kinc_g5_non_pow2_textures_qupported() {
 }
 
 void kinc_g5_flush() {}
-
-bool kinc_g5_init_occlusion_query(unsigned *occlusionQuery) {
-	return false;
-}
-
-void kinc_g5_delete_occlusion_query(unsigned occlusionQuery) {}
-
-void kinc_g5_render_occlusion_query(unsigned occlusionQuery, int triangles) {}
-
-bool kinc_g5_are_query_results_available(unsigned occlusionQuery) {
-	return false;
-}
-
-void kinc_g5_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {}
 
 // this is exclusively used by the Android backend at the moment
 bool kinc_vulkan_internal_get_size(int *width, int *height) {

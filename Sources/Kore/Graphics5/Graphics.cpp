@@ -87,14 +87,6 @@ void RenderTarget::setDepthStencilFrom(RenderTarget *source) {
 	kinc_g5_render_target_set_depth_stencil_from(&kincRenderTarget, &source->kincRenderTarget);
 }
 
-void Kore::Graphics5::setTexture(TextureUnit unit, Texture *texture) {
-	kinc_g5_set_texture(unit.kincTextureUnit, &texture->kincTexture);
-}
-
-void Kore::Graphics5::setImageTexture(TextureUnit unit, Texture *texture) {
-	kinc_g5_set_image_texture(unit.kincTextureUnit, &texture->kincTexture);
-}
-
 int Kore::Graphics5::antialiasingSamples() {
 	return kinc_g5_antialiasing_samples();
 }
@@ -105,10 +97,6 @@ void Kore::Graphics5::setAntialiasingSamples(int samples) {
 
 bool Kore::Graphics5::renderTargetsInvertedY() {
 	return kinc_g5_render_targets_inverted_y();
-}
-
-void Kore::Graphics5::setRenderTargetFace(RenderTarget *texture, int face) {
-	kinc_g5_set_render_target_face(&texture->kincRenderTarget, face);
 }
 
 void Kore::Graphics5::begin(RenderTarget *renderTarget, int window) {
@@ -123,52 +111,12 @@ bool Kore::Graphics5::swapBuffers() {
 	return kinc_g5_swap_buffers();
 }
 
-void Kore::Graphics5::setTextureAddressing(TextureUnit unit, TexDir dir, TextureAddressing addressing) {
-	kinc_g5_set_texture_addressing(unit.kincTextureUnit, (kinc_g5_texture_direction_t)dir, (kinc_g5_texture_addressing_t)addressing);
-}
-
-void Kore::Graphics5::setTextureMagnificationFilter(TextureUnit texunit, TextureFilter filter) {
-	kinc_g5_set_texture_magnification_filter(texunit.kincTextureUnit, (kinc_g5_texture_filter_t)filter);
-}
-
-void Kore::Graphics5::setTextureMinificationFilter(TextureUnit texunit, TextureFilter filter) {
-	kinc_g5_set_texture_minification_filter(texunit.kincTextureUnit, (kinc_g5_texture_filter_t)filter);
-}
-
-void Kore::Graphics5::setTextureMipmapFilter(TextureUnit texunit, MipmapFilter filter) {
-	kinc_g5_set_texture_mipmap_filter(texunit.kincTextureUnit, (kinc_g5_mipmap_filter_t)filter);
-}
-
-void Kore::Graphics5::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {
-	kinc_g5_set_texture_operation((kinc_g5_texture_operation_t)operation, (kinc_g5_texture_argument_t)arg1, (kinc_g5_texture_argument_t)arg2);
-}
-
 int Kore::Graphics5::maxBoundTextures() {
 	return kinc_g5_max_bound_textures();
 }
 
 bool Kore::Graphics5::nonPow2TexturesSupported() {
 	return kinc_g5_non_pow2_textures_qupported();
-}
-
-bool Kore::Graphics5::initOcclusionQuery(uint *occlusionQuery) {
-	return kinc_g5_init_occlusion_query(occlusionQuery);
-}
-
-void Kore::Graphics5::deleteOcclusionQuery(uint occlusionQuery) {
-	kinc_g5_delete_occlusion_query(occlusionQuery);
-}
-
-void Kore::Graphics5::renderOcclusionQuery(uint occlusionQuery, int triangles) {
-	kinc_g5_render_occlusion_query(occlusionQuery, triangles);
-}
-
-bool Kore::Graphics5::isQueryResultsAvailable(uint occlusionQuery) {
-	return kinc_g5_are_query_results_available(occlusionQuery);
-}
-
-void Kore::Graphics5::getQueryResults(uint occlusionQuery, uint *pixelCount) {
-	kinc_g5_get_query_result(occlusionQuery, pixelCount);
 }
 
 bool Kore::Graphics5::fullscreen = false;
