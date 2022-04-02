@@ -341,7 +341,11 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 
 			let good_wayland = false;
 
-			const wayland_version = child_process.spawnSync('wayland-scanner', ['--version'], {encoding: 'utf-8'}).stderr;
+			const wayland_call = child_process.spawnSync('wayland-scanner', ['--version'], {encoding: 'utf-8'});
+			if (wayland_call.status !== 0) {
+				throw 'Could not run wayland-scanner to ask for its version';
+			}
+			const wayland_version = wayland_call.stderr;
 
 			try {
 				const scanner_versions = wayland_version.split(' ')[1].split('.');
@@ -379,18 +383,18 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 				const backend_path = path.resolve(waylandDir);
 				const protocol_path = path.resolve('/usr/share/wayland-protocols', protocol);
 				if (child_process.spawnSync('wayland-scanner', ['private-code', protocol_path, path.resolve(backend_path, file + c_ending)]).status !== 0) {
-					log.error('Failed to generate wayland protocol files for' + protocol);
+					throw 'Failed to generate wayland protocol files for' + protocol;
 				}
 				if (child_process.spawnSync('wayland-scanner', ['client-header', protocol_path, path.resolve(backend_path, file + '.h')]).status !== 0) {
-					log.error('Failed to generate wayland protocol header for' + protocol);
+					throw 'Failed to generate wayland protocol header for' + protocol;
 				}
 			}
 
 			if (child_process.spawnSync('wayland-scanner', ['private-code', '/usr/share/wayland/wayland.xml', path.resolve(waylandDir, 'wayland-protocol' + c_ending)]).status !== 0) {
-				log.error('Failed to generate wayland protocol files for /usr/share/wayland/wayland.xml');
+				throw 'Failed to generate wayland protocol files for /usr/share/wayland/wayland.xml';
 			}
 			if (child_process.spawnSync('wayland-scanner', ['client-header', '/usr/share/wayland/wayland.xml', path.resolve(waylandDir, 'wayland-protocol.h')]).status !== 0) {
-				log.error('Failed to generate wayland protocol header for /usr/share/wayland/wayland.xml');
+				throw 'Failed to generate wayland protocol header for /usr/share/wayland/wayland.xml';
 			}
 			wl_protocol('stable/viewporter/viewporter.xml', 'wayland-viewporter');
 			wl_protocol('stable/xdg-shell/xdg-shell.xml', 'xdg-shell');
