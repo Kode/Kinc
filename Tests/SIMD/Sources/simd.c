@@ -57,13 +57,13 @@ int kickstart(int argc, char **argv) {
 	failed += check("float32x4 neg", result, (float[4]){1.0f, -2.0f, -3.0f, -4.0f}, EPSILON) ? 0 : 1;
 
 	result = kinc_float32x4_reciprocal_approximation(a);
-	failed += check("float32x4 reciprocal_approximation", result, (float[4]){1.0f / -1.0f, 1.0f / 2.0f, 1.0f / 3.0f, 1.0f / 4.0f}, 0.001f) ? 0 : 1;
+	failed += check("float32x4 reciprocal_approximation", result, (float[4]){1.0f / -1.0f, 1.0f / 2.0f, 1.0f / 3.0f, 1.0f / 4.0f}, 0.002f) ? 0 : 1;
 
 	result = kinc_float32x4_reciprocal_sqrt_approximation(b);
 	failed += check("float32x4 reciprocal_sqrt_approximation", result,
-	                (float[4]){1.0f / kinc_sqrt(2.0f), 1.0f / kinc_sqrt(2.0f), 1.0f / kinc_sqrt(2.0f), 1.0f / kinc_sqrt(2.0f)}, 0.001f)
+	                (float[4]){1.0f / kinc_sqrt(2.0f), 1.0f / kinc_sqrt(2.0f), 1.0f / kinc_sqrt(2.0f), 1.0f / kinc_sqrt(2.0f)}, 0.003f)
 	              ? failed
-	              : -1;
+	              : 1;
 
 	result = kinc_float32x4_sqrt(b);
 	failed += check("float32x4 sqrt", result, (float[4]){kinc_sqrt(2.0f), kinc_sqrt(2.0f), kinc_sqrt(2.0f), kinc_sqrt(2.0f)}, EPSILON) ? 0 : 1;
@@ -99,7 +99,7 @@ int kickstart(int argc, char **argv) {
 	failed += check("float32x4 cmpneq & sel", result, (float[4]){-1.0f, 2.0f, 3.0f, 4.0f}, EPSILON) ? 0 : 1;
 
 	if (failed) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "\nERROR! %d tests failed", failed);
+		kinc_log(KINC_LOG_LEVEL_ERROR, "\nERROR! %d test(s) failed", failed);
 	}
 	else {
 		kinc_log(KINC_LOG_LEVEL_INFO, "\nSUCCESS all tests passed");
