@@ -4,7 +4,7 @@
 #include <kinc/system.h>
 #include <stdbool.h>
 
-#define EPSILON 0.001f
+#define EPSILON 0.00001f
 
 static bool check(const char *name, kinc_float32x4_t result, const float expected[4], float epsilon) {
 	bool success = true;
@@ -102,7 +102,7 @@ int kickstart(int argc, char **argv) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "\nERROR! %d tests failed", failed);
 	}
 	else {
-		kinc_log(KINC_LOG_LEVEL_INFO, "\nSUCCESS all tests failed");
+		kinc_log(KINC_LOG_LEVEL_INFO, "\nSUCCESS all tests passed");
 	}
 
 	return failed;
