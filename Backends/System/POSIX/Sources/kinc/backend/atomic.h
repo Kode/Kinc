@@ -14,7 +14,11 @@
 
 #define KINC_ATOMIC_EXCHANGE_32(pointer, value) (__sync_swap(pointer, value))
 
-#define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value) (__sync_swap((volatile int32_t *)pointer, *(int32_t *)&value))
+__attribute__((always_inline)) static void kinc_atomic_exchange_float(volatile float *pointer, float value) {
+	__sync_swap((volatile int32_t *)pointer, *(int32_t *)&value);
+}
+
+#define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value) kinc_atomic_exchange_float(pointer, value)
 
 #else
 
