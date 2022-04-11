@@ -7,7 +7,10 @@
 
 #define EPSILON 0.00001f
 
+static int total_tests = 0;
+
 static bool check_f32(const char *name, kinc_float32x4_t result, const float expected[4], float epsilon) {
+	++total_tests;
 	bool success = true;
 	for (int i = 0; i < 4; ++i) {
 		if (kinc_abs(kinc_float32x4_get(result, i) - expected[i]) > epsilon) {
@@ -23,6 +26,7 @@ static bool check_f32(const char *name, kinc_float32x4_t result, const float exp
 }
 
 static bool check_i8(const char *name, kinc_int8x16_t result, const int8_t expected[16]) {
+	++total_tests;
 	bool success = true;
 	for (int i = 0; i < 16; ++i) {
 		if (kinc_int8x16_get(result, i) != expected[i]) {
@@ -144,9 +148,17 @@ int kickstart(int argc, char **argv) {
 		result = kinc_int8x16_sel(a, b, mask);
 		failed += check_i8("int8x16 cmpeq & sel", result, (int8_t[16]){2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}) ? 0 : 1;
 
+		mask = kinc_int8x16_cmpge(a, b);
+		result = kinc_int8x16_sel(a, b, mask);
+		failed += check_i8("int8x16 cmpge & sel", result, (int8_t[16]){2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 8}) ? 0 : 1;
+
 		mask = kinc_int8x16_cmpgt(a, b);
 		result = kinc_int8x16_sel(a, b, mask);
 		failed += check_i8("int8x16 cmpgt & sel", result, (int8_t[16]){2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 4, 5, 6, 7, 8}) ? 0 : 1;
+
+		mask = kinc_int8x16_cmple(a, b);
+		result = kinc_int8x16_sel(a, b, mask);
+		failed += check_i8("int8x16 cmple & sel", result, (int8_t[16]){-8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 2, 2, 2, 2, 2, 2}) ? 0 : 1;
 
 		mask = kinc_int8x16_cmplt(a, b);
 		result = kinc_int8x16_sel(a, b, mask);
@@ -170,10 +182,10 @@ int kickstart(int argc, char **argv) {
 	}
 
 	if (failed) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "\nERROR! %d test(s) failed", failed);
+		kinc_log(KINC_LOG_LEVEL_ERROR, "\nERROR! %d of %d test(s) failed", failed, total_tests);
 	}
 	else {
-		kinc_log(KINC_LOG_LEVEL_INFO, "\nSUCCESS all tests passed");
+		kinc_log(KINC_LOG_LEVEL_INFO, "\nSUCCESS %d tests passed", total_tests);
 	}
 
 	return failed;

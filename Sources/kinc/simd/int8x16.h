@@ -3,7 +3,7 @@
 #include "types.h"
 
 /*! \file int8x16.h
-    \brief Provides 128bit sixteen-element signed integer SIMD operations which are mapped to equivalent SSE or Neon operations.
+    \brief Provides 128bit sixteen-element signed 8-bit integer SIMD operations which are mapped to equivalent SSE2 or Neon operations.
 */
 
 #ifdef __cplusplus
@@ -52,8 +52,16 @@ static inline kinc_int8x16_mask_t kinc_int8x16_cmpeq(kinc_int8x16_t a, kinc_int8
 	return _mm_cmpeq_epi8(a, b);
 }
 
+static inline kinc_int8x16_mask_t kinc_int8x16_cmpge(kinc_int8x16_t a, kinc_int8x16_t b) {
+	return _mm_or_si128(_mm_cmpgt_epi8(a, b), _mm_cmpeq_epi8(a, b));
+}
+
 static inline kinc_int8x16_mask_t kinc_int8x16_cmpgt(kinc_int8x16_t a, kinc_int8x16_t b) {
 	return _mm_cmpgt_epi8(a, b);
+}
+
+static inline kinc_int8x16_mask_t kinc_int8x16_cmple(kinc_int8x16_t a, kinc_int8x16_t b) {
+	return _mm_or_si128(_mm_cmplt_epi8(a, b), _mm_cmpeq_epi8(a, b));
 }
 
 static inline kinc_int8x16_mask_t kinc_int8x16_cmplt(kinc_int8x16_t a, kinc_int8x16_t b) {
@@ -90,7 +98,7 @@ static inline kinc_int8x16_t kinc_int8x16_not(kinc_int8x16_t t) {
 #elif defined(KINC_NEON)
 
 static inline kinc_int8x16_t kinc_int8x16_load(const int8_t values[16]) {
-	return (kinc_int8x16_t)values;
+	return (kinc_int8x16_t){values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11], values[12], values[13], values[14], values[15]};
 }
 
 static inline kinc_int8x16_t kinc_int8x16_load_all(int8_t t) {
@@ -121,8 +129,16 @@ static inline kinc_int8x16_mask_t kinc_int8x16_cmpeq(kinc_int8x16_t a, kinc_int8
 	return vceqq_s8(a, b);
 }
 
+static inline kinc_int8x16_mask_t kinc_int8x16_cmpge(kinc_int8x16_t a, kinc_int8x16_t b) {
+	return vcgeq_s8(a, b);
+}
+
 static inline kinc_int8x16_mask_t kinc_int8x16_cmpgt(kinc_int8x16_t a, kinc_int8x16_t b) {
 	return vcgtq_s8(a, b);
+}
+
+static inline kinc_int8x16_mask_t kinc_int8x16_cmple(kinc_int8x16_t a, kinc_int8x16_t b) {
+	return vcleq_s8(a, b);
 }
 
 static inline kinc_int8x16_mask_t kinc_int8x16_cmplt(kinc_int8x16_t a, kinc_int8x16_t b) {
@@ -130,7 +146,7 @@ static inline kinc_int8x16_mask_t kinc_int8x16_cmplt(kinc_int8x16_t a, kinc_int8
 }
 
 static inline kinc_int8x16_mask_t kinc_int8x16_cmpneq(kinc_int8x16_t a, kinc_int8x16_t b) {
-	return vmvnq_u32(vceqq_s8(a, b));
+	return vmvnq_u8(vceqq_s8(a, b));
 }
 
 static inline kinc_int8x16_t kinc_int8x16_sel(kinc_int8x16_t a, kinc_int8x16_t b, kinc_int8x16_mask_t mask) {
@@ -306,6 +322,27 @@ static inline kinc_int8x16_mask_t kinc_int8x16_cmpeq(kinc_int8x16_t a, kinc_int8
 	return mask;
 }
 
+static inline kinc_int8x16_mask_t kinc_int8x16_cmpge(kinc_int8x16_t a, kinc_int8x16_t b) {
+	kinc_int8x16_mask_t mask;
+	mask.values[0] = a.values[0] >= b.values[0] ? 0xff : 0;
+	mask.values[1] = a.values[1] >= b.values[1] ? 0xff : 0;
+	mask.values[2] = a.values[2] >= b.values[2] ? 0xff : 0;
+	mask.values[3] = a.values[3] >= b.values[3] ? 0xff : 0;
+	mask.values[4] = a.values[4] >= b.values[4] ? 0xff : 0;
+	mask.values[5] = a.values[5] >= b.values[5] ? 0xff : 0;
+	mask.values[6] = a.values[6] >= b.values[6] ? 0xff : 0;
+	mask.values[7] = a.values[7] >= b.values[7] ? 0xff : 0;
+	mask.values[8] = a.values[8] >= b.values[8] ? 0xff : 0;
+	mask.values[9] = a.values[9] >= b.values[9] ? 0xff : 0;
+	mask.values[10] = a.values[10] >= b.values[10] ? 0xff : 0;
+	mask.values[11] = a.values[11] >= b.values[11] ? 0xff : 0;
+	mask.values[12] = a.values[12] >= b.values[12] ? 0xff : 0;
+	mask.values[13] = a.values[13] >= b.values[13] ? 0xff : 0;
+	mask.values[14] = a.values[14] >= b.values[14] ? 0xff : 0;
+	mask.values[15] = a.values[15] >= b.values[15] ? 0xff : 0;
+	return mask;
+}
+
 static inline kinc_int8x16_mask_t kinc_int8x16_cmpgt(kinc_int8x16_t a, kinc_int8x16_t b) {
 	kinc_int8x16_mask_t mask;
 	mask.values[0] = a.values[0] > b.values[0] ? 0xff : 0;
@@ -324,6 +361,27 @@ static inline kinc_int8x16_mask_t kinc_int8x16_cmpgt(kinc_int8x16_t a, kinc_int8
 	mask.values[13] = a.values[13] > b.values[13] ? 0xff : 0;
 	mask.values[14] = a.values[14] > b.values[14] ? 0xff : 0;
 	mask.values[15] = a.values[15] > b.values[15] ? 0xff : 0;
+	return mask;
+}
+
+static inline kinc_int8x16_mask_t kinc_int8x16_cmple(kinc_int8x16_t a, kinc_int8x16_t b) {
+	kinc_int8x16_mask_t mask;
+	mask.values[0] = a.values[0] <= b.values[0] ? 0xff : 0;
+	mask.values[1] = a.values[1] <= b.values[1] ? 0xff : 0;
+	mask.values[2] = a.values[2] <= b.values[2] ? 0xff : 0;
+	mask.values[3] = a.values[3] <= b.values[3] ? 0xff : 0;
+	mask.values[4] = a.values[4] <= b.values[4] ? 0xff : 0;
+	mask.values[5] = a.values[5] <= b.values[5] ? 0xff : 0;
+	mask.values[6] = a.values[6] <= b.values[6] ? 0xff : 0;
+	mask.values[7] = a.values[7] <= b.values[7] ? 0xff : 0;
+	mask.values[8] = a.values[8] <= b.values[8] ? 0xff : 0;
+	mask.values[9] = a.values[9] <= b.values[9] ? 0xff : 0;
+	mask.values[10] = a.values[10] <= b.values[10] ? 0xff : 0;
+	mask.values[11] = a.values[11] <= b.values[11] ? 0xff : 0;
+	mask.values[12] = a.values[12] <= b.values[12] ? 0xff : 0;
+	mask.values[13] = a.values[13] <= b.values[13] ? 0xff : 0;
+	mask.values[14] = a.values[14] <= b.values[14] ? 0xff : 0;
+	mask.values[15] = a.values[15] <= b.values[15] ? 0xff : 0;
 	return mask;
 }
 
