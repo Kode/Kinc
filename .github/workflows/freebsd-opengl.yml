@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - moarSIMD
   pull_request:
     branches:
     - main
@@ -40,3 +41,13 @@ jobs:
           cd ../../..
           echo " * Check Test 1"
           compare -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
+          echo " * Clean"
+          rm -r build
+          echo " * Compile Test 2"
+          ./make --kinc . --from Tests/SIMD --compile --noshaders
+          echo " * Copy Test 2"
+          cp build/Release/SIMD Tests/Shader/Deployment/SIMD
+          echo " * Run Test 2"
+          cd Tests/SIMD/Deployment
+          ./ShaderTest
+          cd ../../..
