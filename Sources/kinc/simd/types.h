@@ -25,6 +25,8 @@ typedef __m128i kinc_int8x16_t;
 typedef __m128i kinc_int8x16_mask_t;
 typedef __m128i kinc_uint8x16_t;
 typedef __m128i kinc_uint8x16_mask_t;
+typedef __m128i kinc_uint16x8_t;
+typedef __m128i kinc_uint16x8_mask_t;
 #endif
 
 #elif defined(KORE_IOS) || defined(KORE_SWITCH) || defined(__aarch64__) || defined(KORE_NEON)
