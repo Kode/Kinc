@@ -46,7 +46,7 @@ jobs:
           echo " * Compile Test 2"
           ./make --kinc . --from Tests/SIMD --compile --noshaders
           echo " * Copy Test 2"
-          cp build/Release/SIMD Tests/Shader/Deployment/SIMD
+          cp build/Release/SIMD Tests/SIMD/Deployment/SIMD
           echo " * Run Test 2"
           cd Tests/SIMD/Deployment
           ./SIMD
