@@ -3,6 +3,7 @@
 #include <kinc/simd/float32x4.h>
 #include <kinc/simd/int16x8.h>
 #include <kinc/simd/int8x16.h>
+#include <kinc/simd/uint16x8.h>
 #include <kinc/simd/uint8x16.h>
 #include <kinc/system.h>
 #include <stdbool.h>
@@ -86,6 +87,24 @@ static bool check_i16(const char *name, kinc_int16x8_t result, const int16_t exp
 		         expected[3], expected[4], expected[5], expected[6], expected[7], kinc_int16x8_get(result, 0), kinc_int16x8_get(result, 1),
 		         kinc_int16x8_get(result, 2), kinc_int16x8_get(result, 3), kinc_int16x8_get(result, 4), kinc_int16x8_get(result, 5),
 		         kinc_int16x8_get(result, 6), kinc_int16x8_get(result, 7));
+	}
+	return success;
+}
+
+static bool check_u16(const char *name, kinc_uint16x8_t result, const uint16_t expected[8]) {
+	++total_tests;
+	bool success = true;
+	for (int i = 0; i < 8; ++i) {
+		if ((kinc_uint16x8_get(result, i) ^ expected[i]) != 0) {
+			success = false;
+		}
+	}
+	kinc_log(KINC_LOG_LEVEL_ERROR, "Test %s %s", name, success ? "PASS" : "FAIL");
+	if (!success) {
+		kinc_log(KINC_LOG_LEVEL_INFO, "\texpected {%lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu} got {%lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu}", expected[0],
+		         expected[1], expected[2], expected[3], expected[4], expected[5], expected[6], expected[7], kinc_uint16x8_get(result, 0),
+		         kinc_uint16x8_get(result, 1), kinc_uint16x8_get(result, 2), kinc_uint16x8_get(result, 3), kinc_uint16x8_get(result, 4),
+		         kinc_uint16x8_get(result, 5), kinc_uint16x8_get(result, 6), kinc_uint16x8_get(result, 7));
 	}
 	return success;
 }
@@ -354,6 +373,42 @@ int kickstart(int argc, char **argv) {
 
 		result = kinc_int16x8_not(a);
 		failed += check_i16("int16x8 not", result, (int16_t[8]){~-4, ~-3, ~-2, ~-1, ~1, ~2, ~3, ~4}) ? 0 : 1;
+	}
+
+	{
+		kinc_uint16x8_t a = kinc_uint16x8_load((uint16_t[8]){1, 2, 3, 4, 5, 6, 7, 8});
+		kinc_uint16x8_t b = kinc_uint16x8_load_all(2);
+
+		kinc_uint16x8_mask_t mask;
+		kinc_uint16x8_t result;
+
+		result = kinc_uint16x8_add(a, b);
+		failed += check_u16("uint16x8 add", result, (uint16_t[8]){3, 4, 5, 6, 7, 8, 9, 10}) ? 0 : 1;
+
+		result = kinc_uint16x8_sub(a, b);
+		failed += check_u16("uint16x8 sub", result, (uint16_t[8]){65535, 0, 1, 2, 3, 4, 5, 6}) ? 0 : 1;
+
+		mask = kinc_uint16x8_cmpeq(a, b);
+		result = kinc_uint16x8_sel(a, b, mask);
+		failed += check_u16("uint16x8 cmpeq & sel", result, (uint16_t[8]){2, 2, 2, 2, 2, 2, 2, 2}) ? 0 : 1;
+
+		mask = kinc_uint16x8_cmpneq(a, b);
+		result = kinc_uint16x8_sel(a, b, mask);
+		failed += check_u16("uint16x8 cmpneq & sel", result, (uint16_t[8]){1, 2, 3, 4, 5, 6, 7, 8}) ? 0 : 1;
+
+		result = kinc_uint16x8_or(a, b);
+		failed += check_u16("uint16x8 or", result, (uint16_t[8]){1 | 2, 2 | 2, 3 | 2, 4 | 2, 5 | 2, 6 | 2, 7 | 2, 8 | 2}) ? 0 : 1;
+
+		result = kinc_uint16x8_and(a, b);
+		failed += check_u16("uint16x8 and", result, (uint16_t[8]){1 & 2, 2 & 2, 3 & 2, 4 & 2, 5 & 2, 6 & 2, 7 & 2, 8 & 2}) ? 0 : 1;
+
+		result = kinc_uint16x8_xor(a, b);
+		failed += check_u16("uint16x8 xor", result, (uint16_t[8]){1 ^ 2, 2 ^ 2, 3 ^ 2, 4 ^ 2, 5 ^ 2, 6 ^ 2, 7 ^ 2, 8 ^ 2}) ? 0 : 1;
+
+		result = kinc_uint16x8_not(a);
+		uint16_t chk[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+		for (int i = 0; i < 8; ++i) chk[i] = (uint16_t)(~chk[i]);
+		failed += check_u16("uint16x8 not", result, chk) ? 0 : 1;
 	}
 
 	if (failed) {

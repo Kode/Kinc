@@ -3,7 +3,7 @@
 #include "types.h"
 
 /*! \file int16x8.h
-    \brief Provides 128bit sixteen-element signed 8-bit integer SIMD operations which are mapped to equivalent SSE2 or Neon operations.
+    \brief Provides 128bit eight-element signed 16-bit integer SIMD operations which are mapped to equivalent SSE2 or Neon operations.
 */
 
 #ifdef __cplusplus
