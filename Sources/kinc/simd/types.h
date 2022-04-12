@@ -25,6 +25,8 @@ typedef __m128i kinc_int8x16_t;
 typedef __m128i kinc_int8x16_mask_t;
 typedef __m128i kinc_uint8x16_t;
 typedef __m128i kinc_uint8x16_mask_t;
+typedef __m128i kinc_int16x8_t;
+typedef __m128i kinc_int16x8_mask_t;
 typedef __m128i kinc_uint16x8_t;
 typedef __m128i kinc_uint16x8_mask_t;
 #endif
@@ -40,6 +42,8 @@ typedef int8x16_t kinc_int8x16_t;
 typedef uint8x16_t kinc_int8x16_mask_t;
 typedef uint8x16_t kinc_uint8x16_t;
 typedef uint8x16_t kinc_uint8x16_mask_t;
+typedef int16x8_t kinc_int16x8_t;
+typedef uint16x8_t kinc_int16x8_mask_t;
 
 #else
 
@@ -68,6 +72,14 @@ typedef struct kinc_uint8x16 {
 typedef struct kinc_uint8x16_mask {
 	uint8_t values[16];
 } kinc_uint8x16_mask_t;
+
+typedef struct kinc_int16x8 {
+	int16_t values[16];
+} kinc_int16x8_t;
+
+typedef struct kinc_int16x8_mask {
+	int16_t values[16];
+} kinc_int16x8_mask_t;
 
 
 #endif
