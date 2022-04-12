@@ -5,6 +5,7 @@
 #include <kinc/simd/int32x4.h>
 #include <kinc/simd/int8x16.h>
 #include <kinc/simd/uint16x8.h>
+#include <kinc/simd/uint32x4.h>
 #include <kinc/simd/uint8x16.h>
 #include <kinc/system.h>
 #include <stdbool.h>
@@ -92,6 +93,24 @@ static bool check_i16(const char *name, kinc_int16x8_t result, const int16_t exp
 	return success;
 }
 
+static bool check_u16(const char *name, kinc_uint16x8_t result, const uint16_t expected[8]) {
+	++total_tests;
+	bool success = true;
+	for (int i = 0; i < 8; ++i) {
+		if ((kinc_uint16x8_get(result, i) ^ expected[i]) != 0) {
+			success = false;
+		}
+	}
+	kinc_log(KINC_LOG_LEVEL_ERROR, "Test %s %s", name, success ? "PASS" : "FAIL");
+	if (!success) {
+		kinc_log(KINC_LOG_LEVEL_INFO, "\texpected {%lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu} got {%lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu}", expected[0],
+		         expected[1], expected[2], expected[3], expected[4], expected[5], expected[6], expected[7], kinc_uint16x8_get(result, 0),
+		         kinc_uint16x8_get(result, 1), kinc_uint16x8_get(result, 2), kinc_uint16x8_get(result, 3), kinc_uint16x8_get(result, 4),
+		         kinc_uint16x8_get(result, 5), kinc_uint16x8_get(result, 6), kinc_uint16x8_get(result, 7));
+	}
+	return success;
+}
+
 static bool check_i32(const char *name, kinc_int32x4_t result, const int32_t expected[4]) {
 	++total_tests;
 	bool success = true;
@@ -108,20 +127,18 @@ static bool check_i32(const char *name, kinc_int32x4_t result, const int32_t exp
 	return success;
 }
 
-static bool check_u16(const char *name, kinc_uint16x8_t result, const uint16_t expected[8]) {
+static bool check_u32(const char *name, kinc_uint32x4_t result, const uint32_t expected[4]) {
 	++total_tests;
 	bool success = true;
-	for (int i = 0; i < 8; ++i) {
-		if ((kinc_uint16x8_get(result, i) ^ expected[i]) != 0) {
+	for (int i = 0; i < 4; ++i) {
+		if ((kinc_uint32x4_get(result, i) ^ expected[i]) != 0) {
 			success = false;
 		}
 	}
 	kinc_log(KINC_LOG_LEVEL_ERROR, "Test %s %s", name, success ? "PASS" : "FAIL");
 	if (!success) {
-		kinc_log(KINC_LOG_LEVEL_INFO, "\texpected {%lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu} got {%lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu}", expected[0],
-		         expected[1], expected[2], expected[3], expected[4], expected[5], expected[6], expected[7], kinc_uint16x8_get(result, 0),
-		         kinc_uint16x8_get(result, 1), kinc_uint16x8_get(result, 2), kinc_uint16x8_get(result, 3), kinc_uint16x8_get(result, 4),
-		         kinc_uint16x8_get(result, 5), kinc_uint16x8_get(result, 6), kinc_uint16x8_get(result, 7));
+		kinc_log(KINC_LOG_LEVEL_INFO, "\texpected {%lu, %lu, %lu, %lu} got {%lu, %lu, %lu, %lu}", expected[0], expected[1], expected[2], expected[3],
+		         kinc_uint32x4_get(result, 0), kinc_uint32x4_get(result, 1), kinc_uint32x4_get(result, 2), kinc_uint32x4_get(result, 3));
 	}
 	return success;
 }
@@ -482,6 +499,42 @@ int kickstart(int argc, char **argv) {
 
 		result = kinc_int32x4_not(a);
 		failed += check_i32("int32x4 not", result, (int32_t[4]){~-2, ~-1, ~1, ~2}) ? 0 : 1;
+	}
+
+	{
+		kinc_uint32x4_t a = kinc_uint32x4_load((uint32_t[4]){1, 2, 3, 4});
+		kinc_uint32x4_t b = kinc_uint32x4_load_all(2);
+
+		kinc_uint32x4_mask_t mask;
+		kinc_uint32x4_t result;
+
+		result = kinc_uint32x4_add(a, b);
+		failed += check_u32("uint32x4 add", result, (uint32_t[4]){3, 4, 5, 6}) ? 0 : 1;
+
+		result = kinc_uint32x4_sub(a, b);
+		failed += check_u32("uint32x4 sub", result, (uint32_t[4]){4294967295, 0, 1, 2}) ? 0 : 1;
+
+		mask = kinc_uint32x4_cmpeq(a, b);
+		result = kinc_uint32x4_sel(a, b, mask);
+		failed += check_u32("uint32x4 cmpeq & sel", result, (uint32_t[4]){2, 2, 2, 2}) ? 0 : 1;
+
+		mask = kinc_uint32x4_cmpneq(a, b);
+		result = kinc_uint32x4_sel(a, b, mask);
+		failed += check_u32("uint32x4 cmpneq & sel", result, (uint32_t[4]){1, 2, 3, 4}) ? 0 : 1;
+
+		result = kinc_uint32x4_or(a, b);
+		failed += check_u32("uint32x4 or", result, (uint32_t[4]){1 | 2, 2 | 2, 3 | 2, 4 | 2}) ? 0 : 1;
+
+		result = kinc_uint32x4_and(a, b);
+		failed += check_u32("uint32x4 and", result, (uint32_t[4]){1 & 2, 2 & 2, 3 & 2, 4 & 2}) ? 0 : 1;
+
+		result = kinc_uint32x4_xor(a, b);
+		failed += check_u32("uint32x4 xor", result, (uint32_t[4]){1 ^ 2, 2 ^ 2, 3 ^ 2, 4 ^ 2}) ? 0 : 1;
+
+		result = kinc_uint32x4_not(a);
+		uint32_t chk[4] = {1, 2, 3, 4};
+		for (int i = 0; i < 4; ++i) chk[i] = (uint32_t)(~chk[i]);
+		failed += check_u32("uint32x4 not", result, chk) ? 0 : 1;
 	}
 
 	if (failed) {

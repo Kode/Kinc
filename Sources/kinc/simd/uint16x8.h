@@ -23,7 +23,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {
 static inline uint16_t kinc_uint16x8_get(kinc_uint16x8_t t, int index) {
 	union {
 		__m128i value;
-		uint16_t elements[16];
+		uint16_t elements[8];
 	} converter;
 	converter.value = t;
 	return converter.elements[index];
@@ -117,7 +117,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 
 #else
 
-static inline kinc_uint16x8_t kinc_uint16x8_load(const uint16_t values[16]) {
+static inline kinc_uint16x8_t kinc_uint16x8_load(const uint16_t values[8]) {
 	kinc_uint16x8_t value;
 	value.values[0] = values[0];
 	value.values[1] = values[1];
