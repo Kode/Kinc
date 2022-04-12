@@ -1,1 +1,1 @@
-@call %~dp0Tools\kmake\kmake.exe %*
+@call "%~dp0Tools\kmake\kmake.exe" %*
