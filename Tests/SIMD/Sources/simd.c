@@ -277,10 +277,11 @@ int kickstart(int argc, char **argv) {
 		              : 1;
 
 		result = kinc_int8x16_xor(a, b);
-		failed += check_i8("int8x16 xor", result,
-		                   (int8_t[16]){-8 ^ 2, -7 ^ 2, -6 ^ 2, -5 ^ 2, -4 ^ 2, -3 ^ 2, -2 ^ 2, -1 ^ 2, 1 ^ 2, 2 ^ 2, 3 ^ 2, 4 ^ 2, 5 ^ 2, 6 ^ 2, 7 ^ 2, 8 ^ 2})
-		              ? 0
-		              : 1;
+		failed +=
+		    check_i8("int8x16 xor", result,
+		             (int8_t[16]){-8 ^ 2, -7 ^ 2, -6 ^ 2, -5 ^ 2, -4 ^ 2, -3 ^ 2, -0x2 ^ 2, -1 ^ 2, 1 ^ 2, 0x2 ^ 2, 3 ^ 2, 4 ^ 2, 5 ^ 2, 6 ^ 2, 7 ^ 2, 8 ^ 2})
+		        ? 0
+		        : 1;
 
 		result = kinc_int8x16_not(a);
 		failed += check_i8("int8x16 not", result, (int8_t[16]){~-8, ~-7, ~-6, ~-5, ~-4, ~-3, ~-2, ~-1, ~1, ~2, ~3, ~4, ~5, ~6, ~7, ~8}) ? 0 : 1;
@@ -343,7 +344,7 @@ int kickstart(int argc, char **argv) {
 
 		result = kinc_uint8x16_xor(a, b);
 		failed += check_u8("uint8x16 xor", result,
-		                   (uint8_t[16]){1 ^ 2, 2 ^ 2, 3 ^ 2, 4 ^ 2, 5 ^ 2, 6 ^ 2, 7 ^ 2, 8 ^ 2, 4 ^ 2, 2 ^ 2, 3 ^ 2, 4 ^ 2, 5 ^ 2, 6 ^ 2, 7 ^ 2, 8 ^ 2})
+		                   (uint8_t[16]){1 ^ 2, 0x2 ^ 2, 3 ^ 2, 4 ^ 2, 5 ^ 2, 6 ^ 2, 7 ^ 2, 8 ^ 2, 4 ^ 2, 0x2 ^ 2, 3 ^ 2, 4 ^ 2, 5 ^ 2, 6 ^ 2, 7 ^ 2, 8 ^ 2})
 		              ? 0
 		              : 1;
 
@@ -403,7 +404,7 @@ int kickstart(int argc, char **argv) {
 		failed += check_i16("int16x8 and", result, (int16_t[8]){-4 & 2, -3 & 2, -2 & 2, -1 & 2, 1 & 2, 2 & 2, 3 & 2, 4 & 2}) ? 0 : 1;
 
 		result = kinc_int16x8_xor(a, b);
-		failed += check_i16("int16x8 xor", result, (int16_t[8]){-4 ^ 2, -3 ^ 2, -2 ^ 2, -1 ^ 2, 1 ^ 2, 2 ^ 2, 3 ^ 2, 4 ^ 2}) ? 0 : 1;
+		failed += check_i16("int16x8 xor", result, (int16_t[8]){-4 ^ 2, -3 ^ 2, -0x2 ^ 2, -1 ^ 2, 1 ^ 2, 0x2 ^ 2, 3 ^ 2, 4 ^ 2}) ? 0 : 1;
 
 		result = kinc_int16x8_not(a);
 		failed += check_i16("int16x8 not", result, (int16_t[8]){~-4, ~-3, ~-2, ~-1, ~1, ~2, ~3, ~4}) ? 0 : 1;
@@ -437,7 +438,7 @@ int kickstart(int argc, char **argv) {
 		failed += check_u16("uint16x8 and", result, (uint16_t[8]){1 & 2, 2 & 2, 3 & 2, 4 & 2, 5 & 2, 6 & 2, 7 & 2, 8 & 2}) ? 0 : 1;
 
 		result = kinc_uint16x8_xor(a, b);
-		failed += check_u16("uint16x8 xor", result, (uint16_t[8]){1 ^ 2, 2 ^ 2, 3 ^ 2, 4 ^ 2, 5 ^ 2, 6 ^ 2, 7 ^ 2, 8 ^ 2}) ? 0 : 1;
+		failed += check_u16("uint16x8 xor", result, (uint16_t[8]){1 ^ 2, 0x2 ^ 2, 3 ^ 2, 4 ^ 2, 5 ^ 2, 6 ^ 2, 7 ^ 2, 8 ^ 2}) ? 0 : 1;
 
 		result = kinc_uint16x8_not(a);
 		uint16_t chk[8] = {1, 2, 3, 4, 5, 6, 7, 8};
@@ -495,7 +496,7 @@ int kickstart(int argc, char **argv) {
 		failed += check_i32("int32x4 and", result, (int32_t[4]){-2 & 2, -1 & 2, 1 & 2, 2 & 2}) ? 0 : 1;
 
 		result = kinc_int32x4_xor(a, b);
-		failed += check_i32("int32x4 xor", result, (int32_t[4]){-2 ^ 2, -1 ^ 2, 1 ^ 2, 2 ^ 2}) ? 0 : 1;
+		failed += check_i32("int32x4 xor", result, (int32_t[4]){-0x2 ^ 2, -1 ^ 2, 1 ^ 2, 0x2 ^ 2}) ? 0 : 1;
 
 		result = kinc_int32x4_not(a);
 		failed += check_i32("int32x4 not", result, (int32_t[4]){~-2, ~-1, ~1, ~2}) ? 0 : 1;
@@ -529,7 +530,7 @@ int kickstart(int argc, char **argv) {
 		failed += check_u32("uint32x4 and", result, (uint32_t[4]){1 & 2, 2 & 2, 3 & 2, 4 & 2}) ? 0 : 1;
 
 		result = kinc_uint32x4_xor(a, b);
-		failed += check_u32("uint32x4 xor", result, (uint32_t[4]){1 ^ 2, 2 ^ 2, 3 ^ 2, 4 ^ 2}) ? 0 : 1;
+		failed += check_u32("uint32x4 xor", result, (uint32_t[4]){1 ^ 2, 0x2 ^ 2, 3 ^ 2, 4 ^ 2}) ? 0 : 1;
 
 		result = kinc_uint32x4_not(a);
 		uint32_t chk[4] = {1, 2, 3, 4};

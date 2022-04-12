@@ -49,5 +49,5 @@ jobs:
           cp build/Release/SIMD Tests/Shader/Deployment/SIMD
           echo " * Run Test 2"
           cd Tests/SIMD/Deployment
-          ./ShaderTest
+          ./SIMD
           cd ../../..
