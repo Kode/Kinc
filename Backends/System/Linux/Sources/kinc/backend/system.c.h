@@ -195,7 +195,7 @@ void kinc_internal_shutdown() {
 
 #ifndef KINC_NO_MAIN
 int main(int argc, char **argv) {
-	kickstart(argc, argv);
+	return kickstart(argc, argv);
 }
 #endif
 
