@@ -31,11 +31,11 @@ static inline uint8_t kinc_uint8x16_get(kinc_uint8x16_t t, int index) {
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_add(kinc_uint8x16_t a, kinc_uint8x16_t b) {
-	return _mm_adds_epu8(a, b);
+	return _mm_add_epi8(a, b);
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_sub(kinc_uint8x16_t a, kinc_uint8x16_t b) {
-	return _mm_subs_epu8(a, b);
+	return _mm_sub_epi8(a, b);
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_max(kinc_uint8x16_t a, kinc_uint8x16_t b) {
