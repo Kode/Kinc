@@ -20,8 +20,8 @@ jobs:
       run: git submodule update --init --recursive
     - name: Compile
       run: Tools/kmake/kmake-osx -g metal --kinc . --from Tests/Empty --compile
-    - name: Compile Test 2 (SIMD)
-      run: Tools/kmake/kmake-osx --kinc . --from Tests/SIMD --compile --noshaders
+    - name: Compile and Run Test 2 (SIMD)
+      run: Tools/kmake/kmake-osx --kinc . --from Tests/SIMD --compile --noshaders --run
     - name: Copy Test 2
       run: cp build/Release/SIMD Tests/SIMD/Deployment/SIMD
     - name: Run Test 2

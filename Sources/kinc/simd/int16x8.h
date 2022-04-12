@@ -167,16 +167,16 @@ static inline kinc_int16x8_t kinc_int16x8_not(kinc_int16x8_t t) {
 
 #else
 
-static inline kinc_int16x8_t kinc_int16x8_load(const int16_t values[8]) {
+static inline kinc_int16x8_t kinc_int16x8_load(int16_t a, int16_t b, int16_t c, int16_t d, int16_t e, int16_t f, int16_t g, int16_t h) {
 	kinc_int16x8_t value;
-	value.values[0] = values[0];
-	value.values[1] = values[1];
-	value.values[2] = values[2];
-	value.values[3] = values[3];
-	value.values[4] = values[4];
-	value.values[5] = values[5];
-	value.values[6] = values[6];
-	value.values[7] = values[7];
+	value.values[0] = a;
+	value.values[1] = b;
+	value.values[2] = c;
+	value.values[3] = d;
+	value.values[4] = e;
+	value.values[5] = f;
+	value.values[6] = g;
+	value.values[7] = h;
 	return value;
 }
 
