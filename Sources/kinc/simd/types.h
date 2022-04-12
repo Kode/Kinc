@@ -29,6 +29,10 @@ typedef __m128i kinc_int16x8_t;
 typedef __m128i kinc_int16x8_mask_t;
 typedef __m128i kinc_uint16x8_t;
 typedef __m128i kinc_uint16x8_mask_t;
+typedef __m128i kinc_int32x4_t;
+typedef __m128i kinc_int32x4_mask_t;
+typedef __m128i kinc_uint32x4_t;
+typedef __m128i kinc_uint32x4_mask_t;
 #endif
 
 #elif defined(KORE_IOS) || defined(KORE_SWITCH) || defined(__aarch64__) || defined(KORE_NEON)
@@ -46,6 +50,10 @@ typedef int16x8_t kinc_int16x8_t;
 typedef uint16x8_t kinc_int16x8_mask_t;
 typedef uint16x8_t kinc_uint16x8_t;
 typedef uint16x8_t kinc_uint16x8_mask_t;
+typedef int32x4_t kinc_int32x4_t;
+typedef uint32x4_t kinc_int32x4_mask_t;
+typedef uint32x4_t kinc_uint32x4_t;
+typedef uint32x4_t kinc_uint32x4_mask_t;
 
 #else
 
@@ -76,20 +84,36 @@ typedef struct kinc_uint8x16_mask {
 } kinc_uint8x16_mask_t;
 
 typedef struct kinc_int16x8 {
-	int16_t values[16];
+	int16_t values[8];
 } kinc_int16x8_t;
 
 typedef struct kinc_int16x8_mask {
-	int16_t values[16];
+	int16_t values[8];
 } kinc_int16x8_mask_t;
 
 typedef struct kinc_uint16x8 {
-	uint16_t values[16];
+	uint16_t values[8];
 } kinc_uint16x8_t;
 
 typedef struct kinc_uint16x8_mask {
-	uint16_t values[16];
+	uint16_t values[8];
 } kinc_uint16x8_mask_t;
+
+typedef struct kinc_int32x4 {
+	int32_t values[4];
+} kinc_int32x4_t;
+
+typedef struct kinc_int32x4_mask {
+	int32_t values[4];
+} kinc_int32x4_mask_t;
+
+typedef struct kinc_uint32x4 {
+	uint32_t values[4];
+} kinc_uint32x4_t;
+
+typedef struct kinc_uint32x4_mask {
+	uint32_t values[4];
+} kinc_uint32x4_mask_t;
 
 
 #endif

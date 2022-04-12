@@ -2,6 +2,7 @@
 #include <kinc/math/core.h>
 #include <kinc/simd/float32x4.h>
 #include <kinc/simd/int16x8.h>
+#include <kinc/simd/int32x4.h>
 #include <kinc/simd/int8x16.h>
 #include <kinc/simd/uint16x8.h>
 #include <kinc/simd/uint8x16.h>
@@ -87,6 +88,22 @@ static bool check_i16(const char *name, kinc_int16x8_t result, const int16_t exp
 		         expected[3], expected[4], expected[5], expected[6], expected[7], kinc_int16x8_get(result, 0), kinc_int16x8_get(result, 1),
 		         kinc_int16x8_get(result, 2), kinc_int16x8_get(result, 3), kinc_int16x8_get(result, 4), kinc_int16x8_get(result, 5),
 		         kinc_int16x8_get(result, 6), kinc_int16x8_get(result, 7));
+	}
+	return success;
+}
+
+static bool check_i32(const char *name, kinc_int32x4_t result, const int32_t expected[4]) {
+	++total_tests;
+	bool success = true;
+	for (int i = 0; i < 4; ++i) {
+		if (kinc_int32x4_get(result, i) != expected[i]) {
+			success = false;
+		}
+	}
+	kinc_log(KINC_LOG_LEVEL_ERROR, "Test %s %s", name, success ? "PASS" : "FAIL");
+	if (!success) {
+		kinc_log(KINC_LOG_LEVEL_INFO, "\texpected {%d, %d, %d, %d} got {%d, %d, %d, %d}", expected[0], expected[1], expected[2], expected[3],
+		         kinc_int32x4_get(result, 0), kinc_int32x4_get(result, 1), kinc_int32x4_get(result, 2), kinc_int32x4_get(result, 3));
 	}
 	return success;
 }
@@ -409,6 +426,62 @@ int kickstart(int argc, char **argv) {
 		uint16_t chk[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 		for (int i = 0; i < 8; ++i) chk[i] = (uint16_t)(~chk[i]);
 		failed += check_u16("uint16x8 not", result, chk) ? 0 : 1;
+	}
+
+	{
+		kinc_int32x4_t a = kinc_int32x4_load((int32_t[4]){-2, -1, 1, 2});
+		kinc_int32x4_t b = kinc_int32x4_load_all(2);
+
+		kinc_int32x4_mask_t mask;
+		kinc_int32x4_t result;
+
+		result = kinc_int32x4_add(a, b);
+		failed += check_i32("int32x4 add", result, (int32_t[4]){0, 1, 3, 4}) ? 0 : 1;
+
+		result = kinc_int32x4_sub(a, b);
+		failed += check_i32("int32x4 sub", result, (int32_t[4]){-4, -3, -1, 0}) ? 0 : 1;
+
+		result = kinc_int32x4_max(a, b);
+		failed += check_i32("int32x4 max", result, (int32_t[4]){2, 2, 2, 2}) ? 0 : 1;
+
+		result = kinc_int32x4_min(a, b);
+		failed += check_i32("int32x4 min", result, (int32_t[4]){-2, -1, 1, 2}) ? 0 : 1;
+
+		mask = kinc_int32x4_cmpeq(a, b);
+		result = kinc_int32x4_sel(a, b, mask);
+		failed += check_i32("int32x4 cmpeq & sel", result, (int32_t[4]){2, 2, 2, 2}) ? 0 : 1;
+
+		mask = kinc_int32x4_cmpge(a, b);
+		result = kinc_int32x4_sel(a, b, mask);
+		failed += check_i32("int32x4 cmpge & sel", result, (int32_t[4]){2, 2, 2, 2}) ? 0 : 1;
+
+		mask = kinc_int32x4_cmpgt(a, b);
+		result = kinc_int32x4_sel(a, b, mask);
+		failed += check_i32("int32x4 cmpgt & sel", result, (int32_t[4]){2, 2, 2, 2}) ? 0 : 1;
+
+		mask = kinc_int32x4_cmple(a, b);
+		result = kinc_int32x4_sel(a, b, mask);
+		failed += check_i32("int32x4 cmple & sel", result, (int32_t[4]){-2, -1, 1, 2}) ? 0 : 1;
+
+		mask = kinc_int32x4_cmplt(a, b);
+		result = kinc_int32x4_sel(a, b, mask);
+		failed += check_i32("int32x4 cmplt & sel", result, (int32_t[4]){-2, -1, 1, 2}) ? 0 : 1;
+
+		mask = kinc_int32x4_cmpneq(a, b);
+		result = kinc_int32x4_sel(a, b, mask);
+		failed += check_i32("int32x4 cmpneq & sel", result, (int32_t[4]){-2, -1, 1, 2}) ? 0 : 1;
+
+		result = kinc_int32x4_or(a, b);
+		failed += check_i32("int32x4 or", result, (int32_t[4]){-2 | 2, -1 | 2, 1 | 2, 2 | 2}) ? 0 : 1;
+
+		result = kinc_int32x4_and(a, b);
+		failed += check_i32("int32x4 and", result, (int32_t[4]){-2 & 2, -1 & 2, 1 & 2, 2 & 2}) ? 0 : 1;
+
+		result = kinc_int32x4_xor(a, b);
+		failed += check_i32("int32x4 xor", result, (int32_t[4]){-2 ^ 2, -1 ^ 2, 1 ^ 2, 2 ^ 2}) ? 0 : 1;
+
+		result = kinc_int32x4_not(a);
+		failed += check_i32("int32x4 not", result, (int32_t[4]){~-2, ~-1, ~1, ~2}) ? 0 : 1;
 	}
 
 	if (failed) {

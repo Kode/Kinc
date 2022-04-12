@@ -251,79 +251,79 @@ static inline kinc_int16x8_t kinc_int16x8_min(kinc_int16x8_t a, kinc_int16x8_t b
 
 static inline kinc_int16x8_mask_t kinc_int16x8_cmpeq(kinc_int16x8_t a, kinc_int16x8_t b) {
 	kinc_int16x8_mask_t mask;
-	mask.values[0] = a.values[0] == b.values[0] ? 0xff : 0;
-	mask.values[1] = a.values[1] == b.values[1] ? 0xff : 0;
-	mask.values[2] = a.values[2] == b.values[2] ? 0xff : 0;
-	mask.values[3] = a.values[3] == b.values[3] ? 0xff : 0;
-	mask.values[4] = a.values[4] == b.values[4] ? 0xff : 0;
-	mask.values[5] = a.values[5] == b.values[5] ? 0xff : 0;
-	mask.values[6] = a.values[6] == b.values[6] ? 0xff : 0;
-	mask.values[7] = a.values[7] == b.values[7] ? 0xff : 0;
+	mask.values[0] = a.values[0] == b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] == b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] == b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] == b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] == b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] == b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] == b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] == b.values[7] ? 0xffff : 0;
 	return mask;
 }
 
 static inline kinc_int16x8_mask_t kinc_int16x8_cmpge(kinc_int16x8_t a, kinc_int16x8_t b) {
 	kinc_int16x8_mask_t mask;
-	mask.values[0] = a.values[0] >= b.values[0] ? 0xff : 0;
-	mask.values[1] = a.values[1] >= b.values[1] ? 0xff : 0;
-	mask.values[2] = a.values[2] >= b.values[2] ? 0xff : 0;
-	mask.values[3] = a.values[3] >= b.values[3] ? 0xff : 0;
-	mask.values[4] = a.values[4] >= b.values[4] ? 0xff : 0;
-	mask.values[5] = a.values[5] >= b.values[5] ? 0xff : 0;
-	mask.values[6] = a.values[6] >= b.values[6] ? 0xff : 0;
-	mask.values[7] = a.values[7] >= b.values[7] ? 0xff : 0;
+	mask.values[0] = a.values[0] >= b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] >= b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] >= b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] >= b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] >= b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] >= b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] >= b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] >= b.values[7] ? 0xffff : 0;
 	return mask;
 }
 
 static inline kinc_int16x8_mask_t kinc_int16x8_cmpgt(kinc_int16x8_t a, kinc_int16x8_t b) {
 	kinc_int16x8_mask_t mask;
-	mask.values[0] = a.values[0] > b.values[0] ? 0xff : 0;
-	mask.values[1] = a.values[1] > b.values[1] ? 0xff : 0;
-	mask.values[2] = a.values[2] > b.values[2] ? 0xff : 0;
-	mask.values[3] = a.values[3] > b.values[3] ? 0xff : 0;
-	mask.values[4] = a.values[4] > b.values[4] ? 0xff : 0;
-	mask.values[5] = a.values[5] > b.values[5] ? 0xff : 0;
-	mask.values[6] = a.values[6] > b.values[6] ? 0xff : 0;
-	mask.values[7] = a.values[7] > b.values[7] ? 0xff : 0;
+	mask.values[0] = a.values[0] > b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] > b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] > b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] > b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] > b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] > b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] > b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] > b.values[7] ? 0xffff : 0;
 	return mask;
 }
 
 static inline kinc_int16x8_mask_t kinc_int16x8_cmple(kinc_int16x8_t a, kinc_int16x8_t b) {
 	kinc_int16x8_mask_t mask;
-	mask.values[0] = a.values[0] <= b.values[0] ? 0xff : 0;
-	mask.values[1] = a.values[1] <= b.values[1] ? 0xff : 0;
-	mask.values[2] = a.values[2] <= b.values[2] ? 0xff : 0;
-	mask.values[3] = a.values[3] <= b.values[3] ? 0xff : 0;
-	mask.values[4] = a.values[4] <= b.values[4] ? 0xff : 0;
-	mask.values[5] = a.values[5] <= b.values[5] ? 0xff : 0;
-	mask.values[6] = a.values[6] <= b.values[6] ? 0xff : 0;
-	mask.values[7] = a.values[7] <= b.values[7] ? 0xff : 0;
+	mask.values[0] = a.values[0] <= b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] <= b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] <= b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] <= b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] <= b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] <= b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] <= b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] <= b.values[7] ? 0xffff : 0;
 	return mask;
 }
 
 static inline kinc_int16x8_mask_t kinc_int16x8_cmplt(kinc_int16x8_t a, kinc_int16x8_t b) {
 	kinc_int16x8_mask_t mask;
-	mask.values[0] = a.values[0] < b.values[0] ? 0xff : 0;
-	mask.values[1] = a.values[1] < b.values[1] ? 0xff : 0;
-	mask.values[2] = a.values[2] < b.values[2] ? 0xff : 0;
-	mask.values[3] = a.values[3] < b.values[3] ? 0xff : 0;
-	mask.values[4] = a.values[4] < b.values[4] ? 0xff : 0;
-	mask.values[5] = a.values[5] < b.values[5] ? 0xff : 0;
-	mask.values[6] = a.values[6] < b.values[6] ? 0xff : 0;
-	mask.values[7] = a.values[7] < b.values[7] ? 0xff : 0;
+	mask.values[0] = a.values[0] < b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] < b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] < b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] < b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] < b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] < b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] < b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] < b.values[7] ? 0xffff : 0;
 	return mask;
 }
 
 static inline kinc_int16x8_mask_t kinc_int16x8_cmpneq(kinc_int16x8_t a, kinc_int16x8_t b) {
 	kinc_int16x8_mask_t mask;
-	mask.values[0] = a.values[0] != b.values[0] ? 0xff : 0;
-	mask.values[1] = a.values[1] != b.values[1] ? 0xff : 0;
-	mask.values[2] = a.values[2] != b.values[2] ? 0xff : 0;
-	mask.values[3] = a.values[3] != b.values[3] ? 0xff : 0;
-	mask.values[4] = a.values[4] != b.values[4] ? 0xff : 0;
-	mask.values[5] = a.values[5] != b.values[5] ? 0xff : 0;
-	mask.values[6] = a.values[6] != b.values[6] ? 0xff : 0;
-	mask.values[7] = a.values[7] != b.values[7] ? 0xff : 0;
+	mask.values[0] = a.values[0] != b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] != b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] != b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] != b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] != b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] != b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] != b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] != b.values[7] ? 0xffff : 0;
 	return mask;
 }
 
