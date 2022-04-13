@@ -67,6 +67,9 @@ typedef struct kinc_float32x4_mask {
 	int values[4];
 } kinc_float32x4_mask_t;
 
+#endif
+
+#if defined(KINC_SSE) && !defined(KINC_SSE2)
 typedef struct kinc_int8x16 {
 	int8_t values[16];
 } kinc_int8x16_t;
@@ -114,7 +117,6 @@ typedef struct kinc_uint32x4 {
 typedef struct kinc_uint32x4_mask {
 	uint32_t values[4];
 } kinc_uint32x4_mask_t;
-
 
 #endif
 
