@@ -57,6 +57,7 @@ typedef uint32x4_t kinc_uint32x4_mask_t;
 
 #else
 
+#define KINC_NOSIMD
 #include <kinc/math/core.h>
 
 typedef struct kinc_float32x4 {
@@ -69,7 +70,7 @@ typedef struct kinc_float32x4_mask {
 
 #endif
 
-#if defined(KINC_SSE) && !defined(KINC_SSE2) || !defined(KINC_NEON)
+#if (defined(KINC_SSE) && !defined(KINC_SSE2)) || defined(KINC_NOSIMD)
 
 typedef struct kinc_int8x16 {
 	int8_t values[16];
