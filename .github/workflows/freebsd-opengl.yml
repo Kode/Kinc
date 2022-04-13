@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - main
-    - moarSIMD
   pull_request:
     branches:
     - main
@@ -21,9 +20,10 @@ jobs:
       run: git submodule update --init --recursive
     - name: Compile in FreeBSD VM
       id: build
-      uses: vmactions/freebsd-vm@v0.1.5
+      uses: vmactions/freebsd-vm@v0.1.6
       with:
         usesh: true
+        copyback: false
         mem: 2048
         prepare: pkg install -y bash alsa-lib libXinerama mesa-libs libXi xorg-vfbserver libXrandr libXi libXcursor evdev-proto libinotify ImageMagick7-nox11 libxkbcommon
         run: |
