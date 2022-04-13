@@ -12,10 +12,12 @@ jobs:
   build:
 
     runs-on: macOS-latest
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
       run: Tools/kmake/kmake-osx -g metal --kinc . --from Tests/Empty --compile
+    - name: Compile and Run Test 2 (SIMD)
+      run: Tools/kmake/kmake-osx --kinc . --from Tests/SIMD --compile --noshaders --run
