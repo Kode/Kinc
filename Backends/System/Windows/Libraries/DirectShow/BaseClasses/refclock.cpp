@@ -14,6 +14,13 @@
 #include "dxmperf.h"
 #endif // DXMPERF
 
+#ifndef max
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif
 
 // 'this' used in constructor list
 #pragma warning(disable:4355)

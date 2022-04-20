@@ -9,6 +9,14 @@
 #undef NOMINMAX
 #include <streams.h>
 
+#ifndef max
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+
 // Constructor for the base property page class. As described in the header
 // file we must be initialised with dialog and title resource identifiers.
 // The class supports IPropertyPage and overrides AddRef and Release calls
