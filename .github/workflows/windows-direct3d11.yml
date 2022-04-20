@@ -12,7 +12,7 @@ jobs:
   build:
 
     runs-on: windows-latest
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Get Submodules
@@ -27,3 +27,5 @@ jobs:
       run: .\Tools\kmake\kmake.exe -v vs2022 -g direct3d11 --kinc . --from Tests/Shader --run
     - name: Check Test 1
       run: magick compare -metric mae .\Tests\Shader\reference.png .\Tests\Shader\Deployment\test.png difference.png
+    - name: Compile and run Test 2 (SIMD)
+      run: .\Tools\kmake\kmake.exe -v vs2022 --kinc . --from Tests/SIMD --compile --run

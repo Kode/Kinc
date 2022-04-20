@@ -66,3 +66,13 @@ jobs:
             cd ../../..
             echo " * Check Test 1"
             compare-im6 -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
+            echo " * Clean"
+            rm -rf build
+            echo " * Compile Test 2 (SIMD)"
+            ./make -g opengl --kinc . --from Tests/SIMD --compile --noshaders
+            echo " * Copy Test 2"
+            cp build/Release/SIMD Tests/SIMD/Deployment/SIMD
+            echo " * Run Test 2"
+            cd Tests/SIMD/Deployment
+            ./SIMD && echo "SUCCESS" || echo "FAILED"
+            cd ../../..
