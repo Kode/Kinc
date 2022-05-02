@@ -16,6 +16,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Get Submodules
-      run: git submodule update --init --recursive
+      run: .\get_dlc.bat
     - name: Compile
       run: .\make.bat -v vs2022 -g opengl --kinc . --from Tests/Empty --noshaders --compile

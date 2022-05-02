@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Get Submodules
-      run: git submodule update --init --recursive
+      run: git submodule update --init Tools/freebsd_x64
     - name: Compile in FreeBSD VM
       id: build
       uses: vmactions/freebsd-vm@v0.1.6

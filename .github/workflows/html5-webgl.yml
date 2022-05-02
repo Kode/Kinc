@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Get Submodules
-      run: git submodule update --init --recursive
+      run: ./get_dlc
     - name: Compile (kmake)
       run: ./make html5 --kinc . --from Tests/Empty --noshaders
     - name: Compile (emscripten)

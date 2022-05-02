@@ -16,6 +16,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Get Submodules
-      run: git submodule update --init --recursive
+      run: ./get_dlc
     - name: Compile
       run: ./make android -g vulkan --kinc . --from Tests/Empty --compile

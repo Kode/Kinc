@@ -21,7 +21,7 @@ jobs:
           $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList @("--da", "--al", "-c", "in");
           $installer.WaitForExit();
     - name: Get Submodules
-      run: git submodule update --init --recursive
+      run: .\get_dlc.bat
     - name: Compile
       run: .\make.bat -v vs2022 -g vulkan --kinc . --from Tests/Empty --noshaders --compile
       env:
