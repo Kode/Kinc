@@ -50,6 +50,8 @@ jobs:
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
+            echo " * Make Git happy"
+            git config --global --add safe.directory /home/runner/work/Kinc/Kinc
             echo " * Get Submodules"
             git submodule update --init --recursive
             echo " * Compile"
