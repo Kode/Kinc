@@ -18,4 +18,4 @@ jobs:
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
-      run: Tools/kmake/kmake-osx ios -g metal --kinc . --from Tests/Empty --noshaders --nosigning --compile
+      run: ./make ios -g metal --kinc . --from Tests/Empty --noshaders --nosigning --compile

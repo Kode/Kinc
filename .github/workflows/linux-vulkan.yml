@@ -26,4 +26,4 @@ jobs:
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
-      run: Tools/kmake/kmake-linux64 -g vulkan --kinc . --from Tests/Empty --noshaders --compile
+      run: ./make -g vulkan --kinc . --from Tests/Empty --noshaders --compile

@@ -18,6 +18,6 @@ jobs:
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile (kmake)
-      run: Tools/kmake/kmake-linux64 html5 -g webgpu --kinc . --from Tests/Empty --noshaders
+      run: ./make html5 -g webgpu --kinc . --from Tests/Empty --noshaders
     - name: Compile (emscripten)
       run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ../build/Release && make

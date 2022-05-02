@@ -18,14 +18,14 @@ jobs:
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
-      run: .\Tools\kmake\kmake.exe -v vs2022 -g direct3d11 --kinc . --from Tests/Empty --compile
+      run: .\make.bat -v vs2022 -g direct3d11 --kinc . --from Tests/Empty --compile
     - name: Get ImageMagick
       run: |
         choco install -y imagemagick.app --no-progress
         Get-ChildItem -Path "${env:ProgramFiles}" | Where-Object {($_.Name -Like 'ImageMagick*')} | % { $_.FullName } | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
     - name: Compile and run Test 1
-      run: .\Tools\kmake\kmake.exe -v vs2022 -g direct3d11 --kinc . --from Tests/Shader --run
+      run: .\make.bat -v vs2022 -g direct3d11 --kinc . --from Tests/Shader --run
     - name: Check Test 1
       run: magick compare -metric mae .\Tests\Shader\reference.png .\Tests\Shader\Deployment\test.png difference.png
     - name: Compile and run Test 2 (SIMD)
-      run: .\Tools\kmake\kmake.exe -v vs2022 --kinc . --from Tests/SIMD --compile --run
+      run: .\make.bat -v vs2022 --kinc . --from Tests/SIMD --compile --run
