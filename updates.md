@@ -1,3 +1,6 @@
+* 2022-05-02: The submodules have been reorganized so only the relevant files for the current system have to be downloaded. When doing a recursive clone everything is still pretty much as it used to be but alternatively you can now do a regular clone and the call Kinc/get_tools to only download what's actually needed.
+
+Also kincmake has now been completely replaced by kmake but it should be compatible with old files so just call Kinc/make (without any node) and everything will just continue to work - maybe.
 * 2022-01-23: Blending has been reworked and blending-operations are actually blending-operations. The former blending-operations have been renamed to blending-factors.
 * 2021-12-21: A parameter specyfiying the index-format was added to kinc_g5_index_buffer_init
 * 2021-11-15: The input callbacks are now set using function calls like in other parts of the API.
