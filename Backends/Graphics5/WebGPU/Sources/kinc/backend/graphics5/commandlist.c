@@ -24,7 +24,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	attachment.loadOp = WGPULoadOp_Clear;
 	attachment.storeOp = WGPUStoreOp_Store;
 	WGPUColor color = {0, 0, 0, 1};
-	attachment.clearColor = color;
+	attachment.clearValue = color;
 
 	WGPURenderPassDescriptor passDesc;
 	memset(&passDesc, 0, sizeof(passDesc));
