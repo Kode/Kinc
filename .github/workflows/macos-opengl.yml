@@ -18,4 +18,4 @@ jobs:
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
-      run: Tools/kmake/kmake-osx -g opengl --kinc . --from Tests/Empty --noshaders --compile
+      run: ./make -g opengl --kinc . --from Tests/Empty --noshaders --compile

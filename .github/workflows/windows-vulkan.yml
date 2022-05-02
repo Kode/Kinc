@@ -23,6 +23,6 @@ jobs:
     - name: Get Submodules
       run: git submodule update --init --recursive
     - name: Compile
-      run: .\Tools\kmake\kmake.exe -v vs2022 -g vulkan --kinc . --from Tests/Empty --noshaders --compile
+      run: .\make.bat -v vs2022 -g vulkan --kinc . --from Tests/Empty --noshaders --compile
       env:
         VULKAN_SDK: C:\VulkanSDK\1.2.189.2
