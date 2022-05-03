@@ -18,4 +18,4 @@ jobs:
     - name: Get Submodules
       run: .\get_dlc.bat
     - name: Compile
-      run: .\make.bat -v vs2022 -g direct3d9 -a directsound --kinc . --from Tests/Empty --noshaders --compile
+      run: .\make.bat -v vs2022 -g direct3d9 -a directsound --kinc . --from Tests/Empty --compile

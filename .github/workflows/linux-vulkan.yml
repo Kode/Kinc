@@ -26,4 +26,4 @@ jobs:
     - name: Get Submodules
       run: ./get_dlc
     - name: Compile
-      run: ./make -g vulkan --kinc . --from Tests/Empty --noshaders --compile
+      run: ./make -g vulkan --kinc . --from Tests/Empty --compile

@@ -73,7 +73,7 @@ jobs:
             echo " * Clean"
             rm -rf build
             echo " * Compile Test 2 (SIMD)"
-            ./make -g opengl --kinc . --from Tests/SIMD --compile --noshaders
+            ./make -g opengl --kinc . --from Tests/SIMD --compile
             echo " * Copy Test 2"
             cp build/Release/SIMD Tests/SIMD/Deployment/SIMD
             echo " * Run Test 2"

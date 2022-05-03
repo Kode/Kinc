@@ -44,7 +44,7 @@ jobs:
           echo " * Clean"
           rm -r build
           echo " * Compile Test 2"
-          ./make --kinc . --from Tests/SIMD --compile --noshaders
+          ./make --kinc . --from Tests/SIMD --compile
           echo " * Copy Test 2"
           cp build/Release/SIMD Tests/SIMD/Deployment/SIMD
           echo " * Run Test 2"

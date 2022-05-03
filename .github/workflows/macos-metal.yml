@@ -20,4 +20,4 @@ jobs:
     - name: Compile
       run: ./make -g metal --kinc . --from Tests/Empty --compile
     - name: Compile and Run Test 2 (SIMD)
-      run: ./make --kinc . --from Tests/SIMD --compile --noshaders --run
+      run: ./make --kinc . --from Tests/SIMD --compile --run
