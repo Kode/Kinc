@@ -18,6 +18,6 @@ jobs:
     - name: Get Submodules
       run: .\get_dlc.bat
     - name: Install DirectX
-      run: .\Tools\windows_x64\dxwebsetup.exe /Q
+      run: choco install -y directx --no-progress
     - name: Compile
       run: .\make.bat -v vs2022 -g direct3d9 -a directsound --kinc . --from Tests/Empty --compile
