@@ -68,6 +68,9 @@ if (platform === Platform.Windows) {
 		project.addLib('strmiids');
 		project.addLib('winmm');
 	}
+	else {
+		project.addDefine('KINC_NO_DIRECTSHOW');
+	}
 
 	project.addLib('wbemuuid');
 
