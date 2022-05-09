@@ -154,7 +154,7 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 
 #ifdef KORE_OPENGL
 	glfwInit();
-	glfwOpenWindow(width, height, 8, 8, 8, 0, 0, 0, GLFW_WINDOW);
+	glfwOpenWindow(width, height, 8, 8, 8, 0, frame->depth_bits, frame->stencil_bits, GLFW_WINDOW);
 	glfwSetWindowTitle(name);
 	glfwSetKeyCallback(onKeyPressed);
 	glfwSetMousePosCallback(onMouseMove);
