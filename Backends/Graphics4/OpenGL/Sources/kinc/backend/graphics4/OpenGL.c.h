@@ -1043,7 +1043,7 @@ void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
 		for (int i = 0; i < count; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 		((void (*)(GLsizei, GLenum *))glesDrawBuffers)(count, buffers);
-#elif !defined(KORE_OPENGL_ES)
+#elif !defined(KORE_OPENGL_ES) || defined(KORE_HTML5)
 		glDrawBuffers(count, buffers);
 #endif
 		glCheckErrors();
