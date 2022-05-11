@@ -290,16 +290,15 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 
 #ifdef KORE_OPENGL_ES
 	{
-		char *exts = (char *)glGetString(GL_EXTENSIONS);
-		Kinc_Internal_SupportsDepthTexture = exts != NULL && strstr(exts, "GL_OES_depth_texture") != NULL;
-		maxColorAttachments = 4;
-
 		int major = -1;
 		glGetIntegerv(GL_MAJOR_VERSION, &major);
 		glCheckErrors();
-		kinc_internal_opengl_force_16bit_index_buffer = major < 3 && strstr(exts, "GL_OES_element_index_uint") == NULL;
-
 		gles_version = major;
+		char *exts = (char *)glGetString(GL_EXTENSIONS);
+
+		Kinc_Internal_SupportsDepthTexture = major >= 3 || (exts != NULL && strstr(exts, "GL_OES_depth_texture") != NULL);
+		maxColorAttachments = 4;
+		kinc_internal_opengl_force_16bit_index_buffer = major < 3 && strstr(exts, "GL_OES_element_index_uint") == NULL;
 	}
 #else
 	kinc_internal_opengl_force_16bit_index_buffer = false;
