@@ -9,7 +9,7 @@ struct kinc_g5_pipeline;
 typedef struct {
 	struct kinc_g5_pipeline *_currentPipeline;
 	int _indexCount;
-	int64_t commands[1024];
+	char commands[1024 * 8];
 	int commandIndex;
 	bool closed;
 } CommandList5Impl;
