@@ -103,7 +103,7 @@ int kickstart(int argc, char** argv) {
 	v[3] = 1;  v[4] = -1; v[5] = 0.5;
 	v[6] = -1; v[7] = 1;  v[8] = 0.5;
 	kinc_g5_vertex_buffer_unlock_all(&vertices);
-	//kinc_g5_command_list_upload_vertex_buffer(&command_list, &vertices);
+	kinc_g5_command_list_upload_vertex_buffer(&command_list, &vertices);
 
 	kinc_g5_index_buffer_init(&indices, 3, KINC_G5_INDEX_BUFFER_FORMAT_32BIT, true);
 	int *i = kinc_g5_index_buffer_lock(&indices);

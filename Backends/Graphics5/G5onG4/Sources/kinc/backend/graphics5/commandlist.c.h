@@ -11,9 +11,17 @@
 #endif
 
 #define WRITE(type, value)                                                                                                                                     \
+	if (list->impl.commandIndex + sizeof(type) > KINC_G5ONG4_COMMANDS_SIZE) {                                                                                                       \
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Trying to write too many commands to the command list.");                                                                                \
+		return;                                                                                                                                                \
+	}                                                                                                                                                          \
 	*(type *)(&list->impl.commands[list->impl.commandIndex]) = value;                                                                                          \
 	list->impl.commandIndex += sizeof(type);
 #define READ(type, var)                                                                                                                                        \
+	if (index + sizeof(type) > KINC_G5ONG4_COMMANDS_SIZE) {                                                                                                                         \
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Trying to read beyond the end of the command list?");                                                                                \
+		return;                                                                                                                                                \
+	}                                                                                                                                                          \
 	type var = *(type *)(&list->impl.commands[index]);                                                                                                         \
 	index += sizeof(type);
 
