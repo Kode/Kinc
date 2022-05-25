@@ -406,6 +406,26 @@ void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 	glBlendEquationSeparate(convert_blend_operation(pipeline->blend_operation), convert_blend_operation(pipeline->alpha_blend_operation));
 }
 
+void kinc_g4_pipeline_get_constant_locations(kinc_g4_pipeline_t *state, kinc_g4_constant_location_t *locations, int *sizes, int *max_count) {
+	GLint count = 0;
+	glGetProgramiv(state->impl.programId, GL_ACTIVE_UNIFORMS, &count);
+	if (locations == NULL || sizes == NULL) {
+		*max_count = count;
+	}
+	else {
+		for (GLint i = 0; i < count; ++i) {
+			GLenum type;
+			char uniformName[1024];
+			GLsizei length;
+			GLint size;
+			glGetActiveUniform(state->impl.programId, i, 1024 - 1, &length, &size, &type, uniformName);
+			locations[i].impl.location = glGetUniformLocation(state->impl.programId, uniformName);
+			locations[i].impl.type = type;
+			sizes[i] = size;
+		}
+	}
+}
+
 kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name) {
 	kinc_g4_constant_location_t location;
 	location.impl.location = glGetUniformLocation(state->impl.programId, name);

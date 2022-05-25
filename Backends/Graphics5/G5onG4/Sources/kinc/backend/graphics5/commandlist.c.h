@@ -41,8 +41,14 @@ typedef enum command {
 	SetTextureMagnificationFilter,
 	SetTextureMinificationFilter,
 	SetTextureMipmapFilter,
-	SetImageTexture
+	SetImageTexture,
+	SetVertexConstantBuffer,
+	SetFragmentConstantBuffer
 } command_t;
+
+void kinc_g4_pipeline_get_constant_locations(kinc_g4_pipeline_t *state, kinc_g4_constant_location_t *vertex_locations,
+                                             kinc_g4_constant_location_t *fragment_locations, int *vertex_sizes, int *fragment_sizes, int *max_vertex,
+                                             int *max_fragment)
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {}
 
@@ -278,6 +284,12 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 			READ(kinc_g5_texture_unit_t, unit);
 			READ(kinc_g5_texture_t *, texture);
 			kinc_g4_set_image_texture(unit.impl.unit, &texture->impl.texture);
+			break;
+		}
+		case SetVertexConstantBuffer: {
+			READ(kinc_g5_constant_buffer_t *, buffer);
+			// kinc_g4_pipeline_get_constant_locations()
+			// kinc_g4_set_vertex_constant_buffer(&buffer->impl.buffer);
 			break;
 		}
 		default:
