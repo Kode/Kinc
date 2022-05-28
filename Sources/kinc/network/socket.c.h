@@ -154,8 +154,8 @@ bool kinc_socket_open(kinc_socket_t *sock, kinc_socket_protocol_t protocol, int 
 
 		if (options->broadcast) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
-			char value = 1;
-			if (setsockopt(sock->handle, SOL_SOCKET, SO_BROADCAST, &value, sizeof(value)) < 0) {
+			int value = 1;
+			if (setsockopt(sock->handle, SOL_SOCKET, SO_BROADCAST, (const char *)&value, sizeof(value)) < 0) {
 				kinc_log(KINC_LOG_LEVEL_ERROR, "Could not set broadcast mode.");
 				return false;
 			}
