@@ -13,11 +13,12 @@ namespace Kore {
 		Audio2::BufferFormat format;
 		float volume();
 		void setVolume(float value);
-		s16* left;
-		s16* right;
+		s16 *left;
+		s16 *right;
 		int size;
 		float sampleRatePos;
 		float length;
+
 	private:
 		float myVolume;
 	};

@@ -4,6 +4,9 @@
 extern "C" {
 #endif
 
+#if defined(KINC_VIDEO_GSTREAMER)
+#include <kinc/backend/video_gstreamer.h>
+#else
 typedef struct {
 	int nothing;
 } kinc_video_impl_t;
@@ -21,6 +24,7 @@ void kinc_internal_video_sound_stream_insert_data(kinc_internal_video_sound_stre
 float kinc_internal_video_sound_stream_next_sample(kinc_internal_video_sound_stream_t *stream);
 
 bool kinc_internal_video_sound_stream_ended(kinc_internal_video_sound_stream_t *stream);
+#endif
 
 #ifdef __cplusplus
 }

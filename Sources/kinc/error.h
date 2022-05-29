@@ -1,19 +1,15 @@
 #pragma once
 
-/// <summary>
-/// File containing functionality to stop the program in
-/// case of an error and create a user-visible error message
-/// </summary>
-/// <remarks>
-/// The affirm and error functions print an error message and
-/// then exit the program. Error messages can be made visible to
-/// the user (unless a console window is active this is only
-/// implemented for Windows).
-/// </remarks>
-
-#include "pch.h"
+#include <kinc/global.h>
 
 #include <stdarg.h>
+
+/*! \file error.h
+    \brief Contains functionality to stop the program in case of an error and create a user-visible error message.
+
+    The affirm and error functions print an error message and then exit the program. Error messages can be made
+    visible to the user (unless a console window is active this is only implemented for Windows).
+*/
 
 #ifdef __cplusplus
 extern "C" {

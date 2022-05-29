@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "RenderTargetImpl.h"
 
 #include <Kore/Log.h>
@@ -15,6 +13,6 @@ RenderTarget::~RenderTarget() {}
 
 void RenderTarget::useColorAsTexture(TextureUnit unit) {}
 
-void RenderTarget::setDepthStencilFrom(RenderTarget* source) {}
+void RenderTarget::setDepthStencilFrom(RenderTarget *source) {}
 
 void RenderTarget::useDepthAsTexture(TextureUnit unit) {}

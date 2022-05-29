@@ -1,5 +1,5 @@
 #include "ogl.h"
-#include "pch.h"
+
 #include <Kore/Graphics3/Graphics.h>
 #include <Kore/Graphics3/Light.h>
 #include <Kore/Math/Core.h>
@@ -24,19 +24,19 @@ void Light::setType(LightType type) {
 	myPositionOrDirection[3] = (myType == DirectionalLight ? 0.0f : 1.0f);
 }
 
-void Light::setColors(const vec4& ambient, const vec4& diffuse, const vec4& specular) {
+void Light::setColors(const vec4 &ambient, const vec4 &diffuse, const vec4 &specular) {
 	// Store light colors
 	myAmbient = ambient;
 	myDiffuse = diffuse;
 	mySpecular = specular;
 }
 
-void Light::setPosition(const vec3& position) {
+void Light::setPosition(const vec3 &position) {
 	// Store position point (x, y, z, 1)
 	myPositionOrDirection = vec4(position, 1);
 }
 
-void Light::setDirection(const vec3& direction) {
+void Light::setDirection(const vec3 &direction) {
 	if (myType == SpotLight) {
 		// Store spot direction vector (x, y, z)
 		mySpotDirection = direction;

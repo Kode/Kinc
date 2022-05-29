@@ -1,12 +1,10 @@
-#include "pch.h"
-
 #include "Sound.h"
 
 #define STB_VORBIS_HEADER_ONLY
-#include <kinc/audio1/stb_vorbis.c>
 #include <Kore/Audio2/Audio.h>
 #include <Kore/Error.h>
 #include <Kore/IO/FileReader.h>
+#include <kinc/libs/stb_vorbis.c>
 
 #include <assert.h>
 #include <string.h>
@@ -21,17 +19,17 @@ namespace {
 		u32 bytesPerSecond;
 		u16 bitsPerSample;
 		u32 dataSize;
-		u8* data;
+		u8 *data;
 	};
 
-	void checkFOURCC(u8*& data, const char* fourcc, const char* filename) {
+	void checkFOURCC(u8 *&data, const char *fourcc, const char *filename) {
 		for (int i = 0; i < 4; ++i) {
 			Kore::affirm(*data == fourcc[i], "Corrupt wav file: %s", filename);
 			++data;
 		}
 	}
 
-	void readFOURCC(u8*& data, char* fourcc) {
+	void readFOURCC(u8 *&data, char *fourcc) {
 		for (int i = 0; i < 4; ++i) {
 			fourcc[i] = *data;
 			++data;
@@ -39,7 +37,7 @@ namespace {
 		fourcc[4] = 0;
 	}
 
-	void readChunk(u8*& data, WaveData& wave) {
+	void readChunk(u8 *&data, WaveData &wave) {
 		char fourcc[5];
 		readFOURCC(data, fourcc);
 		u32 chunksize = Reader::readU32LE(data);
@@ -68,28 +66,28 @@ namespace {
 		return (sample - 128) << 8;
 	}
 
-	void splitStereo8(u8* data, int size, s16* left, s16* right) {
+	void splitStereo8(u8 *data, int size, s16 *left, s16 *right) {
 		for (int i = 0; i < size; ++i) {
 			left[i] = convert8to16(data[i * 2 + 0]);
 			right[i] = convert8to16(data[i * 2 + 1]);
 		}
 	}
 
-	void splitStereo16(s16* data, int size, s16* left, s16* right) {
+	void splitStereo16(s16 *data, int size, s16 *left, s16 *right) {
 		for (int i = 0; i < size; ++i) {
 			left[i] = data[i * 2 + 0];
 			right[i] = data[i * 2 + 1];
 		}
 	}
 
-	void splitMono8(u8* data, int size, s16* left, s16* right) {
+	void splitMono8(u8 *data, int size, s16 *left, s16 *right) {
 		for (int i = 0; i < size; ++i) {
 			left[i] = convert8to16(data[i]);
 			right[i] = convert8to16(data[i]);
 		}
 	}
 
-	void splitMono16(s16* data, int size, s16* left, s16* right) {
+	void splitMono16(s16 *data, int size, s16 *left, s16 *right) {
 		for (int i = 0; i < size; ++i) {
 			left[i] = data[i];
 			right[i] = data[i];
@@ -108,11 +106,11 @@ Sound::Sound(Reader &file, const char *filename) : left(0), right(0), size(0), l
 
 void Sound::load(Reader &file, const char *filename) {
 	size_t filenameLength = strlen(filename);
-	u8* data = nullptr;
+	u8 *data = nullptr;
 
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
-		u8* filedata = (u8*)file.readAll();
-		int samples = stb_vorbis_decode_memory(filedata, file.size(), &format.channels, &format.samplesPerSecond, (short**)&data);
+		u8 *filedata = (u8 *)file.readAll();
+		int samples = stb_vorbis_decode_memory(filedata, file.size(), &format.channels, &format.samplesPerSecond, (short **)&data);
 		size = samples * 2 * format.channels;
 		format.bitsPerSample = 16;
 		length = samples / (float)format.samplesPerSecond;
@@ -120,8 +118,8 @@ void Sound::load(Reader &file, const char *filename) {
 	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
 		WaveData wave = {0};
 		{
-			u8* filedata = (u8*)file.readAll();
-			u8* data = filedata;
+			u8 *filedata = (u8 *)file.readAll();
+			u8 *data = filedata;
 
 			checkFOURCC(data, "RIFF", filename);
 			u32 filesize = Reader::readU32LE(data);
@@ -153,7 +151,7 @@ void Sound::load(Reader &file, const char *filename) {
 			size /= 2;
 			left = new s16[size];
 			right = new s16[size];
-			splitMono16((s16*)data, size, left, right);
+			splitMono16((s16 *)data, size, left, right);
 		}
 		else {
 			assert(false);
@@ -171,7 +169,7 @@ void Sound::load(Reader &file, const char *filename) {
 			size /= 4;
 			left = new s16[size];
 			right = new s16[size];
-			splitStereo16((s16*)data, size, left, right);
+			splitStereo16((s16 *)data, size, left, right);
 		}
 		else {
 			assert(false);

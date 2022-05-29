@@ -3,10 +3,10 @@ name: HTML5 (WebGL)
 on:
   push:
     branches:
-    - master
+    - main
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   build:
@@ -14,14 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Get Submodules
-      run: git submodule update --init --recursive
-    - name: Get Node.js
-      run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
-    - name: Setup Node.js
-      run: nodejs_bin/copysysbin.sh
-    - name: Compile (kincmake)
-      run: nodejs_bin/node make.js html5 --kinc . --from Tests/Empty --noshaders
+      run: ./get_dlc
+    - name: Compile (kmake)
+      run: ./make html5 --kinc . --from Tests/Empty
     - name: Compile (emscripten)
       run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ../build/Release && make

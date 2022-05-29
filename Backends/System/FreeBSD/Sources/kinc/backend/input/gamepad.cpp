@@ -1,5 +1,3 @@
-#include "../pch.h"
-
 #include "gamepad.h"
 
 #include <kinc/input/gamepad.h>
@@ -86,10 +84,10 @@ namespace {
 			kinc_internal_gamepad_trigger_button(idx, e.number, e.value);
 			break;
 		case JS_EVENT_AXIS: {
-            float value = e.number % 2 == 0 ? e.value : -e.value;
-            kinc_internal_gamepad_trigger_axis(idx, e.number, value / 32767.0f);
-            break;
-        }
+			float value = e.number % 2 == 0 ? e.value : -e.value;
+			kinc_internal_gamepad_trigger_axis(idx, e.number, value / 32767.0f);
+			break;
+		}
 		default:
 			break;
 		}
@@ -98,7 +96,6 @@ namespace {
 	const int gamepadCount = 12;
 	HIDGamepad gamepads[gamepadCount];
 }
-
 
 void Kore::initHIDGamepads() {
 	for (int i = 0; i < gamepadCount; ++i) {
@@ -112,21 +109,18 @@ void Kore::updateHIDGamepads() {
 	}
 }
 
-void Kore::closeHIDGamepads() {
-}
+void Kore::closeHIDGamepads() {}
 
 const char *kinc_gamepad_vendor(int gamepad) {
-    return "Linux gamepad";
+	return "Linux gamepad";
 }
 
 const char *kinc_gamepad_product_name(int gamepad) {
-    return gamepads[gamepad].name;
+	return gamepads[gamepad].name;
 }
 
 bool kinc_gamepad_connected(int gamepad) {
 	return gamepads[gamepad].connected;
 }
 
-void kinc_gamepad_rumble(int gamepad, float left, float right) {
-	
-}
+void kinc_gamepad_rumble(int gamepad, float left, float right) {}

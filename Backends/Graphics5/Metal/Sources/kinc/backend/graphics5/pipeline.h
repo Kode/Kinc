@@ -1,18 +1,16 @@
 #pragma once
 
-#include <objc/runtime.h>
-
 struct kinc_g5_shader;
 
 typedef struct {
 	struct kinc_g5_shader *vertexShader;
 	struct kinc_g5_shader *fragmentShader;
-	id _pipeline;
-	id _pipelineDepth;
-	id _reflection;
-	id _depthStencil;
-	id _depthStencilNone;
-	//void _set();
+	void *_pipeline;
+	void *_pipelineDepth;
+	void *_reflection;
+	void *_depthStencil;
+	void *_depthStencilNone;
+	// void _set();
 } PipelineState5Impl;
 
 typedef struct {

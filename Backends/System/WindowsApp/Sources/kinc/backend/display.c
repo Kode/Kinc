@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/display.h>
 
 int kinc_primary_display() {

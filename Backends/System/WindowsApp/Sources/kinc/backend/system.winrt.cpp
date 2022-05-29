@@ -1,15 +1,11 @@
-#include "pch.h"
-
-#include <kinc/backend/graphics4/Direct3D11.h>
-
+#include <kinc/graphics4/graphics.h>
 #include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 #include <kinc/system.h>
 #include <kinc/threads/thread.h>
+#include <kinc/video.h>
 #include <kinc/window.h>
-
-#include <kinc/backend/Hololens.winrt.h>
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -27,37 +23,61 @@
 #include <Xinput.h>
 #endif
 
+#include <d3d11_1.h>
+#include <d3d11_4.h>
+#include <dxgi1_5.h>
+#include <wrl.h>
+
+#ifdef KORE_WINDOWSAPP
+using namespace ::Microsoft::WRL;
+using namespace Windows::UI::Core;
+using namespace Windows::Foundation;
+#ifdef KORE_HOLOLENS
+using namespace Windows::Graphics::Holographic;
+using namespace Windows::Graphics::DirectX::Direct3D11;
+#endif
+#endif
+
+extern "C" IUnknown *kinc_winapp_internal_get_window(void) {
+	return reinterpret_cast<IUnknown *>(CoreWindow::GetForCurrentThread());
+}
+
+extern "C" void kinc_internal_uwp_installed_location_path(char *path) {
+	Platform::String ^ locationString = Windows::ApplicationModel::Package::Current->InstalledLocation->Path;
+	WideCharToMultiByte(CP_UTF8, 0, locationString->Begin(), -1, path, 1000, nullptr, nullptr);
+}
+
 ref class Win8Application sealed : public Windows::ApplicationModel::Core::IFrameworkView {
 public:
 	Win8Application();
-	virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView);
-	virtual void SetWindow(Windows::UI::Core::CoreWindow^ window);
-	virtual void Load(Platform::String^ entryPoint);
+	virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView ^ applicationView);
+	virtual void SetWindow(Windows::UI::Core::CoreWindow ^ window);
+	virtual void Load(Platform::String ^ entryPoint);
 	virtual void Run();
 	virtual void Uninitialize();
 
 protected:
-	void OnWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args);
+	void OnWindowSizeChanged(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::WindowSizeChangedEventArgs ^ args);
 	// void OnLogicalDpiChanged(Platform::Object^ sender);
-	void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs^ args);
-	void OnSuspending(Platform::Object^ sender, Windows::ApplicationModel::SuspendingEventArgs^ args);
-	void OnResuming(Platform::Object^ sender, Platform::Object^ args);
-	void OnWindowClosed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::CoreWindowEventArgs^ args);
-	void OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
-	void OnPointerReleased(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
-	void OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
+	void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView ^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs ^ args);
+	void OnSuspending(Platform::Object ^ sender, Windows::ApplicationModel::SuspendingEventArgs ^ args);
+	void OnResuming(Platform::Object ^ sender, Platform::Object ^ args);
+	void OnWindowClosed(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::CoreWindowEventArgs ^ args);
+	void OnPointerPressed(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args);
+	void OnPointerReleased(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args);
+	void OnPointerMoved(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args);
 
 private:
 	// CubeRenderer^ m_renderer;
 	// Windows::ApplicationModel::Core::CoreApplicationView^ view;
 	bool closed;
-	void OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
-	void OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
+	void OnKeyDown(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs ^ args);
+	void OnKeyUp(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs ^ args);
 };
 
 ref class Win8ApplicationSource : Windows::ApplicationModel::Core::IFrameworkViewSource {
 public:
-	virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView();
+	virtual Windows::ApplicationModel::Core::IFrameworkView ^ CreateView();
 };
 
 namespace {
@@ -74,11 +94,11 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
-const char* kinc_gamepad_vendor(int gamepad) {
+const char *kinc_gamepad_vendor(int gamepad) {
 	return "Microsoft";
 }
 
-const char* kinc_gamepad_product_name(int gamepad) {
+const char *kinc_gamepad_product_name(int gamepad) {
 	return "Xbox 360 Controller";
 }
 
@@ -136,7 +156,7 @@ bool kinc_internal_handle_messages(void) {
 	return true;
 }
 
-//Kore::vec2i Kore::System::mousePos() {
+// Kore::vec2i Kore::System::mousePos() {
 //	return vec2i(mouseX, mouseY);
 //}
 
@@ -145,7 +165,7 @@ bool kinc_internal_handle_messages(void) {
 int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
 	kinc_window_options_t defaultWin;
 	if (win == NULL) {
-		kinc_internal_init_window_options(&defaultWin);
+		kinc_window_options_set_defaults(&defaultWin);
 		win = &defaultWin;
 	}
 	win->width = width;
@@ -153,11 +173,12 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 
 	kinc_framebuffer_options_t defaultFrame;
 	if (frame == NULL) {
-		kinc_internal_init_framebuffer_options(&defaultFrame);
+		kinc_framebuffer_options_set_defaults(&defaultFrame);
 		frame = &defaultFrame;
 	}
 
-	kinc_g4_init(0, frame->depth_bits, frame->stencil_bits, true);
+	kinc_g4_internal_init();
+	kinc_g4_internal_init_window(0, frame->depth_bits, frame->stencil_bits, true);
 	return 0;
 }
 
@@ -194,19 +215,16 @@ const char *kinc_language() {
 	return "en";
 }
 
-extern int renderTargetWidth;
-extern int renderTargetHeight;
-
 Win8Application::Win8Application() : closed(false) {}
 
-void Win8Application::Initialize(CoreApplicationView^ applicationView) {
+void Win8Application::Initialize(CoreApplicationView ^ applicationView) {
 	applicationView->Activated += ref new TypedEventHandler<CoreApplicationView ^, IActivatedEventArgs ^>(this, &Win8Application::OnActivated);
 	CoreApplication::Suspending += ref new EventHandler<SuspendingEventArgs ^>(this, &Win8Application::OnSuspending);
 	CoreApplication::Resuming += ref new EventHandler<Platform::Object ^>(this, &Win8Application::OnResuming);
 	// m_renderer = ref new CubeRenderer();
 }
 
-void Win8Application::SetWindow(CoreWindow^ window) {
+void Win8Application::SetWindow(CoreWindow ^ window) {
 	window->SizeChanged += ref new TypedEventHandler<CoreWindow ^, WindowSizeChangedEventArgs ^>(this, &Win8Application::OnWindowSizeChanged);
 	window->Closed += ref new TypedEventHandler<CoreWindow ^, CoreWindowEventArgs ^>(this, &Win8Application::OnWindowClosed);
 	window->PointerPressed += ref new TypedEventHandler<CoreWindow ^, PointerEventArgs ^>(this, &Win8Application::OnPointerPressed);
@@ -219,20 +237,15 @@ void Win8Application::SetWindow(CoreWindow^ window) {
 	// m_renderer->Initialize(CoreWindow::GetForCurrentThread());
 
 #ifdef KORE_HOLOLENS
-	//Create holographics space - needs to be created before window is activated
+	// Create holographics space - needs to be created before window is activated
 	holographicFrameController = std::make_unique<HolographicFrameController>(window);
 
 	// create video frame processor
-	VideoFrameProcessor::createAsync()
-		.then([this](std::shared_ptr<VideoFrameProcessor> videoProcessor)
-	{
-		videoFrameProcessor = std::move(videoProcessor);
-	});
+	VideoFrameProcessor::createAsync().then([this](std::shared_ptr<VideoFrameProcessor> videoProcessor) { videoFrameProcessor = std::move(videoProcessor); });
 #endif
-
 }
 
-void Win8Application::Load(Platform::String^ entryPoint) {}
+void Win8Application::Load(Platform::String ^ entryPoint) {}
 
 void Win8Application::Run() {
 	// BasicTimer^ timer = ref new BasicTimer();
@@ -248,46 +261,51 @@ void Win8Application::Run() {
 
 void Win8Application::Uninitialize() {}
 
+int kinc_uwp_window_width;
+int kinc_uwp_window_height;
+
 extern "C" void kinc_internal_resize(int window, int width, int height);
 
-void Win8Application::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args) {
+void Win8Application::OnWindowSizeChanged(CoreWindow ^ sender, WindowSizeChangedEventArgs ^ args) {
+	kinc_uwp_window_width = (int)args->Size.Width;
+	kinc_uwp_window_height = (int)args->Size.Height;
 	kinc_internal_resize(0, (int)args->Size.Width, (int)args->Size.Height);
 }
 
-void Win8Application::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args) {
+void Win8Application::OnWindowClosed(CoreWindow ^ sender, CoreWindowEventArgs ^ args) {
 	closed = true;
 }
 
-void Win8Application::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args) {
+void Win8Application::OnActivated(CoreApplicationView ^ applicationView, IActivatedEventArgs ^ args) {
 	CoreWindow::GetForCurrentThread()->Activate();
 }
 
-void Win8Application::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args) {
+void Win8Application::OnSuspending(Platform::Object ^ sender, SuspendingEventArgs ^ args) {
 	// SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
 	// deferral->Complete();
 }
 
 void Win8Application::OnResuming(Platform::Object ^ sender, Platform::Object ^ args) {}
 
-void Win8Application::OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
+void Win8Application::OnPointerPressed(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
 	kinc_internal_mouse_trigger_press(0, 0, mouseX, mouseY);
 }
 
-void Win8Application::OnPointerReleased(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
+void Win8Application::OnPointerReleased(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
 	kinc_internal_mouse_trigger_release(0, 0, mouseX, mouseY);
 }
 
-void Win8Application::OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args) {
+void Win8Application::OnPointerMoved(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::PointerEventArgs ^ args) {
 	mouseX = static_cast<int>(args->CurrentPoint->Position.X);
 	mouseY = static_cast<int>(args->CurrentPoint->Position.Y);
 	kinc_internal_mouse_trigger_move(0, mouseX, mouseY);
 }
 
-void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args) {
+void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs ^ args) {
 	switch (args->VirtualKey) {
 	case Windows::System::VirtualKey::Left:
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_LEFT);
@@ -312,7 +330,7 @@ void Win8Application::OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::
 	}
 }
 
-void Win8Application::OnKeyUp(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs^ args) {
+void Win8Application::OnKeyUp(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::KeyEventArgs ^ args) {
 	switch (args->VirtualKey) {
 	case Windows::System::VirtualKey::Left:
 		kinc_internal_keyboard_trigger_key_up(KINC_KEY_LEFT);
@@ -350,7 +368,7 @@ const char *kinc_system_id() {
 }
 
 namespace {
-	const char* videoFormats[] = {"ogv", nullptr};
+	const char *videoFormats[] = {"ogv", nullptr};
 }
 
 const char **kinc_video_formats() {
@@ -358,48 +376,42 @@ const char **kinc_video_formats() {
 }
 
 int kinc_window_width(int window_index) {
-	return renderTargetWidth;
+	return kinc_uwp_window_width;
 }
 
 int kinc_window_height(int window_index) {
-	return renderTargetHeight;
+	return kinc_uwp_window_height;
 }
 
 double kinc_frequency() {
 	kinc_ticks_t rate;
-	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&rate));
+	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER *>(&rate));
 	return (double)rate;
 }
 
-void kinc_internal_shutdown() {
-
-}
+void kinc_internal_shutdown() {}
 
 static kinc_ticks_t start_stamp;
 
 kinc_ticks_t kinc_timestamp() {
 	kinc_ticks_t stamp;
-	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&stamp));
+	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER *>(&stamp));
 	return stamp - start_stamp;
 }
 
-void kinc_login() {
+void kinc_login() {}
 
-}
-
-void kinc_unlock_achievement(int id) {
-	
-}
+void kinc_unlock_achievement(int id) {}
 
 bool kinc_gamepad_connected(int num) {
 	return true;
 }
 
-void kinc_gamepad_rumble(int gamepad, float left, float right) {
-	
+void kinc_gamepad_rumble(int gamepad, float left, float right){
+
 }
 
-[Platform::MTAThread] int main(Platform::Array<Platform::String ^> ^) {
+    [Platform::MTAThread] int main(Platform::Array<Platform::String ^> ^) {
 	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER *>(&start_stamp));
 	CoreApplication::Run(ref new Win8ApplicationSource);
 	return 0;

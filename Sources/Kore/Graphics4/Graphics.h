@@ -35,7 +35,7 @@ namespace Kore {
 
 		class IndexBuffer {
 		public:
-			IndexBuffer(int count);
+			IndexBuffer(int count, Usage usage = StaticUsage);
 			virtual ~IndexBuffer();
 			int *lock();
 			void unlock();
@@ -68,7 +68,7 @@ namespace Kore {
 			ConservativeRasterization
 		};
 
-		enum BlendingOperation {
+		enum BlendingFactor {
 			BlendOne,
 			BlendZero,
 			SourceAlpha,
@@ -80,6 +80,8 @@ namespace Kore {
 			InverseSourceColor,
 			InverseDestinationColor
 		};
+
+		enum BlendingOperation { BlendOpAdd, BlendOpSubtract, BlendOpReverseSubtract, BlendOpMin, BlendOpMax };
 
 		enum ZCompareMode {
 			ZCompareAlways,
@@ -195,7 +197,6 @@ namespace Kore {
 		void setTexture3DMipmapFilter(TextureUnit texunit, MipmapFilter filter);
 		void setTextureCompareMode(TextureUnit texunit, bool enabled);
 		void setCubeMapCompareMode(TextureUnit texunit, bool enabled);
-		void setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2);
 		int maxBoundTextures();
 
 		bool nonPow2TexturesSupported();
@@ -212,9 +213,6 @@ namespace Kore {
 		const uint ClearStencilFlag = 4;
 
 		void clear(uint flags, uint color = 0, float depth = 1.0f, int stencil = 0);
-
-		void init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync = true);
-		void destroy(int windowId);
 
 		extern bool fullscreen;
 

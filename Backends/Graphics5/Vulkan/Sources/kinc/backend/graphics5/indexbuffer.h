@@ -4,8 +4,8 @@
 
 typedef struct {
 	int *data;
-	int myCount;
-	unsigned bufferId;
+	int count;
+	int format;
 
 	VkBuffer buf;
 	VkDeviceMemory mem;

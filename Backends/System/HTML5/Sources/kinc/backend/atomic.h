@@ -7,3 +7,7 @@
 #define KINC_ATOMIC_INCREMENT(pointer)
 
 #define KINC_ATOMIC_DECREMENT(pointer)
+
+#define KINC_ATOMIC_EXCHANGE_32(pointer, value)
+
+#define KINC_ATOMIC_EXCHANGE_FLOAT(pointer, value)

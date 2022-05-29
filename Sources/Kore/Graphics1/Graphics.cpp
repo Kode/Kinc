@@ -1,31 +1,28 @@
-#include "pch.h"
-
 #include "Graphics.h"
 
 #include <Kore/Graphics4/Graphics.h>
 #include <Kore/Graphics4/PipelineState.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/IO/FileReader.h>
-#include <Kore/IO/FileReader.h>
 #include <limits>
 
 using namespace Kore;
 
 namespace {
-	Graphics4::Shader* vertexShader;
-	Graphics4::Shader* fragmentShader;
-	Graphics4::PipelineState* pipeline;
+	Graphics4::Shader *vertexShader;
+	Graphics4::Shader *fragmentShader;
+	Graphics4::PipelineState *pipeline;
 	Graphics4::TextureUnit tex;
-	Graphics4::VertexBuffer* vb;
-	Graphics4::IndexBuffer* ib;
-	Graphics4::Texture* texture;
-	int* image;
+	Graphics4::VertexBuffer *vb;
+	Graphics4::IndexBuffer *ib;
+	Graphics4::Texture *texture;
+	int *image;
 	int w, h;
 }
 
 void Graphics1::begin() {
 	Graphics4::begin();
-	image = (int*)texture->lock();
+	image = (int *)texture->lock();
 }
 
 void Graphics1::setPixel(int x, int y, float red, float green, float blue) {
@@ -71,7 +68,7 @@ void Graphics1::init(int width, int height) {
 	tex = pipeline->getTextureUnit("tex");
 
 	texture = new Graphics4::Texture(width, height, Image::RGBA32, false);
-	image = (int*)texture->lock();
+	image = (int *)texture->lock();
 	for (int y = 0; y < texture->texHeight; ++y) {
 		for (int x = 0; x < texture->texWidth; ++x) {
 			image[y * texture->texWidth + x] = 0;
@@ -84,7 +81,7 @@ void Graphics1::init(int width, int height) {
 	float yAspect = (float)texture->height / texture->texHeight;
 
 	vb = new Graphics4::VertexBuffer(4, structure, Kore::Graphics4::StaticUsage, 0);
-	float* v = vb->lock();
+	float *v = vb->lock();
 	{
 		int i = 0;
 		v[i++] = -1;
@@ -111,7 +108,7 @@ void Graphics1::init(int width, int height) {
 	vb->unlock();
 
 	ib = new Graphics4::IndexBuffer(6);
-	int* ii = ib->lock();
+	int *ii = ib->lock();
 	{
 		int i = 0;
 		ii[i++] = 0;

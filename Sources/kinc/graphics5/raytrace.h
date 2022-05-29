@@ -1,6 +1,12 @@
 #pragma once
 
-#ifdef KORE_RAYTRACE
+/*! \file raytrace.h
+    \brief Preliminary API, requires some actual D3D12/Vulkan code to fill in
+    the acceleration-structure and pipeline-details. Also requires manually
+    compiled shaders. Use with caution.
+*/
+
+#include <kinc/global.h>
 
 #include <kinc/backend/graphics5/raytrace.h>
 
@@ -40,6 +46,4 @@ KINC_FUNC void kinc_raytrace_copy(struct kinc_g5_command_list *command_list, str
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

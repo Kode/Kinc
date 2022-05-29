@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Graphics/Shader.h>
 #include <Kore/IndexBufferImpl.h>
 #include <Kore/Log.h>
@@ -27,8 +25,6 @@ void Graphics::flush() {}
 
 void Graphics::setColorMask(bool red, bool green, bool blue, bool alpha) {}
 
-void Graphics::setTextureOperation(TextureOperation operation, TextureArgument arg1, TextureArgument arg2) {}
-
 void Graphics::setTextureMagnificationFilter(TextureUnit texunit, TextureFilterType filter) {}
 
 void Graphics::setTextureMinificationFilter(TextureUnit texunit, TextureFilterType filter) {}
@@ -39,19 +35,19 @@ void Graphics::makeCurrent(int contextId) {}
 
 void Graphics::clearCurrent() {}
 
-void Graphics::setRenderTarget(RenderTarget* target, int num, int additionalTargets) {}
+void Graphics::setRenderTarget(RenderTarget *target, int num, int additionalTargets) {}
 
-void Graphics::setRenderTargetFace(RenderTarget* texture, int face) {}
+void Graphics::setRenderTargetFace(RenderTarget *texture, int face) {}
 
 void Graphics::restoreRenderTarget() {}
 
 void Graphics::drawIndexedVertices() {
-	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
+	FRHICommandListImmediate &commandList = GRHICommandList.GetImmediateCommandList();
 	commandList.DrawIndexedPrimitive(IndexBufferImpl::_current->indexBuffer, PT_TriangleList, 0, 0, 3, 0, 1, 1);
 }
 
 void Graphics::drawIndexedVertices(int start, int count) {
-	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
+	FRHICommandListImmediate &commandList = GRHICommandList.GetImmediateCommandList();
 	commandList.DrawIndexedPrimitive(IndexBufferImpl::_current->indexBuffer, PT_TriangleList, 0, 0, 3, 0, 1, 1);
 }
 
@@ -102,7 +98,7 @@ void Graphics::setBool(ConstantLocation position, bool value) {}
 void Graphics::setInt(ConstantLocation position, int value) {}
 
 void Graphics::setFloat(ConstantLocation position, float value) {
-	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
+	FRHICommandListImmediate &commandList = GRHICommandList.GetImmediateCommandList();
 	TShaderMapRef<FVertexShaderExample> VertexShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
 	commandList.SetShaderParameter(VertexShader->GetVertexShader(), position.parameter.GetBufferIndex(), position.parameter.GetBaseIndex(), 4, &value);
 }
@@ -113,19 +109,19 @@ void Graphics::setFloat3(ConstantLocation position, float value1, float value2, 
 
 void Graphics::setFloat4(ConstantLocation position, float value1, float value2, float value3, float value4) {}
 
-void Graphics::setFloats(ConstantLocation location, float* values, int count) {}
+void Graphics::setFloats(ConstantLocation location, float *values, int count) {}
 
-void Graphics::setFloat4s(ConstantLocation location, float* values, int count) {}
+void Graphics::setFloat4s(ConstantLocation location, float *values, int count) {}
 
-void Graphics::setMatrix(ConstantLocation location, const mat4& value) {
-	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
+void Graphics::setMatrix(ConstantLocation location, const mat4 &value) {
+	FRHICommandListImmediate &commandList = GRHICommandList.GetImmediateCommandList();
 	TShaderMapRef<FVertexShaderExample> VertexShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
 	mat4 value2 = value.Transpose();
 	commandList.SetShaderParameter(VertexShader->GetVertexShader(), location.parameter.GetBufferIndex(), location.parameter.GetBaseIndex(), 4 * 16, value.data);
 }
 
-void Graphics::setMatrix(ConstantLocation location, const mat3& value) {
-	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
+void Graphics::setMatrix(ConstantLocation location, const mat3 &value) {
+	FRHICommandListImmediate &commandList = GRHICommandList.GetImmediateCommandList();
 	TShaderMapRef<FVertexShaderExample> VertexShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
 	mat3 value2 = value.Transpose();
 	float floats[12];
@@ -145,19 +141,19 @@ bool Graphics::nonPow2TexturesSupported() {
 	return true;
 }
 
-void Graphics::setVertexBuffers(VertexBuffer** buffers, int count) {
+void Graphics::setVertexBuffers(VertexBuffer **buffers, int count) {
 	buffers[0]->_set();
 }
 
-void Graphics::setIndexBuffer(IndexBuffer& buffer) {
+void Graphics::setIndexBuffer(IndexBuffer &buffer) {
 	buffer._set();
 }
 
-void Graphics::setTexture(TextureUnit unit, Texture* texture) {
+void Graphics::setTexture(TextureUnit unit, Texture *texture) {
 	texture->_set(unit);
 }
 
-bool Graphics::initOcclusionQuery(uint* occlusionQuery) {
+bool Graphics::initOcclusionQuery(uint *occlusionQuery) {
 	return false;
 }
 
@@ -169,4 +165,4 @@ bool Graphics::isQueryResultsAvailable(uint occlusionQuery) {
 	return false;
 }
 
-void Graphics::getQueryResults(uint occlusionQuery, uint* pixelCount) {}
+void Graphics::getQueryResults(uint occlusionQuery, uint *pixelCount) {}

@@ -5,10 +5,10 @@
 
 class CameraImage {
 public:
-	CameraImage(int imageHeight, int imageWidth, int* imageBGRA8Data, Kore::mat4 cameraViewTransform, Kore::mat4 cameraProjectionTransform,
+	CameraImage(int imageHeight, int imageWidth, int *imageBGRA8Data, Kore::mat4 cameraViewTransform, Kore::mat4 cameraProjectionTransform,
 	            Kore::vec2 focalLength);
 	~CameraImage();
-	int* imageBGRA8Data;
+	int *imageBGRA8Data;
 	int imageWidth, imageHeight;
 
 	// in world (root) coordinate  system
@@ -16,6 +16,6 @@ public:
 	Kore::mat4 cameraProjectionTransform;
 	Kore::vec2 focalLength;
 
-	void getWorldRayForPixelPosition(Kore::vec2 pixelPosition, Kore::vec3& origin, Kore::vec3& direction); // origin at camera pos
+	void getWorldRayForPixelPosition(Kore::vec2 pixelPosition, Kore::vec3 &origin, Kore::vec3 &direction); // origin at camera pos
 	Kore::vec2 getPixelForWorldPosition(Kore::vec3 worldPos);
 };

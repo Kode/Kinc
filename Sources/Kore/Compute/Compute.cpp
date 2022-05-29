@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Compute.h"
 
 #include <string.h>
@@ -20,7 +18,7 @@ ComputeConstantLocation ComputeShader::getConstantLocation(const char *name) {
 	return location;
 }
 
-ComputeTextureUnit ComputeShader::getTextureUnit(const char* name) {
+ComputeTextureUnit ComputeShader::getTextureUnit(const char *name) {
 	ComputeTextureUnit unit;
 	unit.kincImpl = kinc_compute_shader_get_texture_unit(&kincImpl, name);
 	return unit;
@@ -76,11 +74,11 @@ void Compute::setFloat4(ComputeConstantLocation location, float value1, float va
 	kinc_compute_set_float4(location.kincImpl, value1, value2, value3, value4);
 }
 
-void Compute::setFloats(ComputeConstantLocation location, float* values, int count) {
+void Compute::setFloats(ComputeConstantLocation location, float *values, int count) {
 	kinc_compute_set_floats(location.kincImpl, values, count);
 }
 
-void Compute::setMatrix(ComputeConstantLocation location, const mat4& value) {
+void Compute::setMatrix(ComputeConstantLocation location, const mat4 &value) {
 	kinc_matrix4x4_t matrix;
 	memcpy(&matrix.m, value.data, sizeof(float) * 4 * 4);
 	kinc_compute_set_matrix4(location.kincImpl, &matrix);
@@ -93,28 +91,28 @@ void Compute::setMatrix(ComputeConstantLocation location, const mat3 &value) {
 }
 
 #ifdef KORE_OPENGL
-void Compute::setBuffer(ShaderStorageBuffer* buffer, int index) {
+void Compute::setBuffer(ShaderStorageBuffer *buffer, int index) {
 	kinc_compute_set_buffer(&buffer->kincImpl, index);
 }
 #endif
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture* texture, Compute::Access access) {
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::Texture *texture, Compute::Access access) {
 	kinc_compute_set_texture(unit.kincImpl, &texture->kincTexture, (kinc_compute_access_t)access);
 }
 
-void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* texture, Compute::Access access) {
+void Compute::setTexture(ComputeTextureUnit unit, Graphics4::RenderTarget *texture, Compute::Access access) {
 	kinc_compute_set_render_target(unit.kincImpl, &texture->kincRenderTarget, (kinc_compute_access_t)access);
 }
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture* texture) {
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::Texture *texture) {
 	kinc_compute_set_sampled_texture(unit.kincImpl, &texture->kincTexture);
 }
 
-void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+void Compute::setSampledTexture(ComputeTextureUnit unit, Graphics4::RenderTarget *target) {
 	kinc_compute_set_sampled_render_target(unit.kincImpl, &target->kincRenderTarget);
 }
 
-void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget* target) {
+void Compute::setSampledDepthTexture(ComputeTextureUnit unit, Graphics4::RenderTarget *target) {
 	kinc_compute_set_sampled_depth_from_render_target(unit.kincImpl, &target->kincRenderTarget);
 }
 
@@ -150,7 +148,7 @@ void Compute::setTexture3DMipmapFilter(ComputeTextureUnit unit, Graphics4::Mipma
 	kinc_compute_set_texture3d_mipmap_filter(unit.kincImpl, (kinc_g4_mipmap_filter_t)filter);
 }
 
-void Compute::setShader(ComputeShader* shader) {
+void Compute::setShader(ComputeShader *shader) {
 	kinc_compute_set_shader(&shader->kincImpl);
 }
 

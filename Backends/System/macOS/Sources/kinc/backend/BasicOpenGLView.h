@@ -5,8 +5,6 @@
 #import <OpenGL/CGLContext.h>
 #import <OpenGL/OpenGL.h>
 #import <OpenGL/gl.h>
-#import <OpenGL/gl.h>
-#import <OpenGL/glext.h>
 #import <OpenGL/glext.h>
 #import <OpenGL/glu.h>
 #endif
@@ -35,27 +33,27 @@ struct kinc_g5_render_target;
 #endif
 
 #ifdef KORE_METAL
-- (CAMetalLayer*)metalLayer;
+- (CAMetalLayer *)metalLayer;
 - (id<MTLDevice>)metalDevice;
 - (id<MTLLibrary>)metalLibrary;
 - (id<MTLCommandQueue>)metalQueue;
 #else
 - (void)prepareOpenGL;
 - (void)switchBuffers;
-+ (NSOpenGLPixelFormat*)basicPixelFormat;
++ (NSOpenGLPixelFormat *)basicPixelFormat;
 #endif
 
-- (void)keyDown:(NSEvent*)theEvent;
-- (void)keyUp:(NSEvent*)theEvent;
+- (void)keyDown:(NSEvent *)theEvent;
+- (void)keyUp:(NSEvent *)theEvent;
 
-- (void)mouseDown:(NSEvent*)theEvent;
-- (void)mouseUp:(NSEvent*)theEvent;
-- (void)mouseMoved:(NSEvent*)theEvent;
-- (void)mouseDragged:(NSEvent*)theEvent;
-- (void)rightMouseDown:(NSEvent*)theEvent;
-- (void)rightMouseUp:(NSEvent*)theEvent;
-- (void)rightMouseDragged:(NSEvent*)theEvent;
-- (void)scrollWheel:(NSEvent*)theEvent;
+- (void)mouseDown:(NSEvent *)theEvent;
+- (void)mouseUp:(NSEvent *)theEvent;
+- (void)mouseMoved:(NSEvent *)theEvent;
+- (void)mouseDragged:(NSEvent *)theEvent;
+- (void)rightMouseDown:(NSEvent *)theEvent;
+- (void)rightMouseUp:(NSEvent *)theEvent;
+- (void)rightMouseDragged:(NSEvent *)theEvent;
+- (void)scrollWheel:(NSEvent *)theEvent;
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender;
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender;
 

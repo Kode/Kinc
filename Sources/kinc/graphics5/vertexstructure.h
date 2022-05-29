@@ -1,6 +1,12 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/graphics4/vertexstructure.h>
+
+/*! \file vertexstructure.h
+    \brief Provides types for setting up the structure of vertices in a vertex-buffer.
+*/
 
 #ifdef __cplusplus
 extern "C" {

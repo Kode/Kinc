@@ -1,5 +1,5 @@
 #include "ogl.h"
-#include "pch.h"
+
 #include <Kore/Graphics3/Graphics.h>
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Log.h>
@@ -19,7 +19,7 @@ namespace Kore {
 ProgramImpl::ProgramImpl()
     : textureCount(0), vertexShader(nullptr), fragmentShader(nullptr), geometryShader(nullptr), tessellationEvaluationShader(nullptr),
       tessellationControlShader(nullptr) {
-	textures = new const char*[16];
+	textures = new const char *[16];
 	textureValues = new int[16];
 }
 
@@ -32,27 +32,27 @@ ProgramImpl::~ProgramImpl() {
 	glDeleteProgram(programId);
 }
 
-void Graphics4::Program::setVertexShader(Shader* shader) {
+void Graphics4::Program::setVertexShader(Shader *shader) {
 	vertexShader = shader;
 }
 
-void Graphics4::Program::setFragmentShader(Shader* shader) {
+void Graphics4::Program::setFragmentShader(Shader *shader) {
 	fragmentShader = shader;
 }
 
-void Graphics4::Program::setGeometryShader(Shader* shader) {
+void Graphics4::Program::setGeometryShader(Shader *shader) {
 #ifndef OPENGLES
 	geometryShader = shader;
 #endif
 }
 
-void Graphics4::Program::setTessellationControlShader(Shader* shader) {
+void Graphics4::Program::setTessellationControlShader(Shader *shader) {
 #ifndef OPENGLES
 	tessellationControlShader = shader;
 #endif
 }
 
-void Graphics4::Program::setTessellationEvaluationShader(Shader* shader) {
+void Graphics4::Program::setTessellationEvaluationShader(Shader *shader) {
 #ifndef OPENGLES
 	tessellationEvaluationShader = shader;
 #endif
@@ -77,10 +77,10 @@ namespace {
 		}
 	}
 
-	void compileShader(uint& id, char* source, int length, Graphics4::ShaderType type) {
+	void compileShader(uint &id, char *source, int length, Graphics4::ShaderType type) {
 		id = glCreateShader(toGlShader(type));
 		glCheckErrors();
-		glShaderSource(id, 1, (const GLchar**)&source, 0);
+		glShaderSource(id, 1, (const GLchar **)&source, 0);
 		glCompileShader(id);
 
 		int result;
@@ -88,7 +88,7 @@ namespace {
 		if (result != GL_TRUE) {
 			int length;
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-			char* errormessage = new char[length];
+			char *errormessage = new char[length];
 			glGetShaderInfoLog(id, length, nullptr, errormessage);
 			printf("GLSL compiler error: %s\n", errormessage);
 			delete[] errormessage;
@@ -96,7 +96,7 @@ namespace {
 	}
 }
 
-void Graphics4::Program::link(VertexStructure** structures, int count) {
+void Graphics4::Program::link(VertexStructure **structures, int count) {
 	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
 #ifndef OPENGLES
@@ -138,7 +138,7 @@ void Graphics4::Program::link(VertexStructure** structures, int count) {
 	if (result != GL_TRUE) {
 		int length;
 		glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length);
-		char* errormessage = new char[length];
+		char *errormessage = new char[length];
 		glGetProgramInfoLog(programId, length, nullptr, errormessage);
 		printf("GLSL linker error: %s\n", errormessage);
 		delete[] errormessage;
@@ -147,9 +147,9 @@ void Graphics4::Program::link(VertexStructure** structures, int count) {
 #ifndef KORE_OPENGL_ES
 #ifndef KORE_LINUX
 /*	if (tessellationControlShader != nullptr) {
-        glPatchParameteri(GL_PATCH_VERTICES, 3);
-        glCheckErrors();
-    }*/
+	    glPatchParameteri(GL_PATCH_VERTICES, 3);
+	    glCheckErrors();
+	}*/
 #endif
 #endif
 }
@@ -166,7 +166,7 @@ void Graphics4::Program::set() {
 	}
 }
 
-Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* name) {
+Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char *name) {
 	ConstantLocation location;
 	location.location = glGetUniformLocation(programId, name);
 	glCheckErrors();
@@ -176,14 +176,14 @@ Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char* 
 	return location;
 }
 
-int ProgramImpl::findTexture(const char* name) {
+int ProgramImpl::findTexture(const char *name) {
 	for (int index = 0; index < textureCount; ++index) {
 		if (strcmp(textures[index], name) == 0) return index;
 	}
 	return -1;
 }
 
-Graphics4::TextureUnit Graphics4::Program::getTextureUnit(const char* name) {
+Graphics4::TextureUnit Graphics4::Program::getTextureUnit(const char *name) {
 	int index = findTexture(name);
 	if (index < 0) {
 		int location = glGetUniformLocation(programId, name);

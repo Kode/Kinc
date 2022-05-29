@@ -1,6 +1,5 @@
 #if 0
 #include "VrInterface.h"
-#include "pch.h"
 
 #ifdef VR_GEAR_VR
 

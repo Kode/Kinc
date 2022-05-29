@@ -8,7 +8,6 @@ typedef struct {
 	int count;
 	int lockStart;
 	int lockCount;
-	float* vertices;
+	float *vertices;
 	int usage;
-		
 } kinc_g4_vertex_buffer_impl_t;

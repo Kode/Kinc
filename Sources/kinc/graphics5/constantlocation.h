@@ -1,8 +1,12 @@
 #pragma once
 
-#include "pch.h"
+#include <kinc/global.h>
 
-#include <kinc/backend/graphics5/shader.h>
+#include <kinc/backend/graphics5/pipeline.h>
+
+/*! \file constantlocation.h
+    \brief Provides the constant_location-struct which is used for setting constants/uniforms in a shader.
+*/
 
 #ifdef __cplusplus
 extern "C" {

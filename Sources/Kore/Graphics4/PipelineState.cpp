@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "PipelineState.h"
 #include <Kore/Graphics4/Graphics.h>
 
@@ -30,10 +28,10 @@ Graphics4::PipelineState::PipelineState() {
 
 	blendSource = BlendOne;
 	blendDestination = BlendZero;
-	// blendOperation = BlendingOperation.Add;
+	blendOperation = BlendOpAdd;
 	alphaBlendSource = BlendOne;
 	alphaBlendDestination = BlendZero;
-	// alphaBlendOperation = BlendingOperation.Add;
+	alphaBlendOperation = BlendOpAdd;
 
 	for (int i = 0; i < 8; ++i) colorWriteMaskRed[i] = true;
 	for (int i = 0; i < 8; ++i) colorWriteMaskGreen[i] = true;
@@ -87,10 +85,12 @@ void Graphics4::PipelineState::compile() {
 	kincPipeline.stencil_read_mask = stencilReadMask;
 	kincPipeline.stencil_write_mask = stencilWriteMask;
 
-	kincPipeline.blend_source = (kinc_g4_blending_operation_t)blendSource;
-	kincPipeline.blend_destination = (kinc_g4_blending_operation_t)blendDestination;
-	kincPipeline.alpha_blend_source = (kinc_g4_blending_operation_t)alphaBlendSource;
-	kincPipeline.alpha_blend_destination = (kinc_g4_blending_operation_t)alphaBlendDestination;
+	kincPipeline.blend_source = (kinc_g4_blending_factor_t)blendSource;
+	kincPipeline.blend_destination = (kinc_g4_blending_factor_t)blendDestination;
+	kincPipeline.blend_operation = (kinc_g4_blending_operation_t)blendOperation;
+	kincPipeline.alpha_blend_source = (kinc_g4_blending_factor_t)alphaBlendSource;
+	kincPipeline.alpha_blend_destination = (kinc_g4_blending_factor_t)alphaBlendDestination;
+	kincPipeline.alpha_blend_operation = (kinc_g4_blending_operation_t)alphaBlendOperation;
 
 	kincPipeline.color_attachment_count = colorAttachmentCount;
 
@@ -116,7 +116,7 @@ Graphics4::ConstantLocation Graphics4::PipelineState::getConstantLocation(const 
 	return location;
 }
 
-Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char* name) {
+Graphics4::TextureUnit Graphics4::PipelineState::getTextureUnit(const char *name) {
 	Graphics4::TextureUnit unit;
 	unit.kincUnit = kinc_g4_pipeline_get_texture_unit(&kincPipeline, name);
 	return unit;

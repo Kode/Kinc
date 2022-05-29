@@ -1,12 +1,12 @@
 #include "GlRendererTemplate.h"
-#include "pch.h"
+
 #include <Kore/Application.h>
 
 GlRendererTemplate::GlRendererTemplate(void) : __controlWidth(0), __controlHeight(0), __angle(0) {}
 
 GlRendererTemplate::~GlRendererTemplate(void) {}
 
-extern int kore(int argc, char** argv);
+extern int kore(int argc, char **argv);
 
 bool GlRendererTemplate::InitializeGl(void) {
 	kore(0, nullptr);

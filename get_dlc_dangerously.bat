@@ -1,0 +1,1 @@
+@git -C %~dp0 submodule update --init --remote Tools/windows_x64

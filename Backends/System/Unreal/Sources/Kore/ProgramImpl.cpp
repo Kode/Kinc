@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Graphics/Shader.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
@@ -23,21 +21,21 @@ Program::Program() {
 	fragmentShader = nullptr;
 }
 
-void Program::setVertexShader(Shader* shader) {
+void Program::setVertexShader(Shader *shader) {
 	vertexShader = shader;
 }
 
-void Program::setFragmentShader(Shader* shader) {
+void Program::setFragmentShader(Shader *shader) {
 	fragmentShader = shader;
 }
 
-void Program::setGeometryShader(Shader* shader) {}
+void Program::setGeometryShader(Shader *shader) {}
 
-void Program::setTessellationControlShader(Shader* shader) {}
+void Program::setTessellationControlShader(Shader *shader) {}
 
-void Program::setTessellationEvaluationShader(Shader* shader) {}
+void Program::setTessellationEvaluationShader(Shader *shader) {}
 
-void Program::link(VertexStructure** structures, int count) {
+void Program::link(VertexStructure **structures, int count) {
 	uint stride = 0;
 	for (int i = 0; i < structures[0]->size; ++i) {
 		switch (structures[0]->elements[i].data) {
@@ -85,18 +83,18 @@ void Program::set() {
 	static FGlobalBoundShaderState shaderState;
 	TShaderMapRef<FVertexShaderExample> VertexShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
 	TShaderMapRef<FPixelShaderDeclaration> PixelShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
-	FRHICommandListImmediate& commandList = GRHICommandList.GetImmediateCommandList();
+	FRHICommandListImmediate &commandList = GRHICommandList.GetImmediateCommandList();
 	SetGlobalBoundShaderState(commandList, ERHIFeatureLevel::SM5, shaderState, _vertexDeclaration, *VertexShader, *PixelShader);
 }
 
-ConstantLocation Program::getConstantLocation(const char* name) {
+ConstantLocation Program::getConstantLocation(const char *name) {
 	ConstantLocation location = ConstantLocation();
 	TShaderMapRef<FVertexShaderExample> VertexShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
 	location.parameter.Bind(VertexShader->parameters, ANSI_TO_TCHAR(name));
 	return location;
 }
 
-TextureUnit Program::getTextureUnit(const char* name) {
+TextureUnit Program::getTextureUnit(const char *name) {
 	TextureUnit unit = TextureUnit();
 	TShaderMapRef<FPixelShaderDeclaration> PixelShader(GetGlobalShaderMap(ERHIFeatureLevel::SM5));
 	unit.parameter.Bind(PixelShader->parameters, ANSI_TO_TCHAR(name));

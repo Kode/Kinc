@@ -1,8 +1,6 @@
 
 #ifdef KORE_G4
 
-#include "pch.h"
-
 #include "Graphics.h"
 #include "PipelineState.h"
 
@@ -110,14 +108,6 @@ void Graphics4::scissor(int x, int y, int width, int height) {
 
 void Graphics4::disableScissor() {
 	kinc_g4_disable_scissor();
-}
-
-void Graphics4::init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
-	kinc_g4_init(windowId, depthBufferBits, stencilBufferBits, vsync);
-}
-
-void Graphics4::destroy(int windowId) {
-	kinc_g4_destroy(windowId);
 }
 
 void Graphics4::setTexture(Graphics4::TextureUnit unit, Graphics4::Texture *texture) {

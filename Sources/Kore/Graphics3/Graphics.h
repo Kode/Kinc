@@ -2,6 +2,8 @@
 
 #ifndef KORE_G4
 
+#include <Kore/global.h>
+
 #include "Light.h"
 #include <Kore/Graphics1/Color.h>
 #include <Kore/Graphics1/Image.h>
@@ -18,10 +20,10 @@ namespace Kore {
 
 		class VertexBuffer : public VertexBufferImpl {
 		public:
-			VertexBuffer(int count, const Graphics4::VertexStructure& structure, int instanceDataStepRate = 0);
+			VertexBuffer(int count, const Graphics4::VertexStructure &structure, int instanceDataStepRate = 0);
 			virtual ~VertexBuffer();
-			float* lock();
-			float* lock(int start, int count);
+			float *lock();
+			float *lock(int start, int count);
 			void unlock();
 			int count();
 			int stride();
@@ -32,7 +34,7 @@ namespace Kore {
 		public:
 			IndexBuffer(int count);
 			virtual ~IndexBuffer();
-			int* lock();
+			int *lock();
 			void unlock();
 			int count();
 			void _set();
@@ -156,7 +158,7 @@ namespace Kore {
 			int contextId;
 			void useColorAsTexture(TextureUnit unit);
 			void useDepthAsTexture(TextureUnit unit);
-			void setDepthStencilFrom(RenderTarget* source);
+			void setDepthStencilFrom(RenderTarget *source);
 		};
 
 		// Shader constants not supported in OpenGL 1.X
@@ -175,20 +177,20 @@ namespace Kore {
 
 		// Fixed-function features (OpenGL 1.X) {
 
-		void setLight(Light* light, int num = 0);
+		void setLight(Light *light, int num = 0);
 
-		void setFogColor(const Graphics1::Color& color);
+		void setFogColor(const Graphics1::Color &color);
 
-		void setViewMatrix(const mat4& value);
-		void setWorldMatrix(const mat4& value);
-		void setProjectionMatrix(const mat4& value);
+		void setViewMatrix(const mat4 &value);
+		void setWorldMatrix(const mat4 &value);
+		void setProjectionMatrix(const mat4 &value);
 
 		// } /Fixed-function features
 
-		void setVertexBuffer(VertexBuffer& vertexBuffer);
-		void setVertexBuffers(VertexBuffer** vertexBuffers, int count);
-		void setIndexBuffer(IndexBuffer& indexBuffer);
-		void setTexture(TextureUnit unit, Texture* texture);
+		void setVertexBuffer(VertexBuffer &vertexBuffer);
+		void setVertexBuffers(VertexBuffer **vertexBuffers, int count);
+		void setIndexBuffer(IndexBuffer &indexBuffer);
+		void setTexture(TextureUnit unit, Texture *texture);
 
 		void drawIndexedVertices();
 		void drawIndexedVertices(int start, int count);
@@ -204,7 +206,7 @@ namespace Kore {
 		void setAntialiasingSamples(int samples);
 
 		bool renderTargetsInvertedY();
-		void setRenderTarget(RenderTarget* texture, int num = 0, int additionalTargets = 0);
+		void setRenderTarget(RenderTarget *texture, int num = 0, int additionalTargets = 0);
 		void restoreRenderTarget();
 
 		// TODO (DK) windowId should be renamed contextId?
@@ -225,7 +227,7 @@ namespace Kore {
 
 		// Fixed-function material states (OpenGL 1.X) {
 
-		void setMaterialState(MaterialState state, const vec4& value);
+		void setMaterialState(MaterialState state, const vec4 &value);
 		void setMaterialState(MaterialState state, float value);
 		void setTextureMapping(TextureUnit texunit, TextureMapping mapping, bool on);
 		void setTexCoordGeneration(TextureUnit texunit, TextureCoordinate texcoord, TexCoordGeneration generation);

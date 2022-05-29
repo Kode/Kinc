@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Gamepad.h"
 
 #include <kinc/input/gamepad.h>
@@ -25,13 +23,13 @@ namespace {
 	}
 }
 
-Gamepad* Gamepad::get(int num) {
+Gamepad *Gamepad::get(int num) {
 	if (num >= maxGamepads) {
 		return nullptr;
 	}
 	if (!callbacksInitialized) {
-		kinc_gamepad_axis_callback = axisCallback;
-		kinc_gamepad_button_callback = buttonCallback;
+		kinc_gamepad_set_axis_callback(axisCallback);
+		kinc_gamepad_set_button_callback(buttonCallback);
 	}
 	if (!padInitialized[num]) {
 		pads[num].vendor = kinc_gamepad_vendor(num);

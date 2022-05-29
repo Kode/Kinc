@@ -1,6 +1,6 @@
 #include "RenderTargetImpl.h"
 #include "ogl.h"
-#include "pch.h"
+
 #include <Kore/Graphics3/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
@@ -228,7 +228,7 @@ void Graphics3::RenderTarget::useDepthAsTexture(TextureUnit unit) {
 	glCheckErrors();
 }
 
-void Graphics3::RenderTarget::setDepthStencilFrom(RenderTarget* source) {
+void Graphics3::RenderTarget::setDepthStencilFrom(RenderTarget *source) {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, source->_depthTexture, 0);
 }

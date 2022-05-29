@@ -1,23 +1,41 @@
 #pragma once
 
-#include <kinc/graphics4/graphics.h>
-
-#define NOMINMAX
-
-#ifdef KORE_WINDOWSAPP
-#include <d3d11_1.h>
-#else
-#pragma warning(disable : 4005)
 #include <d3d11.h>
-#endif
+#include <dxgi.h>
+#include <stdbool.h>
 
-extern ID3D11Device* device;
-extern ID3D11DeviceContext* context;
-extern ID3D11RenderTargetView* renderTargetView;
-extern ID3D11DepthStencilView* depthStencilView;
-extern ID3D11Texture2D* backBuffer;
-extern Kore::u8 vertexConstants[1024 * 4];
-extern Kore::u8 fragmentConstants[1024 * 4];
-extern Kore::u8 geometryConstants[1024 * 4];
-extern Kore::u8 tessControlConstants[1024 * 4];
-extern Kore::u8 tessEvalConstants[1024 * 4];
+#define MAXIMUM_WINDOWS 16
+
+struct dx_window {
+	HWND hwnd;
+	IDXGISwapChain *swapChain;
+	ID3D11Texture2D *backBuffer;
+	ID3D11RenderTargetView *renderTargetView;
+	ID3D11Texture2D *depthStencil;
+	ID3D11DepthStencilView *depthStencilView;
+
+	int width;
+	int height;
+
+	int new_width;
+	int new_height;
+
+	bool vsync;
+	int depth_bits;
+	int stencil_bits;
+};
+
+struct dx_context {
+	ID3D11Device *device;
+	ID3D11DeviceContext *context;
+	IDXGIDevice *dxgiDevice;
+	IDXGIAdapter *dxgiAdapter;
+	IDXGIFactory *dxgiFactory;
+
+	int current_window;
+	struct dx_window windows[MAXIMUM_WINDOWS];
+};
+
+extern struct dx_context dx_ctx;
+
+#include <kinc/backend/SystemMicrosoft.h>

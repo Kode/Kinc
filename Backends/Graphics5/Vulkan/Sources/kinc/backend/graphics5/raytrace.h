@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef KORE_VKRT
+#ifndef KORE_ANDROID
 
 #include "MiniVulkan.h"
 
@@ -13,7 +13,9 @@ typedef struct {
 	VkPipelineLayout pipeline_layout;
 	VkDescriptorSet descriptor_set;
 	VkDescriptorSetLayout descriptor_set_layout;
-	VkBuffer shader_binding_table;
+	VkBuffer raygen_shader_binding_table;
+	VkBuffer miss_shader_binding_table;
+	VkBuffer hit_shader_binding_table;
 } kinc_raytrace_pipeline_impl_t;
 
 typedef struct {

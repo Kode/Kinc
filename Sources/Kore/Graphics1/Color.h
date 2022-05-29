@@ -1,11 +1,13 @@
 #pragma once
 
+#include <Kore/global.h>
+
 namespace Kore {
 	namespace Graphics1 {
 		class Color {
 
 		private:
-			void getColorFromHex(uint color, float& red, float& green, float& blue, float& alpha);
+			void getColorFromHex(uint color, float &red, float &green, float &blue, float &alpha);
 
 		public:
 			Color(uint color);

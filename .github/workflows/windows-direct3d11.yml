@@ -3,21 +3,29 @@ name: Windows (Direct3D 11)
 on:
   push:
     branches:
-    - master
+    - main
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   build:
 
     runs-on: windows-latest
-    
+
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Get Submodules
-      run: git submodule update --init --recursive
-    - name: Get Node.js
-      run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
+      run: .\get_dlc.bat
     - name: Compile
-      run: .\nodejs_bin\node.exe make.js -g direct3d11 --kinc . --from Tests/Empty --noshaders --compile
+      run: .\make.bat -v vs2022 -g direct3d11 --kinc . --from Tests/Empty --compile
+    - name: Get ImageMagick
+      run: |
+        choco install -y imagemagick.app --no-progress
+        Get-ChildItem -Path "${env:ProgramFiles}" | Where-Object {($_.Name -Like 'ImageMagick*')} | % { $_.FullName } | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+    - name: Compile and run Test 1
+      run: .\make.bat -v vs2022 -g direct3d11 --kinc . --from Tests/Shader --run
+    - name: Check Test 1
+      run: magick compare -metric mae .\Tests\Shader\reference.png .\Tests\Shader\Deployment\test.png difference.png
+    - name: Compile and run Test 2 (SIMD)
+      run: .\make.bat -v vs2022 --kinc . --from Tests/SIMD --compile --run

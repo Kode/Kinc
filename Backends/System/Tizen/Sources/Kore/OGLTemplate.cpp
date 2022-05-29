@@ -21,12 +21,12 @@ OGLTemplateApp::OGLTemplateApp(void) {}
 
 OGLTemplateApp::~OGLTemplateApp(void) {}
 
-UiApp* OGLTemplateApp::CreateInstance(void) {
+UiApp *OGLTemplateApp::CreateInstance(void) {
 	// Create the instance through the constructor.
 	return new OGLTemplateApp();
 }
 
-bool OGLTemplateApp::OnAppInitializing(AppRegistry& appRegistry) {
+bool OGLTemplateApp::OnAppInitializing(AppRegistry &appRegistry) {
 	// TODO:
 	// Initialize Frame and App specific data.
 	// The App's permanent data and context can be obtained from the appRegistry.
@@ -47,7 +47,7 @@ bool OGLTemplateApp::OnAppInitialized(void) {
 	// Add code to do after initialization here.
 
 	// Create a Frame
-	OGLTemplateFrame* pOGLTemplateFrame = new OGLTemplateFrame();
+	OGLTemplateFrame *pOGLTemplateFrame = new OGLTemplateFrame();
 	pOGLTemplateFrame->Construct();
 	pOGLTemplateFrame->SetName(L"OGLTemplate");
 	// pOGLTemplateFrame->SetOrientation(ORIENTATION_LANDSCAPE);	// To set orientation
@@ -81,7 +81,7 @@ bool OGLTemplateApp::OnAppWillTerminate(void) {
 	return true;
 }
 
-bool OGLTemplateApp::OnAppTerminating(AppRegistry& appRegistry, bool forcedTermination) {
+bool OGLTemplateApp::OnAppTerminating(AppRegistry &appRegistry, bool forcedTermination) {
 	// TODO:
 	// Deallocate resources allocated by this App for termination.
 	// The App's permanent data and context can be saved via appRegistry.
@@ -141,11 +141,11 @@ void OGLTemplateApp::OnScreenOff(void) {
 	if (__audioOut.GetState() == AUDIOOUT_STATE_PLAYING) __audioOut.Stop();
 }
 
-void OGLTemplateApp::OnKeyPressed(const Control& source, KeyCode keyCode) {
+void OGLTemplateApp::OnKeyPressed(const Control &source, KeyCode keyCode) {
 	// TODO:
 }
 
-void OGLTemplateApp::OnKeyReleased(const Control& source, KeyCode keyCode) {
+void OGLTemplateApp::OnKeyReleased(const Control &source, KeyCode keyCode) {
 	// TODO:
 
 	if (keyCode == Tizen::Ui::KEY_BACK || keyCode == Tizen::Ui::KEY_ESC) {
@@ -153,21 +153,21 @@ void OGLTemplateApp::OnKeyReleased(const Control& source, KeyCode keyCode) {
 	}
 }
 
-void OGLTemplateApp::OnKeyLongPressed(const Control& source, KeyCode keyCode) {
+void OGLTemplateApp::OnKeyLongPressed(const Control &source, KeyCode keyCode) {
 	// TODO:
 }
 
-void OGLTemplateApp::OnTouchMoved(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition, const Tizen::Ui::TouchEventInfo& touchInfo) {
+void OGLTemplateApp::OnTouchMoved(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition, const Tizen::Ui::TouchEventInfo &touchInfo) {
 	Kore::Mouse::the()->_move(Kore::MouseEvent(currentPosition.x, currentPosition.y));
 }
 
-void OGLTemplateApp::OnTouchPressed(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition,
-                                    const Tizen::Ui::TouchEventInfo& touchInfo) {
+void OGLTemplateApp::OnTouchPressed(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition,
+                                    const Tizen::Ui::TouchEventInfo &touchInfo) {
 	Kore::Mouse::the()->_pressLeft(Kore::MouseEvent(currentPosition.x, currentPosition.y));
 }
 
-void OGLTemplateApp::OnTouchReleased(const Tizen::Ui::Control& source, const Tizen::Graphics::Point& currentPosition,
-                                     const Tizen::Ui::TouchEventInfo& touchInfo) {
+void OGLTemplateApp::OnTouchReleased(const Tizen::Ui::Control &source, const Tizen::Graphics::Point &currentPosition,
+                                     const Tizen::Ui::TouchEventInfo &touchInfo) {
 	Kore::Mouse::the()->_releaseLeft(Kore::MouseEvent(currentPosition.x, currentPosition.y));
 }
 
@@ -200,13 +200,13 @@ void OGLTemplateApp::StopAudio(void) {
 	__audioOut.Unprepare();
 }
 
-void OGLTemplateApp::OnAudioOutBufferEndReached(Tizen::Media::AudioOut& src) {
+void OGLTemplateApp::OnAudioOutBufferEndReached(Tizen::Media::AudioOut &src) {
 	writeAudio();
 	__audioOut.WriteBuffer(__buffer);
 }
 
 void OGLTemplateApp::copySample() {
-	float value = *(float*)&Audio::buffer.data[Audio::buffer.readLocation];
+	float value = *(float *)&Audio::buffer.data[Audio::buffer.readLocation];
 	Audio::buffer.readLocation += 4;
 	if (Audio::buffer.readLocation >= Audio::buffer.dataSize) Audio::buffer.readLocation = 0;
 	__buffer.SetShort(static_cast<s16>(value * 32767));

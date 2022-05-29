@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "TextureImpl.h"
 #include "ogl.h"
 
@@ -135,7 +133,7 @@ namespace {
 			if (pow(power) >= i) return pow(power);
 	}
 
-	void convertImageToPow2(Graphics3::Image::Format format, u8* from, int fw, int fh, u8* to, int tw, int th) {
+	void convertImageToPow2(Graphics3::Image::Format format, u8 *from, int fw, int fh, u8 *to, int tw, int th) {
 		switch (format) {
 		case Graphics3::Image::RGBA32:
 			for (int y = 0; y < th; ++y) {
@@ -171,7 +169,7 @@ namespace {
 	}
 }
 
-void Graphics3::Texture::init(const char* format, bool readable) {
+void Graphics3::Texture::init(const char *format, bool readable) {
 	bool toPow2;
 	if (Graphics3::nonPow2TexturesSupported()) {
 		texWidth = width;
@@ -184,7 +182,7 @@ void Graphics3::Texture::init(const char* format, bool readable) {
 		toPow2 = !(texWidth == width && texHeight == height);
 	}
 
-	u8* conversionBuffer = nullptr;
+	u8 *conversionBuffer = nullptr;
 
 	if (compressed) {
 #if defined(KORE_IOS)
@@ -199,7 +197,7 @@ void Graphics3::Texture::init(const char* format, bool readable) {
 	}
 	else if (toPow2) {
 		conversionBuffer = new u8[texWidth * texHeight * sizeOf(this->format)];
-		convertImageToPow2(this->format, (u8*)data, width, height, conversionBuffer, texWidth, texHeight);
+		convertImageToPow2(this->format, (u8 *)data, width, height, conversionBuffer, texWidth, texHeight);
 	}
 
 #ifdef KORE_ANDROID
@@ -274,7 +272,7 @@ Graphics3::Texture::Texture(int width, int height, Image::Format format, bool re
 		texHeight = getPower2(height);
 	}
 #endif
-// conversionBuffer = new u8[texWidth * texHeight * 4];
+	// conversionBuffer = new u8[texWidth * texHeight * 4];
 
 #ifdef KORE_ANDROID
 	external_oes = false;
@@ -359,8 +357,8 @@ int Graphics3::Texture::stride() {
 	return width * sizeOf(format);
 }
 
-u8* Graphics3::Texture::lock() {
-	return (u8*)data;
+u8 *Graphics3::Texture::lock() {
+	return (u8 *)data;
 }
 
 /*void Texture::unlock() {
@@ -407,7 +405,7 @@ void Graphics3::Texture::clear(int x, int y, int z, int width, int height, int d
 }
 
 #ifdef KORE_IOS
-void Texture::upload(u8* data) {
+void Texture::upload(u8 *data) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glCheckErrors();
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, convertFormat(format), GL_UNSIGNED_BYTE, data);
@@ -423,7 +421,7 @@ void Graphics3::Texture::generateMipmaps(int levels) {
 	glCheckErrors();
 }
 
-void Graphics3::Texture::setMipmap(Texture* mipmap, int level) {
+void Graphics3::Texture::setMipmap(Texture *mipmap, int level) {
 	int convertedType = convertType(mipmap->format);
 	bool isHdr = convertedType == GL_FLOAT;
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;

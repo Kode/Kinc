@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Socket.h"
 
 #include <Kore/Log.h>
@@ -56,16 +54,16 @@ bool Socket::connect(unsigned address, int port) {
 	return kinc_socket_connect(&sock, address, port);
 }
 
-void Socket::send(unsigned address, int port, const uint8_t *data, int size) {
-	kinc_socket_send(&sock, address, port, data, size);
+int Socket::send(unsigned address, int port, const uint8_t *data, int size) {
+	return kinc_socket_send(&sock, address, port, data, size);
 }
 
-void Socket::send(const char *url, int port, const uint8_t *data, int size) {
-	kinc_socket_send_url(&sock, url, port, data, size);
+int Socket::send(const char *url, int port, const uint8_t *data, int size) {
+	return kinc_socket_send_url(&sock, url, port, data, size);
 }
 
-void Socket::send(const uint8_t *data, int size) {
-	kinc_socket_send_connected(&sock, data, size);
+int Socket::send(const uint8_t *data, int size) {
+	return kinc_socket_send_connected(&sock, data, size);
 }
 
 int Socket::receive(uint8_t *data, int maxSize, unsigned &fromAddress, unsigned &fromPort) {

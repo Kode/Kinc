@@ -1,19 +1,13 @@
-#include "pch.h"
-
 #include "Thread.h"
 
 #include <kinc/threads/thread.h>
 
-void Kore::threadsInit() {
-	
-}
+void Kore::threadsInit() {}
 
-void Kore::threadsQuit() {
-	
-}
+void Kore::threadsQuit() {}
 
-Kore::Thread *Kore::createAndRunThread(void(*func)(void *param), void *param) {
-	Kore::Thread* thread = new Kore::Thread;
+Kore::Thread *Kore::createAndRunThread(void (*func)(void *param), void *param) {
+	Kore::Thread *thread = new Kore::Thread;
 	kinc_thread_init(&thread->thread, func, param);
 	return thread;
 }

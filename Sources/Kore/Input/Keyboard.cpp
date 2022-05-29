@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Keyboard.h"
 
 using namespace Kore;
@@ -27,11 +25,11 @@ namespace {
 	}
 }
 
-Keyboard* Keyboard::the() {
+Keyboard *Keyboard::the() {
 	if (!initialized) {
-		kinc_keyboard_key_down_callback = down;
-		kinc_keyboard_key_up_callback = up;
-		kinc_keyboard_key_press_callback = press;
+		kinc_keyboard_set_key_down_callback(down);
+		kinc_keyboard_set_key_up_callback(up);
+		kinc_keyboard_set_key_press_callback(press);
 		initialized = true;
 	}
 	return &keyboard;

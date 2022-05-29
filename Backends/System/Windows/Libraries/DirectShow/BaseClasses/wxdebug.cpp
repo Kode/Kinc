@@ -28,6 +28,14 @@
 #include <tchar.h>
 #include <strsafe.h>
 
+#ifndef max
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+
 #ifdef DEBUG
 static void DisplayBITMAPINFO(const BITMAPINFOHEADER* pbmi);
 static void DisplayRECT(LPCTSTR szLabel, const RECT& rc);

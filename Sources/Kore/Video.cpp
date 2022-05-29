@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Video.h>
 
 using namespace Kore;
@@ -12,8 +10,8 @@ Video::~Video() {
 	kinc_video_destroy(&video);
 }
 
-void Video::play() {
-	kinc_video_play(&video);
+void Video::play(bool loop) {
+	kinc_video_play(&video, loop);
 }
 
 void Video::pause() {

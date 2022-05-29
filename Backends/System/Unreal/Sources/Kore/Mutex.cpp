@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Error.h>
 #include <Kore/Threads/Mutex.h>
 
@@ -13,7 +11,7 @@ void Mutex::lock() {}
 
 void Mutex::unlock() {}
 
-bool UberMutex::create(const wchar_t* name) {
+bool UberMutex::create(const wchar_t *name) {
 	return false;
 }
 

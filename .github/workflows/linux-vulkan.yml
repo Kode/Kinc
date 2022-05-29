@@ -3,10 +3,10 @@ name: Linux (Vulkan)
 on:
   push:
     branches:
-    - master
+    - main
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   build:
@@ -14,16 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+    - name: Get LunarG key
+      run: wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+    - name: Get LunarG apt sources
+      run: sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-bionic.list http://packages.lunarg.com/vulkan/lunarg-vulkan-bionic.list
     - name: Apt Update
-      run: sudo apt-get update
+      run: sudo apt update
     - name: Apt Install
-      run: sudo apt-get install libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libudev-dev libvulkan-dev --yes --quiet
+      run: sudo apt install libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libudev-dev vulkan-sdk libwayland-dev wayland-protocols libxkbcommon-dev --yes --quiet
     - name: Get Submodules
-      run: git submodule update --init --recursive
-    - name: Get Node.js
-      run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
-    - name: Setup Node.js
-      run: nodejs_bin/copysysbin.sh
+      run: ./get_dlc
     - name: Compile
-      run: nodejs_bin/node make.js -g vulkan --kinc . --from Tests/Empty --noshaders --compile
+      run: ./make -g vulkan --kinc . --from Tests/Empty --compile

@@ -3,10 +3,10 @@ name: Windows (Direct3D 9)
 on:
   push:
     branches:
-    - master
+    - main
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   build:
@@ -14,10 +14,10 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Get Submodules
-      run: git submodule update --init --recursive
-    - name: Get Node.js
-      run: git clone https://github.com/Kode/nodejs_bin.git --depth 1
+      run: .\get_dlc.bat
+    - name: Install DirectX
+      run: choco install -y directx --no-progress
     - name: Compile
-      run: .\nodejs_bin\node.exe make.js -g direct3d9 -a directsound --kinc . --from Tests/Empty --noshaders --compile
+      run: .\make.bat -v vs2022 -g direct3d9 -a directsound --kinc . --from Tests/Empty --compile

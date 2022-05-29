@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <kinc/display.h>
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/pipeline.h>
@@ -93,7 +91,8 @@ namespace {
 	}
 }
 
-void kinc_g4_destroy(int window) {}
+void kinc_g4_internal_destroy_window(int window) {}
+void kinc_g4_internal_destroy() {}
 
 extern "C" void kinc_internal_resize(int width, int height) {
 	if (!resizable) {
@@ -131,7 +130,9 @@ extern "C" void kinc_internal_resize(int width, int height) {
 
 extern "C" void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
 
-void kinc_g4_init(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
+void kinc_g4_internal_init() {}
+
+void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	bool fullscreen = kinc_window_get_mode(windowId) == KINC_WINDOW_MODE_FULLSCREEN || kinc_window_get_mode(windowId) == KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN;
 
 	d3d = Direct3DCreate9(D3D_SDK_VERSION);
@@ -265,38 +266,6 @@ namespace {
 			return D3DTEXF_NONE;
 		}
 	}
-
-	_D3DTEXTUREOP convert(kinc_g4_texture_operation_t operation) {
-		switch (operation) {
-		case KINC_G4_TEXTURE_OPERATION_MODULATE:
-			return D3DTOP_MODULATE;
-		case KINC_G4_TEXTURE_OPERATION_SELECT_FIRST:
-			return D3DTOP_SELECTARG1;
-		case KINC_G4_TEXTURE_OPERATION_SELECT_SECOND:
-			return D3DTOP_SELECTARG2;
-		default:
-			//	throw Exception("Unknown texture operation.");
-			return D3DTOP_MODULATE;
-		}
-	}
-
-	int convert(kinc_g4_texture_argument_t arg) {
-		switch (arg) {
-		case KINC_G4_TEXTURE_ARGUMENT_CURRENT_COLOR:
-			return D3DTA_CURRENT;
-		case KINC_G4_TEXTURE_ARGUMENT_TEXTURE_COLOR:
-			return D3DTA_TEXTURE;
-		default:
-			//	throw Exception("Unknown texture argument.");
-			return D3DTA_CURRENT;
-		}
-	}
-}
-
-void kinc_g4_set_texture_operation(kinc_g4_texture_operation_t operation, kinc_g4_texture_argument_t arg1, kinc_g4_texture_argument_t arg2) {
-	device->SetTextureStageState(0, D3DTSS_COLOROP, convert(operation));
-	device->SetTextureStageState(0, D3DTSS_COLORARG1, convert(arg1));
-	device->SetTextureStageState(0, D3DTSS_COLORARG2, convert(arg2));
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -325,7 +294,23 @@ void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
 
+void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {}
+
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
+
+void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {}
+
+void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
+	device->SetSamplerState(unit.impl.unit, D3DSAMP_MAXANISOTROPY, max_anisotropy);
+}
+
+void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {}
+
+void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
+	// device->SetSamplerState(unit.impl.unit, D3DSAMP_, );
+}
+
+void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {}
 
 void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets, int count) {
 	// if (backBuffer != nullptr) backBuffer->Release();

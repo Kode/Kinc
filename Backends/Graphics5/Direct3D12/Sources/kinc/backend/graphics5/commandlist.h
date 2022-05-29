@@ -15,7 +15,7 @@ typedef struct {
 	struct kinc_g5_pipeline *_currentPipeline;
 	int _indexCount;
 	bool closed;
-	unsigned long long currentFenceValue;
+	unsigned long long current_fence_value;
 } CommandList5Impl;
 
 #ifdef __cplusplus

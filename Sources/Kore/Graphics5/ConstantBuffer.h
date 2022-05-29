@@ -1,12 +1,12 @@
 #pragma once
 
-#include <kinc/graphics5/constantbuffer.h>
 #include <Kore/Math/Matrix.h>
 #include <Kore/Math/Vector.h>
+#include <kinc/graphics5/constantbuffer.h>
 
 namespace Kore {
 	namespace Graphics5 {
-		class ConstantBuffer : public ConstantBuffer5Impl {
+		class ConstantBuffer {
 		public:
 			ConstantBuffer(int size);
 			~ConstantBuffer();
@@ -24,12 +24,11 @@ namespace Kore {
 			void setFloat3(int offset, vec3 value);
 			void setFloat4(int offset, float value1, float value2, float value3, float value4);
 			void setFloat4(int offset, vec4 value);
-			void setFloats(int offset, float* values, int count);
-			void setMatrix(int offset, const mat3& value);
-			void setMatrix(int offset, const mat4& value);
+			void setFloats(int offset, float *values, int count);
+			void setMatrix(int offset, const mat3 &value);
+			void setMatrix(int offset, const mat4 &value);
 
-		private:
-			u8* data;
+			kinc_g5_constant_buffer_t kincBuffer;
 		};
 	}
 }

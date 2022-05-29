@@ -1,10 +1,16 @@
 #pragma once
 
+#include <kinc/global.h>
+
 #include <kinc/graphics4/constantlocation.h>
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics4/textureunit.h>
 
 #include <kinc/backend/graphics4/pipeline.h>
+
+/*! \file pipeline.h
+    \brief Provides functions for creating and using pipelines which configure the GPU for rendering.
+*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +30,14 @@ typedef enum {
 	KINC_G4_BLEND_DEST_COLOR,
 	KINC_G4_BLEND_INV_SOURCE_COLOR,
 	KINC_G4_BLEND_INV_DEST_COLOR
+} kinc_g4_blending_factor_t;
+
+typedef enum {
+	KINC_G4_BLENDOP_ADD,
+	KINC_G4_BLENDOP_SUBTRACT,
+	KINC_G4_BLENDOP_REVERSE_SUBTRACT,
+	KINC_G4_BLENDOP_MIN,
+	KINC_G4_BLENDOP_MAX
 } kinc_g4_blending_operation_t;
 
 typedef enum {
@@ -78,12 +92,12 @@ typedef struct kinc_g4_pipeline {
 	int stencil_write_mask;
 
 	// One, Zero deactivates blending
-	kinc_g4_blending_operation_t blend_source;
-	kinc_g4_blending_operation_t blend_destination;
-	// BlendingOperation blendOperation;
-	kinc_g4_blending_operation_t alpha_blend_source;
-	kinc_g4_blending_operation_t alpha_blend_destination;
-	// BlendingOperation alphaBlendOperation;
+	kinc_g4_blending_factor_t blend_source;
+	kinc_g4_blending_factor_t blend_destination;
+	kinc_g4_blending_operation_t blend_operation;
+	kinc_g4_blending_factor_t alpha_blend_source;
+	kinc_g4_blending_factor_t alpha_blend_destination;
+	kinc_g4_blending_operation_t alpha_blend_operation;
 
 	bool color_write_mask_red[8]; // Per render target
 	bool color_write_mask_green[8];
@@ -101,11 +115,40 @@ typedef struct kinc_g4_pipeline {
 	kinc_g4_pipeline_impl_t impl;
 } kinc_g4_pipeline_t;
 
-KINC_FUNC void kinc_g4_pipeline_init(kinc_g4_pipeline_t *state);
-KINC_FUNC void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *state);
-KINC_FUNC void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state);
-KINC_FUNC kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *state, const char *name);
-KINC_FUNC kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name);
+/// <summary>
+/// Initializes a pipeline.
+/// </summary>
+/// <param name="state">The pipeline to initialize</param>
+KINC_FUNC void kinc_g4_pipeline_init(kinc_g4_pipeline_t *pipeline);
+
+/// <summary>
+/// Destroys a pipeline.
+/// </summary>
+/// <param name="pipeline">The pipeline to destroy</param>
+KINC_FUNC void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *pipeline);
+
+/// <summary>
+/// Compiles a pipeline. After a pipeline was compiled it is finalized. It can not be compiled again and changes to the pipeline are ignored after it was
+/// compiled.
+/// </summary>
+/// <param name="pipeline">The pipeline to compile</param>
+KINC_FUNC void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *pipeline);
+
+/// <summary>
+/// Searches for a constant/uniform and returns a constant-location which can be used to change the constant/uniform.
+/// </summary>
+/// <param name="pipeline">The pipeline to search in</param>
+/// <param name="name">The name of the constant/uniform to find</param>
+/// <returns>The constant-location of the constant/uniform</returns>
+KINC_FUNC kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipeline_t *pipeline, const char *name);
+
+/// <summary>
+/// Searches for a texture-declaration and returns a texture-unit which can be used to assign a texture.
+/// </summary>
+/// <param name="pipeline">The pipeline to search in</param>
+/// <param name="name">The name of the texture-declaration to search for</param>
+/// <returns>The texture-unit of the texture-declaration</returns>
+KINC_FUNC kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *pipeline, const char *name);
 
 void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline);
 void kinc_g4_internal_pipeline_set_defaults(kinc_g4_pipeline_t *pipeline);

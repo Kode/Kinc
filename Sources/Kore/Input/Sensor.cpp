@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Sensor.h"
 
 #include <kinc/input/acceleration.h>
@@ -25,10 +23,10 @@ namespace {
 	}
 }
 
-Sensor* Sensor::the(SensorType type) {
+Sensor *Sensor::the(SensorType type) {
 	if (!initialized) {
-		kinc_acceleration_callback = accelerate;
-		kinc_rotation_callback = rotate;
+		kinc_acceleration_set_callback(accelerate);
+		kinc_rotation_set_callback(rotate);
 		initialized = true;
 	}
 	switch (type) {

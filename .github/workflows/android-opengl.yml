@@ -1,0 +1,21 @@
+name: Android (OpenGL)
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get Submodules
+      run: ./get_dlc
+    - name: Compile
+      run: ./make android -g opengl --kinc . --from Tests/Empty --compile

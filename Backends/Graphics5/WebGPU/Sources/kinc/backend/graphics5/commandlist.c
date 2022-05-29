@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <string.h>
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/indexbuffer.h>
@@ -20,13 +18,13 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	memset(&ceDesc, 0, sizeof(ceDesc));
 	list->impl.encoder = wgpuDeviceCreateCommandEncoder(device, &ceDesc);
 
-	WGPURenderPassColorAttachmentDescriptor attachment;
+	WGPURenderPassColorAttachment attachment;
 	memset(&attachment, 0, sizeof(attachment));
-	attachment.attachment = wgpuSwapChainGetCurrentTextureView(swapChain);;
+	attachment.view = wgpuSwapChainGetCurrentTextureView(swapChain);;
 	attachment.loadOp = WGPULoadOp_Clear;
 	attachment.storeOp = WGPUStoreOp_Store;
 	WGPUColor color = {0, 0, 0, 1};
-	attachment.clearColor = color;
+	attachment.clearValue = color;
 
 	WGPURenderPassDescriptor passDesc;
 	memset(&passDesc, 0, sizeof(passDesc));
@@ -37,7 +35,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 }
 
 void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
-	wgpuRenderPassEncoderEndPass(list->impl.pass);
+	wgpuRenderPassEncoderEnd(list->impl.pass);
 
 	WGPUCommandBufferDescriptor cbDesc;
 	memset(&cbDesc, 0, sizeof(cbDesc));
@@ -60,6 +58,13 @@ void kinc_g5_command_list_draw_indexed_vertices(kinc_g5_command_list_t *list) {
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *list, int start, int count) {
+
+}
+
+void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t *list, int instanceCount) {
+
+}
+void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
 
 }
 
@@ -87,7 +92,7 @@ void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struc
 void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer) {
 	list->impl.indexCount = kinc_g5_index_buffer_count(buffer);
 	uint64_t size = kinc_g5_index_buffer_count(buffer) * sizeof(int);
-	wgpuRenderPassEncoderSetIndexBuffer(list->impl.pass, buffer->impl.buffer, WGPUIndexFormat_Uint32, 0, size);
+	wgpuRenderPassEncoderSetIndexBuffer(list->impl.pass, buffer->impl.buffer, buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? WGPUIndexFormat_Uint16 : WGPUIndexFormat_Uint32, 0, size);
 }
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
@@ -114,3 +119,34 @@ void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *lis
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 
 }
+
+
+void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
+
+void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
+
+}
+
+void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
+
+bool kinc_g5_command_list_init_occlusion_query(kinc_g5_command_list_t *list, unsigned *occlusionQuery) {
+	return false;
+}
+
+void kinc_g5_command_list_delete_occlusion_query(kinc_g5_command_list_t *list, unsigned occlusionQuery) {}
+
+void kinc_g5_command_list_render_occlusion_query(kinc_g5_command_list_t *list, unsigned occlusionQuery, int triangles) {}
+
+bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *list, unsigned occlusionQuery) {
+	return false;
+}
+
+void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
+
+void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
+
+void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
+
+void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
+
+void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing) {}

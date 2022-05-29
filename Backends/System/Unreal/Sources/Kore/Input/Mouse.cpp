@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/Input/Mouse.h>
 #include <Kore/System.h>
 
@@ -15,4 +13,4 @@ void Mouse::show(bool truth) {}
 
 void Mouse::setPosition(int windowId, int x, int y) {}
 
-void Mouse::getPosition(int windowId, int& x, int& y) {}
+void Mouse::getPosition(int windowId, int &x, int &y) {}

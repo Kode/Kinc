@@ -1,14 +1,20 @@
 #pragma once
 
+#include <kinc/global.h>
+
+#include <kinc/math/matrix.h>
+#include <kinc/math/quaternion.h>
+#include <kinc/math/vector.h>
+
+/*! \file vrinterface.h
+    \brief The C-API for VR is currently deactivated and needs some work. Please use the Kore/C++-API in the meantime or send pull-requests.
+*/
+
 #ifdef KORE_VR
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <kinc/math/matrix.h>
-#include <kinc/math/quaternion.h>
-#include <kinc/math/vector.h>
 
 typedef enum { KINC_TRACKING_ORIGIN_STAND, KINC_TRACKING_ORIGIN_SIT } kinc_tracking_origin_t;
 

@@ -13,11 +13,12 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.os.VibrationEffect;
 import android.os.Build;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
-public class KincActivity extends NativeActivity {
+public class KincActivity extends NativeActivity implements KeyEvent.Callback {
 	private static KincActivity instance;
 	private InputMethodManager inputManager;
 	private boolean isDisabledStickyImmersiveMode;
@@ -76,6 +77,12 @@ public class KincActivity extends NativeActivity {
         }
     }
 
+  public boolean onKeyMultiple (int keyCode, int count, KeyEvent event) {
+    this.nativeKincKeyPress(event.getCharacters());
+
+    return false;
+  }
+
 	public static void showKeyboard() {
 		getInstance().inputManager.showSoftInput(getInstance().getWindow().getDecorView(), 0);
 	}
@@ -115,7 +122,13 @@ public class KincActivity extends NativeActivity {
 		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
 		android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
 		manager.getDefaultDisplay().getMetrics(metrics);
-		return (int)(metrics.density * android.util.DisplayMetrics.DENSITY_DEFAULT);
+		return (int)(metrics.xdpi);
+	}
+
+	public static int getRefreshRate() {
+		Context context = getInstance().getApplicationContext();
+		WindowManager manager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+		return (int)(manager.getDefaultDisplay().getRefreshRate());
 	}
 
 	public static int getDisplayWidth() {
@@ -142,4 +155,6 @@ public class KincActivity extends NativeActivity {
 			}
 		});
 	}
+
+	private native void nativeKincKeyPress(String chars);
 }

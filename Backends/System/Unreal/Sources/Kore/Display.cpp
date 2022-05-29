@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include "Display.h"
 
 #include <Kore/Log.h>
@@ -18,11 +16,11 @@ namespace Kore {
 			return 1;
 		}
 
-		const DeviceInfo* primary() {
+		const DeviceInfo *primary() {
 			return nullptr;
 		}
 
-		const DeviceInfo* byId(int id) {
+		const DeviceInfo *byId(int id) {
 			return nullptr;
 		}
 

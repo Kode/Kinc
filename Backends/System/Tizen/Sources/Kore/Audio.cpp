@@ -1,4 +1,3 @@
-#include "pch.h"
 #include <Kore/Audio/Audio.h>
 
 using namespace Kore;
