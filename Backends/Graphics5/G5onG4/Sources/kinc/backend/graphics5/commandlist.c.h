@@ -1,5 +1,6 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/vertexbuffer.h>
@@ -11,15 +12,15 @@
 #endif
 
 #define WRITE(type, value)                                                                                                                                     \
-	if (list->impl.commandIndex + sizeof(type) > KINC_G5ONG4_COMMANDS_SIZE) {                                                                                                       \
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Trying to write too many commands to the command list.");                                                                                \
+	if (list->impl.commandIndex + sizeof(type) > KINC_G5ONG4_COMMANDS_SIZE) {                                                                                  \
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Trying to write too many commands to the command list.");                                                              \
 		return;                                                                                                                                                \
 	}                                                                                                                                                          \
 	*(type *)(&list->impl.commands[list->impl.commandIndex]) = value;                                                                                          \
 	list->impl.commandIndex += sizeof(type);
 #define READ(type, var)                                                                                                                                        \
-	if (index + sizeof(type) > KINC_G5ONG4_COMMANDS_SIZE) {                                                                                                                         \
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Trying to read beyond the end of the command list?");                                                                                \
+	if (index + sizeof(type) > KINC_G5ONG4_COMMANDS_SIZE) {                                                                                                    \
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Trying to read beyond the end of the command list?");                                                                  \
 		return;                                                                                                                                                \
 	}                                                                                                                                                          \
 	type var = *(type *)(&list->impl.commands[index]);                                                                                                         \
@@ -48,7 +49,7 @@ typedef enum command {
 
 void kinc_g4_pipeline_get_constant_locations(kinc_g4_pipeline_t *state, kinc_g4_constant_location_t *vertex_locations,
                                              kinc_g4_constant_location_t *fragment_locations, int *vertex_sizes, int *fragment_sizes, int *max_vertex,
-                                             int *max_fragment)
+                                             int *max_fragment);
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {}
 
@@ -150,11 +151,18 @@ void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, stru
 void kinc_g5_command_list_upload_vertex_buffer(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer *buffer) {}
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct kinc_g5_texture *texture) {}
 
-void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {}
+void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
+	WRITE(command_t, SetVertexConstantBuffer);
+	WRITE(kinc_g5_constant_buffer_t *, buffer);
+}
 
-void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {}
+void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
+	WRITE(command_t, SetFragmentConstantBuffer);
+	WRITE(kinc_g5_constant_buffer_t *, buffer);
+}
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
+	kinc_g5_pipeline_t *current_pipeline = NULL;
 	int index = 0;
 	while (index < list->impl.commandIndex) {
 		READ(command_t, command);
@@ -191,6 +199,7 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 		}
 		case SetPipeline: {
 			READ(kinc_g5_pipeline_t *, pipeline);
+			current_pipeline = pipeline;
 			kinc_g4_set_pipeline(&pipeline->impl.pipe);
 			break;
 		}
@@ -288,8 +297,26 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 		}
 		case SetVertexConstantBuffer: {
 			READ(kinc_g5_constant_buffer_t *, buffer);
-			// kinc_g4_pipeline_get_constant_locations()
-			// kinc_g4_set_vertex_constant_buffer(&buffer->impl.buffer);
+			(void)buffer;
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Constant buffers are not supported on G5onG4 at the moment.");
+// 		if(current_pipeline == NULL) {
+// 			kinc_log(KINC_LOG_LEVEL_ERROR, "Please set the pipeline before setting constant buffers.");
+// 		} else {
+// 			kinc_g4_constant_location_t *constant_locations = current_pipeline->impl.pipe.vertex_locations;
+// 			int *sizes = current_pipeline->impl.pipe.vertex_sizes;
+// 			char *data = buffer->data;
+// 			for(int i = 0; i < current_pipeline->impl.pipe.vertex_count; ++i) {
+// 				// kinc_g4_set
+// 				// kinc_g4_set_vertex_constant_buffer(constant_locations[i], sizes[i], data);
+// 				data += sizes[i];
+// 			}
+// 		}
+			break;
+		}
+		case SetFragmentConstantBuffer: {
+			READ(kinc_g5_constant_buffer_t *, buffer);
+			(void)buffer;
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Constant buffers are not supported on G5onG4 at the moment.");
 			break;
 		}
 		default:

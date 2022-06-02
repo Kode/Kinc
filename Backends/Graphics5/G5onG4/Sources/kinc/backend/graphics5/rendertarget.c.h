@@ -24,19 +24,19 @@ void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t 
                                                         }
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *renderTarget) {
-    kinc_g4_render_target_destroy(&renderTarget->impl);
+    kinc_g4_render_target_destroy(&renderTarget->impl.target);
 }
 
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *renderTarget, kinc_g5_texture_unit_t unit) {
-    kinc_g4_render_target_use_color_as_texture(&renderTarget->impl, unit.impl.unit);
+    kinc_g4_render_target_use_color_as_texture(&renderTarget->impl.target, unit.impl.unit);
 }
 
 void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *renderTarget, kinc_g5_texture_unit_t unit) {
-    kinc_g4_render_target_use_depth_as_texture(&renderTarget->impl, unit.impl.unit);
+    kinc_g4_render_target_use_depth_as_texture(&renderTarget->impl.target, unit.impl.unit);
 }
 
 void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *renderTarget, kinc_g5_render_target_t *source) {
-    kinc_g4_render_target_set_depth_stencil_from(&renderTarget->impl, &source->impl);
+    kinc_g4_render_target_set_depth_stencil_from(&renderTarget->impl.target, &source->impl.target);
 }
 
 // void kinc_g5_render_target_get_pixels(kinc_g5_render_target_t *renderTarget, uint8_t *data) {
