@@ -156,6 +156,7 @@ void kinc_g4_render_target_init_with_multisampling(kinc_g4_render_target_t *rend
 	renderTarget->height = height;
 	renderTarget->isCubeMap = false;
 	renderTarget->isDepthAttachment = false;
+	renderTarget->contextId = contextId;
 
 	renderTarget->impl._hasDepth = false;
 
@@ -258,6 +259,7 @@ void kinc_g4_render_target_init_cube_with_multisampling(kinc_g4_render_target_t 
 	renderTarget->height = cubeMapSize;
 	renderTarget->isCubeMap = true;
 	renderTarget->isDepthAttachment = false;
+	renderTarget->contextId = contextId;
 
 	renderTarget->impl._hasDepth = false;
 
