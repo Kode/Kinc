@@ -281,17 +281,61 @@ $(function() {
 <div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;<span class="keywordtype">void</span> kinc_internal_keyboard_trigger_key_up(<span class="keywordtype">int</span> key_code);</div>
 <div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;<span class="keywordtype">void</span> kinc_internal_keyboard_trigger_key_press(<span class="keywordtype">unsigned</span> character);</div>
 <div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160; </div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;}</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="preprocessor">#ifdef KINC_IMPLEMENTATION_INPUT</span></div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;<span class="preprocessor">#define KINC_IMPLEMENTATION</span></div>
 <div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160; </div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;<span class="preprocessor">#ifdef KINC_IMPLEMENTATION</span></div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160; </div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;<span class="preprocessor">#include &lt;memory.h&gt;</span></div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160; </div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;<span class="keyword">static</span> void (*keyboard_key_down_callback)(<span class="keywordtype">int</span> <span class="comment">/*key_code*/</span>) = NULL;</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;<span class="keyword">static</span> void (*keyboard_key_up_callback)(<span class="keywordtype">int</span> <span class="comment">/*key_code*/</span>) = NULL;</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;<span class="keyword">static</span> void (*keyboard_key_press_callback)(<span class="keywordtype">unsigned</span> <span class="comment">/*character*/</span>) = NULL;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160; </div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;<span class="keywordtype">void</span> <a class="code" href="keyboard_8h.html#a84bd56cfc17d89fd7b47c1991ffab40f">kinc_keyboard_set_key_down_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*key_code*/</span>)) {</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    keyboard_key_down_callback = value;</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;}</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160; </div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;<span class="keywordtype">void</span> <a class="code" href="keyboard_8h.html#a8558ace94769c3d5516df0b0482c8e59">kinc_keyboard_set_key_up_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*key_code*/</span>)) {</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    keyboard_key_up_callback = value;</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;}</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160; </div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;<span class="keywordtype">void</span> <a class="code" href="keyboard_8h.html#a0a89113cf7a0dd57d8e61c032bb24866">kinc_keyboard_set_key_press_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">unsigned</span> <span class="comment">/*character*/</span>)) {</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    keyboard_key_press_callback = value;</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;}</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160; </div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;<span class="keywordtype">void</span> kinc_internal_keyboard_trigger_key_down(<span class="keywordtype">int</span> key_code) {</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="keywordflow">if</span> (keyboard_key_down_callback != NULL) {</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;        keyboard_key_down_callback(key_code);</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    }</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;}</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160; </div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;<span class="keywordtype">void</span> kinc_internal_keyboard_trigger_key_up(<span class="keywordtype">int</span> key_code) {</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="keywordflow">if</span> (keyboard_key_up_callback != NULL) {</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;        keyboard_key_up_callback(key_code);</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    }</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;}</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160; </div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;<span class="keywordtype">void</span> kinc_internal_keyboard_trigger_key_press(<span class="keywordtype">unsigned</span> character) {</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keywordflow">if</span> (keyboard_key_press_callback != NULL) {</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;        keyboard_key_press_callback(character);</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    }</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;}</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160; </div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160; </div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;}</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <div class="ttc" id="akeyboard_8h_html_aee29cd6e450a7ea1c30f1ce99d4e104b"><div class="ttname"><a href="keyboard_8h.html#aee29cd6e450a7ea1c30f1ce99d4e104b">kinc_keyboard_show</a></div><div class="ttdeci">KINC_FUNC void kinc_keyboard_show(void)</div><div class="ttdoc">Show the keyboard if the system is using a software-keyboard.</div></div>
 <div class="ttc" id="akeyboard_8h_html_a6882f8e969dbba9c42d0079564f15b3d"><div class="ttname"><a href="keyboard_8h.html#a6882f8e969dbba9c42d0079564f15b3d">kinc_keyboard_active</a></div><div class="ttdeci">KINC_FUNC bool kinc_keyboard_active(void)</div><div class="ttdoc">Figure out whether the keyboard is currently shown if the system is using a software-keyboard.</div></div>
-<div class="ttc" id="akeyboard_8h_html_a8558ace94769c3d5516df0b0482c8e59"><div class="ttname"><a href="keyboard_8h.html#a8558ace94769c3d5516df0b0482c8e59">kinc_keyboard_set_key_up_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_keyboard_set_key_up_callback(void(*value)(int))</div><div class="ttdoc">Sets the keyboard-key-up-callback which is called with a key-code when a key goes up....</div><div class="ttdef"><b>Definition:</b> keyboard.c.h:13</div></div>
+<div class="ttc" id="akeyboard_8h_html_a8558ace94769c3d5516df0b0482c8e59"><div class="ttname"><a href="keyboard_8h.html#a8558ace94769c3d5516df0b0482c8e59">kinc_keyboard_set_key_up_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_keyboard_set_key_up_callback(void(*value)(int))</div><div class="ttdoc">Sets the keyboard-key-up-callback which is called with a key-code when a key goes up....</div></div>
 <div class="ttc" id="akeyboard_8h_html_aac7ee49eb82832d0caaafc21ddf2e20a"><div class="ttname"><a href="keyboard_8h.html#aac7ee49eb82832d0caaafc21ddf2e20a">kinc_keyboard_hide</a></div><div class="ttdeci">KINC_FUNC void kinc_keyboard_hide(void)</div><div class="ttdoc">Hide the keyboard if the system is using a software-keyboard.</div></div>
-<div class="ttc" id="akeyboard_8h_html_a84bd56cfc17d89fd7b47c1991ffab40f"><div class="ttname"><a href="keyboard_8h.html#a84bd56cfc17d89fd7b47c1991ffab40f">kinc_keyboard_set_key_down_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_keyboard_set_key_down_callback(void(*value)(int))</div><div class="ttdoc">Sets the keyboard-key-down-callback which is called with a key-code when a key goes down....</div><div class="ttdef"><b>Definition:</b> keyboard.c.h:9</div></div>
-<div class="ttc" id="akeyboard_8h_html_a0a89113cf7a0dd57d8e61c032bb24866"><div class="ttname"><a href="keyboard_8h.html#a0a89113cf7a0dd57d8e61c032bb24866">kinc_keyboard_set_key_press_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_keyboard_set_key_press_callback(void(*value)(unsigned))</div><div class="ttdoc">Sets the keyboard-key-press-callback which is called when the system decides that a character came in...</div><div class="ttdef"><b>Definition:</b> keyboard.c.h:17</div></div>
+<div class="ttc" id="akeyboard_8h_html_a84bd56cfc17d89fd7b47c1991ffab40f"><div class="ttname"><a href="keyboard_8h.html#a84bd56cfc17d89fd7b47c1991ffab40f">kinc_keyboard_set_key_down_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_keyboard_set_key_down_callback(void(*value)(int))</div><div class="ttdoc">Sets the keyboard-key-down-callback which is called with a key-code when a key goes down....</div></div>
+<div class="ttc" id="akeyboard_8h_html_a0a89113cf7a0dd57d8e61c032bb24866"><div class="ttname"><a href="keyboard_8h.html#a0a89113cf7a0dd57d8e61c032bb24866">kinc_keyboard_set_key_press_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_keyboard_set_key_press_callback(void(*value)(unsigned))</div><div class="ttdoc">Sets the keyboard-key-press-callback which is called when the system decides that a character came in...</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
