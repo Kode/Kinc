@@ -1,2 +1,4 @@
-#include "http.c.h"
-#include "socket.c.h"
+#define KINC_IMPLEMENTATION_NETWORK
+
+#include "http.h"
+#include "socket.h"

@@ -25,6 +25,25 @@ typedef void (*kinc_http_callback_t)(int error, int response, const char *body, 
 KINC_FUNC void kinc_http_request(const char *url, const char *path, const char *data, int port, bool secure, int method, const char *header,
                                  kinc_http_callback_t callback, void *callbackdata);
 
+#ifdef KINC_IMPLEMENTATION_NETWORK
+#define KINC_IMPLEMENTATION
+#endif
+
+#ifdef KINC_IMPLEMENTATION
+
+#if !defined KORE_MACOS && !defined KORE_IOS && !defined KORE_WINDOWS
+
+#include <assert.h>
+
+void kinc_http_request(const char *url, const char *path, const char *data, int port, bool secure, int method, const char *header,
+                       kinc_http_callback_t callback, void *callbackdata) {
+	assert(false); // not implemented for the current system, please send a pull-request
+}
+
+#endif
+
+#endif
+
 #ifdef __cplusplus
 }
 #endif
