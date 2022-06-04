@@ -34,9 +34,11 @@ KINC_FUNC int kinc_random_get_max(int max);
 /// <returns>A random value</returns>
 KINC_FUNC int kinc_random_get_in(int min, int max);
 
-#ifdef KINC_IMPLEMENTATION
+#ifdef KINC_IMPLEMENTATION_MATH
+#define KINC_IMPLEMENTATION
+#endif
 
-#include "random.h"
+#ifdef KINC_IMPLEMENTATION
 
 // MT19937
 

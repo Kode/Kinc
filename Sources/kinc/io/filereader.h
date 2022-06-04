@@ -180,13 +180,19 @@ KINC_FUNC int8_t kinc_read_s8(uint8_t *data);
 void kinc_internal_set_files_location(char *dir);
 char *kinc_internal_get_files_location(void);
 
+#ifdef KINC_IMPLEMENTATION_IO
+#define KINC_IMPLEMENTATION
+#endif
+
 #ifdef KINC_IMPLEMENTATION
 
 #include "filereader.h"
 
+#undef KINC_IMPLEMENTATION
 #include <kinc/memory.h>
 #include <kinc/string.h>
 #include <kinc/system.h>
+#define KINC_IMPLEMENTATION
 
 #ifdef KORE_ANDROID
 #include <kinc/backend/Android.h>

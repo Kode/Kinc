@@ -41,15 +41,21 @@ KINC_FUNC void kinc_file_writer_write(kinc_file_writer_t *writer, void *data, in
 /// <param name="reader">The file to close</param>
 KINC_FUNC void kinc_file_writer_close(kinc_file_writer_t *writer);
 
+#ifdef KINC_IMPLEMENTATION_IO
+#define KINC_IMPLEMENTATION
+#endif
+
 #ifdef KINC_IMPLEMENTATION
 
 #if !defined(KORE_CONSOLE)
 
 #include "filewriter.h"
 
+#undef KINC_IMPLEMENTATION
 #include <kinc/error.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
+#define KINC_IMPLEMENTATION
 
 #include <stdio.h>
 #include <string.h>

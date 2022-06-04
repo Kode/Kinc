@@ -42,9 +42,11 @@ KINC_FUNC int kinc_maxi(int a, int b);
 KINC_FUNC float kinc_clamp(float value, float minValue, float maxValue);
 KINC_FUNC int kinc_absi(int value);
 
-#ifdef KINC_IMPLEMENTATION
+#ifdef KINC_IMPLEMENTATION_MATH
+#define KINC_IMPLEMENTATION
+#endif
 
-#include "core.h"
+#ifdef KINC_IMPLEMENTATION
 
 #include <float.h>
 

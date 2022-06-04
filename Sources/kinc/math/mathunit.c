@@ -1,4 +1,4 @@
-#define KINC_IMPLEMENTATION
+#define KINC_IMPLEMENTATION_MATH
 
 #include "core.h"
 #include "matrix.h"
