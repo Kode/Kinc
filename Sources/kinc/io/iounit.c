@@ -1,2 +1,4 @@
-#include "filereader.c.h"
-#include "filewriter.c.h"
+#define KINC_IMPLEMENTATION
+
+#include "filereader.h"
+#include "filewriter.h"
