@@ -166,9 +166,49 @@ $(function() {
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;<span class="keywordtype">void</span> kinc_internal_call_ppi_changed_callback(<span class="keywordtype">int</span> window, <span class="keywordtype">int</span> ppi);</div>
 <div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="keywordtype">bool</span> kinc_internal_call_close_callback(<span class="keywordtype">int</span> window);</div>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160; </div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;}</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="preprocessor">#ifdef KINC_IMPLEMENTATION_ROOT</span></div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="preprocessor">#define KINC_IMPLEMENTATION</span></div>
 <div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160; </div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="preprocessor">#ifdef KINC_IMPLEMENTATION</span></div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160; </div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="preprocessor">#ifdef KINC_IMPLEMENTATION_ROOT</span></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="preprocessor">#undef KINC_IMPLEMENTATION</span></div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="display_8h.html">kinc/display.h</a>&gt;</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="preprocessor">#ifdef KINC_IMPLEMENTATION_ROOT</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="preprocessor">#define KINC_IMPLEMENTATION</span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160; </div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160; </div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="keywordtype">void</span> kinc_window_options_set_defaults(<a class="code" href="structkinc__window__options.html">kinc_window_options_t</a> *win) {</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <a class="code" href="display_8h.html#a5e152044362942c03daa51235092c6d2">kinc_display_init</a>();</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    win-&gt;title = NULL;</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    win-&gt;display_index = <a class="code" href="display_8h.html#a00f1fc3895508128d33ff4619327ccf2">kinc_primary_display</a>();</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    win-&gt;mode = KINC_WINDOW_MODE_WINDOW;</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    win-&gt;x = -1;</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    win-&gt;y = -1;</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    win-&gt;width = 800;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    win-&gt;height = 600;</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    win-&gt;visible = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    win-&gt;window_features = KINC_WINDOW_FEATURE_RESIZEABLE | KINC_WINDOW_FEATURE_MINIMIZABLE | KINC_WINDOW_FEATURE_MAXIMIZABLE;</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;}</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160; </div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="keywordtype">void</span> kinc_framebuffer_options_set_defaults(<a class="code" href="structkinc__framebuffer__options.html">kinc_framebuffer_options_t</a> *frame) {</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    frame-&gt;frequency = 60;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    frame-&gt;vertical_sync = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    frame-&gt;color_bits = 32;</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    frame-&gt;depth_bits = 16;</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    frame-&gt;stencil_bits = 8;</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    frame-&gt;samples_per_pixel = 1;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;}</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160; </div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160; </div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;}</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <div class="ttc" id="awindow_8h_html_a68f92844e49c3a2f1a44e351ee7873b6"><div class="ttname"><a href="window_8h.html#a68f92844e49c3a2f1a44e351ee7873b6">kinc_window_set_ppi_changed_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_window_set_ppi_changed_callback(int window, void(*callback)(int ppi, void *data), void *data)</div><div class="ttdoc">Sets a ppi callback that's called whenever the window moves to a display that uses a different ppi-se...</div></div>
@@ -181,12 +221,14 @@ $(function() {
 <div class="ttc" id="astructkinc__window__options_html"><div class="ttname"><a href="structkinc__window__options.html">kinc_window_options</a></div><div class="ttdef"><b>Definition:</b> window.h:36</div></div>
 <div class="ttc" id="awindow_8h_html_a19fc41eac1a4ddcbfa820fc78ede0fc6"><div class="ttname"><a href="window_8h.html#a19fc41eac1a4ddcbfa820fc78ede0fc6">kinc_window_width</a></div><div class="ttdeci">KINC_FUNC int kinc_window_width(int window)</div><div class="ttdoc">Returns the width of a window.</div></div>
 <div class="ttc" id="awindow_8h_html_a412fe47581a2ce9920d61963c07b52ec"><div class="ttname"><a href="window_8h.html#a412fe47581a2ce9920d61963c07b52ec">kinc_window_resize</a></div><div class="ttdeci">KINC_FUNC void kinc_window_resize(int window, int width, int height)</div><div class="ttdoc">Resizes a window.</div></div>
+<div class="ttc" id="adisplay_8h_html_a00f1fc3895508128d33ff4619327ccf2"><div class="ttname"><a href="display_8h.html#a00f1fc3895508128d33ff4619327ccf2">kinc_primary_display</a></div><div class="ttdeci">KINC_FUNC int kinc_primary_display(void)</div><div class="ttdoc">Retrieves the index of the primary display.</div></div>
 <div class="ttc" id="awindow_8h_html_a5fe4f6c423fa2efd2352dc671b5dd285"><div class="ttname"><a href="window_8h.html#a5fe4f6c423fa2efd2352dc671b5dd285">kinc_window_get_mode</a></div><div class="ttdeci">KINC_FUNC kinc_window_mode_t kinc_window_get_mode(int window)</div><div class="ttdoc">Returns the current window-mode.</div></div>
 <div class="ttc" id="awindow_8h_html_a66e74867e1f16a12648de6f1667fc613"><div class="ttname"><a href="window_8h.html#a66e74867e1f16a12648de6f1667fc613">kinc_window_display</a></div><div class="ttdeci">KINC_FUNC int kinc_window_display(int window)</div><div class="ttdoc">Returns the id of the display the window currently is on.</div></div>
 <div class="ttc" id="awindow_8h_html_a548336551baa5a80dec0e13bf0091760"><div class="ttname"><a href="window_8h.html#a548336551baa5a80dec0e13bf0091760">kinc_window_change_mode</a></div><div class="ttdeci">KINC_FUNC void kinc_window_change_mode(int window, kinc_window_mode_t mode)</div><div class="ttdoc">Switches between window and fullscreen-modes.</div></div>
 <div class="ttc" id="awindow_8h_html_a248cf8219cf0c36c02550655be8caf5d"><div class="ttname"><a href="window_8h.html#a248cf8219cf0c36c02550655be8caf5d">kinc_window_destroy</a></div><div class="ttdeci">KINC_FUNC void kinc_window_destroy(int window)</div><div class="ttdoc">Closes and destroys a window.</div></div>
 <div class="ttc" id="astructkinc__framebuffer__options_html"><div class="ttname"><a href="structkinc__framebuffer__options.html">kinc_framebuffer_options</a></div><div class="ttdef"><b>Definition:</b> window.h:15</div></div>
 <div class="ttc" id="awindow_8h_html_aa7f96abbbc3b1883a123c00a59045fc3"><div class="ttname"><a href="window_8h.html#aa7f96abbbc3b1883a123c00a59045fc3">kinc_window_hide</a></div><div class="ttdeci">KINC_FUNC void kinc_window_hide(int window)</div><div class="ttdoc">Hides a window.</div></div>
+<div class="ttc" id="adisplay_8h_html"><div class="ttname"><a href="display_8h.html">display.h</a></div><div class="ttdoc">Provides information for the active displays.</div></div>
 <div class="ttc" id="awindow_8h_html_a7f4b61b4d6d852af75e13bc124c3c325"><div class="ttname"><a href="window_8h.html#a7f4b61b4d6d852af75e13bc124c3c325">kinc_count_windows</a></div><div class="ttdeci">KINC_FUNC int kinc_count_windows(void)</div><div class="ttdoc">Counts all windows the program created, including the initial window created by kinc_init.</div></div>
 <div class="ttc" id="awindow_8h_html_a1ebe06f80399167e4640d045a57962bf"><div class="ttname"><a href="window_8h.html#a1ebe06f80399167e4640d045a57962bf">kinc_window_move</a></div><div class="ttdeci">KINC_FUNC void kinc_window_move(int window, int x, int y)</div><div class="ttdoc">Moves a window.</div></div>
 <div class="ttc" id="awindow_8h_html_a5ebeb6d360593b4633418fb092457605"><div class="ttname"><a href="window_8h.html#a5ebeb6d360593b4633418fb092457605">kinc_window_set_title</a></div><div class="ttdeci">KINC_FUNC void kinc_window_set_title(int window, const char *title)</div><div class="ttdoc">Sets the title of a window.</div></div>
@@ -194,6 +236,7 @@ $(function() {
 <div class="ttc" id="awindow_8h_html_a886363fd9543a5b121222132c1575772"><div class="ttname"><a href="window_8h.html#a886363fd9543a5b121222132c1575772">kinc_window_vsynced</a></div><div class="ttdeci">KINC_FUNC bool kinc_window_vsynced(int window)</div><div class="ttdoc">Returns Whether the window is vsynced or not.</div></div>
 <div class="ttc" id="awindow_8h_html_a01e5f3a516aa54270711ad39c45126a1"><div class="ttname"><a href="window_8h.html#a01e5f3a516aa54270711ad39c45126a1">kinc_window_change_framebuffer</a></div><div class="ttdeci">KINC_FUNC void kinc_window_change_framebuffer(int window, kinc_framebuffer_options_t *frame)</div><div class="ttdoc">Changes the framebuffer-options of a window.</div></div>
 <div class="ttc" id="awindow_8h_html_a7272af56121f4b59539d319e3575212c"><div class="ttname"><a href="window_8h.html#a7272af56121f4b59539d319e3575212c">kinc_window_x</a></div><div class="ttdeci">KINC_FUNC int kinc_window_x(int window)</div><div class="ttdoc">Returns the x position of a window.</div></div>
+<div class="ttc" id="adisplay_8h_html_a5e152044362942c03daa51235092c6d2"><div class="ttname"><a href="display_8h.html#a5e152044362942c03daa51235092c6d2">kinc_display_init</a></div><div class="ttdeci">KINC_FUNC void kinc_display_init(void)</div><div class="ttdoc">Allows to retrieve display values prior to the kinc_init call.</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
