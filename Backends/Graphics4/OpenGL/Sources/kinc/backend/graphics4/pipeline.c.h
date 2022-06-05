@@ -228,17 +228,26 @@ void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 		glCheckErrors();
 	}
 
-	if (pipeline->stencil_mode == KINC_G4_COMPARE_ALWAYS && pipeline->stencil_both_pass == KINC_G4_STENCIL_KEEP &&
-	    pipeline->stencil_depth_fail == KINC_G4_STENCIL_KEEP && pipeline->stencil_fail == KINC_G4_STENCIL_KEEP) {
+	if (pipeline->stencil_front_mode == KINC_G4_COMPARE_ALWAYS && pipeline->stencil_back_mode == KINC_G4_COMPARE_ALWAYS &&
+	    pipeline->stencil_front_both_pass == KINC_G4_STENCIL_KEEP && pipeline->stencil_back_both_pass == KINC_G4_STENCIL_KEEP &&
+	    pipeline->stencil_front_depth_fail == KINC_G4_STENCIL_KEEP && pipeline->stencil_back_depth_fail == KINC_G4_STENCIL_KEEP &&
+	    pipeline->stencil_front_fail == KINC_G4_STENCIL_KEEP && pipeline->stencil_back_fail == KINC_G4_STENCIL_KEEP) {
 		glDisable(GL_STENCIL_TEST);
 	}
 	else {
 		glEnable(GL_STENCIL_TEST);
-		int stencilFunc = Kinc_G4_Internal_StencilFunc(pipeline->stencil_mode);
-		glStencilMask(pipeline->stencil_write_mask);
-		glStencilOp(convertStencilAction(pipeline->stencil_fail), convertStencilAction(pipeline->stencil_depth_fail),
-		            convertStencilAction(pipeline->stencil_both_pass));
-		glStencilFunc(stencilFunc, pipeline->stencil_reference_value, pipeline->stencil_read_mask);
+
+		glStencilMaskSeparate(GL_FRONT, pipeline->stencil_write_mask);
+		glStencilOpSeparate(GL_FRONT, convertStencilAction(pipeline->stencil_front_fail), convertStencilAction(pipeline->stencil_front_depth_fail),
+		                    convertStencilAction(pipeline->stencil_front_both_pass));
+		glStencilFuncSeparate(GL_FRONT, Kinc_G4_Internal_StencilFunc(pipeline->stencil_front_mode), pipeline->stencil_reference_value,
+		                      pipeline->stencil_read_mask);
+
+		glStencilMaskSeparate(GL_BACK, pipeline->stencil_write_mask);
+		glStencilOpSeparate(GL_BACK, convertStencilAction(pipeline->stencil_back_fail), convertStencilAction(pipeline->stencil_back_depth_fail),
+		                    convertStencilAction(pipeline->stencil_back_both_pass));
+		glStencilFuncSeparate(GL_BACK, Kinc_G4_Internal_StencilFunc(pipeline->stencil_back_mode), pipeline->stencil_reference_value,
+		                      pipeline->stencil_read_mask);
 	}
 
 #ifdef KORE_OPENGL_ES
