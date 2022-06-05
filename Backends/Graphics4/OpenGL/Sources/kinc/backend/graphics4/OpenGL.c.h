@@ -1172,7 +1172,8 @@ void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 }
 
 void kinc_g4_set_stencil_reference_value(int value) {
-	glStencilFunc(Kinc_G4_Internal_StencilFunc(lastPipeline->stencil_mode), value, lastPipeline->stencil_read_mask);
+	glStencilFuncSeparate(GL_FRONT, Kinc_G4_Internal_StencilFunc(lastPipeline->stencil_front_mode), value, lastPipeline->stencil_read_mask);
+	glStencilFuncSeparate(GL_BACK, Kinc_G4_Internal_StencilFunc(lastPipeline->stencil_back_mode), value, lastPipeline->stencil_read_mask);
 }
 
 void Kinc_G4_Internal_TextureArraySet(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit);
