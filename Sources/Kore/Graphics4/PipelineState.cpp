@@ -18,10 +18,16 @@ Graphics4::PipelineState::PipelineState() {
 	depthWrite = false;
 	depthMode = ZCompareAlways;
 
-	stencilMode = ZCompareAlways;
-	stencilBothPass = Keep;
-	stencilDepthFail = Keep;
-	stencilFail = Keep;
+	stencilFrontMode = ZCompareAlways;
+	stencilFrontBothPass = Keep;
+	stencilFrontDepthFail = Keep;
+	stencilFrontFail = Keep;
+
+	stencilBackMode = ZCompareAlways;
+	stencilBackBothPass = Keep;
+	stencilBackDepthFail = Keep;
+	stencilBackFail = Keep;
+
 	stencilReferenceValue = 0;
 	stencilReadMask = 0xff;
 	stencilWriteMask = 0xff;
@@ -77,10 +83,16 @@ void Graphics4::PipelineState::compile() {
 	kincPipeline.depth_write = depthWrite;
 	kincPipeline.depth_mode = (kinc_g4_compare_mode_t)depthMode;
 
-	kincPipeline.stencil_mode = (kinc_g4_compare_mode_t)stencilMode;
-	kincPipeline.stencil_both_pass = (kinc_g4_stencil_action_t)stencilBothPass;
-	kincPipeline.stencil_depth_fail = (kinc_g4_stencil_action_t)stencilDepthFail;
-	kincPipeline.stencil_fail = (kinc_g4_stencil_action_t)stencilFail;
+	kincPipeline.stencil_front_mode = (kinc_g4_compare_mode_t)stencilFrontMode;
+	kincPipeline.stencil_front_both_pass = (kinc_g4_stencil_action_t)stencilFrontBothPass;
+	kincPipeline.stencil_front_depth_fail = (kinc_g4_stencil_action_t)stencilFrontDepthFail;
+	kincPipeline.stencil_front_fail = (kinc_g4_stencil_action_t)stencilFrontFail;
+
+	kincPipeline.stencil_back_mode = (kinc_g4_compare_mode_t)stencilBackMode;
+	kincPipeline.stencil_back_both_pass = (kinc_g4_stencil_action_t)stencilBackBothPass;
+	kincPipeline.stencil_back_depth_fail = (kinc_g4_stencil_action_t)stencilBackDepthFail;
+	kincPipeline.stencil_back_fail = (kinc_g4_stencil_action_t)stencilBackFail;
+
 	kincPipeline.stencil_reference_value = stencilReferenceValue;
 	kincPipeline.stencil_read_mask = stencilReadMask;
 	kincPipeline.stencil_write_mask = stencilWriteMask;
