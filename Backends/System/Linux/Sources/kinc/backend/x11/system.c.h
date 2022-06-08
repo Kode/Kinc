@@ -45,6 +45,10 @@ bool kinc_x11_init() {
 	{                                                                                                                                                          \
 		x11_ctx.libs.name = dlopen("lib" #name ".so", RTLD_LAZY);                                                                                              \
 		if (x11_ctx.libs.name == NULL) {                                                                                                                       \
+			x11_ctx.libs.name = dlopen("lib" #name ".so.6", RTLD_LAZY);                                                                                        \
+		}                                                                                                                                                      \
+                                                                                                                                                               \
+		if (x11_ctx.libs.name == NULL) {                                                                                                                       \
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to load lib%s.so", #name);                                                                                  \
 			return false;                                                                                                                                      \
 		}                                                                                                                                                      \
