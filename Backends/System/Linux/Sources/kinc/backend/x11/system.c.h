@@ -58,6 +58,9 @@ bool kinc_x11_init() {
 	{
 		x11_ctx.libs.X11 = dlopen("libX11.so", RTLD_LAZY);
 		if (x11_ctx.libs.X11 == NULL) {
+			x11_ctx.libs.X11 = dlopen("libX11.so.6", RTLD_LAZY);
+		}
+		if (x11_ctx.libs.X11 == NULL) {
 			return false;
 		}
 	}
