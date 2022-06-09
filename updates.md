@@ -1,3 +1,4 @@
+* 2022-06-06: The stencil-API changed a little to support separate stencil-settings for front-sides and back-sides.
 * 2022-05-02: The submodules have been reorganized so only the relevant files for the current system have to be downloaded. When doing a recursive clone everything is still pretty much as it used to be but alternatively you can now do a regular clone and the call Kinc/get_tools to only download what's actually needed.
 
 Also kincmake has now been completely replaced by kmake but it should be compatible with old files so just call Kinc/make (without any node) and everything will just continue to work - maybe.

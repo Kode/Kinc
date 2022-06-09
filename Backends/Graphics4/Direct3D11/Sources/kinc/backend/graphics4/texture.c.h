@@ -2,6 +2,8 @@
 #include <kinc/graphics4/textureunit.h>
 #include <kinc/memory.h>
 
+#include <assert.h>
+
 static kinc_g4_texture_t *setTextures[16] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 static DXGI_FORMAT convertFormat(kinc_image_format_t format) {
@@ -267,6 +269,7 @@ void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int 
 }
 
 int kinc_g4_texture_stride(kinc_g4_texture_t *texture) {
+	assert(texture->impl.rowPitch != 0); // stride is not yet said, lock and unlock the texture first (or find a good fix for this and send a PR)
 	return texture->impl.rowPitch;
 }
 

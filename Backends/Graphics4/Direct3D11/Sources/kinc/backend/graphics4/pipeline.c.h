@@ -766,21 +766,28 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 
 	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateInputLayout(dx_ctx.device, vertexDesc, all, state->vertex_shader->impl.data,
 	                                                               state->vertex_shader->impl.length, &state->impl.d3d11inputLayout));
-
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
 		kinc_memset(&desc, 0, sizeof(desc));
+
 		desc.DepthEnable = state->depth_mode != KINC_G4_COMPARE_ALWAYS;
 		desc.DepthWriteMask = state->depth_write ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
 		desc.DepthFunc = get_comparison(state->depth_mode);
 
-		desc.StencilEnable = state->stencil_mode != KINC_G4_COMPARE_ALWAYS;
+		desc.StencilEnable = state->stencil_front_mode != KINC_G4_COMPARE_ALWAYS || state->stencil_back_mode != KINC_G4_COMPARE_ALWAYS ||
+		                     state->stencil_front_both_pass != KINC_G4_STENCIL_KEEP || state->stencil_back_both_pass != KINC_G4_STENCIL_KEEP ||
+		                     state->stencil_front_depth_fail != KINC_G4_STENCIL_KEEP || state->stencil_back_depth_fail != KINC_G4_STENCIL_KEEP ||
+		                     state->stencil_front_fail != KINC_G4_STENCIL_KEEP || state->stencil_back_fail != KINC_G4_STENCIL_KEEP;
 		desc.StencilReadMask = state->stencil_read_mask;
 		desc.StencilWriteMask = state->stencil_write_mask;
-		desc.FrontFace.StencilFunc = desc.BackFace.StencilFunc = get_comparison(state->stencil_mode);
-		desc.FrontFace.StencilDepthFailOp = desc.BackFace.StencilDepthFailOp = get_stencil_action(state->stencil_depth_fail);
-		desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = get_stencil_action(state->stencil_both_pass);
-		desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = get_stencil_action(state->stencil_fail);
+		desc.FrontFace.StencilFunc = desc.BackFace.StencilFunc = get_comparison(state->stencil_front_mode);
+		desc.FrontFace.StencilDepthFailOp = desc.BackFace.StencilDepthFailOp = get_stencil_action(state->stencil_front_depth_fail);
+		desc.FrontFace.StencilPassOp = desc.BackFace.StencilPassOp = get_stencil_action(state->stencil_front_both_pass);
+		desc.FrontFace.StencilFailOp = desc.BackFace.StencilFailOp = get_stencil_action(state->stencil_front_fail);
+		desc.BackFace.StencilFunc = desc.BackFace.StencilFunc = get_comparison(state->stencil_back_mode);
+		desc.BackFace.StencilDepthFailOp = desc.BackFace.StencilDepthFailOp = get_stencil_action(state->stencil_back_depth_fail);
+		desc.BackFace.StencilPassOp = desc.BackFace.StencilPassOp = get_stencil_action(state->stencil_back_both_pass);
+		desc.BackFace.StencilFailOp = desc.BackFace.StencilFailOp = get_stencil_action(state->stencil_back_fail);
 
 		dx_ctx.device->lpVtbl->CreateDepthStencilState(dx_ctx.device, &desc, &state->impl.depthStencilState);
 	}

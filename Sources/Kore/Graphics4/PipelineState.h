@@ -26,10 +26,16 @@ namespace Kore {
 			bool depthWrite;
 			ZCompareMode depthMode;
 
-			ZCompareMode stencilMode;
-			StencilAction stencilBothPass;
-			StencilAction stencilDepthFail;
-			StencilAction stencilFail;
+			ZCompareMode stencilFrontMode;
+			StencilAction stencilFrontBothPass;
+			StencilAction stencilFrontDepthFail;
+			StencilAction stencilFrontFail;
+
+			ZCompareMode stencilBackMode;
+			StencilAction stencilBackBothPass;
+			StencilAction stencilBackDepthFail;
+			StencilAction stencilBackFail;
+
 			int stencilReferenceValue;
 			int stencilReadMask;
 			int stencilWriteMask;

@@ -1,6 +1,9 @@
 #include "wayland.h"
 
-void kinc_wayland_display_init(void) {}
+void kinc_wayland_display_init(void) {
+	// This is a no-op because displays are already registered in kinc_wayland_init,
+	// which should be called before this function is ever invoked
+}
 
 int kinc_wayland_display_primary(void) {
 	return 0; // TODO
