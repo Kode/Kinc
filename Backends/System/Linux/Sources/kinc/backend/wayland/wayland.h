@@ -11,57 +11,16 @@
 #include <wayland-client-core.h>
 #include <wayland-cursor.h>
 
+#define KINC_WL_CHECK_VERSION(x, y, z)                                                                                                                     \
+	(WAYLAND_VERSION_MAJOR > x || (WAYLAND_VERSION_MAJOR == x && WAYLAND_VERSION_MINOR > y) ||                                                                 \
+	 (WAYLAND_VERSION_MAJOR == x && WAYLAND_VERSION_MINOR == y && WAYLAND_VERSION_MICRO >= z))
+
 struct wl_surface;
 
 struct kinc_wl_procs {
-	void (*_wl_event_queue_destroy)(struct wl_event_queue *queue);
-	struct wl_proxy *(*_wl_proxy_marshal_flags)(struct wl_proxy *proxy, uint32_t opcode, const struct wl_interface *interface, uint32_t version, uint32_t flags,
-	                                            ...);
-	struct wl_proxy *(*_wl_proxy_marshal_array_flags)(struct wl_proxy *proxy, uint32_t opcode, const struct wl_interface *interface, uint32_t version,
-	                                                  uint32_t flags, union wl_argument *args);
-	void (*_wl_proxy_marshal)(struct wl_proxy *p, uint32_t opcode, ...);
-	void (*_wl_proxy_marshal_array)(struct wl_proxy *p, uint32_t opcode, union wl_argument *args);
-	struct wl_proxy *(*_wl_proxy_create)(struct wl_proxy *factory, const struct wl_interface *interface);
-	void *(*_wl_proxy_create_wrapper)(void *proxy);
-	void (*_wl_proxy_wrapper_destroy)(void *proxy_wrapper);
-	struct wl_proxy *(*_wl_proxy_marshal_constructor)(struct wl_proxy *proxy, uint32_t opcode, const struct wl_interface *interface, ...);
-	struct wl_proxy *(*_wl_proxy_marshal_constructor_versioned)(struct wl_proxy *proxy, uint32_t opcode, const struct wl_interface *interface, uint32_t version,
-	                                                            ...);
-	struct wl_proxy *(*_wl_proxy_marshal_array_constructor)(struct wl_proxy *proxy, uint32_t opcode, union wl_argument *args,
-	                                                        const struct wl_interface *interface);
-	struct wl_proxy *(*_wl_proxy_marshal_array_constructor_versioned)(struct wl_proxy *proxy, uint32_t opcode, union wl_argument *args,
-	                                                                  const struct wl_interface *interface, uint32_t version);
-	void (*_wl_proxy_destroy)(struct wl_proxy *proxy);
-	int (*_wl_proxy_add_listener)(struct wl_proxy *proxy, void (**implementation)(void), void *data);
-	const void *(*_wl_proxy_get_listener)(struct wl_proxy *proxy);
-	int (*_wl_proxy_add_dispatcher)(struct wl_proxy *proxy, wl_dispatcher_func_t dispatcher_func, const void *dispatcher_data, void *data);
-	void (*_wl_proxy_set_user_data)(struct wl_proxy *proxy, void *user_data);
-	void *(*_wl_proxy_get_user_data)(struct wl_proxy *proxy);
-	uint32_t (*_wl_proxy_get_version)(struct wl_proxy *proxy);
-	uint32_t (*_wl_proxy_get_id)(struct wl_proxy *proxy);
-	void (*_wl_proxy_set_tag)(struct wl_proxy *proxy, const char *const *tag);
-	const char *const *(*_wl_proxy_get_tag)(struct wl_proxy *proxy);
-	const char *(*_wl_proxy_get_class)(struct wl_proxy *proxy);
-	void (*_wl_proxy_set_queue)(struct wl_proxy *proxy, struct wl_event_queue *queue);
-	struct wl_display *(*_wl_display_connect)(const char *name);
-	struct wl_display *(*_wl_display_connect_to_fd)(int fd);
-	void (*_wl_display_disconnect)(struct wl_display *display);
-	int (*_wl_display_get_fd)(struct wl_display *display);
-	int (*_wl_display_dispatch)(struct wl_display *display);
-	int (*_wl_display_dispatch_queue)(struct wl_display *display, struct wl_event_queue *queue);
-	int (*_wl_display_dispatch_queue_pending)(struct wl_display *display, struct wl_event_queue *queue);
-	int (*_wl_display_dispatch_pending)(struct wl_display *display);
-	int (*_wl_display_get_error)(struct wl_display *display);
-	uint32_t (*_wl_display_get_protocol_error)(struct wl_display *display, const struct wl_interface **interface, uint32_t *id);
-	int (*_wl_display_flush)(struct wl_display *display);
-	int (*_wl_display_roundtrip_queue)(struct wl_display *display, struct wl_event_queue *queue);
-	int (*_wl_display_roundtrip)(struct wl_display *display);
-	struct wl_event_queue *(*_wl_display_create_queue)(struct wl_display *display);
-	int (*_wl_display_prepare_read_queue)(struct wl_display *display, struct wl_event_queue *queue);
-	int (*_wl_display_prepare_read)(struct wl_display *display);
-	void (*_wl_display_cancel_read)(struct wl_display *display);
-	int (*_wl_display_read_events)(struct wl_display *display);
-	void (*_wl_log_set_handler_client)(wl_log_func_t handler);
+	#define KINC_WL_FUN(ret, name, args) ret (*_##name) args;
+	#include "wayland-funs.h"
+	#undef KINC_WL_FUN
 
 	struct wl_cursor_theme *(*_wl_cursor_theme_load)(const char *name, int size, struct wl_shm *shm);
 	void (*_wl_cursor_theme_destroy)(struct wl_cursor_theme *theme);
