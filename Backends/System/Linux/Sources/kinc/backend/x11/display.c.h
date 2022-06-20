@@ -20,7 +20,7 @@ void kinc_x11_display_init(void) {
 
 	for (int i = 0; i < screen_resources->noutput; i++) {
 		if (i >= MAXIMUM_DISPLAYS) {
-			kinc_log(KINC_LOG_LEVEL_ERROR, "Too much screens (maximum %i)", MAXIMUM_DISPLAYS);
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Too many screens (maximum %i)", MAXIMUM_DISPLAYS);
 			break;
 		}
 
@@ -32,8 +32,7 @@ void kinc_x11_display_init(void) {
 
 		XRRCrtcInfo *crtc_info = xlib.XRRGetCrtcInfo(x11_ctx.display, screen_resources, output_info->crtc);
 
-		x11_ctx.num_displays++;
-		struct kinc_x11_display *display = &x11_ctx.displays[i];
+		struct kinc_x11_display *display = &x11_ctx.displays[x11_ctx.num_displays++];
 		display->index = i;
 		kinc_string_copy_limited(display->name, output_info->name, sizeof(display->name));
 		display->x = crtc_info->x;
@@ -55,7 +54,7 @@ void kinc_x11_display_init(void) {
 }
 
 int kinc_x11_display_primary(void) {
-	for (int i = 0; i < MAXIMUM_DISPLAYS; i++) {
+	for (int i = 0; i < x11_ctx.num_displays; i++) {
 		if (x11_ctx.displays[i].primary) {
 			return i;
 		}
@@ -98,7 +97,7 @@ kinc_display_mode_t kinc_x11_display_current_mode(int display_index) {
 	Window root_window = DefaultRootWindow(x11_ctx.display);
 	XRRScreenResources *screen_resources = xlib.XRRGetScreenResourcesCurrent(x11_ctx.display, root_window);
 
-	XRROutputInfo *output_info = xlib.XRRGetOutputInfo(x11_ctx.display, screen_resources, screen_resources->outputs[display_index]);
+	XRROutputInfo *output_info = xlib.XRRGetOutputInfo(x11_ctx.display, screen_resources, screen_resources->outputs[display->index]);
 	if (output_info->connection != RR_Connected || output_info->crtc == None) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Display %i not connected.", display_index);
 		xlib.XRRFreeOutputInfo(output_info);
@@ -154,7 +153,7 @@ int kinc_x11_display_count_available_modes(int display_index) {
 	Window root_window = RootWindow(x11_ctx.display, DefaultScreen(x11_ctx.display));
 	XRRScreenResources *screen_resources = xlib.XRRGetScreenResourcesCurrent(x11_ctx.display, root_window);
 
-	XRROutputInfo *output_info = xlib.XRRGetOutputInfo(x11_ctx.display, screen_resources, display->output);
+	XRROutputInfo *output_info = xlib.XRRGetOutputInfo(x11_ctx.display, screen_resources, screen_resources->outputs[display->index]);
 	if (output_info->connection != RR_Connected || output_info->crtc == None) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Display %i not connected.", display_index);
 		xlib.XRRFreeOutputInfo(output_info);
@@ -183,7 +182,7 @@ kinc_display_mode_t kinc_x11_display_available_mode(int display_index, int mode_
 	Window root_window = RootWindow(x11_ctx.display, DefaultScreen(x11_ctx.display));
 	XRRScreenResources *screen_resources = xlib.XRRGetScreenResourcesCurrent(x11_ctx.display, root_window);
 
-	XRROutputInfo *output_info = xlib.XRRGetOutputInfo(x11_ctx.display, screen_resources, display->output);
+	XRROutputInfo *output_info = xlib.XRRGetOutputInfo(x11_ctx.display, screen_resources, screen_resources->outputs[display->index]);
 	if (output_info->connection != RR_Connected || output_info->crtc == None) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Display %i not connected.", display_index);
 		xlib.XRRFreeOutputInfo(output_info);

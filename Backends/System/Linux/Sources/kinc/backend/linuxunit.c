@@ -55,6 +55,7 @@ void kinc_linux_init_procs() {
 		procs.display_init = kinc_wayland_display_init;
 		procs.display_available = kinc_wayland_display_available;
 		procs.display_available_mode = kinc_wayland_display_available_mode;
+		procs.display_count_available_modes = kinc_wayland_display_count_available_modes;
 		procs.display_current_mode = kinc_wayland_display_current_mode;
 		procs.display_name = kinc_wayland_display_name;
 		procs.display_primary = kinc_wayland_display_primary;
@@ -74,7 +75,7 @@ void kinc_linux_init_procs() {
 	else
 #endif
 #ifndef KINC_NO_X11
-	if (kinc_x11_init()) {
+	    if (kinc_x11_init()) {
 		procs.handle_messages = kinc_x11_handle_messages;
 		procs.shutdown = kinc_x11_shutdown;
 
@@ -97,6 +98,7 @@ void kinc_linux_init_procs() {
 		procs.display_init = kinc_x11_display_init;
 		procs.display_available = kinc_x11_display_available;
 		procs.display_available_mode = kinc_x11_display_available_mode;
+		procs.display_count_available_modes = kinc_x11_display_count_available_modes;
 		procs.display_current_mode = kinc_x11_display_current_mode;
 		procs.display_name = kinc_x11_display_name;
 		procs.display_primary = kinc_x11_display_primary;
