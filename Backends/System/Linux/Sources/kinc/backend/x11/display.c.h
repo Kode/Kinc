@@ -120,7 +120,7 @@ kinc_display_mode_t kinc_x11_display_current_mode(int display_index) {
 			continue;
 		}
 		mode.x = display->x;
-		mode.y = display->x;
+		mode.y = display->y;
 		mode.width = mode_info->width;
 		mode.height = mode_info->height;
 		mode.pixels_per_inch = 96;
@@ -141,14 +141,6 @@ kinc_display_mode_t kinc_x11_display_current_mode(int display_index) {
 int kinc_x11_display_count_available_modes(int display_index) {
 	if (display_index >= MAXIMUM_DISPLAYS) display_index = 0;
 	struct kinc_x11_display *display = &x11_ctx.displays[display_index];
-	kinc_display_mode_t mode;
-	mode.x = 0;
-	mode.y = 0;
-	mode.width = display->width;
-	mode.height = display->height;
-	mode.frequency = 60;
-	mode.bits_per_pixel = 32;
-	mode.pixels_per_inch = 96;
 
 	Window root_window = RootWindow(x11_ctx.display, DefaultScreen(x11_ctx.display));
 	XRRScreenResources *screen_resources = xlib.XRRGetScreenResourcesCurrent(x11_ctx.display, root_window);
