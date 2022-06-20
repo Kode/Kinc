@@ -206,7 +206,7 @@ kinc_display_mode_t kinc_x11_display_available_mode(int display_index, int mode_
 
 	if (mode_info != NULL) {
 		mode.x = display->x;
-		mode.y = display->x;
+		mode.y = display->y;
 		mode.width = mode_info->width;
 		mode.height = mode_info->height;
 		mode.pixels_per_inch = 96;
