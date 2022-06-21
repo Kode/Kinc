@@ -35,6 +35,7 @@ const excludes = [
 	'Backends/System/Linux/Sources/kinc/backend/wayland/xdg-decoration.h',
 	'Backends/System/Linux/Sources/kinc/backend/wayland/xdg-shell.c.h',
 	'Backends/System/Linux/Sources/kinc/backend/wayland/xdg-shell.h',
+	'Tests/Shader/Sources/stb_image_write.h'
 ];
 
 function isExcluded(filepath) {

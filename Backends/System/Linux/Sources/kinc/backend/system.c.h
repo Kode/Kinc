@@ -205,60 +205,60 @@ void kinc_copy_to_clipboard(const char *text) {
 
 int kinc_cpu_cores(void) {
 	char line[1024];
-  FILE *file = fopen("/proc/cpuinfo", "r");
+	FILE *file = fopen("/proc/cpuinfo", "r");
 
-  if (file != NULL) {
-    int cores[1024];
-    memset(cores, 0, sizeof(cores));
+	if (file != NULL) {
+		int cores[1024];
+		memset(cores, 0, sizeof(cores));
 
-    int cpu_count = 0;
-    int physical_id = -1;
-    int per_cpu_cores = -1;
-    int processor_count = 0;
+		int cpu_count = 0;
+		int physical_id = -1;
+		int per_cpu_cores = -1;
+		int processor_count = 0;
 
-    while (fgets(line, sizeof(line), file)) {
-      if (strncmp(line, "processor", 9) == 0) {
-        ++processor_count;
-        if (physical_id >= 0 && per_cpu_cores > 0) {
-          if (physical_id + 1 > cpu_count) {
-            cpu_count = physical_id + 1;
-          }
-          cores[physical_id] = per_cpu_cores;
-          physical_id = -1;
-          per_cpu_cores = -1;
-        }
-      }
-      else if (strncmp(line, "physical id", 11) == 0) {
-        physical_id = parse_number_at_end_of_line(line);
-      }
-      else if (strncmp(line, "cpu cores", 9) == 0) {
-        per_cpu_cores = parse_number_at_end_of_line(line);
-      }
-    }
-    fclose(file);
+		while (fgets(line, sizeof(line), file)) {
+			if (strncmp(line, "processor", 9) == 0) {
+				++processor_count;
+				if (physical_id >= 0 && per_cpu_cores > 0) {
+					if (physical_id + 1 > cpu_count) {
+						cpu_count = physical_id + 1;
+					}
+					cores[physical_id] = per_cpu_cores;
+					physical_id = -1;
+					per_cpu_cores = -1;
+				}
+			}
+			else if (strncmp(line, "physical id", 11) == 0) {
+				physical_id = parse_number_at_end_of_line(line);
+			}
+			else if (strncmp(line, "cpu cores", 9) == 0) {
+				per_cpu_cores = parse_number_at_end_of_line(line);
+			}
+		}
+		fclose(file);
 
-    if (physical_id >= 0 && per_cpu_cores > 0) {
-      if (physical_id + 1 > cpu_count) {
-        cpu_count = physical_id + 1;
-      }
-      cores[physical_id] = per_cpu_cores;
-    }
+		if (physical_id >= 0 && per_cpu_cores > 0) {
+			if (physical_id + 1 > cpu_count) {
+				cpu_count = physical_id + 1;
+			}
+			cores[physical_id] = per_cpu_cores;
+		}
 
-    int proper_cpu_count = 0;
-    for (int i = 0; i < cpu_count; ++i) {
-      proper_cpu_count += cores[i];
-    }
+		int proper_cpu_count = 0;
+		for (int i = 0; i < cpu_count; ++i) {
+			proper_cpu_count += cores[i];
+		}
 
-    if (proper_cpu_count > 0) {
-      return proper_cpu_count;
-    }
-    else {
-      return processor_count == 0 ? 1 : processor_count;
-    }
-  }
-  else {
-    return 1;
-  };
+		if (proper_cpu_count > 0) {
+			return proper_cpu_count;
+		}
+		else {
+			return processor_count == 0 ? 1 : processor_count;
+		}
+	}
+	else {
+		return 1;
+	};
 }
 
 #include <xkbcommon/xkbcommon.h>

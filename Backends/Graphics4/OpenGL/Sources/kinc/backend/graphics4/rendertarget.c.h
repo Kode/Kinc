@@ -130,11 +130,11 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 			glCheckErrors();
 			glBindTexture(texType, renderTarget->impl._depthTexture);
 			glCheckErrors();
-			#ifdef KORE_HTML5
+#ifdef KORE_HTML5
 			GLint format = GL_DEPTH_COMPONENT16;
-			#else
+#else
 			GLint format = depthBufferBits == 16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT;
-			#endif
+#endif
 			glTexImage2D(texType, 0, format, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 			glCheckErrors();
 			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

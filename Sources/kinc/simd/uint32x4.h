@@ -68,7 +68,7 @@ static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 #elif defined(KINC_NEON)
 
 static inline kinc_uint32x4_t kinc_uint32x4_load(const uint32_t values[4]) {
-	return (kinc_uint32x4_t){values[0], values[1], values[2],  values[3]};
+	return (kinc_uint32x4_t){values[0], values[1], values[2], values[3]};
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_load_all(uint32_t t) {

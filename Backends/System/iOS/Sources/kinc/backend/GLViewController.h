@@ -10,8 +10,8 @@
 @private
 }
 
-- (void)loadView;
+    - (void)loadView;
 
-- (void)setVisible:(BOOL)value;
+    - (void)setVisible:(BOOL)value;
 
-@end
+    @end

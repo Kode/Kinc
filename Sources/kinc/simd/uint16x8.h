@@ -68,7 +68,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 #elif defined(KINC_NEON)
 
 static inline kinc_uint16x8_t kinc_uint16x8_load(const uint16_t values[8]) {
-	return (kinc_uint16x8_t){values[0], values[1], values[2],  values[3],  values[4],  values[5],  values[6],  values[7]};
+	return (kinc_uint16x8_t){values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]};
 }
 
 static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {

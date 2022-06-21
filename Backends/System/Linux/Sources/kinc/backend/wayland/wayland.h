@@ -11,16 +11,16 @@
 #include <wayland-client-core.h>
 #include <wayland-cursor.h>
 
-#define KINC_WL_CHECK_VERSION(x, y, z)                                                                                                                     \
+#define KINC_WL_CHECK_VERSION(x, y, z)                                                                                                                         \
 	(WAYLAND_VERSION_MAJOR > x || (WAYLAND_VERSION_MAJOR == x && WAYLAND_VERSION_MINOR > y) ||                                                                 \
 	 (WAYLAND_VERSION_MAJOR == x && WAYLAND_VERSION_MINOR == y && WAYLAND_VERSION_MICRO >= z))
 
 struct wl_surface;
 
 struct kinc_wl_procs {
-	#define KINC_WL_FUN(ret, name, args) ret (*_##name) args;
-	#include "wayland-funs.h"
-	#undef KINC_WL_FUN
+#define KINC_WL_FUN(ret, name, args) ret(*_##name) args;
+#include "wayland-funs.h"
+#undef KINC_WL_FUN
 
 	struct wl_cursor_theme *(*_wl_cursor_theme_load)(const char *name, int size, struct wl_shm *shm);
 	void (*_wl_cursor_theme_destroy)(struct wl_cursor_theme *theme);
