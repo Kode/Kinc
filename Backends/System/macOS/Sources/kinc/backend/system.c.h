@@ -5,6 +5,8 @@
 #include <kinc/system.h>
 #include <kinc/video.h>
 
+#include <sys/sysctl.h>
+
 static int mouseX, mouseY;
 static bool keyboardShown = false;
 

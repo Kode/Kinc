@@ -203,6 +203,18 @@ void kinc_copy_to_clipboard(const char *text) {
 	procs.copy_to_clipboard(text);
 }
 
+static int parse_number_at_end_of_line(char *line) {
+	char *end = &line[strlen(line) - 2];
+	int num = 0;
+	int multi = 1;
+	while (*end >= '0' && *end <= '9') {
+		num += (*end - '0') * multi;
+		multi *= 10;
+		--end;
+	}
+	return num;
+}
+
 int kinc_cpu_cores(void) {
 	char line[1024];
 	FILE *file = fopen("/proc/cpuinfo", "r");
