@@ -106,6 +106,12 @@ KINC_FUNC double kinc_frequency(void);
 KINC_FUNC kinc_ticks_t kinc_timestamp(void);
 
 /// <summary>
+/// Returns the number of proper CPU-cores (not the number of hardware-threads)
+/// </summary>
+/// <returns>Number of cores</returns>
+KINC_FUNC int kinc_cpu_cores(void);
+
+/// <summary>
 /// Returns the current time. This can also be calculated ala kinc_timestamp() / kinc_frequency() but kinc_time is a little more precise on some systems.
 /// </summary>
 /// <returns>The current time in seconds</returns>
@@ -576,7 +582,16 @@ bool kinc_waiting_for_login(void) {
 }
 
 #if !defined(KORE_WINDOWS) && !defined(KORE_LINUX) && !defined(KORE_MACOS)
-void kinc_copy_to_clipboard(const char *text) {}
+void kinc_copy_to_clipboard(const char *text) {
+	kinc_log(KINC_LOG_LEVEL_WARNING, "kinc_copy_to_clipboard is not implemented for this system.");
+}
+#endif
+
+#if !defined(KORE_WINDOWS) && !defined(KORE_LINUX) && !defined(KORE_MACOS)
+int kinc_cpu_cores(void) {
+	kinc_log(KINC_LOG_LEVEL_WARNING, "kinc_cpu_cores is not implemented for this system and just returns 1.");
+	return 1;
+}
 #endif
 
 #endif

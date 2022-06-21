@@ -1410,3 +1410,29 @@ void kinc_copy_to_clipboard(const char *text) {
 	SetClipboardData(CF_UNICODETEXT, handle);
 	CloseClipboard();
 }
+
+int kinc_cpu_cores(void) {
+	SYSTEM_LOGICAL_PROCESSOR_INFORMATION info[1024];
+	DWORD returnLength = sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) * 1024;
+	BOOL success = GetLogicalProcessorInformation(&info[0], &returnLength);
+
+	int proper_cpu_count = 0;
+
+	if (success) {
+		DWORD byteOffset = 0;
+		PSYSTEM_LOGICAL_PROCESSOR_INFORMATION ptr = &info[0];
+		while (byteOffset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <= returnLength) {
+			if (ptr->Relationship == RelationProcessorCore) {
+				++proper_cpu_count;
+			}
+
+			byteOffset += sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
+			++ptr;
+		}
+	}
+	else {
+		proper_cpu_count = 1;
+	}
+
+	return proper_cpu_count;
+}
