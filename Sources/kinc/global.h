@@ -91,7 +91,7 @@ namespace Kore {
 
 #if defined(_WIN32)
 
-#ifdef KORE_WINDOWSAPP
+#if defined(KORE_WINDOWSAPP)
 
 #define KINC_WINDOWSAPP
 #define KINC_WINRT
@@ -106,7 +106,7 @@ namespace Kore {
 
 #elif defined(__APPLE__)
 
-#ifdef(TARGET_OS_MAC)
+#if defined(TARGET_OS_MAC)
 
 #define KINC_MACOS
 #define KORE_MACOS
