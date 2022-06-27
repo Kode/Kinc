@@ -106,16 +106,9 @@ namespace Kore {
 
 #elif defined(__APPLE__)
 
-#if defined(TARGET_OS_MAC)
+#include <TargetConditionals.h>
 
-#define KINC_MACOS
-#define KORE_MACOS
-
-#if defined(__arm64__)
-#define KINC_APPLE_SOC
-#endif
-
-#elif defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
+#if TARGET_OS_IPHONE
 
 #if defined(KORE_TVOS)
 #define KINC_TVOS
@@ -125,6 +118,15 @@ namespace Kore {
 #endif
 
 #define KINC_APPLE_SOC
+
+#else
+
+#define KINC_MACOS
+#define KORE_MACOS
+
+#if defined(__arm64__)
+#define KINC_APPLE_SOC
+#endif
 
 #endif
 
