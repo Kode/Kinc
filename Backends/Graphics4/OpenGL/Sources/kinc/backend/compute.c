@@ -1,5 +1,3 @@
-#include <kinc/backend/graphics4/ogl.h>
-
 #include <kinc/compute/compute.h>
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/rendertarget.h>
@@ -7,6 +5,8 @@
 #include <kinc/image.h>
 #include <kinc/log.h>
 #include <kinc/math/core.h>
+
+#include <kinc/backend/graphics4/ogl.h>
 
 #include <stdio.h>
 #include <string.h>
