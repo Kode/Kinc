@@ -280,7 +280,6 @@ else if (platform === Platform.Android) {
 	else {
 		throw new Error('Graphics API ' + graphics + ' is not available for Android.');
 	}
-	project.addDefine('KORE_POSIX');
 	project.addLib('log');
 	project.addLib('android');
 	project.addLib('EGL');

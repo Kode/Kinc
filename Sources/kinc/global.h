@@ -133,8 +133,10 @@ namespace Kore {
 
 #elif defined(__linux__)
 
+#if !defined(KORE_ANDROID)
 #define KINC_LINUX
 #define KORE_LINUX
+#endif
 
 #define KINC_POSIX
 #define KORE_POSIX
