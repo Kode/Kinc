@@ -111,6 +111,10 @@ namespace Kore {
 #define KINC_MACOS
 #define KORE_MACOS
 
+#if defined(__arm64__)
+#define KINC_APPLE_SOC
+#endif
+
 #elif defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
 
 #if defined(KORE_TVOS)
@@ -119,6 +123,8 @@ namespace Kore {
 #define KINC_IOS
 #define KORE_IOS
 #endif
+
+#define KINC_APPLE_SOC
 
 #endif
 
