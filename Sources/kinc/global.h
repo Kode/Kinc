@@ -84,6 +84,57 @@ namespace Kore {
 #define KINC_INLINE __attribute__((always_inline))
 #endif
 
+#ifdef _MSC_VER
+#define KINC_MICROSOFT
+#define KORE_MICROSOFT
+#endif
+
+#if defined(_WIN32)
+
+#ifdef KORE_WINDOWSAPP
+
+#define KINC_WINDOWSAPP
+#define KINC_WINRT
+#define KORE_WINRT
+
+#else
+
+#define KINC_WINDOWS
+#define KORE_WINDOWS
+
+#endif
+
+#elif defined(__APPLE__)
+
+#ifdef(TARGET_OS_MAC)
+
+#define KINC_MACOS
+#define KORE_MACOS
+
+#elif defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR)
+
+#if defined(KORE_TVOS)
+#define KINC_TVOS
+#else
+#define KINC_IOS
+#define KORE_IOS
+#endif
+
+#endif
+
+#define KINC_POSIX
+#define KORE_POSIX
+
+#elif defined(__linux__)
+
+#define KINC_LINUX
+#define KORE_LINUX
+
+#define KINC_POSIX
+#define KORE_POSIX
+
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

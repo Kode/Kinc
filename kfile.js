@@ -48,8 +48,6 @@ function addBackend(name) {
 let plugin = false;
 
 if (platform === Platform.Windows) {
-	project.addDefine('KORE_WINDOWS');
-	project.addDefine('KORE_MICROSOFT');
 	addBackend('System/Windows');
 	addBackend('System/Microsoft');
 	project.addLib('dxguid');
@@ -168,8 +166,6 @@ if (platform === Platform.Windows) {
 else if (platform === Platform.WindowsApp) {
 	g4 = true;
 	project.addDefine('KORE_WINDOWSAPP');
-	project.addDefine('KORE_WINRT');
-	project.addDefine('KORE_MICROSOFT');
 	addBackend('System/WindowsApp');
 	addBackend('System/Microsoft');
 	addBackend('Graphics4/Direct3D11');
@@ -189,7 +185,6 @@ else if (platform === Platform.WindowsApp) {
 	}
 }
 else if (platform === Platform.OSX) {
-	project.addDefine('KORE_MACOS');
 	addBackend('System/Apple');
 	addBackend('System/macOS');
 	addBackend('System/POSIX');
@@ -224,14 +219,10 @@ else if (platform === Platform.OSX) {
 	project.addLib('CoreVideo');
 	project.addLib('AVFoundation');
 	project.addLib('Foundation');
-	project.addDefine('KORE_POSIX');
 }
 else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	if (platform === Platform.tvOS) {
 		project.addDefine('KORE_TVOS');
-	}
-	else {
-		project.addDefine('KORE_IOS');
 	}
 	addBackend('System/Apple');
 	addBackend('System/iOS');
@@ -264,7 +255,6 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	project.addLib('CoreFoundation');
 	project.addLib('CoreVideo');
 	project.addLib('CoreMedia');
-	project.addDefine('KORE_POSIX');
 }
 else if (platform === Platform.Android) {
 	project.addDefine('KORE_ANDROID');
@@ -319,7 +309,9 @@ else if (platform === Platform.HTML5) {
 	}
 }
 else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
-	project.addDefine('KORE_LINUX');
+	if (platform === Platform.FreeBSD) { // TODO
+		project.addDefine('KORE_LINUX');
+	}
 	addBackend('System/Linux');
 	addBackend('System/POSIX');
 	project.addLib('asound');
@@ -449,7 +441,9 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	else {
 		throw new Error('Graphics API ' + graphics + ' is not available for Linux.');
 	}
-	project.addDefine('KORE_POSIX');
+	if (platform === Platform.FreeBSD) { // TODO
+		project.addDefine('KORE_POSIX');
+	}
 	project.addDefine('_POSIX_C_SOURCE=200112L');
 	project.addDefine('_XOPEN_SOURCE=600');
 }
