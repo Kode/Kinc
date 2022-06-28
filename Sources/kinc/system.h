@@ -163,7 +163,21 @@ KINC_FUNC void kinc_set_keep_screen_on(bool on);
 /// <summary>
 /// Tries to halt program-execution in an attached debugger when compiled in debug-mode (aka when NDEBUG is not defined).
 /// </summary>
-KINC_FUNC void kinc_debug_break(void);
+KINC_INLINE void kinc_debug_break(void) {
+#if defined(_MSC_VER)
+	__debugbreak();
+#elif defined(__clang__)
+	__builtin_debugtrap();
+#else
+#if defined(__aarch64__)
+	__asm__ volatile(".inst 0xd4200000");
+#elif defined(__x86_64__)
+	__asm__ volatile("int $0x03");
+#else
+	kinc_log(KINC_LOG_LEVEL_WARNING, "Oh no, kinc_debug_break is not implemented for the current compiler and CPU.");
+#endif
+#endif
+}
 
 /// <summary>
 /// Copies the provided string to the system's clipboard.
@@ -598,22 +612,6 @@ int kinc_cpu_cores(void) {
 	return 1;
 }
 #endif
-
-void kinc_debug_break(void) {
-#if defined(_MSC_VER)
-	__debugbreak();
-#elif defined(__clang__)
-	__builtin_debugtrap();
-#else
-#if defined(__aarch64__)
-	__asm__ volatile(".inst 0xd4200000");
-#elif defined(__x86_64__)
-	__asm__ volatile("int $0x03");
-#else
-	kinc_log(KINC_LOG_LEVEL_WARNING, "Oh no, kinc_debug_break is not implemented for the current compiler and CPU.");
-#endif
-#endif
-}
 
 #endif
 
