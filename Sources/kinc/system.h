@@ -588,13 +588,13 @@ bool kinc_waiting_for_login(void) {
 
 #if !defined(KORE_WINDOWS) && !defined(KORE_LINUX) && !defined(KORE_MACOS)
 void kinc_copy_to_clipboard(const char *text) {
-	kinc_log(KINC_LOG_LEVEL_WARNING, "kinc_copy_to_clipboard is not implemented for this system.");
+	kinc_log(KINC_LOG_LEVEL_WARNING, "Oh no, kinc_copy_to_clipboard is not implemented for this system.");
 }
 #endif
 
 #if !defined(KORE_WINDOWS) && !defined(KORE_LINUX) && !defined(KORE_MACOS)
 int kinc_cpu_cores(void) {
-	kinc_log(KINC_LOG_LEVEL_WARNING, "kinc_cpu_cores is not implemented for this system and just returns 1.");
+	kinc_log(KINC_LOG_LEVEL_WARNING, "Oh no, kinc_cpu_cores is not implemented for this system and just returns 1.");
 	return 1;
 }
 #endif
@@ -605,7 +605,13 @@ void kinc_debug_break(void) {
 #elif defined(__clang__)
 	__builtin_debugtrap();
 #else
-	__builtin_trap(); // TODO
+#if defined(__aarch64__)
+	__asm__ volatile(".inst 0xd4200000");
+#elif defined(__x86_64__)
+	__asm__ volatile("int $0x03");
+#else
+	kinc_log(KINC_LOG_LEVEL_WARNING, "Oh no, kinc_debug_break is not implemented for the current compiler and CPU.");
+#endif
 #endif
 }
 
