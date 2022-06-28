@@ -161,6 +161,11 @@ KINC_FUNC void kinc_allow_user_change(void);
 KINC_FUNC void kinc_set_keep_screen_on(bool on);
 
 /// <summary>
+/// Tries to halt program-execution in an attached debugger when compiled in debug-mode (aka when NDEBUG is not defined).
+/// </summary>
+KINC_FUNC void kinc_debug_break(void);
+
+/// <summary>
 /// Copies the provided string to the system's clipboard.
 /// </summary>
 /// <param name="text">The text to be copied into the clipboard</param>
@@ -593,6 +598,16 @@ int kinc_cpu_cores(void) {
 	return 1;
 }
 #endif
+
+void kinc_debug_break(void) {
+#if defined(_MSC_VER)
+	__debugbreak();
+#elif defined(__clang__)
+	__builtin_debugtrap();
+#else
+	__builtin_trap(); // TODO
+#endif
+}
 
 #endif
 
