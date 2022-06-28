@@ -507,13 +507,13 @@ $(function() {
 <div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160; </div>
 <div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;<span class="preprocessor">#if !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_LINUX) &amp;&amp; !defined(KORE_MACOS)</span></div>
 <div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#ac28b5ac7548d6daf2aa7a5fb20dc98cd">kinc_copy_to_clipboard</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *text) {</div>
-<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;    <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_WARNING, <span class="stringliteral">&quot;kinc_copy_to_clipboard is not implemented for this system.&quot;</span>);</div>
+<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;    <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_WARNING, <span class="stringliteral">&quot;Oh no, kinc_copy_to_clipboard is not implemented for this system.&quot;</span>);</div>
 <div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;}</div>
 <div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160; </div>
 <div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160;<span class="preprocessor">#if !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_LINUX) &amp;&amp; !defined(KORE_MACOS)</span></div>
 <div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a935c65ed8f7f978f7038446c09b87fd3">kinc_cpu_cores</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;    <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_WARNING, <span class="stringliteral">&quot;kinc_cpu_cores is not implemented for this system and just returns 1.&quot;</span>);</div>
+<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;    <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_WARNING, <span class="stringliteral">&quot;Oh no, kinc_cpu_cores is not implemented for this system and just returns 1.&quot;</span>);</div>
 <div class="line"><a name="l00598"></a><span class="lineno">  598</span>&#160;    <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160;}</div>
 <div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;<span class="preprocessor">#endif</span></div>
@@ -524,17 +524,23 @@ $(function() {
 <div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;<span class="preprocessor">#elif defined(__clang__)</span></div>
 <div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;    __builtin_debugtrap();</div>
 <div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;    __builtin_trap(); <span class="comment">// TODO</span></div>
-<div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;}</div>
-<div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160; </div>
-<div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160; </div>
+<div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;<span class="preprocessor">#if defined(__aarch64__)</span></div>
+<div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;    __asm__ <span class="keyword">volatile</span>(<span class="stringliteral">&quot;.inst 0xd4200000&quot;</span>);</div>
+<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;<span class="preprocessor">#elif defined(__x86_64__)</span></div>
+<div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;    __asm__ <span class="keyword">volatile</span>(<span class="stringliteral">&quot;int $0x03&quot;</span>);</div>
+<div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;    <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_WARNING, <span class="stringliteral">&quot;Oh no, kinc_debug_break is not implemented for the current compiler and CPU.&quot;</span>);</div>
 <div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160; </div>
-<div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160;}</div>
+<div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;}</div>
+<div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160; </div>
 <div class="line"><a name="l00618"></a><span class="lineno">  618</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00619"></a><span class="lineno">  619</span>&#160; </div>
+<div class="line"><a name="l00620"></a><span class="lineno">  620</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00621"></a><span class="lineno">  621</span>&#160; </div>
+<div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;}</div>
+<div class="line"><a name="l00624"></a><span class="lineno">  624</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="asystem_8h_html_a116149fa031e4933f822211673a1a701"><div class="ttname"><a href="system_8h.html#a116149fa031e4933f822211673a1a701">kinc_vibrate</a></div><div class="ttdeci">KINC_FUNC void kinc_vibrate(int milliseconds)</div><div class="ttdoc">Vibrates the whole system if supported. This is primarily supported on mobile phones but don't blame ...</div></div>
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
