@@ -20,7 +20,7 @@ char buffer[1024];
 int kinc_x11_error_handler(Display *display, XErrorEvent *error_event) {
 	xlib.XGetErrorText(display, error_event->error_code, buffer, 1024);
 	kinc_log(KINC_LOG_LEVEL_ERROR, "X Error: %s", buffer);
-	__builtin_trap();
+	kinc_debug_break();
 	return 0;
 }
 
