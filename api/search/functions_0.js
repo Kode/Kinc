@@ -69,7 +69,7 @@ var searchData=
   ['kinc_5fcount_5fdisplays_787',['kinc_count_displays',['../display_8h.html#a6f60e4e3aa46dfecce582221b01590cb',1,'display.h']]],
   ['kinc_5fcount_5fwindows_788',['kinc_count_windows',['../window_8h.html#a7f4b61b4d6d852af75e13bc124c3c325',1,'window.h']]],
   ['kinc_5fcpu_5fcores_789',['kinc_cpu_cores',['../system_8h.html#a935c65ed8f7f978f7038446c09b87fd3',1,'system.h']]],
-  ['kinc_5fdebug_5fbreak_790',['kinc_debug_break',['../system_8h.html#a292ca5b14e68f876778e590a6ea37f6c',1,'system.h']]],
+  ['kinc_5fdebug_5fbreak_790',['kinc_debug_break',['../system_8h.html#a8795a2dac9bd17d4d8f493f8313cfdf1',1,'system.h']]],
   ['kinc_5fdisallow_5fuser_5fchange_791',['kinc_disallow_user_change',['../system_8h.html#ae3cff890e0fb4d106b8a41eee62740da',1,'system.h']]],
   ['kinc_5fdisplay_5favailable_792',['kinc_display_available',['../display_8h.html#ac916573a2456798a88cbcf80c29371a6',1,'display.h']]],
   ['kinc_5fdisplay_5favailable_5fmode_793',['kinc_display_available_mode',['../display_8h.html#a0d329a98be9171fd9c31af52636a67ae',1,'display.h']]],
