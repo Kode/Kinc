@@ -164,6 +164,7 @@ KINC_FUNC void kinc_set_keep_screen_on(bool on);
 /// Tries to halt program-execution in an attached debugger when compiled in debug-mode (aka when NDEBUG is not defined).
 /// </summary>
 KINC_INLINE void kinc_debug_break(void) {
+#ifndef NDEBUG
 #if defined(_MSC_VER)
 	__debugbreak();
 #elif defined(__clang__)
@@ -175,6 +176,7 @@ KINC_INLINE void kinc_debug_break(void) {
 	__asm__ volatile("int $0x03");
 #else
 	kinc_log(KINC_LOG_LEVEL_WARNING, "Oh no, kinc_debug_break is not implemented for the current compiler and CPU.");
+#endif
 #endif
 #endif
 }
