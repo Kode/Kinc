@@ -79,9 +79,9 @@ namespace Kore {
 #endif
 
 #ifdef _MSC_VER
-#define KINC_INLINE __forceinline
+#define KINC_INLINE static __forceinline
 #else
-#define KINC_INLINE __attribute__((always_inline))
+#define KINC_INLINE static __attribute__((always_inline))
 #endif
 
 #ifdef _MSC_VER
