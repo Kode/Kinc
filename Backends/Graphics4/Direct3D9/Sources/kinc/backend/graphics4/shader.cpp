@@ -45,6 +45,8 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *void_data, size_t lengt
 	}
 }
 
-void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {}
+int kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {
+	return 1;
+}
 
 void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {}

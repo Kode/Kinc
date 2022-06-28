@@ -11,7 +11,6 @@ typedef struct {
 	unsigned _glid;
 	const char *source;
 	size_t length;
-	bool fromSource;
 } kinc_g4_shader_impl_t;
 
 typedef struct {

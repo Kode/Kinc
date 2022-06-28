@@ -41,7 +41,8 @@ KINC_FUNC void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *data, size_t 
 /// <param name="shader">The shader to initialize</param>
 /// <param name="source">The GLSL-shader-source-code</param>
 /// <param name="type">The type of the shader</param>
-KINC_FUNC void kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type);
+/// <returns>The number of errors the compiler encountered - hopefully it's zero.</returns>
+KINC_FUNC int kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type);
 
 /// <summary>
 /// Destroys a shader.

@@ -7,6 +7,7 @@
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics4/shader.h>
 #include <kinc/graphics4/vertexbuffer.h>
+#include <kinc/string.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
 
@@ -134,25 +135,25 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 			indices[5] = 3;
 			kinc_g4_index_buffer_unlock(&windowIndexBuffer);
 
-			kinc_g4_shader_init_from_source(&windowVertexShader,
-			                                "#version 450\n"
-			                                "in vec2 pos;\n"
-			                                "out vec2 texCoord;\n"
-			                                "void main() {\n"
-			                                "gl_Position = vec4(pos, 0.5, 1.0);\n"
-			                                "texCoord = (pos + 1.0) / 2.0;\n"
-			                                "}\n",
-			                                KINC_G4_SHADER_TYPE_VERTEX);
+			char *vertex_shader = "#version 450\n"
+			                      "in vec2 pos;\n"
+			                      "out vec2 texCoord;\n"
+			                      "void main() {\n"
+			                      "gl_Position = vec4(pos, 0.5, 1.0);\n"
+			                      "texCoord = (pos + 1.0) / 2.0;\n"
+			                      "}\n";
 
-			kinc_g4_shader_init_from_source(&windowFragmentShader,
-			                                "#version 450\n"
-			                                "uniform sampler2D tex;\n"
-			                                "in vec2 texCoord;\n"
-			                                "out vec4 frag;\n"
-			                                "void main() {\n"
-			                                "frag = texture(tex, texCoord);\n"
-			                                "}\n",
-			                                KINC_G4_SHADER_TYPE_FRAGMENT);
+			kinc_g4_shader_init(&windowVertexShader, vertex_shader, kinc_string_length(vertex_shader), KINC_G4_SHADER_TYPE_VERTEX);
+
+			char *fragment_shader = "#version 450\n"
+			                        "uniform sampler2D tex;\n"
+			                        "in vec2 texCoord;\n"
+			                        "out vec4 frag;\n"
+			                        "void main() {\n"
+			                        "frag = texture(tex, texCoord);\n"
+			                        "}\n";
+
+			kinc_g4_shader_init(&windowFragmentShader, fragment_shader, kinc_string_length(fragment_shader), KINC_G4_SHADER_TYPE_FRAGMENT);
 
 			kinc_g4_pipeline_init(&windowPipeline);
 			windowPipeline.input_layout[0] = &structure;
