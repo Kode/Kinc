@@ -67,7 +67,6 @@ KINC_FUNC void kinc_log_args(kinc_log_level_t log_level, const char *format, va_
 #undef KINC_IMPLEMENTATION
 #endif
 #include <kinc/string.h>
-#include <kinc/system.h>
 #ifdef KINC_IMPLEMENTATION_ROOT
 #define KINC_IMPLEMENTATION
 #endif
