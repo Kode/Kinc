@@ -3,6 +3,90 @@ const path = require('path');
 
 const headers = {};
 
+function miniPreprocessor(source) {
+	const normal = 0;
+	const lineStart = 1;
+	const pragma = 2;
+	let mode = lineStart;
+	let currentPragma = null;
+
+	let processed = '';
+	
+	for (let i = 0; i < source.length; ++i) {
+		if (mode === normal) {
+			if (source.charAt(i) === '\n' || source.charAt(i) === '\r') {
+				mode = lineStart;
+			}
+			processed += source.charAt(i);
+		}
+		else if (mode === lineStart) {
+			if (source.charAt(i) === '#') {
+				currentPragma = '';
+				mode = pragma;
+			}
+			else if (source.charAt(i) === '\n' || source.charAt(i) === '\r') {
+				processed += source.charAt(i);
+				mode = lineStart;
+			}
+			else {
+				processed += source.charAt(i);
+				mode = normal;
+			}
+		}
+		else if (mode === pragma) {
+			if (source.charAt(i) === '\n' || source.charAt(i) === '\r') {
+				if (currentPragma.startsWith('include')) {
+					const start = currentPragma.indexOf('<');
+					const end = currentPragma.indexOf('>');
+					if (start >= 0 && end >= 0 && currentPragma.length > start + 1 && currentPragma.substring(start + 1).startsWith('kinc')) {
+						const headerPath = currentPragma.substring(start + 1, end);
+
+						let filePath = null;
+						if (headerPath.includes('FileReaderImpl') || headerPath.includes('Android')) {
+							processed += '#' + currentPragma + source.charAt(i);
+						}
+						else {
+							if (headerPath.startsWith('kinc/backend')) {
+								filePath = path.resolve('Backends', 'System', 'Microsoft', 'Sources', headerPath);
+							}
+							else {
+								filePath = path.resolve('Sources', headerPath);
+							}
+						
+							if (!headers[headerPath]) {
+								headers[headerPath] = true;
+
+								let header = fs.readFileSync(filePath, {encoding: 'utf8'});
+								console.log('Preprocessing ' + filePath);
+								header = miniPreprocessor(header);
+								processed += header;
+							}
+						}
+					}
+					else {
+						processed += '#' + currentPragma + source.charAt(i);
+					}
+				}
+				else if (currentPragma.startsWith('pragma once')) {
+					// ignore
+				}
+				else {
+					processed += '#' + currentPragma + source.charAt(i);
+				}
+				mode = lineStart;
+			}
+			else {
+				currentPragma += source.charAt(i);
+			}
+		}
+		else {
+			throw 'Unknown mode';
+		}
+	}
+
+	return processed;
+}
+
 function findHeader(headerPath) {
 	const cachedHeader = headers[headerPath];
 	if (cachedHeader) {
@@ -28,16 +112,15 @@ function insertHeaders(file, headerPaths) {
 }
 
 const audio2_header = fs.readFileSync(path.resolve('Sources', 'kinc', 'audio2', 'audio.h'), {encoding: 'utf8'});
-let lib = insertHeaders(audio2_header, ['kinc/global.h']);
+let lib = '#pragma once\n' + miniPreprocessor(audio2_header);
 
 let windows_backend = fs.readFileSync(path.resolve('Backends', 'Audio2', 'WASAPI', 'Sources', 'kinc', 'backend', 'wasapi.c'), {encoding: 'utf8'});
 windows_backend = windows_backend.replace('#include <kinc/audio2/audio.h>', '');
-windows_backend = insertHeaders(windows_backend, ['kinc/error.h', 'kinc/log.h']);
-windows_backend = windows_backend.trim();
+windows_backend = miniPreprocessor(windows_backend);
 
 lib = lib.replace('// BACKENDS-PLACEHOLDER', '#ifdef KORE_WINDOWS\n' + windows_backend + '\n#endif');
 
 if (!fs.existsSync('single_header_libs')) {
 	fs.mkdirSync('single_header_libs');
 }
-fs.writeFileSync(path.resolve('single_header_libs', 'audio2.h'), lib, {encoding: 'utf8'});
+fs.writeFileSync(path.resolve('single_header_libs', 'kinc_audio2.h'), lib, {encoding: 'utf8'});
