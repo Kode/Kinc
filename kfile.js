@@ -169,7 +169,7 @@ else if (platform === Platform.WindowsApp) {
 	addBackend('System/WindowsApp');
 	addBackend('System/Microsoft');
 	addBackend('Graphics4/Direct3D11');
-	addBackend('Audio2/WASAPI');
+	addBackend('Audio2/WASAPI_WinRT');
 	project.addDefine('_CRT_SECURE_NO_WARNINGS');
 	project.vsdeploy = true;
 
