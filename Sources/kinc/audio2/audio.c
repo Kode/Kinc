@@ -1,3 +1,3 @@
-#include "audio.h"
+#define KINC_IMPLEMENTATION_AUDIO2
 
-int kinc_a2_samples_per_second = 44100;
+#include "audio.h"

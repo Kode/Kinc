@@ -60,6 +60,18 @@ KINC_FUNC void kinc_a2_update(void);
 /// </summary>
 KINC_FUNC void kinc_a2_shutdown(void);
 
+#ifdef KINC_IMPLEMENTATION_AUDIO2
+#define KINC_IMPLEMENTATION
+#endif
+
+#ifdef KINC_IMPLEMENTATION
+
+int kinc_a2_samples_per_second = 44100;
+
+// BACKENDS-PLACEHOLDER
+
+#endif
+
 #ifdef __cplusplus
 }
 #endif
