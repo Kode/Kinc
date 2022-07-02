@@ -11,19 +11,7 @@
 
 #include <AudioClient.h>
 #include <Windows.h>
-#ifdef KORE_WINRT
-#include <mfapi.h>
-#endif
 #include <mmdeviceapi.h>
-#ifdef KORE_WINRT
-#include <wrl/implements.h>
-#endif
-
-#ifdef KORE_WINRT
-using namespace ::Microsoft::WRL;
-using namespace Windows::Media::Devices;
-using namespace Windows::Storage::Streams;
-#endif
 
 // MIDL_INTERFACE("1CB9AD4C-DBFA-4c32-B178-C2F568A703B2")
 DEFINE_GUID(IID_IAudioClient, 0x1CB9AD4C, 0xDBFA, 0x4c32, 0xB1, 0x78, 0xC2, 0xF5, 0x68, 0xA7, 0x03, 0xB2);
@@ -59,29 +47,7 @@ static WAVEFORMATEX *format;
 static bool initDefaultDevice();
 static void audioThread(LPVOID);
 
-#ifdef KORE_WINRT
-class AudioRenderer : public RuntimeClass<RuntimeClassFlags<ClassicCom>, FtmBase, IActivateAudioInterfaceCompletionHandler> {
-public:
-	STDMETHOD(ActivateCompleted)(IActivateAudioInterfaceAsyncOperation *operation) {
-		IUnknown *audioInterface = nullptr;
-		HRESULT hrActivateResult = S_OK;
-		HRESULT hr = operation->GetActivateResult(&hrActivateResult, &audioInterface);
-		if (SUCCEEDED(hr) && SUCCEEDED(hrActivateResult)) {
-			audioInterface->QueryInterface(IID_PPV_ARGS(&audioClient));
-			initDefaultDevice();
-			audioThread(nullptr);
-		}
-		return S_OK;
-	}
-};
-
-ComPtr<AudioRenderer> renderer;
-#endif
-
 static bool initDefaultDevice() {
-#ifdef KORE_WINRT
-	HRESULT hr = S_OK;
-#else
 	if (renderClient != NULL) {
 		renderClient->lpVtbl->Release(renderClient);
 		renderClient = NULL;
@@ -103,7 +69,6 @@ static bool initDefaultDevice() {
 	if (hr == S_OK) {
 		hr = device->lpVtbl->Activate(device, &IID_IAudioClient, CLSCTX_ALL, 0, (void **)&audioClient);
 	}
-#endif
 
 	if (hr == S_OK) {
 		const int sampleRate = 48000;
@@ -243,9 +208,7 @@ static void audioThread(LPVOID ignored) {
 	}
 }
 
-#ifndef KORE_WINRT
 void kinc_windows_co_initialize(void);
-#endif
 
 void kinc_a2_init() {
 	a2_buffer.read_location = 0;
@@ -256,21 +219,12 @@ void kinc_a2_init() {
 	audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
 	kinc_affirm(audioProcessingDoneEvent != 0);
 
-#ifdef KORE_WINRT
-	renderer = Make<AudioRenderer>();
-
-	IActivateAudioInterfaceAsyncOperation *asyncOp;
-	Platform::String ^ deviceId = MediaDevice::GetDefaultAudioRenderId(Windows::Media::Devices::AudioDeviceRole::Default);
-	kinc_microsoft_affirm(ActivateAudioInterfaceAsync(deviceId->Data(), __uuidof(IAudioClient2), nullptr, renderer.Get(), &asyncOp));
-	SafeRelease(&asyncOp);
-#else
 	kinc_windows_co_initialize();
 	kinc_microsoft_affirm(CoCreateInstance(&CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, &IID_IMMDeviceEnumerator, (void **)&deviceEnumerator));
 
 	if (initDefaultDevice()) {
 		kinc_thread_init(&thread, audioThread, NULL);
 	}
-#endif
 }
 
 void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
