@@ -5,7 +5,6 @@
 #include <kinc/error.h>
 #include <kinc/log.h>
 #include <kinc/memory.h>
-#include <kinc/threads/thread.h>
 
 #include <initguid.h>
 
@@ -29,7 +28,6 @@ DEFINE_GUID(CLSID_MMDeviceEnumerator, 0xBCDE0395, 0xE52F, 0x467C, 0x8E, 0x3D, 0x
 	}
 
 // based on the implementation in soloud and Microsoft sample code
-static kinc_thread_t thread;
 static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
@@ -43,9 +41,6 @@ static UINT32 bufferFrames;
 static WAVEFORMATEX requestedFormat;
 static WAVEFORMATEX *closestFormat;
 static WAVEFORMATEX *format;
-
-static bool initDefaultDevice();
-static void audioThread(LPVOID);
 
 static bool initDefaultDevice() {
 	if (renderClient != NULL) {
@@ -188,7 +183,7 @@ static void submitBuffer(unsigned frames) {
 	}
 }
 
-static void audioThread(LPVOID ignored) {
+static DWORD WINAPI audioThread(LPVOID ignored) {
 	submitBuffer(bufferFrames);
 	audioClient->lpVtbl->Start(audioClient);
 	while (WAIT_OBJECT_0 != WaitForSingleObject(audioProcessingDoneEvent, 0)) {
@@ -206,6 +201,7 @@ static void audioThread(LPVOID ignored) {
 		UINT32 frames = bufferFrames - padding;
 		submitBuffer(frames);
 	}
+	return 0;
 }
 
 void kinc_windows_co_initialize(void);
@@ -223,7 +219,7 @@ void kinc_a2_init() {
 	kinc_microsoft_affirm(CoCreateInstance(&CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, &IID_IMMDeviceEnumerator, (void **)&deviceEnumerator));
 
 	if (initDefaultDevice()) {
-		kinc_thread_init(&thread, audioThread, NULL);
+		CreateThread(0, 65536, audioThread, NULL, 0, 0);
 	}
 }
 
