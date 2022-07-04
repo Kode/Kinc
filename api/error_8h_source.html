@@ -108,8 +108,8 @@ $(function() {
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160; </div>
 <div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="preprocessor">#include &lt;Windows.h&gt;</span></div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160; </div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/MiniWindows.h&gt;</span></div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/SystemMicrosoft.h&gt;</span></div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160; </div>
@@ -152,7 +152,7 @@ $(function() {
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;        va_start(args, format);</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;        <span class="keywordtype">wchar_t</span> buffer[4096];</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;        kinc_microsoft_format(format, args, buffer);</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        MessageBox(NULL, buffer, L<span class="stringliteral">&quot;Error&quot;</span>, 0);</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        MessageBoxW(NULL, buffer, L<span class="stringliteral">&quot;Error&quot;</span>, 0);</div>
 <div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;        va_end(args);</div>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    }</div>
 <div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="preprocessor">#endif</span></div>
@@ -168,7 +168,7 @@ $(function() {
 <div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
 <div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">wchar_t</span> buffer[4096];</div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    kinc_microsoft_format(format, args, buffer);</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    MessageBox(NULL, buffer, L<span class="stringliteral">&quot;Error&quot;</span>, 0);</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    MessageBoxW(NULL, buffer, L<span class="stringliteral">&quot;Error&quot;</span>, 0);</div>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160; </div>
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="preprocessor">#ifndef KINC_NO_CLIB</span></div>
