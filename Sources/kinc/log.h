@@ -72,7 +72,7 @@ KINC_FUNC void kinc_log_args(kinc_log_level_t log_level, const char *format, va_
 #endif
 
 #ifdef KORE_MICROSOFT
-#include <Windows.h>
+#include <kinc/backend/MiniWindows.h>
 #include <kinc/backend/SystemMicrosoft.h>
 #endif
 
@@ -95,10 +95,11 @@ void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 	wchar_t buffer[4096];
 	kinc_microsoft_format(format, args, buffer);
 	kinc_wstring_append(buffer, L"\r\n");
-	OutputDebugString(buffer);
+	OutputDebugStringW(buffer);
 #ifdef KORE_WINDOWS
 	DWORD written;
-	WriteConsole(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)kinc_wstring_length(buffer), &written, NULL);
+	WriteConsoleW(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)kinc_wstring_length(buffer), &written,
+	              NULL);
 #endif
 #else
 	char buffer[4096];

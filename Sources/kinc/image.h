@@ -136,10 +136,6 @@ KINC_FUNC int kinc_image_format_sizeof(kinc_image_format_t format);
 
 #ifdef KINC_IMPLEMENTATION
 
-#if defined(KORE_WINDOWS) && defined(KORE_VULKAN)
-#include <windows.h>
-#endif
-
 #include "image.h"
 
 #ifdef KORE_LZ4X
