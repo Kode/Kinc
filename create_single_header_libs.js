@@ -36,30 +36,48 @@ function miniPreprocessor(source) {
 		else if (mode === pragma) {
 			if (source.charAt(i) === '\n' || source.charAt(i) === '\r') {
 				if (currentPragma.startsWith('include')) {
-					const start = currentPragma.indexOf('<');
-					const end = currentPragma.indexOf('>');
-					if (start >= 0 && end >= 0 && currentPragma.length > start + 1 && currentPragma.substring(start + 1).startsWith('kinc')) {
+					let start = currentPragma.indexOf('<');
+					if (start < 0) {
+						start = currentPragma.indexOf('"');
+					}
+					let end = currentPragma.lastIndexOf('>');
+					if (end < 0) {
+						end = currentPragma.lastIndexOf('"');
+					}
+
+					if (start >= 0 && end >= 0 && currentPragma.length > start + 1) {
 						const headerPath = currentPragma.substring(start + 1, end);
 
-						let filePath = null;
-						if (headerPath.includes('FileReaderImpl') || headerPath.includes('Android')) {
-							processed += '#' + currentPragma + source.charAt(i);
-						}
-						else {
-							if (headerPath.startsWith('kinc/backend')) {
-								filePath = path.resolve('Backends', 'System', 'Microsoft', 'Sources', headerPath);
+						if (currentPragma.substring(start + 1).startsWith('kinc')) {
+							let filePath = null;
+							if (headerPath.includes('FileReaderImpl') || headerPath.includes('Android')) {
+								if (!headers[headerPath]) {
+									headers[headerPath] = true;
+									processed += '#' + currentPragma + source.charAt(i);
+								}
 							}
 							else {
-								filePath = path.resolve('Sources', headerPath);
+								if (headerPath.startsWith('kinc/backend')) {
+									filePath = path.resolve('Backends', 'System', 'Microsoft', 'Sources', headerPath);
+								}
+								else {
+									filePath = path.resolve('Sources', headerPath);
+								}
+							
+								if (!headers[headerPath]) {
+									headers[headerPath] = true;
+
+									let header = fs.readFileSync(filePath, {encoding: 'utf8'});
+									console.log('Preprocessing ' + filePath);
+									header = miniPreprocessor(header);
+									processed += header;
+								}
 							}
-						
+						}
+						else {
 							if (!headers[headerPath]) {
 								headers[headerPath] = true;
-
-								let header = fs.readFileSync(filePath, {encoding: 'utf8'});
-								console.log('Preprocessing ' + filePath);
-								header = miniPreprocessor(header);
-								processed += header;
+								processed += '#' + currentPragma + source.charAt(i);
 							}
 						}
 					}

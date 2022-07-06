@@ -44,8 +44,7 @@ KINC_FUNC int kinc_wstring_compare_limited(const wchar_t *str1, const wchar_t *s
 
 #ifdef KINC_IMPLEMENTATION
 
-#include "memory.h"
-#include "string.h"
+#include <kinc/memory.h>
 
 #include <string.h>
 #include <wchar.h>
