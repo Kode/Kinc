@@ -6,10 +6,52 @@
 #include <kinc/log.h>
 #include <kinc/memory.h>
 
+// Windows 7
+#define WINVER 0x0601
+#define _WIN32_WINNT 0x0601
+
+#define NOATOM
+#define NOCLIPBOARD
+#define NOCOLOR
+#define NOCOMM
+#define NOCTLMGR
+#define NODEFERWINDOWPOS
+#define NODRAWTEXT
+//#define NOGDI
+#define NOGDICAPMASKS
+#define NOHELP
+#define NOICONS
+#define NOKANJI
+#define NOKEYSTATES
+#define NOMB
+#define NOMCX
+#define NOMEMMGR
+#define NOMENUS
+#define NOMETAFILE
+#define NOMINMAX
+//#define NOMSG
+#define NONLS
+#define NOOPENFILE
+#define NOPROFILER
+#define NORASTEROPS
+#define NOSCROLL
+#define NOSERVICE
+#define NOSHOWWINDOW
+#define NOSOUND
+#define NOSYSCOMMANDS
+#define NOSYSMETRICS
+#define NOTEXTMETRIC
+//#define NOUSER
+#define NOVIRTUALKEYCODES
+#define NOWH
+#define NOWINMESSAGES
+#define NOWINOFFSETS
+#define NOWINSTYLES
+#define WIN32_LEAN_AND_MEAN
+
 #include <initguid.h>
 
 #include <AudioClient.h>
-#include <Windows.h>
 #include <mmdeviceapi.h>
 
 // MIDL_INTERFACE("1CB9AD4C-DBFA-4c32-B178-C2F568A703B2")
