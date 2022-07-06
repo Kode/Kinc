@@ -98,6 +98,50 @@ KINC_FUNC unsigned kinc_url_to_int(const char *url, int port);
 #include <stdio.h>
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+
+// Windows 7
+#define WINVER 0x0601
+#define _WIN32_WINNT 0x0601
+
+#define NOATOM
+#define NOCLIPBOARD
+#define NOCOLOR
+#define NOCOMM
+#define NOCTLMGR
+#define NODEFERWINDOWPOS
+#define NODRAWTEXT
+#define NOGDI
+#define NOGDICAPMASKS
+#define NOHELP
+#define NOICONS
+#define NOKANJI
+#define NOKEYSTATES
+#define NOMB
+#define NOMCX
+#define NOMEMMGR
+#define NOMENUS
+#define NOMETAFILE
+#define NOMINMAX
+#define NOMSG
+#define NONLS
+#define NOOPENFILE
+#define NOPROFILER
+#define NORASTEROPS
+#define NOSCROLL
+#define NOSERVICE
+#define NOSHOWWINDOW
+#define NOSOUND
+#define NOSYSCOMMANDS
+#define NOSYSMETRICS
+#define NOTEXTMETRIC
+#define NOUSER
+#define NOVIRTUALKEYCODES
+#define NOWH
+#define NOWINMESSAGES
+#define NOWINOFFSETS
+#define NOWINSTYLES
+#define WIN32_LEAN_AND_MEAN
+
 #include <Ws2tcpip.h>
 #include <winsock2.h>
 #elif defined(KORE_POSIX)

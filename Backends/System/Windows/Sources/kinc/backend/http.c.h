@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <winhttp.h>
+
 static const wchar_t *convert(int method) {
 	switch (method) {
 	case KINC_HTTP_GET:
@@ -22,9 +24,6 @@ static const wchar_t *convert(int method) {
 
 static char *returnData = NULL;
 static int returnDataSize = 0;
-
-#include <Windows.h>
-#include <winhttp.h>
 
 void kinc_http_request(const char *url, const char *path, const char *data, int port, bool secure, int method, const char *header,
                        kinc_http_callback_t callback, void *callbackdata) {
