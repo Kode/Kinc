@@ -117,6 +117,7 @@ struct kinc_xkb_procs {
 	                                                  xkb_mod_mask_t locked_mods, xkb_layout_index_t depressed_layout, xkb_layout_index_t latched_layout,
 	                                                  xkb_layout_index_t locked_layout);
 	int (*xkb_state_mod_name_is_active)(struct xkb_state *state, const char *name, enum xkb_state_component type);
+	int (*xkb_keymap_key_repeats)(struct xkb_keymap *keymap, xkb_keycode_t key);
 };
 
 extern struct kinc_xkb_procs wl_xkb;
@@ -247,6 +248,14 @@ struct kinc_wl_keyboard {
 	struct xkb_keymap *keymap;
 	struct xkb_state *state;
 	bool ctrlDown;
+
+	int repeat_delay;
+	int repeat_rate;
+
+	int timerfd;
+
+	int last_key_code;
+	int last_character;
 };
 
 struct kinc_wl_data_offer {
