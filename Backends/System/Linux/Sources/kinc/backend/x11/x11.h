@@ -112,6 +112,7 @@ struct kinc_x11_procs {
 	int (*XPending)(Display *display);
 	int (*XFlush)(Display *display);
 	int (*XNextEvent)(Display *display, XEvent *event_return);
+	int (*XPeekEvent)(Display *display, XEvent *event_return);
 	int (*XRefreshKeyboardMapping)(XMappingEvent *event_map);
 	int (*XwcLookupString)(XIC, XKeyPressedEvent *, wchar_t *, int, KeySym *, int *);
 	int (*XFilterEvent)(XEvent *, Window);

@@ -115,6 +115,7 @@ bool kinc_x11_init() {
 	LOAD_FUN(X11, XMapWindow)
 	LOAD_FUN(X11, XUnmapWindow)
 	LOAD_FUN(X11, XSetWMProtocols)
+	LOAD_FUN(X11, XPeekEvent)
 
 	LOAD_FUN(Xi, XListInputDevices)
 	LOAD_FUN(Xi, XFreeDeviceList)
@@ -267,6 +268,8 @@ static void check_pen_device(struct kinc_x11_window *window, XEvent *event, stru
 bool kinc_x11_handle_messages() {
 	static bool controlDown = false;
 	static int ignoreKeycode = 0;
+	static bool preventNextKeyDownEvent = false;
+
 	while (xlib.XPending(x11_ctx.display)) {
 		XEvent event;
 		xlib.XNextEvent(x11_ctx.display, &event);
@@ -296,6 +299,12 @@ bool kinc_x11_handle_messages() {
 				if (wcConverted) {
 					kinc_internal_keyboard_trigger_key_press(wchar);
 				}
+			}
+
+			if (preventNextKeyDownEvent){
+				// this keypress is a repeated keystroke and should not lead to a keydown-event
+				preventNextKeyDownEvent = false;
+				continue;
 			}
 
 #define KEY(xkey, korekey)                                                                                                                                     \
@@ -471,6 +480,19 @@ bool kinc_x11_handle_messages() {
 		case KeyRelease: {
 			XKeyEvent *key = (XKeyEvent *)&event;
 
+			// peek next-event to determine if this a repeated-keystroke
+			XEvent nev;
+			if (xlib.XPending(x11_ctx.display)){
+				xlib.XPeekEvent(x11_ctx.display,&nev);
+
+				if (nev.type == KeyPress && nev.xkey.time == event.xkey.time &&
+					nev.xkey.keycode == event.xkey.keycode)
+				{
+					// repeated keystroke! prevent this keyup-event and next keydown-event from being fired
+					preventNextKeyDownEvent = true; 
+					continue;
+				}			
+			}
 			KeySym keysym;
 
 			char c;
