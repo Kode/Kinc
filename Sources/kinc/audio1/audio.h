@@ -75,9 +75,18 @@ KINC_FUNC float kinc_a1_channel_get_volume(kinc_a1_channel_t *channel);
 /// <returns></returns>
 KINC_FUNC void kinc_a1_channel_set_volume(kinc_a1_channel_t *channel, float volume);
 
+/// <summary>
+/// Mixes audio into the current buffer. Normally this is called internally but you can also
+/// call it manually to mix a1-audio with your own audio. To do that first call kinc_a1_init,
+/// then call kinc_a2_set_callback to set it to your own callback and call kinc_a1_mix
+/// from that callback.
+/// </summary>
+/// <param name="buffer">The audio-buffer to be filled</param>
+/// <param name="samples">The number of samples to be filled in</param>
+KINC_FUNC void kinc_a1_mix(kinc_a2_buffer_t *buffer, int samples);
+
 void kinc_internal_play_video_sound_stream(struct kinc_internal_video_sound_stream *stream);
 void kinc_internal_stop_video_sound_stream(struct kinc_internal_video_sound_stream *stream);
-void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples);
 
 #ifdef __cplusplus
 }

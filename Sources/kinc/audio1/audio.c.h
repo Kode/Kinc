@@ -42,7 +42,7 @@ static float sampleLinear(int16_t *data, float position) {
     return ((c3 * x + c2) * x + c1) * x + c0;
 }*/
 
-void kinc_internal_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
+void kinc_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
 	for (int i = 0; i < samples; ++i) {
 		bool left = (i % 2) == 0;
 		float value = 0;
@@ -125,7 +125,7 @@ void kinc_a1_init() {
 		streamchannels[i].position = 0;
 	}
 	kinc_mutex_init(&mutex);
-	kinc_a2_set_callback(kinc_internal_a1_mix);
+	kinc_a2_set_callback(kinc_a1_mix);
 }
 
 kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float pitch, bool unique) {
