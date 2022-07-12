@@ -1,7 +1,7 @@
-#include "kinc/input/pen.h"
-#include "kinc/log.h"
-#include "kinc/memory.h"
 #include "wayland.h"
+#include <kinc/input/pen.h>
+#include <kinc/log.h>
+#include <kinc/memory.h>
 #include <wayland-generated/wayland-pointer-constraint.h>
 #include <wayland-generated/wayland-relative-pointer.h>
 #include <wayland-generated/wayland-tablet.h>
@@ -83,6 +83,7 @@ bool kinc_wayland_load_procs() {
 	LOAD_FUN(xkb_state_serialize_mods)
 	LOAD_FUN(xkb_state_update_mask)
 	LOAD_FUN(xkb_state_mod_name_is_active)
+	LOAD_FUN(xkb_keymap_key_repeats)
 #undef LOAD_FUN
 
 	if (has_missing_symbol) {
@@ -376,8 +377,33 @@ void wl_pointer_handle_axis(void *data, struct wl_pointer *wl_pointer, uint32_t 
 	kinc_internal_mouse_trigger_scroll(mouse->current_window, delta);
 }
 
-static const struct wl_pointer_listener wl_pointer_listener = {
-    wl_pointer_handle_enter, wl_pointer_handle_leave, wl_pointer_handle_motion, wl_pointer_handle_button, wl_pointer_handle_axis, 0, 0, 0, 0,
+void wl_pointer_handle_frame(void *data, struct wl_pointer *wl_pointer) {}
+
+void wl_pointer_handle_axis_source(void *data, struct wl_pointer *wl_pointer, uint32_t axis_source) {}
+
+void wl_pointer_handle_axis_stop(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis) {}
+
+void wl_pointer_handle_axis_discrete(void *data, struct wl_pointer *wl_pointer, uint32_t axis, int32_t discrete) {}
+
+void wl_pointer_handle_axis_value120(void *data, struct wl_pointer *wl_pointer, uint32_t axis, int32_t value120) {}
+
+static const struct wl_pointer_listener wl_pointer_listener = {wl_pointer_handle_enter,         wl_pointer_handle_leave, wl_pointer_handle_motion,
+                                                               wl_pointer_handle_button,        wl_pointer_handle_axis,
+#ifdef WL_POINTER_FRAME_SINCE_VERSION
+                                                               wl_pointer_handle_frame,
+#endif
+#ifdef WL_POINTER_AXIS_SOURCE_SINCE_VERSION
+                                                               wl_pointer_handle_axis_source,
+#endif
+#ifdef WL_POINTER_AXIS_STOP_SINCE_VERSION
+                                                               wl_pointer_handle_axis_stop,
+#endif
+#ifdef WL_POINTER_AXIS_DISCRETE_SINCE_VERSION
+                                                               wl_pointer_handle_axis_discrete,
+#endif
+#ifdef WL_POINTER_AXIS_VALUE120_SINCE_VERSION
+                                                               wl_pointer_handle_axis_value120
+#endif
 };
 
 void zwp_relative_pointer_v1_handle_relative_motion(void *data, struct zwp_relative_pointer_v1 *zwp_relative_pointer_v1, uint32_t utime_hi, uint32_t utime_lo,
@@ -435,6 +461,8 @@ void handle_paste(void *data, size_t data_size, void *user_data) {
 	kinc_internal_paste_callback(data);
 }
 
+#include <sys/timerfd.h>
+
 void wl_keyboard_handle_key(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state) {
 	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
 	if (keyboard->keymap && keyboard->state) {
@@ -462,9 +490,29 @@ void wl_keyboard_handle_key(void *data, struct wl_keyboard *wl_keyboard, uint32_
 			kinc_internal_keyboard_trigger_key_down(kinc_key);
 			if (character != 0) {
 				kinc_internal_keyboard_trigger_key_press(character);
+				if (wl_xkb.xkb_keymap_key_repeats(keyboard->keymap, key + 8) && keyboard->repeat_rate > 0) {
+					struct itimerspec timer = {};
+					keyboard->last_character = character;
+					keyboard->last_key_code = key + 8;
+					if (keyboard->repeat_rate > 1) {
+						timer.it_interval.tv_nsec = 1000000000 / keyboard->repeat_rate;
+					}
+					else {
+						timer.it_interval.tv_sec = 1;
+					}
+
+					timer.it_value.tv_sec = keyboard->repeat_delay / 1000;
+					timer.it_value.tv_nsec = (keyboard->repeat_delay % 1000) * 1000000;
+
+					timerfd_settime(keyboard->timerfd, 0, &timer, NULL);
+				}
 			}
 		}
 		if (state == WL_KEYBOARD_KEY_STATE_RELEASED) {
+			if (key + 8 == keyboard->last_key_code) {
+				keyboard->last_key_code = keyboard->last_character = -1;
+			}
+
 			kinc_internal_keyboard_trigger_key_up(kinc_key);
 		}
 	}
@@ -481,7 +529,12 @@ void wl_keyboard_handle_modifiers(void *data, struct wl_keyboard *wl_keyboard, u
 	}
 }
 
-void wl_keyboard_handle_repeat_info(void *data, struct wl_keyboard *wl_keyboard, int32_t rate, int32_t delay) {}
+void wl_keyboard_handle_repeat_info(void *data, struct wl_keyboard *wl_keyboard, int32_t rate, int32_t delay) {
+	struct kinc_wl_keyboard *keyboard = wl_keyboard_get_user_data(wl_keyboard);
+	keyboard->repeat_rate = rate;
+	keyboard->repeat_delay = delay;
+	kinc_log(KINC_LOG_LEVEL_INFO, "Keyboard repeat rate: %i, delay: %i", rate, delay);
+}
 
 static const struct wl_keyboard_listener wl_keyboard_listener = {
     wl_keyboard_handle_keymap,      wl_keyboard_handle_enter, wl_keyboard_handle_leave, wl_keyboard_handle_key, wl_keyboard_handle_modifiers,
@@ -496,6 +549,10 @@ void wl_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32_t capabili
 	if (capabilities & WL_SEAT_CAPABILITY_KEYBOARD) {
 		seat->keyboard.keyboard = wl_seat_get_keyboard(wl_seat);
 		seat->keyboard.seat = seat;
+		seat->keyboard.timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC | TFD_NONBLOCK);
+		seat->keyboard.repeat_delay = 0;
+		seat->keyboard.repeat_rate = 0;
+		seat->keyboard.last_key_code = -1;
 		wl_keyboard_add_listener(seat->keyboard.keyboard, &wl_keyboard_listener, &seat->keyboard);
 	}
 	if (capabilities & WL_SEAT_CAPABILITY_POINTER) {
@@ -890,7 +947,7 @@ static void wl_registry_handle_global(void *data, struct wl_registry *registry, 
 			kinc_log(KINC_LOG_LEVEL_WARNING, "Multi-seat configurations not supported");
 			return;
 		}
-		wl_ctx.seat.seat = wl_registry_bind(registry, name, &wl_seat_interface, 1);
+		wl_ctx.seat.seat = wl_registry_bind(registry, name, &wl_seat_interface, version);
 
 		wl_seat_add_listener(wl_ctx.seat.seat, &wl_seat_listener, &wl_ctx.seat);
 		if (wl_ctx.data_device_manager != NULL) {
@@ -1004,13 +1061,67 @@ void kinc_wayland_copy_to_clipboard(const char *text) {}
 
 #define READ_SIZE 64
 
+#include <errno.h>
+#include <poll.h>
+
+static bool flush_display(void) {
+	while (wl_display_flush(wl_ctx.display) == -1) {
+		if (errno != EAGAIN) return false;
+
+		struct pollfd fd = {wl_display_get_fd(wl_ctx.display), POLLOUT};
+
+		while (poll(&fd, 1, -1) == -1) {
+			if (errno != EINTR && errno != EAGAIN) return false;
+		}
+	}
+
+	return true;
+}
+
 bool kinc_wayland_handle_messages() {
 	wl_display_dispatch(wl_ctx.display);
 	while (wl_display_prepare_read(wl_ctx.display) != 0) wl_display_dispatch_pending(wl_ctx.display);
-	wl_display_flush(wl_ctx.display);
-	wl_display_read_events(wl_ctx.display);
-	wl_display_dispatch_pending(wl_ctx.display);
-	wl_display_roundtrip(wl_ctx.display);
+	if (!flush_display()) {
+		// Something went wrong, abort.
+		wl_display_cancel_read(wl_ctx.display);
+
+		for (int i = 0; i < wl_ctx.num_windows; i++) {
+			kinc_window_destroy(i);
+		}
+
+		return true;
+	}
+
+	struct pollfd fds[] = {
+	    {wl_display_get_fd(wl_ctx.display), POLLIN},
+	    {wl_ctx.seat.keyboard.timerfd, POLLIN},
+	};
+
+	if (!poll(fds, sizeof(fds) / sizeof(struct pollfd), 10)) {
+		wl_display_cancel_read(wl_ctx.display);
+		return false;
+	}
+
+	if (fds[0].revents & POLLIN) {
+		wl_display_read_events(wl_ctx.display);
+		if (wl_display_dispatch_pending(wl_ctx.display) > 0) {
+		}
+	}
+	else {
+		wl_display_cancel_read(wl_ctx.display);
+	}
+
+	if (fds[1].revents & POLLIN) {
+		uint64_t repeats;
+
+		if (read(wl_ctx.seat.keyboard.timerfd, &repeats, sizeof(repeats)) == 8) {
+			if (wl_ctx.seat.keyboard.last_key_code != -1) {
+				for (uint64_t i = 0; i < repeats; i++) {
+					kinc_internal_keyboard_trigger_key_press(wl_ctx.seat.keyboard.last_character);
+				}
+			}
+		}
+	}
 
 	struct kinc_wl_data_offer **offer = &wl_ctx.data_offer_queue;
 	while (*offer != NULL) {
