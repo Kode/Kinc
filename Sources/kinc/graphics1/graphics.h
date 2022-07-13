@@ -27,7 +27,8 @@ KINC_FUNC void kinc_g1_init(int width, int height);
 KINC_FUNC void kinc_g1_begin(void);
 
 /// <summary>
-/// Typically called once per frame after all G1-drawing is finished.
+/// Typically called once per frame after all G1-drawing is finished. This also swaps the framebuffers
+/// so an equivalent call to kinc_g4_swap_buffers is not needed.
 /// </summary>
 KINC_FUNC void kinc_g1_end(void);
 
