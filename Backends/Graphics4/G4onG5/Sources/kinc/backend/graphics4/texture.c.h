@@ -17,7 +17,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t *image) {}
 
 void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
-	texture->impl._uploaded = false;
+	texture->impl._uploaded = true;
 	kinc_g5_texture_init(&texture->impl._texture, width, height, format);
 	texture->tex_width = texture->impl._texture.texWidth;
 	texture->tex_height = texture->impl._texture.texHeight;
