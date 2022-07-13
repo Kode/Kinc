@@ -50,6 +50,7 @@ uint8_t *kinc_g4_texture_lock(kinc_g4_texture_t *texture) {
 
 void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
 	kinc_g5_texture_unlock(&texture->impl._texture);
+	texture->impl._uploaded = false;
 }
 
 void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int width, int height, int depth, unsigned color) {
