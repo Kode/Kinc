@@ -75,7 +75,7 @@ void kinc_g1_init(int width, int height) {
 	pipeline.fragment_shader = &fragmentShader;
 	kinc_g4_pipeline_compile(&pipeline);
 
-	tex = kinc_g4_pipeline_get_texture_unit(&pipeline, "tex");
+	tex = kinc_g4_pipeline_get_texture_unit(&pipeline, "texy");
 
 	kinc_g4_texture_init(&texture, width, height, KINC_IMAGE_FORMAT_RGBA32);
 	kinc_internal_g1_tex_width = texture.tex_width;
