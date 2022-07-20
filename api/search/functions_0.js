@@ -313,7 +313,7 @@ var searchData=
   ['kinc_5fimage_5finit_5ffrom_5fencoded_5fbytes_1032',['kinc_image_init_from_encoded_bytes',['../image_8h.html#a65559fe66d30efabdded6eeb91bf4fa9',1,'image.h']]],
   ['kinc_5fimage_5finit_5ffrom_5ffile_1033',['kinc_image_init_from_file',['../image_8h.html#a9ef140a779e43910f07e3681300be2f0',1,'image.h']]],
   ['kinc_5fimage_5fsize_5ffrom_5fcallbacks_1034',['kinc_image_size_from_callbacks',['../image_8h.html#af57a963b6892130286921d05a672bf87',1,'image.h']]],
-  ['kinc_5fimage_5fsize_5ffrom_5fencoded_5fbytes_1035',['kinc_image_size_from_encoded_bytes',['../image_8h.html#a33eb90ec63a1ad0147d1f75be01f35a6',1,'image.h']]],
+  ['kinc_5fimage_5fsize_5ffrom_5fencoded_5fbytes_1035',['kinc_image_size_from_encoded_bytes',['../image_8h.html#a59b13c9c06ceb795ff281f4f3ee5e50b',1,'image.h']]],
   ['kinc_5fimage_5fsize_5ffrom_5ffile_1036',['kinc_image_size_from_file',['../image_8h.html#a9723bd43563b80b15ecbecbecd3e1c90',1,'image.h']]],
   ['kinc_5finit_1037',['kinc_init',['../system_8h.html#a5d7103e982907cba65dbcf59bb3805f2',1,'system.h']]],
   ['kinc_5fkeyboard_5factive_1038',['kinc_keyboard_active',['../keyboard_8h.html#a6882f8e969dbba9c42d0079564f15b3d',1,'keyboard.h']]],

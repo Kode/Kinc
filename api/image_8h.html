@@ -142,9 +142,9 @@ Functions</h2></td></tr>
 <tr class="memitem:af57a963b6892130286921d05a672bf87"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#af57a963b6892130286921d05a672bf87">kinc_image_size_from_callbacks</a> (<a class="el" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks, void *user_data, const char *format)</td></tr>
 <tr class="memdesc:af57a963b6892130286921d05a672bf87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Peeks into an image that is loaded via callback functions and figures out the size it will occupy in memory.  <a href="image_8h.html#af57a963b6892130286921d05a672bf87">More...</a><br /></td></tr>
 <tr class="separator:af57a963b6892130286921d05a672bf87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33eb90ec63a1ad0147d1f75be01f35a6"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a33eb90ec63a1ad0147d1f75be01f35a6">kinc_image_size_from_encoded_bytes</a> (void *data, size_t data_size, const char *format)</td></tr>
-<tr class="memdesc:a33eb90ec63a1ad0147d1f75be01f35a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Peeks into an image file that resides in memory and figures out the size it will occupy in memory once it is uncompressed.  <a href="image_8h.html#a33eb90ec63a1ad0147d1f75be01f35a6">More...</a><br /></td></tr>
-<tr class="separator:a33eb90ec63a1ad0147d1f75be01f35a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59b13c9c06ceb795ff281f4f3ee5e50b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a59b13c9c06ceb795ff281f4f3ee5e50b">kinc_image_size_from_encoded_bytes</a> (void *data, size_t data_size, const char *format_hint)</td></tr>
+<tr class="memdesc:a59b13c9c06ceb795ff281f4f3ee5e50b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Peeks into an image file that resides in memory and figures out the size it will occupy in memory once it is uncompressed.  <a href="image_8h.html#a59b13c9c06ceb795ff281f4f3ee5e50b">More...</a><br /></td></tr>
+<tr class="separator:a59b13c9c06ceb795ff281f4f3ee5e50b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ef140a779e43910f07e3681300be2f0"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a9ef140a779e43910f07e3681300be2f0">kinc_image_init_from_file</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *memory, const char *filename)</td></tr>
 <tr class="memdesc:a9ef140a779e43910f07e3681300be2f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image from a file.  <a href="image_8h.html#a9ef140a779e43910f07e3681300be2f0">More...</a><br /></td></tr>
 <tr class="separator:a9ef140a779e43910f07e3681300be2f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -653,8 +653,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a33eb90ec63a1ad0147d1f75be01f35a6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a33eb90ec63a1ad0147d1f75be01f35a6">&#9670;&nbsp;</a></span>kinc_image_size_from_encoded_bytes()</h2>
+<a id="a59b13c9c06ceb795ff281f4f3ee5e50b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59b13c9c06ceb795ff281f4f3ee5e50b">&#9670;&nbsp;</a></span>kinc_image_size_from_encoded_bytes()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -675,7 +675,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>format</em>&#160;</td>
+          <td class="paramname"><em>format_hint</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -686,6 +686,14 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Peeks into an image file that resides in memory and figures out the size it will occupy in memory once it is uncompressed. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>The encoded data</td></tr>
+    <tr><td class="paramname">data_size</td><td>The size of the encoded data</td></tr>
+    <tr><td class="paramname">format_hint</td><td>Something like "png" can help, it also works to just put in the filename</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>The memory size in bytes that will be used when loading the image</dd></dl>
 
 </div>
