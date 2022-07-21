@@ -23,7 +23,7 @@ extern "C" {
 /// This is an alternative to assert which also persists in release
 /// builds. Use this instead of assert in situations where you want
 /// your users to see what's going wrong.
-/// This uses Kore's log and error functionality to make errors
+/// This uses Kinc's log and error functionality to make errors
 /// visible.
 /// </remarks>
 /// <param name="condition">
