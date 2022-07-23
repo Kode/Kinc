@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Kore/global.h>
+#include <kinc/global.h>
 
 #include <IOKit/IOKitLib.h>
 #include <IOKit/hid/IOHIDKeys.h>
