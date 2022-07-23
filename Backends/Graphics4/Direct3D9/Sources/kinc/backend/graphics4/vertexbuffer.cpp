@@ -12,7 +12,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 	buffer->impl.myCount = count;
 	buffer->impl.instanceDataStepRate = instance_data_step_rate;
 	DWORD usageFlags = D3DUSAGE_WRITEONLY;
-	if (usage == Kore::Graphics4::DynamicUsage) {
+	if (usage == KINC_G4_USAGE_DYNAMIC) {
 		usageFlags = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
 	}
 

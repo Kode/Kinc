@@ -10,7 +10,7 @@ struct kinc_g4_index_buffer *kinc_internal_current_index_buffer = NULL;
 void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format, kinc_g4_usage_t usage) {
 	buffer->impl.myCount = count;
 	DWORD usageFlags = D3DUSAGE_WRITEONLY;
-	if (usage == Kore::Graphics4::DynamicUsage) {
+	if (usage == KINC_G4_USAGE_DYNAMIC) {
 		usageFlags = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
 	}
 	kinc_microsoft_affirm(device->CreateIndexBuffer(sizeof(int) * count, usageFlags, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &buffer->impl.ib, 0));

@@ -1,8 +1,12 @@
 #include <kinc/display.h>
 #include <kinc/graphics4/graphics.h>
+#include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/shader.h>
+#include <kinc/graphics4/texture.h>
+#include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/math/core.h>
+
 #undef CreateWindow
 #include <kinc/system.h>
 #include <kinc/window.h>

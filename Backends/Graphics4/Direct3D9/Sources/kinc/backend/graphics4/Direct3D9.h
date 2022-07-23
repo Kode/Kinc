@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Kore/Graphics4/Graphics.h>
-#include <Kore/Math/Matrix.h>
+#include <kinc/graphics4/graphics.h>
+#include <kinc/math/matrix.h>
 
 #ifndef NDEBUG
 #define D3D_DEBUG_INFO
