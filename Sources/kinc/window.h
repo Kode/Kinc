@@ -166,8 +166,6 @@ KINC_FUNC void kinc_window_set_close_callback(int window, bool (*callback)(void 
 /// <returns>Whether the window is vsynced or not</returns>
 KINC_FUNC bool kinc_window_vsynced(int window);
 
-void kinc_internal_init_window_options(kinc_window_options_t *win);
-void kinc_internal_init_framebuffer_options(kinc_framebuffer_options_t *frame);
 void kinc_internal_call_resize_callback(int window, int width, int height);
 void kinc_internal_call_ppi_changed_callback(int window, int ppi);
 bool kinc_internal_call_close_callback(int window);
