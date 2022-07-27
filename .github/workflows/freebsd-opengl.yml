@@ -11,7 +11,7 @@ on:
 jobs:
   build:
 
-    runs-on: macos-11
+    runs-on: macos-12
     name: FreeBSD build
 
     steps:
@@ -20,7 +20,7 @@ jobs:
       run: git submodule update --init Tools/freebsd_x64
     - name: Compile in FreeBSD VM
       id: build
-      uses: vmactions/freebsd-vm@v0.1.6
+      uses: vmactions/freebsd-vm@v0.2.0
       with:
         usesh: true
         copyback: false
