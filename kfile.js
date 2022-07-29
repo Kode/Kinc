@@ -289,7 +289,7 @@ else if (platform === Platform.Android) {
 }
 else if (platform === Platform.HTML5) {
 	project.addDefine('KORE_HTML5');
-	addBackend('System/HTML5');
+	addBackend('System/Emscripten');
 	if (graphics === GraphicsApi.WebGPU) {
 		g4 = true;
 		g5 = true;
