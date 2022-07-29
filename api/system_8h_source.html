@@ -217,7 +217,7 @@ $(function() {
 <div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
 <div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="preprocessor">#include &lt;string.h&gt;</span></div>
 <div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160; </div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="preprocessor">#if !defined(KORE_HTML5) &amp;&amp; !defined(KORE_ANDROID) &amp;&amp; !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_CONSOLE)</span></div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="preprocessor">#if !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_ANDROID) &amp;&amp; !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_CONSOLE)</span></div>
 <div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="keywordtype">double</span> <a class="code" href="system_8h.html#a6b6e71910799ae040c522038d62e5ced">kinc_time</a>(<span class="keywordtype">void</span>) {</div>
 <div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="system_8h.html#a5df12efbc4578c32bfd95210695587a8">kinc_timestamp</a>() / <a class="code" href="system_8h.html#ae388378b997a056eba079fd34410bf53">kinc_frequency</a>();</div>
 <div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;}</div>
@@ -401,7 +401,7 @@ $(function() {
 <div class="line"><a name="l00482"></a><span class="lineno">  482</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733">kinc_start</a>(<span class="keywordtype">void</span>) {</div>
 <div class="line"><a name="l00483"></a><span class="lineno">  483</span>&#160;    running = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00484"></a><span class="lineno">  484</span>&#160; </div>
-<div class="line"><a name="l00485"></a><span class="lineno">  485</span>&#160;<span class="preprocessor">#if !defined(KORE_HTML5) &amp;&amp; !defined(KORE_TIZEN)</span></div>
+<div class="line"><a name="l00485"></a><span class="lineno">  485</span>&#160;<span class="preprocessor">#if !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_TIZEN)</span></div>
 <div class="line"><a name="l00486"></a><span class="lineno">  486</span>&#160;    <span class="comment">// if (Graphics::hasWindow()) Graphics::swapBuffers();</span></div>
 <div class="line"><a name="l00487"></a><span class="lineno">  487</span>&#160; </div>
 <div class="line"><a name="l00488"></a><span class="lineno">  488</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
