@@ -64,7 +64,7 @@ bool kinc_opengl_internal_nonPow2RenderTargetsSupported() {
 static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texType, int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
 		renderTarget->impl._hasDepth = true;
-#if defined(KORE_OPENGL_ES) && !defined(KORE_PI) && !defined(KORE_HTML5)
+#if defined(KORE_OPENGL_ES) && !defined(KORE_PI) && !defined(KORE_EMSCRIPTEN)
 		GLenum internalFormat = GL_DEPTH24_STENCIL8_OES;
 #elif defined(KORE_OPENGL_ES)
 		GLenum internalFormat = NULL;
@@ -130,7 +130,7 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 			glCheckErrors();
 			glBindTexture(texType, renderTarget->impl._depthTexture);
 			glCheckErrors();
-#ifdef KORE_HTML5
+#ifdef KORE_EMSCRIPTEN
 			GLint format = GL_DEPTH_COMPONENT16;
 #else
 			GLint format = depthBufferBits == 16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT;

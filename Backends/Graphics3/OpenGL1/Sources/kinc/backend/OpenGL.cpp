@@ -206,7 +206,7 @@ void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	glGenVertexArraysOES(1, &arrayId[windowId]);
 #elif defined(KORE_MACOS)
 	glGenVertexArraysAPPLE(1, &arrayId[windowId]);
-#elif !defined(KORE_ANDROID) && !defined(KORE_HTML5) && !defined(KORE_TIZEN) && !defined(KORE_PI)
+#elif !defined(KORE_ANDROID) && !defined(KORE_EMSCRIPTEN) && !defined(KORE_TIZEN) && !defined(KORE_PI)
 	glGenVertexArrays(1, &arrayId[windowId]);
 #endif
 	glCheckErrors();

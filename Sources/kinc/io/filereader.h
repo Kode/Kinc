@@ -293,7 +293,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 		kinc_string_copy(filepath, filename);
 	}
 #endif
-#ifdef KORE_HTML5
+#ifdef KORE_EMSCRIPTEN
 	kinc_string_copy(filepath, KORE_DEBUGDIR);
 	kinc_string_append(filepath, "/");
 	kinc_string_append(filepath, filename);

@@ -288,7 +288,7 @@ else if (platform === Platform.Android) {
 	project.addLib('OpenMAXAL');
 }
 else if (platform === Platform.HTML5) {
-	project.addDefine('KORE_HTML5');
+	project.addDefine('KORE_EMSCRIPTEN');
 	addBackend('System/Emscripten');
 	if (graphics === GraphicsApi.WebGPU) {
 		g4 = true;
