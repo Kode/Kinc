@@ -1,3 +1,4 @@
+* 2022-07-30: The html5-target has been renamed to emscripten.
 * 2022-07-23: Kinc and Kore have been split up into separate repositories. If you are using the Kinc-API and your repo points to https://github.com/Kode/Kinc or you are using the Kore-API and your repo points to https://github.com/Kode/Kore, things should just continue to work though. Otherwise, just change that, git fetch the changes and git reset to the latest commit on main.
 * 2022-06-06: The stencil-API changed a little to support separate stencil-settings for front-sides and back-sides.
 * 2022-05-02: The submodules have been reorganized so only the relevant files for the current system have to be downloaded. When doing a recursive clone everything is still pretty much as it used to be but alternatively you can now do a regular clone and the call Kinc/get_tools to only download what's actually needed.
