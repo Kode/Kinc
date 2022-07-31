@@ -15,7 +15,7 @@ typedef struct {
 	unsigned bufferId;
 	int sectionStart;
 	int sectionSize;
-	//#if defined KORE_ANDROID || defined KORE_HTML5 || defined KORE_TIZEN
+	//#if defined KORE_ANDROID || defined KORE_EMSCRIPTEN || defined KORE_TIZEN
 	kinc_g4_vertex_structure_t structure;
 	//#endif
 	int instanceDataStepRate;

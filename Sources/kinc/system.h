@@ -298,7 +298,7 @@ void kinc_internal_logout_callback(void);
 #include <stdlib.h>
 #include <string.h>
 
-#if !defined(KORE_HTML5) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
+#if !defined(KORE_EMSCRIPTEN) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
 double kinc_time(void) {
 	return kinc_timestamp() / kinc_frequency();
 }
@@ -482,7 +482,7 @@ bool kinc_internal_frame(void) {
 void kinc_start(void) {
 	running = true;
 
-#if !defined(KORE_HTML5) && !defined(KORE_TIZEN)
+#if !defined(KORE_EMSCRIPTEN) && !defined(KORE_TIZEN)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)

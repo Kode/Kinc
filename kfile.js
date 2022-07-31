@@ -287,9 +287,9 @@ else if (platform === Platform.Android) {
 	project.addLib('OpenSLES');
 	project.addLib('OpenMAXAL');
 }
-else if (platform === Platform.HTML5) {
-	project.addDefine('KORE_HTML5');
-	addBackend('System/HTML5');
+else if (platform === Platform.Emscripten) {
+	project.addDefine('KORE_EMSCRIPTEN');
+	addBackend('System/Emscripten');
 	if (graphics === GraphicsApi.WebGPU) {
 		g4 = true;
 		g5 = true;
@@ -304,7 +304,7 @@ else if (platform === Platform.HTML5) {
 		project.addDefine('KORE_OPENGL_ES');
 	}
 	else {
-		throw new Error('Graphics API ' + graphics + ' is not available for HTML5.');
+		throw new Error('Graphics API ' + graphics + ' is not available for Emscripten.');
 	}
 }
 else if (platform === Platform.Linux || platform === Platform.FreeBSD) {

@@ -25,7 +25,7 @@
 #include <GLES2/gl2ext.h>
 #endif
 
-#ifdef KORE_HTML5
+#ifdef KORE_EMSCRIPTEN
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 #include <GL/gl.h>
