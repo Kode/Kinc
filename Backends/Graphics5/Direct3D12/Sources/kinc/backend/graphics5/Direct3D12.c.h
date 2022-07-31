@@ -67,9 +67,9 @@ struct RenderEnvironment {
 
 #ifndef KORE_WINDOWS
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-void createSwapChain(RenderEnvironment *env, int bufferCount);
+void createSwapChain(struct RenderEnvironment *env, int bufferCount);
 #else
-void createSwapChain(RenderEnvironment *env, const DXGI_SWAP_CHAIN_DESC1 *desc);
+void createSwapChain(struct RenderEnvironment *env, const DXGI_SWAP_CHAIN_DESC1 *desc);
 #endif
 #endif
 
@@ -89,8 +89,8 @@ static ID3D12Fence *uploadFence;
 static ID3D12GraphicsCommandList *initCommandList;
 static ID3D12CommandAllocator *initCommandAllocator;
 
-static struct RenderEnvironment createDeviceAndSwapChainHelper(IDXGIAdapter *adapter, D3D_FEATURE_LEVEL minimumFeatureLevel,
-                                                               const DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
+struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_LEVEL minimumFeatureLevel,
+                                                               const struct DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
 	struct RenderEnvironment result = {0};
 #ifdef KORE_WINDOWS
 	kinc_microsoft_affirm(D3D12CreateDevice((IUnknown *)adapter, minimumFeatureLevel, &IID_ID3D12Device, &result.device));
@@ -123,7 +123,7 @@ static void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE wait
 	}
 }
 
-static void setupSwapChain(struct dx_window *window) {
+void setupSwapChain(struct dx_window *window) {
 	/*D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -179,6 +179,9 @@ static void setupSwapChain(struct dx_window *window) {
 	//**createRenderTargetView();
 }
 
+#ifdef KORE_CONSOLE
+void createDeviceAndSwapChain(int width, int height, HWND window);
+#else
 static void createDeviceAndSwapChain(int width, int height, HWND window) {
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
@@ -186,10 +189,9 @@ static void createDeviceAndSwapChain(int width, int height, HWND window) {
 	debugController->lpVtbl->EnableDebugLayer(debugController);
 #endif
 
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	struct DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
-#ifdef KORE_WINDOWS
 	swapChainDesc.BufferCount = QUEUE_SLOT_COUNT;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -199,24 +201,17 @@ static void createDeviceAndSwapChain(int width, int height, HWND window) {
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.Windowed = true;
-#else
-	initSwapChain(&swapChainDesc, width, height, window);
-#endif
 
-	struct RenderEnvironment renderEnv = createDeviceAndSwapChainHelper(NULL, D3D_FEATURE_LEVEL_11_0, &swapChainDesc);
+	struct RenderEnvironment renderEnv = createDeviceAndSwapChainHelper(D3D_FEATURE_LEVEL_11_0, &swapChainDesc);
 
 	device = renderEnv.device;
 	commandQueue = renderEnv.queue;
-#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
-		swapChainRenderTargets[i] = renderEnv.renderTargets[i];
-	}
-#else
+
 	// swapChain = renderEnv.swapChain;
-#endif
 
 	setupSwapChain(NULL);
 }
+#endif
 
 static void createViewportScissor(int width, int height) {
 	rectScissor.left = 0;
@@ -432,7 +427,8 @@ static void shutdown() {
 	}
 }
 
-void initWindow(struct dx_window *window, int windowIndex) {
+#ifdef KORE_WINDOWS
+static void initWindow(struct dx_window *window, int windowIndex) {
 	HWND hwnd = kinc_windows_window_handle(windowIndex);
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
@@ -455,6 +451,7 @@ void initWindow(struct dx_window *window, int windowIndex) {
 
 	setupSwapChain(window);
 }
+#endif
 
 void kinc_g5_internal_destroy_window(int window) {}
 
@@ -516,7 +513,7 @@ void kinc_g5_internal_init_window(int windowIndex, int depthBufferBits, int sten
 	HWND hwnd = kinc_windows_window_handle(windowIndex);
 	initWindow(window, windowIndex);
 #else
-	HWND hwnd = nullptr;
+	HWND hwnd = NULL;
 	window->vsync = verticalSync;
 	window->new_width = window->width = kinc_width();
 	window->new_height = window->height = kinc_height();

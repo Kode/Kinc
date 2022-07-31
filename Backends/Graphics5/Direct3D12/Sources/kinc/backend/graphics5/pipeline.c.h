@@ -416,7 +416,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 
 	HRESULT hr;
 #ifdef KORE_DXC
-	hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
+	hr = device->lpVtbl->CreateRootSignature(device, 0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length,
+	                                                           &IID_ID3D12RootSignature, &pipe->impl.rootSignature);
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
 	}

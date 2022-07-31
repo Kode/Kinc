@@ -42,7 +42,11 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <d3d12.h>
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+struct DXGI_SWAP_CHAIN_DESC1;
+#else
 #include <dxgi.h>
+#endif
 
 #ifndef IID_GRAPHICS_PPV_ARGS
 #define IID_GRAPHICS_PPV_ARGS(x) IID_PPV_ARGS(x)
@@ -61,7 +65,9 @@ static ID3D12RootSignature *globalComputeRootSignature = NULL;
 #define MAXIMUM_WINDOWS 16
 
 struct dx_window {
+#ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 	IDXGISwapChain *swapChain;
+#endif
 	ID3D12DescriptorHeap *depthStencilDescriptorHeap;
 	ID3D12Resource *depthStencilTexture;
 	UINT64 current_fence_value;

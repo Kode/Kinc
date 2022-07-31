@@ -99,8 +99,10 @@ namespace Kore {
 
 #else
 
+#ifndef KORE_CONSOLE
 #define KINC_WINDOWS
 #define KORE_WINDOWS
+#endif
 
 #endif
 

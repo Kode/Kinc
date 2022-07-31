@@ -216,10 +216,12 @@ void kinc_g5_command_list_set_vertex_constant_buffer(struct kinc_g5_command_list
 #ifdef KORE_DXC
 	if (list->impl._currentPipeline->impl.vertexConstantsSize > 0) {
 		if (list->impl._currentPipeline->impl.textures > 0) {
-			list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+			list->impl._commandList->lpVtbl->SetGraphicsRootConstantBufferView(
+			    list->impl._commandList, 2, buffer->impl.constant_buffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.constant_buffer) + offset);
 		}
 		else {
-			list->impl._commandList->SetGraphicsRootConstantBufferView(0, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+			list->impl._commandList->lpVtbl->SetGraphicsRootConstantBufferView(
+			    list->impl._commandList, 0, buffer->impl.constant_buffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.constant_buffer) + offset);
 		}
 	}
 #else
