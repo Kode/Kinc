@@ -89,11 +89,10 @@ static ID3D12Fence *uploadFence;
 static ID3D12GraphicsCommandList *initCommandList;
 static ID3D12CommandAllocator *initCommandAllocator;
 
-struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_LEVEL minimumFeatureLevel,
-                                                               const struct DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
+struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_LEVEL minimumFeatureLevel, const struct DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
 	struct RenderEnvironment result = {0};
 #ifdef KORE_WINDOWS
-	kinc_microsoft_affirm(D3D12CreateDevice((IUnknown *)adapter, minimumFeatureLevel, &IID_ID3D12Device, &result.device));
+	kinc_microsoft_affirm(D3D12CreateDevice(NULL, minimumFeatureLevel, &IID_ID3D12Device, &result.device));
 
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {0};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
