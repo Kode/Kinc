@@ -35,8 +35,10 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	device->lpVtbl->CreateDescriptorHeap(device, &descriptorHeapDesc, &IID_ID3D12DescriptorHeap, &descriptorHeap);
 
 	// Device
+#ifndef KORE_CONSOLE
 	device->lpVtbl->QueryInterface(device, &IID_ID3D12Device5, &dxrDevice);
 	command_list->impl._commandList->lpVtbl->QueryInterface(command_list->impl._commandList, &IID_ID3D12GraphicsCommandList4, &dxrCommandList);
+#endif
 
 	// Root signatures
 	// This is a root signature that is shared across all raytracing shaders invoked during a DispatchRays() call.
@@ -113,12 +115,16 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	raytracingPipeline.NumSubobjects = 5;
 	raytracingPipeline.pSubobjects = subobjects;
 
+#ifndef KORE_CONSOLE
 	dxrDevice->lpVtbl->CreateStateObject(dxrDevice, &raytracingPipeline, &IID_ID3D12StateObject, &pipeline->impl.dxr_state);
+#endif
 
 	// Shader tables
 	// Get shader identifiers
-	ID3D12StateObjectProperties *stateObjectProps;
+	ID3D12StateObjectProperties *stateObjectProps = NULL;
+#ifndef KORE_CONSOLE
 	pipeline->impl.dxr_state->lpVtbl->QueryInterface(pipeline->impl.dxr_state, &IID_ID3D12StateObjectProperties, &stateObjectProps);
+#endif
 	void *rayGenShaderId = stateObjectProps->lpVtbl->GetShaderIdentifier(stateObjectProps, raygen_shader_name);
 	void *missShaderId = stateObjectProps->lpVtbl->GetShaderIdentifier(stateObjectProps, miss_shader_name);
 	void *hitGroupShaderId = stateObjectProps->lpVtbl->GetShaderIdentifier(stateObjectProps, hit_group_name);
