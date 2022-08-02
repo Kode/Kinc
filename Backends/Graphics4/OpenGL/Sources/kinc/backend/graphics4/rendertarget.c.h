@@ -67,7 +67,7 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 #if defined(KORE_OPENGL_ES) && !defined(KORE_PI) && !defined(KORE_EMSCRIPTEN)
 		GLenum internalFormat = GL_DEPTH24_STENCIL8_OES;
 #elif defined(KORE_OPENGL_ES)
-		GLenum internalFormat = NULL;
+		GLenum internalFormat = 0x88F0; // GL_DEPTH24_STENCIL8_OES
 #else
 		GLenum internalFormat;
 		if (depthBufferBits == 24)
