@@ -2,8 +2,8 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/window.h>
 
-static void (*resizeCallback)(int x, int y, void *data);
-static void *resizeCallbackData;
+static void (*resizeCallback)(int x, int y, void *data) = NULL;
+static void *resizeCallbackData = NULL;
 
 int kinc_count_windows(void) {
 	return 1;

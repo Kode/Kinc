@@ -37,12 +37,14 @@ void kinc_window_hide(int window) {}
 void kinc_window_set_title(int window, const char *title) {}
 
 int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
+	windowCounter += 1;
 	return 0;
 }
 
 void kinc_window_set_resize_callback(int window, void (*callback)(int x, int y, void *data), void *data) {
-	//**_data.resizeCallback = callback;
-	//**_data.resizeCallbackData = data;
+	assert(window < windowCounter);
+	windows[window].resizeCallback = callback;
+	windows[window].resizeCallbackData = data;
 }
 
 void kinc_window_set_ppi_changed_callback(int window, void (*callback)(int ppi, void *data), void *data) {}

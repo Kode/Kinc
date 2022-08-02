@@ -198,6 +198,8 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 }
 #endif
 
+void kinc_internal_call_resize_callback(int window, int width, int height);
+
 #ifdef KORE_METAL
 - (void)layoutSubviews {
 	backingWidth = self.frame.size.width * self.contentScaleFactor;
@@ -205,6 +207,8 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 
 	CAMetalLayer *metalLayer = (CAMetalLayer *)self.layer;
 	metalLayer.drawableSize = CGSizeMake(backingWidth, backingHeight);
+	
+	kinc_internal_call_resize_callback(0, backingWidth, backingHeight);
 }
 #else
 - (void)layoutSubviews {
@@ -222,6 +226,8 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
 	}
+	
+	kinc_internal_call_resize_callback(0, backingWidth, backingHeight);
 }
 #endif
 

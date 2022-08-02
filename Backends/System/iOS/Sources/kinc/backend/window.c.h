@@ -2,6 +2,9 @@
 #include <kinc/graphics4/graphics.h>
 #include <kinc/window.h>
 
+static void (*resizeCallback)(int x, int y, void *data) = NULL;
+static void *resizeCallbackData = NULL;
+
 int kinc_window_x(int window) {
 	return 0;
 }
@@ -45,8 +48,14 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 }
 
 void kinc_window_set_resize_callback(int window, void (*callback)(int x, int y, void *data), void *data) {
-	//**_data.resizeCallback = callback;
-	//**_data.resizeCallbackData = data;
+	resizeCallback = callback;
+	resizeCallbackData = data;
+}
+
+void kinc_internal_call_resize_callback(int window, int width, int height) {
+	if (resizeCallback != NULL) {
+		resizeCallback(width, height, resizeCallbackData);
+	}
 }
 
 void kinc_window_set_ppi_changed_callback(int window, void (*callback)(int ppi, void *data), void *data) {}

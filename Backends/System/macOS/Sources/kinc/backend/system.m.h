@@ -56,9 +56,6 @@ static struct HIDManager *hidManager;
     }
 };*/
 
-static struct WindowData windows[10] = {};
-static int windowCounter = 0;
-
 #ifdef KORE_METAL
 CAMetalLayer *getMetalLayer(void) {
 	return [view metalLayer];
