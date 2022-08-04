@@ -119,7 +119,9 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 
 	if (kinc_string_compare_limited(&filename[filenameLength - 4], ".ogg", 4) == 0) {
 		kinc_file_reader_t file;
-		kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET);
+		if (!kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET)) {
+			return NULL;
+		}
 		uint8_t *filedata = (uint8_t *)kinc_allocate(kinc_file_reader_size(&file));
 		kinc_file_reader_read(&file, filedata, kinc_file_reader_size(&file));
 		kinc_file_reader_close(&file);
@@ -134,7 +136,9 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 		struct WaveData wave = {0};
 		{
 			kinc_file_reader_t file;
-			kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET);
+			if (!kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET)) {
+				return NULL;
+			}
 			uint8_t *filedata = (uint8_t *)kinc_allocate(kinc_file_reader_size(&file));
 			kinc_file_reader_read(&file, filedata, kinc_file_reader_size(&file));
 			kinc_file_reader_close(&file);
