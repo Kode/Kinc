@@ -154,7 +154,7 @@ void kinc_egl_destroy_window(int window);
 		EGLint error = eglGetError();                                                                                                                          \
 		if (error != EGL_SUCCESS) {                                                                                                                            \
 			kinc_log(KINC_LOG_LEVEL_ERROR, "EGL Error at line %i: %i", __LINE__, error);                                                                       \
-			kinc_debug_break();                                                                                                                                  \
+			kinc_debug_break();                                                                                                                                \
 			exit(1);                                                                                                                                           \
 		}                                                                                                                                                      \
 	}

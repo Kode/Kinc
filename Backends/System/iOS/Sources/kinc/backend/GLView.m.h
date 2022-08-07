@@ -207,7 +207,7 @@ void kinc_internal_call_resize_callback(int window, int width, int height);
 
 	CAMetalLayer *metalLayer = (CAMetalLayer *)self.layer;
 	metalLayer.drawableSize = CGSizeMake(backingWidth, backingHeight);
-	
+
 	kinc_internal_call_resize_callback(0, backingWidth, backingHeight);
 }
 #else
@@ -226,7 +226,7 @@ void kinc_internal_call_resize_callback(int window, int width, int height);
 	if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
 	}
-	
+
 	kinc_internal_call_resize_callback(0, backingWidth, backingHeight);
 }
 #endif

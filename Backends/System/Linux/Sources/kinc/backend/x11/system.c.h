@@ -301,7 +301,7 @@ bool kinc_x11_handle_messages() {
 				}
 			}
 
-			if (preventNextKeyDownEvent){
+			if (preventNextKeyDownEvent) {
 				// this keypress is a repeated keystroke and should not lead to a keydown-event
 				preventNextKeyDownEvent = false;
 				continue;
@@ -482,16 +482,14 @@ bool kinc_x11_handle_messages() {
 
 			// peek next-event to determine if this a repeated-keystroke
 			XEvent nev;
-			if (xlib.XPending(x11_ctx.display)){
-				xlib.XPeekEvent(x11_ctx.display,&nev);
+			if (xlib.XPending(x11_ctx.display)) {
+				xlib.XPeekEvent(x11_ctx.display, &nev);
 
-				if (nev.type == KeyPress && nev.xkey.time == event.xkey.time &&
-					nev.xkey.keycode == event.xkey.keycode)
-				{
+				if (nev.type == KeyPress && nev.xkey.time == event.xkey.time && nev.xkey.keycode == event.xkey.keycode) {
 					// repeated keystroke! prevent this keyup-event and next keydown-event from being fired
-					preventNextKeyDownEvent = true; 
+					preventNextKeyDownEvent = true;
 					continue;
-				}			
+				}
 			}
 			KeySym keysym;
 
