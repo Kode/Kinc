@@ -307,6 +307,26 @@ else if (platform === Platform.Emscripten) {
 		throw new Error('Graphics API ' + graphics + ' is not available for Emscripten.');
 	}
 }
+else if (platform === Platform.Wasm) {
+	project.addDefine('KORE_WASM');
+	addBackend('System/Wasm');
+	if (graphics === GraphicsApi.WebGPU) {
+		g4 = true;
+		g5 = true;
+		addBackend('Graphics5/WebGPU');
+		project.addDefine('KORE_WEBGPU');
+	}
+	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
+		g4 = true;
+		addBackend('Graphics4/OpenGL');
+		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
+		project.addDefine('KORE_OPENGL');
+		project.addDefine('KORE_OPENGL_ES');
+	}
+	else {
+		throw new Error('Graphics API ' + graphics + ' is not available for Emscripten.');
+	}
+}
 else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	if (platform === Platform.FreeBSD) { // TODO
 		project.addDefine('KORE_LINUX');
