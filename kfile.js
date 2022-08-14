@@ -310,6 +310,8 @@ else if (platform === Platform.Emscripten) {
 else if (platform === Platform.Wasm) {
 	project.addDefine('KORE_WASM');
 	addBackend('System/Wasm');
+	project.addIncludeDir('miniClib');
+	project.addFile('miniClib/**');
 	if (graphics === GraphicsApi.WebGPU) {
 		g4 = true;
 		g5 = true;
