@@ -16,6 +16,7 @@
 #endif
 #include <dlfcn.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct kinc_wl_procs wl = {0};
 struct kinc_xkb_procs wl_xkb = {0};
@@ -1053,7 +1054,7 @@ void kinc_wayland_shutdown() {
 
 void kinc_wayland_set_selection(struct kinc_wl_seat *seat, const char *text, int serial) {
 	static const char *mime_types[] = {"text/plain"};
-	char *copy = malloc(strlen(str) + 1);
+	char *copy = malloc(strlen(text) + 1);
 	strcpy(copy, text);
 	struct kinc_wl_data_source *data_source =
 	    kinc_wl_create_data_source(seat, mime_types, sizeof mime_types / sizeof mime_types[0], copy, strlen(text));
