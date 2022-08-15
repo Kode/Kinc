@@ -6,6 +6,8 @@
 
 #include <kinc/backend/SystemMicrosoft.h>
 
+#include <math.h>
+
 // static const int textureCount = 16;
 
 kinc_g5_render_target_t *currentRenderTargets[textureCount] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
@@ -252,7 +254,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 		}
 	}
 
-	texture->impl.stride = (int)kinc_ceil(uploadBufferSize / (float)image->height);
+	texture->impl.stride = (int)ceilf(uploadBufferSize / (float)image->height);
 	if (texture->impl.stride < d3d12_textureAlignment()) {
 		texture->impl.stride = d3d12_textureAlignment();
 	}
@@ -362,7 +364,7 @@ void create_texture(struct kinc_g5_texture *texture, int width, int height, kinc
 		}
 	}
 
-	texture->impl.stride = (int)kinc_ceil(uploadBufferSize / (float)height);
+	texture->impl.stride = (int)ceilf(uploadBufferSize / (float)height);
 	if (texture->impl.stride < d3d12_textureAlignment()) {
 		texture->impl.stride = d3d12_textureAlignment();
 	}
