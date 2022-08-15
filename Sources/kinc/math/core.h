@@ -29,21 +29,14 @@ KINC_FUNC float kinc_clamp(float value, float minValue, float maxValue);
 
 #ifdef KINC_IMPLEMENTATION
 
-#include <float.h>
-
 #include <math.h>
-#include <stdlib.h>
 
 float kinc_cot(float x) {
 	return cosf(x) / sinf(x);
 }
 
 float kinc_round(float value) {
-#ifdef KINC_NO_CLIB
-	return (float)(int)(value + 0.5f);
-#else
 	return floorf(value + 0.5f);
-#endif
 }
 
 float kinc_abs(float value) {
