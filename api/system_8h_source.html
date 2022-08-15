@@ -492,14 +492,14 @@ $(function() {
 <div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;}</div>
 <div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160; </div>
 <div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;<span class="keywordtype">void</span> kinc_load_save_file(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
-<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    kinc_free(current_file);</div>
+<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    free(current_file);</div>
 <div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;    current_file = NULL;</div>
 <div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;    current_file_size = 0;</div>
 <div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160; </div>
 <div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;    <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> reader;</div>
 <div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(&amp;reader, filename, KINC_FILE_TYPE_SAVE)) {</div>
 <div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;        current_file_size = <a class="code" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;reader);</div>
-<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;        current_file = (uint8_t *)kinc_allocate(current_file_size);</div>
+<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;        current_file = (uint8_t *)malloc(current_file_size);</div>
 <div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;        <a class="code" href="filereader_8h.html#a8bd239fe960ab538e08af9f56077c196">kinc_file_reader_read</a>(&amp;reader, current_file, current_file_size);</div>
 <div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;        <a class="code" href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a>(&amp;reader);</div>
 <div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;    }</div>
