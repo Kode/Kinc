@@ -34,7 +34,7 @@ void kinc_x11_display_init(void) {
 
 		struct kinc_x11_display *display = &x11_ctx.displays[x11_ctx.num_displays++];
 		display->index = i;
-		kinc_string_copy_limited(display->name, output_info->name, sizeof(display->name));
+		strncpy(display->name, output_info->name, sizeof(display->name));
 		display->x = crtc_info->x;
 		display->y = crtc_info->y;
 		display->width = crtc_info->width;

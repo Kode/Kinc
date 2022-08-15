@@ -49,10 +49,10 @@ int kinc_x11_window_create(kinc_window_options_t *win, kinc_framebuffer_options_
 
 	static char nameClass[256];
 	static const char *nameClassAddendum = "_KincApplication";
-	kinc_string_copy_limited(nameClass, kinc_application_name(), sizeof(nameClass) - kinc_string_length(nameClassAddendum) - 1);
-	kinc_string_append(nameClass, nameClassAddendum);
+	strncpy(nameClass, kinc_application_name(), sizeof(nameClass) - strlen(nameClassAddendum) - 1);
+	strcat(nameClass, nameClassAddendum);
 	char resNameBuffer[256];
-	kinc_string_copy_limited(resNameBuffer, kinc_application_name(), 256);
+	strncpy(resNameBuffer, kinc_application_name(), 256);
 	XClassHint classHint = {.res_name = resNameBuffer, .res_class = nameClass};
 	xlib.XSetClassHint(x11_ctx.display, window->window, &classHint);
 
@@ -99,10 +99,10 @@ void kinc_x11_window_set_title(int window_index, const char *_title) {
 	const char *title = _title == NULL ? "" : _title;
 	struct kinc_x11_window *window = &x11_ctx.windows[window_index];
 	xlib.XChangeProperty(x11_ctx.display, window->window, x11_ctx.atoms.NET_WM_NAME, x11_ctx.atoms.UTF8_STRING, 8, PropModeReplace, (unsigned char *)title,
-	                     kinc_string_length(title));
+	                     strlen(title));
 
 	xlib.XChangeProperty(x11_ctx.display, window->window, x11_ctx.atoms.NET_WM_ICON_NAME, x11_ctx.atoms.UTF8_STRING, 8, PropModeReplace, (unsigned char *)title,
-	                     kinc_string_length(title));
+	                     strlen(title));
 
 	xlib.XFlush(x11_ctx.display);
 }

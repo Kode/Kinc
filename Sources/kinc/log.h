@@ -66,10 +66,6 @@ KINC_FUNC void kinc_log_args(kinc_log_level_t log_level, const char *format, va_
 #ifdef KINC_IMPLEMENTATION_ROOT
 #undef KINC_IMPLEMENTATION
 #endif
-#include <kinc/string.h>
-#ifdef KINC_IMPLEMENTATION_ROOT
-#define KINC_IMPLEMENTATION
-#endif
 
 #ifdef KORE_MICROSOFT
 #include <kinc/backend/MiniWindows.h>
@@ -94,27 +90,26 @@ void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 #ifdef UTF8
 	wchar_t buffer[4096];
 	kinc_microsoft_format(format, args, buffer);
-	kinc_wstring_append(buffer, L"\r\n");
+	wcscat(buffer, L"\r\n");
 	OutputDebugStringW(buffer);
 #ifdef KORE_WINDOWS
 	DWORD written;
-	WriteConsoleW(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)kinc_wstring_length(buffer), &written,
-	              NULL);
+	WriteConsoleW(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)wcslen(buffer), &written, NULL);
 #endif
 #else
 	char buffer[4096];
 	vsnprintf(buffer, 4090, format, args);
-	kinc_string_append(buffer, "\r\n");
+	strcat(buffer, "\r\n");
 	OutputDebugStringA(buffer);
 #ifdef KORE_WINDOWS
 	DWORD written;
-	WriteConsoleA(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)kinc_string_length(buffer), &written, NULL);
+	WriteConsoleA(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)strlen(buffer), &written, NULL);
 #endif
 #endif
 #else
 	char buffer[4096];
 	vsnprintf(buffer, 4090, format, args);
-	kinc_string_append(buffer, "\n");
+	strcat(buffer, "\n");
 	fprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, "%s", buffer);
 #endif
 

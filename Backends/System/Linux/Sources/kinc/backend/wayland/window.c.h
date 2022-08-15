@@ -130,9 +130,9 @@ static int create_shm_fd(off_t size) {
 			return -1;
 		}
 
-		char *name = malloc(kinc_string_length(path) + sizeof(template));
-		kinc_string_copy(name, path);
-		kinc_string_append(name, template);
+		char *name = malloc(strlen(path) + sizeof(template));
+		strcpy(name, path);
+		strcat(name, template);
 
 		fd = mkostemp(name, O_CLOEXEC);
 		if (fd >= 0) unlink(name);

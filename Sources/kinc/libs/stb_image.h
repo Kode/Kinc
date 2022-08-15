@@ -592,9 +592,6 @@ typedef unsigned char validate_uint32[sizeof(stbi__uint32)==4 ? 1 : -1];
 #endif
 #endif
 
-#include <kinc/math/core.h>
-#include <kinc/string.h>
-
 #ifdef STBI_HAS_LROTL
    #define stbi_lrot(x,y)  _lrotl(x,y)
 #else

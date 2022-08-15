@@ -88,4 +88,3 @@ extern void flush_init_cmd(void);
 extern void reuse_descriptor_sets(void);
 
 #include <assert.h>
-#include <kinc/string.h>

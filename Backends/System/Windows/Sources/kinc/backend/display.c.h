@@ -3,7 +3,6 @@
 #include <kinc/display.h>
 #include <kinc/error.h>
 #include <kinc/log.h>
-#include <kinc/string.h>
 
 #undef RegisterClass
 
@@ -46,7 +45,7 @@ static BOOL CALLBACK EnumerationCallback(HMONITOR monitor, HDC hdc_unused, LPREC
 	}
 
 	DisplayData *display = &displays[free_slot];
-	kinc_string_copy_limited(display->name, info.szDevice, 31);
+	strncpy(display->name, info.szDevice, 31);
 	display->name[31] = 0;
 	display->index = free_slot;
 	display->monitor = monitor;
@@ -148,7 +147,7 @@ bool kinc_windows_set_display_mode(int display_index, int width, int height, int
 	display->mode_changed = true;
 	DEVMODEA mode = {0};
 	mode.dmSize = sizeof(mode);
-	kinc_string_copy((char *)mode.dmDeviceName, display->name);
+	strcpy((char *)mode.dmDeviceName, display->name);
 	mode.dmPelsWidth = width;
 	mode.dmPelsHeight = height;
 	mode.dmBitsPerPel = bpp;

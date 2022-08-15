@@ -80,8 +80,8 @@ bool kinc_file_writer_open(kinc_file_writer_t *writer, const char *filepath) {
 	writer->mounted = true;
 #endif
 	char path[1001];
-	kinc_string_copy(path, kinc_internal_save_path());
-	kinc_string_append(path, filepath);
+	strcpy(path, kinc_internal_save_path());
+	strcat(path, filepath);
 
 #ifdef KORE_WINDOWS
 	wchar_t wpath[MAX_PATH];

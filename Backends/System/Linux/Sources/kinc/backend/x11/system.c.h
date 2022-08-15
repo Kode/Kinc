@@ -196,10 +196,10 @@ bool kinc_x11_init() {
 	int count;
 	XDeviceInfoPtr devices = (XDeviceInfoPtr)xlib.XListInputDevices(x11_ctx.display, &count);
 	for (int i = 0; i < count; i++) {
-		if (kinc_string_find(devices[i].name, "stylus")) {
+		if (strstr(devices[i].name, "stylus")) {
 			init_pen_device(&devices[i], &x11_ctx.pen, false);
 		}
-		if (kinc_string_find(devices[i].name, "eraser")) {
+		if (strstr(devices[i].name, "eraser")) {
 			init_pen_device(&devices[i], &x11_ctx.eraser, true);
 		}
 	}
@@ -786,7 +786,7 @@ bool kinc_x11_handle_messages() {
 				send.xselection.property = event.xselectionrequest.property;
 				send.xselection.time = event.xselectionrequest.time;
 				xlib.XChangeProperty(x11_ctx.display, send.xselection.requestor, send.xselection.property, send.xselection.target, 8, PropModeReplace,
-				                     (const unsigned char *)clipboardString, kinc_string_length(clipboardString));
+				                     (const unsigned char *)clipboardString, strlen(clipboardString));
 				xlib.XSendEvent(x11_ctx.display, send.xselection.requestor, True, 0, &send);
 			}
 			break;
@@ -817,13 +817,13 @@ bool kinc_x11_handle_messages() {
 }
 
 void kinc_x11_copy_to_clipboard(const char *text) {
-	size_t textLength = kinc_string_length(text);
+	size_t textLength = strlen(text);
 	if (textLength >= clipboardStringSize) {
 		free(clipboardString);
 		clipboardStringSize = textLength + 1;
 		clipboardString = (char *)malloc(clipboardStringSize);
 	}
-	kinc_string_copy(clipboardString, text);
+	strcpy(clipboardString, text);
 }
 
 #ifdef KINC_EGL

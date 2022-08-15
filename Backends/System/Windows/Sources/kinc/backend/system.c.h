@@ -564,7 +564,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
 						EmptyClipboard();
-						size_t size = (kinc_wstring_length(wtext) + 1) * sizeof(wchar_t);
+						size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void *data = GlobalLock(handle);
 						memcpy(data, wtext, size);
@@ -581,7 +581,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 						OpenClipboard(hWnd);
 						EmptyClipboard();
-						size_t size = (kinc_wstring_length(wtext) + 1) * sizeof(wchar_t);
+						size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void *data = GlobalLock(handle);
 						memcpy(data, wtext, size);
@@ -811,15 +811,15 @@ static BOOL IsXInputDevice(const GUID *pGuidProductFromDirectInput) {
 				// Check if the device ID contains "IG_".  If it does, then it's an XInput device
 				// This information can not be found from DirectInput
 				// TODO: Doesn't work with an Xbox Series X|S controller
-				if (kinc_wstring_find(var.bstrVal, L"IG_")) {
+				if (wcsstr(var.bstrVal, L"IG_")) {
 					// If it does, then get the VID/PID from var.bstrVal
 					DWORD dwPid = 0, dwVid = 0;
-					WCHAR *strVid = kinc_wstring_find(var.bstrVal, L"VID_");
+					WCHAR *strVid = wcsstr(var.bstrVal, L"VID_");
 #ifndef KINC_NO_CLIB
 					if (strVid && swscanf(strVid, L"VID_%4X", &dwVid) != 1) {
 						dwVid = 0;
 					}
-					WCHAR *strPid = kinc_wstring_find(var.bstrVal, L"PID_");
+					WCHAR *strPid = wcsstr(var.bstrVal, L"PID_");
 					if (strPid && swscanf(strPid, L"PID_%4X", &dwPid) != 1) {
 						dwPid = 0;
 					}
@@ -1238,12 +1238,12 @@ static void findSavePath() {
 	LPWSTR path;
 	folder->lpVtbl->GetPath(folder, 0, &path);
 
-	kinc_wstring_copy(savePathw, path);
-	kinc_wstring_append(savePathw, L"\\");
+	wcscpy(savePathw, path);
+	wcscat(savePathw, L"\\");
 	wchar_t name[1024];
 	MultiByteToWideChar(CP_UTF8, 0, kinc_application_name(), -1, name, 1024);
-	kinc_wstring_append(savePathw, name);
-	kinc_wstring_append(savePathw, L"\\");
+	wcscat(savePathw, name);
+	wcscat(savePathw, L"\\");
 
 	SHCreateDirectoryEx(NULL, savePathw, NULL);
 	WideCharToMultiByte(CP_UTF8, 0, savePathw, -1, savePath, 1024, NULL, NULL);
@@ -1401,7 +1401,7 @@ void kinc_copy_to_clipboard(const char *text) {
 	MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
 	OpenClipboard(kinc_windows_window_handle(0));
 	EmptyClipboard();
-	size_t size = (kinc_wstring_length(wtext) + 1) * sizeof(wchar_t);
+	size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
 	HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 	void *data = GlobalLock(handle);
 	memcpy(data, wtext, size);

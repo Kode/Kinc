@@ -3,7 +3,6 @@
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/libs/stb_sprintf.h>
 #include <kinc/log.h>
-#include <kinc/string.h>
 
 kinc_g4_pipeline_t *currentPipeline = NULL;
 
@@ -308,9 +307,9 @@ kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(struct kinc_g
 kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(struct kinc_g4_pipeline *state, const char *name) {
 	char unitName[64];
 	int unitOffset = 0;
-	size_t len = kinc_string_length(name);
+	size_t len = strlen(name);
 	if (len > 63) len = 63;
-	kinc_string_copy_limited(unitName, name, len + 1);
+	strncpy(unitName, name, len + 1);
 	if (unitName[len - 1] == ']') {                  // Check for array - mySampler[2]
 		unitOffset = (int)(unitName[len - 2] - '0'); // Array index is unit offset
 		unitName[len - 3] = 0;                       // Strip array from name
@@ -365,11 +364,11 @@ static void setVertexDesc(D3D11_INPUT_ELEMENT_DESC *vertexDesc, int attributeInd
 	else {
 		// SPIRV_CROSS uses TEXCOORD_0_0,... for split up matrices
 		int stringStart = stringCacheIndex;
-		kinc_string_copy(&stringCache[stringCacheIndex], "TEXCOORD");
-		stringCacheIndex += (int)kinc_string_length("TEXCOORD");
-		stbsp_sprintf(&stringCache[stringCacheIndex], "%i", attributeIndex);
-		stringCacheIndex += (int)kinc_string_length(&stringCache[stringCacheIndex]);
-		kinc_string_copy(&stringCache[stringCacheIndex], "_");
+		strcpy(&stringCache[stringCacheIndex], "TEXCOORD");
+		stringCacheIndex += (int)strlen("TEXCOORD");
+		sprintf(&stringCache[stringCacheIndex], "%i", attributeIndex);
+		stringCacheIndex += (int)strlen(&stringCache[stringCacheIndex]);
+		strcpy(&stringCache[stringCacheIndex], "_");
 		stringCacheIndex += 2;
 		vertexDesc->SemanticName = &stringCache[stringStart];
 		vertexDesc->SemanticIndex = subindex;
@@ -745,10 +744,10 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 				break;
 			case KINC_G4_VERTEX_DATA_F32_4X4: {
 				char name[101];
-				kinc_string_copy(name, state->input_layout[stream]->elements[index].name);
-				kinc_string_append(name, "_");
-				size_t length = kinc_string_length(name);
-				stbsp_sprintf(&name[length], "%i", 0);
+				strcpy(name, state->input_layout[stream]->elements[index].name);
+				strcat(name, "_");
+				size_t length = strlen(name);
+				sprintf(&name[length], "%i", 0);
 				name[length + 1] = 0;
 				int attributeLocation = getAttributeLocation(state->vertex_shader->impl.attributes, name, used);
 

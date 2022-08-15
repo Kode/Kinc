@@ -1,4 +1,3 @@
-#include "kinc/string.h"
 #include <kinc/display.h>
 #include <kinc/log.h>
 
@@ -14,7 +13,7 @@ void print_mode(const char *indent, kinc_display_mode_t mode) {
 
 int kickstart(int argc, char **argv) {
 	bool print_modes = false;
-	if (argc > 1 && kinc_string_compare(argv[1], "--print-modes") == 0) {
+	if (argc > 1 && strcmp(argv[1], "--print-modes") == 0) {
 		print_modes = true;
 	}
 	kinc_display_init();

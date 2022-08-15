@@ -151,7 +151,6 @@ KINC_FUNC int kinc_image_format_sizeof(kinc_image_format_t format);
 #undef KINC_IMPLEMENTATION
 #endif
 #include <kinc/log.h>
-#include <kinc/string.h>
 #ifdef KINC_IMPLEMENTATION_ROOT
 #define KINC_IMPLEMENTATION
 #endif
@@ -248,10 +247,10 @@ static int stb_eof(void *user) {
 
 static _Bool endsWith(const char *str, const char *suffix) {
 	if (str == NULL || suffix == NULL) return 0;
-	size_t lenstr = kinc_string_length(str);
-	size_t lensuffix = kinc_string_length(suffix);
+	size_t lenstr = strlen(str);
+	size_t lensuffix = strlen(suffix);
 	if (lensuffix > lenstr) return 0;
-	return kinc_string_compare_limited(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+	return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
 static size_t loadImageSize(kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename) {
@@ -266,16 +265,16 @@ static size_t loadImageSize(kinc_image_read_callbacks_t callbacks, void *user_da
 		callbacks.read(user_data, fourcc, 4);
 		fourcc[4] = 0;
 
-		if (kinc_string_compare(fourcc, "LZ4 ") == 0) {
+		if (strcmp(fourcc, "LZ4 ") == 0) {
 			return width * height * 4;
 		}
-		else if (kinc_string_compare(fourcc, "LZ4F") == 0) {
+		else if (strcmp(fourcc, "LZ4F") == 0) {
 			return width * height * 16;
 		}
-		else if (kinc_string_compare(fourcc, "ASTC") == 0) {
+		else if (strcmp(fourcc, "ASTC") == 0) {
 			return width * height * 4; // just an upper bound
 		}
-		else if (kinc_string_compare(fourcc, "DXT5") == 0) {
+		else if (strcmp(fourcc, "DXT5") == 0) {
 			return width * height; // just an upper bound
 		}
 		else {
@@ -345,7 +344,7 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 
 		int compressedSize = (int)callbacks.size(user_data) - 12;
 
-		if (kinc_string_compare(fourcc, "LZ4 ") == 0) {
+		if (strcmp(fourcc, "LZ4 ") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_NONE;
 			*internalFormat = 0;
 			*outputSize = *width * *height * 4;
@@ -353,7 +352,7 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 			LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
 			return true;
 		}
-		else if (kinc_string_compare(fourcc, "LZ4F") == 0) {
+		else if (strcmp(fourcc, "LZ4F") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_NONE;
 			*internalFormat = 0;
 			*outputSize = *width * *height * 16;
@@ -362,7 +361,7 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 			*format = KINC_IMAGE_FORMAT_RGBA128;
 			return true;
 		}
-		else if (kinc_string_compare(fourcc, "ASTC") == 0) {
+		else if (strcmp(fourcc, "ASTC") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_ASTC;
 			*outputSize = *width * *height * 4;
 			callbacks.read(user_data, buffer, compressedSize);
@@ -404,7 +403,7 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 			}
 			free(astcdata);*/
 		}
-		else if (kinc_string_compare(fourcc, "DXT5") == 0) {
+		else if (strcmp(fourcc, "DXT5") == 0) {
 			*compression = KINC_IMAGE_COMPRESSION_DXT5;
 			*outputSize = *width * *height;
 			callbacks.read(user_data, buffer, compressedSize);

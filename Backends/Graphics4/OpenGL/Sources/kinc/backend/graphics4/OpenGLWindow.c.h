@@ -7,7 +7,6 @@
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics4/shader.h>
 #include <kinc/graphics4/vertexbuffer.h>
-#include <kinc/string.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
 
@@ -143,7 +142,7 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 			                      "texCoord = (pos + 1.0) / 2.0;\n"
 			                      "}\n";
 
-			kinc_g4_shader_init(&windowVertexShader, vertex_shader, kinc_string_length(vertex_shader), KINC_G4_SHADER_TYPE_VERTEX);
+			kinc_g4_shader_init(&windowVertexShader, vertex_shader, strlen(vertex_shader), KINC_G4_SHADER_TYPE_VERTEX);
 
 			char *fragment_shader = "#version 450\n"
 			                        "uniform sampler2D tex;\n"
@@ -153,7 +152,7 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 			                        "frag = texture(tex, texCoord);\n"
 			                        "}\n";
 
-			kinc_g4_shader_init(&windowFragmentShader, fragment_shader, kinc_string_length(fragment_shader), KINC_G4_SHADER_TYPE_FRAGMENT);
+			kinc_g4_shader_init(&windowFragmentShader, fragment_shader, strlen(fragment_shader), KINC_G4_SHADER_TYPE_FRAGMENT);
 
 			kinc_g4_pipeline_init(&windowPipeline);
 			windowPipeline.input_layout[0] = &structure;

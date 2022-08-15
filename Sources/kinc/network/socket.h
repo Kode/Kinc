@@ -164,7 +164,7 @@ static int resolveAddress(const char *url, int port, struct addrinfo **result) {
 	hints.ai_protocol = IPPROTO_UDP;
 
 	char serv[6];
-	stbsp_sprintf(serv, "%u", port);
+	sprintf(serv, "%u", port);
 
 	return getaddrinfo(url, serv, &hints, result);
 }

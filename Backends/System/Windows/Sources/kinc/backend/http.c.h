@@ -1,6 +1,5 @@
 #include <kinc/log.h>
 #include <kinc/network/http.h>
-#include <kinc/string.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +51,7 @@ void kinc_http_request(const char *url, const char *path, const char *data, int 
 		if (header) {
 			MultiByteToWideChar(CP_UTF8, 0, header, -1, wheader, 4096);
 		}
-		DWORD optionalLength = (data != 0 && kinc_string_length(data) > 0) ? (DWORD)kinc_string_length(data) : 0;
+		DWORD optionalLength = (data != 0 && strlen(data) > 0) ? (DWORD)strlen(data) : 0;
 		bResults = WinHttpSendRequest(hRequest, header == 0 ? WINHTTP_NO_ADDITIONAL_HEADERS : wheader, header == 0 ? 0 : -1L,
 		                              data == 0 ? WINHTTP_NO_REQUEST_DATA : (LPVOID)data, optionalLength, optionalLength, 0);
 	}

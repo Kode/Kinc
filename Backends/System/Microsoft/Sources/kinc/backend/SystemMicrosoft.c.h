@@ -2,7 +2,6 @@
 
 #include <kinc/error.h>
 #include <kinc/libs/stb_sprintf.h>
-#include <kinc/string.h>
 
 #define S_OK ((HRESULT)0L)
 
@@ -42,6 +41,6 @@ void kinc_microsoft_affirm_message(HRESULT result, const char *format, ...) {
 
 void kinc_microsoft_format(const char *format, va_list args, wchar_t *buffer) {
 	char cbuffer[4096];
-	stbsp_vsprintf(cbuffer, format, args);
+	vsprintf(cbuffer, format, args);
 	MultiByteToWideChar(CP_UTF8, 0, cbuffer, -1, buffer, 4096);
 }

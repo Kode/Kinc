@@ -624,7 +624,9 @@ void wl_data_offer_handle_offer(void *data, struct wl_data_offer *wl_data_offer,
 	if (offer != NULL) {
 		offer->mime_type_count++;
 		offer->mime_types = realloc(offer->mime_types, offer->mime_type_count * sizeof(const char *));
-		offer->mime_types[offer->mime_type_count - 1] = kinc_string_duplicate(mime_type);
+		char *copy = malloc(strlen(mime_type) + 1);
+		strcpy(copy, mime_type);
+		offer->mime_types[offer->mime_type_count - 1] = copy;
 	}
 }
 
@@ -710,8 +712,8 @@ void wl_data_device_handle_motion(void *data, struct wl_data_device *wl_data_dev
 
 static void dnd_callback(void *data, size_t data_size, void *user_data) {
 	char *str = data;
-	if (kinc_string_compare_limited(data, "file://", kinc_string_length("file://")) == 0) {
-		str += kinc_string_length("file://");
+	if (strncmp(data, "file://", strlen("file://")) == 0) {
+		str += strlen("file://");
 	}
 	size_t wide_size = mbstowcs(NULL, str, 0) + 1;
 	wchar_t *dest = malloc(wide_size * sizeof(wchar_t));
@@ -925,23 +927,23 @@ static const struct zwp_tablet_seat_v2_listener zwp_tablet_seat_v2_listener = {
 };
 
 static void wl_registry_handle_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
-	if (kinc_string_compare(interface, wl_compositor_interface.name) == 0) {
+	if (strcmp(interface, wl_compositor_interface.name) == 0) {
 		wl_ctx.compositor = wl_registry_bind(wl_ctx.registry, name, &wl_compositor_interface, 4);
 	}
-	else if (kinc_string_compare(interface, wl_shm_interface.name) == 0) {
+	else if (strcmp(interface, wl_shm_interface.name) == 0) {
 		wl_ctx.shm = wl_registry_bind(registry, name, &wl_shm_interface, 1);
 	}
-	else if (kinc_string_compare(interface, wl_subcompositor_interface.name) == 0) {
+	else if (strcmp(interface, wl_subcompositor_interface.name) == 0) {
 		wl_ctx.subcompositor = wl_registry_bind(registry, name, &wl_subcompositor_interface, 1);
 	}
-	else if (kinc_string_compare(interface, wp_viewporter_interface.name) == 0) {
+	else if (strcmp(interface, wp_viewporter_interface.name) == 0) {
 		wl_ctx.viewporter = wl_registry_bind(registry, name, &wp_viewporter_interface, 1);
 	}
-	else if (kinc_string_compare(interface, xdg_wm_base_interface.name) == 0) {
+	else if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
 		wl_ctx.xdg_wm_base = wl_registry_bind(registry, name, &xdg_wm_base_interface, 1);
 		xdg_wm_base_add_listener(wl_ctx.xdg_wm_base, &xdg_wm_base_listener, NULL);
 	}
-	else if (kinc_string_compare(interface, wl_seat_interface.name) == 0) {
+	else if (strcmp(interface, wl_seat_interface.name) == 0) {
 		if (wl_ctx.seat.seat) {
 			kinc_log(KINC_LOG_LEVEL_WARNING, "Multi-seat configurations not supported");
 			return;
@@ -954,7 +956,7 @@ static void wl_registry_handle_global(void *data, struct wl_registry *registry, 
 			wl_data_device_add_listener(wl_ctx.seat.data_device, &wl_data_device_listener, &wl_ctx.seat);
 		}
 	}
-	else if (kinc_string_compare(interface, wl_output_interface.name) == 0) {
+	else if (strcmp(interface, wl_output_interface.name) == 0) {
 		int display_index = -1;
 		for (int i = 0; i < MAXIMUM_WINDOWS; i++) {
 			if (wl_ctx.displays[i].output == NULL) {
@@ -974,27 +976,27 @@ static void wl_registry_handle_global(void *data, struct wl_registry *registry, 
 			wl_ctx.num_displays++;
 		}
 	}
-	else if (kinc_string_compare(interface, zxdg_decoration_manager_v1_interface.name) == 0) {
+	else if (strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0) {
 		wl_ctx.decoration_manager = wl_registry_bind(registry, name, &zxdg_decoration_manager_v1_interface, 1);
 	}
-	else if (kinc_string_compare(interface, wl_data_device_manager_interface.name) == 0) {
+	else if (strcmp(interface, wl_data_device_manager_interface.name) == 0) {
 		wl_ctx.data_device_manager = wl_registry_bind(registry, name, &wl_data_device_manager_interface, 3);
 		if (wl_ctx.seat.seat != NULL) {
 			wl_ctx.seat.data_device = wl_data_device_manager_get_data_device(wl_ctx.data_device_manager, wl_ctx.seat.seat);
 			wl_data_device_add_listener(wl_ctx.seat.data_device, &wl_data_device_listener, &wl_ctx.seat);
 		}
 	}
-	else if (kinc_string_compare(interface, zwp_tablet_manager_v2_interface.name) == 0) {
+	else if (strcmp(interface, zwp_tablet_manager_v2_interface.name) == 0) {
 		wl_ctx.tablet_manager = wl_registry_bind(registry, name, &zwp_tablet_manager_v2_interface, 1);
 		if (wl_ctx.seat.seat != NULL) {
 			wl_ctx.seat.tablet_seat.seat = zwp_tablet_manager_v2_get_tablet_seat(wl_ctx.tablet_manager, wl_ctx.seat.seat);
 			zwp_tablet_seat_v2_add_listener(wl_ctx.seat.tablet_seat.seat, &zwp_tablet_seat_v2_listener, &wl_ctx.seat.tablet_seat);
 		}
 	}
-	else if (kinc_string_compare(interface, zwp_pointer_constraints_v1_interface.name) == 0) {
+	else if (strcmp(interface, zwp_pointer_constraints_v1_interface.name) == 0) {
 		wl_ctx.pointer_constraints = wl_registry_bind(registry, name, &zwp_pointer_constraints_v1_interface, 1);
 	}
-	else if (kinc_string_compare(interface, zwp_relative_pointer_manager_v1_interface.name) == 0) {
+	else if (strcmp(interface, zwp_relative_pointer_manager_v1_interface.name) == 0) {
 		wl_ctx.relative_pointer_manager = wl_registry_bind(registry, name, &zwp_relative_pointer_manager_v1_interface, 1);
 	}
 }
@@ -1051,8 +1053,10 @@ void kinc_wayland_shutdown() {
 
 void kinc_wayland_set_selection(struct kinc_wl_seat *seat, const char *text, int serial) {
 	static const char *mime_types[] = {"text/plain"};
+	char *copy = malloc(strlen(str) + 1);
+	strcpy(copy, text);
 	struct kinc_wl_data_source *data_source =
-	    kinc_wl_create_data_source(seat, mime_types, sizeof mime_types / sizeof mime_types[0], kinc_string_duplicate(text), kinc_string_length(text));
+	    kinc_wl_create_data_source(seat, mime_types, sizeof mime_types / sizeof mime_types[0], copy, strlen(text));
 	wl_data_device_set_selection(seat->data_device, data_source->source, serial);
 }
 

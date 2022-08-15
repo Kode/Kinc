@@ -189,7 +189,6 @@ char *kinc_internal_get_files_location(void);
 #include "filereader.h"
 
 #undef KINC_IMPLEMENTATION
-#include <kinc/string.h>
 #include <kinc/system.h>
 #define KINC_IMPLEMENTATION
 
@@ -248,54 +247,54 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	memset(reader, 0, sizeof(kinc_file_reader_t));
 	char filepath[1001];
 #ifdef KORE_IOS
-	kinc_string_copy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());
+	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());
 	if (type != KINC_FILE_TYPE_SAVE) {
-		kinc_string_append(filepath, "/");
-		kinc_string_append(filepath, KORE_DEBUGDIR);
-		kinc_string_append(filepath, "/");
+		strcat(filepath, "/");
+		strcat(filepath, KORE_DEBUGDIR);
+		strcat(filepath, "/");
 	}
 
-	kinc_string_append(filepath, filename);
+	strcat(filepath, filename);
 #endif
 #ifdef KORE_MACOS
-	kinc_string_copy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : macgetresourcepath());
+	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : macgetresourcepath());
 	if (type != KINC_FILE_TYPE_SAVE) {
-		kinc_string_append(filepath, "/");
-		kinc_string_append(filepath, KORE_DEBUGDIR);
-		kinc_string_append(filepath, "/");
+		strcat(filepath, "/");
+		strcat(filepath, KORE_DEBUGDIR);
+		strcat(filepath, "/");
 	}
-	kinc_string_append(filepath, filename);
+	strcat(filepath, filename);
 #endif
 #ifdef KORE_WINDOWS
 	if (type == KINC_FILE_TYPE_SAVE) {
-		kinc_string_copy(filepath, kinc_internal_save_path());
-		kinc_string_append(filepath, filename);
+		strcpy(filepath, kinc_internal_save_path());
+		strcat(filepath, filename);
 	}
 	else {
-		kinc_string_copy(filepath, filename);
+		strcpy(filepath, filename);
 	}
-	size_t filepathlength = kinc_string_length(filepath);
+	size_t filepathlength = strlen(filepath);
 	for (size_t i = 0; i < filepathlength; ++i)
 		if (filepath[i] == '/') filepath[i] = '\\';
 #endif
 #ifdef KORE_WINDOWSAPP
 	kinc_internal_uwp_installed_location_path(filepath);
-	kinc_string_append(filepath, "\\");
-	kinc_string_append(filepath, filename);
+	strcat(filepath, "\\");
+	strcat(filepath, filename);
 #endif
 #ifdef KORE_LINUX
 	if (type == KINC_FILE_TYPE_SAVE) {
-		kinc_string_copy(filepath, kinc_internal_save_path());
-		kinc_string_append(filepath, filename);
+		strcpy(filepath, kinc_internal_save_path());
+		strcat(filepath, filename);
 	}
 	else {
-		kinc_string_copy(filepath, filename);
+		strcpy(filepath, filename);
 	}
 #endif
 #ifdef KORE_EMSCRIPTEN
-	kinc_string_copy(filepath, KORE_DEBUGDIR);
-	kinc_string_append(filepath, "/");
-	kinc_string_append(filepath, filename);
+	strcpy(filepath, KORE_DEBUGDIR);
+	strcat(filepath, "/");
+	strcat(filepath, filename);
 #endif
 #ifdef KORE_TIZEN
 	for (int i = 0; i < Tizen::App::App::GetInstance()->GetAppDataPath().GetLength(); ++i) {
@@ -304,8 +303,8 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 		filepath[i] = (char)c;
 	}
 	filepath[Tizen::App::App::GetInstance()->GetAppDataPath().GetLength()] = 0;
-	kinc_string_append(filepath, "/");
-	kinc_string_append(filepath, filename);
+	strcat(filepath, "/");
+	strcat(filepath, filename);
 #endif
 
 #ifdef KORE_WINDOWS
@@ -316,12 +315,12 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #endif
 
 	if (isAbsolute) {
-		kinc_string_copy(filepath, filename);
+		strcpy(filepath, filename);
 	}
 	else if (fileslocation != NULL && type != KINC_FILE_TYPE_SAVE) {
-		kinc_string_copy(filepath, fileslocation);
-		kinc_string_append(filepath, "/");
-		kinc_string_append(filepath, filename);
+		strcpy(filepath, fileslocation);
+		strcat(filepath, "/");
+		strcat(filepath, filename);
 	}
 
 #ifdef KORE_WINDOWS

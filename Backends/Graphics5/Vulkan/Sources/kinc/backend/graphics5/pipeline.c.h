@@ -1,5 +1,4 @@
 #include "vulkan.h"
-#include <kinc/string.h>
 
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
@@ -15,7 +14,7 @@ static VkDescriptorPool descriptor_pool;
 
 static bool has_number(kinc_internal_named_number *named_numbers, const char *name) {
 	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
-		if (kinc_string_compare(named_numbers[i].name, name) == 0) {
+		if (strcmp(named_numbers[i].name, name) == 0) {
 			return true;
 		}
 	}
@@ -24,7 +23,7 @@ static bool has_number(kinc_internal_named_number *named_numbers, const char *na
 
 static uint32_t find_number(kinc_internal_named_number *named_numbers, const char *name) {
 	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
-		if (kinc_string_compare(named_numbers[i].name, name) == 0) {
+		if (strcmp(named_numbers[i].name, name) == 0) {
 			return named_numbers[i].number;
 		}
 	}
@@ -33,7 +32,7 @@ static uint32_t find_number(kinc_internal_named_number *named_numbers, const cha
 
 static void set_number(kinc_internal_named_number *named_numbers, const char *name, uint32_t number) {
 	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
-		if (kinc_string_compare(named_numbers[i].name, name) == 0) {
+		if (strcmp(named_numbers[i].name, name) == 0) {
 			named_numbers[i].number = number;
 			return;
 		}
@@ -41,7 +40,7 @@ static void set_number(kinc_internal_named_number *named_numbers, const char *na
 
 	for (int i = 0; i < KINC_INTERNAL_NAMED_NUMBER_COUNT; ++i) {
 		if (named_numbers[i].name[0] == 0) {
-			kinc_string_copy(named_numbers[i].name, name);
+			strcpy(named_numbers[i].name, name);
 			named_numbers[i].number = number;
 			return;
 		}
@@ -155,7 +154,7 @@ static void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *lo
 		case 6: { // OpMemberName
 			uint32_t type = operands[0];
 			char *name = find_name(type);
-			if (name != NULL && kinc_string_compare(name, "_k_global_uniform_buffer_type") == 0) {
+			if (name != NULL && strcmp(name, "_k_global_uniform_buffer_type") == 0) {
 				uint32_t member = operands[1];
 				char *string = (char *)&operands[2];
 				add_member_name(member, string);
@@ -178,7 +177,7 @@ static void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *lo
 		case 72: { // OpMemberDecorate
 			uint32_t type = operands[0];
 			char *name = find_name(type);
-			if (name != NULL && kinc_string_compare(name, "_k_global_uniform_buffer_type") == 0) {
+			if (name != NULL && strcmp(name, "_k_global_uniform_buffer_type") == 0) {
 				uint32_t member = operands[1];
 				uint32_t decoration = operands[2];
 				if (decoration == 35) { // offset

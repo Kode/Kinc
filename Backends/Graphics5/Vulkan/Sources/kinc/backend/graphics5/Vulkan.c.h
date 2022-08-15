@@ -555,7 +555,7 @@ static bool check_extensions(const char **wanted_extensions, int wanted_extensio
 
 	for (int i = 0; i < extension_count; i++) {
 		for (int i2 = 0; i2 < wanted_extension_count; i2++) {
-			if (kinc_string_compare(wanted_extensions[i2], extensions[i].extensionName) == 0) {
+			if (strcmp(wanted_extensions[i2], extensions[i].extensionName) == 0) {
 				found_extensions[i2] = true;
 			}
 		}
@@ -577,7 +577,7 @@ static bool check_extensions(const char **wanted_extensions, int wanted_extensio
 
 static bool find_layer(VkLayerProperties *layers, int layer_count, const char *wanted_layer) {
 	for (int i = 0; i < layer_count; i++) {
-		if (kinc_string_compare(wanted_layer, layers[i].layerName) == 0) {
+		if (strcmp(wanted_layer, layers[i].layerName) == 0) {
 			return true;
 		}
 	}

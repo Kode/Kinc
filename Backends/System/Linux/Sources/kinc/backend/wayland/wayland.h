@@ -4,7 +4,6 @@
 #endif
 #include <kinc/display.h>
 #include <kinc/log.h>
-#include <kinc/string.h>
 #include <kinc/system.h>
 
 #include <wayland-client-core.h>

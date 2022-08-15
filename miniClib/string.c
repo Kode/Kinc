@@ -3,7 +3,6 @@
 #include <kinc/global.h>
 
 #include <stddef.h>
-#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +43,8 @@ KINC_FUNC int kinc_wstring_compare_limited(const wchar_t *str1, const wchar_t *s
 #endif
 
 #ifdef KINC_IMPLEMENTATION
+
+#include <kinc/memory.h>
 
 #include <string.h>
 #include <wchar.h>
@@ -168,7 +169,7 @@ int kinc_string_compare_limited(const char *str1, const char *str2, size_t num) 
 }
 
 char *kinc_string_duplicate(const char *str) {
-	char *ret = malloc(kinc_string_length(str) + 1);
+	char *ret = kinc_allocate(kinc_string_length(str) + 1);
 	kinc_string_copy(ret, str);
 	return ret;
 }

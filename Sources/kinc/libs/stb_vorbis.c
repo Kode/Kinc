@@ -573,9 +573,6 @@ enum STBVorbisError
       #include <alloca.h>
    #endif
 
-#include <kinc/math/core.h>
-#include <kinc/string.h>
-
 #else // STB_VORBIS_NO_CRT
    #define NULL 0
    #define malloc(s)   0

@@ -1,6 +1,5 @@
 #include <EGL/egl.h>
 #include <kinc/error.h>
-#include <kinc/string.h>
 // #include <GLContext.h>
 #include <kinc/backend/Android.h>
 #include <kinc/graphics4/graphics.h>
@@ -1220,8 +1219,8 @@ void initAndroidFileReader() {
 	jstring jPath = (*env)->CallObjectMethod(env, file, getPath);
 
 	const char *path = (*env)->GetStringUTFChars(env, jPath, NULL);
-	externalFilesDir = malloc(kinc_string_length(path) + 1);
-	kinc_string_copy(externalFilesDir, path);
+	externalFilesDir = malloc(strlen(path) + 1);
+	strcpy(externalFilesDir, path);
 
 	(*env)->ReleaseStringUTFChars(env, jPath, path);
 	(*env)->DeleteLocalRef(env, jPath);
@@ -1235,8 +1234,8 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	if (type == KINC_FILE_TYPE_SAVE) {
 		char filepath[1001];
 
-		kinc_string_copy(filepath, kinc_internal_save_path());
-		kinc_string_append(filepath, filename);
+		strcpy(filepath, kinc_internal_save_path());
+		strcat(filepath, filename);
 
 		reader->file = fopen(filepath, "rb");
 		if (reader->file == NULL) {
@@ -1251,12 +1250,12 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 		char filepath[1001];
 		bool isAbsolute = filename[0] == '/';
 		if (isAbsolute) {
-			kinc_string_copy(filepath, filename);
+			strcpy(filepath, filename);
 		}
 		else {
-			kinc_string_copy(filepath, externalFilesDir);
-			kinc_string_append(filepath, "/");
-			kinc_string_append(filepath, filename);
+			strcpy(filepath, externalFilesDir);
+			strcat(filepath, "/");
+			strcat(filepath, filename);
 		}
 
 		reader->file = fopen(filepath, "rb");
