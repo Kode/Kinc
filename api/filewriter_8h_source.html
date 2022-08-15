@@ -130,8 +130,8 @@ $(function() {
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    writer-&gt;mounted = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">char</span> path[1001];</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    kinc_string_copy(path, kinc_internal_save_path());</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    kinc_string_append(path, filepath);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    strcpy(path, kinc_internal_save_path());</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    strcat(path, filepath);</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">wchar_t</span> wpath[MAX_PATH];</div>
