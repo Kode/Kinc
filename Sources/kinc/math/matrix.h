@@ -82,8 +82,8 @@ kinc_matrix3x3_t kinc_matrix3x3_identity(void) {
 
 kinc_matrix3x3_t kinc_matrix3x3_rotation_x(float alpha) {
 	kinc_matrix3x3_t m = kinc_matrix3x3_identity();
-	float ca = kinc_cos(alpha);
-	float sa = kinc_sin(alpha);
+	float ca = cosf(alpha);
+	float sa = sinf(alpha);
 	kinc_matrix3x3_set(&m, 1, 1, ca);
 	kinc_matrix3x3_set(&m, 2, 1, -sa);
 	kinc_matrix3x3_set(&m, 1, 2, sa);
@@ -93,8 +93,8 @@ kinc_matrix3x3_t kinc_matrix3x3_rotation_x(float alpha) {
 
 kinc_matrix3x3_t kinc_matrix3x3_rotation_y(float alpha) {
 	kinc_matrix3x3_t m = kinc_matrix3x3_identity();
-	float ca = kinc_cos(alpha);
-	float sa = kinc_sin(alpha);
+	float ca = cosf(alpha);
+	float sa = sinf(alpha);
 	kinc_matrix3x3_set(&m, 0, 0, ca);
 	kinc_matrix3x3_set(&m, 2, 0, sa);
 	kinc_matrix3x3_set(&m, 0, 2, -sa);
@@ -104,8 +104,8 @@ kinc_matrix3x3_t kinc_matrix3x3_rotation_y(float alpha) {
 
 kinc_matrix3x3_t kinc_matrix3x3_rotation_z(float alpha) {
 	kinc_matrix3x3_t m = kinc_matrix3x3_identity();
-	float ca = kinc_cos(alpha);
-	float sa = kinc_sin(alpha);
+	float ca = cosf(alpha);
+	float sa = sinf(alpha);
 	kinc_matrix3x3_set(&m, 0, 0, ca);
 	kinc_matrix3x3_set(&m, 1, 0, -sa);
 	kinc_matrix3x3_set(&m, 0, 1, sa);
