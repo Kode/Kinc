@@ -5,7 +5,6 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 }
 
 #ifdef KRAFIX_LIBRARY
-#include <kinc/memory.h>
 extern int krafix_compile(const char *source, char *output, int *length, const char *targetlang, const char *system, const char *shadertype);
 #endif
 

@@ -1,4 +1,3 @@
-#include "kinc/memory.h"
 #include <kinc/audio2/audio.h>
 
 #include <SLES/OpenSLES.h>

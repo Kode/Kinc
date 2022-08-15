@@ -1,7 +1,6 @@
 #include "wayland.h"
 #include <kinc/input/pen.h>
 #include <kinc/log.h>
-#include <kinc/memory.h>
 #include <wayland-generated/wayland-pointer-constraint.h>
 #include <wayland-generated/wayland-relative-pointer.h>
 #include <wayland-generated/wayland-tablet.h>

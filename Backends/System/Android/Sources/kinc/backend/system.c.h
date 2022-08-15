@@ -1,6 +1,5 @@
 #include <EGL/egl.h>
 #include <kinc/error.h>
-#include <kinc/memory.h>
 #include <kinc/string.h>
 // #include <GLContext.h>
 #include <kinc/backend/Android.h>

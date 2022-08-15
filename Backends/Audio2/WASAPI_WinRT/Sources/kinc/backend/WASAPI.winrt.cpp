@@ -4,7 +4,6 @@
 
 #include <kinc/error.h>
 #include <kinc/log.h>
-#include <kinc/memory.h>
 #include <kinc/threads/thread.h>
 
 #include <AudioClient.h>
