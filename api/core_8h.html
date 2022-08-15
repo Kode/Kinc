@@ -73,7 +73,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Provides some basic math functions. This is mostly just functionality that also exists in math.h but hey, maybe we can one day run programs without the C-lib.  
+<p>Just a few very simple additions to math.h the C-lib.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;<a class="el" href="global_8h_source.html">kinc/global.h</a>&gt;</code><br />
 </div>
@@ -90,69 +90,15 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a10ac5a2123b13c97cb99c7b84ce98854"><td class="memItemLeft" align="right" valign="top"><a id="a10ac5a2123b13c97cb99c7b84ce98854"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_sin</b> (float value)</td></tr>
-<tr class="separator:a10ac5a2123b13c97cb99c7b84ce98854"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abad2b2ff425ad0e7c22a3432b8aacc70"><td class="memItemLeft" align="right" valign="top"><a id="abad2b2ff425ad0e7c22a3432b8aacc70"></a>
-KINC_FUNC double&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_sind</b> (double value)</td></tr>
-<tr class="separator:abad2b2ff425ad0e7c22a3432b8aacc70"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a655864b25f395118b34e305d11bd5cb5"><td class="memItemLeft" align="right" valign="top"><a id="a655864b25f395118b34e305d11bd5cb5"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_cos</b> (float value)</td></tr>
-<tr class="separator:a655864b25f395118b34e305d11bd5cb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ed8221ebdc3ce2650710cd07df5b11b"><td class="memItemLeft" align="right" valign="top"><a id="a5ed8221ebdc3ce2650710cd07df5b11b"></a>
-KINC_FUNC double&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_cosd</b> (double value)</td></tr>
-<tr class="separator:a5ed8221ebdc3ce2650710cd07df5b11b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a774ce8a25a9e9e5c23a5468f0e2d9738"><td class="memItemLeft" align="right" valign="top"><a id="a774ce8a25a9e9e5c23a5468f0e2d9738"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_tan</b> (float x)</td></tr>
-<tr class="separator:a774ce8a25a9e9e5c23a5468f0e2d9738"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a370b2cc46cd8f1d5e54a1c44b6e23314"><td class="memItemLeft" align="right" valign="top"><a id="a370b2cc46cd8f1d5e54a1c44b6e23314"></a>
 KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_cot</b> (float x)</td></tr>
 <tr class="separator:a370b2cc46cd8f1d5e54a1c44b6e23314"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b796c086d64a4104ec9e278184493a7"><td class="memItemLeft" align="right" valign="top"><a id="a9b796c086d64a4104ec9e278184493a7"></a>
 KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_round</b> (float value)</td></tr>
 <tr class="separator:a9b796c086d64a4104ec9e278184493a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4726ea4593df15232eaec1854e22738b"><td class="memItemLeft" align="right" valign="top"><a id="a4726ea4593df15232eaec1854e22738b"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_ceil</b> (float value)</td></tr>
-<tr class="separator:a4726ea4593df15232eaec1854e22738b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a422be8332cb16b93a602be9670a4b809"><td class="memItemLeft" align="right" valign="top"><a id="a422be8332cb16b93a602be9670a4b809"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_pow</b> (float value, float exponent)</td></tr>
-<tr class="separator:a422be8332cb16b93a602be9670a4b809"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adbb343ad6d1ad3fb2b6a4e6bab65b1d3"><td class="memItemLeft" align="right" valign="top"><a id="adbb343ad6d1ad3fb2b6a4e6bab65b1d3"></a>
-KINC_FUNC double&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_powd</b> (double value, double exponent)</td></tr>
-<tr class="separator:adbb343ad6d1ad3fb2b6a4e6bab65b1d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af53c1c8f3a024588ead7372fbe418ec3"><td class="memItemLeft" align="right" valign="top"><a id="af53c1c8f3a024588ead7372fbe418ec3"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_max_float</b> (void)</td></tr>
-<tr class="separator:af53c1c8f3a024588ead7372fbe418ec3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8653a8eda1407667f1d857335648e68a"><td class="memItemLeft" align="right" valign="top"><a id="a8653a8eda1407667f1d857335648e68a"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_sqrt</b> (float value)</td></tr>
-<tr class="separator:a8653a8eda1407667f1d857335648e68a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0498e4ad53d01011834d1b2f939a56e1"><td class="memItemLeft" align="right" valign="top"><a id="a0498e4ad53d01011834d1b2f939a56e1"></a>
 KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_abs</b> (float value)</td></tr>
 <tr class="separator:a0498e4ad53d01011834d1b2f939a56e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad4652ce70aaf12085f07586217a75786"><td class="memItemLeft" align="right" valign="top"><a id="ad4652ce70aaf12085f07586217a75786"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_asin</b> (float value)</td></tr>
-<tr class="separator:ad4652ce70aaf12085f07586217a75786"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af4a8ff376f238aa77b18b527b4a5ad7d"><td class="memItemLeft" align="right" valign="top"><a id="af4a8ff376f238aa77b18b527b4a5ad7d"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_acos</b> (float value)</td></tr>
-<tr class="separator:af4a8ff376f238aa77b18b527b4a5ad7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1225f4b2593367205f617c4847209798"><td class="memItemLeft" align="right" valign="top"><a id="a1225f4b2593367205f617c4847209798"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_atan</b> (float value)</td></tr>
-<tr class="separator:a1225f4b2593367205f617c4847209798"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd42654a54823a8e467d884d2aeb9788"><td class="memItemLeft" align="right" valign="top"><a id="abd42654a54823a8e467d884d2aeb9788"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_atan2</b> (float y, float x)</td></tr>
-<tr class="separator:abd42654a54823a8e467d884d2aeb9788"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfc2830a51aea4df9eca518094a3a1e0"><td class="memItemLeft" align="right" valign="top"><a id="adfc2830a51aea4df9eca518094a3a1e0"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_floor</b> (float value)</td></tr>
-<tr class="separator:adfc2830a51aea4df9eca518094a3a1e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a255100c8089ceb6572bb4795a4090d07"><td class="memItemLeft" align="right" valign="top"><a id="a255100c8089ceb6572bb4795a4090d07"></a>
-KINC_FUNC double&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_floord</b> (double value)</td></tr>
-<tr class="separator:a255100c8089ceb6572bb4795a4090d07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a582256bb13935e9908f1761015c81bad"><td class="memItemLeft" align="right" valign="top"><a id="a582256bb13935e9908f1761015c81bad"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_mod</b> (float numer, float denom)</td></tr>
-<tr class="separator:a582256bb13935e9908f1761015c81bad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc5d46d52d9afe7a109d835a86f133db"><td class="memItemLeft" align="right" valign="top"><a id="abc5d46d52d9afe7a109d835a86f133db"></a>
-KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_exp</b> (float exponent)</td></tr>
-<tr class="separator:abc5d46d52d9afe7a109d835a86f133db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca9a740b26134557ca2cf2db35701b6a"><td class="memItemLeft" align="right" valign="top"><a id="aca9a740b26134557ca2cf2db35701b6a"></a>
 KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_min</b> (float a, float b)</td></tr>
 <tr class="separator:aca9a740b26134557ca2cf2db35701b6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -168,12 +114,9 @@ KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_maxi</b
 <tr class="memitem:a3ee2e2c463d22b76400be5201e9dabc4"><td class="memItemLeft" align="right" valign="top"><a id="a3ee2e2c463d22b76400be5201e9dabc4"></a>
 KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_clamp</b> (float value, float minValue, float maxValue)</td></tr>
 <tr class="separator:a3ee2e2c463d22b76400be5201e9dabc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b326985f4c57da0680355074127a6f6"><td class="memItemLeft" align="right" valign="top"><a id="a3b326985f4c57da0680355074127a6f6"></a>
-KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_absi</b> (int value)</td></tr>
-<tr class="separator:a3b326985f4c57da0680355074127a6f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Provides some basic math functions. This is mostly just functionality that also exists in math.h but hey, maybe we can one day run programs without the C-lib. </p>
+<div class="textblock"><p>Just a few very simple additions to math.h the C-lib. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
