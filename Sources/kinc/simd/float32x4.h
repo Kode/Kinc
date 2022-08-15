@@ -202,6 +202,8 @@ static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float
 
 #else
 
+#include <math.h>
+
 static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, float d) {
 	kinc_float32x4_t value;
 	value.values[0] = a;
@@ -280,10 +282,10 @@ static inline kinc_float32x4_t kinc_float32x4_reciprocal_approximation(kinc_floa
 
 static inline kinc_float32x4_t kinc_float32x4_reciprocal_sqrt_approximation(kinc_float32x4_t t) {
 	kinc_float32x4_t value;
-	value.values[0] = 1.0f / kinc_sqrt(t.values[0]);
-	value.values[1] = 1.0f / kinc_sqrt(t.values[1]);
-	value.values[2] = 1.0f / kinc_sqrt(t.values[2]);
-	value.values[3] = 1.0f / kinc_sqrt(t.values[3]);
+	value.values[0] = 1.0f / sqrtf(t.values[0]);
+	value.values[1] = 1.0f / sqrtf(t.values[1]);
+	value.values[2] = 1.0f / sqrtf(t.values[2]);
+	value.values[3] = 1.0f / sqrtf(t.values[3]);
 	return value;
 }
 
@@ -298,10 +300,10 @@ static inline kinc_float32x4_t kinc_float32x4_sub(kinc_float32x4_t a, kinc_float
 
 static inline kinc_float32x4_t kinc_float32x4_sqrt(kinc_float32x4_t t) {
 	kinc_float32x4_t value;
-	value.values[0] = kinc_sqrt(t.values[0]);
-	value.values[1] = kinc_sqrt(t.values[1]);
-	value.values[2] = kinc_sqrt(t.values[2]);
-	value.values[3] = kinc_sqrt(t.values[3]);
+	value.values[0] = sqrtf(t.values[0]);
+	value.values[1] = sqrtf(t.values[1]);
+	value.values[2] = sqrtf(t.values[2]);
+	value.values[3] = sqrtf(t.values[3]);
 	return value;
 }
 
