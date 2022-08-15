@@ -3,7 +3,6 @@
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/libs/stb_sprintf.h>
 #include <kinc/log.h>
-#include <kinc/memory.h>
 #include <kinc/string.h>
 
 kinc_g4_pipeline_t *currentPipeline = NULL;
@@ -118,7 +117,7 @@ void kinc_internal_set_constants(void) {
 }
 
 void kinc_g4_pipeline_init(struct kinc_g4_pipeline *state) {
-	kinc_memset(state, 0, sizeof(struct kinc_g4_pipeline));
+	memset(state, 0, sizeof(struct kinc_g4_pipeline));
 	kinc_g4_internal_pipeline_set_defaults(state);
 	state->impl.d3d11inputLayout = NULL;
 	state->impl.fragmentConstantBuffer = NULL;
@@ -768,7 +767,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 	                                                               state->vertex_shader->impl.length, &state->impl.d3d11inputLayout));
 	{
 		D3D11_DEPTH_STENCIL_DESC desc;
-		kinc_memset(&desc, 0, sizeof(desc));
+		memset(&desc, 0, sizeof(desc));
 
 		desc.DepthEnable = state->depth_mode != KINC_G4_COMPARE_ALWAYS;
 		desc.DepthWriteMask = state->depth_write ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
@@ -828,12 +827,12 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		}
 
 		D3D11_BLEND_DESC blendDesc;
-		kinc_memset(&blendDesc, 0, sizeof(blendDesc));
+		memset(&blendDesc, 0, sizeof(blendDesc));
 		blendDesc.AlphaToCoverageEnable = false;
 		blendDesc.IndependentBlendEnable = independentBlend;
 
 		D3D11_RENDER_TARGET_BLEND_DESC rtbd[8];
-		kinc_memset(&rtbd, 0, sizeof(rtbd));
+		memset(&rtbd, 0, sizeof(rtbd));
 		createRenderTargetBlendDesc(state, &rtbd[0], 0);
 		blendDesc.RenderTarget[0] = rtbd[0];
 		if (independentBlend) {

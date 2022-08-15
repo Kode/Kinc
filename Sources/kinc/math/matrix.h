@@ -51,10 +51,6 @@ KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_mat
 #define KINC_IMPLEMENTATION
 #endif
 
-#undef KINC_IMPLEMENTATION
-#include <kinc/memory.h>
-#define KINC_IMPLEMENTATION
-
 #include <memory.h>
 
 float kinc_matrix3x3_get(kinc_matrix3x3_t *matrix, int x, int y) {
@@ -72,12 +68,12 @@ void kinc_matrix3x3_transpose(kinc_matrix3x3_t *matrix) {
 			kinc_matrix3x3_set(&transposed, x, y, kinc_matrix3x3_get(matrix, y, x));
 		}
 	}
-	kinc_memcpy(matrix->m, transposed.m, sizeof(transposed.m));
+	memcpy(matrix->m, transposed.m, sizeof(transposed.m));
 }
 
 kinc_matrix3x3_t kinc_matrix3x3_identity(void) {
 	kinc_matrix3x3_t m;
-	kinc_memset(m.m, 0, sizeof(m.m));
+	memset(m.m, 0, sizeof(m.m));
 	for (unsigned x = 0; x < 3; ++x) {
 		kinc_matrix3x3_set(&m, x, x, 1.0f);
 	}
@@ -179,7 +175,7 @@ void kinc_matrix4x4_transpose(kinc_matrix4x4_t *matrix) {
 			kinc_matrix4x4_set(&transposed, x, y, kinc_matrix4x4_get(matrix, y, x));
 		}
 	}
-	kinc_memcpy(matrix->m, transposed.m, sizeof(transposed.m));
+	memcpy(matrix->m, transposed.m, sizeof(transposed.m));
 }
 
 kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_matrix4x4_t *b) {

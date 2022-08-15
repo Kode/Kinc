@@ -18,7 +18,6 @@
 #include <kinc/system.h>
 
 #include <kinc/display.h>
-#include <kinc/memory.h>
 #include <kinc/window.h>
 
 #ifdef KORE_WINDOWS
@@ -66,7 +65,7 @@ static uint32_t samplers_size = 0;
 
 static ID3D11SamplerState *getSamplerState(D3D11_SAMPLER_DESC *desc) {
 	for (unsigned i = 0; i < samplers_size; ++i) {
-		if (kinc_memcmp(desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
+		if (memcmp(desc, &samplers[i].desc, sizeof(D3D11_SAMPLER_DESC)) == 0) {
 			return samplers[i].state;
 		}
 	}
@@ -80,7 +79,7 @@ static ID3D11SamplerState *getSamplerState(D3D11_SAMPLER_DESC *desc) {
 
 static void initSamplers() {
 	D3D11_SAMPLER_DESC samplerDesc;
-	kinc_memset(&samplerDesc, 0, sizeof(samplerDesc));
+	memset(&samplerDesc, 0, sizeof(samplerDesc));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -279,7 +278,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	dx_ctx.context->lpVtbl->RSSetViewports(dx_ctx.context, 1, &viewPort);
 
 	D3D11_SAMPLER_DESC samplerDesc;
-	kinc_memset(&samplerDesc, 0, sizeof(samplerDesc));
+	memset(&samplerDesc, 0, sizeof(samplerDesc));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -294,10 +293,10 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	initSamplers();
 
 	D3D11_BLEND_DESC blendDesc;
-	kinc_memset(&blendDesc, 0, sizeof(blendDesc));
+	memset(&blendDesc, 0, sizeof(blendDesc));
 
 	D3D11_RENDER_TARGET_BLEND_DESC rtbd;
-	kinc_memset(&rtbd, 0, sizeof(rtbd));
+	memset(&rtbd, 0, sizeof(rtbd));
 
 	rtbd.BlendEnable = true;
 	rtbd.SrcBlend = D3D11_BLEND_SRC_ALPHA;

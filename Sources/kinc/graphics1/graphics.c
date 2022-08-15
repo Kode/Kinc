@@ -7,7 +7,6 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/io/filereader.h>
-#include <kinc/memory.h>
 
 static kinc_g4_shader_t vertexShader;
 static kinc_g4_shader_t fragmentShader;
@@ -47,21 +46,21 @@ void kinc_g1_init(int width, int height) {
 	{
 		kinc_file_reader_t file;
 		kinc_file_reader_open(&file, "g1.vert", KINC_FILE_TYPE_ASSET);
-		void *data = kinc_allocate(kinc_file_reader_size(&file));
+		void *data = malloc(kinc_file_reader_size(&file));
 		kinc_file_reader_read(&file, data, kinc_file_reader_size(&file));
 		kinc_file_reader_close(&file);
 		kinc_g4_shader_init(&vertexShader, data, kinc_file_reader_size(&file), KINC_G4_SHADER_TYPE_VERTEX);
-		kinc_free(data);
+		free(data);
 	}
 
 	{
 		kinc_file_reader_t file;
 		kinc_file_reader_open(&file, "g1.frag", KINC_FILE_TYPE_ASSET);
-		void *data = kinc_allocate(kinc_file_reader_size(&file));
+		void *data = malloc(kinc_file_reader_size(&file));
 		kinc_file_reader_read(&file, data, kinc_file_reader_size(&file));
 		kinc_file_reader_close(&file);
 		kinc_g4_shader_init(&fragmentShader, data, kinc_file_reader_size(&file), KINC_G4_SHADER_TYPE_FRAGMENT);
-		kinc_free(data);
+		free(data);
 	}
 
 	kinc_g4_vertex_structure_t structure;

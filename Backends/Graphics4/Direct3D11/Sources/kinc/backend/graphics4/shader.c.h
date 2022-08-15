@@ -1,10 +1,9 @@
 #include <kinc/graphics4/shader.h>
-#include <kinc/memory.h>
 
 void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	if (shader->impl.shader != NULL) {
 		((IUnknown *)shader->impl.shader)->lpVtbl->Release(shader->impl.shader);
-		kinc_free(shader->impl.data);
+		free(shader->impl.data);
 	}
 }
 
@@ -13,7 +12,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 	uint8_t *data = (uint8_t *)_data;
 	shader->impl.type = (int)type;
 
-	kinc_memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
+	memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
 		unsigned char name[256];
@@ -25,7 +24,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 		shader->impl.attributes[i].index = data[index++];
 	}
 
-	kinc_memset(&shader->impl.textures, 0, sizeof(shader->impl.textures));
+	memset(&shader->impl.textures, 0, sizeof(shader->impl.textures));
 	uint8_t texCount = data[index++];
 	for (unsigned i = 0; i < texCount; ++i) {
 		unsigned char name[256];
@@ -37,7 +36,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 		shader->impl.textures[i].index = data[index++];
 	}
 
-	kinc_memset(&shader->impl.constants, 0, sizeof(shader->impl.constants));
+	memset(&shader->impl.constants, 0, sizeof(shader->impl.constants));
 	uint8_t constantCount = data[index++];
 	shader->impl.constantsSize = 0;
 	for (unsigned i = 0; i < constantCount; ++i) {
@@ -62,9 +61,9 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 	}
 
 	shader->impl.length = (int)(length - index);
-	shader->impl.data = (uint8_t *)kinc_allocate(shader->impl.length);
+	shader->impl.data = (uint8_t *)malloc(shader->impl.length);
 	assert(shader->impl.data != NULL);
-	kinc_memcpy(shader->impl.data, &data[index], shader->impl.length);
+	memcpy(shader->impl.data, &data[index], shader->impl.length);
 
 	switch (type) {
 	case KINC_G4_SHADER_TYPE_VERTEX:
@@ -97,7 +96,7 @@ extern int krafix_compile(const char *source, char *output, int *length, const c
 
 int kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {
 #ifdef KRAFIX_LIBRARY
-	char *output = kinc_allocate(1024 * 1024);
+	char *output = malloc(1024 * 1024);
 	int length;
 	int errors = krafix_compile(source, output, &length, "d3d11", "windows", type == KINC_G4_SHADER_TYPE_FRAGMENT ? "frag" : "vert");
 	if (errors > 0) {

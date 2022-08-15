@@ -151,7 +151,6 @@ KINC_FUNC int kinc_image_format_sizeof(kinc_image_format_t format);
 #undef KINC_IMPLEMENTATION
 #endif
 #include <kinc/log.h>
-#include <kinc/memory.h>
 #include <kinc/string.h>
 #ifdef KINC_IMPLEMENTATION_ROOT
 #define KINC_IMPLEMENTATION
@@ -202,7 +201,7 @@ static void *buffer_realloc(void *p, size_t size) {
 		if (new_pointer == NULL) {
 			return NULL;
 		}
-		kinc_memcpy(new_pointer, old_pointer, old_size < size ? old_size : size);
+		memcpy(new_pointer, old_pointer, old_size < size ? old_size : size);
 		return new_pointer;
 	}
 }
@@ -486,7 +485,7 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 			return false;
 		}
 		*outputSize = *width * *height * 16;
-		kinc_memcpy(output, uncompressed, *outputSize);
+		memcpy(output, uncompressed, *outputSize);
 		*format = KINC_IMAGE_FORMAT_RGBA128;
 		buffer_offset = 0;
 		return true;
@@ -608,7 +607,7 @@ struct kinc_internal_image_memory {
 static int memory_read_callback(void *user_data, void *data, size_t size) {
 	struct kinc_internal_image_memory *memory = (struct kinc_internal_image_memory *)user_data;
 	size_t read_size = memory->size - memory->offset < size ? memory->size - memory->offset : size;
-	kinc_memcpy(data, &memory->data[memory->offset], read_size);
+	memcpy(data, &memory->data[memory->offset], read_size);
 	memory->offset += read_size;
 	return (int)read_size;
 }

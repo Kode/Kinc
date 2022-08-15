@@ -12,7 +12,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 		buffer->impl.vertices = NULL;
 	}
 	else {
-		buffer->impl.vertices = (float *)kinc_allocate(buffer->impl.stride * count);
+		buffer->impl.vertices = (float *)malloc(buffer->impl.stride * count);
 	}
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -42,7 +42,7 @@ void kinc_g4_vertex_buffer_init(kinc_g4_vertex_buffer_t *buffer, int count, kinc
 
 void kinc_g4_vertex_buffer_destroy(kinc_g4_vertex_buffer_t *buffer) {
 	buffer->impl.vb->lpVtbl->Release(buffer->impl.vb);
-	kinc_free(buffer->impl.vertices);
+	free(buffer->impl.vertices);
 	buffer->impl.vertices = NULL;
 }
 
@@ -56,7 +56,7 @@ float *kinc_g4_vertex_buffer_lock(kinc_g4_vertex_buffer_t *buffer, int start, in
 
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		kinc_memset(&mappedResource, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
+		memset(&mappedResource, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
 		dx_ctx.context->lpVtbl->Map(dx_ctx.context, (ID3D11Resource *)buffer->impl.vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		float *data = (float *)mappedResource.pData;
 		return &data[start * buffer->impl.stride / 4];

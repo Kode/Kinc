@@ -1,5 +1,4 @@
 #include <kinc/graphics4/indexBuffer.h>
-#include <kinc/memory.h>
 
 void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format, kinc_g4_usage_t usage) {
 	buffer->impl.count = count;
@@ -11,7 +10,7 @@ void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g
 		buffer->impl.indices = NULL;
 	}
 	else {
-		buffer->impl.indices = kinc_allocate(byte_size);
+		buffer->impl.indices = malloc(byte_size);
 	}
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -41,14 +40,14 @@ void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g
 
 void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 	buffer->impl.ib->lpVtbl->Release(buffer->impl.ib);
-	kinc_free(buffer->impl.indices);
+	free(buffer->impl.indices);
 	buffer->impl.indices = NULL;
 }
 
 int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		kinc_memset(&mappedResource, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
+		memset(&mappedResource, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
 		dx_ctx.context->lpVtbl->Map(dx_ctx.context, (ID3D11Resource *)buffer->impl.ib, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		return (int *)mappedResource.pData;
 	}

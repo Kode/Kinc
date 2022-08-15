@@ -4,7 +4,6 @@
 
 #include <kinc/error.h>
 #include <kinc/log.h>
-#include <kinc/memory.h>
 
 // Windows 7
 #define WINVER 0x0601
@@ -105,7 +104,7 @@ static bool initDefaultDevice() {
 		const int sampleRate = 48000;
 
 		format = &requestedFormat;
-		kinc_memset(&requestedFormat, 0, sizeof(WAVEFORMATEX));
+		memset(&requestedFormat, 0, sizeof(WAVEFORMATEX));
 		requestedFormat.nChannels = 2;
 		requestedFormat.nSamplesPerSec = sampleRate;
 		requestedFormat.wFormatTag = WAVE_FORMAT_PCM;
@@ -172,7 +171,7 @@ static void submitEmptyBuffer(unsigned frames) {
 		return;
 	}
 
-	kinc_memset(buffer, 0, frames * format->nBlockAlign);
+	memset(buffer, 0, frames * format->nBlockAlign);
 
 	result = renderClient->lpVtbl->ReleaseBuffer(renderClient, frames, 0);
 }
@@ -191,7 +190,7 @@ static void submitBuffer(unsigned frames) {
 
 	if (a2_callback != NULL) {
 		a2_callback(&a2_buffer, frames * 2);
-		kinc_memset(buffer, 0, frames * format->nBlockAlign);
+		memset(buffer, 0, frames * format->nBlockAlign);
 		if (format->wFormatTag == WAVE_FORMAT_PCM) {
 			for (UINT32 i = 0; i < frames; ++i) {
 				copyS16Sample((int16_t *)&buffer[i * format->nBlockAlign]);
@@ -206,7 +205,7 @@ static void submitBuffer(unsigned frames) {
 		}
 	}
 	else {
-		kinc_memset(buffer, 0, frames * format->nBlockAlign);
+		memset(buffer, 0, frames * format->nBlockAlign);
 	}
 
 	result = renderClient->lpVtbl->ReleaseBuffer(renderClient, frames, 0);
@@ -246,7 +245,7 @@ void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = (uint8_t *)kinc_allocate(a2_buffer.data_size);
+	a2_buffer.data = (uint8_t *)malloc(a2_buffer.data_size);
 
 	audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
 	kinc_affirm(audioProcessingDoneEvent != 0);

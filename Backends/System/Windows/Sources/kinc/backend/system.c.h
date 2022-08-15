@@ -11,7 +11,6 @@
 #include <kinc/input/pen.h>
 #include <kinc/input/surface.h>
 #include <kinc/log.h>
-#include <kinc/memory.h>
 #include <kinc/system.h>
 #include <kinc/threads/thread.h>
 #include <kinc/video.h>
@@ -568,7 +567,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						size_t size = (kinc_wstring_length(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void *data = GlobalLock(handle);
-						kinc_memcpy(data, wtext, size);
+						memcpy(data, wtext, size);
 						GlobalUnlock(handle);
 						SetClipboardData(CF_UNICODETEXT, handle);
 						CloseClipboard();
@@ -585,7 +584,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						size_t size = (kinc_wstring_length(wtext) + 1) * sizeof(wchar_t);
 						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 						void *data = GlobalLock(handle);
-						kinc_memcpy(data, wtext, size);
+						memcpy(data, wtext, size);
 						GlobalUnlock(handle);
 						SetClipboardData(CF_UNICODETEXT, handle);
 						CloseClipboard();
@@ -911,7 +910,7 @@ static BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID
 					hr = di_pads[padCount]->lpVtbl->Acquire(di_pads[padCount]);
 
 					if (SUCCEEDED(hr)) {
-						kinc_memset(&di_padState[padCount], 0, sizeof(DIJOYSTATE2));
+						memset(&di_padState[padCount], 0, sizeof(DIJOYSTATE2));
 						hr = di_pads[padCount]->lpVtbl->GetDeviceState(di_pads[padCount], sizeof(DIJOYSTATE2), &di_padState[padCount]);
 
 						if (SUCCEEDED(hr)) {
@@ -955,10 +954,10 @@ static BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID
 static void initializeDirectInput() {
 	HINSTANCE hinstance = GetModuleHandle(NULL);
 
-	kinc_memset(&di_pads, 0, sizeof(IDirectInputDevice8) * XUSER_MAX_COUNT);
-	kinc_memset(&di_padState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
-	kinc_memset(&di_lastPadState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
-	kinc_memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * XUSER_MAX_COUNT);
+	memset(&di_pads, 0, sizeof(IDirectInputDevice8) * XUSER_MAX_COUNT);
+	memset(&di_padState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
+	memset(&di_lastPadState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
+	memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * XUSER_MAX_COUNT);
 
 	HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, &IID_IDirectInput8, (void **)&di_instance, NULL);
 
@@ -1047,7 +1046,7 @@ bool handleDirectInputPad(int padIndex) {
 			}
 		}
 
-		kinc_memcpy(&di_lastPadState[padIndex], &di_padState[padIndex], sizeof(DIJOYSTATE2));
+		memcpy(&di_lastPadState[padIndex], &di_padState[padIndex], sizeof(DIJOYSTATE2));
 		break;
 	}
 	case DIERR_INPUTLOST: // fall through
@@ -1062,7 +1061,7 @@ bool handleDirectInputPad(int padIndex) {
 
 static bool isXInputGamepad(int gamepad) {
 	XINPUT_STATE state;
-	kinc_memset(&state, 0, sizeof(XINPUT_STATE));
+	memset(&state, 0, sizeof(XINPUT_STATE));
 	DWORD dwResult = InputGetState(gamepad, &state);
 	return dwResult == ERROR_SUCCESS;
 }
@@ -1105,7 +1104,7 @@ bool kinc_internal_handle_messages() {
 		detectGamepad = false;
 		for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
 			XINPUT_STATE state;
-			kinc_memset(&state, 0, sizeof(XINPUT_STATE));
+			memset(&state, 0, sizeof(XINPUT_STATE));
 			DWORD dwResult = InputGetState(i, &state);
 
 			if (dwResult == ERROR_SUCCESS) {
@@ -1279,7 +1278,7 @@ bool kinc_gamepad_connected(int num) {
 void kinc_gamepad_rumble(int gamepad, float left, float right) {
 	if (isXInputGamepad(gamepad)) {
 		XINPUT_VIBRATION vibration;
-		kinc_memset(&vibration, 0, sizeof(XINPUT_VIBRATION));
+		memset(&vibration, 0, sizeof(XINPUT_VIBRATION));
 		vibration.wLeftMotorSpeed = (WORD)(65535.f * left);
 		vibration.wRightMotorSpeed = (WORD)(65535.f * right);
 		InputSetState(gamepad, &vibration);
@@ -1405,7 +1404,7 @@ void kinc_copy_to_clipboard(const char *text) {
 	size_t size = (kinc_wstring_length(wtext) + 1) * sizeof(wchar_t);
 	HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
 	void *data = GlobalLock(handle);
-	kinc_memcpy(data, wtext, size);
+	memcpy(data, wtext, size);
 	GlobalUnlock(handle);
 	SetClipboardData(CF_UNICODETEXT, handle);
 	CloseClipboard();

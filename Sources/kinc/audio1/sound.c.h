@@ -6,7 +6,6 @@
 #include <kinc/audio2/audio.h>
 #include <kinc/error.h>
 #include <kinc/io/filereader.h>
-#include <kinc/memory.h>
 #include <kinc/string.h>
 
 #include <assert.h>
@@ -52,9 +51,9 @@ static void readChunk(uint8_t **data, struct WaveData *wave) {
 	}
 	else if (kinc_string_compare(fourcc, "data") == 0) {
 		wave->dataSize = chunksize;
-		wave->data = (uint8_t *)kinc_allocate(chunksize * sizeof(uint8_t));
+		wave->data = (uint8_t *)malloc(chunksize * sizeof(uint8_t));
 		kinc_affirm(wave->data != NULL);
-		kinc_memcpy(wave->data, *data, chunksize);
+		memcpy(wave->data, *data, chunksize);
 		*data += chunksize;
 	}
 	else {
@@ -122,7 +121,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 		if (!kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET)) {
 			return NULL;
 		}
-		uint8_t *filedata = (uint8_t *)kinc_allocate(kinc_file_reader_size(&file));
+		uint8_t *filedata = (uint8_t *)malloc(kinc_file_reader_size(&file));
 		kinc_file_reader_read(&file, filedata, kinc_file_reader_size(&file));
 		kinc_file_reader_close(&file);
 
@@ -130,7 +129,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 		    stb_vorbis_decode_memory(filedata, (int)kinc_file_reader_size(&file), &sound->format.channels, &sound->format.samples_per_second, (short **)&data);
 		sound->size = samples * 2 * sound->format.channels;
 		sound->format.bits_per_sample = 16;
-		kinc_free(filedata);
+		free(filedata);
 	}
 	else if (kinc_string_compare_limited(&filename[filenameLength - 4], ".wav", 4) == 0) {
 		struct WaveData wave = {0};
@@ -139,7 +138,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 			if (!kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET)) {
 				return NULL;
 			}
-			uint8_t *filedata = (uint8_t *)kinc_allocate(kinc_file_reader_size(&file));
+			uint8_t *filedata = (uint8_t *)malloc(kinc_file_reader_size(&file));
 			kinc_file_reader_read(&file, filedata, kinc_file_reader_size(&file));
 			kinc_file_reader_close(&file);
 			uint8_t *data = filedata;
@@ -152,7 +151,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 				readChunk(&data, &wave);
 			}
 
-			kinc_free(filedata);
+			free(filedata);
 		}
 
 		sound->format.bits_per_sample = wave.bitsPerSample;
@@ -167,14 +166,14 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 
 	if (sound->format.channels == 1) {
 		if (sound->format.bits_per_sample == 8) {
-			sound->left = (int16_t *)kinc_allocate(sound->size * sizeof(int16_t));
-			sound->right = (int16_t *)kinc_allocate(sound->size * sizeof(int16_t));
+			sound->left = (int16_t *)malloc(sound->size * sizeof(int16_t));
+			sound->right = (int16_t *)malloc(sound->size * sizeof(int16_t));
 			splitMono8(data, sound->size, sound->left, sound->right);
 		}
 		else if (sound->format.bits_per_sample == 16) {
 			sound->size /= 2;
-			sound->left = (int16_t *)kinc_allocate(sound->size * sizeof(int16_t));
-			sound->right = (int16_t *)kinc_allocate(sound->size * sizeof(int16_t));
+			sound->left = (int16_t *)malloc(sound->size * sizeof(int16_t));
+			sound->right = (int16_t *)malloc(sound->size * sizeof(int16_t));
 			splitMono16((int16_t *)data, sound->size, sound->left, sound->right);
 		}
 		else {
@@ -185,14 +184,14 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 		// Left and right channel are in s16 audio stream, alternating.
 		if (sound->format.bits_per_sample == 8) {
 			sound->size /= 2;
-			sound->left = (int16_t *)kinc_allocate(sound->size * sizeof(int16_t));
-			sound->right = (int16_t *)kinc_allocate(sound->size * sizeof(int16_t));
+			sound->left = (int16_t *)malloc(sound->size * sizeof(int16_t));
+			sound->right = (int16_t *)malloc(sound->size * sizeof(int16_t));
 			splitStereo8(data, sound->size, sound->left, sound->right);
 		}
 		else if (sound->format.bits_per_sample == 16) {
 			sound->size /= 4;
-			sound->left = (int16_t *)kinc_allocate(sound->size * sizeof(int16_t));
-			sound->right = (int16_t *)kinc_allocate(sound->size * sizeof(int16_t));
+			sound->left = (int16_t *)malloc(sound->size * sizeof(int16_t));
+			sound->right = (int16_t *)malloc(sound->size * sizeof(int16_t));
 			splitStereo16((int16_t *)data, sound->size, sound->left, sound->right);
 		}
 		else {
@@ -200,14 +199,14 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 		}
 	}
 	sound->sample_rate_pos = 44100 / (float)sound->format.samples_per_second;
-	kinc_free(data);
+	free(data);
 
 	return sound;
 }
 
 void kinc_a1_sound_destroy(kinc_a1_sound_t *sound) {
-	kinc_free(sound->left);
-	kinc_free(sound->right);
+	free(sound->left);
+	free(sound->right);
 	sound->left = NULL;
 	sound->right = NULL;
 	sound->in_use = false;

@@ -189,7 +189,6 @@ char *kinc_internal_get_files_location(void);
 #include "filereader.h"
 
 #undef KINC_IMPLEMENTATION
-#include <kinc/memory.h>
 #include <kinc/string.h>
 #include <kinc/system.h>
 #define KINC_IMPLEMENTATION
@@ -246,7 +245,7 @@ void kinc_internal_uwp_installed_location_path(char *path);
 
 #ifndef KORE_ANDROID
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
-	kinc_memset(reader, 0, sizeof(kinc_file_reader_t));
+	memset(reader, 0, sizeof(kinc_file_reader_t));
 	char filepath[1001];
 #ifdef KORE_IOS
 	kinc_string_copy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());

@@ -574,20 +574,7 @@ enum STBVorbisError
    #endif
 
 #include <kinc/math/core.h>
-#include <kinc/memory.h>
 #include <kinc/string.h>
-
-#define malloc(s) kinc_allocate(s)
-#define realloc(p, s) kinc_reallocate(p, s)
-#define free(p) kinc_free(p)
-#define memcpy(p, value, num) kinc_memcpy(p, value, num)
-#define memset(p1, p2, mem) kinc_memset(p1, p2, mem)
-#define memcmp(p1, p2, num) kinc_memcmp(p1, p2, num)
-#define pow(a, b) kinc_powd(a, b)
-#define abs(value) kinc_absi(value)
-#define sin(value) kinc_sind(value)
-#define cos(value) kinc_cosd(value)
-#define floor(value) kinc_floord(value)
 
 #else // STB_VORBIS_NO_CRT
    #define NULL 0

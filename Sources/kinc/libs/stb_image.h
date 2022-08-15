@@ -595,13 +595,6 @@ typedef unsigned char validate_uint32[sizeof(stbi__uint32)==4 ? 1 : -1];
 #include <kinc/math/core.h>
 #include <kinc/string.h>
 
-#define abs(value) kinc_absi(value)
-#define pow(a, b) kinc_powd(a, b)
-#define memcpy(d, s, num) kinc_memcpy(d, s, num)
-#define memset(d, value, num) kinc_memset(d, value, num)
-#define strcmp(str1, str2) kinc_string_compare(str1, str2)
-#define strncmp(str1, str2, num) kinc_string_compare_limited(str1, str2, num)
-
 #ifdef STBI_HAS_LROTL
    #define stbi_lrot(x,y)  _lrotl(x,y)
 #else
