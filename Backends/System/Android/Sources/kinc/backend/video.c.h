@@ -432,7 +432,7 @@ void kinc_android_video_shutdown(kinc_android_video_t *video) {
 JNIEXPORT void JNICALL Java_tech_kode_kinc_KincMoviePlayer_nativeCreate(JNIEnv *env, jobject jobj, jstring jpath, jobject surface, jint id) {
 #if KORE_ANDROID_API >= 15 && !defined(KORE_VULKAN)
 	const char *path = (*env)->GetStringUTFChars(env, jpath, NULL);
-	kinc_android_video_t *av = kinc_allocate(sizeof *av);
+	kinc_android_video_t *av = malloc(sizeof *av);
 	kinc_android_video_init(av);
 	av->theNativeWindow = ANativeWindow_fromSurface(env, surface);
 	kinc_android_video_open(av, path);

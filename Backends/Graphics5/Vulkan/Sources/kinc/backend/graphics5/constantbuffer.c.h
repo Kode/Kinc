@@ -12,7 +12,7 @@ bool kinc_g5_transposeMat4 = true;
 
 static void createUniformBuffer(VkBuffer *buf, VkMemoryAllocateInfo *mem_alloc, VkDeviceMemory *mem, VkDescriptorBufferInfo *buffer_info, int size) {
 	VkBufferCreateInfo buf_info;
-	kinc_memset(&buf_info, 0, sizeof(buf_info));
+	memset(&buf_info, 0, sizeof(buf_info));
 	buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 	buf_info.size = size;
@@ -58,7 +58,7 @@ void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	void *p;
 	VkResult err = vkMapMemory(vk_ctx.device, buffer->impl.mem, 0, buffer->impl.mem_alloc.allocationSize, 0, (void **)&p);
 	assert(!err);
-	kinc_memset(p, 0, buffer->impl.mem_alloc.allocationSize);
+	memset(p, 0, buffer->impl.mem_alloc.allocationSize);
 	vkUnmapMemory(vk_ctx.device, buffer->impl.mem);
 }
 

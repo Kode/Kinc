@@ -602,7 +602,7 @@ static const struct wl_data_source_listener wl_data_source_listener = {
 };
 
 struct kinc_wl_data_source *kinc_wl_create_data_source(struct kinc_wl_seat *seat, const char *mime_types[], int num_mime_types, void *data, size_t data_size) {
-	struct kinc_wl_data_source *data_source = kinc_allocate(sizeof *data_source);
+	struct kinc_wl_data_source *data_source = malloc(sizeof *data_source);
 	data_source->source = wl_data_device_manager_create_data_source(wl_ctx.data_device_manager);
 	data_source->data = data;
 	data_source->data_size = data_size;
@@ -624,7 +624,7 @@ void wl_data_offer_handle_offer(void *data, struct wl_data_offer *wl_data_offer,
 	struct kinc_wl_data_offer *offer = wl_data_offer_get_user_data(wl_data_offer);
 	if (offer != NULL) {
 		offer->mime_type_count++;
-		offer->mime_types = kinc_reallocate(offer->mime_types, offer->mime_type_count * sizeof(const char *));
+		offer->mime_types = realloc(offer->mime_types, offer->mime_type_count * sizeof(const char *));
 		offer->mime_types[offer->mime_type_count - 1] = kinc_string_duplicate(mime_type);
 	}
 }
@@ -646,8 +646,8 @@ static const struct wl_data_offer_listener wl_data_offer_listener = {
 };
 
 void kinc_wl_init_data_offer(struct wl_data_offer *id) {
-	struct kinc_wl_data_offer *offer = kinc_allocate(sizeof *offer);
-	kinc_memset(offer, 0, sizeof *offer);
+	struct kinc_wl_data_offer *offer = malloc(sizeof *offer);
+	memset(offer, 0, sizeof *offer);
 	offer->id = id;
 	offer->mime_type_count = 0;
 	offer->mime_types = NULL;
@@ -678,13 +678,13 @@ void kinc_wl_data_offer_accept(struct kinc_wl_data_offer *offer, void (*callback
 void kinc_wl_destroy_data_offer(struct kinc_wl_data_offer *offer) {
 	wl_data_offer_destroy(offer->id);
 	if (offer->buffer != NULL) {
-		kinc_free(offer->buffer);
+		free(offer->buffer);
 	}
 	for (int i = 0; i < offer->mime_type_count; i++) {
-		kinc_free(offer->mime_types[i]);
+		free(offer->mime_types[i]);
 	}
-	kinc_free(offer->mime_types);
-	kinc_free(offer);
+	free(offer->mime_types);
+	free(offer);
 }
 
 void wl_data_device_handle_data_offer(void *data, struct wl_data_device *wl_data_device, struct wl_data_offer *id) {
@@ -715,10 +715,10 @@ static void dnd_callback(void *data, size_t data_size, void *user_data) {
 		str += kinc_string_length("file://");
 	}
 	size_t wide_size = mbstowcs(NULL, str, 0) + 1;
-	wchar_t *dest = kinc_allocate(wide_size * sizeof(wchar_t));
+	wchar_t *dest = malloc(wide_size * sizeof(wchar_t));
 	mbstowcs(dest, str, wide_size);
 	kinc_internal_drop_files_callback(dest);
-	kinc_free(dest);
+	free(dest);
 }
 
 void wl_data_device_handle_drop(void *data, struct wl_data_device *wl_data_device) {
@@ -747,7 +747,7 @@ static const struct wl_data_device_listener wl_data_device_listener = {
 
 void kinc_wl_tablet_tool_destroy(struct kinc_wl_tablet_tool *tool) {
 	zwp_tablet_tool_v2_destroy(tool->id);
-	kinc_free(tool);
+	free(tool);
 }
 
 void zwp_tablet_tool_v2_handle_type(void *data, struct zwp_tablet_tool_v2 *zwp_tablet_tool_v2, uint32_t tool_type) {
@@ -898,7 +898,7 @@ static const struct zwp_tablet_tool_v2_listener zwp_tablet_tool_v2_listener = {
 };
 
 void zwp_tablet_seat_v2_handle_tablet_added(void *data, struct zwp_tablet_seat_v2 *zwp_tablet_seat_v2, struct zwp_tablet_v2 *id) {
-	struct kinc_wl_tablet *tablet = kinc_allocate(sizeof *tablet);
+	struct kinc_wl_tablet *tablet = malloc(sizeof *tablet);
 	tablet->id = id;
 	tablet->seat = zwp_tablet_seat_v2_get_user_data(zwp_tablet_seat_v2);
 	tablet->next = tablet->seat->tablets;
@@ -908,7 +908,7 @@ void zwp_tablet_seat_v2_handle_tablet_added(void *data, struct zwp_tablet_seat_v
 }
 
 void zwp_tablet_seat_v2_handle_tool_added(void *data, struct zwp_tablet_seat_v2 *zwp_tablet_seat_v2, struct zwp_tablet_tool_v2 *id) {
-	struct kinc_wl_tablet_tool *tool = kinc_allocate(sizeof *tool);
+	struct kinc_wl_tablet_tool *tool = malloc(sizeof *tool);
 	tool->id = id;
 	tool->seat = zwp_tablet_seat_v2_get_user_data(zwp_tablet_seat_v2);
 	tool->next = tool->seat->tablet_tools;
@@ -1128,7 +1128,7 @@ bool kinc_wayland_handle_messages() {
 		struct kinc_wl_data_offer *current = *offer;
 		struct kinc_wl_data_offer **next = &current->next;
 		if (current->buf_pos + READ_SIZE > current->buf_size) {
-			current->buffer = kinc_reallocate(current->buffer, current->buf_size + READ_SIZE);
+			current->buffer = realloc(current->buffer, current->buf_size + READ_SIZE);
 			current->buf_size += READ_SIZE;
 		}
 
@@ -1139,7 +1139,7 @@ bool kinc_wayland_handle_messages() {
 
 			current->callback(current->buffer, current->buf_pos, current->user_data);
 
-			kinc_free(current->buffer);
+			free(current->buffer);
 			current->buffer = NULL;
 			current->buf_pos = 0;
 			current->buf_size = 0;

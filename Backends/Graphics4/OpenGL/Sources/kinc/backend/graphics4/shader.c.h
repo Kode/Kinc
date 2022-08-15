@@ -21,7 +21,7 @@ extern int krafix_compile(const char *source, char *output, int *length, const c
 
 int kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {
 #ifdef KRAFIX_LIBRARY
-	char *output = kinc_allocate(1024 * 1024);
+	char *output = malloc(1024 * 1024);
 	int length;
 #ifdef KINC_WINDOWS
 	const char *system = "windows";

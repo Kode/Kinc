@@ -188,7 +188,7 @@ bool kinc_x11_init() {
 
 	assert((sizeof atom_names / sizeof atom_names[0]) == (sizeof(struct kinc_x11_atoms) / sizeof(Atom)));
 	xlib.XInternAtoms(x11_ctx.display, atom_names, sizeof atom_names / sizeof atom_names[0], False, (Atom *)&x11_ctx.atoms);
-	clipboardString = (char *)kinc_allocate(clipboardStringSize);
+	clipboardString = (char *)malloc(clipboardStringSize);
 
 	x11_ctx.pen.id = -1;
 	x11_ctx.eraser.id = -1;
@@ -212,7 +212,7 @@ bool kinc_x11_init() {
 }
 
 void kinc_x11_shutdown() {
-	kinc_free(clipboardString);
+	free(clipboardString);
 	xlib.XCloseDisplay(x11_ctx.display);
 }
 
@@ -709,7 +709,7 @@ bool kinc_x11_handle_messages() {
 			if (event.xclient.message_type == x11_ctx.atoms.XdndEnter) {
 				Window source_window = event.xclient.data.l[0];
 				XEvent m;
-				kinc_memset(&m, 0, sizeof(m));
+				memset(&m, 0, sizeof(m));
 				m.type = ClientMessage;
 				m.xclient.window = event.xclient.data.l[0];
 				m.xclient.message_type = x11_ctx.atoms.XdndStatus;
@@ -819,9 +819,9 @@ bool kinc_x11_handle_messages() {
 void kinc_x11_copy_to_clipboard(const char *text) {
 	size_t textLength = kinc_string_length(text);
 	if (textLength >= clipboardStringSize) {
-		kinc_free(clipboardString);
+		free(clipboardString);
 		clipboardStringSize = textLength + 1;
-		clipboardString = (char *)kinc_allocate(clipboardStringSize);
+		clipboardString = (char *)malloc(clipboardStringSize);
 	}
 	kinc_string_copy(clipboardString, text);
 }

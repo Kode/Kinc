@@ -366,11 +366,11 @@ static VkBlendOp convert_blend_operation(kinc_g5_blending_operation_t op) {
 }
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
-	kinc_memset(pipeline->impl.vertexLocations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	kinc_memset(pipeline->impl.vertexOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	kinc_memset(pipeline->impl.fragmentLocations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	kinc_memset(pipeline->impl.fragmentOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	kinc_memset(pipeline->impl.textureBindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+	memset(pipeline->impl.vertexLocations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+	memset(pipeline->impl.vertexOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+	memset(pipeline->impl.fragmentLocations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+	memset(pipeline->impl.fragmentOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+	memset(pipeline->impl.textureBindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 	parseShader(pipeline->vertexShader, pipeline->impl.vertexLocations, pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
 	parseShader(pipeline->fragmentShader, pipeline->impl.fragmentLocations, pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
 
@@ -395,12 +395,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	VkDynamicState dynamicStateEnables[dynamicStatesCount];
 	VkPipelineDynamicStateCreateInfo dynamicState = {0};
 
-	kinc_memset(dynamicStateEnables, 0, sizeof(dynamicStateEnables));
-	kinc_memset(&dynamicState, 0, sizeof(dynamicState));
+	memset(dynamicStateEnables, 0, sizeof(dynamicStateEnables));
+	memset(&dynamicState, 0, sizeof(dynamicState));
 	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	dynamicState.pDynamicStates = dynamicStateEnables;
 
-	kinc_memset(&pipeline_info, 0, sizeof(pipeline_info));
+	memset(&pipeline_info, 0, sizeof(pipeline_info));
 	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipeline_info.layout = pipeline->impl.pipeline_layout;
 
@@ -425,7 +425,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	VkVertexInputAttributeDescription vi_attrs[vertexAttributeCount];
 #endif
 	VkPipelineVertexInputStateCreateInfo vi = {0};
-	kinc_memset(&vi, 0, sizeof(vi));
+	memset(&vi, 0, sizeof(vi));
 	vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vi.pNext = NULL;
 	vi.vertexBindingDescriptionCount = vertexBindingCount;
@@ -566,11 +566,11 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		vi_bindings[binding].inputRate = pipeline->inputLayout[binding]->instanced ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
 	}
 
-	kinc_memset(&ia, 0, sizeof(ia));
+	memset(&ia, 0, sizeof(ia));
 	ia.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 	ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
-	kinc_memset(&rs, 0, sizeof(rs));
+	memset(&rs, 0, sizeof(rs));
 	rs.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rs.polygonMode = VK_POLYGON_MODE_FILL;
 	rs.cullMode = convert_cull_mode(pipeline->cullMode);
@@ -580,10 +580,10 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	rs.depthBiasEnable = VK_FALSE;
 	rs.lineWidth = 1.0f;
 
-	kinc_memset(&cb, 0, sizeof(cb));
+	memset(&cb, 0, sizeof(cb));
 	cb.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	VkPipelineColorBlendAttachmentState att_state[8];
-	kinc_memset(att_state, 0, sizeof(att_state));
+	memset(att_state, 0, sizeof(att_state));
 	for (int i = 0; i < pipeline->colorAttachmentCount; ++i) {
 		att_state[i].colorWriteMask =
 		    (pipeline->colorWriteMaskRed[i] ? VK_COLOR_COMPONENT_R_BIT : 0) | (pipeline->colorWriteMaskGreen[i] ? VK_COLOR_COMPONENT_G_BIT : 0) |
@@ -600,14 +600,14 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	cb.attachmentCount = pipeline->colorAttachmentCount;
 	cb.pAttachments = att_state;
 
-	kinc_memset(&vp, 0, sizeof(vp));
+	memset(&vp, 0, sizeof(vp));
 	vp.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	vp.viewportCount = 1;
 	dynamicStateEnables[dynamicState.dynamicStateCount++] = VK_DYNAMIC_STATE_VIEWPORT;
 	vp.scissorCount = 1;
 	dynamicStateEnables[dynamicState.dynamicStateCount++] = VK_DYNAMIC_STATE_SCISSOR;
 
-	kinc_memset(&ds, 0, sizeof(ds));
+	memset(&ds, 0, sizeof(ds));
 	ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	ds.depthTestEnable = pipeline->depthMode != KINC_G5_COMPARE_MODE_ALWAYS;
 	ds.depthWriteEnable = pipeline->depthWrite;
@@ -619,14 +619,14 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	ds.stencilTestEnable = VK_FALSE;
 	ds.front = ds.back;
 
-	kinc_memset(&ms, 0, sizeof(ms));
+	memset(&ms, 0, sizeof(ms));
 	ms.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	ms.pSampleMask = NULL;
 	ms.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
 	pipeline_info.stageCount = 2;
 	VkPipelineShaderStageCreateInfo shaderStages[2];
-	kinc_memset(&shaderStages, 0, 2 * sizeof(VkPipelineShaderStageCreateInfo));
+	memset(&shaderStages, 0, 2 * sizeof(VkPipelineShaderStageCreateInfo));
 
 	shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -663,7 +663,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 void createDescriptorLayout() {
 	VkDescriptorSetLayoutBinding layoutBindings[18];
-	kinc_memset(layoutBindings, 0, sizeof(layoutBindings));
+	memset(layoutBindings, 0, sizeof(layoutBindings));
 
 	layoutBindings[0].binding = 0;
 	layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
@@ -695,7 +695,7 @@ void createDescriptorLayout() {
 	assert(!err);
 
 	VkDescriptorPoolSize typeCounts[2];
-	kinc_memset(typeCounts, 0, sizeof(typeCounts));
+	memset(typeCounts, 0, sizeof(typeCounts));
 
 	typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	typeCounts[0].descriptorCount = 2 * 1024;
@@ -743,7 +743,7 @@ static int descriptor_sets_count = 0;
 
 static void update_textures(VkDescriptorSet descriptor_set) {
 	VkDescriptorImageInfo tex_desc[16];
-	kinc_memset(&tex_desc, 0, sizeof(tex_desc));
+	memset(&tex_desc, 0, sizeof(tex_desc));
 
 	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
@@ -767,7 +767,7 @@ static void update_textures(VkDescriptorSet descriptor_set) {
 	}
 
 	VkWriteDescriptorSet writes[16];
-	kinc_memset(&writes, 0, sizeof(writes));
+	memset(&writes, 0, sizeof(writes));
 
 	for (int i = 0; i < 16; ++i) {
 		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -811,7 +811,7 @@ VkDescriptorSet getDescriptorSet() {
 
 	VkDescriptorBufferInfo buffer_descs[2];
 
-	kinc_memset(&buffer_descs, 0, sizeof(buffer_descs));
+	memset(&buffer_descs, 0, sizeof(buffer_descs));
 
 	if (vk_ctx.vertex_uniform_buffer != NULL) {
 		buffer_descs[0].buffer = *vk_ctx.vertex_uniform_buffer;
@@ -826,7 +826,7 @@ VkDescriptorSet getDescriptorSet() {
 	buffer_descs[1].range = 256 * sizeof(float);
 
 	VkDescriptorImageInfo tex_desc[16];
-	kinc_memset(&tex_desc, 0, sizeof(tex_desc));
+	memset(&tex_desc, 0, sizeof(tex_desc));
 
 	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
@@ -850,7 +850,7 @@ VkDescriptorSet getDescriptorSet() {
 	}
 
 	VkWriteDescriptorSet writes[18];
-	kinc_memset(&writes, 0, sizeof(writes));
+	memset(&writes, 0, sizeof(writes));
 
 	writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	writes[0].dstSet = descriptor_set;

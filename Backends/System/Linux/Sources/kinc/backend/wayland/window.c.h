@@ -130,14 +130,14 @@ static int create_shm_fd(off_t size) {
 			return -1;
 		}
 
-		char *name = kinc_allocate(kinc_string_length(path) + sizeof(template));
+		char *name = malloc(kinc_string_length(path) + sizeof(template));
 		kinc_string_copy(name, path);
 		kinc_string_append(name, template);
 
 		fd = mkostemp(name, O_CLOEXEC);
 		if (fd >= 0) unlink(name);
 
-		kinc_free(name);
+		free(name);
 		if (fd < 0) return -1;
 
 		int ret = ftruncate(fd, size);
@@ -171,7 +171,7 @@ struct wl_buffer *kinc_wayland_create_shm_buffer(const kinc_image_t *image) {
 	struct wl_shm_pool *pool = wl_shm_create_pool(wl_ctx.shm, fd, length);
 
 	close(fd);
-	kinc_memcpy(data, image->data, image->width * image->height * 4);
+	memcpy(data, image->data, image->width * image->height * 4);
 
 	struct wl_buffer *buffer = wl_shm_pool_create_buffer(pool, 0, image->width, image->height, stride, WL_SHM_FORMAT_ARGB8888);
 	munmap(data, length);

@@ -180,7 +180,7 @@ void kinc_x11_window_change_mode(int window_index, kinc_window_mode_t mode) {
 	}
 
 	XEvent xev;
-	kinc_memset(&xev, 0, sizeof(xev));
+	memset(&xev, 0, sizeof(xev));
 	xev.type = ClientMessage;
 	xev.xclient.window = window->window;
 	xev.xclient.message_type = x11_ctx.atoms.NET_WM_STATE;

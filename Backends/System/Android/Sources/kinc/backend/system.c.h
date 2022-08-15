@@ -1221,7 +1221,7 @@ void initAndroidFileReader() {
 	jstring jPath = (*env)->CallObjectMethod(env, file, getPath);
 
 	const char *path = (*env)->GetStringUTFChars(env, jPath, NULL);
-	externalFilesDir = kinc_allocate(kinc_string_length(path) + 1);
+	externalFilesDir = malloc(kinc_string_length(path) + 1);
 	kinc_string_copy(externalFilesDir, path);
 
 	(*env)->ReleaseStringUTFChars(env, jPath, path);

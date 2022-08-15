@@ -32,7 +32,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 #endif
 	buf_info.flags = 0;
 
-	kinc_memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+	memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
 	buffer->impl.mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	buffer->impl.mem_alloc.pNext = NULL;
 	buffer->impl.mem_alloc.allocationSize = 0;
@@ -42,7 +42,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int vertexCount
 	VkResult err;
 	bool pass;
 
-	kinc_memset(&buffer->impl.vertices, 0, sizeof(buffer->impl.vertices));
+	memset(&buffer->impl.vertices, 0, sizeof(buffer->impl.vertices));
 
 	err = vkCreateBuffer(vk_ctx.device, &buf_info, NULL, &buffer->impl.vertices.buf);
 	assert(!err);

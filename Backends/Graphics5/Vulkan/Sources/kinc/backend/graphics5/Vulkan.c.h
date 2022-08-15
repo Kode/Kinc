@@ -150,7 +150,7 @@ void create_swapchain(struct vk_window *window) {
 	uint32_t presentModeCount;
 	err = vk.fpGetPhysicalDeviceSurfacePresentModesKHR(vk_ctx.gpu, window->surface, &presentModeCount, NULL);
 	assert(!err);
-	VkPresentModeKHR *presentModes = (VkPresentModeKHR *)kinc_allocate(presentModeCount * sizeof(VkPresentModeKHR));
+	VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
 	assert(presentModes);
 	err = vk.fpGetPhysicalDeviceSurfacePresentModesKHR(vk_ctx.gpu, window->surface, &presentModeCount, presentModes);
 	assert(!err);
@@ -241,22 +241,22 @@ void create_swapchain(struct vk_window *window) {
 	assert(!err);
 
 	if (window->images) {
-		kinc_free(window->images);
+		free(window->images);
 		window->images = NULL;
 	}
 
 	if (window->views) {
-		kinc_free(window->views);
+		free(window->views);
 		window->views = NULL;
 	}
 
-	window->images = (VkImage *)kinc_allocate(window->image_count * sizeof(VkImage));
+	window->images = (VkImage *)malloc(window->image_count * sizeof(VkImage));
 	assert(window->images);
 
 	err = vk.fpGetSwapchainImagesKHR(vk_ctx.device, window->swapchain, &window->image_count, window->images);
 	assert(!err);
 
-	window->views = (VkImageView *)kinc_allocate(window->image_count * sizeof(VkImageView));
+	window->views = (VkImageView *)malloc(window->image_count * sizeof(VkImageView));
 	assert(window->views);
 
 	for (uint32_t i = 0; i < window->image_count; i++) {
@@ -291,7 +291,7 @@ void create_swapchain(struct vk_window *window) {
 	window->current_image = 0;
 
 	if (NULL != presentModes) {
-		kinc_free(presentModes);
+		free(presentModes);
 	}
 
 	const VkFormat depth_format = VK_FORMAT_D16_UNORM;
@@ -406,7 +406,7 @@ void create_swapchain(struct vk_window *window) {
 	subpass.pPreserveAttachments = NULL;
 
 	VkSubpassDependency dependencies[2];
-	kinc_memset(&dependencies, 0, sizeof(dependencies));
+	memset(&dependencies, 0, sizeof(dependencies));
 
 	// for the frame-buffer
 	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -455,11 +455,11 @@ void create_swapchain(struct vk_window *window) {
 	fb_info.layers = 1;
 
 	if (window->framebuffers) {
-		kinc_free(window->framebuffers);
+		free(window->framebuffers);
 		window->framebuffers = NULL;
 	}
 
-	window->framebuffers = (VkFramebuffer *)kinc_allocate(window->image_count * sizeof(VkFramebuffer));
+	window->framebuffers = (VkFramebuffer *)malloc(window->image_count * sizeof(VkFramebuffer));
 	assert(window->framebuffers);
 
 	for (uint32_t i = 0; i < window->image_count; i++) {
@@ -518,7 +518,7 @@ void create_render_target_render_pass(struct vk_window *window) {
 
 	// for render-targets
 	VkSubpassDependency dependencies[2];
-	kinc_memset(&dependencies, 0, sizeof(dependencies));
+	memset(&dependencies, 0, sizeof(dependencies));
 
 	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
 	dependencies[0].dstSubpass = 0;
@@ -551,7 +551,7 @@ void create_render_target_render_pass(struct vk_window *window) {
 }
 
 static bool check_extensions(const char **wanted_extensions, int wanted_extension_count, VkExtensionProperties *extensions, int extension_count) {
-	bool *found_extensions = kinc_allocate(wanted_extension_count);
+	bool *found_extensions = malloc(wanted_extension_count);
 
 	for (int i = 0; i < extension_count; i++) {
 		for (int i2 = 0; i2 < wanted_extension_count; i2++) {
@@ -570,7 +570,7 @@ static bool check_extensions(const char **wanted_extensions, int wanted_extensio
 		}
 	}
 
-	kinc_free(found_extensions);
+	free(found_extensions);
 
 	return missing_extensions;
 }
@@ -596,7 +596,7 @@ void kinc_g5_internal_init() {
 	assert(!err);
 
 	if (instance_layer_count > 0) {
-		VkLayerProperties *instance_layers = (VkLayerProperties *)kinc_allocate(sizeof(VkLayerProperties) * instance_layer_count);
+		VkLayerProperties *instance_layers = (VkLayerProperties *)malloc(sizeof(VkLayerProperties) * instance_layer_count);
 		err = vkEnumerateInstanceLayerProperties(&instance_layer_count, instance_layers);
 		assert(!err);
 
@@ -608,7 +608,7 @@ void kinc_g5_internal_init() {
 		}
 #endif
 
-		kinc_free(instance_layers);
+		free(instance_layers);
 	}
 
 	static const char *wanted_instance_extensions[64];
@@ -624,7 +624,7 @@ void kinc_g5_internal_init() {
 
 	err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, NULL);
 	assert(!err);
-	VkExtensionProperties *instance_extensions = (VkExtensionProperties *)kinc_allocate(sizeof(VkExtensionProperties) * instance_extension_count);
+	VkExtensionProperties *instance_extensions = (VkExtensionProperties *)malloc(sizeof(VkExtensionProperties) * instance_extension_count);
 	err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, instance_extensions);
 	assert(!err);
 	bool missing_instance_extensions =
@@ -697,12 +697,12 @@ void kinc_g5_internal_init() {
 	assert(!err && gpu_count > 0);
 
 	if (gpu_count > 0) {
-		VkPhysicalDevice *physical_devices = (VkPhysicalDevice *)kinc_allocate(sizeof(VkPhysicalDevice) * gpu_count);
+		VkPhysicalDevice *physical_devices = (VkPhysicalDevice *)malloc(sizeof(VkPhysicalDevice) * gpu_count);
 		err = vkEnumeratePhysicalDevices(vk_ctx.instance, &gpu_count, physical_devices);
 		assert(!err);
 		// TODO: expose gpu selection to user?
 		vk_ctx.gpu = physical_devices[0];
-		kinc_free(physical_devices);
+		free(physical_devices);
 	}
 	else {
 		ERR_EXIT("vkEnumeratePhysicalDevices reported zero accessible devices."
@@ -720,7 +720,7 @@ void kinc_g5_internal_init() {
 	assert(!err);
 
 	if (device_layer_count > 0) {
-		VkLayerProperties *device_layers = (VkLayerProperties *)kinc_allocate(sizeof(VkLayerProperties) * device_layer_count);
+		VkLayerProperties *device_layers = (VkLayerProperties *)malloc(sizeof(VkLayerProperties) * device_layer_count);
 		err = vkEnumerateDeviceLayerProperties(vk_ctx.gpu, &device_layer_count, device_layers);
 		assert(!err);
 
@@ -731,7 +731,7 @@ void kinc_g5_internal_init() {
 		}
 #endif
 
-		kinc_free(device_layers);
+		free(device_layers);
 	}
 
 	const char *wanted_device_extensions[64];
@@ -756,13 +756,13 @@ void kinc_g5_internal_init() {
 	err = vkEnumerateDeviceExtensionProperties(vk_ctx.gpu, NULL, &device_extension_count, NULL);
 	assert(!err);
 
-	VkExtensionProperties *device_extensions = (VkExtensionProperties *)kinc_allocate(sizeof(VkExtensionProperties) * device_extension_count);
+	VkExtensionProperties *device_extensions = (VkExtensionProperties *)malloc(sizeof(VkExtensionProperties) * device_extension_count);
 	err = vkEnumerateDeviceExtensionProperties(vk_ctx.gpu, NULL, &device_extension_count, device_extensions);
 	assert(!err);
 
 	bool missing_device_extensions = check_extensions(wanted_device_extensions, wanted_device_extension_count, device_extensions, device_extension_count);
 
-	kinc_free(device_extensions);
+	free(device_extensions);
 
 	if (missing_device_extensions) {
 		exit(1);
@@ -800,7 +800,7 @@ void kinc_g5_internal_init() {
 	// Query with NULL data to get count
 	vkGetPhysicalDeviceQueueFamilyProperties(vk_ctx.gpu, &queue_count, NULL);
 
-	queue_props = (VkQueueFamilyProperties *)kinc_allocate(queue_count * sizeof(VkQueueFamilyProperties));
+	queue_props = (VkQueueFamilyProperties *)malloc(queue_count * sizeof(VkQueueFamilyProperties));
 	vkGetPhysicalDeviceQueueFamilyProperties(vk_ctx.gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
 
@@ -808,7 +808,7 @@ void kinc_g5_internal_init() {
 
 	if (!headless) {
 		// Iterate over each queue to learn whether it supports presenting:
-		VkBool32 *supportsPresent = (VkBool32 *)kinc_allocate(queue_count * sizeof(VkBool32));
+		VkBool32 *supportsPresent = (VkBool32 *)malloc(queue_count * sizeof(VkBool32));
 		for (uint32_t i = 0; i < queue_count; i++) {
 			supportsPresent[i] = kinc_vulkan_get_physical_device_presentation_support(vk_ctx.gpu, i);
 			// vk.fpGetPhysicalDeviceSurfaceSupportKHR(vk_ctx.gpu, i, surface, &supportsPresent[i]);
@@ -841,7 +841,7 @@ void kinc_g5_internal_init() {
 				}
 			}
 		}
-		kinc_free(supportsPresent);
+		free(supportsPresent);
 
 		// Generate error if could not find both a graphics and a present queue
 		if (graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX) {
@@ -934,7 +934,7 @@ void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int ste
 	uint32_t formatCount;
 	err = vk.fpGetPhysicalDeviceSurfaceFormatsKHR(vk_ctx.gpu, window->surface, &formatCount, NULL);
 	assert(!err);
-	VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)kinc_allocate(formatCount * sizeof(VkSurfaceFormatKHR));
+	VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
 	err = vk.fpGetPhysicalDeviceSurfaceFormatsKHR(vk_ctx.gpu, window->surface, &formatCount, surfFormats);
 	assert(!err);
 	// If the format list includes just one entry of VK_FORMAT_UNDEFINED,

@@ -344,7 +344,7 @@ void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *targe
 		subpass.pPreserveAttachments = NULL;
 
 		VkSubpassDependency dependencies[2];
-		kinc_memset(&dependencies, 0, sizeof(dependencies));
+		memset(&dependencies, 0, sizeof(dependencies));
 
 		// TODO: depth-stencil-something
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;

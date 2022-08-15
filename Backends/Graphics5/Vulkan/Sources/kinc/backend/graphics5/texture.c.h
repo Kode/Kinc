@@ -220,7 +220,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 		// Must use staging buffer to copy linear texture to optimized
 		struct texture_object staging_texture;
 
-		kinc_memset(&staging_texture, 0, sizeof(staging_texture));
+		memset(&staging_texture, 0, sizeof(staging_texture));
 		prepare_texture_image((uint8_t *)image->data, (uint32_t)image->width, (uint32_t)image->height, &staging_texture, VK_IMAGE_TILING_LINEAR,
 		                      VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &texture->impl.deviceSize, tex_format);
 		prepare_texture_image((uint8_t *)image->data, (uint32_t)image->width, (uint32_t)image->height, &texture->impl.texture, VK_IMAGE_TILING_OPTIMAL,

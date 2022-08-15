@@ -80,7 +80,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		vkCreatePipelineLayout(vk_ctx.device, &pipeline_layout_create_info, NULL, &pipeline->impl.pipeline_layout);
 
 		VkShaderModuleCreateInfo module_create_info = {0};
-		kinc_memset(&module_create_info, 0, sizeof(VkShaderModuleCreateInfo));
+		memset(&module_create_info, 0, sizeof(VkShaderModuleCreateInfo));
 		module_create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		module_create_info.codeSize = ray_shader_size;
 		module_create_info.pCode = (const uint32_t *)ray_shader;
@@ -204,7 +204,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &mem);
 		vkBindBufferMemory(vk_ctx.device, pipeline->impl.raygen_shader_binding_table, mem, 0);
 		vkMapMemory(vk_ctx.device, mem, 0, handle_size, 0, (void **)&data);
-		kinc_memcpy(data, shader_handle_storage, handle_size);
+		memcpy(data, shader_handle_storage, handle_size);
 		vkUnmapMemory(vk_ctx.device, mem);
 
 		vkGetBufferMemoryRequirements(vk_ctx.device, pipeline->impl.miss_shader_binding_table, &mem_reqs);
@@ -214,7 +214,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &mem);
 		vkBindBufferMemory(vk_ctx.device, pipeline->impl.miss_shader_binding_table, mem, 0);
 		vkMapMemory(vk_ctx.device, mem, 0, handle_size, 0, (void **)&data);
-		kinc_memcpy(data, shader_handle_storage + handle_size_aligned, handle_size);
+		memcpy(data, shader_handle_storage + handle_size_aligned, handle_size);
 		vkUnmapMemory(vk_ctx.device, mem);
 
 		vkGetBufferMemoryRequirements(vk_ctx.device, pipeline->impl.hit_shader_binding_table, &mem_reqs);
@@ -224,13 +224,13 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		vkAllocateMemory(vk_ctx.device, &memory_allocate_info, NULL, &mem);
 		vkBindBufferMemory(vk_ctx.device, pipeline->impl.hit_shader_binding_table, mem, 0);
 		vkMapMemory(vk_ctx.device, mem, 0, handle_size, 0, (void **)&data);
-		kinc_memcpy(data, shader_handle_storage + handle_size_aligned * 2, handle_size);
+		memcpy(data, shader_handle_storage + handle_size_aligned * 2, handle_size);
 		vkUnmapMemory(vk_ctx.device, mem);
 	}
 
 	{
 		VkDescriptorPoolSize type_counts[3];
-		kinc_memset(type_counts, 0, sizeof(type_counts));
+		memset(type_counts, 0, sizeof(type_counts));
 
 		type_counts[0].type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
 		type_counts[0].descriptorCount = 1;
@@ -456,7 +456,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		buf_info.flags = 0;
 
 		VkMemoryAllocateInfo mem_alloc;
-		kinc_memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+		memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
 		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		mem_alloc.pNext = NULL;
 		mem_alloc.allocationSize = 0;
@@ -482,7 +482,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		vkBindBufferMemory(vk_ctx.device, instances_buffer, mem, 0);
 		void *data;
 		vkMapMemory(vk_ctx.device, mem, 0, sizeof(VkAccelerationStructureInstanceKHR), 0, (void **)&data);
-		kinc_memcpy(data, &instance, sizeof(VkAccelerationStructureInstanceKHR));
+		memcpy(data, &instance, sizeof(VkAccelerationStructureInstanceKHR));
 		vkUnmapMemory(vk_ctx.device, mem);
 
 		VkDeviceOrHostAddressConstKHR instance_data_device_address = {0};

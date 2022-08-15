@@ -191,9 +191,9 @@ void flush_init_cmd() {
 
 void set_viewport_and_scissor(kinc_g5_command_list_t *list) {
 	VkViewport viewport;
-	kinc_memset(&viewport, 0, sizeof(viewport));
+	memset(&viewport, 0, sizeof(viewport));
 	VkRect2D scissor;
-	kinc_memset(&scissor, 0, sizeof(scissor));
+	memset(&scissor, 0, sizeof(scissor));
 
 	if (currentRenderTargets[0] == NULL || currentRenderTargets[0]->contextId < 0) {
 		viewport.x = 0;
@@ -248,7 +248,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	cmd_buf_info.pInheritanceInfo = NULL;
 
 	VkClearValue clear_values[2];
-	kinc_memset(clear_values, 0, sizeof(VkClearValue) * 2);
+	memset(clear_values, 0, sizeof(VkClearValue) * 2);
 	clear_values[0].color.float32[0] = 0.0f;
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
@@ -426,7 +426,7 @@ void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_comman
 
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
 	VkViewport viewport;
-	kinc_memset(&viewport, 0, sizeof(viewport));
+	memset(&viewport, 0, sizeof(viewport));
 	viewport.x = (float)x;
 	viewport.y = y + (float)height;
 	viewport.width = (float)width;
@@ -438,7 +438,7 @@ void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, i
 
 void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
 	VkRect2D scissor;
-	kinc_memset(&scissor, 0, sizeof(scissor));
+	memset(&scissor, 0, sizeof(scissor));
 	scissor.extent.width = width;
 	scissor.extent.height = height;
 	scissor.offset.x = x;
@@ -448,7 +448,7 @@ void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, in
 
 void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {
 	VkRect2D scissor;
-	kinc_memset(&scissor, 0, sizeof(scissor));
+	memset(&scissor, 0, sizeof(scissor));
 	if (currentRenderTargets[0] == NULL || currentRenderTargets[0]->contextId < 0) {
 		scissor.extent.width = kinc_window_width(vk_ctx.current_window);
 		scissor.extent.height = kinc_window_height(vk_ctx.current_window);
@@ -500,7 +500,7 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 
 void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct kinc_g5_render_target *target) {
 	VkViewport viewport;
-	kinc_memset(&viewport, 0, sizeof(viewport));
+	memset(&viewport, 0, sizeof(viewport));
 	viewport.x = 0;
 	viewport.y = (float)kinc_window_height(vk_ctx.current_window);
 	viewport.width = (float)kinc_window_width(vk_ctx.current_window);
@@ -509,7 +509,7 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	viewport.maxDepth = (float)1.0f;
 	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
 	VkRect2D scissor;
-	kinc_memset(&scissor, 0, sizeof(scissor));
+	memset(&scissor, 0, sizeof(scissor));
 	scissor.extent.width = kinc_window_width(vk_ctx.current_window);
 	scissor.extent.height = kinc_window_height(vk_ctx.current_window);
 	scissor.offset.x = 0;
@@ -528,7 +528,7 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	onBackBuffer = true;
 
 	VkClearValue clear_values[2];
-	kinc_memset(clear_values, 0, sizeof(VkClearValue) * 2);
+	memset(clear_values, 0, sizeof(VkClearValue) * 2);
 	clear_values[0].color.float32[0] = 0.0f;
 	clear_values[0].color.float32[1] = 0.0f;
 	clear_values[0].color.float32[2] = 0.0f;
@@ -574,7 +574,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	onBackBuffer = false;
 
 	VkClearValue clear_values[9];
-	kinc_memset(clear_values, 0, sizeof(VkClearValue));
+	memset(clear_values, 0, sizeof(VkClearValue));
 	for (int i = 0; i < count; ++i) {
 		clear_values[i].color.float32[0] = 0.0f;
 		clear_values[i].color.float32[1] = 0.0f;
@@ -647,7 +647,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		subpass.pPreserveAttachments = NULL;
 
 		VkSubpassDependency dependencies[2];
-		kinc_memset(&dependencies, 0, sizeof(dependencies));
+		memset(&dependencies, 0, sizeof(dependencies));
 
 		// TODO: For multi-targets-rendering
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -709,7 +709,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	currentRenderPassBeginInfo = rp_begin;
 
 	VkViewport viewport;
-	kinc_memset(&viewport, 0, sizeof(viewport));
+	memset(&viewport, 0, sizeof(viewport));
 	viewport.x = 0;
 	viewport.y = (float)targets[0]->height;
 	viewport.width = (float)targets[0]->width;
@@ -719,7 +719,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	vkCmdSetViewport(list->impl._buffer, 0, 1, &viewport);
 
 	VkRect2D scissor;
-	kinc_memset(&scissor, 0, sizeof(scissor));
+	memset(&scissor, 0, sizeof(scissor));
 	scissor.extent.width = targets[0]->width;
 	scissor.extent.height = targets[0]->height;
 	scissor.offset.x = 0;
@@ -756,7 +756,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 		vkGetBufferMemoryRequirements(vk_ctx.device, render_target->impl.readbackBuffer, &mem_reqs);
 
 		VkMemoryAllocateInfo mem_alloc;
-		kinc_memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+		memset(&mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
 		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		mem_alloc.pNext = NULL;
 		mem_alloc.allocationSize = 0;
@@ -798,7 +798,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	// Read buffer
 	void *p;
 	vkMapMemory(vk_ctx.device, render_target->impl.readbackMemory, 0, VK_WHOLE_SIZE, 0, (void **)&p);
-	kinc_memcpy(data, p, render_target->texWidth * render_target->texHeight * formatByteSize);
+	memcpy(data, p, render_target->texWidth * render_target->texHeight * formatByteSize);
 	vkUnmapMemory(vk_ctx.device, render_target->impl.readbackMemory);
 }
 

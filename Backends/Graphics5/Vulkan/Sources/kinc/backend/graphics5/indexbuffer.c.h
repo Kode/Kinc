@@ -26,7 +26,7 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, k
 #endif
 	buf_info.flags = 0;
 
-	kinc_memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
+	memset(&buffer->impl.mem_alloc, 0, sizeof(VkMemoryAllocateInfo));
 	buffer->impl.mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	buffer->impl.mem_alloc.pNext = NULL;
 	buffer->impl.mem_alloc.allocationSize = 0;
