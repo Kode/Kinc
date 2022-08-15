@@ -8,6 +8,8 @@
 #include <kinc/simd/uint32x4.h>
 #include <kinc/simd/uint8x16.h>
 #include <kinc/system.h>
+
+#include <math.h>
 #include <stdbool.h>
 
 #define EPSILON 0.00001f
@@ -185,12 +187,12 @@ int kickstart(int argc, char **argv) {
 
 		result = kinc_float32x4_reciprocal_sqrt_approximation(b);
 		failed += check_f32("float32x4 reciprocal_sqrt_approximation", result,
-		                    (float[4]){1.0f / kinc_sqrt(2.0f), 1.0f / kinc_sqrt(2.0f), 1.0f / kinc_sqrt(2.0f), 1.0f / kinc_sqrt(2.0f)}, 0.003f)
+		                    (float[4]){1.0f / sqrtf(2.0f), 1.0f / sqrtf(2.0f), 1.0f / sqrtf(2.0f), 1.0f / sqrtf(2.0f)}, 0.003f)
 		              ? failed
 		              : 1;
 
 		result = kinc_float32x4_sqrt(b);
-		failed += check_f32("float32x4 sqrt", result, (float[4]){kinc_sqrt(2.0f), kinc_sqrt(2.0f), kinc_sqrt(2.0f), kinc_sqrt(2.0f)}, EPSILON) ? 0 : 1;
+		failed += check_f32("float32x4 sqrt", result, (float[4]){sqrtf(2.0f), sqrtf(2.0f), sqrtf(2.0f), sqrtf(2.0f)}, EPSILON) ? 0 : 1;
 
 		result = kinc_float32x4_max(a, b);
 		failed += check_f32("float32x4 max", result, (float[4]){2.0f, 2.0f, 3.0f, 4.0f}, EPSILON) ? 0 : 1;
