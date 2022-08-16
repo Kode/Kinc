@@ -1,88 +1,37 @@
 #pragma once
 
-#include <kinc/global.h>
+#include "stdlib.h"
 
-#include <stddef.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-KINC_FUNC void *kinc_allocate(size_t size);
-
-KINC_FUNC void *kinc_reallocate(void *mem, size_t size);
-
-KINC_FUNC void kinc_free(void *mem);
-
-KINC_FUNC void *kinc_memset(void *ptr, int value, size_t num);
-
-KINC_FUNC void *kinc_memcpy(void *destination, const void *source, size_t num);
-
-KINC_FUNC int kinc_memcmp(const void *ptr1, const void *ptr2, size_t num);
-
-#ifdef KINC_IMPLEMENTATION_ROOT
-#define KINC_IMPLEMENTATION
-#endif
-
-#ifdef KINC_IMPLEMENTATION
-
-#include <stdlib.h>
-#include <string.h>
-
-#undef memcpy
-#undef memset
-
-void *kinc_allocate(size_t size) {
-#ifdef KINC_NO_CLIB
+void *malloc(size_t size) {
 	return NULL;
-#else
-	return malloc(size);
-#endif
 }
 
-void *kinc_reallocate(void *mem, size_t size) {
-#ifdef KINC_NO_CLIB
+void *realloc(void *mem, size_t size) {
 	return NULL;
-#else
-	return realloc(mem, size);
-#endif
 }
 
-void kinc_free(void *mem) {
-#ifdef KINC_NO_CLIB
+void free(void *mem) {
 
-#else
-	free(mem);
-#endif
 }
 
-KINC_FUNC void *kinc_memset(void *ptr, int value, size_t num) {
-#ifdef KINC_NO_CLIB
+void *memset(void *ptr, int value, size_t num) {
 	unsigned char *data = (unsigned char *)ptr;
 	for (size_t i = 0; i < num; ++i) {
 		data[i] = (unsigned char)value;
 	}
 	return ptr;
-#else
-	return memset(ptr, value, num);
-#endif
 }
 
-KINC_FUNC void *kinc_memcpy(void *destination, const void *source, size_t num) {
-#ifdef KINC_NO_CLIB
+void *memcpy(void *destination, const void *source, size_t num) {
 	unsigned char *s = (unsigned char *)source;
 	unsigned char *d = (unsigned char *)destination;
 	for (size_t i = 0; i < num; ++i) {
 		d[i] = s[i];
 	}
 	return destination;
-#else
-	return memcpy(destination, source, num);
-#endif
 }
 
-KINC_FUNC int kinc_memcmp(const void *ptr1, const void *ptr2, size_t num) {
-#ifdef KINC_NO_CLIB
+int memcmp(const void *ptr1, const void *ptr2, size_t num) {
 	unsigned char *p1 = (unsigned char *)ptr1;
 	unsigned char *p2 = (unsigned char *)ptr2;
 	for (size_t i = 0; i < num; ++i) {
@@ -91,13 +40,4 @@ KINC_FUNC int kinc_memcmp(const void *ptr1, const void *ptr2, size_t num) {
 		}
 	}
 	return 0;
-#else
-	return memcmp(ptr1, ptr2, num);
-#endif
 }
-
-#endif
-
-#ifdef __cplusplus
-}
-#endif
