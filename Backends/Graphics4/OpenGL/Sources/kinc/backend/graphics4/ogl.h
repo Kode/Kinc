@@ -53,6 +53,10 @@
 #include <gl2.h>
 #endif
 
+#ifdef KORE_WASM
+#include <GL/gl.h>
+#endif
+
 #include <kinc/log.h>
 
 #ifdef NDEBUG
