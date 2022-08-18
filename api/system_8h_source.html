@@ -217,7 +217,7 @@ $(function() {
 <div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
 <div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="preprocessor">#include &lt;string.h&gt;</span></div>
 <div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160; </div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="preprocessor">#if !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_ANDROID) &amp;&amp; !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_CONSOLE)</span></div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="preprocessor">#if !defined(KORE_WASM) &amp;&amp; !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_ANDROID) &amp;&amp; !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_CONSOLE)</span></div>
 <div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="keywordtype">double</span> <a class="code" href="system_8h.html#a6b6e71910799ae040c522038d62e5ced">kinc_time</a>(<span class="keywordtype">void</span>) {</div>
 <div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="system_8h.html#a5df12efbc4578c32bfd95210695587a8">kinc_timestamp</a>() / <a class="code" href="system_8h.html#ae388378b997a056eba079fd34410bf53">kinc_frequency</a>();</div>
 <div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;}</div>
