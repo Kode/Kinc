@@ -51,7 +51,7 @@ KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_mat
 #define KINC_IMPLEMENTATION
 #endif
 
-#include <memory.h>
+#include <string.h>
 
 float kinc_matrix3x3_get(kinc_matrix3x3_t *matrix, int x, int y) {
 	return matrix->m[x * 3 + y];

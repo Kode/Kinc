@@ -48,22 +48,6 @@ char *strcat(char *destination, const char *source) {
 	return destination;
 }
 
-char *strstr(const char *str1, const char *str2) {
-	for (size_t i1 = 0;; ++i1) {
-		if (str1[i1] == 0) {
-			return NULL;
-		}
-		for (size_t i2 = 0;; ++i2) {
-			if (str2[i2] == 0) {
-				return &str1[i1];
-			}
-			if (str1[i1 + i2] != str2[i2]) {
-				break;
-			}
-		}
-	}
-}
-
 int strcmp(const char *str1, const char *str2) {
 	for (size_t i = 0;; ++i) {
 		if (str1[i] != str2[i]) {

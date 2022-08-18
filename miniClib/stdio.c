@@ -3,11 +3,11 @@
 FILE *stdout = NULL, *stderr = NULL;
 
 int fprintf(FILE *stream, const char *format, ...) {
-
+	return 0;
 }
 
 int vsnprintf(char *s, size_t n, const char *format, va_list arg) {
-
+	return 0;
 }
 
 size_t fwrite(const void *ptr, size_t size, size_t count, FILE *stream) {
@@ -27,7 +27,7 @@ long int ftell(FILE *stream) {
 }
 
 int fseek(FILE *stream, long int offset, int origin) {
-
+	return 0;
 }
 
 size_t fread(void *ptr, size_t size, size_t count, FILE *stream) {
