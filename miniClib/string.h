@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,7 +14,7 @@ char *strncpy(char *destination, const char *source, size_t num);
 
 char *strcat(char *destination, const char *source);
 
-char *strstr(char *str1, const char *str2);
+char *strstr(const char *str1, const char *str2);
 
 int strcmp(const char *str1, const char *str2);
 

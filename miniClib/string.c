@@ -2,6 +2,8 @@
 
 #include "string.h"
 
+#include <stdbool.h>
+
 size_t strlen(const char *str) {
 	size_t size = 0;
 	while (true) {
@@ -48,7 +50,7 @@ char *strcat(char *destination, const char *source) {
 	return destination;
 }
 
-char *strstr(char *str1, const char *str2) {
+char *strstr(const char *str1, const char *str2) {
 	for (size_t i1 = 0;; ++i1) {
 		if (str1[i1] == 0) {
 			return NULL;
