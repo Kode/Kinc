@@ -298,7 +298,7 @@ void kinc_internal_logout_callback(void);
 #include <stdlib.h>
 #include <string.h>
 
-#if !defined(KORE_EMSCRIPTEN) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
+#if !defined(KORE_WASM) && !defined(KORE_EMSCRIPTEN) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
 double kinc_time(void) {
 	return kinc_timestamp() / kinc_frequency();
 }

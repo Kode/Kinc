@@ -14,6 +14,10 @@ size_t fwrite(const void *ptr, size_t size, size_t count, FILE *stream) {
 	return 0;
 }
 
+FILE *fopen(const char *filename, const char *mode) {
+	return NULL;
+}
+
 int fclose(FILE *stream) {
 	return 0;
 }
@@ -27,5 +31,9 @@ int fseek(FILE *stream, long int offset, int origin) {
 }
 
 size_t fread(void *ptr, size_t size, size_t count, FILE *stream) {
+	return 0;
+}
+
+int fputs(const char *str, FILE *stream) {
 	return 0;
 }

@@ -1185,7 +1185,7 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 	return 0;
 }
 
-void kinc_internal_shutdown() {}
+void kinc_internal_shutdown(void) {}
 
 const char *kinc_gamepad_vendor(int gamepad) {
 	return "Google";
@@ -1201,7 +1201,7 @@ static char *externalFilesDir = NULL;
 
 #define CLASS_NAME "android/app/NativeActivity"
 
-void initAndroidFileReader() {
+void initAndroidFileReader(void) {
 	if (activity == NULL) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Android activity is NULL");
 		return;

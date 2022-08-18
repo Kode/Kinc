@@ -45,4 +45,10 @@ double kinc_time(void) {
 	return 0.0;
 }
 
+void kinc_internal_shutdown(void) {}
+
 extern int kickstart(int argc, char **argv);
+
+__attribute__((export_name("_start"))) void _start(void) {
+	kickstart(0, NULL);
+}
