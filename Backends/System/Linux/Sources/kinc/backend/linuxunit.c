@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 static void load_lib(void **lib, const char *name) {
-	char libname[20];
+	char libname[64];
 	sprintf(libname, "lib%s.so", name);
 	*lib = dlopen(libname, RTLD_LAZY);
 	if (*lib != NULL) {
