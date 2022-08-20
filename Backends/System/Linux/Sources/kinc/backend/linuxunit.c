@@ -3,6 +3,24 @@
 #endif
 #include "funcs.h"
 #include <dlfcn.h>
+#include <stdio.h>
+
+static void load_lib(void **lib, const char *name) {
+	char libname[64];
+	sprintf(libname, "lib%s.so", name);
+	*lib = dlopen(libname, RTLD_LAZY);
+	if (*lib != NULL) {
+		return;
+	}
+	// Ubuntu and Fedora only ship libFoo.so.major by default, so look for those.
+	for (int i = 0; i < 10; i++) {
+		sprintf(libname, "lib%s.so.%i", name, i);
+		*lib = dlopen(libname, RTLD_LAZY);
+		if (*lib != NULL) {
+			return;
+		}
+	}
+}
 
 #ifndef KINC_NO_WAYLAND
 #include "wayland/display.c.h"

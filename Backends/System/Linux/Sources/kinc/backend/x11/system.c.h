@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 struct kinc_x11_procs xlib = {0};
@@ -37,33 +38,29 @@ struct kinc_x11_window *window_from_window(Window window) {
 void kinc_internal_resize(int window_index, int width, int height);
 static void init_pen_device(XDeviceInfo *info, struct x11_pen_device *pen, bool eraser);
 
+static void load_lib(void **lib, const char *name);
+
 bool kinc_x11_init() {
 
 #undef LOAD_LIB
 #undef LOAD_FUN
 #define LOAD_LIB(name)                                                                                                                                         \
 	{                                                                                                                                                          \
-		x11_ctx.libs.name = dlopen("lib" #name ".so", RTLD_LAZY);                                                                                              \
-		if (x11_ctx.libs.name == NULL) {                                                                                                                       \
-			x11_ctx.libs.name = dlopen("lib" #name ".so.6", RTLD_LAZY);                                                                                        \
-		}                                                                                                                                                      \
+		load_lib(&x11_ctx.libs.name, #name);                                                                                                                   \
                                                                                                                                                                \
 		if (x11_ctx.libs.name == NULL) {                                                                                                                       \
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to load lib%s.so", #name);                                                                                  \
 			return false;                                                                                                                                      \
 		}                                                                                                                                                      \
-	}
+	}                                                                                                                                                          \
 	// manually check for libX11, and return false if not present
 	// only error for further libs
-	{
-		x11_ctx.libs.X11 = dlopen("libX11.so", RTLD_LAZY);
-		if (x11_ctx.libs.X11 == NULL) {
-			x11_ctx.libs.X11 = dlopen("libX11.so.6", RTLD_LAZY);
-		}
-		if (x11_ctx.libs.X11 == NULL) {
-			return false;
-		}
+
+	load_lib(&x11_ctx.libs.X11, "X11");
+	if (x11_ctx.libs.X11 == NULL) {
+		return false;
 	}
+
 	LOAD_LIB(Xi);
 	LOAD_LIB(Xcursor);
 	LOAD_LIB(Xinerama);
