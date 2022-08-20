@@ -18,11 +18,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void load_lib(void **lib, const char *name);
+
 struct kinc_wl_procs wl = {0};
 struct kinc_xkb_procs wl_xkb = {0};
 
 bool kinc_wayland_load_procs() {
-	void *wayland_client = dlopen("libwayland-client.so", RTLD_LAZY);
+	void *wayland_client = NULL;
+	load_lib(&wayland_client, "wayland-client");
 	if (wayland_client == NULL) {
 		return false;
 	}
@@ -38,7 +41,8 @@ bool kinc_wayland_load_procs() {
 #include "wayland-funs.h"
 #undef KINC_WL_FN
 
-	void *wayland_cursor = dlopen("libwayland-cursor.so", RTLD_LAZY);
+	void *wayland_cursor = NULL;
+	load_lib(&wayland_cursor, "wayland-cursor");
 	if (wayland_cursor == NULL) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to find libwayland-cursor.so");
 		return false;
@@ -51,7 +55,9 @@ bool kinc_wayland_load_procs() {
 	LOAD_FUN(wayland_cursor, _wl_cursor_frame_and_duration, "wl_cursor_frame_and_duration")
 
 #ifdef KINC_EGL
-	void *wayland_egl = dlopen("libwayland-egl.so", RTLD_LAZY);
+	void *wayland_egl = NULL;
+	load_lib(&wayland_egl, "wayland-egl");
+
 	if (wayland_egl == NULL) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to find libwayland-egl.so");
 		return false;
@@ -69,7 +75,9 @@ bool kinc_wayland_load_procs() {
 		has_missing_symbol = true;                                                                                                                             \
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Did not find symbol %s.", #symbol);                                                                                    \
 	}
-	void *xkb = dlopen("libxkbcommon.so", RTLD_LAZY);
+	void *xkb = NULL;
+	load_lib(&xkb, "xkbcommon");
+
 	if (xkb == NULL) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to find libxkb_common.so");
 		return false;
