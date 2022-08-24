@@ -80,7 +80,7 @@ void kinc_g1_init(int width, int height) {
 	kinc_internal_g1_tex_width = texture.tex_width;
 
 	kinc_internal_g1_image = (uint32_t *)kinc_g4_texture_lock(&texture);
-	int stride = kinc_g4_texture_stride(&texture);
+	int stride = kinc_g4_texture_stride(&texture) / 4;
 	for (int y = 0; y < texture.tex_height; ++y) {
 		for (int x = 0; x < texture.tex_width; ++x) {
 			kinc_internal_g1_image[y * stride + x] = 0;
