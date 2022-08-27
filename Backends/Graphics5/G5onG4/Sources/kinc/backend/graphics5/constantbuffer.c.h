@@ -1,7 +1,6 @@
 #include <kinc/graphics5/constantbuffer.h>
 
 #include <stdlib.h>
-#include <kinc/memory.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,11 +11,11 @@ bool kinc_g5_transposeMat4 = false;
 
 void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	buffer->impl.mySize = size;
-	buffer->data = kinc_allocate(size);
+	buffer->data = malloc(size);
 }
 
 void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {
-	kinc_free(buffer->data);
+	free(buffer->data);
 }
 
 void kinc_g5_constant_buffer_lock_all(kinc_g5_constant_buffer_t *buffer) {}
