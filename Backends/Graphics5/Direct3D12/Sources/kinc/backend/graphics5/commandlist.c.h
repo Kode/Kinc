@@ -79,8 +79,11 @@ void kinc_g5_command_list_clear(struct kinc_g5_command_list *list, kinc_g5_rende
 		D3D12_CLEAR_FLAGS d3dflags = (flags & KINC_G5_CLEAR_DEPTH) && (flags & KINC_G5_CLEAR_STENCIL) ? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL
 		                             : (flags & KINC_G5_CLEAR_DEPTH)                                  ? D3D12_CLEAR_FLAG_DEPTH
 		                                                                                              : D3D12_CLEAR_FLAG_STENCIL;
-		list->impl._commandList->lpVtbl->ClearDepthStencilView(list->impl._commandList, GetCPUDescriptorHandle(renderTarget->impl.depthStencilDescriptorHeap),
-		                                                       d3dflags, depth, stencil, 0, NULL);
+
+		if (renderTarget->impl.depthStencilDescriptorHeap != NULL) {
+			list->impl._commandList->lpVtbl->ClearDepthStencilView(
+			    list->impl._commandList, GetCPUDescriptorHandle(renderTarget->impl.depthStencilDescriptorHeap), d3dflags, depth, stencil, 0, NULL);
+		}
 	}
 }
 
