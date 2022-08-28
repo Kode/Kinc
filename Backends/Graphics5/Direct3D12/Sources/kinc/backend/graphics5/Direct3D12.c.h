@@ -92,19 +92,19 @@ static ID3D12CommandAllocator *initCommandAllocator;
 struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_LEVEL minimumFeatureLevel, const struct DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
 	struct RenderEnvironment result = {0};
 #ifdef KORE_WINDOWS
-	kinc_microsoft_affirm(D3D12CreateDevice(NULL, minimumFeatureLevel, &IID_ID3D12Device, &result.device));
+	kinc_microsoft_affirm(D3D12CreateDevice(NULL, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
 
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {0};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-	kinc_microsoft_affirm(result.device->lpVtbl->CreateCommandQueue(result.device, &queueDesc, &IID_ID3D12CommandQueue, &result.queue));
+	kinc_microsoft_affirm(result.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&result.queue)));
 
 	IDXGIFactory4 *dxgiFactory;
-	kinc_microsoft_affirm(CreateDXGIFactory1(&IID_IDXGIFactory4, &dxgiFactory));
+	kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
 
 	DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
-	kinc_microsoft_affirm(dxgiFactory->lpVtbl->CreateSwapChain(dxgiFactory, (IUnknown *)result.queue, &swapChainDescCopy, &result.swapChain));
+	kinc_microsoft_affirm(dxgiFactory->CreateSwapChain((IUnknown *)result.queue, &swapChainDescCopy, &result.swapChain));
 #else
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 	createSwapChain(&result, QUEUE_SLOT_COUNT);
@@ -116,8 +116,8 @@ struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_LEVEL minimu
 }
 
 static void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
-	if (fence->lpVtbl->GetCompletedValue(fence) < completionValue) {
-		kinc_microsoft_affirm(fence->lpVtbl->SetEventOnCompletion(fence, completionValue, waitEvent));
+	if (fence->GetCompletedValue() < completionValue) {
+		kinc_microsoft_affirm(fence->SetEventOnCompletion(completionValue, waitEvent));
 		WaitForSingleObject(waitEvent, INFINITE);
 	}
 }
@@ -129,13 +129,13 @@ void setupSwapChain(struct dx_window *window) {
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));*/
 
-	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {0};
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 	dsvHeapDesc.NumDescriptors = 1;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	kinc_microsoft_affirm(device->lpVtbl->CreateDescriptorHeap(device, &dsvHeapDesc, &IID_ID3D12DescriptorHeap, &window->depthStencilDescriptorHeap));
+	kinc_microsoft_affirm(device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&window->depthStencilDescriptorHeap)));
 
-	D3D12_RESOURCE_DESC depthTexture = {0};
+	D3D12_RESOURCE_DESC depthTexture = {};
 	depthTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	depthTexture.Alignment = 0;
 	depthTexture.Width = window->width;
@@ -148,30 +148,29 @@ void setupSwapChain(struct dx_window *window) {
 	depthTexture.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	depthTexture.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 
-	D3D12_CLEAR_VALUE clearValue = {0};
+	D3D12_CLEAR_VALUE clearValue = {};
 	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
 	clearValue.DepthStencil.Depth = 1.0f;
 	clearValue.DepthStencil.Stencil = 0;
 
-	D3D12_HEAP_PROPERTIES heapProperties = {0};
+	D3D12_HEAP_PROPERTIES heapProperties = {};
 	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
 	heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	heapProperties.CreationNodeMask = 1;
 	heapProperties.VisibleNodeMask = 1;
 
-	kinc_microsoft_affirm(device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture,
-	                                                              D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, &IID_ID3D12Resource,
-	                                                              &window->depthStencilTexture));
+	kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
+	                                                      IID_PPV_ARGS(&window->depthStencilTexture)));
 
-	device->lpVtbl->CreateDepthStencilView(device, window->depthStencilTexture, NULL, GetCPUDescriptorHandle(window->depthStencilDescriptorHeap));
+	device->CreateDepthStencilView(window->depthStencilTexture, NULL, window->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	window->current_fence_value = 0;
 
 	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
 		window->frame_fence_events[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
 		window->fence_values[i] = 0;
-		device->lpVtbl->CreateFence(device, window->current_fence_value, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, &window->frame_fences[i]);
+		device->CreateFence(window->current_fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&window->frame_fences[i]));
 	}
 
 	//**swapChain->GetBuffer(window->current_backbuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
@@ -184,8 +183,8 @@ void createDeviceAndSwapChain(int width, int height, HWND window);
 static void createDeviceAndSwapChain(int width, int height, HWND window) {
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
-	D3D12GetDebugInterface(&IID_ID3D12Debug, &debugController);
-	debugController->lpVtbl->EnableDebugLayer(debugController);
+	D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
+	debugController->EnableDebugLayer();
 #endif
 
 	struct DXGI_SWAP_CHAIN_DESC swapChainDesc;
@@ -230,7 +229,7 @@ static void createRootSignature() {
 	ID3DBlob *rootBlob;
 	ID3DBlob *errorBlob;
 
-	D3D12_ROOT_PARAMETER parameters[4] = {0};
+	D3D12_ROOT_PARAMETER parameters[4] = {};
 
 	D3D12_DESCRIPTOR_RANGE range;
 	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -304,8 +303,7 @@ static void createRootSignature() {
 	descRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
-	device->lpVtbl->CreateRootSignature(device, 0, rootBlob->lpVtbl->GetBufferPointer(rootBlob), rootBlob->lpVtbl->GetBufferSize(rootBlob),
-	                                    &IID_ID3D12RootSignature, &globalRootSignature);
+	device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_PPV_ARGS(&globalRootSignature));
 
 	createSamplersAndHeaps();
 }
@@ -314,7 +312,7 @@ static void createComputeRootSignature() {
 	ID3DBlob *rootBlob;
 	ID3DBlob *errorBlob;
 
-	D3D12_ROOT_PARAMETER parameters[3] = {0};
+	D3D12_ROOT_PARAMETER parameters[3] = {};
 
 	D3D12_DESCRIPTOR_RANGE range;
 	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -383,8 +381,7 @@ static void createComputeRootSignature() {
 	descRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
-	device->lpVtbl->CreateRootSignature(device, 0, rootBlob->lpVtbl->GetBufferPointer(rootBlob), rootBlob->lpVtbl->GetBufferSize(rootBlob),
-	                                    &IID_ID3D12RootSignature, &globalComputeRootSignature);
+	device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_PPV_ARGS(&globalComputeRootSignature));
 
 	// createSamplersAndHeaps();
 }
@@ -395,23 +392,23 @@ static void initialize(int width, int height, HWND window) {
 	createRootSignature();
 	createComputeRootSignature();
 
-	device->lpVtbl->CreateFence(device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, &uploadFence);
+	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&uploadFence));
 
-	device->lpVtbl->CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, &IID_ID3D12CommandAllocator, &initCommandAllocator);
-	device->lpVtbl->CreateCommandList(device, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, &IID_ID3D12CommandList, &initCommandList);
+	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&initCommandAllocator));
+	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, IID_PPV_ARGS(&initCommandList));
 
-	initCommandList->lpVtbl->Close(initCommandList);
+	initCommandList->Close();
 
 	ID3D12CommandList *commandLists[] = {(ID3D12CommandList *)initCommandList};
-	commandQueue->lpVtbl->ExecuteCommandLists(commandQueue, 1, commandLists);
-	commandQueue->lpVtbl->Signal(commandQueue, uploadFence, 1);
+	commandQueue->ExecuteCommandLists(1, commandLists);
+	commandQueue->Signal(uploadFence, 1);
 
 	HANDLE waitEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	waitForFence(uploadFence, 1, waitEvent);
 
-	initCommandAllocator->lpVtbl->Reset(initCommandAllocator);
-	initCommandList->lpVtbl->Release(initCommandList);           // check me
-	initCommandAllocator->lpVtbl->Release(initCommandAllocator); // check me
+	initCommandAllocator->Reset();
+	initCommandList->Release();      // check me
+	initCommandAllocator->Release(); // check me
 
 	CloseHandle(waitEvent);
 }
@@ -444,9 +441,9 @@ static void initWindow(struct dx_window *window, int windowIndex) {
 	swapChainDesc.Windowed = true;
 
 	IDXGIFactory4 *dxgiFactory;
-	kinc_microsoft_affirm(CreateDXGIFactory1(&IID_IDXGIFactory4, &dxgiFactory));
+	kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
 
-	kinc_microsoft_affirm(dxgiFactory->lpVtbl->CreateSwapChain(dxgiFactory, (IUnknown *)commandQueue, &swapChainDesc, &window->swapChain));
+	kinc_microsoft_affirm(dxgiFactory->CreateSwapChain((IUnknown *)commandQueue, &swapChainDesc, &window->swapChain));
 
 	setupSwapChain(window);
 }
@@ -457,7 +454,7 @@ void kinc_g5_internal_destroy_window(int window) {}
 void kinc_g5_internal_destroy() {
 #ifdef KORE_WINDOWS
 	if (device) {
-		device->lpVtbl->Release(device);
+		device->Release();
 		device = NULL;
 	}
 #endif
@@ -466,38 +463,38 @@ void kinc_g5_internal_destroy() {
 void kinc_g5_internal_init() {
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
-	D3D12GetDebugInterface(&IID_ID3D12Debug, &debugController);
-	debugController->lpVtbl->EnableDebugLayer(debugController);
+	D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
+	debugController->EnableDebugLayer();
 #endif
 #ifdef KORE_WINDOWS
-	D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_11_0, &IID_ID3D12Device, &device);
+	D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
 
 	createRootSignature();
 	createComputeRootSignature();
 
-	D3D12_COMMAND_QUEUE_DESC queueDesc = {0};
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-	kinc_microsoft_affirm(device->lpVtbl->CreateCommandQueue(device, &queueDesc, &IID_ID3D12CommandQueue, &commandQueue));
+	kinc_microsoft_affirm(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue)));
 
-	device->lpVtbl->CreateFence(device, 0, D3D12_FENCE_FLAG_NONE, &IID_ID3D12Fence, &uploadFence);
+	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&uploadFence));
 
-	device->lpVtbl->CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, &IID_ID3D12CommandAllocator, &initCommandAllocator);
-	device->lpVtbl->CreateCommandList(device, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, &IID_ID3D12CommandList, &initCommandList);
+	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&initCommandAllocator));
+	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, IID_PPV_ARGS(&initCommandList));
 
-	initCommandList->lpVtbl->Close(initCommandList);
+	initCommandList->Close();
 
 	ID3D12CommandList *commandLists[] = {(ID3D12CommandList *)initCommandList};
-	commandQueue->lpVtbl->ExecuteCommandLists(commandQueue, 1, commandLists);
-	commandQueue->lpVtbl->Signal(commandQueue, uploadFence, 1);
+	commandQueue->ExecuteCommandLists(1, commandLists);
+	commandQueue->Signal(uploadFence, 1);
 
 	HANDLE waitEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	waitForFence(uploadFence, 1, waitEvent);
 
-	initCommandAllocator->lpVtbl->Reset(initCommandAllocator);
-	initCommandList->lpVtbl->Release(initCommandList);           // check me
-	initCommandAllocator->lpVtbl->Release(initCommandAllocator); // check me
+	initCommandAllocator->Reset();
+	initCommandList->Release();      // check me
+	initCommandAllocator->Release(); // check me
 
 	CloseHandle(waitEvent);
 #endif
@@ -535,11 +532,10 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 	window->current_backbuffer = (window->current_backbuffer + 1) % QUEUE_SLOT_COUNT;
 
 	if (window->new_width != window->width || window->new_height != window->height) {
-		window->depthStencilDescriptorHeap->lpVtbl->Release(window->depthStencilDescriptorHeap);
-		window->depthStencilTexture->lpVtbl->Release(window->depthStencilTexture);
+		window->depthStencilDescriptorHeap->Release();
+		window->depthStencilTexture->Release();
 #ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-		kinc_microsoft_affirm(
-		    window->swapChain->lpVtbl->ResizeBuffers(window->swapChain, 2, window->new_width, window->new_height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+		kinc_microsoft_affirm(window->swapChain->ResizeBuffers(2, window->new_width, window->new_height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 #endif
 		setupSwapChain(window);
 		window->width = window->new_width;
@@ -548,7 +544,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 	}
 
 	const UINT64 fenceValue = window->current_fence_value;
-	commandQueue->lpVtbl->Signal(commandQueue, window->frame_fences[window->current_backbuffer], fenceValue);
+	commandQueue->Signal(window->frame_fences[window->current_backbuffer], fenceValue);
 	window->fence_values[window->current_backbuffer] = fenceValue;
 	++window->current_fence_value;
 
@@ -581,9 +577,9 @@ bool kinc_window_vsynced(int window) {
 	return true;
 }
 
-extern void kinc_g4_on_g5_internal_resize(int, int, int);
+extern "C" void kinc_g4_on_g5_internal_resize(int, int, int);
 
-void kinc_internal_resize(int windowId, int width, int height) {
+extern "C" void kinc_internal_resize(int windowId, int width, int height) {
 	if (width == 0 || height == 0) return;
 	struct dx_window *window = &dx_ctx.windows[windowId];
 	window->new_width = width;
@@ -591,14 +587,14 @@ void kinc_internal_resize(int windowId, int width, int height) {
 	kinc_g4_on_g5_internal_resize(windowId, width, height);
 }
 
-void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
+extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
 
 #ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 bool kinc_g5_swap_buffers() {
 	for (int i = 0; i < MAXIMUM_WINDOWS; i++) {
 		struct dx_window *window = &dx_ctx.windows[i];
 		if (window->swapChain) {
-			kinc_microsoft_affirm(window->swapChain->lpVtbl->Present(window->swapChain, window->vsync, 0));
+			kinc_microsoft_affirm(window->swapChain->Present(window->vsync, 0));
 		}
 	}
 	return true;
