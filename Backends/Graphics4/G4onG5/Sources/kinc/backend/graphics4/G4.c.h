@@ -35,6 +35,7 @@ static int constantBufferIndex = 0;
 
 void kinc_g4_internal_init() {
 	kinc_g5_internal_init();
+	kinc_g5_command_list_init(&commandList);
 }
 
 void kinc_g4_internal_destroy() {
@@ -64,7 +65,6 @@ void kinc_g4_on_g5_internal_resize(int window, int width, int height) {
 
 void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	kinc_g5_internal_init_window(window, depthBufferBits, stencilBufferBits, vsync);
-	kinc_g5_command_list_init(&commandList);
 	windows[window].currentBuffer = -1;
 	for (int i = 0; i < bufferCount; ++i) {
 		kinc_g5_render_target_init(&windows[window].framebuffers[i], kinc_window_width(window), kinc_window_height(window), depthBufferBits, false,
@@ -72,9 +72,7 @@ void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBu
 	}
 	kinc_g5_constant_buffer_init(&vertexConstantBuffer, constantBufferSize * constantBufferMultiply);
 	kinc_g5_constant_buffer_init(&fragmentConstantBuffer, constantBufferSize * constantBufferMultiply);
-#ifndef KORE_VULKAN
 	kinc_g5_command_list_begin(&commandList);
-#endif
 }
 
 static void startDraw() {
@@ -88,7 +86,9 @@ static void startDraw() {
 static void endDraw() {
 	++constantBufferIndex;
 	if (constantBufferIndex >= constantBufferMultiply || waitAfterNextDraw) {
+		kinc_g5_command_list_end(&commandList);
 		kinc_g5_command_list_execute_and_wait(&commandList);
+		kinc_g5_command_list_begin(&commandList);
 		constantBufferIndex = 0;
 		waitAfterNextDraw = false;
 	}
@@ -151,10 +151,6 @@ void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 }
 
 void kinc_g4_begin(int window) {
-#ifndef KORE_VULKAN
-	kinc_g5_command_list_end(&commandList);
-#endif
-
 	current_window = window;
 
 	windows[current_window].currentBuffer = (windows[current_window].currentBuffer + 1) % bufferCount;
@@ -211,18 +207,9 @@ void kinc_g4_end(int window) {
 
 	kinc_g5_command_list_render_target_to_framebuffer_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
 	kinc_g5_command_list_end(&commandList);
-	// delete commandList;
-	// commandList = nullptr;
+	kinc_g5_command_list_execute_and_wait(&commandList);
 	kinc_g5_end(window);
-
-#ifndef KORE_VULKAN
-	kinc_g5_command_list_begin(&commandList);
-#endif
 }
-
-/*void Graphics4::_changeFramebuffer(int window, Kore::FramebufferOptions* frame) {
-
-}*/
 
 bool kinc_g4_swap_buffers() {
 	return kinc_g5_swap_buffers();
