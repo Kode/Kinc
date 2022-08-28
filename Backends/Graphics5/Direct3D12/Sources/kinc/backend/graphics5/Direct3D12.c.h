@@ -178,9 +178,9 @@ void setupSwapChain(struct dx_window *window) {
 }
 
 #ifdef KORE_CONSOLE
-void createDeviceAndSwapChain(int width, int height, HWND window);
+void createDeviceAndSwapChain(struct dx_window *window);
 #else
-static void createDeviceAndSwapChain(int width, int height, HWND window) {
+static void createDeviceAndSwapChain(struct dx_window *window) {
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
 	D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
@@ -193,9 +193,9 @@ static void createDeviceAndSwapChain(int width, int height, HWND window) {
 	swapChainDesc.BufferCount = QUEUE_SLOT_COUNT;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.BufferDesc.Width = width;
-	swapChainDesc.BufferDesc.Height = height;
-	swapChainDesc.OutputWindow = window;
+	swapChainDesc.BufferDesc.Width = window->width;
+	swapChainDesc.BufferDesc.Height = window->height;
+	swapChainDesc.OutputWindow = kinc_windows_window_handle(window->window_index);
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.Windowed = true;
@@ -386,9 +386,9 @@ static void createComputeRootSignature() {
 	// createSamplersAndHeaps();
 }
 
-static void initialize(int width, int height, HWND window) {
-	createDeviceAndSwapChain(width, height, window);
-	createViewportScissor(width, height);
+static void initialize(struct dx_window *window) {
+	createDeviceAndSwapChain(window);
+	createViewportScissor(window->width, window->height);
 	createRootSignature();
 	createComputeRootSignature();
 
@@ -502,18 +502,18 @@ void kinc_g5_internal_init() {
 
 void kinc_g5_internal_init_window(int windowIndex, int depthBufferBits, int stencilBufferBits, bool verticalSync) {
 	struct dx_window *window = &dx_ctx.windows[windowIndex];
+	window->window_index = windowIndex;
 	window->vsync = verticalSync;
 	window->width = window->new_width = kinc_window_width(windowIndex);
 	window->height = window->new_height = kinc_window_height(windowIndex);
 #ifdef KORE_WINDOWS
-	HWND hwnd = kinc_windows_window_handle(windowIndex);
 	initWindow(window, windowIndex);
 #else
 	HWND hwnd = NULL;
 	window->vsync = verticalSync;
 	window->new_width = window->width = kinc_width();
 	window->new_height = window->height = kinc_height();
-	initialize(window->width, window->height, hwnd);
+	initialize(window);
 #endif
 }
 
