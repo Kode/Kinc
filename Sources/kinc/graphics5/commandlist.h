@@ -272,7 +272,7 @@ KINC_FUNC void kinc_g5_command_list_execute(kinc_g5_command_list_t *list);
 
 /// <summary>
 /// Kicks of execution of the commands which have been recorded in the command-list and waits for it to finish. kinc_g5_command_list_end has to be called
-/// beforehand.
+/// beforehand. Please note that waiting for the GPU to finish work completely like this is expensive and should be avoided when possible.
 /// </summary>
 /// <param name="list">The command-list to execute</param>
 KINC_FUNC void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list);
