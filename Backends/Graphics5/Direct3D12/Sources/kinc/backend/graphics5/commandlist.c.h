@@ -24,7 +24,9 @@ static int formatSize(DXGI_FORMAT format) {
 }
 
 void kinc_g5_command_list_init(struct kinc_g5_command_list *list) {
+#ifndef NDEBUG
 	list->impl.open = false;
+#endif
 
 	device->lpVtbl->CreateCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT, &IID_ID3D12CommandAllocator, &list->impl._commandAllocator);
 	device->lpVtbl->CreateCommandList(device, 0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->impl._commandAllocator, NULL, &IID_ID3D12GraphicsCommandList,
@@ -239,15 +241,16 @@ void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_comman
 	list->impl._commandList->lpVtbl->DrawIndexedInstanced(list->impl._commandList, count, instanceCount, start, 0, 0);
 }
 
-void kinc_g5_command_list_execute(struct kinc_g5_command_list *list) {
+void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
+	assert(!list->impl.open);
+
 	ID3D12CommandList *commandLists[] = {(ID3D12CommandList *)list->impl._commandList};
 	commandQueue->lpVtbl->ExecuteCommandLists(commandQueue, 1, commandLists);
 
 	commandQueue->lpVtbl->Signal(commandQueue, list->impl.fence, ++list->impl.fence_value);
 }
 
-void kinc_g5_command_list_execute_and_wait(struct kinc_g5_command_list *list) {
-	kinc_g5_command_list_execute(list);
+void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {
 	waitForFence(list->impl.fence, list->impl.fence_value, list->impl.fence_event);
 }
 
@@ -478,7 +481,8 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 		list->impl._commandList->lpVtbl->ResourceBarrier(list->impl._commandList, 1, &barrier);
 	}
 
-	kinc_g5_command_list_execute_and_wait(list);
+	kinc_g5_command_list_execute(list);
+	kinc_g5_command_list_wait_for_execution_to_finish(list);
 
 	// Read buffer
 	void *p;

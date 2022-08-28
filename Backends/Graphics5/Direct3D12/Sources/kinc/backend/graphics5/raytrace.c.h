@@ -393,7 +393,8 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 	command_list->impl._commandList->lpVtbl->ResourceBarrier(command_list->impl._commandList, 1, &barrier);
 	dxrCommandList->lpVtbl->BuildRaytracingAccelerationStructure(dxrCommandList, &topLevelBuildDesc, 0, NULL);
 
-	kinc_g5_command_list_execute_and_wait(command_list);
+	kinc_g5_command_list_execute(command_list);
+	kinc_g5_command_list_wait_for_execution_to_finish(command_list);
 }
 
 void kinc_raytrace_acceleration_structure_destroy(kinc_raytrace_acceleration_structure_t *accel) {

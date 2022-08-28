@@ -271,11 +271,11 @@ KINC_FUNC void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *
 KINC_FUNC void kinc_g5_command_list_execute(kinc_g5_command_list_t *list);
 
 /// <summary>
-/// Kicks of execution of the commands which have been recorded in the command-list and waits for it to finish. kinc_g5_command_list_end has to be called
-/// beforehand. Please note that waiting for the GPU to finish work completely like this is expensive and should be avoided when possible.
+/// Waits for execution of the command_list to finish. Make sure the command-list is executing before you wait for it.
+/// Also take note that waiting for a command-list to finish executing completely is a very expensive operation.
 /// </summary>
 /// <param name="list">The command-list to execute</param>
-KINC_FUNC void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list);
+KINC_FUNC void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list);
 
 /// <summary>
 /// Writes a command that copies the contents of a render-target into a cpu-side buffer. Beware: This is enormously slow.
