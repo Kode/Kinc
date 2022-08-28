@@ -120,35 +120,29 @@ void kinc_g5_command_list_framebuffer_to_render_target_barrier(struct kinc_g5_co
 void kinc_g5_command_list_texture_to_render_target_barrier(struct kinc_g5_command_list *list, kinc_g5_render_target_t *renderTarget) {
 	assert(list->impl.open);
 
-	if (renderTarget->impl.resourceState != RenderTargetResourceStateRenderTarget) {
-		D3D12_RESOURCE_BARRIER barrier;
-		barrier.Transition.pResource = renderTarget->impl.renderTarget;
-		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	D3D12_RESOURCE_BARRIER barrier;
+	barrier.Transition.pResource = renderTarget->impl.renderTarget;
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-		list->impl._commandList->lpVtbl->ResourceBarrier(list->impl._commandList, 1, &barrier);
-		renderTarget->impl.resourceState = RenderTargetResourceStateRenderTarget;
-	}
+	list->impl._commandList->lpVtbl->ResourceBarrier(list->impl._commandList, 1, &barrier);
 }
 
 void kinc_g5_command_list_render_target_to_texture_barrier(struct kinc_g5_command_list *list, kinc_g5_render_target_t *renderTarget) {
 	assert(list->impl.open);
 
-	if (renderTarget->impl.resourceState != RenderTargetResourceStateTexture) {
-		D3D12_RESOURCE_BARRIER barrier;
-		barrier.Transition.pResource = renderTarget->impl.renderTarget;
-		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	D3D12_RESOURCE_BARRIER barrier;
+	barrier.Transition.pResource = renderTarget->impl.renderTarget;
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-		list->impl._commandList->lpVtbl->ResourceBarrier(list->impl._commandList, 1, &barrier);
-		renderTarget->impl.resourceState = RenderTargetResourceStateTexture;
-	}
+	list->impl._commandList->lpVtbl->ResourceBarrier(list->impl._commandList, 1, &barrier);
 }
 
 void kinc_g5_command_list_set_pipeline_layout(struct kinc_g5_command_list *list) {
@@ -439,8 +433,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	}
 
 	// Copy render target to readback buffer
-	D3D12_RESOURCE_STATES sourceState = render_target->impl.resourceState == RenderTargetResourceStateRenderTarget ? D3D12_RESOURCE_STATE_RENDER_TARGET
-	                                                                                                               : D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	D3D12_RESOURCE_STATES sourceState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
 	{
 		D3D12_RESOURCE_BARRIER barrier;

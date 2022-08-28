@@ -20,7 +20,6 @@ typedef struct {
 	struct D3D12Rect scissor;
 	int stage;
 	int stage_depth;
-	enum RenderTargetResourceState resourceState;
 } RenderTarget5Impl;
 
 #ifdef __cplusplus

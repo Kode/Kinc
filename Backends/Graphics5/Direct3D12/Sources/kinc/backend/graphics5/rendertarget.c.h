@@ -66,8 +66,6 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	render_target->impl.stage_depth = -1;
 	render_target->impl.renderTargetReadback = NULL;
 
-	render_target->impl.resourceState = RenderTargetResourceStateUndefined;
-
 	DXGI_FORMAT dxgiFormat = convertFormat(format);
 
 	D3D12_CLEAR_VALUE clearValue;
@@ -97,13 +95,15 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	texResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	texResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
-	HRESULT result = device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_COMMON,
-	                                                         &clearValue, &IID_ID3D12Resource, &render_target->impl.renderTarget);
+	HRESULT result =
+	    device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET,
+	                                            &clearValue, &IID_ID3D12Resource, &render_target->impl.renderTarget);
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
-			result = device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_COMMON,
-			                                                 &clearValue, &IID_ID3D12Resource, &render_target->impl.renderTarget);
+			result =
+			    device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET,
+			                                            &clearValue, &IID_ID3D12Resource, &render_target->impl.renderTarget);
 			if (result == S_OK) {
 				break;
 			}
