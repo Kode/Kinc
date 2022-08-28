@@ -72,7 +72,9 @@ void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBu
 	}
 	kinc_g5_constant_buffer_init(&vertexConstantBuffer, constantBufferSize * constantBufferMultiply);
 	kinc_g5_constant_buffer_init(&fragmentConstantBuffer, constantBufferSize * constantBufferMultiply);
+
 #ifndef KORE_VULKAN
+	// to support doing work after kinc_g4_end and before kinc_g4_begin
 	kinc_g5_command_list_begin(&commandList);
 #endif
 }
@@ -88,7 +90,10 @@ static void startDraw() {
 static void endDraw() {
 	++constantBufferIndex;
 	if (constantBufferIndex >= constantBufferMultiply || waitAfterNextDraw) {
-		kinc_g5_command_list_execute_and_wait(&commandList);
+		kinc_g5_command_list_end(&commandList);
+		kinc_g5_command_list_execute(&commandList);
+		kinc_g5_command_list_wait_for_execution_to_finish(&commandList);
+		kinc_g5_command_list_begin(&commandList);
 		constantBufferIndex = 0;
 		waitAfterNextDraw = false;
 	}
@@ -150,9 +155,13 @@ void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 	}*/
 }
 
+bool first_run = true;
+
 void kinc_g4_begin(int window) {
 #ifndef KORE_VULKAN
+	// to support doing work after kinc_g4_end and before kinc_g4_begin
 	kinc_g5_command_list_end(&commandList);
+	kinc_g5_command_list_execute(&commandList);
 #endif
 
 	current_window = window;
@@ -180,15 +189,16 @@ void kinc_g4_begin(int window) {
 	windows[current_window].currentRenderTargets[0] = &windows[current_window].framebuffers[windows[current_window].currentBuffer];
 	// commandList = new Graphics5::CommandList;
 	kinc_g5_command_list_begin(&commandList);
-	kinc_g5_command_list_framebuffer_to_render_target_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
-	kinc_g5_render_target_t *renderTargets[1] = {&windows[current_window].framebuffers[windows[current_window].currentBuffer]};
-	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
 
 	// Currently we do not necessarily wait at the end of a frame so for now it's endDraw
 	// constantBufferIndex = 0;
 	// kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
 	// kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, 0, constantBufferSize);
 	endDraw();
+
+	kinc_g5_command_list_framebuffer_to_render_target_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
+	kinc_g5_render_target_t *renderTargets[1] = {&windows[current_window].framebuffers[windows[current_window].currentBuffer]};
+	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
 
 	++frameNumber;
 }
@@ -211,11 +221,14 @@ void kinc_g4_end(int window) {
 
 	kinc_g5_command_list_render_target_to_framebuffer_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
 	kinc_g5_command_list_end(&commandList);
+	kinc_g5_command_list_execute(&commandList);
+
 	// delete commandList;
 	// commandList = nullptr;
 	kinc_g5_end(window);
 
 #ifndef KORE_VULKAN
+	// to support doing work after kinc_g4_end and before kinc_g4_begin
 	kinc_g5_command_list_begin(&commandList);
 #endif
 }
