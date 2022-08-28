@@ -6,6 +6,7 @@
 #include <kinc/graphics5/vertexbuffer.h>
 #include <kinc/log.h>
 #include <kinc/window.h>
+#include <vulkan/vulkan_core.h>
 
 extern VkSemaphore presentCompleteSemaphore;
 extern kinc_g5_texture_t *vulkanTextures[16];
@@ -241,6 +242,7 @@ void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
+	vkResetCommandBuffer(list->impl._buffer, 0);
 	VkCommandBufferBeginInfo cmd_buf_info = {0};
 	cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	cmd_buf_info.pNext = NULL;
@@ -331,41 +333,6 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
 
 	VkResult err = vkEndCommandBuffer(list->impl._buffer);
 	assert(!err);
-
-	VkFence nullFence = VK_NULL_HANDLE;
-	VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	VkSubmitInfo submit_info = {0};
-	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submit_info.pNext = NULL;
-	submit_info.waitSemaphoreCount = 1;
-	submit_info.pWaitSemaphores = &presentCompleteSemaphore;
-	submit_info.pWaitDstStageMask = &pipe_stage_flags;
-	submit_info.commandBufferCount = 1;
-	submit_info.pCommandBuffers = &list->impl._buffer;
-	submit_info.signalSemaphoreCount = 0;
-	submit_info.pSignalSemaphores = NULL;
-
-	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, nullFence);
-	assert(!err);
-
-	VkPresentInfoKHR present = {0};
-	present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	present.pNext = NULL;
-	present.swapchainCount = 1;
-	present.pSwapchains = &vk_ctx.windows[vk_ctx.current_window].swapchain;
-	present.pImageIndices = &vk_ctx.windows[vk_ctx.current_window].current_image;
-
-	err = vk.fpQueuePresentKHR(vk_ctx.queue, &present);
-	err = vkQueueWaitIdle(vk_ctx.queue);
-	assert(err == VK_SUCCESS);
-
-	vkDestroySemaphore(vk_ctx.device, presentCompleteSemaphore, NULL);
-
-	vkResetCommandBuffer(list->impl._buffer, 0);
-
-#ifndef KORE_WINDOWS
-	vkDeviceWaitIdle(vk_ctx.device);
-#endif
 }
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
@@ -876,53 +843,47 @@ static void set_barriers(kinc_g5_command_list_t *list) {
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
-void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {}
-
-void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
-	vkCmdEndRenderPass(list->impl._buffer);
-
-	VkResult err = vkEndCommandBuffer(list->impl._buffer);
-	assert(!err);
-
-	VkFence nullFence = {VK_NULL_HANDLE};
+void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
+	VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 	VkSubmitInfo submit_info = {0};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submit_info.pNext = NULL;
-	submit_info.waitSemaphoreCount = 0;
-	submit_info.pWaitSemaphores = NULL;
-	submit_info.pWaitDstStageMask = NULL;
+	submit_info.waitSemaphoreCount = 1;
+	submit_info.pWaitSemaphores = &presentCompleteSemaphore;
+	submit_info.pWaitDstStageMask = &pipe_stage_flags;
 	submit_info.commandBufferCount = 1;
 	submit_info.pCommandBuffers = &list->impl._buffer;
-	submit_info.signalSemaphoreCount = 0;
-	submit_info.pSignalSemaphores = NULL;
+	submit_info.signalSemaphoreCount = 1;
+	submit_info.pSignalSemaphores = &presentCompleteSemaphore;
 
-	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, nullFence);
+	VkResult err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, VK_NULL_HANDLE);
 	assert(!err);
+}
 
-	err = vkQueueWaitIdle(vk_ctx.queue);
+void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
+	VkFence fence = NULL;
+	VkFenceCreateInfo fenceInfo = {0};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.pNext = NULL;
+	fenceInfo.flags = 0;
+	VkResult err = vkCreateFence(vk_ctx.device, &fenceInfo, NULL, &fence);
 	assert(!err);
+	VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	VkSubmitInfo submit_info = {0};
+	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submit_info.pNext = NULL;
+	submit_info.waitSemaphoreCount = 1;
+	submit_info.pWaitSemaphores = &presentCompleteSemaphore;
+	submit_info.pWaitDstStageMask = &pipe_stage_flags;
+	submit_info.commandBufferCount = 1;
+	submit_info.pCommandBuffers = &list->impl._buffer;
+	submit_info.signalSemaphoreCount = 1;
+	submit_info.pSignalSemaphores = &presentCompleteSemaphore;
 
-	vkResetCommandBuffer(list->impl._buffer, 0);
-
-	reuse_descriptor_sets();
-
-	VkCommandBufferBeginInfo cmd_buf_info = {0};
-	cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	cmd_buf_info.pNext = NULL;
-	cmd_buf_info.flags = 0;
-	cmd_buf_info.pInheritanceInfo = NULL;
-
-	err = vkBeginCommandBuffer(list->impl._buffer, &cmd_buf_info);
-
-	set_barriers(list);
-
-	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	set_viewport_and_scissor(list);
-
-	if (currentPipeline != NULL) {
-		vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentVulkanPipeline);
-	}
+	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, fence);
+	assert(!err);
+	err = vkWaitForFences(vk_ctx.device, 1, &fence, VK_TRUE, UINT64_MAX);
+	assert(!err);
 }
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
