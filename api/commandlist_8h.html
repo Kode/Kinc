@@ -232,9 +232,9 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <tr class="memitem:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a15ca6e1e3764a23e40f4ee5df44f6fb8">kinc_g5_command_list_execute</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list)</td></tr>
 <tr class="memdesc:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kicks of execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand.  <a href="commandlist_8h.html#a15ca6e1e3764a23e40f4ee5df44f6fb8">More...</a><br /></td></tr>
 <tr class="separator:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae92ae61b223e79c22e86db06b7b76c53"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#ae92ae61b223e79c22e86db06b7b76c53">kinc_g5_command_list_execute_and_wait</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list)</td></tr>
-<tr class="memdesc:ae92ae61b223e79c22e86db06b7b76c53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kicks of execution of the commands which have been recorded in the command-list and waits for it to finish. kinc_g5_command_list_end has to be called beforehand. Please note that waiting for the GPU to finish work completely like this is expensive and should be avoided when possible.  <a href="commandlist_8h.html#ae92ae61b223e79c22e86db06b7b76c53">More...</a><br /></td></tr>
-<tr class="separator:ae92ae61b223e79c22e86db06b7b76c53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c0107b4aa127704c99c5d7c640bb6c3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a6c0107b4aa127704c99c5d7c640bb6c3">kinc_g5_command_list_wait_for_execution_to_finish</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list)</td></tr>
+<tr class="memdesc:a6c0107b4aa127704c99c5d7c640bb6c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits for execution of the command_list to finish. Make sure the command-list is executing before you wait for it. Also take note that waiting for a command-list to finish executing completely is a very expensive operation.  <a href="commandlist_8h.html#a6c0107b4aa127704c99c5d7c640bb6c3">More...</a><br /></td></tr>
+<tr class="separator:a6c0107b4aa127704c99c5d7c640bb6c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8a75d87b474676ede1e9530c9b82506"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#ac8a75d87b474676ede1e9530c9b82506">kinc_g5_command_list_get_render_target_pixels</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, struct <a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target</a> *render_target, uint8_t *data)</td></tr>
 <tr class="memdesc:ac8a75d87b474676ede1e9530c9b82506"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a command that copies the contents of a render-target into a cpu-side buffer. Beware: This is enormously slow.  <a href="commandlist_8h.html#ac8a75d87b474676ede1e9530c9b82506">More...</a><br /></td></tr>
 <tr class="separator:ac8a75d87b474676ede1e9530c9b82506"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -640,32 +640,6 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 </div><div class="memdoc">
 
 <p>Kicks of execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">list</td><td>The command-list to execute</td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="ae92ae61b223e79c22e86db06b7b76c53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae92ae61b223e79c22e86db06b7b76c53">&#9670;&nbsp;</a></span>kinc_g5_command_list_execute_and_wait()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g5_command_list_execute_and_wait </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
-          <td class="paramname"><em>list</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Kicks of execution of the commands which have been recorded in the command-list and waits for it to finish. kinc_g5_command_list_end has to be called beforehand. Please note that waiting for the GPU to finish work completely like this is expensive and should be avoided when possible. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">list</td><td>The command-list to execute</td></tr>
@@ -1626,6 +1600,32 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
     <tr><td class="paramname">y</td><td>The y-offset of the viewport in pixels</td></tr>
     <tr><td class="paramname">width</td><td>The width of the viewport in pixels</td></tr>
     <tr><td class="paramname">height</td><td>The height of the viewport in pixels</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a6c0107b4aa127704c99c5d7c640bb6c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c0107b4aa127704c99c5d7c640bb6c3">&#9670;&nbsp;</a></span>kinc_g5_command_list_wait_for_execution_to_finish()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_command_list_wait_for_execution_to_finish </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
+          <td class="paramname"><em>list</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Waits for execution of the command_list to finish. Make sure the command-list is executing before you wait for it. Also take note that waiting for a command-list to finish executing completely is a very expensive operation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">list</td><td>The command-list to execute</td></tr>
   </table>
   </dd>
 </dl>
