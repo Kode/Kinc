@@ -133,7 +133,8 @@ void setupSwapChain(struct dx_window *window) {
 	dsvHeapDesc.NumDescriptors = 1;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	kinc_microsoft_affirm(device->lpVtbl->CreateDescriptorHeap(device, &dsvHeapDesc, &IID_ID3D12DescriptorHeap, &window->depthStencilDescriptorHeap));
+	HRESULT result = device->lpVtbl->CreateDescriptorHeap(device, &dsvHeapDesc, &IID_ID3D12DescriptorHeap, &window->depthStencilDescriptorHeap);
+	kinc_microsoft_affirm(result);
 
 	D3D12_RESOURCE_DESC depthTexture = {0};
 	depthTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -179,9 +180,9 @@ void setupSwapChain(struct dx_window *window) {
 }
 
 #ifdef KORE_CONSOLE
-void createDeviceAndSwapChain(int width, int height, HWND window);
+void createDeviceAndSwapChain(struct dx_window *window);
 #else
-static void createDeviceAndSwapChain(int width, int height, HWND window) {
+static void createDeviceAndSwapChain(struct dx_window *window) {
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
 	D3D12GetDebugInterface(&IID_ID3D12Debug, &debugController);
@@ -389,9 +390,9 @@ static void createComputeRootSignature() {
 	// createSamplersAndHeaps();
 }
 
-static void initialize(int width, int height, HWND window) {
-	createDeviceAndSwapChain(width, height, window);
-	createViewportScissor(width, height);
+static void initialize(struct dx_window *window) {
+	createDeviceAndSwapChain(window);
+	createViewportScissor(window->width, window->height);
 	createRootSignature();
 	createComputeRootSignature();
 
@@ -516,7 +517,7 @@ void kinc_g5_internal_init_window(int windowIndex, int depthBufferBits, int sten
 	window->vsync = verticalSync;
 	window->new_width = window->width = kinc_width();
 	window->new_height = window->height = kinc_height();
-	initialize(window->width, window->height, hwnd);
+	initialize(window);
 #endif
 }
 

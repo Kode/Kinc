@@ -48,11 +48,12 @@ struct DXGI_SWAP_CHAIN_DESC1;
 #include <dxgi.h>
 #endif
 
+#include "d3d12mini.h"
+
 #ifndef IID_GRAPHICS_PPV_ARGS
 #define IID_GRAPHICS_PPV_ARGS(x) IID_PPV_ARGS(x)
 #endif
 
-#define QUEUE_SLOT_COUNT 2
 #define textureCount 16
 
 ID3D12Device *device = NULL;
@@ -63,24 +64,6 @@ static ID3D12RootSignature *globalComputeRootSignature = NULL;
 #include <stdbool.h>
 
 #define MAXIMUM_WINDOWS 16
-
-struct dx_window {
-#ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-	IDXGISwapChain *swapChain;
-#endif
-	ID3D12DescriptorHeap *depthStencilDescriptorHeap;
-	ID3D12Resource *depthStencilTexture;
-	UINT64 current_fence_value;
-	UINT64 fence_values[QUEUE_SLOT_COUNT];
-	HANDLE frame_fence_events[QUEUE_SLOT_COUNT];
-	ID3D12Fence *frame_fences[QUEUE_SLOT_COUNT];
-	int width;
-	int height;
-	int new_width;
-	int new_height;
-	int current_backbuffer;
-	bool vsync;
-};
 
 struct dx_ctx {
 	int current_window;
