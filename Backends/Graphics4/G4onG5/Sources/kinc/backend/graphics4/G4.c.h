@@ -37,7 +37,6 @@ static int constantBufferIndex = 0;
 
 void kinc_g4_internal_init() {
 	kinc_g5_internal_init();
-	kinc_g5_command_list_init(&commandList);
 }
 
 void kinc_g4_internal_destroy() {
@@ -69,6 +68,7 @@ void kinc_g4_on_g5_internal_resize(int window, int width, int height) {
 
 void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	kinc_g5_internal_init_window(window, depthBufferBits, stencilBufferBits, vsync);
+	kinc_g5_command_list_init(&commandList);
 	windows[window].currentBuffer = -1;
 	for (int i = 0; i < bufferCount; ++i) {
 		kinc_g5_render_target_init(&windows[window].framebuffers[i], kinc_window_width(window), kinc_window_height(window), depthBufferBits, false,
@@ -164,7 +164,7 @@ void kinc_g4_begin(int window) {
 	kinc_g5_command_list_end(&commandList);
 	kinc_g5_command_list_execute(&commandList);
 
-  current_window = window;
+	current_window = window;
 
 	windows[current_window].currentBuffer = (windows[current_window].currentBuffer + 1) % bufferCount;
 
@@ -223,7 +223,6 @@ void kinc_g4_end(int window) {
 
 	kinc_g5_command_list_render_target_to_framebuffer_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
 	kinc_g5_command_list_end(&commandList);
-
 	kinc_g5_command_list_execute(&commandList);
 
 	// delete commandList;
@@ -233,6 +232,10 @@ void kinc_g4_end(int window) {
 	// to support doing work after kinc_g4_end and before kinc_g4_begin
 	kinc_g5_command_list_begin(&commandList);
 }
+
+/*void Graphics4::_changeFramebuffer(int window, Kore::FramebufferOptions* frame) {
+
+}*/
 
 bool kinc_g4_swap_buffers() {
 	return kinc_g5_swap_buffers();
