@@ -236,12 +236,22 @@ void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 	VkResult err = vkAllocateCommandBuffers(vk_ctx.device, &cmd, &list->impl._buffer);
 	assert(!err);
 
+	VkFenceCreateInfo fenceInfo = {0};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.pNext = NULL;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+	err = vkCreateFence(vk_ctx.device, &fenceInfo, NULL, &list->impl.fence);
+	assert(!err);
+
 	list->impl._indexCount = 0;
 }
 
 void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
+	VkResult err = vkWaitForFences(vk_ctx.device, 1, &list->impl.fence, VK_TRUE, UINT64_MAX);
+	assert(!err);
+
 	vkResetCommandBuffer(list->impl._buffer, 0);
 	VkCommandBufferBeginInfo cmd_buf_info = {0};
 	cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -272,7 +282,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	rp_begin.clearValueCount = vk_ctx.windows[vk_ctx.current_window].depth_bits > 0 ? 2 : 1;
 	rp_begin.pClearValues = clear_values;
 
-	VkResult err = vkBeginCommandBuffer(list->impl._buffer, &cmd_buf_info);
+	err = vkBeginCommandBuffer(list->impl._buffer, &cmd_buf_info);
 	assert(!err);
 
 	VkImageMemoryBarrier prePresentBarrier = {0};
@@ -760,7 +770,8 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	setImageLayout(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 	               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-	kinc_g5_command_list_execute_and_wait(list);
+	kinc_g5_command_list_execute(list);
+	kinc_g5_command_list_wait_for_execution_to_finish(list);
 
 	// Read buffer
 	void *p;
@@ -844,6 +855,12 @@ static void set_barriers(kinc_g5_command_list_t *list) {
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
+	// Make sure the previous execution is done, so we can reuse the fence
+	// Not optimal of course
+	VkResult err = vkWaitForFences(vk_ctx.device, 1, &list->impl.fence, VK_TRUE, UINT64_MAX);
+	assert(!err);
+	vkResetFences(vk_ctx.device, 1, &list->impl.fence);
+
 	VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 	VkSubmitInfo submit_info = {0};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -856,33 +873,12 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	submit_info.signalSemaphoreCount = 1;
 	submit_info.pSignalSemaphores = &presentCompleteSemaphore;
 
-	VkResult err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, VK_NULL_HANDLE);
+	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, list->impl.fence);
 	assert(!err);
 }
 
-void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
-	VkFence fence = NULL;
-	VkFenceCreateInfo fenceInfo = {0};
-	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceInfo.pNext = NULL;
-	fenceInfo.flags = 0;
-	VkResult err = vkCreateFence(vk_ctx.device, &fenceInfo, NULL, &fence);
-	assert(!err);
-	VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	VkSubmitInfo submit_info = {0};
-	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submit_info.pNext = NULL;
-	submit_info.waitSemaphoreCount = 1;
-	submit_info.pWaitSemaphores = &presentCompleteSemaphore;
-	submit_info.pWaitDstStageMask = &pipe_stage_flags;
-	submit_info.commandBufferCount = 1;
-	submit_info.pCommandBuffers = &list->impl._buffer;
-	submit_info.signalSemaphoreCount = 1;
-	submit_info.pSignalSemaphores = &presentCompleteSemaphore;
-
-	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, fence);
-	assert(!err);
-	err = vkWaitForFences(vk_ctx.device, 1, &fence, VK_TRUE, UINT64_MAX);
+void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {
+	VkResult err = vkWaitForFences(vk_ctx.device, 1, &list->impl.fence, VK_TRUE, UINT64_MAX);
 	assert(!err);
 }
 
