@@ -174,7 +174,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {0};
 	desc.CS.BytecodeLength = shader->impl.length;
 	desc.CS.pShaderBytecode = shader->impl.data;
-	HRESULT hr = device->lpVtbl->CreateComputePipelineState(device, &desc, &IID_ID3D12PipelineState, &shader->impl.pso);
+	HRESULT hr = device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&shader->impl.pso));
 
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
@@ -335,7 +335,7 @@ void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, 
 
 void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
 	ID3D12GraphicsCommandList *command_list = NULL;
-	command_list->lpVtbl->SetPipelineState(command_list, shader->impl.pso);
+	command_list->SetPipelineState(shader->impl.pso);
 
 	// context->UpdateSubresource(shader->impl.constantBuffer, 0, nullptr, constantsMemory, 0, 0);
 	// context->CSSetConstantBuffers(0, 1, &shader->impl.constantBuffer);

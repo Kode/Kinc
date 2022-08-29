@@ -12,6 +12,7 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *render_target, int widt
 	                           stencilBufferBits, contextId);
 	render_target->texWidth = render_target->width = width;
 	render_target->texHeight = render_target->height = height;
+	render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_RENDER_TARGET;
 }
 
 void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *render_target, int cubeMapSize, int depthBufferBits, bool antialiasing,
@@ -25,13 +26,18 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *render_target) {
 }
 
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
-#ifndef KORE_VULKAN
-	kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);
-#endif
+	if (render_target->impl.state != KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE) {
+		kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);
+		render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE;
+	}
 	kinc_g5_render_target_use_color_as_texture(&render_target->impl._renderTarget, unit.impl._unit);
 }
 
 void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
+	if (render_target->impl.state != KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE) {
+		kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);
+		render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE;
+	}
 	kinc_g5_render_target_use_depth_as_texture(&render_target->impl._renderTarget, unit.impl._unit);
 }
 

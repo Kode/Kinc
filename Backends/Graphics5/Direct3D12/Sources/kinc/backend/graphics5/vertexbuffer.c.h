@@ -41,14 +41,14 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-	device->lpVtbl->CreateCommittedResource(device, &heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-	                                        &IID_ID3D12Resource, &buffer->impl.uploadBuffer);
+	device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
+	                                IID_PPV_ARGS(&buffer->impl.uploadBuffer));
 
 	// device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES (D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	// &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
 	//	D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&vertexBuffer));
 
-	buffer->impl.view.BufferLocation = buffer->impl.uploadBuffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.uploadBuffer);
+	buffer->impl.view.BufferLocation = buffer->impl.uploadBuffer->GetGPUVirtualAddress();
 	buffer->impl.view.SizeInBytes = uploadBufferSize;
 	buffer->impl.view.StrideInBytes = buffer->impl.myStride;
 }
@@ -69,7 +69,7 @@ float *kinc_g5_vertex_buffer_lock(kinc_g5_vertex_buffer_t *buffer, int start, in
 	D3D12_RANGE range;
 	range.Begin = start * buffer->impl.myStride;
 	range.End = range.Begin + count * buffer->impl.myStride;
-	buffer->impl.uploadBuffer->lpVtbl->Map(buffer->impl.uploadBuffer, 0, &range, &p);
+	buffer->impl.uploadBuffer->Map(0, &range, &p);
 	byte *bytes = (byte *)p;
 	bytes += start * buffer->impl.myStride;
 	return (float *)bytes;
@@ -79,7 +79,7 @@ void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buffer) {
 	D3D12_RANGE range;
 	range.Begin = buffer->impl.lastStart * buffer->impl.myStride;
 	range.End = range.Begin + buffer->impl.lastCount * buffer->impl.myStride;
-	buffer->impl.uploadBuffer->lpVtbl->Unmap(buffer->impl.uploadBuffer, 0, &range);
+	buffer->impl.uploadBuffer->Unmap(0, &range);
 
 	// view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
 
@@ -93,7 +93,7 @@ void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buffer, int count) {
 	D3D12_RANGE range;
 	range.Begin = buffer->impl.lastStart * buffer->impl.myStride;
 	range.End = range.Begin + count * buffer->impl.myStride;
-	buffer->impl.uploadBuffer->lpVtbl->Unmap(buffer->impl.uploadBuffer, 0, &range);
+	buffer->impl.uploadBuffer->Unmap(0, &range);
 
 	// view.BufferLocation = uploadBuffer->GetGPUVirtualAddress() + myStart * myStride;
 

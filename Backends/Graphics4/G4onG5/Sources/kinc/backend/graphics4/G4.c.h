@@ -22,6 +22,8 @@
 #include <kinc/math/matrix.h>
 #include <kinc/system.h>
 
+#include <assert.h>
+
 kinc_g5_command_list_t commandList;
 
 uint64_t frameNumber = 0;
@@ -50,10 +52,12 @@ void kinc_g4_internal_destroy_window(int window) {
 #define renderTargetCount 8
 
 static struct {
-
 	int currentBuffer;
 	kinc_g5_render_target_t framebuffers[bufferCount];
-	kinc_g5_render_target_t *currentRenderTargets[renderTargetCount];
+
+	kinc_g4_render_target_t *current_render_targets[renderTargetCount];
+	int current_render_target_count;
+
 	bool resized;
 } windows[16] = {0};
 
@@ -72,6 +76,8 @@ void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBu
 	}
 	kinc_g5_constant_buffer_init(&vertexConstantBuffer, constantBufferSize * constantBufferMultiply);
 	kinc_g5_constant_buffer_init(&fragmentConstantBuffer, constantBufferSize * constantBufferMultiply);
+
+	// to support doing work after kinc_g4_end and before kinc_g4_begin
 	kinc_g5_command_list_begin(&commandList);
 }
 
@@ -87,7 +93,8 @@ static void endDraw() {
 	++constantBufferIndex;
 	if (constantBufferIndex >= constantBufferMultiply || waitAfterNextDraw) {
 		kinc_g5_command_list_end(&commandList);
-		kinc_g5_command_list_execute_and_wait(&commandList);
+		kinc_g5_command_list_execute(&commandList);
+		kinc_g5_command_list_wait_for_execution_to_finish(&commandList);
 		kinc_g5_command_list_begin(&commandList);
 		constantBufferIndex = 0;
 		waitAfterNextDraw = false;
@@ -135,23 +142,29 @@ void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_textu
 }
 
 void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
-	kinc_g5_command_list_clear(&commandList, windows[current_window].currentRenderTargets[0], flags, color, depth, stencil);
-
-	/*if (has_clear_shader) {
-	    float red, green, blue, alpha;
-	    kinc_color_components(color, &red, &green, &blue, &alpha);
-	    kinc_compute_set_float4(clear_color, red, green, blue, alpha);
-
-	    kinc_g4_render_target_t target;
-	    target.impl._renderTarget = *currentRenderTargets[0];
-	    kinc_compute_set_render_target(clear_target, &target, KINC_COMPUTE_ACCESS_WRITE);
-
-	    kinc_compute(currentRenderTargets[0]->texWidth / 16, currentRenderTargets[0]->texHeight / 16, 1);
-	}*/
+	if (windows[current_window].current_render_target_count > 0) {
+		if (windows[current_window].current_render_targets[0] == NULL) {
+			kinc_g5_command_list_clear(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer], flags, color, depth,
+			                           stencil);
+		}
+		else {
+			if (windows[current_window].current_render_targets[0]->impl.state != KINC_INTERNAL_RENDER_TARGET_STATE_RENDER_TARGET) {
+				kinc_g5_command_list_texture_to_render_target_barrier(&commandList, &windows[current_window].current_render_targets[0]->impl._renderTarget);
+				windows[current_window].current_render_targets[0]->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_RENDER_TARGET;
+			}
+			kinc_g5_command_list_clear(&commandList, &windows[current_window].current_render_targets[0]->impl._renderTarget, flags, color, depth, stencil);
+		}
+	}
 }
 
+bool first_run = true;
+
 void kinc_g4_begin(int window) {
-	current_window = window;
+	// to support doing work after kinc_g4_end and before kinc_g4_begin
+	kinc_g5_command_list_end(&commandList);
+	kinc_g5_command_list_execute(&commandList);
+
+  current_window = window;
 
 	windows[current_window].currentBuffer = (windows[current_window].currentBuffer + 1) % bufferCount;
 
@@ -173,18 +186,21 @@ void kinc_g4_begin(int window) {
 		windows[window].resized = false;
 	}
 
-	windows[current_window].currentRenderTargets[0] = &windows[current_window].framebuffers[windows[current_window].currentBuffer];
+	windows[current_window].current_render_targets[0] = NULL;
+	windows[current_window].current_render_target_count = 1;
+
 	// commandList = new Graphics5::CommandList;
 	kinc_g5_command_list_begin(&commandList);
-	kinc_g5_command_list_framebuffer_to_render_target_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
-	kinc_g5_render_target_t *renderTargets[1] = {&windows[current_window].framebuffers[windows[current_window].currentBuffer]};
-	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
 
 	// Currently we do not necessarily wait at the end of a frame so for now it's endDraw
 	// constantBufferIndex = 0;
 	// kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
 	// kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, 0, constantBufferSize);
 	endDraw();
+
+	kinc_g5_command_list_framebuffer_to_render_target_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
+	kinc_g5_render_target_t *renderTargets[1] = {&windows[current_window].framebuffers[windows[current_window].currentBuffer]};
+	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
 
 	++frameNumber;
 }
@@ -207,8 +223,15 @@ void kinc_g4_end(int window) {
 
 	kinc_g5_command_list_render_target_to_framebuffer_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
 	kinc_g5_command_list_end(&commandList);
-	kinc_g5_command_list_execute_and_wait(&commandList);
+
+	kinc_g5_command_list_execute(&commandList);
+
+	// delete commandList;
+	// commandList = nullptr;
 	kinc_g5_end(window);
+
+	// to support doing work after kinc_g4_end and before kinc_g4_begin
+	kinc_g5_command_list_begin(&commandList);
 }
 
 bool kinc_g4_swap_buffers() {
@@ -334,16 +357,27 @@ bool kinc_g4_non_pow2_textures_supported() {
 }
 
 void kinc_g4_restore_render_target() {
-	windows[current_window].currentRenderTargets[0] = &windows[current_window].framebuffers[windows[current_window].currentBuffer];
-	kinc_g5_command_list_set_render_targets(&commandList, windows[current_window].currentRenderTargets, 1);
+	windows[current_window].current_render_targets[0] = NULL;
+	kinc_g5_render_target_t *render_target = &windows[current_window].framebuffers[windows[current_window].currentBuffer];
+	kinc_g5_command_list_set_render_targets(&commandList, &render_target, 1);
+	windows[current_window].current_render_target_count = 1;
 }
 
 void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
 	for (int i = 0; i < count; ++i) {
-		windows[current_window].currentRenderTargets[i] = &targets[i]->impl._renderTarget;
-		kinc_g5_command_list_texture_to_render_target_barrier(&commandList, windows[current_window].currentRenderTargets[i]);
+		windows[current_window].current_render_targets[i] = targets[i];
+		if (windows[current_window].current_render_targets[i]->impl.state != KINC_INTERNAL_RENDER_TARGET_STATE_RENDER_TARGET) {
+			kinc_g5_command_list_texture_to_render_target_barrier(&commandList, &windows[current_window].current_render_targets[i]->impl._renderTarget);
+			windows[current_window].current_render_targets[i]->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_RENDER_TARGET;
+		}
 	}
-	kinc_g5_command_list_set_render_targets(&commandList, windows[current_window].currentRenderTargets, count);
+	windows[current_window].current_render_target_count = count;
+	kinc_g5_render_target_t *render_targets[16];
+	assert(count <= 16);
+	for (int i = 0; i < count; ++i) {
+		render_targets[i] = &targets[i]->impl._renderTarget;
+	}
+	kinc_g5_command_list_set_render_targets(&commandList, render_targets, count);
 }
 
 void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) {

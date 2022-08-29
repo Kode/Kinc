@@ -30,11 +30,11 @@ void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_
 	}
 	*/
 
-	commandList->lpVtbl->SetPipelineState(commandList, pipeline->impl.pso);
+	commandList->SetPipelineState(pipeline->impl.pso);
 #ifdef KORE_DXC
-	commandList->lpVtbl->SetGraphicsRootSignature(commandList, pipeline->impl.rootSignature);
+	commandList->SetGraphicsRootSignature(pipeline->impl.rootSignature);
 #else
-	commandList->lpVtbl->SetGraphicsRootSignature(commandList, globalRootSignature);
+	commandList->SetGraphicsRootSignature(globalRootSignature);
 #endif
 
 	if (pipeline->impl.textures > 0) {
@@ -48,7 +48,7 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
 
 void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipe) {
 	if (pipe->impl.pso != NULL) {
-		pipe->impl.pso->lpVtbl->Release(pipe->impl.pso);
+		pipe->impl.pso->Release();
 		pipe->impl.pso = NULL;
 	}
 }
@@ -189,7 +189,7 @@ static D3D12_BLEND convert_blend_factor(kinc_g5_blending_factor_t factor) {
 	}
 }
 
-static D3D12_BLEND_OP convert_blend_operation(kinc_g5_blending_factor_t op) {
+static D3D12_BLEND_OP convert_blend_operation(kinc_g5_blending_operation_t op) {
 	switch (op) {
 	case KINC_G5_BLENDOP_ADD:
 		return D3D12_BLEND_OP_ADD;
@@ -203,7 +203,7 @@ static D3D12_BLEND_OP convert_blend_operation(kinc_g5_blending_factor_t op) {
 		return D3D12_BLEND_OP_MAX;
 	default:
 		assert(false);
-		return KINC_G5_BLENDOP_ADD;
+		return D3D12_BLEND_OP_ADD;
 	}
 }
 
@@ -512,7 +512,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.SampleMask = 0xFFFFFFFF;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	hr = device->lpVtbl->CreateGraphicsPipelineState(device, &psoDesc, &IID_ID3D12PipelineState, &pipe->impl.pso);
+	hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipe->impl.pso));
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}
@@ -525,7 +525,7 @@ void kinc_g5_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipeline) {
 
 void kinc_g5_compute_pipeline_destroy(kinc_g5_compute_pipeline_t *pipeline) {
 	if (pipeline->impl.pso != NULL) {
-		pipeline->impl.pso->lpVtbl->Release(pipeline->impl.pso);
+		pipeline->impl.pso->Release();
 		pipeline->impl.pso = NULL;
 	}
 }
@@ -550,7 +550,7 @@ void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline) {
 	psoDesc.pRootSignature = globalComputeRootSignature;
 #endif
 
-	hr = device->lpVtbl->CreateComputePipelineState(device, &psoDesc, &IID_ID3D12PipelineState, &pipeline->impl.pso);
+	hr = device->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(&pipeline->impl.pso));
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}
