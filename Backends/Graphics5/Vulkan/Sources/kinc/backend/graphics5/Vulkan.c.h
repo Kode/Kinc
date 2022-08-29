@@ -988,8 +988,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window_index) {
 	assert(!err);
 
 	// Get the index of the next available swapchain image:
-	err = vk.fpAcquireNextImageKHR(vk_ctx.device, window->swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)0, // TODO: Show use of fence
-	                               &window->current_image);
+	err = vk.fpAcquireNextImageKHR(vk_ctx.device, window->swapchain, UINT64_MAX, presentCompleteSemaphore, VK_NULL_HANDLE, &window->current_image);
 	// TODO: handle this somehow, currently this will just crash on Android
 	if (err == VK_ERROR_SURFACE_LOST_KHR) {
 		kinc_g5_internal_destroy_window(window_index);
@@ -1003,6 +1002,19 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window_index) {
 }
 
 void kinc_g5_end(int window) {
+	VkPresentInfoKHR present = {0};
+	present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	present.pNext = NULL;
+	present.swapchainCount = 1;
+	present.pSwapchains = &vk_ctx.windows[vk_ctx.current_window].swapchain;
+	present.pImageIndices = &vk_ctx.windows[vk_ctx.current_window].current_image;
+
+	VkResult err = vk.fpQueuePresentKHR(vk_ctx.queue, &present);
+	err = vkQueueWaitIdle(vk_ctx.queue);
+	assert(err == VK_SUCCESS);
+
+	vkDestroySemaphore(vk_ctx.device, presentCompleteSemaphore, NULL);
+	reuse_descriptor_sets();
 	began = false;
 }
 
