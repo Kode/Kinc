@@ -239,16 +239,8 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	if (lastPipeline != NULL) kinc_g5_internal_pipeline_set(lastPipeline);
 }
 
-void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
-	if (lastRenderTargets[0] == NULL) {
-		kinc_g5_internal_new_render_pass(NULL, 1, true, 0, 0, 0.0f, 0);
-	}
-	else {
-		int count = 1;
-		while (lastRenderTargets[count] != NULL) count++;
-		kinc_g5_internal_new_render_pass(lastRenderTargets, count, true, 0, 0, 0.0f, 0);
-	}
-	if (lastPipeline != NULL) kinc_g5_internal_pipeline_set(lastPipeline);
+void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {
+	
 }
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
