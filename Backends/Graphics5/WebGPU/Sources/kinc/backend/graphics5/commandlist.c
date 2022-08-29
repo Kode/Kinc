@@ -108,7 +108,7 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 
 }
 
-void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {
+void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {
 
 }
 
