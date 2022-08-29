@@ -8,7 +8,6 @@
 #include <kinc/window.h>
 #include <vulkan/vulkan_core.h>
 
-extern VkSemaphore presentCompleteSemaphore;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 VkDescriptorSet getDescriptorSet(void);
@@ -854,6 +853,12 @@ static void set_barriers(kinc_g5_command_list_t *list) {
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
+static bool wait_for_framebuffer = false;
+
+static void command_list_should_wait_for_framebuffer(void) {
+	wait_for_framebuffer = true;
+}
+
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	// Make sure the previous execution is done, so we can reuse the fence
 	// Not optimal of course
@@ -865,13 +870,20 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	VkSubmitInfo submit_info = {0};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submit_info.pNext = NULL;
-	submit_info.waitSemaphoreCount = 1;
-	submit_info.pWaitSemaphores = &presentCompleteSemaphore;
+	if (wait_for_framebuffer) {
+		submit_info.waitSemaphoreCount = 1;
+		submit_info.pWaitSemaphores = &framebuffer_available;
+		wait_for_framebuffer = false;
+	}
+	else {
+		submit_info.waitSemaphoreCount = 0;
+		submit_info.pWaitSemaphores = NULL;
+	}
 	submit_info.pWaitDstStageMask = &pipe_stage_flags;
 	submit_info.commandBufferCount = 1;
 	submit_info.pCommandBuffers = &list->impl._buffer;
-	submit_info.signalSemaphoreCount = 1;
-	submit_info.pSignalSemaphores = &presentCompleteSemaphore;
+	submit_info.signalSemaphoreCount = 0;
+	submit_info.pSignalSemaphores = NULL;
 
 	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, list->impl.fence);
 	assert(!err);

@@ -42,7 +42,6 @@ VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSur
 
 #define APP_NAME_STR_LEN 80
 
-VkSemaphore presentCompleteSemaphore;
 void createDescriptorLayout(void);
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 
@@ -918,6 +917,14 @@ void kinc_g5_internal_init() {
 		createDescriptorLayout();
 		assert(!err);
 	}
+
+	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {0};
+	presentCompleteSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	presentCompleteSemaphoreCreateInfo.pNext = NULL;
+	presentCompleteSemaphoreCreateInfo.flags = 0;
+
+	err = vkCreateSemaphore(vk_ctx.device, &presentCompleteSemaphoreCreateInfo, NULL, &framebuffer_available);
+	assert(!err);
 }
 
 void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int stencilBufferBits, bool vsync) {
@@ -979,16 +986,9 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window_index) {
 		create_swapchain(window);
 	}
 
-	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {0};
-	presentCompleteSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	presentCompleteSemaphoreCreateInfo.pNext = NULL;
-	presentCompleteSemaphoreCreateInfo.flags = 0;
-
-	VkResult err = vkCreateSemaphore(vk_ctx.device, &presentCompleteSemaphoreCreateInfo, NULL, &presentCompleteSemaphore);
-	assert(!err);
-
 	// Get the index of the next available swapchain image:
-	err = vk.fpAcquireNextImageKHR(vk_ctx.device, window->swapchain, UINT64_MAX, presentCompleteSemaphore, VK_NULL_HANDLE, &window->current_image);
+	command_list_should_wait_for_framebuffer();
+	VkResult err = vk.fpAcquireNextImageKHR(vk_ctx.device, window->swapchain, UINT64_MAX, framebuffer_available, VK_NULL_HANDLE, &window->current_image);
 	// TODO: handle this somehow, currently this will just crash on Android
 	if (err == VK_ERROR_SURFACE_LOST_KHR) {
 		kinc_g5_internal_destroy_window(window_index);
@@ -1013,7 +1013,6 @@ void kinc_g5_end(int window) {
 	err = vkQueueWaitIdle(vk_ctx.queue);
 	assert(err == VK_SUCCESS);
 
-	vkDestroySemaphore(vk_ctx.device, presentCompleteSemaphore, NULL);
 	reuse_descriptor_sets();
 	began = false;
 }

@@ -52,7 +52,6 @@
 #define VALIDATE
 #endif
 
-
 #include <vulkan/vulkan.h>
 
 #include <assert.h>
@@ -68,6 +67,9 @@
 #include <kinc/math/matrix.h>
 
 #include "vulkan.h"
+
+static VkSemaphore framebuffer_available;
+static void command_list_should_wait_for_framebuffer(void);
 
 #include "Vulkan.c.h"
 #include "commandlist.c.h"
