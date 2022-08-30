@@ -158,7 +158,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:acd2e2d0ad3d78d53bc490785a9467c21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts recording commands in a command-list.  <a href="commandlist_8h.html#acd2e2d0ad3d78d53bc490785a9467c21">More...</a><br /></td></tr>
 <tr class="separator:acd2e2d0ad3d78d53bc490785a9467c21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c534b1755c0e4779dc654102873da4e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a8c534b1755c0e4779dc654102873da4e">kinc_g5_command_list_end</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list)</td></tr>
-<tr class="memdesc:a8c534b1755c0e4779dc654102873da4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ends recording commands for the list. Has to be called after kinc_g5_command_list_begin and before kinc_g5_command_list_execute or kinc_g5_command_list_execute_and_wait.  <a href="commandlist_8h.html#a8c534b1755c0e4779dc654102873da4e">More...</a><br /></td></tr>
+<tr class="memdesc:a8c534b1755c0e4779dc654102873da4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ends recording commands for the list. Has to be called after kinc_g5_command_list_begin and before kinc_g5_command_list_execute.  <a href="commandlist_8h.html#a8c534b1755c0e4779dc654102873da4e">More...</a><br /></td></tr>
 <tr class="separator:a8c534b1755c0e4779dc654102873da4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a580981d2b97e24af79b0b0aa7ec01766"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a580981d2b97e24af79b0b0aa7ec01766">kinc_g5_command_list_clear</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, struct <a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target</a> *render_target, unsigned flags, unsigned color, float depth, int stencil)</td></tr>
 <tr class="memdesc:a580981d2b97e24af79b0b0aa7ec01766"><td class="mdescLeft">&#160;</td><td class="mdescRight">Records a command to clear the color, depth and/or stencil-components of a render-target.  <a href="commandlist_8h.html#a580981d2b97e24af79b0b0aa7ec01766">More...</a><br /></td></tr>
@@ -612,7 +612,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
       </table>
 </div><div class="memdoc">
 
-<p>Ends recording commands for the list. Has to be called after kinc_g5_command_list_begin and before kinc_g5_command_list_execute or kinc_g5_command_list_execute_and_wait. </p>
+<p>Ends recording commands for the list. Has to be called after kinc_g5_command_list_begin and before kinc_g5_command_list_execute. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">list</td><td></td></tr>
