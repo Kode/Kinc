@@ -84,8 +84,7 @@ KINC_FUNC void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list);
 KINC_FUNC void kinc_g5_command_list_begin(kinc_g5_command_list_t *list);
 
 /// <summary>
-/// Ends recording commands for the list. Has to be called after kinc_g5_command_list_begin and before kinc_g5_command_list_execute or
-/// kinc_g5_command_list_execute_and_wait.
+/// Ends recording commands for the list. Has to be called after kinc_g5_command_list_begin and before kinc_g5_command_list_execute.
 /// </summary>
 /// <param name="list"></param>
 /// <returns></returns>

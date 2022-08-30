@@ -175,7 +175,7 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {}
 
-void kinc_g5_command_list_execute_and_wait(kinc_g5_command_list_t *list) {}
+void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
                                                  kinc_g5_texture_addressing_t addressing) {}
