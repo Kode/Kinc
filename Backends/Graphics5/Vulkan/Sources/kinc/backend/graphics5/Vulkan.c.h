@@ -1010,7 +1010,6 @@ void kinc_g5_end(int window) {
 	present.pImageIndices = &vk_ctx.windows[vk_ctx.current_window].current_image;
 
 	VkResult err = vk.fpQueuePresentKHR(vk_ctx.queue, &present);
-	err = vkQueueWaitIdle(vk_ctx.queue);
 	assert(err == VK_SUCCESS);
 
 	reuse_descriptor_sets();
