@@ -506,11 +506,20 @@ int kinc_g5_max_bound_textures(void) {
 	return D3D12_COMMONSHADER_SAMPLER_SLOT_COUNT;
 }
 
+#ifndef KORE_WINDOWS
+extern "C" void kinc_internal_wait_for_frame();
+#endif
+
 static bool began = false;
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 	if (began) return;
 	began = true;
+
+	#ifndef KORE_WINDOWS
+	kinc_internal_wait_for_frame();
+	#endif
+
 	struct dx_window *window = &dx_ctx.windows[windowId];
 	dx_ctx.current_window = windowId;
 
