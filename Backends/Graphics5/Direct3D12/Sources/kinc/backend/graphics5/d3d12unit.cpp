@@ -41,7 +41,7 @@
 #define NOWINSTYLES
 #define WIN32_LEAN_AND_MEAN
 
-#ifdef _KORE_WINDOWS
+#ifdef KORE_WINDOWS
 #include <d3d12.h>
 #else
 #include <kinc/backend/d3d12_special_edition.h>
