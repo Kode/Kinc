@@ -416,7 +416,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 
 	HRESULT hr;
 #ifdef KORE_DXC
-	hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_PPV_ARGS(&pipe->impl.rootSignature));
+	hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
 	}
@@ -511,7 +511,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	psoDesc.SampleMask = 0xFFFFFFFF;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-	hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipe->impl.pso));
+	hr = device->CreateGraphicsPipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipe->impl.pso));
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}
@@ -549,7 +549,7 @@ void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline) {
 	psoDesc.pRootSignature = globalComputeRootSignature;
 #endif
 
-	hr = device->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(&pipeline->impl.pso));
+	hr = device->CreateComputePipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipeline->impl.pso));
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}

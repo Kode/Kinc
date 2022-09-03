@@ -32,11 +32,11 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descriptorHeapDesc.NodeMask = 0;
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&descriptorHeap));
 
 	// Device
-	device->QueryInterface(IID_PPV_ARGS(&dxrDevice));
-	command_list->impl._commandList->QueryInterface(IID_PPV_ARGS(&dxrCommandList));
+	device->QueryInterface(IID_GRAPHICS_PPV_ARGS(&dxrDevice));
+	command_list->impl._commandList->QueryInterface(IID_GRAPHICS_PPV_ARGS(&dxrCommandList));
 
 	// Root signatures
 	// This is a root signature that is shared across all raytracing shaders invoked during a DispatchRays() call.
@@ -67,7 +67,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	ID3DBlob *blob = NULL;
 	ID3DBlob *error = NULL;
 	D3D12SerializeRootSignature(&dxrRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, &error);
-	device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&dxrRootSignature));
+	device->CreateRootSignature(1, blob->GetBufferPointer(), blob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&dxrRootSignature));
 
 	// Pipeline
 	D3D12_STATE_OBJECT_DESC raytracingPipeline = {0};
@@ -112,15 +112,15 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 	raytracingPipeline.NumSubobjects = 5;
 	raytracingPipeline.pSubobjects = subobjects;
 
-	dxrDevice->CreateStateObject(&raytracingPipeline, IID_PPV_ARGS(&pipeline->impl.dxr_state));
+	dxrDevice->CreateStateObject(&raytracingPipeline, IID_GRAPHICS_PPV_ARGS(&pipeline->impl.dxr_state));
 
 	// Shader tables
 	// Get shader identifiers
 	ID3D12StateObjectProperties *stateObjectProps = NULL;
-	pipeline->impl.dxr_state->QueryInterface(IID_PPV_ARGS(&stateObjectProps));
-	void *rayGenShaderId = stateObjectProps->GetShaderIdentifier(raygen_shader_name);
-	void *missShaderId = stateObjectProps->GetShaderIdentifier(miss_shader_name);
-	void *hitGroupShaderId = stateObjectProps->GetShaderIdentifier(hit_group_name);
+	pipeline->impl.dxr_state->QueryInterface(IID_GRAPHICS_PPV_ARGS(&stateObjectProps));
+	const void *rayGenShaderId = stateObjectProps->GetShaderIdentifier(raygen_shader_name);
+	const void *missShaderId = stateObjectProps->GetShaderIdentifier(miss_shader_name);
+	const void *hitGroupShaderId = stateObjectProps->GetShaderIdentifier(hit_group_name);
 	UINT shaderIdSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
 	int align = D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
 
@@ -144,7 +144,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		uploadHeapProperties.VisibleNodeMask = 1;
 
 		device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-		                                IID_PPV_ARGS(&pipeline->impl.raygen_shader_table));
+		                                IID_GRAPHICS_PPV_ARGS(&pipeline->impl.raygen_shader_table));
 
 		D3D12_RANGE rstRange = {0};
 		rstRange.Begin = 0;
@@ -182,7 +182,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		uploadHeapProperties.VisibleNodeMask = 1;
 
 		device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-		                                IID_PPV_ARGS(&pipeline->impl.miss_shader_table));
+		                                IID_GRAPHICS_PPV_ARGS(&pipeline->impl.miss_shader_table));
 
 		D3D12_RANGE mstRange = {0};
 		mstRange.Begin = 0;
@@ -213,7 +213,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 		uploadHeapProperties.VisibleNodeMask = 1;
 
 		device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-		                                IID_PPV_ARGS(&pipeline->impl.hitgroup_shader_table));
+		                                IID_GRAPHICS_PPV_ARGS(&pipeline->impl.hitgroup_shader_table));
 
 		D3D12_RANGE hstRange = {0};
 		hstRange.Begin = 0;
@@ -287,7 +287,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		uploadHeapProperties.VisibleNodeMask = 1;
 
 		device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, NULL,
-		                                IID_PPV_ARGS(&scratchResource));
+		                                IID_GRAPHICS_PPV_ARGS(&scratchResource));
 	}
 
 	// Allocate resources for acceleration structures
@@ -311,7 +311,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		uploadHeapProperties.VisibleNodeMask = 1;
 
 		device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, NULL,
-		                                IID_PPV_ARGS(&accel->impl.bottom_level_accel));
+		                                IID_GRAPHICS_PPV_ARGS(&accel->impl.bottom_level_accel));
 	}
 	{
 		D3D12_RESOURCE_DESC bufferDesc = {};
@@ -331,7 +331,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 		uploadHeapProperties.VisibleNodeMask = 1;
 
 		device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, NULL,
-		                                IID_PPV_ARGS(&accel->impl.top_level_accel));
+		                                IID_GRAPHICS_PPV_ARGS(&accel->impl.top_level_accel));
 	}
 
 	// Create an instance desc for the bottom-level acceleration structure
@@ -357,7 +357,7 @@ void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_struct
 	uploadHeapProperties.VisibleNodeMask = 1;
 
 	device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-	                                IID_PPV_ARGS(&instanceDescs));
+	                                IID_GRAPHICS_PPV_ARGS(&instanceDescs));
 	void *mappedData;
 	instanceDescs->Map(0, NULL, &mappedData);
 	memcpy(mappedData, &instanceDesc, sizeof(instanceDesc));

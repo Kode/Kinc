@@ -42,7 +42,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-	                                IID_PPV_ARGS(&buffer->impl.uploadBuffer));
+	                                IID_GRAPHICS_PPV_ARGS(&buffer->impl.uploadBuffer));
 
 	// device_->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES (D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
 	// &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),

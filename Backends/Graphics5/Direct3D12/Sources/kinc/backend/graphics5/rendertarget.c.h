@@ -96,12 +96,12 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	texResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
 	HRESULT result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
-	                                                 IID_PPV_ARGS(&render_target->impl.renderTarget));
+	                                                 IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
 			result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
-			                                         IID_PPV_ARGS(&render_target->impl.renderTarget));
+			                                         IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
 			if (result == S_OK) {
 				break;
 			}
@@ -119,7 +119,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&render_target->impl.renderTargetDescriptorHeap));
+	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetDescriptorHeap));
 
 	device->CreateRenderTargetView(render_target->impl.renderTarget, &view,
 	                               render_target->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
@@ -131,7 +131,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&render_target->impl.srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {0};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -149,7 +149,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 		dsvHeapDesc.NumDescriptors = 1;
 		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&render_target->impl.depthStencilDescriptorHeap));
+		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilDescriptorHeap));
 
 		D3D12_RESOURCE_DESC depthTexture;
 		depthTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -177,12 +177,12 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 		heapProperties.VisibleNodeMask = 1;
 
 		HRESULT result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-		                                                 IID_PPV_ARGS(&render_target->impl.depthStencilTexture));
+		                                                 IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilTexture));
 		if (result != S_OK) {
 			for (int i = 0; i < 10; ++i) {
 				kinc_memory_emergency();
 				result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-				                                         IID_PPV_ARGS(&render_target->impl.depthStencilTexture));
+				                                         IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilTexture));
 				if (result == S_OK) {
 					break;
 				}
@@ -198,7 +198,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 		srvDepthHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		srvDepthHeapDesc.NodeMask = 0;
 		srvDepthHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&srvDepthHeapDesc, IID_PPV_ARGS(&render_target->impl.srvDepthDescriptorHeap));
+		device->CreateDescriptorHeap(&srvDepthHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDepthDescriptorHeap));
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDepthViewDesc = {0};
 		srvDepthViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;

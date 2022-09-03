@@ -174,7 +174,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {0};
 	desc.CS.BytecodeLength = shader->impl.length;
 	desc.CS.pShaderBytecode = shader->impl.data;
-	HRESULT hr = device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&shader->impl.pso));
+	HRESULT hr = device->CreateComputePipelineState(&desc, IID_GRAPHICS_PPV_ARGS(&shader->impl.pso));
 
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");

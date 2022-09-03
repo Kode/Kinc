@@ -28,12 +28,12 @@ void kinc_g5_command_list_init(struct kinc_g5_command_list *list) {
 	list->impl.open = false;
 #endif
 
-	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&list->impl._commandAllocator));
-	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->impl._commandAllocator, NULL, IID_PPV_ARGS(&list->impl._commandList));
+	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->impl._commandAllocator));
+	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->impl._commandAllocator, NULL, IID_GRAPHICS_PPV_ARGS(&list->impl._commandList));
 
 	list->impl.fence_value = 0;
 	list->impl.fence_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&list->impl.fence));
+	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&list->impl.fence));
 
 	list->impl._indexCount = 0;
 
@@ -355,7 +355,7 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_t
 
 	D3D12_RESOURCE_DESC Desc = texture->impl.image->GetDesc();
 	ID3D12Device *device;
-	texture->impl.image->GetDevice(IID_PPV_ARGS(&device));
+	texture->impl.image->GetDevice(IID_GRAPHICS_PPV_ARGS(&device));
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 	device->GetCopyableFootprints(&Desc, 0, 1, 0, &footprint, NULL, NULL, NULL);
 	device->Release();
@@ -423,7 +423,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 		device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-		                                IID_PPV_ARGS(&render_target->impl.renderTargetReadback));
+		                                IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetReadback));
 	}
 
 	// Copy render target to readback buffer

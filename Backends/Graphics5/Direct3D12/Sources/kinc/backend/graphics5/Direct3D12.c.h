@@ -78,8 +78,6 @@ extern "C" void createSwapChain(struct RenderEnvironment *env, const DXGI_SWAP_C
 void createSamplersAndHeaps();
 extern bool bilinearFiltering;
 
-static D3D12_VIEWPORT viewport;
-static D3D12_RECT rectScissor;
 // ID3D12Resource* renderTarget;
 // ID3D12DescriptorHeap* renderTargetDescriptorHeap;
 
@@ -135,7 +133,7 @@ extern "C" void setupSwapChain(struct dx_window *window) {
 	dsvHeapDesc.NumDescriptors = 1;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	kinc_microsoft_affirm(device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&window->depthStencilDescriptorHeap)));
+	kinc_microsoft_affirm(device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&window->depthStencilDescriptorHeap)));
 
 	D3D12_RESOURCE_DESC depthTexture = {};
 	depthTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -163,7 +161,7 @@ extern "C" void setupSwapChain(struct dx_window *window) {
 	heapProperties.VisibleNodeMask = 1;
 
 	kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-	                                                      IID_PPV_ARGS(&window->depthStencilTexture)));
+	                                                      IID_GRAPHICS_PPV_ARGS(&window->depthStencilTexture)));
 
 	device->CreateDepthStencilView(window->depthStencilTexture, NULL, window->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
@@ -172,7 +170,7 @@ extern "C" void setupSwapChain(struct dx_window *window) {
 	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
 		window->frame_fence_events[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
 		window->fence_values[i] = 0;
-		device->CreateFence(window->current_fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&window->frame_fences[i]));
+		device->CreateFence(window->current_fence_value, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&window->frame_fences[i]));
 	}
 
 	//**swapChain->GetBuffer(window->current_backbuffer, IID_GRAPHICS_PPV_ARGS(&renderTarget));
@@ -212,20 +210,6 @@ static void createDeviceAndSwapChain(struct dx_window *window) {
 	setupSwapChain(NULL);
 }
 #endif
-
-static void createViewportScissor(int width, int height) {
-	rectScissor.left = 0;
-	rectScissor.top = 0;
-	rectScissor.right = width;
-	rectScissor.bottom = height;
-
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-	viewport.Width = (float)width;
-	viewport.Height = (float)height;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-}
 
 static void createRootSignature() {
 	ID3DBlob *rootBlob;
@@ -305,7 +289,7 @@ static void createRootSignature() {
 	descRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
-	device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_PPV_ARGS(&globalRootSignature));
+	device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&globalRootSignature));
 
 	createSamplersAndHeaps();
 }
@@ -383,21 +367,20 @@ static void createComputeRootSignature() {
 	descRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
-	device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_PPV_ARGS(&globalComputeRootSignature));
+	device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&globalComputeRootSignature));
 
 	// createSamplersAndHeaps();
 }
 
 static void initialize(struct dx_window *window) {
 	createDeviceAndSwapChain(window);
-	createViewportScissor(window->width, window->height);
 	createRootSignature();
 	createComputeRootSignature();
 
-	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&uploadFence));
+	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&uploadFence));
 
-	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&initCommandAllocator));
-	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, IID_PPV_ARGS(&initCommandList));
+	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&initCommandAllocator));
+	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, initCommandAllocator, NULL, IID_GRAPHICS_PPV_ARGS(&initCommandList));
 
 	initCommandList->Close();
 
@@ -463,12 +446,12 @@ void kinc_g5_internal_destroy() {
 }
 
 void kinc_g5_internal_init() {
+#ifdef KORE_WINDOWS
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
 	D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
 	debugController->EnableDebugLayer();
 #endif
-#ifdef KORE_WINDOWS
 	D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
 
 	createRootSignature();

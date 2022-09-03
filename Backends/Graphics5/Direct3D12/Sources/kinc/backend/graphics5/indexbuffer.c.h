@@ -34,7 +34,7 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, kinc_g
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-	                                                      IID_PPV_ARGS(&buffer->impl.upload_buffer)));
+	                                                      IID_GRAPHICS_PPV_ARGS(&buffer->impl.upload_buffer)));
 
 	if (gpuMemory) {
 		D3D12_HEAP_PROPERTIES heapProperties;
@@ -45,7 +45,7 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, kinc_g
 		heapProperties.VisibleNodeMask = 1;
 
 		kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-		                                                      IID_PPV_ARGS(&buffer->impl.index_buffer)));
+		                                                      IID_GRAPHICS_PPV_ARGS(&buffer->impl.index_buffer)));
 
 		buffer->impl.index_buffer_view.BufferLocation = buffer->impl.index_buffer->GetGPUVirtualAddress();
 	}

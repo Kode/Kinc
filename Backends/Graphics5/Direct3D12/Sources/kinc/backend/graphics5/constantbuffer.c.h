@@ -30,7 +30,7 @@ void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-	                                                      IID_PPV_ARGS(&buffer->impl.constant_buffer)));
+	                                                      IID_GRAPHICS_PPV_ARGS(&buffer->impl.constant_buffer)));
 
 	void *p;
 	buffer->impl.constant_buffer->Map(0, NULL, &p);

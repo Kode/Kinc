@@ -142,7 +142,7 @@ static void createSampler(bool bilinear, D3D12_FILTER filter) {
 	descHeapSampler.NumDescriptors = 2;
 	descHeapSampler.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
 	descHeapSampler.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device->CreateDescriptorHeap(&descHeapSampler, IID_PPV_ARGS(bilinear ? &samplerDescriptorHeapBilinear : &samplerDescriptorHeapPoint));
+	device->CreateDescriptorHeap(&descHeapSampler, IID_GRAPHICS_PPV_ARGS(bilinear ? &samplerDescriptorHeapBilinear : &samplerDescriptorHeapPoint));
 
 	D3D12_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D12_SAMPLER_DESC));
@@ -166,13 +166,13 @@ void createSamplersAndHeaps() {
 	heapDesc.NumDescriptors = heapSize;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&srvHeap));
+	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&srvHeap));
 
 	D3D12_DESCRIPTOR_HEAP_DESC samplerHeapDesc = {};
 	samplerHeapDesc.NumDescriptors = heapSize;
 	samplerHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
 	samplerHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	device->CreateDescriptorHeap(&samplerHeapDesc, IID_PPV_ARGS(&samplerHeap));
+	device->CreateDescriptorHeap(&samplerHeapDesc, IID_GRAPHICS_PPV_ARGS(&samplerHeap));
 }
 
 extern "C" void kinc_memory_emergency();
@@ -208,12 +208,12 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	resourceDescTex.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	HRESULT result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-	                                                 IID_PPV_ARGS(&texture->impl.image));
+	                                                 IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
 			result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-			                                         IID_PPV_ARGS(&texture->impl.image));
+			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 			if (result == S_OK) {
 				break;
 			}
@@ -242,12 +242,12 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	resourceDescBuffer.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	result = device->CreateCommittedResource(&heapPropertiesUpload, D3D12_HEAP_FLAG_NONE, &resourceDescBuffer, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-	                                         IID_PPV_ARGS(&texture->impl.uploadImage));
+	                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
 			result = device->CreateCommittedResource(&heapPropertiesUpload, D3D12_HEAP_FLAG_NONE, &resourceDescBuffer, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-			                                         IID_PPV_ARGS(&texture->impl.uploadImage));
+			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 			if (result == S_OK) {
 				break;
 			}
@@ -274,7 +274,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&texture->impl.srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&texture->impl.srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {0};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -318,12 +318,12 @@ void create_texture(struct kinc_g5_texture *texture, int width, int height, kinc
 	resourceDescTex.Flags = flags;
 
 	HRESULT result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-	                                                 IID_PPV_ARGS(&texture->impl.image));
+	                                                 IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
 			result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-			                                         IID_PPV_ARGS(&texture->impl.image));
+			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 			if (result == S_OK) {
 				break;
 			}
@@ -352,12 +352,12 @@ void create_texture(struct kinc_g5_texture *texture, int width, int height, kinc
 	resourceDescBuffer.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	result = device->CreateCommittedResource(&heapPropertiesUpload, D3D12_HEAP_FLAG_NONE, &resourceDescBuffer, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-	                                         IID_PPV_ARGS(&texture->impl.uploadImage));
+	                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
 			result = device->CreateCommittedResource(&heapPropertiesUpload, D3D12_HEAP_FLAG_NONE, &resourceDescBuffer, D3D12_RESOURCE_STATE_GENERIC_READ, NULL,
-			                                         IID_PPV_ARGS(&texture->impl.uploadImage));
+			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.uploadImage));
 			if (result == S_OK) {
 				break;
 			}
@@ -376,7 +376,7 @@ void create_texture(struct kinc_g5_texture *texture, int width, int height, kinc
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&texture->impl.srvDescriptorHeap));
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&texture->impl.srvDescriptorHeap));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
