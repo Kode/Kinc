@@ -38,12 +38,14 @@ ID3D12DescriptorHeap* cbvHeap;*/
 
 // ID3D12GraphicsCommandList* commandList;
 
+extern "C" {
 ID3D12CommandQueue *commandQueue;
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
 #else
 // IDXGISwapChain *swapChain;
 #endif
+}
 
 // int window->width;
 // int window->height;
@@ -67,9 +69,9 @@ struct RenderEnvironment {
 
 #ifndef KORE_WINDOWS
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-void createSwapChain(struct RenderEnvironment *env, int bufferCount);
+extern "C" void createSwapChain(struct RenderEnvironment *env, int bufferCount);
 #else
-void createSwapChain(struct RenderEnvironment *env, const DXGI_SWAP_CHAIN_DESC1 *desc);
+extern "C" void createSwapChain(struct RenderEnvironment *env, const DXGI_SWAP_CHAIN_DESC1 *desc);
 #endif
 #endif
 
@@ -89,7 +91,7 @@ static ID3D12Fence *uploadFence;
 static ID3D12GraphicsCommandList *initCommandList;
 static ID3D12CommandAllocator *initCommandAllocator;
 
-struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_LEVEL minimumFeatureLevel, const struct DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
+extern "C" struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_LEVEL minimumFeatureLevel, const struct DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
 	struct RenderEnvironment result = {0};
 #ifdef KORE_WINDOWS
 	kinc_microsoft_affirm(D3D12CreateDevice(NULL, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
@@ -122,7 +124,7 @@ static void waitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE wait
 	}
 }
 
-void setupSwapChain(struct dx_window *window) {
+extern "C" void setupSwapChain(struct dx_window *window) {
 	/*D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -178,7 +180,7 @@ void setupSwapChain(struct dx_window *window) {
 }
 
 #ifdef KORE_CONSOLE
-void createDeviceAndSwapChain(struct dx_window *window);
+extern "C" void createDeviceAndSwapChain(struct dx_window *window);
 #else
 static void createDeviceAndSwapChain(struct dx_window *window) {
 #ifdef _DEBUG

@@ -56,7 +56,9 @@ struct DXGI_SWAP_CHAIN_DESC1;
 
 #define textureCount 16
 
+extern "C" {
 ID3D12Device *device = NULL;
+}
 static ID3D12RootSignature *globalRootSignature = NULL;
 static ID3D12RootSignature *globalComputeRootSignature = NULL;
 // extern ID3D12GraphicsCommandList* commandList;

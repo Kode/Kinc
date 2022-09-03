@@ -156,12 +156,10 @@ void kinc_g5_command_list_set_vertex_constant_buffer(struct kinc_g5_command_list
 #ifdef KORE_DXC
 	if (list->impl._currentPipeline->impl.vertexConstantsSize > 0) {
 		if (list->impl._currentPipeline->impl.textures > 0) {
-			list->impl._commandList->lpVtbl->SetGraphicsRootConstantBufferView(
-			    list->impl._commandList, 2, buffer->impl.constant_buffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.constant_buffer) + offset);
+			list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
 		}
 		else {
-			list->impl._commandList->lpVtbl->SetGraphicsRootConstantBufferView(
-			    list->impl._commandList, 0, buffer->impl.constant_buffer->lpVtbl->GetGPUVirtualAddress(buffer->impl.constant_buffer) + offset);
+			list->impl._commandList->SetGraphicsRootConstantBufferView(0, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
 		}
 	}
 #else
@@ -390,7 +388,7 @@ static int d3d12_textureAlignment() {
 	return D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
 }
 #else
-int d3d12_textureAlignment();
+extern "C" int d3d12_textureAlignment();
 #endif
 
 void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {
