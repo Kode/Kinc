@@ -5,6 +5,7 @@
 #include <kinc/window.h>
 
 #include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/rendertarget.h>
 
 #import <Metal/Metal.h>
 #import <MetalKit/MTKView.h>
@@ -24,6 +25,8 @@ id<MTLRenderCommandEncoder> commandEncoder;
 id<MTLTexture> depthTexture;
 int depthBits;
 int stencilBits;
+
+static kinc_g5_render_target_t fallback_render_target;
 
 id getMetalEncoder(void) {
 	return commandEncoder;
@@ -47,6 +50,7 @@ void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBu
 	depthBits = depthBufferBits;
 	stencilBits = stencilBufferBits;
 	kinc_internal_init_samplers();
+	kinc_g5_render_target_init(&fallback_render_target, 32, 32, 0, false, KINC_G5_RENDER_TARGET_FORMAT_32BIT, 0, 0);
 }
 
 void kinc_g5_flush() {}
@@ -97,6 +101,11 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
 	renderPassDescriptor.stencilAttachment.texture = depthTexture;
 
+	if (commandBuffer != nil && commandEncoder != nil) {
+		[commandEncoder endEncoding];
+		[commandBuffer commit];
+	}
+	
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
@@ -110,6 +119,7 @@ bool kinc_g5_swap_buffers() {
 		[commandBuffer presentDrawable:drawable];
 		[commandBuffer commit];
 	}
+	drawable = nil;
 	commandBuffer = nil;
 	commandEncoder = nil;
 
@@ -134,15 +144,27 @@ bool kinc_window_vsynced(int window) {
 
 void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, int count, bool wait, unsigned clear_flags, unsigned color, float depth,
                                       int stencil) {
-	[commandEncoder endEncoding];
-	[commandBuffer commit];
-	if (wait) {
-		[commandBuffer waitUntilCompleted];
+	if (commandBuffer != nil && commandEncoder != nil) {
+		[commandEncoder endEncoding];
+		[commandBuffer commit];
+		if (wait) {
+			[commandBuffer waitUntilCompleted];
+		}
 	}
 
 	MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 	for (int i = 0; i < count; ++i) {
-		renderPassDescriptor.colorAttachments[i].texture = renderTargets == NULL ? drawable.texture : (__bridge id<MTLTexture>)renderTargets[i]->impl._tex;
+		if (renderTargets == NULL) {
+			if (drawable == nil) {
+				renderPassDescriptor.colorAttachments[i].texture = (__bridge id<MTLTexture>)fallback_render_target.impl._tex;
+			}
+			else {
+				renderPassDescriptor.colorAttachments[i].texture = drawable.texture;
+			}
+		}
+		else {
+			renderPassDescriptor.colorAttachments[i].texture = (__bridge id<MTLTexture>)renderTargets[i]->impl._tex;
+		}
 		if (clear_flags & KINC_G5_CLEAR_COLOR) {
 			float red, green, blue, alpha;
 			kinc_color_components(color, &red, &green, &blue, &alpha);
@@ -180,7 +202,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
 	}
 	renderPassDescriptor.stencilAttachment.texture = renderTargets == NULL ? depthTexture : (__bridge id<MTLTexture>)renderTargets[0]->impl._depthTex;
-
+	
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
