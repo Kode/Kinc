@@ -58,13 +58,14 @@ static DXGI_FORMAT convertFormat(kinc_g5_render_target_format_t format) {
 
 extern "C" void kinc_memory_emergency();
 
-void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int width, int height, int depthBufferBits, bool antialiasing,
-                                kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+static void render_target_init(kinc_g5_render_target_t *render_target, int width, int height, kinc_g5_render_target_format_t format, int depthBufferBits,
+                               int stencilBufferBits, int samples_per_pixel, int framebuffer_index) {
 	render_target->texWidth = render_target->width = width;
 	render_target->texHeight = render_target->height = height;
 	render_target->impl.stage = 0;
 	render_target->impl.stage_depth = -1;
 	render_target->impl.renderTargetReadback = NULL;
+	render_target->impl.framebuffer_index = framebuffer_index;
 
 	DXGI_FORMAT dxgiFormat = convertFormat(format);
 
@@ -144,7 +145,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	device->CreateShaderResourceView(render_target->impl.renderTarget, &shaderResourceViewDesc,
 	                                 render_target->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-	if (depthBufferBits > 0 && contextId >= 0) {
+	if (depthBufferBits > 0 && framebuffer_index < 0) {
 		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 		dsvHeapDesc.NumDescriptors = 1;
 		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
@@ -228,27 +229,45 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *render_target, int widt
 	render_target->impl.viewport.MinDepth = 0.0f;
 	render_target->impl.viewport.MaxDepth = 1.0f;
 
-	if (contextId < 0) { // encoded backbuffer index
+	if (framebuffer_index >= 0) {
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 		render_target->impl.renderTarget = swapChainRenderTargets[-contextId - 1];
 #else
 		IDXGISwapChain *swapChain = kinc_dx_current_window()->swapChain;
-		swapChain->GetBuffer(-contextId - 1, IID_PPV_ARGS(&render_target->impl.renderTarget));
+		swapChain->GetBuffer(framebuffer_index, IID_PPV_ARGS(&render_target->impl.renderTarget));
 		wchar_t *buffer = (wchar_t *)malloc(128);
-		wsprintf(buffer, L"Backbuffer, contextId: %i", contextId);
+		wsprintf(buffer, L"Backbuffer (index %i)", framebuffer_index);
 		render_target->impl.renderTarget->SetName(buffer);
 #endif
 		createRenderTargetView(render_target->impl.renderTarget, render_target->impl.renderTargetDescriptorHeap, dxgiFormat);
 	}
 }
 
-void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *render_target, int cubeMapSize, int depthBufferBits, bool antialiasing,
-                                     kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+void kinc_g5_render_target_init_with_multisampling(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format,
+                                                   int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
+	render_target_init(target, width, height, format, depthBufferBits, stencilBufferBits, samples_per_pixel, -1);
+}
+
+static int framebuffer_index = 0;
+
+void kinc_g5_render_target_init_framebuffer_with_multisampling(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format,
+                                                               int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
+	render_target_init(target, width, height, format, depthBufferBits, stencilBufferBits, samples_per_pixel, framebuffer_index);
+	framebuffer_index += 1;
+}
+
+void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t *render_target, int cubeMapSize, kinc_g5_render_target_format_t format,
+                                                        int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
 	render_target->impl.stage = 0;
 	render_target->impl.stage_depth = -1;
 }
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
+	if (render_target->impl.framebuffer_index >= 0) {
+		framebuffer_index -= 1;
+		return;
+	}
+
 	if (currentRenderTargets[render_target->impl.stage] == render_target) {
 		currentRenderTargets[render_target->impl.stage] = NULL;
 	}

@@ -71,8 +71,8 @@ void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBu
 	kinc_g5_command_list_init(&commandList);
 	windows[window].currentBuffer = -1;
 	for (int i = 0; i < bufferCount; ++i) {
-		kinc_g5_render_target_init(&windows[window].framebuffers[i], kinc_window_width(window), kinc_window_height(window), depthBufferBits, false,
-		                           KINC_G5_RENDER_TARGET_FORMAT_32BIT, -1, -i - 1 /* hack in an index for backbuffer render targets */);
+		kinc_g5_render_target_init_framebuffer(&windows[window].framebuffers[i], kinc_window_width(window), kinc_window_height(window),
+		                                       KINC_G5_RENDER_TARGET_FORMAT_32BIT, depthBufferBits, 0);
 	}
 	kinc_g5_constant_buffer_init(&vertexConstantBuffer, constantBufferSize * constantBufferMultiply);
 	kinc_g5_constant_buffer_init(&fragmentConstantBuffer, constantBufferSize * constantBufferMultiply);
@@ -180,8 +180,11 @@ void kinc_g4_begin(int window) {
 
 	if (resized) {
 		for (int i = 0; i < bufferCount; ++i) {
-			kinc_g5_render_target_init(&windows[current_window].framebuffers[i], kinc_window_width(window), kinc_window_height(window), 32, false,
-			                           KINC_G5_RENDER_TARGET_FORMAT_32BIT, -1, -i - 1 /* hack in an index for backbuffer render targets */);
+			kinc_g5_render_target_destroy(&windows[current_window].framebuffers[i]);
+		}
+		for (int i = 0; i < bufferCount; ++i) {
+			kinc_g5_render_target_init_framebuffer(&windows[current_window].framebuffers[i], kinc_window_width(window), kinc_window_height(window),
+			                                       KINC_G5_RENDER_TARGET_FORMAT_32BIT, 16, 0);
 		}
 		windows[window].resized = false;
 	}

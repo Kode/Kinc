@@ -6,19 +6,19 @@
 
 extern kinc_g5_command_list_t commandList;
 
-void kinc_g4_render_target_init(kinc_g4_render_target_t *render_target, int width, int height, int depthBufferBits, bool antialiasing,
-                                kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
-	kinc_g5_render_target_init(&render_target->impl._renderTarget, width, height, depthBufferBits, antialiasing, (kinc_g5_render_target_format_t)format,
-	                           stencilBufferBits, contextId);
+void kinc_g4_render_target_init_with_multisampling(kinc_g4_render_target_t *render_target, int width, int height, kinc_g4_render_target_format_t format,
+                                                   int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
+	kinc_g5_render_target_init_with_multisampling(&render_target->impl._renderTarget, width, height, (kinc_g5_render_target_format_t)format, depthBufferBits,
+	                                              stencilBufferBits, samples_per_pixel);
 	render_target->texWidth = render_target->width = width;
 	render_target->texHeight = render_target->height = height;
 	render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_RENDER_TARGET;
 }
 
-void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *render_target, int cubeMapSize, int depthBufferBits, bool antialiasing,
-                                     kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
-	kinc_g5_render_target_init_cube(&render_target->impl._renderTarget, cubeMapSize, depthBufferBits, antialiasing, (kinc_g5_render_target_format_t)format,
-	                                stencilBufferBits, contextId);
+void kinc_g4_render_target_init_cube_with_multisampling(kinc_g4_render_target_t *render_target, int cubeMapSize, kinc_g4_render_target_format_t format,
+                                                        int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
+	kinc_g5_render_target_init_cube_with_multisampling(&render_target->impl._renderTarget, cubeMapSize, (kinc_g5_render_target_format_t)format, depthBufferBits,
+	                                                   stencilBufferBits, samples_per_pixel);
 }
 
 void kinc_g4_render_target_destroy(kinc_g4_render_target_t *render_target) {

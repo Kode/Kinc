@@ -20,6 +20,7 @@ typedef struct {
 	struct D3D12Rect scissor;
 	int stage;
 	int stage_depth;
+	int framebuffer_index;
 } RenderTarget5Impl;
 
 #ifdef __cplusplus
