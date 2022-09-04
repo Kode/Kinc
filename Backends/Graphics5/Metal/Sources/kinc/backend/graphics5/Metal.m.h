@@ -69,8 +69,6 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	CAMetalLayer *metalLayer = getMetalLayer();
 	drawable = [metalLayer nextDrawable];
 
-	kinc_internal_metal_has_depth = renderTarget->impl._depthTex != nil;
-
 	if (depthBits > 0 && (depthTexture == nil || depthTexture.width != drawable.texture.width || depthTexture.height != drawable.texture.height)) {
 		MTLTextureDescriptor *descriptor = [MTLTextureDescriptor new];
 		descriptor.textureType = MTLTextureType2D;
@@ -84,6 +82,10 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 		descriptor.usage = MTLTextureUsageRenderTarget;
 		id<MTLDevice> device = getMetalDevice();
 		depthTexture = [device newTextureWithDescriptor:descriptor];
+		kinc_internal_metal_has_depth = true;
+	}
+	else {
+		kinc_internal_metal_has_depth = false;
 	}
 
 	id<MTLTexture> texture = drawable.texture;
@@ -157,13 +159,22 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 		if (renderTargets == NULL) {
 			if (drawable == nil) {
 				renderPassDescriptor.colorAttachments[i].texture = (__bridge id<MTLTexture>)fallback_render_target.impl._tex;
+				renderPassDescriptor.depthAttachment.texture = nil;
+				renderPassDescriptor.stencilAttachment.texture = nil;
+				kinc_internal_metal_has_depth = false;
 			}
 			else {
 				renderPassDescriptor.colorAttachments[i].texture = drawable.texture;
+				renderPassDescriptor.depthAttachment.texture = depthTexture;
+				renderPassDescriptor.stencilAttachment.texture = depthTexture;
+				kinc_internal_metal_has_depth = depthTexture != nil;
 			}
 		}
 		else {
 			renderPassDescriptor.colorAttachments[i].texture = (__bridge id<MTLTexture>)renderTargets[i]->impl._tex;
+			renderPassDescriptor.depthAttachment.texture = (__bridge id<MTLTexture>)renderTargets[0]->impl._depthTex;
+			renderPassDescriptor.stencilAttachment.texture = (__bridge id<MTLTexture>)renderTargets[0]->impl._depthTex;
+			kinc_internal_metal_has_depth = renderTargets[0]->impl._depthTex != nil;
 		}
 		if (clear_flags & KINC_G5_CLEAR_COLOR) {
 			float red, green, blue, alpha;
@@ -189,8 +200,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
 		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
 	}
-	renderPassDescriptor.depthAttachment.texture = renderTargets == NULL ? depthTexture : (__bridge id<MTLTexture>)renderTargets[0]->impl._depthTex;
-
+	
 	if (clear_flags & KINC_G5_CLEAR_STENCIL) {
 		renderPassDescriptor.stencilAttachment.clearStencil = stencil;
 		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionClear;
@@ -201,8 +211,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
 		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
 	}
-	renderPassDescriptor.stencilAttachment.texture = renderTargets == NULL ? depthTexture : (__bridge id<MTLTexture>)renderTargets[0]->impl._depthTex;
-	
+		
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];

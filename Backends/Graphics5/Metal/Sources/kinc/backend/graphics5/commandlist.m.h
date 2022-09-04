@@ -160,8 +160,6 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 extern bool kinc_internal_metal_has_depth;
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
-	kinc_internal_metal_has_depth = targets[0]->impl._depthTex != nil;
-
 	if (targets[0]->contextId < 0) {
 		for (int i = 0; i < 8; ++i) lastRenderTargets[i] = NULL;
 		kinc_g5_internal_new_render_pass(NULL, 1, false, 0, 0, 0.0f, 0);
