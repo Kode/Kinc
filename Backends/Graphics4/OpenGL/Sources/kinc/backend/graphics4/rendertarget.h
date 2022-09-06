@@ -12,7 +12,6 @@ typedef struct {
 	unsigned _depthTexture;
 	bool _hasDepth;
 	// unsigned _depthRenderbuffer;
-	int contextId;
 	int format;
 } kinc_g4_render_target_impl_t;
 

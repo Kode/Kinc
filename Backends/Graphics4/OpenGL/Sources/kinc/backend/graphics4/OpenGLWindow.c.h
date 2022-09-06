@@ -106,7 +106,7 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 		wglShareLists(Kinc_Internal_windows[0].glContext, Kinc_Internal_windows[window].glContext);
 		wglMakeCurrent(Kinc_Internal_windows[0].deviceContext, Kinc_Internal_windows[0].glContext);
 		kinc_g4_render_target_init(&Kinc_Internal_windows[window].renderTarget, kinc_windows_manual_width(window), kinc_windows_manual_height(window),
-		                           depthBufferBits, false, KINC_G4_RENDER_TARGET_FORMAT_32BIT, -1, 0);
+		                           KINC_G4_RENDER_TARGET_FORMAT_32BIT, depthBufferBits, 0);
 		if (!initialized) {
 			wglMakeCurrent(Kinc_Internal_windows[window].deviceContext, Kinc_Internal_windows[window].glContext);
 			kinc_g4_vertex_structure_t structure;
@@ -204,8 +204,8 @@ void Kinc_Internal_blitWindowContent(int window) {
 void Kinc_Internal_resizeWindowRenderTarget(int window, int width, int height) {
 	if (window != 0) {
 		kinc_g4_render_target_destroy(&Kinc_Internal_windows[window].renderTarget);
-		kinc_g4_render_target_init(&Kinc_Internal_windows[window].renderTarget, width, height, Kinc_Internal_windows[window].depthBufferBits, false,
-		                           KINC_G4_RENDER_TARGET_FORMAT_32BIT, -1, 0);
+		kinc_g4_render_target_init(&Kinc_Internal_windows[window].renderTarget, width, height, KINC_G4_RENDER_TARGET_FORMAT_32BIT,
+		                           Kinc_Internal_windows[window].depthBufferBits, 0);
 	}
 }
 
