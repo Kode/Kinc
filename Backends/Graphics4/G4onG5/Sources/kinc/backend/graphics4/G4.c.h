@@ -180,9 +180,6 @@ void kinc_g4_begin(int window) {
 
 	if (resized) {
 		for (int i = 0; i < bufferCount; ++i) {
-			kinc_g5_render_target_destroy(&windows[current_window].framebuffers[i]);
-		}
-		for (int i = 0; i < bufferCount; ++i) {
 			kinc_g5_render_target_init_framebuffer(&windows[current_window].framebuffers[i], kinc_window_width(window), kinc_window_height(window),
 			                                       KINC_G5_RENDER_TARGET_FORMAT_32BIT, 16, 0);
 		}

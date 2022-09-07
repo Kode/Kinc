@@ -231,11 +231,11 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 
 	if (framebuffer_index >= 0) {
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-		render_target->impl.renderTarget = swapChainRenderTargets[-contextId - 1];
+		render_target->impl.renderTarget = swapChainRenderTargets[framebuffer_index];
 #else
 		IDXGISwapChain *swapChain = kinc_dx_current_window()->swapChain;
 		swapChain->GetBuffer(framebuffer_index, IID_PPV_ARGS(&render_target->impl.renderTarget));
-		wchar_t *buffer = (wchar_t *)malloc(128);
+		wchar_t buffer[128];
 		wsprintf(buffer, L"Backbuffer (index %i)", framebuffer_index);
 		render_target->impl.renderTarget->SetName(buffer);
 #endif
@@ -248,12 +248,12 @@ void kinc_g5_render_target_init_with_multisampling(kinc_g5_render_target_t *targ
 	render_target_init(target, width, height, format, depthBufferBits, stencilBufferBits, samples_per_pixel, -1);
 }
 
-static int framebuffer_index = 0;
+static int framebuffer_count = 0;
 
 void kinc_g5_render_target_init_framebuffer_with_multisampling(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format,
                                                                int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
-	render_target_init(target, width, height, format, depthBufferBits, stencilBufferBits, samples_per_pixel, framebuffer_index);
-	framebuffer_index += 1;
+	render_target_init(target, width, height, format, depthBufferBits, stencilBufferBits, samples_per_pixel, framebuffer_count);
+	framebuffer_count += 1;
 }
 
 void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t *render_target, int cubeMapSize, kinc_g5_render_target_format_t format,
@@ -264,7 +264,7 @@ void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t 
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
 	if (render_target->impl.framebuffer_index >= 0) {
-		framebuffer_index -= 1;
+		framebuffer_count -= 1;
 		return;
 	}
 
