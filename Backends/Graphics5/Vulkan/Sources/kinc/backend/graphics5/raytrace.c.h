@@ -753,7 +753,7 @@ void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_tar
 	copy_region.extent.height = (uint32_t)output->texHeight;
 	copy_region.extent.depth = 1;
 
-	if (target->contextId < 0) {
+	if (target->framebuffer_index >= 0) {
 		vkCmdCopyImage(command_list->impl._buffer, output->impl.texture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 		               vk_ctx.windows[vk_ctx.current_window].images[vk_ctx.windows[vk_ctx.current_window].current_image], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 		               1, &copy_region);

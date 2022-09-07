@@ -30,7 +30,7 @@ static void set_barriers(kinc_g5_command_list_t *list);
 
 static void endPass(kinc_g5_command_list_t *list) {
 	vkCmdEndRenderPass(list->impl._buffer);
-	if (currentRenderTargets[0] != NULL && currentRenderTargets[0]->contextId >= 0) {
+	if (currentRenderTargets[0] != NULL && currentRenderTargets[0]->framebuffer_index < 0) {
 		int i = 0;
 		while (currentRenderTargets[i] != NULL) {
 			kinc_g5_command_list_render_target_to_texture_barrier(list, currentRenderTargets[i]);
@@ -195,7 +195,7 @@ void set_viewport_and_scissor(kinc_g5_command_list_t *list) {
 	VkRect2D scissor;
 	memset(&scissor, 0, sizeof(scissor));
 
-	if (currentRenderTargets[0] == NULL || currentRenderTargets[0]->contextId < 0) {
+	if (currentRenderTargets[0] == NULL || currentRenderTargets[0]->framebuffer_index >= 0) {
 		viewport.x = 0;
 		viewport.y = (float)kinc_window_height(vk_ctx.current_window);
 		viewport.width = (float)kinc_window_width(vk_ctx.current_window);
@@ -425,7 +425,7 @@ void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, in
 void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {
 	VkRect2D scissor;
 	memset(&scissor, 0, sizeof(scissor));
-	if (currentRenderTargets[0] == NULL || currentRenderTargets[0]->contextId < 0) {
+	if (currentRenderTargets[0] == NULL || currentRenderTargets[0]->framebuffer_index >= 0) {
 		scissor.extent.width = kinc_window_width(vk_ctx.current_window);
 		scissor.extent.height = kinc_window_height(vk_ctx.current_window);
 	}
@@ -532,7 +532,7 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 }
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
-	if (targets[0]->contextId < 0) {
+	if (targets[0]->framebuffer_index >= 0) {
 		kinc_internal_restore_render_target(list, targets[0]);
 		return;
 	}

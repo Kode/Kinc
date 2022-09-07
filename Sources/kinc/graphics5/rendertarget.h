@@ -29,7 +29,7 @@ typedef struct kinc_g5_render_target {
 	int height;
 	int texWidth;
 	int texHeight;
-	int contextId;
+	int framebuffer_index;
 	bool isCubeMap;
 	bool isDepthAttachment;
 	RenderTarget5Impl impl;

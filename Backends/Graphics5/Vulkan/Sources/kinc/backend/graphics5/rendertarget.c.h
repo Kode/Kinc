@@ -82,11 +82,11 @@ void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags a
 	vkCmdPipelineBarrier(_buffer, srcStageFlags, dstStageFlags, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
 }
 
-void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
-                                kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+static void render_target_init(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format, int depthBufferBits,
+                               int stencilBufferBits, int samples_per_pixel, int framebuffer_index) {
 	target->width = width;
 	target->height = height;
-	target->contextId = contextId;
+	target->framebuffer_index = framebuffer_index;
 	target->texWidth = width;
 	target->texHeight = height;
 	target->impl.format = convert_format(format);
@@ -116,7 +116,7 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	VkResult err = vkCreateSampler(vk_ctx.device, &samplerInfo, NULL, &target->impl.sampler);
 	assert(!err);
 
-	if (contextId >= 0) {
+	if (framebuffer_index < 0) {
 		{
 			VkFormatProperties formatProperties;
 			VkResult err;
@@ -260,8 +260,8 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 		VkFramebufferCreateInfo fbufCreateInfo = {0};
 		fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		fbufCreateInfo.pNext = NULL;
-		fbufCreateInfo.renderPass =
-		    contextId >= 0 ? vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass : vk_ctx.windows[vk_ctx.current_window].framebuffer_render_pass;
+		fbufCreateInfo.renderPass = framebuffer_index < 0 ? vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass
+		                                                  : vk_ctx.windows[vk_ctx.current_window].framebuffer_render_pass;
 		fbufCreateInfo.attachmentCount = depthBufferBits > 0 ? 2 : 1;
 		fbufCreateInfo.pAttachments = attachments;
 		fbufCreateInfo.width = width;
@@ -273,10 +273,27 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	}
 }
 
-void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing,
-                                     kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {}
+void kinc_g5_render_target_init_with_multisampling(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format,
+                                                   int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
+	render_target_init(target, width, height, format, depthBufferBits, stencilBufferBits, samples_per_pixel, -1);
+}
 
-void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {}
+int framebuffer_count = 0;
+
+void kinc_g5_render_target_init_framebuffer_with_multisampling(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format,
+                                                               int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
+	render_target_init(target, width, height, format, depthBufferBits, stencilBufferBits, samples_per_pixel, framebuffer_count);
+	framebuffer_count += 1;
+}
+
+void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t *target, int cubeMapSize, kinc_g5_render_target_format_t format,
+                                                        int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {}
+
+void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {
+	if (target->framebuffer_index >= 0) {
+		framebuffer_count -= 1;
+	}
+}
 
 void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit) {
 	target->impl.stage = unit.impl.binding - 2;
