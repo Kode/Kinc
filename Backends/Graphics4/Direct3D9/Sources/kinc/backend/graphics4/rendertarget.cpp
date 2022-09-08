@@ -5,8 +5,8 @@
 
 #include "Direct3D9.h"
 
-void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width, int height, int depthBufferBits, bool antialiasing,
-                                kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
+void kinc_g4_render_target_init_with_multisampling(kinc_g4_render_target_t *renderTarget, int width, int height, kinc_g4_render_target_format_t format,
+                                                   int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
 	renderTarget->width = width;
 	renderTarget->height = height;
 	renderTarget->texWidth = width;
@@ -14,8 +14,8 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 	renderTarget->isCubeMap = false;
 	renderTarget->isDepthAttachment = false;
 
+	const bool antialiasing = samples_per_pixel > 1;
 	renderTarget->impl.antialiasing = antialiasing;
-	renderTarget->contextId = contextId;
 
 	D3DFORMAT d3dformat;
 	switch (format) {
@@ -69,8 +69,8 @@ void kinc_g4_render_target_init(kinc_g4_render_target_t *renderTarget, int width
 	}
 }
 
-void kinc_g4_render_target_init_cube(kinc_g4_render_target_t *renderTarget, int cubeMapSize, int depthBufferBits, bool antialiasing,
-                                     kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
+void kinc_g4_render_target_init_cube_with_multisampling(kinc_g4_render_target_t *renderTarget, int cubeMapSize, kinc_g4_render_target_format_t format,
+                                                        int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
 	renderTarget->isCubeMap = true;
 	renderTarget->isDepthAttachment = false;
 }
