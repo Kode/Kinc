@@ -1,3 +1,4 @@
+* 2022-09-08: The init-functions for render-targets have been changed - it should be apparent from the function-signatures what has to be done, they are simply less silly now.
 * 2022-08-15: The C-replacement-functions (memory.h, string.h and some functions in math/core.h) are being removed in favor of some code that directly replaces the parts of the C-library that are used by Kinc.
 * 2022-07-30: The html5-target has been renamed to emscripten.
 * 2022-07-23: Kinc and Kore have been split up into separate repositories. If you are using the Kinc-API and your repo points to https://github.com/Kode/Kinc or you are using the Kore-API and your repo points to https://github.com/Kode/Kore, things should just continue to work though. Otherwise, just change that, git fetch the changes and git reset to the latest commit on main.
