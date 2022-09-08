@@ -26,14 +26,14 @@ static MTLPixelFormat convert_format(kinc_g5_render_target_format_t format) {
 	}
 }
 
-void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int height, int depthBufferBits, bool antialiasing,
-                                kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+static void render_target_init(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format,
+							   int depthBufferBits, int stencilBufferBits, int samples_per_pixel, int framebuffer_index) {
 	memset(target, 0, sizeof(kinc_g5_render_target_t));
 
 	target->texWidth = width;
 	target->texHeight = height;
 
-	target->contextId = contextId;
+	target->framebuffer_index = framebuffer_index;
 
 	id<MTLDevice> device = getMetalDevice();
 
@@ -68,8 +68,22 @@ void kinc_g5_render_target_init(kinc_g5_render_target_t *target, int width, int 
 	target->impl._texReadback = NULL;
 }
 
-void kinc_g5_render_target_init_cube(kinc_g5_render_target_t *target, int cubeMapSize, int depthBufferBits, bool antialiasing,
-                                     kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId) {
+void kinc_g5_render_target_init_with_multisampling(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format,
+												   int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
+	render_target_init(target, width, height, format, depthBufferBits, stencilBufferBits, samples_per_pixel, -1);
+}
+
+static int framebuffer_count = 0;
+
+void kinc_g5_render_target_init_framebuffer_with_multisampling(kinc_g5_render_target_t *target, int width, int height,
+																		 kinc_g5_render_target_format_t format, int depthBufferBits, int stencilBufferBits,
+															   int samples_per_pixel) {
+	render_target_init(target, width, height, format, depthBufferBits, stencilBufferBits, samples_per_pixel, framebuffer_count);
+	framebuffer_count += 1;
+}
+
+void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t *target, int cubeMapSize, kinc_g5_render_target_format_t format,
+																  int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
 	target->impl._tex = NULL;
 	target->impl._depthTex = NULL;
 	target->impl._texReadback = NULL;
@@ -87,6 +101,10 @@ void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {
 	id<MTLTexture> texReadback = (__bridge_transfer id<MTLTexture>)target->impl._texReadback;
 	texReadback = nil;
 	target->impl._texReadback = NULL;
+	
+	if (target->framebuffer_index >= 0) {
+		framebuffer_count -= 1;
+	}
 }
 
 #if 0

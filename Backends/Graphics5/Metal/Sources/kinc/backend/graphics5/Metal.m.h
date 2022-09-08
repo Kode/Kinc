@@ -50,7 +50,7 @@ void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBu
 	depthBits = depthBufferBits;
 	stencilBits = stencilBufferBits;
 	kinc_internal_init_samplers();
-	kinc_g5_render_target_init(&fallback_render_target, 32, 32, 0, false, KINC_G5_RENDER_TARGET_FORMAT_32BIT, 0, 0);
+	kinc_g5_render_target_init(&fallback_render_target, 32, 32, KINC_G5_RENDER_TARGET_FORMAT_32BIT, 0, 0);
 }
 
 void kinc_g5_flush() {}

@@ -53,7 +53,7 @@ void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
                                 int stencil) {
-	if (renderTarget->contextId < 0) {
+	if (renderTarget->framebuffer_index >= 0) {
 		kinc_g5_internal_new_render_pass(NULL, 1, false, flags, color, depth, stencil);
 	}
 	else {
@@ -160,7 +160,7 @@ void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct 
 extern bool kinc_internal_metal_has_depth;
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
-	if (targets[0]->contextId < 0) {
+	if (targets[0]->framebuffer_index >= 0) {
 		for (int i = 0; i < 8; ++i) lastRenderTargets[i] = NULL;
 		kinc_g5_internal_new_render_pass(NULL, 1, false, 0, 0, 0.0f, 0);
 	}
