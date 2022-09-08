@@ -114,12 +114,24 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a68456c2ebf1b5f1e675dfdc7176aa023"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#a68456c2ebf1b5f1e675dfdc7176aa023">kinc_g5_render_target_init</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, int width, int height, int depthBufferBits, bool antialiasing, kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId)</td></tr>
-<tr class="memdesc:a68456c2ebf1b5f1e675dfdc7176aa023"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a regular render-target.  <a href="graphics5_2rendertarget_8h.html#a68456c2ebf1b5f1e675dfdc7176aa023">More...</a><br /></td></tr>
-<tr class="separator:a68456c2ebf1b5f1e675dfdc7176aa023"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ae2d1d87f6f26583bfbc15987939564"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#a1ae2d1d87f6f26583bfbc15987939564">kinc_g5_render_target_init_cube</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, int cubeMapSize, int depthBufferBits, bool antialiasing, kinc_g5_render_target_format_t format, int stencilBufferBits, int contextId)</td></tr>
-<tr class="memdesc:a1ae2d1d87f6f26583bfbc15987939564"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a render-target-cube-map.  <a href="graphics5_2rendertarget_8h.html#a1ae2d1d87f6f26583bfbc15987939564">More...</a><br /></td></tr>
-<tr class="separator:a1ae2d1d87f6f26583bfbc15987939564"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2225a3995ad47ac9a91552d9bd6ce8f8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#a2225a3995ad47ac9a91552d9bd6ce8f8">kinc_g5_render_target_init</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, int width, int height, kinc_g5_render_target_format_t format, int depthBufferBits, int stencilBufferBits)</td></tr>
+<tr class="memdesc:a2225a3995ad47ac9a91552d9bd6ce8f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a regular render-target.  <a href="graphics5_2rendertarget_8h.html#a2225a3995ad47ac9a91552d9bd6ce8f8">More...</a><br /></td></tr>
+<tr class="separator:a2225a3995ad47ac9a91552d9bd6ce8f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa63e77bf9771b15de8f0a21bb88d965e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#aa63e77bf9771b15de8f0a21bb88d965e">kinc_g5_render_target_init_with_multisampling</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, int width, int height, kinc_g5_render_target_format_t format, int depthBufferBits, int stencilBufferBits, int samples_per_pixel)</td></tr>
+<tr class="memdesc:aa63e77bf9771b15de8f0a21bb88d965e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a regular render-target. Can fall back to a regular render-target.  <a href="graphics5_2rendertarget_8h.html#aa63e77bf9771b15de8f0a21bb88d965e">More...</a><br /></td></tr>
+<tr class="separator:aa63e77bf9771b15de8f0a21bb88d965e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf5f2264d3fbde49a40dad67bb59dd40"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#aaf5f2264d3fbde49a40dad67bb59dd40">kinc_g5_render_target_init_framebuffer</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, int width, int height, kinc_g5_render_target_format_t format, int depthBufferBits, int stencilBufferBits)</td></tr>
+<tr class="memdesc:aaf5f2264d3fbde49a40dad67bb59dd40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a framebuffer.  <a href="graphics5_2rendertarget_8h.html#aaf5f2264d3fbde49a40dad67bb59dd40">More...</a><br /></td></tr>
+<tr class="separator:aaf5f2264d3fbde49a40dad67bb59dd40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0f30e4bc702e065fd52fa463ebb4616"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#ac0f30e4bc702e065fd52fa463ebb4616">kinc_g5_render_target_init_framebuffer_with_multisampling</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, int width, int height, kinc_g5_render_target_format_t format, int depthBufferBits, int stencilBufferBits, int samples_per_pixel)</td></tr>
+<tr class="memdesc:ac0f30e4bc702e065fd52fa463ebb4616"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a multisampled framebuffer. Can fall back to a regular framebuffer.  <a href="graphics5_2rendertarget_8h.html#ac0f30e4bc702e065fd52fa463ebb4616">More...</a><br /></td></tr>
+<tr class="separator:ac0f30e4bc702e065fd52fa463ebb4616"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9723ba7f64f22530d184ac63162e7523"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#a9723ba7f64f22530d184ac63162e7523">kinc_g5_render_target_init_cube</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, int cubeMapSize, kinc_g5_render_target_format_t format, int depthBufferBits, int stencilBufferBits)</td></tr>
+<tr class="memdesc:a9723ba7f64f22530d184ac63162e7523"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a render-target-cube-map.  <a href="graphics5_2rendertarget_8h.html#a9723ba7f64f22530d184ac63162e7523">More...</a><br /></td></tr>
+<tr class="separator:a9723ba7f64f22530d184ac63162e7523"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55bf25f2e369158aa229a3e98994f6d5"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#a55bf25f2e369158aa229a3e98994f6d5">kinc_g5_render_target_init_cube_with_multisampling</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, int cubeMapSize, kinc_g5_render_target_format_t format, int depthBufferBits, int stencilBufferBits, int samples_per_pixel)</td></tr>
+<tr class="memdesc:a55bf25f2e369158aa229a3e98994f6d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a multisampled render-target-cube-map. Can fall back to a regular cube-map.  <a href="graphics5_2rendertarget_8h.html#a55bf25f2e369158aa229a3e98994f6d5">More...</a><br /></td></tr>
+<tr class="separator:a55bf25f2e369158aa229a3e98994f6d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b0015de885979bf1e9f00ab0b9f700f"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#a1b0015de885979bf1e9f00ab0b9f700f">kinc_g5_render_target_destroy</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target)</td></tr>
 <tr class="memdesc:a1b0015de885979bf1e9f00ab0b9f700f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocates and destroys a render-target.  <a href="graphics5_2rendertarget_8h.html#a1b0015de885979bf1e9f00ab0b9f700f">More...</a><br /></td></tr>
 <tr class="separator:a1b0015de885979bf1e9f00ab0b9f700f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,8 +174,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a68456c2ebf1b5f1e675dfdc7176aa023"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a68456c2ebf1b5f1e675dfdc7176aa023">&#9670;&nbsp;</a></span>kinc_g5_render_target_init()</h2>
+<a id="a2225a3995ad47ac9a91552d9bd6ce8f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2225a3995ad47ac9a91552d9bd6ce8f8">&#9670;&nbsp;</a></span>kinc_g5_render_target_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -189,18 +201,6 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>depthBufferBits</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>antialiasing</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">kinc_g5_render_target_format_t&#160;</td>
           <td class="paramname"><em>format</em>, </td>
         </tr>
@@ -208,13 +208,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>stencilBufferBits</em>, </td>
+          <td class="paramname"><em>depthBufferBits</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>contextId</em>&#160;</td>
+          <td class="paramname"><em>stencilBufferBits</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -227,22 +227,21 @@ Functions</h2></td></tr>
 <p>Allocates and initializes a regular render-target. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">renderTarget</td><td></td></tr>
+    <tr><td class="paramname">target</td><td></td></tr>
     <tr><td class="paramname">width</td><td></td></tr>
     <tr><td class="paramname">height</td><td></td></tr>
-    <tr><td class="paramname">depthBufferBits</td><td></td></tr>
-    <tr><td class="paramname">antialiasing</td><td></td></tr>
     <tr><td class="paramname">format</td><td></td></tr>
+    <tr><td class="paramname">depthBufferBits</td><td></td></tr>
     <tr><td class="paramname">stencilBufferBits</td><td></td></tr>
-    <tr><td class="paramname">contextId</td><td></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
-<a id="a1ae2d1d87f6f26583bfbc15987939564"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1ae2d1d87f6f26583bfbc15987939564">&#9670;&nbsp;</a></span>kinc_g5_render_target_init_cube()</h2>
+<a id="a9723ba7f64f22530d184ac63162e7523"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9723ba7f64f22530d184ac63162e7523">&#9670;&nbsp;</a></span>kinc_g5_render_target_init_cube()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -262,18 +261,6 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>depthBufferBits</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>antialiasing</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">kinc_g5_render_target_format_t&#160;</td>
           <td class="paramname"><em>format</em>, </td>
         </tr>
@@ -281,13 +268,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>stencilBufferBits</em>, </td>
+          <td class="paramname"><em>depthBufferBits</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>contextId</em>&#160;</td>
+          <td class="paramname"><em>stencilBufferBits</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -300,16 +287,293 @@ Functions</h2></td></tr>
 <p>Allocates and initializes a render-target-cube-map. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">renderTarget</td><td></td></tr>
+    <tr><td class="paramname">target</td><td></td></tr>
     <tr><td class="paramname">cubeMapSize</td><td></td></tr>
-    <tr><td class="paramname">depthBufferBits</td><td></td></tr>
-    <tr><td class="paramname">antialiasing</td><td></td></tr>
     <tr><td class="paramname">format</td><td></td></tr>
+    <tr><td class="paramname">depthBufferBits</td><td></td></tr>
     <tr><td class="paramname">stencilBufferBits</td><td></td></tr>
-    <tr><td class="paramname">contextId</td><td></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="a55bf25f2e369158aa229a3e98994f6d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55bf25f2e369158aa229a3e98994f6d5">&#9670;&nbsp;</a></span>kinc_g5_render_target_init_cube_with_multisampling()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_render_target_init_cube_with_multisampling </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *&#160;</td>
+          <td class="paramname"><em>target</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>cubeMapSize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">kinc_g5_render_target_format_t&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>depthBufferBits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>stencilBufferBits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>samples_per_pixel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Allocates and initializes a multisampled render-target-cube-map. Can fall back to a regular cube-map. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">target</td><td></td></tr>
+    <tr><td class="paramname">cubeMapSize</td><td></td></tr>
+    <tr><td class="paramname">format</td><td></td></tr>
+    <tr><td class="paramname">depthBufferBits</td><td></td></tr>
+    <tr><td class="paramname">stencilBufferBits</td><td></td></tr>
+    <tr><td class="paramname">samples_per_pixel</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="aaf5f2264d3fbde49a40dad67bb59dd40"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf5f2264d3fbde49a40dad67bb59dd40">&#9670;&nbsp;</a></span>kinc_g5_render_target_init_framebuffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_render_target_init_framebuffer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *&#160;</td>
+          <td class="paramname"><em>target</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>width</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">kinc_g5_render_target_format_t&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>depthBufferBits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>stencilBufferBits</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Allocates and initializes a framebuffer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">target</td><td></td></tr>
+    <tr><td class="paramname">width</td><td></td></tr>
+    <tr><td class="paramname">height</td><td></td></tr>
+    <tr><td class="paramname">format</td><td></td></tr>
+    <tr><td class="paramname">depthBufferBits</td><td></td></tr>
+    <tr><td class="paramname">stencilBufferBits</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="ac0f30e4bc702e065fd52fa463ebb4616"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0f30e4bc702e065fd52fa463ebb4616">&#9670;&nbsp;</a></span>kinc_g5_render_target_init_framebuffer_with_multisampling()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_render_target_init_framebuffer_with_multisampling </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *&#160;</td>
+          <td class="paramname"><em>target</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>width</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">kinc_g5_render_target_format_t&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>depthBufferBits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>stencilBufferBits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>samples_per_pixel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Allocates and initializes a multisampled framebuffer. Can fall back to a regular framebuffer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">target</td><td></td></tr>
+    <tr><td class="paramname">width</td><td></td></tr>
+    <tr><td class="paramname">height</td><td></td></tr>
+    <tr><td class="paramname">format</td><td></td></tr>
+    <tr><td class="paramname">depthBufferBits</td><td></td></tr>
+    <tr><td class="paramname">stencilBufferBits</td><td></td></tr>
+    <tr><td class="paramname">samples_per_pixel</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="aa63e77bf9771b15de8f0a21bb88d965e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa63e77bf9771b15de8f0a21bb88d965e">&#9670;&nbsp;</a></span>kinc_g5_render_target_init_with_multisampling()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_render_target_init_with_multisampling </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *&#160;</td>
+          <td class="paramname"><em>target</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>width</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">kinc_g5_render_target_format_t&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>depthBufferBits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>stencilBufferBits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>samples_per_pixel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Allocates and initializes a regular render-target. Can fall back to a regular render-target. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">target</td><td></td></tr>
+    <tr><td class="paramname">width</td><td></td></tr>
+    <tr><td class="paramname">height</td><td></td></tr>
+    <tr><td class="paramname">format</td><td></td></tr>
+    <tr><td class="paramname">depthBufferBits</td><td></td></tr>
+    <tr><td class="paramname">stencilBufferBits</td><td></td></tr>
+    <tr><td class="paramname">samples_per_pixel</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
