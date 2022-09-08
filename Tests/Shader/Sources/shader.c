@@ -122,7 +122,7 @@ int kickstart(int argc, char **argv) {
 		kinc_g4_index_buffer_unlock(&indices);
 	}
 
-	kinc_g4_render_target_init(&render_target, 2048, 2048, 16, false, KINC_G4_RENDER_TARGET_FORMAT_32BIT, 0, 0);
+	kinc_g4_render_target_init(&render_target, 2048, 2048, KINC_G4_RENDER_TARGET_FORMAT_32BIT, 16, 0);
 
 	kinc_start();
 
