@@ -1,4 +1,5 @@
 #include "wayland.h"
+
 #include <kinc/input/pen.h>
 #include <kinc/log.h>
 #include <wayland-generated/wayland-pointer-constraint.h>
@@ -15,6 +16,8 @@
 #include <EGL/egl.h>
 #endif
 #include <dlfcn.h>
+#include <errno.h>
+#include <poll.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -592,7 +595,9 @@ void wl_data_source_handle_target(void *data, struct wl_data_source *wl_data_sou
 
 void wl_data_source_handle_send(void *data, struct wl_data_source *wl_data_source, const char *mime_type, int32_t fd) {
 	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
-	write(fd, data_source->data, data_source->data_size);
+	if(write(fd, data_source->data, data_source->data_size) < data_source->data_size) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to write all data for data source");
+	}
 	close(fd);
 }
 
@@ -671,7 +676,10 @@ void kinc_wl_data_offer_accept(struct kinc_wl_data_offer *offer, void (*callback
 	offer->user_data = user_data;
 
 	int fds[2];
-	pipe(fds);
+	if (pipe(fds) != 0) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to create pipe to accept wayland data offer (errno=%i)", errno);
+		return;
+	}
 	wl_data_offer_receive(offer->id, "text/plain", fds[1]);
 	close(fds[1]);
 
@@ -1064,8 +1072,7 @@ void kinc_wayland_set_selection(struct kinc_wl_seat *seat, const char *text, int
 	static const char *mime_types[] = {"text/plain"};
 	char *copy = malloc(strlen(text) + 1);
 	strcpy(copy, text);
-	struct kinc_wl_data_source *data_source =
-	    kinc_wl_create_data_source(seat, mime_types, sizeof mime_types / sizeof mime_types[0], copy, strlen(text));
+	struct kinc_wl_data_source *data_source = kinc_wl_create_data_source(seat, mime_types, sizeof mime_types / sizeof mime_types[0], copy, strlen(text));
 	wl_data_device_set_selection(seat->data_device, data_source->source, serial);
 }
 
@@ -1073,16 +1080,13 @@ void kinc_wayland_copy_to_clipboard(const char *text) {}
 
 #define READ_SIZE 64
 
-#include <errno.h>
-#include <poll.h>
-
 static bool flush_display(void) {
 	while (wl_display_flush(wl_ctx.display) == -1) {
 		if (errno != EAGAIN) return false;
 
 		struct pollfd fd = {wl_display_get_fd(wl_ctx.display), POLLOUT};
 
-		while (poll(&fd, 1, -1) == -1) {
+		while (poll(&fd, 1, 10) == -1) {
 			if (errno != EINTR && errno != EAGAIN) return false;
 		}
 	}
@@ -1091,7 +1095,6 @@ static bool flush_display(void) {
 }
 
 bool kinc_wayland_handle_messages() {
-	wl_display_dispatch(wl_ctx.display);
 	while (wl_display_prepare_read(wl_ctx.display) != 0) wl_display_dispatch_pending(wl_ctx.display);
 	if (!flush_display()) {
 		// Something went wrong, abort.
@@ -1109,15 +1112,14 @@ bool kinc_wayland_handle_messages() {
 	    {wl_ctx.seat.keyboard.timerfd, POLLIN},
 	};
 
-	if (!poll(fds, sizeof(fds) / sizeof(struct pollfd), 10)) {
+	if (poll(fds, sizeof(fds) / sizeof(struct pollfd), 10) <= 0) {
 		wl_display_cancel_read(wl_ctx.display);
 		return false;
 	}
 
 	if (fds[0].revents & POLLIN) {
 		wl_display_read_events(wl_ctx.display);
-		if (wl_display_dispatch_pending(wl_ctx.display) > 0) {
-		}
+		wl_display_dispatch_pending(wl_ctx.display);
 	}
 	else {
 		wl_display_cancel_read(wl_ctx.display);
