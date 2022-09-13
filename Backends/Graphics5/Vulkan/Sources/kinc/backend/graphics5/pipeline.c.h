@@ -2,6 +2,7 @@
 
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
+#include <vulkan/vulkan_core.h>
 
 VkDescriptorSetLayout desc_layout;
 extern kinc_g5_texture_t *vulkanTextures[16];
@@ -830,7 +831,8 @@ VkDescriptorSet getDescriptorSet() {
 	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
 		if (vulkanTextures[i] != NULL) {
-			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
+			assert(vulkanSamplers[i] != VK_NULL_HANDLE);
+			tex_desc[i].sampler = vulkanSamplers[i];
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
 			texture_count++;
 		}

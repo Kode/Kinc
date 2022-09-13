@@ -1,3 +1,4 @@
+#include "kinc/graphics5/sampler.h"
 #include "vulkan.h"
 
 #include <kinc/graphics5/commandlist.h>
@@ -900,16 +901,12 @@ void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_text
 	vulkanRenderTargets[unit.impl.binding - 2] = NULL;
 }
 
+void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
+	assert(unit.impl.binding >= 2); // Make sure the spirv-bindings have been read correctly
+	vulkanSamplers[unit.impl.binding - 2] = sampler->impl.sampler;
+}
+
 void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
-
-void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
-                                                 kinc_g5_texture_addressing_t addressing) {}
-
-void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
-
-void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
-
-void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
 
