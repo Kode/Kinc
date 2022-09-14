@@ -4,6 +4,7 @@
 #include <kinc/global.h>
 #include <kinc/window.h>
 #ifdef KINC_EGL
+#define EGL_NO_PLATFORM_SPECIFIC_TYPES
 #include <EGL/egl.h>
 #endif
 #ifdef KORE_VULKAN

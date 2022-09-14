@@ -13,6 +13,7 @@
 #include <X11/extensions/Xrandr.h>
 
 #ifdef KINC_EGL
+#define EGL_NO_PLATFORM_SPECIFIC_TYPES
 #include <EGL/egl.h>
 #endif
 
