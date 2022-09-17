@@ -1,9 +1,8 @@
 #include "OpenGL.h"
 #include "ogl.h"
 #ifdef KINC_EGL
+#define EGL_NO_PLATFORM_SPECIFIC_TYPES
 #include <EGL/egl.h>
-#include <EGL/eglext.h>
-#include <EGL/eglplatform.h>
 #endif
 
 #include <kinc/backend/graphics4/vertexbuffer.h>
@@ -96,8 +95,6 @@ static int currentWindow = 0;
 static kinc_g4_texture_filter_t minFilters[32];
 static kinc_g4_mipmap_filter_t mipFilters[32];
 
-static int _width;
-static int _height;
 static int _renderTargetWidth;
 static int _renderTargetHeight;
 static bool renderToBackbuffer;

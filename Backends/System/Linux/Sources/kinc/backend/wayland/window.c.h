@@ -1,7 +1,7 @@
-#include "kinc/window.h"
 #include "wayland.h"
 
 #include <kinc/image.h>
+#include <kinc/window.h>
 
 // for all that shared memory stuff later on
 #include <errno.h>
@@ -10,11 +10,10 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <wayland-client-core.h>
 
 #ifdef KINC_EGL
+#define EGL_NO_PLATFORM_SPECIFIC_TYPES
 #include <EGL/egl.h>
-#include <EGL/eglext.h>
 #endif
 
 static void xdg_surface_handle_configure(void *data, struct xdg_surface *surface, uint32_t serial) {
