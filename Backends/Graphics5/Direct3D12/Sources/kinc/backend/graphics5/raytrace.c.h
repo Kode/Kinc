@@ -1,3 +1,5 @@
+#ifndef KORE_XBOX_ONE
+
 #include <kinc/backend/graphics5/raytrace.h>
 
 #include <kinc/graphics5/commandlist.h>
@@ -467,3 +469,5 @@ void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_tar
 	postCopyBarriers[1].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	command_list->impl._commandList->ResourceBarrier(ARRAYSIZE(postCopyBarriers), postCopyBarriers);
 }
+
+#endif

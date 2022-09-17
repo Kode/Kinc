@@ -543,13 +543,13 @@ if (plugin) {
 		backend = 'PlayStation4';
 	}
 	else if (platform === Platform.XboxOne) {
-		backend = 'XboxOne';
+		backend = 'Xbox';
 	}
 	else if (platform === Platform.Switch) {
 		backend = 'Switch';
 	}
 	else if (platform === Platform.XboxScarlett) {
-		backend = 'XboxScarlett';
+		backend = 'Xbox';
 	}
 	else if (platform === Platform.PS5) {
 		backend = 'PlayStation5'
