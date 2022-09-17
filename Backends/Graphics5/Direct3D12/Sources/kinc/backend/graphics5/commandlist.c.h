@@ -172,7 +172,7 @@ void kinc_g5_command_list_set_fragment_constant_buffer(struct kinc_g5_command_li
 
 #ifdef KORE_DXC
 	if (list->impl._currentPipeline->impl.fragmentConstantsSize > 0) {
-		// list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+		list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
 	}
 #else
 	list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
