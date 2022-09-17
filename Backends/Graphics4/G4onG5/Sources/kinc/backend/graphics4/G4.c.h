@@ -96,6 +96,17 @@ static void endDraw() {
 		kinc_g5_command_list_execute(&commandList);
 		kinc_g5_command_list_wait_for_execution_to_finish(&commandList);
 		kinc_g5_command_list_begin(&commandList);
+		if (windows[current_window].current_render_targets[0] == NULL) {
+			kinc_g4_restore_render_target();
+		}
+		else {
+			const int count = windows[current_window].current_render_target_count;
+			kinc_g5_render_target_t *render_targets[16];
+			for (int i = 0; i < count; ++i) {
+				render_targets[i] = &windows[current_window].current_render_targets[i]->impl._renderTarget;
+			}
+			kinc_g5_command_list_set_render_targets(&commandList, render_targets, count);
+		}
 		constantBufferIndex = 0;
 		waitAfterNextDraw = false;
 	}
@@ -199,8 +210,7 @@ void kinc_g4_begin(int window) {
 	endDraw();
 
 	kinc_g5_command_list_framebuffer_to_render_target_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
-	kinc_g5_render_target_t *renderTargets[1] = {&windows[current_window].framebuffers[windows[current_window].currentBuffer]};
-	kinc_g5_command_list_set_render_targets(&commandList, renderTargets, 1);
+	kinc_g4_restore_render_target();
 
 	++frameNumber;
 }
