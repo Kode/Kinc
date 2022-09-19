@@ -132,6 +132,8 @@ static bool initDefaultDevice() {
 
 		kinc_a2_samples_per_second = format->nSamplesPerSec;
 		a2_buffer.format.samples_per_second = kinc_a2_samples_per_second;
+		a2_buffer.format.bits_per_sample = 16;
+		a2_buffer.format.channels = 2;
 
 		bufferFrames = 0;
 		kinc_microsoft_affirm(audioClient->lpVtbl->GetBufferSize(audioClient, &bufferFrames));
