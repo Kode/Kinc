@@ -451,6 +451,11 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 	}
 }
 
+void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
+	const float blendConstants[4] = {r, g, b, a};
+	vkCmdSetBlendConstants(list->impl._buffer, blendConstants);
+}
+
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **vertexBuffers, int *offsets_, int count) {
 // this seems to be a no-op function?
 // kinc_g5_internal_vertex_buffer_set(vertexBuffers[0], 0);
