@@ -138,6 +138,11 @@ KINC_FUNC void kinc_g4_set_pipeline(struct kinc_g4_pipeline *pipeline);
 KINC_FUNC void kinc_g4_set_stencil_reference_value(int value);
 
 /// <summary>
+/// Sets the blend constant used for `KINC_G4_BLEND_CONSTANT` or `KINC_G4_INV_BLEND_CONSTANT`
+/// </summary>
+KINC_FUNC void kinc_g4_set_blend_constant(float r, float g, float b, float a);
+
+/// <summary>
 /// Assigns an integer to a constant/uniform in the currently set pipeline.
 /// </summary>
 /// <param name="location">The location of the constant/uniform to assign the value to</param>
