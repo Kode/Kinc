@@ -202,6 +202,9 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <tr class="memitem:adf39bd8f0d489388f116e2033929e9cc"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#adf39bd8f0d489388f116e2033929e9cc">kinc_g5_command_list_set_pipeline</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, struct <a class="el" href="structkinc__g5__pipeline.html">kinc_g5_pipeline</a> *pipeline)</td></tr>
 <tr class="memdesc:adf39bd8f0d489388f116e2033929e9cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a command to set the pipeline for the next draw-call. The pipeline defines most rendering-state including the shaders to be used.  <a href="commandlist_8h.html#adf39bd8f0d489388f116e2033929e9cc">More...</a><br /></td></tr>
 <tr class="separator:adf39bd8f0d489388f116e2033929e9cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53e54e9d391eaf4ad9becc27e1656256"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a53e54e9d391eaf4ad9becc27e1656256">kinc_g5_command_list_set_blend_constant</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, float r, float g, float b, float a)</td></tr>
+<tr class="memdesc:a53e54e9d391eaf4ad9becc27e1656256"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the blend constant used for <code>KINC_G5_BLEND_CONSTANT</code> or <code>KINC_G5_INV_BLEND_CONSTANT</code>  <a href="commandlist_8h.html#a53e54e9d391eaf4ad9becc27e1656256">More...</a><br /></td></tr>
+<tr class="separator:a53e54e9d391eaf4ad9becc27e1656256"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18ab6282949a6dfde329699f5807f8d2"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a18ab6282949a6dfde329699f5807f8d2">kinc_g5_command_list_set_vertex_buffers</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, struct <a class="el" href="structkinc__g5__vertex__buffer.html">kinc_g5_vertex_buffer</a> **buffers, int *offsets, int count)</td></tr>
 <tr class="memdesc:a18ab6282949a6dfde329699f5807f8d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a command which sets vertex-buffers for the next draw-call.  <a href="commandlist_8h.html#a18ab6282949a6dfde329699f5807f8d2">More...</a><br /></td></tr>
 <tr class="separator:a18ab6282949a6dfde329699f5807f8d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -885,6 +888,54 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a53e54e9d391eaf4ad9becc27e1656256"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53e54e9d391eaf4ad9becc27e1656256">&#9670;&nbsp;</a></span>kinc_g5_command_list_set_blend_constant()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_command_list_set_blend_constant </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
+          <td class="paramname"><em>list</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>a</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the blend constant used for <code>KINC_G5_BLEND_CONSTANT</code> or <code>KINC_G5_INV_BLEND_CONSTANT</code> </p>
 
 </div>
 </div>
