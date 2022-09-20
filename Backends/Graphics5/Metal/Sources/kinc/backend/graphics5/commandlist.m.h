@@ -151,7 +151,7 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 
 void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	[encoder setBlendColor:r green:g blue:b alpha:a];
+	[encoder setBlendColorRed:r green:g blue:b alpha:a];
 }
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **buffers, int *offsets, int count) {
