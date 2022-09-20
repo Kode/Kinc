@@ -1168,6 +1168,10 @@ void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 	lastPipeline = pipeline;
 }
 
+void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
+	glBlendColor(r, g, b, a);
+}
+
 void kinc_g4_set_stencil_reference_value(int value) {
 	glStencilFuncSeparate(GL_FRONT, Kinc_G4_Internal_StencilFunc(lastPipeline->stencil_front_mode), value, lastPipeline->stencil_read_mask);
 	glStencilFuncSeparate(GL_BACK, Kinc_G4_Internal_StencilFunc(lastPipeline->stencil_back_mode), value, lastPipeline->stencil_read_mask);

@@ -1,3 +1,5 @@
+#include <kinc/global.h>
+
 #include "ogl.h"
 
 #include <kinc/graphics4/graphics.h>
@@ -11,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #ifndef KORE_OPENGL_ES
 bool Kinc_Internal_ProgramUsesTessellation = false;
@@ -61,6 +64,10 @@ static GLenum convert_blend_factor(kinc_g4_blending_factor_t factor) {
 		return GL_ONE_MINUS_SRC_COLOR;
 	case KINC_G4_BLEND_INV_DEST_COLOR:
 		return GL_ONE_MINUS_DST_COLOR;
+	case KINC_G4_BLEND_CONSTANT:
+		return GL_CONSTANT_COLOR;
+	case KINC_G4_BLEND_INV_CONSTANT:
+		return GL_ONE_MINUS_CONSTANT_COLOR;
 	default:
 		assert(false);
 		return GL_ONE;

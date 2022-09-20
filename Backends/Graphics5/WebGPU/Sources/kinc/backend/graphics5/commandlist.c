@@ -82,6 +82,10 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 	wgpuRenderPassEncoderSetPipeline(list->impl.pass, pipeline->impl.pipeline);
 }
 
+void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
+	// TODO
+}
+
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **buffers, int *offsets, int count) {

@@ -298,6 +298,11 @@ void kinc_g5_command_list_set_pipeline(struct kinc_g5_command_list *list, kinc_g
 	}
 }
 
+void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
+	const FLOAT BlendFactor[4] = {r,g,b,a};
+	list->impl._commandList->OMSetBlendFactor(BlendFactor);
+}
+
 void kinc_g5_command_list_set_vertex_buffers(struct kinc_g5_command_list *list, kinc_g5_vertex_buffer_t **buffers, int *offsets, int count) {
 	assert(list->impl.open);
 

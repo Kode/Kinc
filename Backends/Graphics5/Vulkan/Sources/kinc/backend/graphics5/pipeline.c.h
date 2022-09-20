@@ -2,6 +2,7 @@
 
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
+#include <vulkan/vulkan_core.h>
 
 VkDescriptorSetLayout desc_layout;
 extern kinc_g5_texture_t *vulkanTextures[16];
@@ -340,6 +341,10 @@ static VkBlendFactor convert_blend_factor(kinc_g5_blending_factor_t factor) {
 		return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
 	case KINC_G5_BLEND_INV_DEST_COLOR:
 		return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+	case KINC_G5_BLEND_CONSTANT:
+		return VK_BLEND_FACTOR_CONSTANT_COLOR;
+	case KINC_G5_BLEND_INV_CONSTANT:
+		return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
 	default:
 		assert(false);
 		return VK_BLEND_FACTOR_ONE;

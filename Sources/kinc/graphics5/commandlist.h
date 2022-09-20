@@ -195,6 +195,11 @@ KINC_FUNC void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list
 KINC_FUNC void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc_g5_pipeline *pipeline);
 
 /// <summary>
+/// Sets the blend constant used for `KINC_G5_BLEND_CONSTANT` or `KINC_G5_INV_BLEND_CONSTANT`
+/// </summary>
+KINC_FUNC void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a);
+
+/// <summary>
 /// Writes a command which sets vertex-buffers for the next draw-call.
 /// </summary>
 /// <param name="list">The list to write the command to</param>
