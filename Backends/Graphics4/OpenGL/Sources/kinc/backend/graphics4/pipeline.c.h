@@ -10,10 +10,10 @@
 
 #include <kinc/backend/graphics4/OpenGL.h>
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #ifndef KORE_OPENGL_ES
 bool Kinc_Internal_ProgramUsesTessellation = false;

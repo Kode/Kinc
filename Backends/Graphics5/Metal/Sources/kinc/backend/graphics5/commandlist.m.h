@@ -242,9 +242,7 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	if (lastPipeline != NULL) kinc_g5_internal_pipeline_set(lastPipeline);
 }
 
-void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {
-	
-}
+void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 

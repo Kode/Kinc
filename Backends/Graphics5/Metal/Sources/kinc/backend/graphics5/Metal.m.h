@@ -107,7 +107,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 		[commandEncoder endEncoding];
 		[commandBuffer commit];
 	}
-	
+
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
@@ -200,7 +200,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 		renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
 		renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
 	}
-	
+
 	if (clear_flags & KINC_G5_CLEAR_STENCIL) {
 		renderPassDescriptor.stencilAttachment.clearStencil = stencil;
 		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionClear;
@@ -211,7 +211,7 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 		renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
 		renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
 	}
-		
+
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];

@@ -143,8 +143,10 @@ __attribute__((import_module("imports"), import_name("glUniform1fv"))) void glUn
 __attribute__((import_module("imports"), import_name("glUniform2fv"))) void glUniform2fv(GLint location, GLsizei count, const GLfloat *value);
 __attribute__((import_module("imports"), import_name("glUniform3fv"))) void glUniform3fv(GLint location, GLsizei count, const GLfloat *value);
 __attribute__((import_module("imports"), import_name("glUniform4fv"))) void glUniform4fv(GLint location, GLsizei count, const GLfloat *value);
-__attribute__((import_module("imports"), import_name("glUniformMatrix3fv"))) void glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
-__attribute__((import_module("imports"), import_name("glUniformMatrix4fv"))) void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+__attribute__((import_module("imports"), import_name("glUniformMatrix3fv"))) void glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose,
+                                                                                                     const GLfloat *value);
+__attribute__((import_module("imports"), import_name("glUniformMatrix4fv"))) void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose,
+                                                                                                     const GLfloat *value);
 __attribute__((import_module("imports"), import_name("glViewport"))) void glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
 __attribute__((import_module("imports"), import_name("glGetIntegerv"))) void glGetIntegerv(GLenum pname, GLint *data);
 __attribute__((import_module("imports"), import_name("glGetString"))) const GLubyte *glGetString(GLenum name);
@@ -164,7 +166,8 @@ __attribute__((import_module("imports"), import_name("glActiveTexture"))) void g
 __attribute__((import_module("imports"), import_name("glGetFloatv"))) void glGetFloatv(GLenum pname, GLfloat *params);
 __attribute__((import_module("imports"), import_name("glTexParameterf"))) void glTexParameterf(GLenum target, GLenum pname, GLfloat param);
 __attribute__((import_module("imports"), import_name("glBindFramebuffer"))) void glBindFramebuffer(GLenum target, GLuint framebuffer);
-__attribute__((import_module("imports"), import_name("glFramebufferTexture2D"))) void glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+__attribute__((import_module("imports"), import_name("glFramebufferTexture2D"))) void glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget,
+                                                                                                             GLuint texture, GLint level);
 __attribute__((import_module("imports"), import_name("glGenQueries"))) void glGenQueries(GLsizei n, GLuint *ids);
 __attribute__((import_module("imports"), import_name("glDeleteQueries"))) void glDeleteQueries(GLsizei n, const GLuint *ids);
 __attribute__((import_module("imports"), import_name("glBeginQuery"))) void glBeginQuery(GLenum target, GLuint id);
@@ -180,41 +183,54 @@ __attribute__((import_module("imports"), import_name("glBufferData"))) void glBu
 __attribute__((import_module("imports"), import_name("glCreateProgram"))) GLuint glCreateProgram(void);
 __attribute__((import_module("imports"), import_name("glDeleteProgram"))) void glDeleteProgram(GLuint program);
 __attribute__((import_module("imports"), import_name("glCreateShader"))) GLuint glCreateShader(GLenum shaderType);
-__attribute__((import_module("imports"), import_name("glShaderSource"))) void glShaderSource(GLuint shader, GLsizei count, const GLchar **string, const GLint *length);
+__attribute__((import_module("imports"), import_name("glShaderSource"))) void glShaderSource(GLuint shader, GLsizei count, const GLchar **string,
+                                                                                             const GLint *length);
 __attribute__((import_module("imports"), import_name("glCompileShader"))) void glCompileShader(GLuint shader);
 __attribute__((import_module("imports"), import_name("glGetShaderiv"))) void glGetShaderiv(GLuint shader, GLenum pname, GLint *params);
-__attribute__((import_module("imports"), import_name("glGetShaderInfoLog"))) void glGetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+__attribute__((import_module("imports"), import_name("glGetShaderInfoLog"))) void glGetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei *length,
+                                                                                                     GLchar *infoLog);
 __attribute__((import_module("imports"), import_name("glAttachShader"))) void glAttachShader(GLuint program, GLuint shader);
 __attribute__((import_module("imports"), import_name("glBindAttribLocation"))) void glBindAttribLocation(GLuint program, GLuint index, const GLchar *name);
 __attribute__((import_module("imports"), import_name("glLinkProgram"))) void glLinkProgram(GLuint program);
 __attribute__((import_module("imports"), import_name("glGetProgramiv"))) void glGetProgramiv(GLuint program, GLenum pname, GLint *params);
-__attribute__((import_module("imports"), import_name("glGetProgramInfoLog"))) void glGetProgramInfoLog(GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+__attribute__((import_module("imports"), import_name("glGetProgramInfoLog"))) void glGetProgramInfoLog(GLuint program, GLsizei maxLength, GLsizei *length,
+                                                                                                       GLchar *infoLog);
 __attribute__((import_module("imports"), import_name("glUseProgram"))) void glUseProgram(GLuint program);
 __attribute__((import_module("imports"), import_name("glStencilMaskSeparate"))) void glStencilMaskSeparate(GLenum face, GLuint mask);
 __attribute__((import_module("imports"), import_name("glStencilOpSeparate"))) void glStencilOpSeparate(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
 __attribute__((import_module("imports"), import_name("glDepthFunc"))) void glDepthFunc(GLenum func);
 __attribute__((import_module("imports"), import_name("glCullFace"))) void glCullFace(GLenum mode);
-__attribute__((import_module("imports"), import_name("glBlendFuncSeparate"))) void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+__attribute__((import_module("imports"), import_name("glBlendFuncSeparate"))) void glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha,
+                                                                                                       GLenum dstAlpha);
 __attribute__((import_module("imports"), import_name("glBlendEquationSeparate"))) void glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha);
 __attribute__((import_module("imports"), import_name("glGetUniformLocation"))) GLint glGetUniformLocation(GLuint program, const GLchar *name);
-__attribute__((import_module("imports"), import_name("glGetActiveUniform"))) void glGetActiveUniform(GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name);
+__attribute__((import_module("imports"), import_name("glGetActiveUniform"))) void glGetActiveUniform(GLuint program, GLuint index, GLsizei bufSize,
+                                                                                                     GLsizei *length, GLint *size, GLenum *type, GLchar *name);
 __attribute__((import_module("imports"), import_name("glGenTextures"))) void glGenTextures(GLsizei n, GLuint *textures);
 __attribute__((import_module("imports"), import_name("glDeleteTextures"))) void glDeleteTextures(GLsizei n, const GLuint *textures);
 __attribute__((import_module("imports"), import_name("glBindTexture"))) void glBindTexture(GLenum target, GLuint texture);
-__attribute__((import_module("imports"), import_name("glTexImage2D"))) void glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *data);
+__attribute__((import_module("imports"), import_name("glTexImage2D"))) void
+glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *data);
 __attribute__((import_module("imports"), import_name("glGenRenderbuffers"))) void glGenRenderbuffers(GLsizei n, GLuint *renderbuffers);
 __attribute__((import_module("imports"), import_name("glBindRenderbuffer"))) void glBindRenderbuffer(GLenum target, GLuint renderbuffer);
-__attribute__((import_module("imports"), import_name("glRenderbufferStorage"))) void glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+__attribute__((import_module("imports"), import_name("glRenderbufferStorage"))) void glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width,
+                                                                                                           GLsizei height);
 __attribute__((import_module("imports"), import_name("glGenFramebuffers"))) void glGenFramebuffers(GLsizei n, GLuint *ids);
 __attribute__((import_module("imports"), import_name("glDeleteFramebuffers"))) void glDeleteFramebuffers(GLsizei n, const GLuint *framebuffers);
-__attribute__((import_module("imports"), import_name("glReadPixels"))) void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void *data);
-__attribute__((import_module("imports"), import_name("glFramebufferRenderbuffer"))) void glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+__attribute__((import_module("imports"), import_name("glReadPixels"))) void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format,
+                                                                                         GLenum type, void *data);
+__attribute__((import_module("imports"), import_name("glFramebufferRenderbuffer"))) void
+glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 __attribute__((import_module("imports"), import_name("glGenerateMipmap"))) void glGenerateMipmap(GLenum target);
 __attribute__((import_module("imports"), import_name("glDeleteShader"))) void glDeleteShader(GLuint shader);
 __attribute__((import_module("imports"), import_name("glPixelStorei"))) void glPixelStorei(GLenum pname, GLint param);
-__attribute__((import_module("imports"), import_name("glCompressedTexImage2D"))) void glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void *data);
-__attribute__((import_module("imports"), import_name("glTexSubImage2D"))) void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels);
-__attribute__((import_module("imports"), import_name("glBufferSubData"))) void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
+__attribute__((import_module("imports"), import_name("glCompressedTexImage2D"))) void
+glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void *data);
+__attribute__((import_module("imports"), import_name("glTexSubImage2D"))) void
+glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels);
+__attribute__((import_module("imports"), import_name("glBufferSubData"))) void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size,
+                                                                                               const void *data);
 __attribute__((import_module("imports"), import_name("glEnableVertexAttribArray"))) void glEnableVertexAttribArray(GLuint index);
 __attribute__((import_module("imports"), import_name("glDisableVertexAttribArray"))) void glDisableVertexAttribArray(GLuint index);
-__attribute__((import_module("imports"), import_name("glVertexAttribPointer"))) void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+__attribute__((import_module("imports"), import_name("glVertexAttribPointer"))) void
+glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);

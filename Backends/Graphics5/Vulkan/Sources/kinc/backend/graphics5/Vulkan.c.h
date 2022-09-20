@@ -90,9 +90,9 @@ static VKAPI_ATTR void *VKAPI_CALL myalloc(void *pUserData, size_t size, size_t 
 	return _aligned_malloc(size, alignment);
 #else
 	void *ptr;
-	
-	if(alignment % sizeof(void*) != 0) {
-		alignment *= (sizeof(void*) / alignment);
+
+	if (alignment % sizeof(void *) != 0) {
+		alignment *= (sizeof(void *) / alignment);
 	}
 
 	if (posix_memalign(&ptr, alignment, size) != 0) {

@@ -516,9 +516,9 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 	if (began) return;
 	began = true;
 
-	#ifndef KORE_WINDOWS
+#ifndef KORE_WINDOWS
 	kinc_internal_wait_for_frame();
-	#endif
+#endif
 
 	struct dx_window *window = &dx_ctx.windows[windowId];
 	dx_ctx.current_window = windowId;

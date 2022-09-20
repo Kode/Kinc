@@ -596,7 +596,7 @@ void wl_data_source_handle_target(void *data, struct wl_data_source *wl_data_sou
 
 void wl_data_source_handle_send(void *data, struct wl_data_source *wl_data_source, const char *mime_type, int32_t fd) {
 	struct kinc_wl_data_source *data_source = wl_data_source_get_user_data(wl_data_source);
-	if(write(fd, data_source->data, data_source->data_size) < data_source->data_size) {
+	if (write(fd, data_source->data, data_source->data_size) < data_source->data_size) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to write all data for data source");
 	}
 	close(fd);

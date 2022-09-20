@@ -299,7 +299,7 @@ void kinc_g5_command_list_set_pipeline(struct kinc_g5_command_list *list, kinc_g
 }
 
 void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
-	const FLOAT BlendFactor[4] = {r,g,b,a};
+	const FLOAT BlendFactor[4] = {r, g, b, a};
 	list->impl._commandList->OMSetBlendFactor(BlendFactor);
 }
 

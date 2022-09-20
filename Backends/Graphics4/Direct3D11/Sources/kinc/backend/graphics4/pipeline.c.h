@@ -5,7 +5,7 @@
 #include <kinc/log.h>
 
 kinc_g4_pipeline_t *currentPipeline = NULL;
-float currentBlendFactor[4] = {0,0,0,0};
+float currentBlendFactor[4] = {0, 0, 0, 0};
 bool needPipelineRebind = true;
 
 static D3D11_CULL_MODE convert_cull_mode(kinc_g4_cull_mode_t cullMode) {
@@ -203,7 +203,7 @@ void kinc_internal_set_pipeline(struct kinc_g4_pipeline *pipeline, bool scissori
 }
 
 void kinc_internal_pipeline_rebind() {
-	if(currentPipeline != NULL && needPipelineRebind) {
+	if (currentPipeline != NULL && needPipelineRebind) {
 		kinc_internal_set_pipeline(currentPipeline, kinc_internal_scissoring);
 		needPipelineRebind = false;
 	}

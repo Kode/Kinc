@@ -492,7 +492,7 @@ void kinc_g4_disable_scissor() {
 }
 
 void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
-	if(pipeline != currentPipeline) {
+	if (pipeline != currentPipeline) {
 		currentPipeline = pipeline;
 		needPipelineRebind = true;
 	}
@@ -505,7 +505,7 @@ void kinc_g4_set_stencil_reference_value(int value) {
 }
 
 void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
-	if(currentBlendFactor[0] != r || currentBlendFactor[1] != g || currentBlendFactor[2] != b || currentBlendFactor[3] != a) {
+	if (currentBlendFactor[0] != r || currentBlendFactor[1] != g || currentBlendFactor[2] != b || currentBlendFactor[3] != a) {
 		currentBlendFactor[0] = r;
 		currentBlendFactor[1] = g;
 		currentBlendFactor[2] = b;
