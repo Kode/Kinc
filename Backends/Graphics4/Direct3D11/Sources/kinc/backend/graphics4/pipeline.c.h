@@ -5,6 +5,8 @@
 #include <kinc/log.h>
 
 kinc_g4_pipeline_t *currentPipeline = NULL;
+float currentBlendFactor[4] = {0,0,0,0};
+bool needPipelineRebind = true;
 
 static D3D11_CULL_MODE convert_cull_mode(kinc_g4_cull_mode_t cullMode) {
 	switch (cullMode) {
@@ -181,12 +183,9 @@ void kinc_internal_set_rasterizer_state(struct kinc_g4_pipeline *pipeline, bool 
 }
 
 void kinc_internal_set_pipeline(struct kinc_g4_pipeline *pipeline, bool scissoring) {
-	currentPipeline = pipeline;
-
 	dx_ctx.context->lpVtbl->OMSetDepthStencilState(dx_ctx.context, pipeline->impl.depthStencilState, pipeline->stencil_reference_value);
-	float blendFactor[] = {0, 0, 0, 0};
 	UINT sampleMask = 0xffffffff;
-	dx_ctx.context->lpVtbl->OMSetBlendState(dx_ctx.context, pipeline->impl.blendState, blendFactor, sampleMask);
+	dx_ctx.context->lpVtbl->OMSetBlendState(dx_ctx.context, pipeline->impl.blendState, currentBlendFactor, sampleMask);
 	kinc_internal_set_rasterizer_state(pipeline, scissoring);
 
 	dx_ctx.context->lpVtbl->VSSetShader(dx_ctx.context, (ID3D11VertexShader *)pipeline->vertex_shader->impl.shader, NULL, 0);
@@ -201,6 +200,13 @@ void kinc_internal_set_pipeline(struct kinc_g4_pipeline *pipeline, bool scissori
 	    NULL, 0);
 
 	dx_ctx.context->lpVtbl->IASetInputLayout(dx_ctx.context, pipeline->impl.d3d11inputLayout);
+}
+
+void kinc_internal_pipeline_rebind() {
+	if(currentPipeline != NULL && needPipelineRebind) {
+		kinc_internal_set_pipeline(currentPipeline, kinc_internal_scissoring);
+		needPipelineRebind = false;
+	}
 }
 
 static kinc_internal_shader_constant_t *findConstant(kinc_internal_shader_constant_t *constants, uint32_t hash) {

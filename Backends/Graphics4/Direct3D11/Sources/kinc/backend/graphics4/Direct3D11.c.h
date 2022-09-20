@@ -39,7 +39,10 @@ IUnknown *kinc_winapp_internal_get_window(void);
 #endif
 
 extern kinc_g4_pipeline_t *currentPipeline;
+extern float currentBlendFactor[4];
+extern bool needPipelineRebind;
 void kinc_internal_set_constants(void);
+void kinc_internal_pipeline_rebind(void);
 
 bool kinc_internal_scissoring = false;
 
@@ -333,6 +336,7 @@ void kinc_internal_g4_index_buffer_set(kinc_g4_index_buffer_t *buffer) {
 }
 
 void kinc_g4_draw_indexed_vertices() {
+	kinc_internal_pipeline_rebind();
 	if (currentPipeline->tessellation_control_shader != NULL) {
 		dx_ctx.context->lpVtbl->IASetPrimitiveTopology(dx_ctx.context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -350,6 +354,7 @@ void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
 }
 
 void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
+	kinc_internal_pipeline_rebind();
 	if (currentPipeline->tessellation_control_shader != NULL) {
 		dx_ctx.context->lpVtbl->IASetPrimitiveTopology(dx_ctx.context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -367,6 +372,7 @@ void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
 }
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
+	kinc_internal_pipeline_rebind();
 	if (currentPipeline->tessellation_control_shader != NULL) {
 		dx_ctx.context->lpVtbl->IASetPrimitiveTopology(dx_ctx.context, D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	}
@@ -485,15 +491,26 @@ void kinc_g4_disable_scissor() {
 	}
 }
 
-void kinc_internal_set_pipeline(kinc_g4_pipeline_t *pipeline, bool scissoring);
-
 void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
-	kinc_internal_set_pipeline(pipeline, kinc_internal_scissoring);
+	if(pipeline != currentPipeline) {
+		currentPipeline = pipeline;
+		needPipelineRebind = true;
+	}
 }
 
 void kinc_g4_set_stencil_reference_value(int value) {
 	if (currentPipeline != NULL) {
 		dx_ctx.context->lpVtbl->OMSetDepthStencilState(dx_ctx.context, currentPipeline->impl.depthStencilState, value);
+	}
+}
+
+void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
+	if(currentBlendFactor[0] != r || currentBlendFactor[1] != g || currentBlendFactor[2] != b || currentBlendFactor[3] != a) {
+		currentBlendFactor[0] = r;
+		currentBlendFactor[1] = g;
+		currentBlendFactor[2] = b;
+		currentBlendFactor[3] = a;
+		needPipelineRebind = true;
 	}
 }
 
