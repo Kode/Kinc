@@ -453,4 +453,8 @@ void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 	kinc_g5_command_list_set_pipeline(&commandList, &pipeline->impl._pipeline);
 }
 
+void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
+	kinc_g5_command_list_set_blend_constant(&commandList, r, g, b, a);
+}
+
 void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array) {}
