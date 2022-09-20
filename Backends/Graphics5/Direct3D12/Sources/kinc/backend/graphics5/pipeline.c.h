@@ -184,6 +184,10 @@ static D3D12_BLEND convert_blend_factor(kinc_g5_blending_factor_t factor) {
 		return D3D12_BLEND_INV_SRC_COLOR;
 	case KINC_G5_BLEND_INV_DEST_COLOR:
 		return D3D12_BLEND_INV_DEST_COLOR;
+	case KINC_G5_BLEND_CONSTANT:
+		return D3D12_BLEND_BLEND_FACTOR;
+	case KINC_G5_BLEND_INV_CONSTANT:
+		return D3D12_BLEND_INV_BLEND_FACTOR;
 	default:
 		assert(false);
 		return D3D12_BLEND_ONE;
