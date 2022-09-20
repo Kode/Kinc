@@ -33,6 +33,10 @@ static MTLBlendFactor convert_blending_factor(kinc_g5_blending_factor_t factor) 
 		return MTLBlendFactorOneMinusSourceColor;
 	case KINC_G5_BLEND_INV_DEST_COLOR:
 		return MTLBlendFactorOneMinusDestinationColor;
+	case KINC_G5_BLEND_CONSTANT:
+		return MTLBlendFactorBlendColor;
+	case KINC_G5_BLEND_INV_CONSTANT:
+		return MTLBlendFactorOneMinusBlendColor;
 	}
 }
 
