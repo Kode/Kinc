@@ -44,7 +44,8 @@ typedef enum command {
 	SetTextureMipmapFilter,
 	SetImageTexture,
 	SetVertexConstantBuffer,
-	SetFragmentConstantBuffer
+	SetFragmentConstantBuffer,
+	SetBlendConstant,
 } command_t;
 
 void kinc_g4_pipeline_get_constant_locations(kinc_g4_pipeline_t *state, kinc_g4_constant_location_t *vertex_locations,
@@ -118,7 +119,13 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 	WRITE(kinc_g5_pipeline_t *, pipeline);
 }
 
-void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {}
+void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
+	WRITE(command_t, SetBlendConstant);
+	WRITE(float, r);
+	WRITE(float, g);
+	WRITE(float, b);
+	WRITE(float, a);
+}
 
 void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
 
@@ -229,11 +236,15 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 #else
 			kinc_g4_render_target_t *buffers[count];
 #endif
+			int first_framebuffer_index = -1;
 			for (int i = 0; i < count; ++i) {
 				READ(kinc_g5_render_target_t *, buffer);
+				if(i == 0) {
+					first_framebuffer_index = buffer->framebuffer_index;
+				}
 				buffers[i] = &buffer->impl.target;
 			}
-			if (buffers[0]->contextId < 0) {
+			if (first_framebuffer_index >= 0) {
 				if (count > 1) {
 					kinc_log(KINC_LOG_LEVEL_ERROR, "Rendering to backbuffer and render targets at the same time is not supported");
 				}
@@ -268,25 +279,28 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 			READ(kinc_g5_texture_direction_t, dir);
 			READ(kinc_g5_texture_addressing_t, addressing);
 			// assume for now that g5 and g4 match for the texture addressing and direction enums
-			kinc_g4_set_texture_addressing(unit.impl.unit, dir, addressing);
+			kinc_g4_set_texture_addressing(unit.impl.unit, (kinc_g4_texture_direction_t)dir, (kinc_g4_texture_addressing_t)addressing);
 			break;
 		}
 		case SetTextureMagnificationFilter: {
 			READ(kinc_g5_texture_unit_t, unit);
 			READ(kinc_g5_texture_filter_t, filter);
-			kinc_g4_set_texture_magnification_filter(unit.impl.unit, filter);
+			// the G5 filters should be the same as the G4 filters
+			kinc_g4_set_texture_magnification_filter(unit.impl.unit, (kinc_g4_texture_filter_t)filter);
 			break;
 		}
 		case SetTextureMinificationFilter: {
 			READ(kinc_g5_texture_unit_t, unit);
 			READ(kinc_g5_texture_filter_t, filter);
-			kinc_g4_set_texture_minification_filter(unit.impl.unit, filter);
+			// the G5 filters should be the same as the G4 filters
+			kinc_g4_set_texture_minification_filter(unit.impl.unit, (kinc_g4_texture_filter_t)filter);
 			break;
 		}
 		case SetTextureMipmapFilter: {
 			READ(kinc_g5_texture_unit_t, unit);
 			READ(kinc_g5_texture_filter_t, filter);
-			kinc_g4_set_texture_mipmap_filter(unit.impl.unit, filter);
+			// the G5 filters should be the same as the G4 filters
+			kinc_g4_set_texture_mipmap_filter(unit.impl.unit, (kinc_g4_mipmap_filter_t)filter);
 			break;
 		}
 		case SetImageTexture: {
@@ -298,19 +312,20 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 		case SetVertexConstantBuffer: {
 			READ(kinc_g5_constant_buffer_t *, buffer);
 			(void)buffer;
+			(void)current_pipeline;
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Constant buffers are not supported on G5onG4 at the moment.");
-// 		if(current_pipeline == NULL) {
-// 			kinc_log(KINC_LOG_LEVEL_ERROR, "Please set the pipeline before setting constant buffers.");
-// 		} else {
-// 			kinc_g4_constant_location_t *constant_locations = current_pipeline->impl.pipe.vertex_locations;
-// 			int *sizes = current_pipeline->impl.pipe.vertex_sizes;
-// 			char *data = buffer->data;
-// 			for(int i = 0; i < current_pipeline->impl.pipe.vertex_count; ++i) {
-// 				// kinc_g4_set
-// 				// kinc_g4_set_vertex_constant_buffer(constant_locations[i], sizes[i], data);
-// 				data += sizes[i];
-// 			}
-// 		}
+			// 		if(current_pipeline == NULL) {
+			// 			kinc_log(KINC_LOG_LEVEL_ERROR, "Please set the pipeline before setting constant buffers.");
+			// 		} else {
+			// 			kinc_g4_constant_location_t *constant_locations = current_pipeline->impl.pipe.vertex_locations;
+			// 			int *sizes = current_pipeline->impl.pipe.vertex_sizes;
+			// 			char *data = buffer->data;
+			// 			for(int i = 0; i < current_pipeline->impl.pipe.vertex_count; ++i) {
+			// 				// kinc_g4_set
+			// 				// kinc_g4_set_vertex_constant_buffer(constant_locations[i], sizes[i], data);
+			// 				data += sizes[i];
+			// 			}
+			// 		}
 			break;
 		}
 		case SetFragmentConstantBuffer: {
@@ -318,6 +333,13 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 			(void)buffer;
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Constant buffers are not supported on G5onG4 at the moment.");
 			break;
+		}
+		case SetBlendConstant: {
+			READ(float, r);
+			READ(float, g);
+			READ(float, b);
+			READ(float, a);
+			kinc_g4_set_blend_constant(r, g, b, a);
 		}
 		default:
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Unknown command %i\n", command);
