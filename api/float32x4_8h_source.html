@@ -193,7 +193,7 @@ $(function() {
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;}</div>
 <div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160; </div>
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> <a class="code" href="structkinc__float32x4.html">kinc_float32x4_t</a> kinc_float32x4_div(<a class="code" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="code" href="structkinc__float32x4.html">kinc_float32x4_t</a> b) {</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="preprocessor">#if defined(KORE_SWITCH) || defined(__aarch64__)</span></div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="preprocessor">#if defined(__aarch64__)</span></div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="keywordflow">return</span> vdivq_f32(a, b);</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    float32x4_t inv = vrecpeq_f32(b);</div>
@@ -224,7 +224,7 @@ $(function() {
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;}</div>
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160; </div>
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> <a class="code" href="structkinc__float32x4.html">kinc_float32x4_t</a> kinc_float32x4_sqrt(<a class="code" href="structkinc__float32x4.html">kinc_float32x4_t</a> t) {</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<span class="preprocessor">#if defined(KORE_SWITCH) || defined(__aarch64__)</span></div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<span class="preprocessor">#if defined(__aarch64__)</span></div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="keywordflow">return</span> vsqrtq_f32(t);</div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <span class="keywordflow">return</span> vmulq_f32(t, vrsqrteq_f32(t));</div>
