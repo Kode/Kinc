@@ -207,13 +207,13 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	resourceDescTex.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	resourceDescTex.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-	HRESULT result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-	                                                 IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+	HRESULT result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+	                                                 NULL, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
-			result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+			result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			                                         NULL, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 			if (result == S_OK) {
 				break;
 			}
@@ -317,13 +317,13 @@ void create_texture(struct kinc_g5_texture *texture, int width, int height, kinc
 	resourceDescTex.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	resourceDescTex.Flags = flags;
 
-	HRESULT result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-	                                                 IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+	HRESULT result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+	                                                 NULL, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 	if (result != S_OK) {
 		for (int i = 0; i < 10; ++i) {
 			kinc_memory_emergency();
-			result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_COPY_DEST, NULL,
-			                                         IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
+			result = device->CreateCommittedResource(&heapPropertiesDefault, D3D12_HEAP_FLAG_NONE, &resourceDescTex, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			                                         NULL, IID_GRAPHICS_PPV_ARGS(&texture->impl.image));
 			if (result == S_OK) {
 				break;
 			}

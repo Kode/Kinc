@@ -353,6 +353,18 @@ void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, kinc
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_texture_t *texture) {
 	assert(list->impl.open);
 
+	{
+		D3D12_RESOURCE_BARRIER transition = {};
+		transition.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		transition.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		transition.Transition.pResource = texture->impl.image;
+		transition.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		transition.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+		transition.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+		list->impl._commandList->ResourceBarrier(1, &transition);
+	}
+
 	D3D12_RESOURCE_DESC Desc = texture->impl.image->GetDesc();
 	ID3D12Device *device;
 	texture->impl.image->GetDevice(IID_GRAPHICS_PPV_ARGS(&device));
@@ -372,15 +384,17 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_t
 
 	list->impl._commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, NULL);
 
-	D3D12_RESOURCE_BARRIER transition = {};
-	transition.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	transition.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	transition.Transition.pResource = texture->impl.image;
-	transition.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	transition.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	transition.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	{
+		D3D12_RESOURCE_BARRIER transition = {};
+		transition.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		transition.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		transition.Transition.pResource = texture->impl.image;
+		transition.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+		transition.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		transition.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-	list->impl._commandList->ResourceBarrier(1, &transition);
+		list->impl._commandList->ResourceBarrier(1, &transition);
+	}
 }
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
