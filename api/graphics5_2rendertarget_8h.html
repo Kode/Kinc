@@ -135,12 +135,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a1b0015de885979bf1e9f00ab0b9f700f"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#a1b0015de885979bf1e9f00ab0b9f700f">kinc_g5_render_target_destroy</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target)</td></tr>
 <tr class="memdesc:a1b0015de885979bf1e9f00ab0b9f700f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocates and destroys a render-target.  <a href="graphics5_2rendertarget_8h.html#a1b0015de885979bf1e9f00ab0b9f700f">More...</a><br /></td></tr>
 <tr class="separator:a1b0015de885979bf1e9f00ab0b9f700f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94688f03b680ce597ba59585085eb845"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#a94688f03b680ce597ba59585085eb845">kinc_g5_render_target_use_color_as_texture</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit)</td></tr>
-<tr class="memdesc:a94688f03b680ce597ba59585085eb845"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uses the color-component of a render-target as a texture.  <a href="graphics5_2rendertarget_8h.html#a94688f03b680ce597ba59585085eb845">More...</a><br /></td></tr>
-<tr class="separator:a94688f03b680ce597ba59585085eb845"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c310471feda533cad7fc3cd07f4188e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#a2c310471feda533cad7fc3cd07f4188e">kinc_g5_render_target_use_depth_as_texture</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit)</td></tr>
-<tr class="memdesc:a2c310471feda533cad7fc3cd07f4188e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uses the depth-component of a render-target as a texture.  <a href="graphics5_2rendertarget_8h.html#a2c310471feda533cad7fc3cd07f4188e">More...</a><br /></td></tr>
-<tr class="separator:a2c310471feda533cad7fc3cd07f4188e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe9f17ead1f0b402cf2ec1f1e06cb70b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2rendertarget_8h.html#abe9f17ead1f0b402cf2ec1f1e06cb70b">kinc_g5_render_target_set_depth_stencil_from</a> (<a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target, <a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *source)</td></tr>
 <tr class="memdesc:abe9f17ead1f0b402cf2ec1f1e06cb70b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies the depth and stencil-components of one render-target into another one.  <a href="graphics5_2rendertarget_8h.html#abe9f17ead1f0b402cf2ec1f1e06cb70b">More...</a><br /></td></tr>
 <tr class="separator:abe9f17ead1f0b402cf2ec1f1e06cb70b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -612,80 +606,6 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
-
-</div>
-</div>
-<a id="a94688f03b680ce597ba59585085eb845"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a94688f03b680ce597ba59585085eb845">&#9670;&nbsp;</a></span>kinc_g5_render_target_use_color_as_texture()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g5_render_target_use_color_as_texture </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *&#160;</td>
-          <td class="paramname"><em>target</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a>&#160;</td>
-          <td class="paramname"><em>unit</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Uses the color-component of a render-target as a texture. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">renderTarget</td><td>The render-target to use</td></tr>
-    <tr><td class="paramname">unit</td><td>The texture-unit to assign the render-target to</td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a2c310471feda533cad7fc3cd07f4188e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2c310471feda533cad7fc3cd07f4188e">&#9670;&nbsp;</a></span>kinc_g5_render_target_use_depth_as_texture()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g5_render_target_use_depth_as_texture </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *&#160;</td>
-          <td class="paramname"><em>target</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a>&#160;</td>
-          <td class="paramname"><em>unit</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Uses the depth-component of a render-target as a texture. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">renderTarget</td><td>The render-target to use</td></tr>
-    <tr><td class="paramname">unit</td><td>The texture-unit to assign the render-target to</td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>

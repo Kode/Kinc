@@ -229,9 +229,6 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <tr class="memitem:a0a5f905b11a8176588e2536184998639"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a0a5f905b11a8176588e2536184998639">kinc_g5_command_list_set_fragment_constant_buffer</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, struct <a class="el" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a> *buffer, int offset, size_t size)</td></tr>
 <tr class="memdesc:a0a5f905b11a8176588e2536184998639"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a command that sets a constant-buffer for the fragment-shader-stage.  <a href="commandlist_8h.html#a0a5f905b11a8176588e2536184998639">More...</a><br /></td></tr>
 <tr class="separator:a0a5f905b11a8176588e2536184998639"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a534620422a8a8fdbaab3194b81d002b1"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a534620422a8a8fdbaab3194b81d002b1">kinc_g5_command_list_set_pipeline_layout</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list)</td></tr>
-<tr class="memdesc:a534620422a8a8fdbaab3194b81d002b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">This currently has to be called after setting a pipeline but is target to be removed by the main-developer.  <a href="commandlist_8h.html#a534620422a8a8fdbaab3194b81d002b1">More...</a><br /></td></tr>
-<tr class="separator:a534620422a8a8fdbaab3194b81d002b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a15ca6e1e3764a23e40f4ee5df44f6fb8">kinc_g5_command_list_execute</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list)</td></tr>
 <tr class="memdesc:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kicks of execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand.  <a href="commandlist_8h.html#a15ca6e1e3764a23e40f4ee5df44f6fb8">More...</a><br /></td></tr>
 <tr class="separator:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -250,6 +247,12 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <tr class="memitem:a696b0ef20dc5bc98c009d75ef199bee2"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a696b0ef20dc5bc98c009d75ef199bee2">kinc_g5_command_list_set_image_texture</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit, <a class="el" href="structkinc__g5__texture.html">kinc_g5_texture_t</a> *texture)</td></tr>
 <tr class="memdesc:a696b0ef20dc5bc98c009d75ef199bee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a texture to a texture-unit for direct access.  <a href="commandlist_8h.html#a696b0ef20dc5bc98c009d75ef199bee2">More...</a><br /></td></tr>
 <tr class="separator:a696b0ef20dc5bc98c009d75ef199bee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a90f1c2dd99304137ed62904d37c7e6"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a1a90f1c2dd99304137ed62904d37c7e6">kinc_g5_command_list_set_texture_from_render_target</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit, <a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target)</td></tr>
+<tr class="memdesc:a1a90f1c2dd99304137ed62904d37c7e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uses the color-component of a render-target as a texture.  <a href="commandlist_8h.html#a1a90f1c2dd99304137ed62904d37c7e6">More...</a><br /></td></tr>
+<tr class="separator:a1a90f1c2dd99304137ed62904d37c7e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d51ab85a93de3e03d3ff61b2c828b04"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a5d51ab85a93de3e03d3ff61b2c828b04">kinc_g5_command_list_set_texture_from_render_target_depth</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit, <a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target)</td></tr>
+<tr class="memdesc:a5d51ab85a93de3e03d3ff61b2c828b04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uses the depth-component of a render-target as a texture.  <a href="commandlist_8h.html#a5d51ab85a93de3e03d3ff61b2c828b04">More...</a><br /></td></tr>
+<tr class="separator:a5d51ab85a93de3e03d3ff61b2c828b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af02819da6a238219e0f9e8b3e9e0328c"><td class="memItemLeft" align="right" valign="top"><a id="af02819da6a238219e0f9e8b3e9e0328c"></a>
 KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_command_list_set_render_target_face</b> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *texture, int face)</td></tr>
 <tr class="separator:af02819da6a238219e0f9e8b3e9e0328c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1025,6 +1028,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <p>Assigns a texture to a texture-unit for direct access. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
     <tr><td class="paramname">unit</td><td>The unit to assign this texture to</td></tr>
     <tr><td class="paramname">texture</td><td>The texture to assign to the unit</td></tr>
   </table>
@@ -1101,32 +1105,6 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
   <table class="params">
     <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
     <tr><td class="paramname">pipeline</td><td>The pipeline to set</td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a534620422a8a8fdbaab3194b81d002b1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a534620422a8a8fdbaab3194b81d002b1">&#9670;&nbsp;</a></span>kinc_g5_command_list_set_pipeline_layout()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g5_command_list_set_pipeline_layout </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
-          <td class="paramname"><em>list</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>This currently has to be called after setting a pipeline but is target to be removed by the main-developer. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
   </table>
   </dd>
 </dl>
@@ -1212,8 +1190,97 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <p>Assigns a texture to a texture-unit for sampled access. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
     <tr><td class="paramname">unit</td><td>The unit to assign this texture to</td></tr>
     <tr><td class="paramname">texture</td><td>The texture to assign to the unit</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a1a90f1c2dd99304137ed62904d37c7e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a90f1c2dd99304137ed62904d37c7e6">&#9670;&nbsp;</a></span>kinc_g5_command_list_set_texture_from_render_target()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_command_list_set_texture_from_render_target </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
+          <td class="paramname"><em>list</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a>&#160;</td>
+          <td class="paramname"><em>unit</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *&#160;</td>
+          <td class="paramname"><em>target</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Uses the color-component of a render-target as a texture. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
+    <tr><td class="paramname">unit</td><td>The texture-unit to assign the render-target to</td></tr>
+    <tr><td class="paramname">target</td><td>The render-target to use</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a5d51ab85a93de3e03d3ff61b2c828b04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d51ab85a93de3e03d3ff61b2c828b04">&#9670;&nbsp;</a></span>kinc_g5_command_list_set_texture_from_render_target_depth()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_command_list_set_texture_from_render_target_depth </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
+          <td class="paramname"><em>list</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a>&#160;</td>
+          <td class="paramname"><em>unit</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *&#160;</td>
+          <td class="paramname"><em>target</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Uses the depth-component of a render-target as a texture. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
+    <tr><td class="paramname">unit</td><td>The texture-unit to assign the render-target to</td></tr>
+    <tr><td class="paramname">target</td><td>The render-target to use</td></tr>
   </table>
   </dd>
 </dl>
