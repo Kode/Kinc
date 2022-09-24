@@ -11,7 +11,6 @@ id getMetalDevice(void);
 id getMetalEncoder(void);
 
 kinc_g5_vertex_buffer_t *currentVertexBuffer = NULL;
-extern kinc_g5_index_buffer_t *currentIndexBuffer;
 
 static void vertex_buffer_unset(kinc_g5_vertex_buffer_t *buffer) {
 	if (currentVertexBuffer == buffer) currentVertexBuffer = NULL;
@@ -94,7 +93,6 @@ void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buf, int count) {
 
 int kinc_g5_internal_vertex_buffer_set(kinc_g5_vertex_buffer_t *buf, int offset_) {
 	currentVertexBuffer = buf;
-	if (currentIndexBuffer != NULL) kinc_g5_internal_index_buffer_set(currentIndexBuffer);
 
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.mtlBuffer;

@@ -5,12 +5,6 @@
 
 id getMetalDevice(void);
 
-kinc_g5_index_buffer_t *currentIndexBuffer = NULL;
-
-static void index_buffer_unset(kinc_g5_index_buffer_t *buffer) {
-	if (currentIndexBuffer == buffer) currentIndexBuffer = NULL;
-}
-
 void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, kinc_g5_index_buffer_format_t format, bool gpuMemory) {
 	buffer->impl.count = indexCount;
 	buffer->impl.gpu_memory = gpuMemory;
@@ -37,7 +31,6 @@ void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 	id<MTLBuffer> buf = (__bridge_transfer id<MTLBuffer>)buffer->impl.metal_buffer;
 	buf = nil;
 	buffer->impl.metal_buffer = NULL;
-	index_buffer_unset(buffer);
 }
 
 int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buf) {
@@ -56,10 +49,6 @@ void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buf) {
 		[buffer didModifyRange:range];
 	}
 #endif
-}
-
-void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
-	currentIndexBuffer = buffer;
 }
 
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
