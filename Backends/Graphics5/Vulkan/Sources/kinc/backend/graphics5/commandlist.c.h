@@ -856,8 +856,6 @@ static void set_barriers(kinc_g5_command_list_t *list) {
 	render_target_to_texture_barriers_count = 0;
 }
 
-void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
-
 static bool wait_for_framebuffer = false;
 
 static void command_list_should_wait_for_framebuffer(void) {
@@ -931,3 +929,15 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 }
 
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
+
+void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
+	target->impl.stage = unit.impl.binding - 2;
+	vulkanRenderTargets[unit.impl.binding - 2] = target;
+	vulkanTextures[unit.impl.binding - 2] = NULL;
+}
+
+void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
+	target->impl.stage_depth = unit.impl.binding - 2;
+	vulkanRenderTargets[unit.impl.binding - 2] = target;
+	vulkanTextures[unit.impl.binding - 2] = NULL;
+}

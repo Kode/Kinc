@@ -73,10 +73,6 @@ void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
 	vkUnmapMemory(vk_ctx.device, buffer->impl.mem);
 }
 
-void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
-	currentIndexBuffer = buffer;
-}
-
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
 	return buffer->impl.count;
 }

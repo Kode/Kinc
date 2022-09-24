@@ -144,12 +144,6 @@ void kinc_g5_command_list_render_target_to_texture_barrier(struct kinc_g5_comman
 	list->impl._commandList->ResourceBarrier(1, &barrier);
 }
 
-void kinc_g5_command_list_set_pipeline_layout(struct kinc_g5_command_list *list) {
-	assert(list->impl.open);
-
-	kinc_g5_internal_setConstants(list->impl._commandList, list->impl._currentPipeline);
-}
-
 void kinc_g5_command_list_set_vertex_constant_buffer(struct kinc_g5_command_list *list, kinc_g5_constant_buffer_t *buffer, int offset, size_t size) {
 	assert(list->impl.open);
 
@@ -296,6 +290,7 @@ void kinc_g5_command_list_set_pipeline(struct kinc_g5_command_list *list, kinc_g
 		currentRenderTargets[i] = NULL;
 		currentTextures[i] = NULL;
 	}
+	kinc_g5_internal_setConstants(list->impl._commandList, list->impl._currentPipeline);
 }
 
 void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
@@ -522,3 +517,17 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 }
 
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
+
+void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
+	if (unit.impl.unit < 0) return;
+	target->impl.stage = unit.impl.unit;
+	currentRenderTargets[target->impl.stage] = target;
+	currentTextures[target->impl.stage] = NULL;
+}
+
+void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
+	if (unit.impl.unit < 0) return;
+	target->impl.stage_depth = unit.impl.unit;
+	currentRenderTargets[target->impl.stage_depth] = target;
+	currentTextures[target->impl.stage_depth] = NULL;
+}

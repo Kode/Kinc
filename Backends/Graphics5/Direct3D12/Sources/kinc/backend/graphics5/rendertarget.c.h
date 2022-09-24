@@ -281,20 +281,6 @@ void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
 	}
 }
 
-void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {
-	if (unit.impl.unit < 0) return;
-	render_target->impl.stage = unit.impl.unit;
-	currentRenderTargets[render_target->impl.stage] = render_target;
-	currentTextures[render_target->impl.stage] = NULL;
-}
-
-void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *render_target, kinc_g5_texture_unit_t unit) {
-	if (unit.impl.unit < 0) return;
-	render_target->impl.stage_depth = unit.impl.unit;
-	currentRenderTargets[render_target->impl.stage_depth] = render_target;
-	currentTextures[render_target->impl.stage_depth] = NULL;
-}
-
 void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *render_target, kinc_g5_render_target_t *source) {
 	render_target->impl.depthStencilDescriptorHeap = source->impl.depthStencilDescriptorHeap;
 	render_target->impl.srvDepthDescriptorHeap = source->impl.srvDepthDescriptorHeap;

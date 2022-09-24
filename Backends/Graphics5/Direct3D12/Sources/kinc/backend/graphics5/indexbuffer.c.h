@@ -89,10 +89,6 @@ void kinc_g5_internal_index_buffer_upload(kinc_g5_index_buffer_t *buffer, ID3D12
 	commandList->ResourceBarrier(1, barriers);
 }
 
-void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
-	_current_index_buffer = buffer;
-}
-
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
 	return buffer->impl.count;
 }
