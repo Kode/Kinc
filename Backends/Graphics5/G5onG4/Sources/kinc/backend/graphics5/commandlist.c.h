@@ -145,8 +145,6 @@ void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc
 
 void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {}
 
-void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list) {}
-
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **buffers, int *offsets, int count) {
 	list->impl.commands[list->impl.commandIndex++] = SetVertexBuffer;
 	list->impl.commands[list->impl.commandIndex++] = count;
@@ -202,6 +200,15 @@ void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
 	kinc_g4_set_texture(unit.impl.unit, &texture->impl.texture);
+}
+
+void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *render_target) {
+	// kinc_g4_render_target_use_color_as_texture(render_target->impl, unit.impl.unit);
+}
+
+void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit,
+                                                               kinc_g5_render_target_t *render_target) {
+	// kinc_g4_render_target_use_depth_as_texture(render_target->impl, unit.impl.unit);
 }
 
 void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
