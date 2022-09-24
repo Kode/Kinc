@@ -3,8 +3,6 @@
 #include <kinc/backend/SystemMicrosoft.h>
 #include <kinc/graphics5/indexbuffer.h>
 
-kinc_g5_index_buffer_t *_current_index_buffer = NULL;
-
 void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, kinc_g5_index_buffer_format_t format, bool gpuMemory) {
 	buffer->impl.count = count;
 	buffer->impl.gpu_memory = gpuMemory;

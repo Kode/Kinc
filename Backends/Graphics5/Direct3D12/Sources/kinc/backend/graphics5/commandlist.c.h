@@ -500,6 +500,7 @@ void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, k
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
 	kinc_g5_internal_texture_set(texture, unit.impl.unit);
+	kinc_g5_internal_set_textures(list->impl._commandList);
 }
 
 bool kinc_g5_command_list_init_occlusion_query(kinc_g5_command_list_t *list, unsigned *occlusionQuery) {
@@ -523,6 +524,8 @@ void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t 
 	target->impl.stage = unit.impl.unit;
 	currentRenderTargets[target->impl.stage] = target;
 	currentTextures[target->impl.stage] = NULL;
+
+	kinc_g5_internal_set_textures(list->impl._commandList);
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
@@ -530,4 +533,6 @@ void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_l
 	target->impl.stage_depth = unit.impl.unit;
 	currentRenderTargets[target->impl.stage_depth] = target;
 	currentTextures[target->impl.stage_depth] = NULL;
+
+	kinc_g5_internal_set_textures(list->impl._commandList);
 }
