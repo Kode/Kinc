@@ -52,8 +52,6 @@ KINC_FUNC void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer);
 /// <returns>The number of indices</returns>
 KINC_FUNC int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer);
 
-void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer);
-
 #ifdef __cplusplus
 }
 #endif

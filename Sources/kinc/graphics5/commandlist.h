@@ -263,12 +263,6 @@ KINC_FUNC void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_l
 KINC_FUNC void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size);
 
 /// <summary>
-/// This currently has to be called after setting a pipeline but is target to be removed by the main-developer.
-/// </summary>
-/// <param name="list">The list to write the command to</param>
-KINC_FUNC void kinc_g5_command_list_set_pipeline_layout(kinc_g5_command_list_t *list);
-
-/// <summary>
 /// Kicks of execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand.
 /// </summary>
 /// <param name="list">The command-list to execute</param>
@@ -301,6 +295,7 @@ KINC_FUNC void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x,
 /// <summary>
 /// Assigns a texture to a texture-unit for sampled access.
 /// </summary>
+/// <param name="list">The list to write the command to</param>
 /// <param name="unit">The unit to assign this texture to</param>
 /// <param name="texture">The texture to assign to the unit</param>
 KINC_FUNC void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
@@ -308,9 +303,26 @@ KINC_FUNC void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, ki
 /// <summary>
 /// Assigns a texture to a texture-unit for direct access.
 /// </summary>
+/// <param name="list">The list to write the command to</param>
 /// <param name="unit">The unit to assign this texture to</param>
 /// <param name="texture">The texture to assign to the unit</param>
 KINC_FUNC void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
+
+/// <summary>
+/// Uses the color-component of a render-target as a texture.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="unit">The texture-unit to assign the render-target to</param>
+/// <param name="target">The render-target to use</param>
+KINC_FUNC void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target);
+
+/// <summary>
+/// Uses the depth-component of a render-target as a texture.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="unit">The texture-unit to assign the render-target to</param>
+/// <param name="target">The render-target to use</param>
+KINC_FUNC void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target);
 
 KINC_FUNC void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face);
 

@@ -82,7 +82,6 @@ void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBu
 }
 
 static void startDraw() {
-	kinc_g5_command_list_set_pipeline_layout(&commandList);
 	kinc_g5_constant_buffer_unlock(&vertexConstantBuffer);
 	kinc_g5_constant_buffer_unlock(&fragmentConstantBuffer);
 	kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);

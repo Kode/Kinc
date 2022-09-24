@@ -122,20 +122,6 @@ KINC_FUNC void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render
 KINC_FUNC void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target);
 
 /// <summary>
-/// Uses the color-component of a render-target as a texture.
-/// </summary>
-/// <param name="renderTarget">The render-target to use</param>
-/// <param name="unit">The texture-unit to assign the render-target to</param>
-KINC_FUNC void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit);
-
-/// <summary>
-/// Uses the depth-component of a render-target as a texture.
-/// </summary>
-/// <param name="renderTarget">The render-target to use</param>
-/// <param name="unit">The texture-unit to assign the render-target to</param>
-KINC_FUNC void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *target, kinc_g5_texture_unit_t unit);
-
-/// <summary>
 /// Copies the depth and stencil-components of one render-target into another one.
 /// </summary>
 /// <param name="renderTarget">The render-target to copy the data into</param>
