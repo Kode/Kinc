@@ -25,6 +25,7 @@ void kinc_g1_begin() {
 }
 
 void kinc_g1_end() {
+	kinc_internal_g1_image = NULL;
 	kinc_g4_texture_unlock(&texture);
 
 	kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xff000000, 0.0f, 0);
