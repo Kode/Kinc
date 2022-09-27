@@ -489,6 +489,10 @@ bool kinc_g4_swap_buffers() {
 
 void kinc_g4_set_stencil_reference_value(int value) {}
 
+void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
+	device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(r * 255, g * 255, b * 255, a * 255));
+}
+
 void kinc_g4_set_bool(kinc_g4_constant_location_t position, bool value) {
 	if (position.impl.shaderType == -1) return;
 	BOOL bools[4];
@@ -786,4 +790,23 @@ void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_textu
 
 void kinc_g4_set_pipeline(struct kinc_g4_pipeline *pipeline) {
 	kinc_g4_internal_set_pipeline(pipeline);
+}
+
+void kinc_g4_get_features(kinc_g4_features_t *features) {
+	features->computeShaders = false;
+	features->instancedRendering = true;
+	features->nonPow2Textures = true;
+	features->invertedY = false;
+	D3DCAPS9 pCaps = {};
+	if (FAILED(device->GetDeviceCaps(&pCaps))) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to get device caps");
+		return;
+	}
+
+	features->blendConstants = (pCaps.SrcBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR) &&
+	                           (pCaps.DstBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR);
+}
+
+void kinc_g4_get_limits(kinc_g4_limits_t *limits) {
+	limits->maxBoundTextures = kinc_g4_max_bound_textures();
 }
