@@ -13,6 +13,9 @@
 
 #if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_3)) || (defined(KORE_ANDROID) && defined(GL_ES_VERSION_3_1))
 #define HAS_COMPUTE
+bool kinc_internal_gl_has_compute = true;
+#else
+bool kinc_internal_gl_has_compute = false;
 #endif
 
 #ifdef HAS_COMPUTE

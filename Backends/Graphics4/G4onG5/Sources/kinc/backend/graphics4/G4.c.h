@@ -457,3 +457,15 @@ void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
 }
 
 void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array) {}
+
+void kinc_g4_get_features(kinc_g4_features_t *features) {
+	features->computeShaders = false;
+	features->instancedRendering = true;
+	features->nonPow2Textures = true;
+	features->invertedY = kinc_g4_render_targets_inverted_y(); 
+	features->blendConstants = true;
+}
+
+void kinc_g4_get_limits(kinc_g4_limits_t *limits) {
+	limits->maxBoundTextures = kinc_g4_max_bound_textures();
+}

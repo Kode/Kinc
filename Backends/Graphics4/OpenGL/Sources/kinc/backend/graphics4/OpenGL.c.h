@@ -1205,3 +1205,26 @@ int Kinc_G4_Internal_StencilFunc(kinc_g4_compare_mode_t mode) {
 
 	return 0;
 }
+
+extern bool kinc_internal_gl_has_compute;
+
+void kinc_g4_get_features(kinc_g4_features_t *features) {
+	features->computeShaders = kinc_internal_gl_has_compute;
+
+#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID)
+#if KORE_ANDROID_API >= 18
+	features->instancedRendering = glesDrawElementsInstanced != NULL;
+#else
+	features->instancedRendering = false;
+#endif
+#else
+	features->instancedRendering = true;
+#endif
+	features->nonPow2Textures = true; // TODO: check this
+	features->blendConstants = true;
+	features->invertedY = false;
+}
+
+void kinc_g4_get_limits(kinc_g4_limits_t *limits) {
+	limits->maxBoundTextures = kinc_g4_max_bound_textures();
+}

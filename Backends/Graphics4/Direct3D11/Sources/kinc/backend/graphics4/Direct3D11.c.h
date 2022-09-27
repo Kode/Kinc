@@ -1247,3 +1247,15 @@ bool kinc_window_vsynced(int window_index) {
 	struct dx_window *window = &dx_ctx.windows[window_index];
 	return window->vsync;
 }
+
+void kinc_g4_get_features(kinc_g4_features_t *features) {
+	features->computeShaders = true;
+	features->instancedRendering = true;
+	features->nonPow2Textures = true;
+	features->blendConstants = true;
+	features->invertedY = false;
+}
+
+void kinc_g4_get_limits(kinc_g4_limits_t *limits) {
+	limits->maxBoundTextures = kinc_g4_max_bound_textures();
+}

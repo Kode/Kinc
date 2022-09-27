@@ -38,6 +38,30 @@ typedef enum {
 	KINC_G4_MIPMAP_FILTER_LINEAR // linear texture filter + linear mip filter -> trilinear filter
 } kinc_g4_mipmap_filter_t;
 
+typedef struct kinc_g4_features {
+	bool instancedRendering;
+	bool computeShaders;
+	bool blendConstants;
+	bool nonPow2Textures;
+	bool invertedY;
+} kinc_g4_features_t;
+
+typedef struct kinc_g4_limits {
+	size_t maxBoundTextures;
+} kinc_g4_limits_t;
+
+/// <summary>
+///	Fills the passed object with information about supported features.
+/// </summary>
+/// <param name="features">Object to be filled with info about features.</param>
+KINC_FUNC void kinc_g4_get_features(kinc_g4_features_t *features);
+
+/// <summary>
+///	Fills the passed object with information about supported limits.
+/// </summary>
+/// <param name="limits">Object to be filled with info about limits.</param>
+KINC_FUNC void kinc_g4_get_limits(kinc_g4_limits_t *limits);
+
 /// <summary>
 /// Kicks of lingering work - may or may not actually do anything depending on the underlying graphics-API.
 /// </summary>
