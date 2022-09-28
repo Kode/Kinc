@@ -254,10 +254,7 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 		}
 	}
 
-	texture->impl.stride = (int)ceilf(uploadBufferSize / (float)image->height);
-	if (texture->impl.stride < d3d12_textureAlignment()) {
-		texture->impl.stride = d3d12_textureAlignment();
-	}
+	texture->impl.stride = (int)ceilf(uploadBufferSize / (float)(image->height * d3d12_textureAlignment())) * d3d12_textureAlignment();
 
 	BYTE *pixel;
 	texture->impl.uploadImage->Map(0, NULL, (void **)&pixel);
@@ -364,10 +361,7 @@ void create_texture(struct kinc_g5_texture *texture, int width, int height, kinc
 		}
 	}
 
-	texture->impl.stride = (int)ceilf(uploadBufferSize / (float)height);
-	if (texture->impl.stride < d3d12_textureAlignment()) {
-		texture->impl.stride = d3d12_textureAlignment();
-	}
+	texture->impl.stride = (int)ceilf(uploadBufferSize / (float)(height * d3d12_textureAlignment())) * d3d12_textureAlignment();
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {0};
 	descriptorHeapDesc.NumDescriptors = 1;
