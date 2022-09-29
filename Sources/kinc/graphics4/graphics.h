@@ -38,29 +38,22 @@ typedef enum {
 	KINC_G4_MIPMAP_FILTER_LINEAR // linear texture filter + linear mip filter -> trilinear filter
 } kinc_g4_mipmap_filter_t;
 
-typedef struct kinc_g4_features {
-	bool instancedRendering;
-	bool computeShaders;
-	bool blendConstants;
-	bool nonPow2Textures;
-	bool invertedY;
-} kinc_g4_features_t;
+KINC_FUNC bool kinc_g4_supports_instanced_rendering();
+KINC_FUNC bool kinc_g4_supports_compute_shaders();
+KINC_FUNC bool kinc_g4_supports_blend_constants();
+/// <summary>
+/// Returns whether textures are supported which have widths/heights which are not powers of two.
+/// </summary>
+/// <returns>Whether non power of two texture-sizes are supported</returns>
+KINC_FUNC bool kinc_g4_supports_non_pow2_textures();
 
-typedef struct kinc_g4_limits {
-	size_t maxBoundTextures;
-} kinc_g4_limits_t;
+KINC_FUNC bool kinc_g4_render_targets_inverted_y(void);
 
 /// <summary>
-///	Fills the passed object with information about supported features.
+/// Returns how many textures can be used at the same time in a fragment-shader.
 /// </summary>
-/// <param name="features">Object to be filled with info about features.</param>
-KINC_FUNC void kinc_g4_get_features(kinc_g4_features_t *features);
-
-/// <summary>
-///	Fills the passed object with information about supported limits.
-/// </summary>
-/// <param name="limits">Object to be filled with info about limits.</param>
-KINC_FUNC void kinc_g4_get_limits(kinc_g4_limits_t *limits);
+/// <returns>The number of textures</returns>
+KINC_FUNC int kinc_g4_max_bound_textures(void);
 
 /// <summary>
 /// Kicks of lingering work - may or may not actually do anything depending on the underlying graphics-API.
@@ -329,20 +322,6 @@ KINC_FUNC void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, u
 KINC_FUNC void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp);
 
 KINC_FUNC void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp);
-
-/// <summary>
-/// Returns how many textures can be used at the same time in a fragment-shader.
-/// </summary>
-/// <returns>The number of textures</returns>
-KINC_FUNC int kinc_g4_max_bound_textures(void);
-
-KINC_FUNC bool kinc_g4_render_targets_inverted_y(void);
-
-/// <summary>
-/// Returns whether textures are supported which have widths/heights which are not powers of two.
-/// </summary>
-/// <returns>Whether non power of two texture-sizes are supported</returns>
-KINC_FUNC bool kinc_g4_non_pow2_textures_supported(void);
 
 /// <summary>
 /// Sets the framebuffer (aka the actual contents of the current window) to be the target of any future draw-calls.

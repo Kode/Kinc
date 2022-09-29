@@ -42,24 +42,26 @@ int kinc_g5_max_bound_textures(void) {
 	return kinc_g4_max_bound_textures();
 }
 
-bool kinc_g5_render_targets_inverted_y() {
+bool kinc_g5_supports_raytracing() {
 	return false;
 }
-bool kinc_g5_non_pow2_textures_qupported() {
-	return true;
+
+bool kinc_g5_supports_instanced_rendering() {
+	return kinc_g4_supports_instanced_rendering();
 }
 
-void kinc_g5_get_features(kinc_g5_features_t *features) {
-	kinc_g4_features_t feat;
-	kinc_g4_get_features(&feat);
-	features->blendConstants = feat.blendConstants;
-	features->computeShaders = feat.computeShaders;
-	features->instancedRendering = feat.instancedRendering;
-	features->invertedY = feat.invertedY;
-	features->nonPow2Textures = feat.nonPow2Textures;
-	features->raytracing = false;
+bool kinc_g5_supports_compute_shaders() {
+	return kinc_g4_supports_compute_shaders();
 }
 
-void kinc_g5_get_limits(kinc_g5_limits_t *limits) {
-	limits->maxBoundTextures = kinc_g4_max_bound_textures();
+bool kinc_g5_supports_blend_constants() {
+	return kinc_g4_supports_blend_constants();
+}
+
+bool kinc_g5_supports_non_pow2_textures() {
+	return kinc_g4_supports_non_pow2_textures();
+}
+
+bool kinc_g5_render_targets_inverted_y() {
+	return kinc_g4_render_targets_inverted_y();
 }

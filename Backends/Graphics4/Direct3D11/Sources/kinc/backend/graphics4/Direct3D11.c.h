@@ -1060,14 +1060,6 @@ void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, f
 	kinc_g4_set_texture_lod(unit, lod_min_clamp, lod_max_clamp);
 }
 
-bool kinc_g4_render_targets_inverted_y() {
-	return false;
-}
-
-bool kinc_g4_non_pow2_textures_supported() {
-	return true;
-}
-
 void kinc_g4_restore_render_target() {
 	struct dx_window *window = &dx_ctx.windows[dx_ctx.current_window];
 	currentRenderTargetViews[0] = window->renderTargetView;
@@ -1248,14 +1240,22 @@ bool kinc_window_vsynced(int window_index) {
 	return window->vsync;
 }
 
-void kinc_g4_get_features(kinc_g4_features_t *features) {
-	features->computeShaders = true;
-	features->instancedRendering = true;
-	features->nonPow2Textures = true;
-	features->blendConstants = true;
-	features->invertedY = false;
+bool kinc_g4_supports_instanced_rendering() {
+	return true;
 }
 
-void kinc_g4_get_limits(kinc_g4_limits_t *limits) {
-	limits->maxBoundTextures = kinc_g4_max_bound_textures();
+bool kinc_g4_supports_compute_shaders() {
+	return true;
+}
+
+bool kinc_g4_supports_blend_constants() {
+	return true;
+}
+
+bool kinc_g4_supports_non_pow2_textures() {
+	return true; // we always request feature level >= 10
+}
+
+bool kinc_g4_render_targets_inverted_y(void) {
+	return false;
 }

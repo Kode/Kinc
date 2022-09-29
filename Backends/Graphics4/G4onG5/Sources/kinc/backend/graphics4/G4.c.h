@@ -360,14 +360,6 @@ void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t ma
 void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_mind_clamp, float lod_max_clamp);
 void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_mind_clamp, float lod_max_clamp);
 
-bool kinc_g4_render_targets_inverted_y() {
-	return kinc_g5_render_targets_inverted_y();
-}
-
-bool kinc_g4_non_pow2_textures_supported() {
-	return true;
-}
-
 void kinc_g4_restore_render_target() {
 	windows[current_window].current_render_targets[0] = NULL;
 	kinc_g5_render_target_t *render_target = &windows[current_window].framebuffers[windows[current_window].currentBuffer];
@@ -458,14 +450,22 @@ void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
 
 void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array) {}
 
-void kinc_g4_get_features(kinc_g4_features_t *features) {
-	features->computeShaders = false;
-	features->instancedRendering = true;
-	features->nonPow2Textures = true;
-	features->invertedY = kinc_g4_render_targets_inverted_y(); 
-	features->blendConstants = true;
+bool kinc_g4_supports_instanced_rendering() {
+	return kinc_g5_supports_instanced_rendering()
 }
 
-void kinc_g4_get_limits(kinc_g4_limits_t *limits) {
-	limits->maxBoundTextures = kinc_g4_max_bound_textures();
+bool kinc_g4_supports_compute_shaders() {
+	return kinc_g5_supports_compute_shaders();
+}
+
+bool kinc_g4_supports_blend_constants() {
+	return kinc_g5_supports_blend_constants();
+}
+
+bool kinc_g4_supports_non_pow2_textures() {
+	return kinc_g5_supports_non_pow2_textures();
+}
+
+bool kinc_g4_render_targets_inverted_y(void) {
+	return kinc_g5_render_targets_inverted_y();
 }

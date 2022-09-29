@@ -696,14 +696,6 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 		device->SetPixelShaderConstantF(location.impl.reg.regindex, floats, 3);
 }
 
-bool kinc_g4_render_targets_inverted_y() {
-	return false;
-}
-
-bool kinc_g4_non_pow2_textures_supported() {
-	return true;
-}
-
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 	for (int i = 0; i < count; ++i) {
 		kinc_internal_g4_vertex_buffer_set(buffers[i], i);
@@ -792,21 +784,35 @@ void kinc_g4_set_pipeline(struct kinc_g4_pipeline *pipeline) {
 	kinc_g4_internal_set_pipeline(pipeline);
 }
 
-void kinc_g4_get_features(kinc_g4_features_t *features) {
-	features->computeShaders = false;
-	features->instancedRendering = true;
-	features->nonPow2Textures = true;
-	features->invertedY = false;
+bool kinc_g4_supports_instanced_rendering() {
+	return true;
+}
+
+bool kinc_g4_supports_compute_shaders() {
+	return false;
+}
+
+bool kinc_g4_supports_blend_constants() {
 	D3DCAPS9 pCaps = {};
 	if (FAILED(device->GetDeviceCaps(&pCaps))) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to get device caps");
-		return;
+		return false;
 	}
 
-	features->blendConstants = (pCaps.SrcBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR) &&
+	return (pCaps.SrcBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR) &&
 	                           (pCaps.DestBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR);
 }
 
-void kinc_g4_get_limits(kinc_g4_limits_t *limits) {
-	limits->maxBoundTextures = kinc_g4_max_bound_textures();
+bool kinc_g4_supports_non_pow2_textures() {
+	D3DCAPS9 pCaps = {};
+	if (FAILED(device->GetDeviceCaps(&pCaps))) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to get device caps");
+		return false;
+	}
+	// only advertise full npot support
+	return (pCaps.TextureCaps & D3DPTEXTURECAPS_POW2 == 0) && (pCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL == 0)
+}
+
+bool kinc_g4_render_targets_inverted_y(void) {
+	return false;
 }

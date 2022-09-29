@@ -1083,14 +1083,6 @@ void kinc_g4_restore_render_target() {
 #endif
 }
 
-bool kinc_g4_render_targets_inverted_y() {
-	return true;
-}
-
-bool kinc_g4_non_pow2_textures_supported() {
-	return true;
-}
-
 #if (defined(KORE_OPENGL) && !defined(KORE_PI) && !defined(KORE_ANDROID)) || (defined(KORE_ANDROID) && KORE_ANDROID_API >= 18)
 bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
@@ -1208,23 +1200,33 @@ int Kinc_G4_Internal_StencilFunc(kinc_g4_compare_mode_t mode) {
 
 extern bool kinc_internal_gl_has_compute;
 
-void kinc_g4_get_features(kinc_g4_features_t *features) {
-	features->computeShaders = kinc_internal_gl_has_compute;
-
+bool kinc_g4_supports_instanced_rendering() {
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID)
 #if KORE_ANDROID_API >= 18
-	features->instancedRendering = glesDrawElementsInstanced != NULL;
+	return glesDrawElementsInstanced != NULL;
 #else
-	features->instancedRendering = false;
+	return false;
 #endif
 #else
-	features->instancedRendering = true;
+	return true;
 #endif
-	features->nonPow2Textures = true; // TODO: check this
-	features->blendConstants = true;
-	features->invertedY = false;
 }
 
-void kinc_g4_get_limits(kinc_g4_limits_t *limits) {
-	limits->maxBoundTextures = kinc_g4_max_bound_textures();
+bool kinc_g4_supports_compute_shaders() {
+	return kinc_internal_gl_has_compute;
+}
+
+bool kinc_g4_supports_blend_constants() {
+	return true;
+}
+
+bool kinc_g4_supports_non_pow2_textures() {
+	// we use OpenGL 2.0+, which should supports NPOT textures.
+	// in practice certain very old hardware doesn't,
+	// but detecting that is not practical
+	return true; 
+}
+
+bool kinc_g4_render_targets_inverted_y(void) {
+	return true;
 }

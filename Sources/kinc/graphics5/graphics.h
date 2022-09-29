@@ -23,30 +23,23 @@ extern "C" {
 
 KINC_FUNC extern bool kinc_g5_fullscreen;
 
-typedef struct kinc_g5_features {
-	bool instancedRendering;
-	bool computeShaders;
-	bool blendConstants;
-	bool nonPow2Textures;
-	bool invertedY;
-    bool raytracing;
-} kinc_g5_features_t;
+KINC_FUNC bool kinc_g5_supports_raytracing();
+KINC_FUNC bool kinc_g5_supports_instanced_rendering();
+KINC_FUNC bool kinc_g5_supports_compute_shaders();
+KINC_FUNC bool kinc_g5_supports_blend_constants();
+/// <summary>
+/// Returns whether textures are supported which have widths/heights which are not powers of two.
+/// </summary>
+/// <returns>Whether non power of two texture-sizes are supported</returns>
+KINC_FUNC bool kinc_g5_supports_non_pow2_textures();
 
-typedef struct kinc_g5_limits {
-	size_t maxBoundTextures;
-} kinc_g5_limits_t;
+KINC_FUNC bool kinc_g5_render_targets_inverted_y(void);
 
 /// <summary>
-///	Fills the passed object with information about supported features.
+/// Returns how many textures can be used at the same time in a fragment-shader.
 /// </summary>
-/// <param name="features">Object to be filled with info about features.</param>
-KINC_FUNC void kinc_g5_get_features(kinc_g5_features_t *features);
-
-/// <summary>
-///	Fills the passed object with information about supported limits.
-/// </summary>
-/// <param name="limits">Object to be filled with info about limits.</param>
-KINC_FUNC void kinc_g5_get_limits(kinc_g5_limits_t *limits);
+/// <returns>The number of textures</returns>
+KINC_FUNC int kinc_g5_max_bound_textures(void);
 
 /// <summary>
 /// I think this does nothing.
@@ -67,14 +60,6 @@ KINC_FUNC int kinc_g5_antialiasing_samples(void);
 KINC_FUNC void kinc_g5_set_antialiasing_samples(int samples);
 
 /// <summary>
-/// Returns whether textures are supported which have widths/heights which are not powers of two - which is always the case.
-/// </summary>
-/// <returns>True, always</returns>
-KINC_FUNC bool kinc_g5_non_pow2_textures_qupported(void);
-
-KINC_FUNC bool kinc_g5_render_targets_inverted_y(void);
-
-/// <summary>
 /// Needs to be called before rendering to a window. Typically called at the start of each frame.
 /// </summary>
 /// <param name="window">The window to render to</param>
@@ -91,12 +76,6 @@ KINC_FUNC void kinc_g5_end(int window);
 /// Needs to be called to make the rendered frame visible. Typically called at the very end of each frame.
 /// </summary>
 KINC_FUNC bool kinc_g5_swap_buffers(void);
-
-/// <summary>
-/// Returns how many textures can be used at the same time in a fragment-shader.
-/// </summary>
-/// <returns>The number of textures</returns>
-KINC_FUNC int kinc_g5_max_bound_textures(void);
 
 #ifndef KINC_DOCS
 void kinc_g5_internal_init(void);

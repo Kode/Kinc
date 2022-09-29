@@ -1022,20 +1022,6 @@ void kinc_g5_end(int window) {
 	began = false;
 }
 
-int kinc_g5_max_bound_textures(void) {
-	VkPhysicalDeviceProperties props;
-	vkGetPhysicalDeviceProperties(vk_ctx.gpu, &props);
-	return props.limits.maxPerStageDescriptorSamplers;
-}
-
-bool kinc_g5_render_targets_inverted_y() {
-	return false;
-}
-
-bool kinc_g5_non_pow2_textures_qupported() {
-	return true;
-}
-
 void kinc_g5_flush() {}
 
 // this is exclusively used by the Android backend at the moment
@@ -1053,19 +1039,36 @@ bool kinc_vulkan_internal_get_size(int *width, int *height) {
 	}
 }
 
-void kinc_g5_get_features(kinc_g5_features_t *features) {
-	features->blendConstants = true;
-	features->computeShaders = true;
-	features->instancedRendering = true;
-	features->invertedY = false;
-	features->nonPow2Textures = true;
-	#ifdef KORE_VKRT
-	features->raytracing = true;
-	#else
-	features->raytracing = false;
-	#endif
+bool kinc_g5_supports_raytracing() {
+#ifdef KORE_VKRT
+	return true;
+#else
+	return false;
+#endif
 }
 
-void kinc_g5_get_limits(kinc_g5_limits_t *limits) {
-	limits->maxBoundTextures = kinc_g5_max_bound_textures();
+bool kinc_g5_supports_instanced_rendering() {
+	return true;
+}
+
+bool kinc_g5_supports_compute_shaders() {
+	return true;
+}
+
+bool kinc_g5_supports_blend_constants() {
+	return true;
+}
+
+bool kinc_g5_supports_non_pow2_textures() {
+	return true;
+}
+
+bool kinc_g5_render_targets_inverted_y() {
+	return false;
+}
+
+int kinc_g5_max_bound_textures(void) {
+	VkPhysicalDeviceProperties props;
+	vkGetPhysicalDeviceProperties(vk_ctx.gpu, &props);
+	return props.limits.maxPerStageDescriptorSamplers;
 }
