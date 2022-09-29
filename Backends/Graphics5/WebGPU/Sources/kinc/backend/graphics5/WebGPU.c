@@ -73,3 +73,16 @@ bool kinc_g5_render_targets_inverted_y() {
 bool kinc_g5_non_pow2_textures_qupported() {
 	return true;
 }
+
+void kinc_g5_get_features(kinc_g5_features_t *features) {
+	features->blendConstants = true;
+	features->computeShaders = true;
+	features->instancedRendering = true;
+	features->invertedY = false;
+	features->nonPow2Textures = true;
+	features->raytracing = false;
+}
+
+void kinc_g5_get_limits(kinc_g5_limits_t *limits) {
+	limits->maxBoundTextures = kinc_g5_max_bound_textures();
+}

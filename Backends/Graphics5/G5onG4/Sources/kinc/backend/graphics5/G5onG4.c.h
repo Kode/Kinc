@@ -48,3 +48,18 @@ bool kinc_g5_render_targets_inverted_y() {
 bool kinc_g5_non_pow2_textures_qupported() {
 	return true;
 }
+
+void kinc_g5_get_features(kinc_g5_features_t *features) {
+	kinc_g4_features_t feat;
+	kinc_g4_get_features(&feat);
+	features->blendConstants = feat.blendConstants;
+	features->computeShaders = feat.computeShaders;
+	features->instancedRendering = feat.instancedRendering;
+	features->invertedY = feat.invertedY;
+	features->nonPow2Textures = feat.nonPow2Textures;
+	features->raytracing = false;
+}
+
+void kinc_g5_get_limits(kinc_g5_limits_t *limits) {
+	limits->maxBoundTextures = kinc_g4_max_bound_textures();
+}

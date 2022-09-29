@@ -23,6 +23,31 @@ extern "C" {
 
 KINC_FUNC extern bool kinc_g5_fullscreen;
 
+typedef struct kinc_g5_features {
+	bool instancedRendering;
+	bool computeShaders;
+	bool blendConstants;
+	bool nonPow2Textures;
+	bool invertedY;
+    bool raytracing;
+} kinc_g5_features_t;
+
+typedef struct kinc_g5_limits {
+	size_t maxBoundTextures;
+} kinc_g5_limits_t;
+
+/// <summary>
+///	Fills the passed object with information about supported features.
+/// </summary>
+/// <param name="features">Object to be filled with info about features.</param>
+KINC_FUNC void kinc_g5_get_features(kinc_g5_features_t *features);
+
+/// <summary>
+///	Fills the passed object with information about supported limits.
+/// </summary>
+/// <param name="limits">Object to be filled with info about limits.</param>
+KINC_FUNC void kinc_g5_get_limits(kinc_g5_limits_t *limits);
+
 /// <summary>
 /// I think this does nothing.
 /// </summary>

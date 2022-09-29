@@ -216,3 +216,16 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
+
+void kinc_g5_get_features(kinc_g5_features_t *features) {
+	features->blendConstants = true;
+	features->computeShaders = true;
+	features->instancedRendering = true;
+	features->invertedY = false;
+	features->nonPow2Textures = true;
+	features->raytracing = false;
+}
+
+void kinc_g5_get_limits(kinc_g5_limits_t *limits) {
+	limits->maxBoundTextures = kinc_g5_max_bound_textures();
+}

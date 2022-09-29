@@ -1,3 +1,4 @@
+#include "kinc/graphics4/graphics.h"
 #include "vulkan.h"
 
 #include <kinc/error.h>
@@ -1050,4 +1051,21 @@ bool kinc_vulkan_internal_get_size(int *width, int *height) {
 	else {
 		return false;
 	}
+}
+
+void kinc_g5_get_features(kinc_g5_features_t *features) {
+	features->blendConstants = true;
+	features->computeShaders = true;
+	features->instancedRendering = true;
+	features->invertedY = false;
+	features->nonPow2Textures = true;
+	#ifdef KORE_VKRT
+	features->raytracing = true;
+	#else
+	features->raytracing = false;
+	#endif
+}
+
+void kinc_g5_get_limits(kinc_g5_limits_t *limits) {
+	limits->maxBoundTextures = kinc_g5_max_bound_textures();
 }

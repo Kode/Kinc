@@ -604,3 +604,20 @@ bool kinc_g5_render_targets_inverted_y() {
 bool kinc_g5_non_pow2_textures_supported() {
 	return true;
 }
+
+void kinc_g5_get_features(kinc_g5_features_t *features) {
+	features->blendConstants = true;
+	features->computeShaders = true;
+	features->instancedRendering = true;
+	features->invertedY = false;
+	features->nonPow2Textures = true;
+	features->raytracing = false;
+	D3D12_FEATURE_DATA_D3D12_OPTIONS5 options;
+	if (device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options, sizeof(options)) == S_OK) {
+		features->raytracing = options.RaytracingTier == D3D12_RAYTRACING_TIER_1_0;
+	}
+}
+
+void kinc_g5_get_limits(kinc_g5_limits_t *limits) {
+	limits->maxBoundTextures = kinc_g5_max_bound_textures();
+}
