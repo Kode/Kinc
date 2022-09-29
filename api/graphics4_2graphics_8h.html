@@ -122,6 +122,24 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:aa0d7a0df0f048e4552d4e65fdf4fd224"><td class="memItemLeft" align="right" valign="top"><a id="aa0d7a0df0f048e4552d4e65fdf4fd224"></a>
+KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_supports_instanced_rendering</b> (void)</td></tr>
+<tr class="separator:aa0d7a0df0f048e4552d4e65fdf4fd224"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2477b19630e5ce188be98456aaaad6a6"><td class="memItemLeft" align="right" valign="top"><a id="a2477b19630e5ce188be98456aaaad6a6"></a>
+KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_supports_compute_shaders</b> (void)</td></tr>
+<tr class="separator:a2477b19630e5ce188be98456aaaad6a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9a4720f2f1a645e6eaa0a0d7fa9e85f"><td class="memItemLeft" align="right" valign="top"><a id="aa9a4720f2f1a645e6eaa0a0d7fa9e85f"></a>
+KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_supports_blend_constants</b> (void)</td></tr>
+<tr class="separator:aa9a4720f2f1a645e6eaa0a0d7fa9e85f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aafc4fcb23e55998f877a18f56ee1e3eb"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#aafc4fcb23e55998f877a18f56ee1e3eb">kinc_g4_supports_non_pow2_textures</a> (void)</td></tr>
+<tr class="memdesc:aafc4fcb23e55998f877a18f56ee1e3eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether textures are supported which have widths/heights which are not powers of two.  <a href="graphics4_2graphics_8h.html#aafc4fcb23e55998f877a18f56ee1e3eb">More...</a><br /></td></tr>
+<tr class="separator:aafc4fcb23e55998f877a18f56ee1e3eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c0b543b1fc14350df18e95a75f49c84"><td class="memItemLeft" align="right" valign="top"><a id="a6c0b543b1fc14350df18e95a75f49c84"></a>
+KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_render_targets_inverted_y</b> (void)</td></tr>
+<tr class="separator:a6c0b543b1fc14350df18e95a75f49c84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3cd6bd2e80723f52a4cad059f0bd2fa"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#aa3cd6bd2e80723f52a4cad059f0bd2fa">kinc_g4_max_bound_textures</a> (void)</td></tr>
+<tr class="memdesc:aa3cd6bd2e80723f52a4cad059f0bd2fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns how many textures can be used at the same time in a fragment-shader.  <a href="graphics4_2graphics_8h.html#aa3cd6bd2e80723f52a4cad059f0bd2fa">More...</a><br /></td></tr>
+<tr class="separator:aa3cd6bd2e80723f52a4cad059f0bd2fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7f8648e87e714370445bee920373b99"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#ae7f8648e87e714370445bee920373b99">kinc_g4_flush</a> (void)</td></tr>
 <tr class="memdesc:ae7f8648e87e714370445bee920373b99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kicks of lingering work - may or may not actually do anything depending on the underlying graphics-API.  <a href="graphics4_2graphics_8h.html#ae7f8648e87e714370445bee920373b99">More...</a><br /></td></tr>
 <tr class="separator:ae7f8648e87e714370445bee920373b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -257,15 +275,6 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_set
 <tr class="memitem:a3a73801ade2c6204379dad8033e5ae2f"><td class="memItemLeft" align="right" valign="top"><a id="a3a73801ade2c6204379dad8033e5ae2f"></a>
 KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_set_cubemap_lod</b> (<a class="el" href="structkinc__g4__texture__unit.html">kinc_g4_texture_unit_t</a> unit, float lod_min_clamp, float lod_max_clamp)</td></tr>
 <tr class="separator:a3a73801ade2c6204379dad8033e5ae2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa3cd6bd2e80723f52a4cad059f0bd2fa"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#aa3cd6bd2e80723f52a4cad059f0bd2fa">kinc_g4_max_bound_textures</a> (void)</td></tr>
-<tr class="memdesc:aa3cd6bd2e80723f52a4cad059f0bd2fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns how many textures can be used at the same time in a fragment-shader.  <a href="graphics4_2graphics_8h.html#aa3cd6bd2e80723f52a4cad059f0bd2fa">More...</a><br /></td></tr>
-<tr class="separator:aa3cd6bd2e80723f52a4cad059f0bd2fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c0b543b1fc14350df18e95a75f49c84"><td class="memItemLeft" align="right" valign="top"><a id="a6c0b543b1fc14350df18e95a75f49c84"></a>
-KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_render_targets_inverted_y</b> (void)</td></tr>
-<tr class="separator:a6c0b543b1fc14350df18e95a75f49c84"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b21d1e9ce952d15b1dcc164ec0db32e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#a9b21d1e9ce952d15b1dcc164ec0db32e">kinc_g4_non_pow2_textures_supported</a> (void)</td></tr>
-<tr class="memdesc:a9b21d1e9ce952d15b1dcc164ec0db32e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether textures are supported which have widths/heights which are not powers of two.  <a href="graphics4_2graphics_8h.html#a9b21d1e9ce952d15b1dcc164ec0db32e">More...</a><br /></td></tr>
-<tr class="separator:a9b21d1e9ce952d15b1dcc164ec0db32e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6fdab30f173e2991982c0b7a690cfb4a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#a6fdab30f173e2991982c0b7a690cfb4a">kinc_g4_restore_render_target</a> (void)</td></tr>
 <tr class="memdesc:a6fdab30f173e2991982c0b7a690cfb4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the framebuffer (aka the actual contents of the current window) to be the target of any future draw-calls.  <a href="graphics4_2graphics_8h.html#a6fdab30f173e2991982c0b7a690cfb4a">More...</a><br /></td></tr>
 <tr class="separator:a6fdab30f173e2991982c0b7a690cfb4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -596,27 +605,6 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
 
 <p>Returns how many textures can be used at the same time in a fragment-shader. </p>
 <dl class="section return"><dt>Returns</dt><dd>The number of textures</dd></dl>
-
-</div>
-</div>
-<a id="a9b21d1e9ce952d15b1dcc164ec0db32e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9b21d1e9ce952d15b1dcc164ec0db32e">&#9670;&nbsp;</a></span>kinc_g4_non_pow2_textures_supported()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC bool kinc_g4_non_pow2_textures_supported </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Returns whether textures are supported which have widths/heights which are not powers of two. </p>
-<dl class="section return"><dt>Returns</dt><dd>Whether non power of two texture-sizes are supported</dd></dl>
 
 </div>
 </div>
@@ -1731,6 +1719,27 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="aafc4fcb23e55998f877a18f56ee1e3eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aafc4fcb23e55998f877a18f56ee1e3eb">&#9670;&nbsp;</a></span>kinc_g4_supports_non_pow2_textures()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC bool kinc_g4_supports_non_pow2_textures </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns whether textures are supported which have widths/heights which are not powers of two. </p>
+<dl class="section return"><dt>Returns</dt><dd>Whether non power of two texture-sizes are supported</dd></dl>
 
 </div>
 </div>
