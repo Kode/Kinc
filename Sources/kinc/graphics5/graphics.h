@@ -23,15 +23,15 @@ extern "C" {
 
 KINC_FUNC extern bool kinc_g5_fullscreen;
 
-KINC_FUNC bool kinc_g5_supports_raytracing();
-KINC_FUNC bool kinc_g5_supports_instanced_rendering();
-KINC_FUNC bool kinc_g5_supports_compute_shaders();
-KINC_FUNC bool kinc_g5_supports_blend_constants();
+KINC_FUNC bool kinc_g5_supports_raytracing(void);
+KINC_FUNC bool kinc_g5_supports_instanced_rendering(void);
+KINC_FUNC bool kinc_g5_supports_compute_shaders(void);
+KINC_FUNC bool kinc_g5_supports_blend_constants(void);
 /// <summary>
 /// Returns whether textures are supported which have widths/heights which are not powers of two.
 /// </summary>
 /// <returns>Whether non power of two texture-sizes are supported</returns>
-KINC_FUNC bool kinc_g5_supports_non_pow2_textures();
+KINC_FUNC bool kinc_g5_supports_non_pow2_textures(void);
 
 KINC_FUNC bool kinc_g5_render_targets_inverted_y(void);
 

@@ -451,7 +451,7 @@ void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
 void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array) {}
 
 bool kinc_g4_supports_instanced_rendering() {
-	return kinc_g5_supports_instanced_rendering()
+	return kinc_g5_supports_instanced_rendering();
 }
 
 bool kinc_g4_supports_compute_shaders() {

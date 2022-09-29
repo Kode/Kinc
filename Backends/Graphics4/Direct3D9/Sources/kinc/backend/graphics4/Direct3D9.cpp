@@ -810,7 +810,7 @@ bool kinc_g4_supports_non_pow2_textures() {
 		return false;
 	}
 	// only advertise full npot support
-	return (pCaps.TextureCaps & D3DPTEXTURECAPS_POW2 == 0) && (pCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL == 0)
+	return (pCaps.TextureCaps & D3DPTEXTURECAPS_POW2 == 0) && (pCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL == 0);
 }
 
 bool kinc_g4_render_targets_inverted_y(void) {
