@@ -128,18 +128,6 @@ bool kinc_g5_swap_buffers() {
 	return true;
 }
 
-int kinc_g5_max_bound_textures(void) {
-	return 16;
-}
-
-bool kinc_g5_render_targets_inverted_y() {
-	return false;
-}
-
-bool kinc_g5_non_pow2_textures_qupported() {
-	return true;
-}
-
 bool kinc_window_vsynced(int window) {
 	return true;
 }
@@ -215,4 +203,32 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
 	commandBuffer = [commandQueue commandBuffer];
 	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+}
+
+bool kinc_g5_supports_raytracing() {
+	return false;
+}
+
+bool kinc_g5_supports_instanced_rendering() {
+	return true;
+}
+
+bool kinc_g5_supports_compute_shaders() {
+	return true;
+}
+
+bool kinc_g5_supports_blend_constants() {
+	return true;
+}
+
+bool kinc_g5_supports_non_pow2_textures() {
+	return true;
+}
+
+bool kinc_g5_render_targets_inverted_y() {
+	return false;
+}
+
+int kinc_g5_max_bound_textures(void) {
+	return 16;
 }

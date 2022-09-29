@@ -27,6 +27,10 @@ namespace {
 			return D3DBLEND_INVSRCALPHA;
 		case KINC_G4_BLEND_INV_DEST_ALPHA:
 			return D3DBLEND_INVDESTALPHA;
+		case KINC_G4_BLEND_CONSTANT:
+			return D3DBLEND_BLENDFACTOR;
+		case KINC_G4_BLEND_INV_CONSTANT:
+			return D3DBLEND_INVBLENDFACTOR;
 		default:
 			assert(false);
 			return D3DBLEND_SRCALPHA;

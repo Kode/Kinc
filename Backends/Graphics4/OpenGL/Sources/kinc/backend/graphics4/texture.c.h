@@ -260,7 +260,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 	texture->tex_height = image->height;
 	toPow2 = false;
 #else
-	if (kinc_g4_non_pow2_textures_supported()) {
+	if (kinc_g4_supports_non_pow2_textures()) {
 		texture->tex_width = image->width;
 		texture->tex_height = image->height;
 		toPow2 = false;
@@ -425,7 +425,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 	texture->tex_width = width;
 	texture->tex_height = height;
 #else
-	if (kinc_g4_non_pow2_textures_supported()) {
+	if (kinc_g4_supports_non_pow2_textures()) {
 		texture->tex_width = width;
 		texture->tex_height = height;
 	}

@@ -42,9 +42,26 @@ int kinc_g5_max_bound_textures(void) {
 	return kinc_g4_max_bound_textures();
 }
 
-bool kinc_g5_render_targets_inverted_y() {
+bool kinc_g5_supports_raytracing() {
 	return false;
 }
-bool kinc_g5_non_pow2_textures_qupported() {
-	return true;
+
+bool kinc_g5_supports_instanced_rendering() {
+	return kinc_g4_supports_instanced_rendering();
+}
+
+bool kinc_g5_supports_compute_shaders() {
+	return kinc_g4_supports_compute_shaders();
+}
+
+bool kinc_g5_supports_blend_constants() {
+	return kinc_g4_supports_blend_constants();
+}
+
+bool kinc_g5_supports_non_pow2_textures() {
+	return kinc_g4_supports_non_pow2_textures();
+}
+
+bool kinc_g5_render_targets_inverted_y() {
+	return kinc_g4_render_targets_inverted_y();
 }
