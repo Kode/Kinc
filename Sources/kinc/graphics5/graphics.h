@@ -23,16 +23,40 @@ extern "C" {
 
 KINC_FUNC extern bool kinc_g5_fullscreen;
 
+/// <summary>
+/// Returns whether raytracing (see kinc/graphics5/raytrace.h) is supported.
+/// </summary>
+/// <returns>Whether raytracing is supported</returns>
 KINC_FUNC bool kinc_g5_supports_raytracing(void);
+
+/// <summary>
+/// Returns whether instanced rendering (kinc_g5_command_list_draw_indexed_vertices_instanced and pals) is supported.
+/// </summary>
+/// <returns>Whether instanced rendering is supported</returns>
 KINC_FUNC bool kinc_g5_supports_instanced_rendering(void);
+
+/// <summary>
+/// Returns whether GPU-compute (the functions in kinc/compute/compute.h) is supported.
+/// </summary>
+/// <returns>Whether GPU-compute is supported</returns>
 KINC_FUNC bool kinc_g5_supports_compute_shaders(void);
+
+/// <summary>
+/// Returns whether blend-constants (see kinc_g4_set_blend_constant and the blending-properties for pipelines) are supported.
+/// </summary>
+/// <returns>Whether blend-constants are supported</returns>
 KINC_FUNC bool kinc_g5_supports_blend_constants(void);
+
 /// <summary>
 /// Returns whether textures are supported which have widths/heights which are not powers of two.
 /// </summary>
 /// <returns>Whether non power of two texture-sizes are supported</returns>
 KINC_FUNC bool kinc_g5_supports_non_pow2_textures(void);
 
+/// <summary>
+/// Returns whether render-targets are upside down. This happens in OpenGL and there is currently no automatic mitigation.
+/// </summary>
+/// <returns>Whether render-targets are upside down</returns>
 KINC_FUNC bool kinc_g5_render_targets_inverted_y(void);
 
 /// <summary>
