@@ -81,6 +81,18 @@ typedef struct render_state {
 	float blend_constant_b;
 	float blend_constant_a;
 
+	bool viewport_set;
+	int viewport_x;
+	int viewport_y;
+	int viewport_width;
+	int viewport_height;
+
+	bool scissor_set;
+	int scissor_x;
+	int scissor_y;
+	int scissor_width;
+	int scissor_height;
+
 	kinc_g5_texture_t *textures[MAX_TEXTURES];
 	kinc_g5_texture_unit_t texture_units[MAX_TEXTURES];
 	int texture_count;
@@ -161,6 +173,14 @@ static void endDraw() {
 		if (current_state.blend_constant_set) {
 			kinc_g5_command_list_set_blend_constant(&commandList, current_state.blend_constant_r, current_state.blend_constant_g,
 			                                        current_state.blend_constant_b, current_state.blend_constant_a);
+		}
+		if (current_state.viewport_set) {
+			kinc_g5_command_list_viewport(&commandList, current_state.viewport_x, current_state.viewport_y, current_state.viewport_width,
+			                              current_state.viewport_height);
+		}
+		if (current_state.scissor_set) {
+			kinc_g5_command_list_scissor(&commandList, current_state.scissor_x, current_state.scissor_y, current_state.scissor_width,
+			                             current_state.scissor_height);
 		}
 		for (int i = 0; i < current_state.texture_count; ++i) {
 			kinc_g5_command_list_set_texture(&commandList, current_state.texture_units[i], current_state.textures[i]);
@@ -281,6 +301,8 @@ void kinc_g4_begin(int window) {
 	}
 	current_state.vertex_buffer_count = 0;
 	current_state.blend_constant_set = false;
+	current_state.viewport_set = false;
+	current_state.scissor_set = false;
 	current_state.texture_count = 0;
 	current_state.render_target_count = 0;
 	current_state.depth_render_target_count = 0;
@@ -301,14 +323,25 @@ void kinc_g4_begin(int window) {
 }
 
 void kinc_g4_viewport(int x, int y, int width, int height) {
+	current_state.viewport_x = x;
+	current_state.viewport_y = y;
+	current_state.viewport_width = width;
+	current_state.viewport_height = height;
+	current_state.viewport_set = true;
 	kinc_g5_command_list_viewport(&commandList, x, y, width, height);
 }
 
 void kinc_g4_scissor(int x, int y, int width, int height) {
+	current_state.scissor_x = x;
+	current_state.scissor_y = y;
+	current_state.scissor_width = width;
+	current_state.scissor_height = height;
+	current_state.scissor_set = true;
 	kinc_g5_command_list_scissor(&commandList, x, y, width, height);
 }
 
 void kinc_g4_disable_scissor() {
+	current_state.scissor_set = false;
 	kinc_g5_command_list_disable_scissor(&commandList);
 }
 
