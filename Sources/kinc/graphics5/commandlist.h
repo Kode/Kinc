@@ -164,8 +164,8 @@ KINC_FUNC void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc
 /// equivalent to the full size of the current render-target or framebuffer.
 /// </summary>
 /// <param name="list">The list to write the command to</param>
-/// <param name="x">The x-offset of the viewport in pixels</param>
-/// <param name="y">The y-offset of the viewport in pixels</param>
+/// <param name="x">The x-offset of the viewport from the left of the screen in pixels</param>
+/// <param name="y">The y-offset of the viewport from the top of the screen in pixels</param>
 /// <param name="width">The width of the viewport in pixels</param>
 /// <param name="height">The height of the viewport in pixels</param>
 KINC_FUNC void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height);
@@ -175,8 +175,8 @@ KINC_FUNC void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x
 /// ignored.
 /// </summary>
 /// <param name="list">The list to write the command to</param>
-/// <param name="x">The x-offset of the scissor-rect in pixels</param>
-/// <param name="y">The y-offset of the scissor-rect in pixels</param>
+/// <param name="x">The x-offset of the scissor-rect from the left of the screen in pixels</param>
+/// <param name="y">The y-offset of the scissor-rect from the top of the screen in pixels</param>
 /// <param name="width">The width of the scissor-rect in pixels</param>
 /// <param name="height">The height of the scissor-rect in pixels</param>
 KINC_FUNC void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height);
@@ -322,7 +322,8 @@ KINC_FUNC void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_comma
 /// <param name="list">The list to write the command to</param>
 /// <param name="unit">The texture-unit to assign the render-target to</param>
 /// <param name="target">The render-target to use</param>
-KINC_FUNC void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target);
+KINC_FUNC void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit,
+                                                                         kinc_g5_render_target_t *target);
 
 KINC_FUNC void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face);
 

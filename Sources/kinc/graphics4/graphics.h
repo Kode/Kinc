@@ -114,8 +114,8 @@ KINC_FUNC void kinc_g4_clear(unsigned flags, unsigned color, float depth, int st
 /// Sets the viewport which defines the portion of the framebuffer or render-target things are rendered into. By default the viewport is equivalent to the full
 /// size of the current render-target or framebuffer.
 /// </summary>
-/// <param name="x">The x-offset of the viewport in pixels</param>
-/// <param name="y">The y-offset of the viewport in pixels</param>
+/// <param name="x">The x-offset of the viewport from the left of the screen in pixels</param>
+/// <param name="y">The y-offset of the viewport from the top of the screen in pixels</param>
 /// <param name="width">The width of the viewport in pixels</param>
 /// <param name="height">The height of the viewport in pixels</param>
 KINC_FUNC void kinc_g4_viewport(int x, int y, int width, int height);
@@ -123,8 +123,8 @@ KINC_FUNC void kinc_g4_viewport(int x, int y, int width, int height);
 /// <summary>
 /// Enables and defines the scissor-rect. When the scissor-rect is enabled, anything that's rendered outside of the scissor-rect will be ignored.
 /// </summary>
-/// <param name="x">The x-offset of the scissor-rect in pixels</param>
-/// <param name="y">The y-offset of the scissor-rect in pixels</param>
+/// <param name="x">The x-offset of the scissor-rect from the left of the screen in pixels</param>
+/// <param name="y">The y-offset of the scissor-rect from the top of the screen in pixels</param>
 /// <param name="width">The width of the scissor-rect in pixels</param>
 /// <param name="height">The height of the scissor-rect in pixels</param>
 KINC_FUNC void kinc_g4_scissor(int x, int y, int width, int height);
