@@ -23,6 +23,7 @@
 #include <kinc/system.h>
 
 #include <assert.h>
+#include <string.h>
 
 kinc_g5_command_list_t commandList;
 
@@ -62,6 +63,42 @@ static struct {
 
 static int current_window;
 
+#define MAX_VERTEX_BUFFERS 16
+#define MAX_TEXTURES 16
+
+typedef struct render_state {
+	kinc_g5_pipeline_t *pipeline;
+
+	kinc_g5_index_buffer_t *index_buffer;
+
+	kinc_g5_vertex_buffer_t *vertex_buffers[MAX_VERTEX_BUFFERS];
+	int vertex_buffer_offsets[MAX_VERTEX_BUFFERS];
+	int vertex_buffer_count;
+
+	bool blend_constant_set;
+	float blend_constant_r;
+	float blend_constant_g;
+	float blend_constant_b;
+	float blend_constant_a;
+
+	kinc_g5_texture_t *textures[MAX_TEXTURES];
+	kinc_g5_texture_unit_t texture_units[MAX_TEXTURES];
+	int texture_count;
+
+	kinc_g5_render_target_t *render_targets[MAX_TEXTURES];
+	kinc_g5_texture_unit_t render_target_units[MAX_TEXTURES];
+	int render_target_count;
+
+	kinc_g5_render_target_t *depth_render_targets[MAX_TEXTURES];
+	kinc_g5_texture_unit_t depth_render_target_units[MAX_TEXTURES];
+	int depth_render_target_count;
+
+	uint8_t vertex_constant_data[constantBufferSize];
+	uint8_t fragment_constant_data[constantBufferSize];
+} render_state;
+
+static render_state current_state;
+
 void kinc_g4_on_g5_internal_resize(int window, int width, int height) {
 	windows[window].resized = true;
 }
@@ -82,6 +119,10 @@ void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBu
 }
 
 static void startDraw() {
+	if ((constantBufferIndex + 1) >= constantBufferMultiply || waitAfterNextDraw) {
+		memcpy(current_state.vertex_constant_data, vertexConstantBuffer.data, constantBufferSize);
+		memcpy(current_state.fragment_constant_data, fragmentConstantBuffer.data, constantBufferSize);
+	}
 	kinc_g5_constant_buffer_unlock(&vertexConstantBuffer);
 	kinc_g5_constant_buffer_unlock(&fragmentConstantBuffer);
 	kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
@@ -106,11 +147,44 @@ static void endDraw() {
 			}
 			kinc_g5_command_list_set_render_targets(&commandList, render_targets, count);
 		}
+
+		if (current_state.pipeline != NULL) {
+			kinc_g5_command_list_set_pipeline(&commandList, current_state.pipeline);
+		}
+		if (current_state.index_buffer != NULL) {
+			kinc_g5_command_list_set_index_buffer(&commandList, current_state.index_buffer);
+		}
+		if (current_state.vertex_buffer_count > 0) {
+			kinc_g5_command_list_set_vertex_buffers(&commandList, current_state.vertex_buffers, current_state.vertex_buffer_offsets,
+			                                        current_state.vertex_buffer_count);
+		}
+		if (current_state.blend_constant_set) {
+			kinc_g5_command_list_set_blend_constant(&commandList, current_state.blend_constant_r, current_state.blend_constant_g,
+			                                        current_state.blend_constant_b, current_state.blend_constant_a);
+		}
+		for (int i = 0; i < current_state.texture_count; ++i) {
+			kinc_g5_command_list_set_texture(&commandList, current_state.texture_units[i], current_state.textures[i]);
+		}
+		for (int i = 0; i < current_state.render_target_count; ++i) {
+			kinc_g5_command_list_set_texture_from_render_target(&commandList, current_state.render_target_units[i], current_state.render_targets[i]);
+		}
+		for (int i = 0; i < current_state.depth_render_target_count; ++i) {
+			kinc_g5_command_list_set_texture_from_render_target_depth(&commandList, current_state.depth_render_target_units[i],
+			                                                          current_state.depth_render_targets[i]);
+		}
 		constantBufferIndex = 0;
 		waitAfterNextDraw = false;
+
+		kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
+		kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, 0, constantBufferSize);
+
+		memcpy(vertexConstantBuffer.data, current_state.vertex_constant_data, constantBufferSize);
+		memcpy(fragmentConstantBuffer.data, current_state.fragment_constant_data, constantBufferSize);
 	}
-	kinc_g5_constant_buffer_lock(&vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
-	kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+	else {
+		kinc_g5_constant_buffer_lock(&vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+		kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+	}
 }
 
 void kinc_g4_draw_indexed_vertices() {
@@ -198,6 +272,18 @@ void kinc_g4_begin(int window) {
 
 	windows[current_window].current_render_targets[0] = NULL;
 	windows[current_window].current_render_target_count = 1;
+
+	current_state.pipeline = NULL;
+	current_state.index_buffer = NULL;
+	for (int i = 0; i < MAX_VERTEX_BUFFERS; ++i) {
+		current_state.vertex_buffers[i] = NULL;
+		current_state.vertex_buffer_offsets[i] = 0;
+	}
+	current_state.vertex_buffer_count = 0;
+	current_state.blend_constant_set = false;
+	current_state.texture_count = 0;
+	current_state.render_target_count = 0;
+	current_state.depth_render_target_count = 0;
 
 	// commandList = new Graphics5::CommandList;
 	kinc_g5_command_list_begin(&commandList);
@@ -389,14 +475,14 @@ void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) 
 }
 
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
-	kinc_g5_vertex_buffer_t *g5buffers[16];
-	int offsets[16];
+	assert(count <= MAX_VERTEX_BUFFERS);
 	for (int i = 0; i < count; ++i) {
-		g5buffers[i] = &buffers[i]->impl._buffer;
+		current_state.vertex_buffers[i] = &buffers[i]->impl._buffer;
 		int index = buffers[i]->impl._currentIndex;
-		offsets[i] = index * kinc_g4_vertex_buffer_count(buffers[i]);
+		current_state.vertex_buffer_offsets[i] = index * kinc_g4_vertex_buffer_count(buffers[i]);
 	}
-	kinc_g5_command_list_set_vertex_buffers(&commandList, g5buffers, offsets, count);
+	current_state.vertex_buffer_count = count;
+	kinc_g5_command_list_set_vertex_buffers(&commandList, current_state.vertex_buffers, current_state.vertex_buffer_offsets, count);
 }
 
 int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offset) {
@@ -407,7 +493,9 @@ int kinc_internal_g4_vertex_buffer_set(kinc_g4_vertex_buffer_t *buffer, int offs
 }
 
 void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *buffer) {
-	kinc_g5_command_list_set_index_buffer(&commandList, &buffer->impl._buffer);
+	kinc_g5_index_buffer_t *g5_index_buffer = &buffer->impl._buffer;
+	current_state.index_buffer = g5_index_buffer;
+	kinc_g5_command_list_set_index_buffer(&commandList, g5_index_buffer);
 }
 
 void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {
@@ -415,6 +503,11 @@ void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture
 		kinc_g5_command_list_upload_texture(&commandList, &texture->impl._texture);
 		texture->impl._uploaded = true;
 	}
+
+	current_state.textures[current_state.texture_count] = &texture->impl._texture;
+	current_state.texture_units[current_state.texture_count] = unit.impl._unit;
+	current_state.texture_count += 1;
+
 	kinc_g5_command_list_set_texture(&commandList, unit.impl._unit, &texture->impl._texture);
 }
 
@@ -441,10 +534,17 @@ void kinc_g4_get_query_result(unsigned occlusionQuery, unsigned *pixelCount) {
 }
 
 void kinc_g4_set_pipeline(kinc_g4_pipeline_t *pipeline) {
-	kinc_g5_command_list_set_pipeline(&commandList, &pipeline->impl._pipeline);
+	kinc_g5_pipeline_t *g5_pipeline = &pipeline->impl._pipeline;
+	current_state.pipeline = g5_pipeline;
+	kinc_g5_command_list_set_pipeline(&commandList, g5_pipeline);
 }
 
 void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
+	current_state.blend_constant_set = true;
+	current_state.blend_constant_r = r;
+	current_state.blend_constant_g = g;
+	current_state.blend_constant_b = b;
+	current_state.blend_constant_a = a;
 	kinc_g5_command_list_set_blend_constant(&commandList, r, g, b, a);
 }
 
@@ -468,4 +568,30 @@ bool kinc_g4_supports_non_pow2_textures() {
 
 bool kinc_g4_render_targets_inverted_y(void) {
 	return kinc_g5_render_targets_inverted_y();
+}
+
+void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
+	if (render_target->impl.state != KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE) {
+		kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);
+		render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE;
+	}
+
+	current_state.render_targets[current_state.render_target_count] = &render_target->impl._renderTarget;
+	current_state.render_target_units[current_state.render_target_count] = unit.impl._unit;
+	current_state.render_target_count += 1;
+
+	kinc_g5_command_list_set_texture_from_render_target(&commandList, unit.impl._unit, &render_target->impl._renderTarget);
+}
+
+void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
+	if (render_target->impl.state != KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE) {
+		kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);
+		render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE;
+	}
+
+	current_state.depth_render_targets[current_state.depth_render_target_count] = &render_target->impl._renderTarget;
+	current_state.depth_render_target_units[current_state.depth_render_target_count] = unit.impl._unit;
+	current_state.depth_render_target_count += 1;
+
+	kinc_g5_command_list_set_texture_from_render_target_depth(&commandList, unit.impl._unit, &render_target->impl._renderTarget);
 }

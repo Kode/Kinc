@@ -25,22 +25,6 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *render_target) {
 	kinc_g5_render_target_destroy(&render_target->impl._renderTarget);
 }
 
-void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
-	if (render_target->impl.state != KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE) {
-		kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);
-		render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE;
-	}
-	kinc_g5_command_list_set_texture_from_render_target(&commandList, unit.impl._unit, &render_target->impl._renderTarget);
-}
-
-void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
-	if (render_target->impl.state != KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE) {
-		kinc_g5_command_list_render_target_to_texture_barrier(&commandList, &render_target->impl._renderTarget);
-		render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE;
-	}
-	kinc_g5_command_list_set_texture_from_render_target_depth(&commandList, unit.impl._unit, &render_target->impl._renderTarget);
-}
-
 void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *render_target, kinc_g4_render_target_t *source) {
 	kinc_g5_render_target_set_depth_stencil_from(&render_target->impl._renderTarget, &source->impl._renderTarget);
 }
