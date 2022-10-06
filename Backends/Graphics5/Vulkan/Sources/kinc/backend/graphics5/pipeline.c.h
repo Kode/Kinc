@@ -901,3 +901,7 @@ VkDescriptorSet getDescriptorSet() {
 
 	return descriptor_set;
 }
+
+bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2) {
+	return unit1->impl.binding == unit2->impl.binding;
+}

@@ -1,6 +1,8 @@
 #include <kinc/graphics5/constantlocation.h>
 #include <kinc/graphics5/pipeline.h>
 
+#include <string.h>
+
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
 	kinc_g4_pipeline_init(&pipe->impl.pipe);
 }
@@ -28,4 +30,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	pipe->impl.pipe.vertex_shader = &pipe->vertexShader->impl.shader;
 	pipe->impl.pipe.fragment_shader = &pipe->fragmentShader->impl.shader;
 	kinc_g4_pipeline_compile(&pipe->impl.pipe);
+}
+
+bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2) {
+	return memcmp(unit1, unit2, sizeof(kinc_g5_texture_unit_t)) == 0;
 }

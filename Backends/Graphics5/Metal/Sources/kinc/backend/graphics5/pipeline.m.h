@@ -426,3 +426,7 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 
 	return unit;
 }
+
+bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2) {
+	return unit1->impl.index == unit2->impl.index && unit1->impl.vertex == unit2->impl.vertex;
+}

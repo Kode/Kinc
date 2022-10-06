@@ -16,6 +16,8 @@ typedef struct kinc_g5_texture_unit {
 	TextureUnit5Impl impl;
 } kinc_g5_texture_unit_t;
 
+bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2);
+
 #ifdef __cplusplus
 }
 #endif

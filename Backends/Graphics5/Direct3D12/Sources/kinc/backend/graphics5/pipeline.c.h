@@ -585,3 +585,7 @@ kinc_g5_texture_unit_t kinc_g5_compute_pipeline_get_texture_unit(kinc_g5_compute
 	}
 	return unit;
 }
+
+bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2) {
+	return unit1->impl.unit == unit2->impl.unit;
+}

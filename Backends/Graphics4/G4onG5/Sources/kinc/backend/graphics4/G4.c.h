@@ -539,7 +539,7 @@ void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture
 
 	bool found = false;
 	for (int i = 0; i < current_state.texture_count; ++i) {
-		if (memcmp(&current_state.texture_units[i], &unit.impl._unit, sizeof(kinc_g5_texture_unit_t)) == 0) {
+		if (kinc_g5_texture_unit_equals(&current_state.texture_units[i], &unit.impl._unit)) {
 			current_state.textures[i] = &texture->impl._texture;
 			current_state.texture_units[i] = unit.impl._unit;
 			found = true;
@@ -622,7 +622,7 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_
 
 	bool found = false;
 	for (int i = 0; i < current_state.render_target_count; ++i) {
-		if (memcmp(&current_state.render_target_units[i], &unit.impl._unit, sizeof(kinc_g5_texture_unit_t)) == 0) {
+		if (kinc_g5_texture_unit_equals(&current_state.render_target_units[i], &unit.impl._unit)) {
 			current_state.render_targets[i] = &render_target->impl._renderTarget;
 			current_state.render_target_units[i] = unit.impl._unit;
 			found = true;
@@ -646,7 +646,7 @@ void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_
 
 	bool found = false;
 	for (int i = 0; i < current_state.depth_render_target_count; ++i) {
-		if (memcmp(&current_state.depth_render_target_units[i], &unit.impl._unit, sizeof(kinc_g5_texture_unit_t)) == 0) {
+		if (kinc_g5_texture_unit_equals(&current_state.depth_render_target_units[i], &unit.impl._unit)) {
 			current_state.depth_render_targets[i] = &render_target->impl._renderTarget;
 			current_state.depth_render_target_units[i] = unit.impl._unit;
 			found = true;
