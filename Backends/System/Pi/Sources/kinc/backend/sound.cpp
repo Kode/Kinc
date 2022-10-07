@@ -20,7 +20,8 @@ namespace {
 	void copySample(void *buffer) {
 		float value = *(float *)&Audio2::buffer.data[Audio2::buffer.readLocation];
 		Audio2::buffer.readLocation += 4;
-		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize) Audio2::buffer.readLocation = 0;
+		if (Audio2::buffer.readLocation >= Audio2::buffer.dataSize)
+			Audio2::buffer.readLocation = 0;
 		if (value != 0) {
 			int a = 3;
 			++a;

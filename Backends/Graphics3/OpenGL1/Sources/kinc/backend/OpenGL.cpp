@@ -198,7 +198,8 @@ void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 #ifdef KORE_WINDOWS
 	if (windowId == 0) {
 		// TODO (DK) check if we actually want vsync
-		if (wglSwapIntervalEXT != nullptr) wglSwapIntervalEXT(1);
+		if (wglSwapIntervalEXT != nullptr)
+			wglSwapIntervalEXT(1);
 	}
 #endif
 
@@ -1026,7 +1027,8 @@ void Graphics3::setRenderTarget(RenderTarget *texture, int num, int additionalTa
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + num, GL_TEXTURE_2D, texture->_texture, 0);
 		if (num == additionalTargets) {
 			GLenum buffers[16];
-			for (int i = 0; i <= additionalTargets; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+			for (int i = 0; i <= additionalTargets; ++i)
+				buffers[i] = GL_COLOR_ATTACHMENT0 + i;
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 			((void (*)(GLsizei, GLenum *))glesDrawBuffers)(additionalTargets + 1, buffers);
 #elif !defined(KORE_OPENGL_ES)

@@ -320,12 +320,14 @@ bool kinc_x11_handle_messages() {
 			else if (controlDown && (ksKey == XK_c || ksKey == XK_C)) {
 				xlib.XSetSelectionOwner(x11_ctx.display, x11_ctx.atoms.CLIPBOARD, window, CurrentTime);
 				char *text = kinc_internal_copy_callback();
-				if (text != NULL) kinc_x11_copy_to_clipboard(text);
+				if (text != NULL)
+					kinc_x11_copy_to_clipboard(text);
 			}
 			else if (controlDown && (ksKey == XK_x || ksKey == XK_X)) {
 				xlib.XSetSelectionOwner(x11_ctx.display, x11_ctx.atoms.CLIPBOARD, window, CurrentTime);
 				char *text = kinc_internal_cut_callback();
-				if (text != NULL) kinc_x11_copy_to_clipboard(text);
+				if (text != NULL)
+					kinc_x11_copy_to_clipboard(text);
 			}
 
 			if (event.xkey.keycode == ignoreKeycode) {

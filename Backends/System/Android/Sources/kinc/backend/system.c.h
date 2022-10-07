@@ -7,7 +7,7 @@
 #include <kinc/input/gamepad.h>
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
-//#include <kinc/input/sensor.h>
+// #include <kinc/input/sensor.h>
 #include <android/sensor.h>
 #include <android/window.h>
 #include <android_native_app_glue.h>
@@ -1268,7 +1268,8 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 		}
 		else {
 			reader->asset = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
-			if (reader->asset == NULL) return false;
+			if (reader->asset == NULL)
+				return false;
 			reader->size = AAsset_getLength(reader->asset);
 			return true;
 		}

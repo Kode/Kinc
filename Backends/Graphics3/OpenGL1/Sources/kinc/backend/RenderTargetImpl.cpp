@@ -24,13 +24,15 @@ using namespace Kore;
 namespace {
 	int pow(int pow) {
 		int ret = 1;
-		for (int i = 0; i < pow; ++i) ret *= 2;
+		for (int i = 0; i < pow; ++i)
+			ret *= 2;
 		return ret;
 	}
 
 	int getPower2(int i) {
 		for (int power = 0;; ++power)
-			if (pow(power) >= i) return pow(power);
+			if (pow(power) >= i)
+				return pow(power);
 	}
 
 	bool nonPow2RenderTargetsSupported() {

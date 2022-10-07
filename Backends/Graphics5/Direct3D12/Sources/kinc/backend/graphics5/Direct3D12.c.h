@@ -513,7 +513,8 @@ extern "C" void kinc_internal_wait_for_frame();
 static bool began = false;
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
-	if (began) return;
+	if (began)
+		return;
 	began = true;
 
 #ifndef KORE_WINDOWS
@@ -574,7 +575,8 @@ bool kinc_window_vsynced(int window) {
 extern "C" void kinc_g4_on_g5_internal_resize(int, int, int);
 
 extern "C" void kinc_internal_resize(int windowId, int width, int height) {
-	if (width == 0 || height == 0) return;
+	if (width == 0 || height == 0)
+		return;
 	struct dx_window *window = &dx_ctx.windows[windowId];
 	window->new_width = width;
 	window->new_height = height;

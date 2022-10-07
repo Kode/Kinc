@@ -265,7 +265,8 @@ int createWindow(const char *title, int x, int y, int width, int height, Kore::W
 
 		inputDevices[i].fd = open(name, O_RDONLY | O_NONBLOCK);
 
-		if (inputDevices[i].fd < 0) continue;
+		if (inputDevices[i].fd < 0)
+			continue;
 
 		char deviceName[128];
 		ioctl(inputDevices[i].fd, EVIOCGNAME(sizeof(deviceName)), deviceName);
@@ -283,7 +284,8 @@ int createWindow(const char *title, int x, int y, int width, int height, Kore::W
 			ioctl(inputDevices[i].fd, EVIOCGBIT(EV_KEY, KEY_MAX), events);
 			int j = 0;
 			for (; j < BTN_MISC; ++j)
-				if (getbit(events, j)) keycount++;
+				if (getbit(events, j))
+					keycount++;
 
 			/*j = BTN_MOUSE; // skip misc buttons
 
@@ -395,7 +397,8 @@ bool Kore::System::handleMessages() {
 
 		int eventcount = 0;
 
-		if (inputDevices[i].fd < 0) continue;
+		if (inputDevices[i].fd < 0)
+			continue;
 
 		input_event event;
 		ssize_t readsize = read(inputDevices[i].fd, &event, sizeof(event));

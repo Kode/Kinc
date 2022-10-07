@@ -49,17 +49,20 @@ static void generateNumbers() {
 	for (int i = 0; i < 624; ++i) {
 		int y = (MT[i] & 1) + (MT[(i + 1) % 624]) & 0x7fffffff;
 		MT[i] = MT[(i + 397) % 624] ^ (y >> 1);
-		if ((y % 2) != 0) MT[i] = MT[i] ^ 0x9908b0df;
+		if ((y % 2) != 0)
+			MT[i] = MT[i] ^ 0x9908b0df;
 	}
 }
 
 void kinc_random_init(int seed) {
 	MT[0] = seed;
-	for (int i = 1; i < 624; ++i) MT[i] = 0x6c078965 * (MT[i - 1] ^ (MT[i - 1] >> 30)) + i;
+	for (int i = 1; i < 624; ++i)
+		MT[i] = 0x6c078965 * (MT[i - 1] ^ (MT[i - 1] >> 30)) + i;
 }
 
 int kinc_random_get() {
-	if (mermeme_index == 0) generateNumbers();
+	if (mermeme_index == 0)
+		generateNumbers();
 
 	int y = MT[mermeme_index];
 	y = y ^ (y >> 11);

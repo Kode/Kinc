@@ -40,13 +40,15 @@ extern bool Kinc_Internal_SupportsDepthTexture;
 
 static int pow2(int pow) {
 	int ret = 1;
-	for (int i = 0; i < pow; ++i) ret *= 2;
+	for (int i = 0; i < pow; ++i)
+		ret *= 2;
 	return ret;
 }
 
 static int getPower2(int i) {
 	for (int power = 0;; ++power)
-		if (pow2(power) >= i) return pow2(power);
+		if (pow2(power) >= i)
+			return pow2(power);
 }
 
 #ifdef KORE_OPENGL_ES

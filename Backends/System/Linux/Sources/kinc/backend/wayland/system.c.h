@@ -139,7 +139,8 @@ static void wl_output_handle_mode(void *data, struct wl_output *wl_output, uint3
 		mode->bits_per_pixel = 32;
 		mode->pixels_per_inch = 96;
 		mode->frequency = (refresh / 1000);
-		if (flags & WL_OUTPUT_MODE_CURRENT) display->current_mode = mode_index;
+		if (flags & WL_OUTPUT_MODE_CURRENT)
+			display->current_mode = mode_index;
 	}
 }
 static void wl_output_handle_done(void *data, struct wl_output *wl_output) {
@@ -216,16 +217,19 @@ void wl_pointer_handle_leave(void *data, struct wl_pointer *wl_pointer, uint32_t
 #include <wayland-cursor.h>
 
 void kinc_wayland_set_cursor(struct kinc_wl_mouse *mouse, const char *name) {
-	if (!name) return;
+	if (!name)
+		return;
 	struct wl_cursor *cursor = wl_cursor_theme_get_cursor(wl_ctx.cursor_theme, name);
 	if (!cursor) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Wayland: No cursor found '%'.", name);
 		return;
 	}
 	struct wl_cursor_image *image = cursor->images[0];
-	if (!image) return;
+	if (!image)
+		return;
 	struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
-	if (!buffer) return;
+	if (!buffer)
+		return;
 
 	wl_pointer_set_cursor(mouse->pointer, mouse->enter_serial, mouse->surface, image->hotspot_x, image->hotspot_y);
 	wl_surface_attach(mouse->surface, buffer, 0, 0);
@@ -690,7 +694,8 @@ void kinc_wl_data_offer_accept(struct kinc_wl_data_offer *offer, void (*callback
 
 	struct kinc_wl_data_offer **queue = &wl_ctx.data_offer_queue;
 
-	while (*queue != NULL) queue = &(*queue)->next;
+	while (*queue != NULL)
+		queue = &(*queue)->next;
 	*queue = offer;
 }
 
@@ -1083,12 +1088,14 @@ void kinc_wayland_copy_to_clipboard(const char *text) {}
 
 static bool flush_display(void) {
 	while (wl_display_flush(wl_ctx.display) == -1) {
-		if (errno != EAGAIN) return false;
+		if (errno != EAGAIN)
+			return false;
 
 		struct pollfd fd = {wl_display_get_fd(wl_ctx.display), POLLOUT};
 
 		while (poll(&fd, 1, 10) == -1) {
-			if (errno != EINTR && errno != EAGAIN) return false;
+			if (errno != EINTR && errno != EAGAIN)
+				return false;
 		}
 	}
 
@@ -1096,7 +1103,8 @@ static bool flush_display(void) {
 }
 
 bool kinc_wayland_handle_messages() {
-	while (wl_display_prepare_read(wl_ctx.display) != 0) wl_display_dispatch_pending(wl_ctx.display);
+	while (wl_display_prepare_read(wl_ctx.display) != 0)
+		wl_display_dispatch_pending(wl_ctx.display);
 	if (!flush_display()) {
 		// Something went wrong, abort.
 		wl_display_cancel_read(wl_ctx.display);

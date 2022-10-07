@@ -208,7 +208,8 @@ void kinc_internal_texture_unmipmap(kinc_g4_texture_t *texture) {
 }
 
 void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	if (unit.impl.vertex) {
 		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &texture->impl.view);
 	}
@@ -220,7 +221,8 @@ void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_
 }
 
 void kinc_internal_texture_set_image(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	if (texture->impl.computeView == NULL) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
 		du.Format = texture->format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;

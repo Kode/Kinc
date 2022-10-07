@@ -125,7 +125,8 @@ struct OGL {
 
 	OGL() : Window(nullptr), hDC(nullptr), WglContext(nullptr), GLEContext(), Running(false), WinSizeW(0), WinSizeH(0), hInstance(nullptr) {
 		// Clear input
-		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i) Key[i] = false;
+		for (int i = 0; i < sizeof(Key) / sizeof(Key[0]); ++i)
+			Key[i] = false;
 	}
 
 	~OGL() {
@@ -143,7 +144,8 @@ struct OGL {
 		wchar_t wchClassName[256];
 		MultiByteToWideChar(CP_ACP, 0, windowClassName, -1, wchClassName, 256);
 		Window = CreateWindowW(wchClassName, wchTitle, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInst, 0);
-		if (!Window) return false;
+		if (!Window)
+			return false;
 
 		SetWindowLongPtr(Window, 0, LONG_PTR(this));
 
@@ -172,7 +174,8 @@ struct OGL {
 		RECT size = {0, 0, vpW, vpH};
 		AdjustWindowRect(&size, WS_OVERLAPPEDWINDOW, false);
 		const UINT flags = SWP_NOMOVE | SWP_NOZORDER | SWP_SHOWWINDOW;
-		if (!SetWindowPos(Window, nullptr, 0, 0, size.right - size.left, size.bottom - size.top, flags)) return false;
+		if (!SetWindowPos(Window, nullptr, 0, 0, size.right - size.left, size.bottom - size.top, flags))
+			return false;
 
 		PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARBFunc = nullptr;
 		PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARBFunc = nullptr;
@@ -301,8 +304,10 @@ namespace {
 	OGL Platform;
 
 	void done() {
-		if (mirrorFBO) glDeleteFramebuffers(1, &mirrorFBO);
-		if (mirrorTexture) ovr_DestroyMirrorTexture(session, mirrorTexture);
+		if (mirrorFBO)
+			glDeleteFramebuffers(1, &mirrorFBO);
+		if (mirrorTexture)
+			ovr_DestroyMirrorTexture(session, mirrorTexture);
 		for (int eye = 0; eye < 2; ++eye) {
 			delete eyeRenderTexture[eye];
 		}
@@ -397,7 +402,8 @@ void kinc_vr_interface_begin() {
 }
 
 void kinc_vr_interface_begin_render(int eye) {
-	if (eyeRenderTexture[0] == nullptr || eyeRenderTexture[1] == nullptr) createOculusTexture();
+	if (eyeRenderTexture[0] == nullptr || eyeRenderTexture[1] == nullptr)
+		createOculusTexture();
 	// Switch to eye render target
 	eyeRenderTexture[eye]->SetAndClearRenderSurface();
 }

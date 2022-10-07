@@ -90,7 +90,8 @@ static struct HIDGamepad gamepads[gamepadCount];
 
 static void HIDGamepadUdevHelper_openOrCloseGamepad(struct HIDGamepadUdevHelper *helper, struct udev_device *dev) {
 	const char *action = udev_device_get_action(dev);
-	if (!action) action = "add";
+	if (!action)
+		action = "add";
 
 	const char *joystickDevnodeName = strstr(udev_device_get_devnode(dev), "js");
 
@@ -110,7 +111,8 @@ static void HIDGamepadUdevHelper_openOrCloseGamepad(struct HIDGamepadUdevHelper 
 
 static void HIDGamepadUdevHelper_processDevice(struct HIDGamepadUdevHelper *helper, struct udev_device *dev) {
 	if (dev) {
-		if (udev_device_get_devnode(dev)) HIDGamepadUdevHelper_openOrCloseGamepad(helper, dev);
+		if (udev_device_get_devnode(dev))
+			HIDGamepadUdevHelper_openOrCloseGamepad(helper, dev);
 
 		udev_device_unref(dev);
 	}

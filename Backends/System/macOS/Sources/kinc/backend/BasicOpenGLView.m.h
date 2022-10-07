@@ -81,7 +81,8 @@ static bool cmd = false;
 }
 
 - (void)keyDown:(NSEvent *)theEvent {
-	if ([theEvent isARepeat]) return;
+	if ([theEvent isARepeat])
+		return;
 	NSString *characters = [theEvent charactersIgnoringModifiers];
 	if ([characters length]) {
 		unichar ch = [characters characterAtIndex:0];

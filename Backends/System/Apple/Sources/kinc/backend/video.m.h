@@ -96,8 +96,10 @@ static void load(kinc_video_t *video, double startTime) {
 		video->impl.audioTrackOutput = NULL;
 	}
 
-	if (video->impl.myWidth < 0) video->impl.myWidth = [videoTrack naturalSize].width;
-	if (video->impl.myHeight < 0) video->impl.myHeight = [videoTrack naturalSize].height;
+	if (video->impl.myWidth < 0)
+		video->impl.myWidth = [videoTrack naturalSize].width;
+	if (video->impl.myHeight < 0)
+		video->impl.myHeight = [videoTrack naturalSize].height;
 	int framerate = [videoTrack nominalFrameRate];
 	kinc_log(KINC_LOG_LEVEL_INFO, "Framerate: %i\n", framerate);
 	video->impl.next = video->impl.videoStart;
@@ -174,7 +176,8 @@ void kinc_video_stop(kinc_video_t *video) {
 }
 
 static void updateImage(kinc_video_t *video) {
-	if (!video->impl.playing) return;
+	if (!video->impl.playing)
+		return;
 	{
 		AVAssetReaderTrackOutput *videoOutput = video->impl.videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
@@ -217,7 +220,8 @@ static void updateImage(kinc_video_t *video) {
 		AVAssetReaderAudioMixOutput *audioOutput = video->impl.audioTrackOutput;
 		while (video->impl.audioTime / 44100.0 < video->impl.next + 0.1) {
 			CMSampleBufferRef buffer = [audioOutput copyNextSampleBuffer];
-			if (!buffer) return;
+			if (!buffer)
+				return;
 			CMItemCount numSamplesInBuffer = CMSampleBufferGetNumSamples(buffer);
 			AudioBufferList audioBufferList;
 			CMBlockBufferRef blockBufferOut = nil;

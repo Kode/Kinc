@@ -55,7 +55,8 @@ void kinc_a2_init() {
 	DWORD size1;
 	uint8_t *buffer1;
 	kinc_microsoft_affirm(dbuffer->Lock(writePos, gap, (void **)&buffer1, &size1, nullptr, nullptr, 0));
-	for (int i = 0; i < gap; ++i) buffer1[i] = 0;
+	for (int i = 0; i < gap; ++i)
+		buffer1[i] = 0;
 	kinc_microsoft_affirm(dbuffer->Unlock(buffer1, size1, nullptr, 0));
 
 	kinc_microsoft_affirm(dbuffer->Play(0, 0, DSBPLAY_LOOPING));
@@ -88,14 +89,19 @@ void kinc_a2_update() {
 	else
 		dif = dsize - writePosition + writePos;
 
-	if (dif < gap) return;
+	if (dif < gap)
+		return;
 	if (writePos + gap >= dsize) {
-		if (playPosition >= writePos || playPosition <= gap) return;
-		if (writePosition >= writePos || writePosition <= gap) return;
+		if (playPosition >= writePos || playPosition <= gap)
+			return;
+		if (writePosition >= writePos || writePosition <= gap)
+			return;
 	}
 	else {
-		if (playPosition >= writePos && playPosition <= writePos + gap) return;
-		if (writePosition >= writePos && writePosition <= writePos + gap) return;
+		if (playPosition >= writePos && playPosition <= writePos + gap)
+			return;
+		if (writePosition >= writePos && writePosition <= writePos + gap)
+			return;
 	}
 
 	a2_callback(&a2_buffer, gap / 2);
@@ -117,7 +123,8 @@ void kinc_a2_update() {
 
 	kinc_microsoft_affirm(dbuffer->Unlock(buffer1, size1, buffer2, size2));
 
-	if (writePos >= dsize) writePos -= dsize;
+	if (writePos >= dsize)
+		writePos -= dsize;
 }
 
 void kinc_a2_shutdown() {

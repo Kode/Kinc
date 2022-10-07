@@ -3,7 +3,7 @@
 #include <kinc/log.h>
 
 #include <kinc/math/core.h>
-//#include <Kore/Application.h>
+// #include <Kore/Application.h>
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/shader.h>
 #include <kinc/graphics4/texturearray.h>
@@ -217,8 +217,10 @@ void kinc_g4_internal_init() {
 }
 
 void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencilBufferBits, bool vSync) {
-	for (int i = 0; i < 1024 * 4; ++i) vertexConstants[i] = 0;
-	for (int i = 0; i < 1024 * 4; ++i) fragmentConstants[i] = 0;
+	for (int i = 0; i < 1024 * 4; ++i)
+		vertexConstants[i] = 0;
+	for (int i = 0; i < 1024 * 4; ++i)
+		fragmentConstants[i] = 0;
 
 	struct dx_window *window = &dx_ctx.windows[windowId];
 	// TODO: make WindowsApp actually work again
@@ -539,20 +541,23 @@ bool kinc_g4_swap_buffers() {
 }
 
 static void setInt(uint8_t *constants, uint32_t offset, uint32_t size, int value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	int *ints = (int *)&constants[offset];
 	ints[0] = value;
 }
 
 static void setInt2(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	int *ints = (int *)&constants[offset];
 	ints[0] = value1;
 	ints[1] = value2;
 }
 
 static void setInt3(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2, int value3) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	int *ints = (int *)&constants[offset];
 	ints[0] = value1;
 	ints[1] = value2;
@@ -560,7 +565,8 @@ static void setInt3(uint8_t *constants, uint32_t offset, uint32_t size, int valu
 }
 
 static void setInt4(uint8_t *constants, uint32_t offset, uint32_t size, int value1, int value2, int value3, int value4) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	int *ints = (int *)&constants[offset];
 	ints[0] = value1;
 	ints[1] = value2;
@@ -569,7 +575,8 @@ static void setInt4(uint8_t *constants, uint32_t offset, uint32_t size, int valu
 }
 
 static void setInts(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, int *values, int count) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	int *ints = (int *)&constants[offset];
 	if (columns == 4 && rows == 4) {
 		for (int i = 0; i < count / 16 && i < (int)size / 4; ++i) {
@@ -606,20 +613,23 @@ static void setInts(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t 
 }
 
 static void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value;
 }
 
 static void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value1;
 	floats[1] = value2;
 }
 
 static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value1;
 	floats[1] = value2;
@@ -627,7 +637,8 @@ static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float 
 }
 
 static void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value1;
 	floats[1] = value2;
@@ -636,7 +647,8 @@ static void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float 
 }
 
 static void setFloats(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, float *values, int count) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	if (columns == 4 && rows == 4) {
 		for (int i = 0; i < count / 16 && i < (int)size / 4; ++i) {
@@ -673,13 +685,15 @@ static void setFloats(uint8_t *constants, uint32_t offset, uint32_t size, uint8_
 }
 
 static void setBool(uint8_t *constants, uint32_t offset, uint32_t size, bool value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	int *ints = (int *)&constants[offset];
 	ints[0] = value ? 1 : 0;
 }
 
 static void setMatrix4(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix4x4_t *value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
@@ -689,7 +703,8 @@ static void setMatrix4(uint8_t *constants, uint32_t offset, uint32_t size, kinc_
 }
 
 static void setMatrix3(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix3x3_t *value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	for (int y = 0; y < 3; ++y) {
 		for (int x = 0; x < 3; ++x) {
@@ -811,7 +826,8 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
@@ -874,7 +890,8 @@ void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, 
 }
 
 void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
@@ -938,7 +955,8 @@ void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, k
 }
 
 void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
@@ -1004,7 +1022,8 @@ void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4
 }
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 
 	if (enabled) {
 		lastSamplers[unit.impl.unit].ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
@@ -1019,7 +1038,8 @@ void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled)
 }
 
 void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 
 	lastSamplers[unit.impl.unit].ComparisonFunc = get_comparison(mode);
 
@@ -1036,7 +1056,8 @@ void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compa
 }
 
 void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	lastSamplers[unit.impl.unit].MaxAnisotropy = max_anisotropy;
 
 	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
@@ -1048,7 +1069,8 @@ void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t ma
 }
 
 void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	lastSamplers[unit.impl.unit].MinLOD = lod_min_clamp;
 	lastSamplers[unit.impl.unit].MaxLOD = lod_max_clamp;
 

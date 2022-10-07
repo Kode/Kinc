@@ -983,7 +983,8 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window_index) {
 		renderTarget->impl.framebuffer = window->framebuffers[window->current_image];
 	}
 
-	if (began) return;
+	if (began)
+		return;
 
 	if (window->new_width != window->width || window->new_height != window->height) {
 		window->width = window->new_width;

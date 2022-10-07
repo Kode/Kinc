@@ -409,7 +409,8 @@ void kinc_g5_internal_texture_unmipmap(struct kinc_g5_texture *texture) {
 }
 
 void kinc_g5_internal_texture_set(struct kinc_g5_texture *texture, int unit) {
-	if (unit < 0) return;
+	if (unit < 0)
+		return;
 	// context->PSSetShaderResources(unit.unit, 1, &view);
 	texture->impl.stage = unit;
 	currentTextures[texture->impl.stage] = texture;

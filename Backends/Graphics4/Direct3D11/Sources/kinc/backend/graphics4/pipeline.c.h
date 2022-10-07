@@ -314,7 +314,8 @@ kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(struct kinc_g4_pipeline
 	char unitName[64];
 	int unitOffset = 0;
 	size_t len = strlen(name);
-	if (len > 63) len = 63;
+	if (len > 63)
+		len = 63;
 	strncpy(unitName, name, len + 1);
 	if (unitName[len - 1] == ']') {                  // Check for array - mySampler[2]
 		unitOffset = (int)(unitName[len - 2] - '0'); // Array index is unit offset
@@ -358,7 +359,8 @@ static int stringCacheIndex = 0;
 
 static int getMultipleOf16(int value) {
 	int ret = 16;
-	while (ret < value) ret += 16;
+	while (ret < value)
+		ret += 16;
 	return ret;
 }
 
@@ -486,7 +488,8 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 	}
 
 	bool used[usedCount];
-	for (int i = 0; i < usedCount; ++i) used[i] = false;
+	for (int i = 0; i < usedCount; ++i)
+		used[i] = false;
 	for (int i = 0; i < 64; ++i) {
 		used[state->vertex_shader->impl.attributes[i].index] = true;
 	}

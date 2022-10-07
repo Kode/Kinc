@@ -83,7 +83,8 @@ const char *kinc_x11_display_name(int display_index) {
 }
 
 kinc_display_mode_t kinc_x11_display_current_mode(int display_index) {
-	if (display_index >= MAXIMUM_DISPLAYS) display_index = 0;
+	if (display_index >= MAXIMUM_DISPLAYS)
+		display_index = 0;
 	struct kinc_x11_display *display = &x11_ctx.displays[display_index];
 	kinc_display_mode_t mode;
 	mode.x = 0;
@@ -139,7 +140,8 @@ kinc_display_mode_t kinc_x11_display_current_mode(int display_index) {
 }
 
 int kinc_x11_display_count_available_modes(int display_index) {
-	if (display_index >= MAXIMUM_DISPLAYS) display_index = 0;
+	if (display_index >= MAXIMUM_DISPLAYS)
+		display_index = 0;
 	struct kinc_x11_display *display = &x11_ctx.displays[display_index];
 
 	Window root_window = RootWindow(x11_ctx.display, DefaultScreen(x11_ctx.display));
@@ -160,7 +162,8 @@ int kinc_x11_display_count_available_modes(int display_index) {
 }
 
 kinc_display_mode_t kinc_x11_display_available_mode(int display_index, int mode_index) {
-	if (display_index >= MAXIMUM_DISPLAYS) display_index = 0;
+	if (display_index >= MAXIMUM_DISPLAYS)
+		display_index = 0;
 	struct kinc_x11_display *display = &x11_ctx.displays[display_index];
 	kinc_display_mode_t mode;
 	mode.x = 0;

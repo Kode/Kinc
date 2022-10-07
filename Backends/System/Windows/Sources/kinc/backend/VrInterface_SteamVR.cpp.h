@@ -7,7 +7,7 @@
 #include <Kinc/vr/vrinterface.h>
 #include <Kore/Input/Gamepad.h>
 #include <Kore/Log.h>
-//#include "Direct3D11.h"
+// #include "Direct3D11.h"
 
 #include <openvr.h>
 

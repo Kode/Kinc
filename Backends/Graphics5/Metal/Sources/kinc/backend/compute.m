@@ -11,20 +11,23 @@ id getMetalLibrary(void);
 static uint8_t *constantsMemory;
 
 static void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value;
 }
 
 static void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value1;
 	floats[1] = value2;
 }
 
 static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value1;
 	floats[1] = value2;
@@ -32,7 +35,8 @@ static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float 
 }
 
 static void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value1;
 	floats[1] = value2;
@@ -116,7 +120,8 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	                                                                                       options:MTLPipelineOptionBufferTypeInfo
 	                                                                                    reflection:&reflection
 	                                                                                         error:&error];
-	if (error != nil) NSLog(@"%@", [error localizedDescription]);
+	if (error != nil)
+		NSLog(@"%@", [error localizedDescription]);
 	assert(shader->impl._pipeline != NULL && !error);
 	shader->impl._reflection = (__bridge_retained void *)reflection;
 }

@@ -124,7 +124,8 @@ void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *fr
 #ifdef KORE_VR
 		frame->vertical_sync = false;
 #endif
-		if (wglSwapIntervalEXT != NULL) wglSwapIntervalEXT(frame->vertical_sync);
+		if (wglSwapIntervalEXT != NULL)
+			wglSwapIntervalEXT(frame->vertical_sync);
 	}
 #endif
 }
@@ -248,7 +249,8 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 #ifdef KORE_VR
 		vsync = false;
 #endif
-		if (wglSwapIntervalEXT != NULL) wglSwapIntervalEXT(vsync);
+		if (wglSwapIntervalEXT != NULL)
+			wglSwapIntervalEXT(vsync);
 	}
 #endif
 
@@ -965,7 +967,8 @@ void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4
 }
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t texunit, bool enabled) {
-	if (texunit.impl.unit < 0) return;
+	if (texunit.impl.unit < 0)
+		return;
 	if (enabled) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
@@ -976,12 +979,14 @@ void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t texunit, bool enabl
 }
 
 void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, Kinc_G4_Internal_StencilFunc(mode));
 }
 
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t texunit, bool enabled) {
-	if (texunit.impl.unit < 0) return;
+	if (texunit.impl.unit < 0)
+		return;
 	if (enabled) {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
@@ -992,17 +997,20 @@ void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t texunit, bool enabl
 }
 
 void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, Kinc_G4_Internal_StencilFunc(mode));
 }
 
 void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
 }
 
 void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
 }
 
@@ -1037,7 +1045,8 @@ void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
 		}
 
 		GLenum buffers[16];
-		for (int i = 0; i < count; ++i) buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+		for (int i = 0; i < count; ++i)
+			buffers[i] = GL_COLOR_ATTACHMENT0 + i;
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 		((void (*)(GLsizei, GLenum *))glesDrawBuffers)(count, buffers);
 #elif !defined(KORE_OPENGL_ES) || defined(KORE_EMSCRIPTEN)
@@ -1224,7 +1233,7 @@ bool kinc_g4_supports_non_pow2_textures() {
 	// we use OpenGL 2.0+, which should supports NPOT textures.
 	// in practice certain very old hardware doesn't,
 	// but detecting that is not practical
-	return true; 
+	return true;
 }
 
 bool kinc_g4_render_targets_inverted_y(void) {

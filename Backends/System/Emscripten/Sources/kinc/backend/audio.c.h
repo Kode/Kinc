@@ -42,12 +42,14 @@ static void streamBuffer(ALuint buffer) {
 }
 
 static void iter() {
-	if (!audioRunning) return;
+	if (!audioRunning)
+		return;
 
 	ALint processed;
 	alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 
-	if (processed <= 0) return;
+	if (processed <= 0)
+		return;
 	while (processed--) {
 		ALuint buffer;
 		alSourceUnqueueBuffers(source, 1, &buffer);

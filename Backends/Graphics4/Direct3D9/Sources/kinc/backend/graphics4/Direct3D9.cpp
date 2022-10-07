@@ -494,7 +494,8 @@ void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
 }
 
 void kinc_g4_set_bool(kinc_g4_constant_location_t position, bool value) {
-	if (position.impl.shaderType == -1) return;
+	if (position.impl.shaderType == -1)
+		return;
 	BOOL bools[4];
 	bools[0] = value ? 1 : 0;
 	bools[1] = bools[0];
@@ -507,7 +508,8 @@ void kinc_g4_set_bool(kinc_g4_constant_location_t position, bool value) {
 }
 
 void kinc_g4_set_int(kinc_g4_constant_location_t position, int value) {
-	if (position.impl.shaderType == -1) return;
+	if (position.impl.shaderType == -1)
+		return;
 	if (position.impl.reg.regtype == 'f') {
 		kinc_g4_set_float(position, (float)value);
 	}
@@ -525,7 +527,8 @@ void kinc_g4_set_int(kinc_g4_constant_location_t position, int value) {
 }
 
 void kinc_g4_set_int2(kinc_g4_constant_location_t position, int value1, int value2) {
-	if (position.impl.shaderType == -1) return;
+	if (position.impl.shaderType == -1)
+		return;
 	if (position.impl.reg.regtype == 'f') {
 		kinc_g4_set_float2(position, (float)value1, (float)value2);
 	}
@@ -543,7 +546,8 @@ void kinc_g4_set_int2(kinc_g4_constant_location_t position, int value1, int valu
 }
 
 void kinc_g4_set_int3(kinc_g4_constant_location_t position, int value1, int value2, int value3) {
-	if (position.impl.shaderType == -1) return;
+	if (position.impl.shaderType == -1)
+		return;
 	if (position.impl.reg.regtype == 'f') {
 		kinc_g4_set_float3(position, (float)value1, (float)value2, (float)value3);
 	}
@@ -561,7 +565,8 @@ void kinc_g4_set_int3(kinc_g4_constant_location_t position, int value1, int valu
 }
 
 void kinc_g4_set_int4(kinc_g4_constant_location_t position, int value1, int value2, int value3, int value4) {
-	if (position.impl.shaderType == -1) return;
+	if (position.impl.shaderType == -1)
+		return;
 	if (position.impl.reg.regtype == 'f') {
 		kinc_g4_set_float4(position, (float)value1, (float)value2, (float)value3, (float)value4);
 	}
@@ -579,7 +584,8 @@ void kinc_g4_set_int4(kinc_g4_constant_location_t position, int value1, int valu
 }
 
 void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
-	if (location.impl.shaderType == -1) return;
+	if (location.impl.shaderType == -1)
+		return;
 	int registerCount = (count + 3) / 4; // round up
 	if (registerCount == count / 4) {    // round down
 		if (location.impl.shaderType == 0)
@@ -598,7 +604,8 @@ void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int cou
 }
 
 void kinc_g4_set_float(kinc_g4_constant_location_t position, float value) {
-	if (position.impl.shaderType == -1) return;
+	if (position.impl.shaderType == -1)
+		return;
 	float floats[4];
 	floats[0] = value;
 	floats[1] = value;
@@ -611,7 +618,8 @@ void kinc_g4_set_float(kinc_g4_constant_location_t position, float value) {
 }
 
 void kinc_g4_set_float2(kinc_g4_constant_location_t position, float value1, float value2) {
-	if (position.impl.shaderType == -1) return;
+	if (position.impl.shaderType == -1)
+		return;
 	float floats[4];
 	floats[0] = value1;
 	floats[1] = value2;
@@ -624,7 +632,8 @@ void kinc_g4_set_float2(kinc_g4_constant_location_t position, float value1, floa
 }
 
 void kinc_g4_set_float3(kinc_g4_constant_location_t position, float value1, float value2, float value3) {
-	if (position.impl.shaderType == -1) return;
+	if (position.impl.shaderType == -1)
+		return;
 	float floats[4];
 	floats[0] = value1;
 	floats[1] = value2;
@@ -637,7 +646,8 @@ void kinc_g4_set_float3(kinc_g4_constant_location_t position, float value1, floa
 }
 
 void kinc_g4_set_float4(kinc_g4_constant_location_t position, float value1, float value2, float value3, float value4) {
-	if (position.impl.shaderType == -1) return;
+	if (position.impl.shaderType == -1)
+		return;
 	float floats[4];
 	floats[0] = value1;
 	floats[1] = value2;
@@ -650,7 +660,8 @@ void kinc_g4_set_float4(kinc_g4_constant_location_t position, float value1, floa
 }
 
 void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int count) {
-	if (location.impl.shaderType == -1) return;
+	if (location.impl.shaderType == -1)
+		return;
 	int registerCount = (count + 3) / 4; // round up
 	if (registerCount == count / 4) {    // round down
 		if (location.impl.shaderType == 0)
@@ -669,7 +680,8 @@ void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int
 }
 
 void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value) {
-	if (location.impl.shaderType == -1) return;
+	if (location.impl.shaderType == -1)
+		return;
 	float floats[16];
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
@@ -683,7 +695,8 @@ void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t 
 }
 
 void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value) {
-	if (location.impl.shaderType == -1) return;
+	if (location.impl.shaderType == -1)
+		return;
 	float floats[12];
 	for (int y = 0; y < 3; ++y) {
 		for (int x = 0; x < 3; ++x) {
@@ -736,7 +749,8 @@ bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 }
 
 void kinc_g4_delete_occlusion_query(unsigned occlusionQuery) {
-	if (occlusionQuery < queryPool.size()) queryPool[occlusionQuery] = nullptr;
+	if (occlusionQuery < queryPool.size())
+		queryPool[occlusionQuery] = nullptr;
 }
 
 void kinc_g4_start_occlusion_query(unsigned occlusionQuery) {
@@ -800,7 +814,7 @@ bool kinc_g4_supports_blend_constants() {
 	}
 
 	return (pCaps.SrcBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR) &&
-	                           (pCaps.DestBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR);
+	       (pCaps.DestBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR);
 }
 
 bool kinc_g4_supports_non_pow2_textures() {

@@ -72,24 +72,28 @@ bool kinc_a1_sound_stream_ended(kinc_a1_sound_stream_t *stream) {
 }
 
 float kinc_a1_sound_stream_length(kinc_a1_sound_stream_t *stream) {
-	if (stream->vorbis == NULL) return 0;
+	if (stream->vorbis == NULL)
+		return 0;
 	return stb_vorbis_stream_length_in_seconds(stream->vorbis);
 }
 
 float kinc_a1_sound_stream_position(kinc_a1_sound_stream_t *stream) {
-	if (stream->vorbis == NULL) return 0;
+	if (stream->vorbis == NULL)
+		return 0;
 	return stb_vorbis_get_sample_offset(stream->vorbis) / stb_vorbis_stream_length_in_samples(stream->vorbis) * kinc_a1_sound_stream_length(stream);
 }
 
 void kinc_a1_sound_stream_reset(kinc_a1_sound_stream_t *stream) {
-	if (stream->vorbis != NULL) stb_vorbis_seek_start(stream->vorbis);
+	if (stream->vorbis != NULL)
+		stb_vorbis_seek_start(stream->vorbis);
 	stream->end = false;
 	stream->rateDecodedHack = false;
 	stream->decoded = false;
 }
 
 float kinc_a1_sound_stream_next_sample(kinc_a1_sound_stream_t *stream) {
-	if (stream->vorbis == NULL) return 0;
+	if (stream->vorbis == NULL)
+		return 0;
 	if (stream->rate == 22050) {
 		if (stream->rateDecodedHack) {
 			if (stream->decoded) {

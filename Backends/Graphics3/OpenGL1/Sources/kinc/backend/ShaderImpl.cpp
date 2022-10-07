@@ -17,7 +17,8 @@ ShaderImpl::ShaderImpl(void *source, int length) : length(length), id(0) {
 ShaderImpl::~ShaderImpl() {
 	delete[] source;
 	source = nullptr;
-	if (id != 0) glDeleteShader(id);
+	if (id != 0)
+		glDeleteShader(id);
 }
 
 Graphics4::Shader::Shader(void *source, int length, Graphics4::ShaderType type) : ShaderImpl(source, length) {}

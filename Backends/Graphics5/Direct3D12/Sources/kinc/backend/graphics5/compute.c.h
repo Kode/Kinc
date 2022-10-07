@@ -11,31 +11,36 @@ static uint8_t constantsMemory[1024 * 4];
 
 static int getMultipleOf16(int value) {
 	int ret = 16;
-	while (ret < value) ret += 16;
+	while (ret < value)
+		ret += 16;
 	return ret;
 }
 
 static void setInt(uint8_t *constants, uint32_t offset, uint32_t size, int value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	int *ints = (int *)&constants[offset];
 	ints[0] = value;
 }
 
 static void setFloat(uint8_t *constants, uint32_t offset, uint32_t size, float value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value;
 }
 
 static void setFloat2(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value1;
 	floats[1] = value2;
 }
 
 static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value1;
 	floats[1] = value2;
@@ -43,7 +48,8 @@ static void setFloat3(uint8_t *constants, uint32_t offset, uint32_t size, float 
 }
 
 static void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float value1, float value2, float value3, float value4) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	floats[0] = value1;
 	floats[1] = value2;
@@ -52,7 +58,8 @@ static void setFloat4(uint8_t *constants, uint32_t offset, uint32_t size, float 
 }
 
 static void setFloats(uint8_t *constants, uint32_t offset, uint32_t size, uint8_t columns, uint8_t rows, float *values, int count) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	if (columns == 4 && rows == 4) {
 		for (int i = 0; i < count / 16 && i < (int)size / 4; ++i) {
@@ -89,13 +96,15 @@ static void setFloats(uint8_t *constants, uint32_t offset, uint32_t size, uint8_
 }
 
 static void setBool(uint8_t *constants, uint32_t offset, uint32_t size, bool value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	int *ints = (int *)&constants[offset];
 	ints[0] = value ? 1 : 0;
 }
 
 static void setMatrix4(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix4x4_t *value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
@@ -105,7 +114,8 @@ static void setMatrix4(uint8_t *constants, uint32_t offset, uint32_t size, kinc_
 }
 
 static void setMatrix3(uint8_t *constants, uint32_t offset, uint32_t size, kinc_matrix3x3_t *value) {
-	if (size == 0) return;
+	if (size == 0)
+		return;
 	float *floats = (float *)&constants[offset];
 	for (int y = 0; y < 3; ++y) {
 		for (int x = 0; x < 3; ++x) {
@@ -124,7 +134,8 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		shader->impl.attributes[i].hash = kinc_internal_hash_name(name);
 		shader->impl.attributes[i].index = data[index++];
@@ -136,7 +147,8 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		shader->impl.textures[i].hash = kinc_internal_hash_name(name);
 		shader->impl.textures[i].index = data[index++];
@@ -149,7 +161,8 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		kinc_compute_internal_shader_constant_t constant;
 		constant.hash = kinc_internal_hash_name(name);
@@ -235,7 +248,8 @@ kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_sh
 	char unitName[64];
 	int unitOffset = 0;
 	size_t len = strlen(name);
-	if (len > 63) len = 63;
+	if (len > 63)
+		len = 63;
 	strncpy(unitName, name, len + 1);
 	if (unitName[len - 1] == ']') {                  // Check for array - mySampler[2]
 		unitOffset = (int)(unitName[len - 2] - '0'); // Array index is unit offset

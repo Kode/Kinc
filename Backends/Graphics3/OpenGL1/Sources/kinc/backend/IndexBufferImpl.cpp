@@ -28,7 +28,8 @@ int *Graphics3::IndexBuffer::lock() {
 
 void Graphics3::IndexBuffer::unlock() {
 #if defined(KORE_ANDROID) || defined(KORE_PI)
-	for (int i = 0; i < myCount; ++i) shortData[i] = (u16)data[i];
+	for (int i = 0; i < myCount; ++i)
+		shortData[i] = (u16)data[i];
 #endif
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
@@ -48,7 +49,8 @@ void Graphics3::IndexBuffer::_set() {
 }
 
 void IndexBufferImpl::unset() {
-	if ((void *)current == (void *)this) current = nullptr;
+	if ((void *)current == (void *)this)
+		current = nullptr;
 }
 
 int Graphics3::IndexBuffer::count() {

@@ -255,7 +255,8 @@ static void initDeviceElements(struct HIDGamepad *gamepad, CFArrayRef elements) 
 		}
 
 		if (elemType == kIOHIDElementTypeInput_Misc || elemType == kIOHIDElementTypeInput_Button || elemType == kIOHIDElementTypeInput_Axis) {
-			if (!IOHIDQueueContainsElement(gamepad->hidQueueRef, elementRef)) IOHIDQueueAddElement(gamepad->hidQueueRef, elementRef);
+			if (!IOHIDQueueContainsElement(gamepad->hidQueueRef, elementRef))
+				IOHIDQueueAddElement(gamepad->hidQueueRef, elementRef);
 		}
 	}
 }
@@ -310,7 +311,8 @@ static void buttonChanged(struct HIDGamepad *gamepad, IOHIDElementRef elementRef
 
 	kinc_internal_gamepad_trigger_button(gamepad->padIndex, buttonIndex, normalize);
 
-	if (debugButtonInput) logButton(buttonIndex, (normalize != 0));
+	if (debugButtonInput)
+		logButton(buttonIndex, (normalize != 0));
 }
 
 static void axisChanged(struct HIDGamepad *gamepad, IOHIDElementRef elementRef, IOHIDValueRef valueRef, int axisIndex) {
@@ -323,13 +325,15 @@ static void axisChanged(struct HIDGamepad *gamepad, IOHIDElementRef elementRef, 
 	double normalize = normalize = (((rawValue - min) / (max - min)) * 2) - 1;
 
 	// Invert Y axis
-	if (axisIndex % 2 == 1) normalize = -normalize;
+	if (axisIndex % 2 == 1)
+		normalize = -normalize;
 
 	// log(Info, "%f %f %f %f", rawValue, min, max, normalize);
 
 	kinc_internal_gamepad_trigger_axis(gamepad->padIndex, axisIndex, normalize);
 
-	if (debugAxisInput) logAxis(axisIndex);
+	if (debugAxisInput)
+		logAxis(axisIndex);
 }
 
 static void inputValueCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDValueRef inIOHIDValueRef) {}
@@ -338,7 +342,8 @@ static void valueAvailableCallback(void *inContext, IOReturn inResult, void *inS
 	struct HIDGamepad *pad = (struct HIDGamepad *)inContext;
 	do {
 		IOHIDValueRef valueRef = IOHIDQueueCopyNextValueWithTimeout((IOHIDQueueRef)inSender, 0.);
-		if (!valueRef) break;
+		if (!valueRef)
+			break;
 
 		// process the HID value reference
 		IOHIDElementRef elementRef = IOHIDValueGetElement(valueRef);

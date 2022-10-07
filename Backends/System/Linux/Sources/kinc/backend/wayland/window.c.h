@@ -134,10 +134,12 @@ static int create_shm_fd(off_t size) {
 		strcat(name, template);
 
 		fd = mkostemp(name, O_CLOEXEC);
-		if (fd >= 0) unlink(name);
+		if (fd >= 0)
+			unlink(name);
 
 		free(name);
-		if (fd < 0) return -1;
+		if (fd < 0)
+			return -1;
 
 		int ret = ftruncate(fd, size);
 		if (ret != 0) {
@@ -207,7 +209,8 @@ void kinc_wayland_create_decoration(struct kinc_wl_decoration *decoration, struc
 	wl_subsurface_set_position(decoration->subsurface, x, y);
 	decoration->viewport = wp_viewporter_get_viewport(wl_ctx.viewporter, decoration->surface);
 	wp_viewport_set_destination(decoration->viewport, width, height);
-	if (buffer) wl_surface_attach(decoration->surface, buffer, 0, 0);
+	if (buffer)
+		wl_surface_attach(decoration->surface, buffer, 0, 0);
 
 	if (opaque) {
 		struct wl_region *region = wl_compositor_create_region(wl_ctx.compositor);
@@ -229,9 +232,12 @@ void kinc_wayland_resize_decoration(struct kinc_wl_decoration *decoration, int x
 }
 
 void kinc_wayland_destroy_decoration(struct kinc_wl_decoration *decoration) {
-	if (decoration->subsurface) wl_subsurface_destroy(decoration->subsurface);
-	if (decoration->surface) wl_surface_destroy(decoration->surface);
-	if (decoration->viewport) wp_viewport_destroy(decoration->viewport);
+	if (decoration->subsurface)
+		wl_subsurface_destroy(decoration->subsurface);
+	if (decoration->surface)
+		wl_surface_destroy(decoration->surface);
+	if (decoration->viewport)
+		wp_viewport_destroy(decoration->viewport);
 	decoration->surface = NULL;
 	decoration->subsurface = NULL;
 	decoration->viewport = NULL;

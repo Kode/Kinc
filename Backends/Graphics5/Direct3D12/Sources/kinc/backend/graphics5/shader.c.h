@@ -15,7 +15,8 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *_data, size_t length, k
 		char name[64];
 		for (unsigned i2 = 0; i2 < 63; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		strcpy(shader->impl.attributes[i].name, name);
 		shader->impl.attributes[i].attribute = data[index++];
@@ -26,7 +27,8 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *_data, size_t length, k
 		char name[64];
 		for (unsigned i2 = 0; i2 < 63; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		strcpy(shader->impl.textures[i].name, name);
 		shader->impl.textures[i].texture = data[index++];
@@ -39,7 +41,8 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *_data, size_t length, k
 		char name[64];
 		for (unsigned i2 = 0; i2 < 63; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		ShaderConstant constant;
 		constant.offset = *(uint32_t *)&data[index];

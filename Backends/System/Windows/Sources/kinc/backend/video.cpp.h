@@ -37,7 +37,8 @@ public:
 CTextureRenderer::CTextureRenderer(LPUNKNOWN pUnk, HRESULT *phr) : CBaseVideoRenderer(__uuidof(CLSID_TextureRenderer), TEXT("Texture Renderer"), pUnk, phr) {
 	// Store and AddRef the texture for our use.
 	ASSERT(phr);
-	if (phr) *phr = S_OK;
+	if (phr)
+		*phr = S_OK;
 }
 
 CTextureRenderer::~CTextureRenderer() {

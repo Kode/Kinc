@@ -39,7 +39,8 @@ static kinc_a2_buffer_t a2_buffer;
 static void copySample(void *buffer) {
 	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 	a2_buffer.read_location += 4;
-	if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
+	if (a2_buffer.read_location >= a2_buffer.data_size)
+		a2_buffer.read_location = 0;
 
 	if (video != NULL) {
 		value += kinc_internal_video_sound_stream_next_sample(video);
@@ -128,7 +129,8 @@ void kinc_a2_init() {
 	UInt32 flag = 1;
 	affirm(AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, kOutputBus, &flag, sizeof(UInt32)));
 
-	if (soundPlaying) return;
+	if (soundPlaying)
+		return;
 
 	affirm(AudioOutputUnitStart(audioUnit));
 
@@ -176,8 +178,10 @@ void kinc_a2_init() {
 void kinc_a2_update() {}
 
 void kinc_a2_shutdown() {
-	if (!initialized) return;
-	if (!soundPlaying) return;
+	if (!initialized)
+		return;
+	if (!soundPlaying)
+		return;
 
 	affirm(AudioOutputUnitStop(audioUnit));
 

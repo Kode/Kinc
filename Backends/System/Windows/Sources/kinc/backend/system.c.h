@@ -95,7 +95,8 @@ static void ReleaseTouchIndex(int dwID) {
 }
 
 static void initKeyTranslation() {
-	for (int i = 0; i < 256; ++i) keyTranslated[i] = KINC_KEY_UNKNOWN;
+	for (int i = 0; i < 256; ++i)
+		keyTranslated[i] = KINC_KEY_UNKNOWN;
 
 	keyTranslated[VK_BACK] = KINC_KEY_BACKSPACE;
 	keyTranslated[VK_TAB] = KINC_KEY_TAB;
@@ -418,13 +419,15 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		}
 		break;
 	case WM_LBUTTONDOWN:
-		if (!kinc_mouse_is_locked()) SetCapture(hWnd);
+		if (!kinc_mouse_is_locked())
+			SetCapture(hWnd);
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
 		kinc_internal_mouse_trigger_press(kinc_windows_window_index_from_hwnd(hWnd), 0, mouseX, mouseY);
 		break;
 	case WM_LBUTTONUP:
-		if (!kinc_mouse_is_locked()) ReleaseCapture();
+		if (!kinc_mouse_is_locked())
+			ReleaseCapture();
 		mouseX = GET_X_LPARAM(lParam);
 		mouseY = GET_Y_LPARAM(lParam);
 		kinc_internal_mouse_trigger_release(kinc_windows_window_index_from_hwnd(hWnd), 0, mouseX, mouseY);
@@ -777,32 +780,40 @@ static BOOL IsXInputDevice(const GUID *pGuidProductFromDirectInput) {
 
 	// Create WMI
 	hr = CoCreateInstance(&CLSID_WbemLocator, NULL, CLSCTX_INPROC_SERVER, &IID_IWbemLocator, (LPVOID *)&pIWbemLocator);
-	if (FAILED(hr) || pIWbemLocator == NULL) goto LCleanup;
+	if (FAILED(hr) || pIWbemLocator == NULL)
+		goto LCleanup;
 
 	bstrNamespace = SysAllocString(L"\\\\.\\root\\cimv2");
-	if (bstrNamespace == NULL) goto LCleanup;
+	if (bstrNamespace == NULL)
+		goto LCleanup;
 	bstrClassName = SysAllocString(L"Win32_PNPEntity");
-	if (bstrClassName == NULL) goto LCleanup;
+	if (bstrClassName == NULL)
+		goto LCleanup;
 	bstrDeviceID = SysAllocString(L"DeviceID");
-	if (bstrDeviceID == NULL) goto LCleanup;
+	if (bstrDeviceID == NULL)
+		goto LCleanup;
 
 	// Connect to WMI
 	hr = pIWbemLocator->lpVtbl->ConnectServer(pIWbemLocator, bstrNamespace, NULL, NULL, 0L, 0L, NULL, NULL, &pIWbemServices);
-	if (FAILED(hr) || pIWbemServices == NULL) goto LCleanup;
+	if (FAILED(hr) || pIWbemServices == NULL)
+		goto LCleanup;
 
 	// Switch security level to IMPERSONATE.
 	CoSetProxyBlanket((IUnknown *)pIWbemServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL,
 	                  EOAC_NONE);
 
 	hr = pIWbemServices->lpVtbl->CreateInstanceEnum(pIWbemServices, bstrClassName, 0, NULL, &pEnumDevices);
-	if (FAILED(hr) || pEnumDevices == NULL) goto LCleanup;
+	if (FAILED(hr) || pEnumDevices == NULL)
+		goto LCleanup;
 
 	// Loop over all devices
 	for (;;) {
 		// Get 20 at a time
 		hr = pEnumDevices->lpVtbl->Next(pEnumDevices, 10000, 20, pDevices, &uReturned);
-		if (FAILED(hr)) goto LCleanup;
-		if (uReturned == 0) break;
+		if (FAILED(hr))
+			goto LCleanup;
+		if (uReturned == 0)
+			break;
 
 		for (iDevice = 0; iDevice < uReturned; iDevice++) {
 			// For each device, get its device ID
@@ -838,15 +849,20 @@ static BOOL IsXInputDevice(const GUID *pGuidProductFromDirectInput) {
 	}
 
 LCleanup:
-	if (bstrNamespace) SysFreeString(bstrNamespace);
-	if (bstrDeviceID) SysFreeString(bstrDeviceID);
-	if (bstrClassName) SysFreeString(bstrClassName);
-	for (iDevice = 0; iDevice < 20; iDevice++) SAFE_RELEASE(pDevices[iDevice]);
+	if (bstrNamespace)
+		SysFreeString(bstrNamespace);
+	if (bstrDeviceID)
+		SysFreeString(bstrDeviceID);
+	if (bstrClassName)
+		SysFreeString(bstrClassName);
+	for (iDevice = 0; iDevice < 20; iDevice++)
+		SAFE_RELEASE(pDevices[iDevice]);
 	SAFE_RELEASE(pEnumDevices);
 	SAFE_RELEASE(pIWbemLocator);
 	SAFE_RELEASE(pIWbemServices);
 
-	if (bCleanupCOM) CoUninitialize();
+	if (bCleanupCOM)
+		CoUninitialize();
 
 	return bIsXinputDevice;
 }
@@ -889,7 +905,8 @@ static BOOL CALLBACK enumerateJoystickAxesCallback(LPCDIDEVICEOBJECTINSTANCEW dd
 }
 
 static BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID context) {
-	if (IsXInputDevice(&ddi->guidProduct)) return DIENUM_CONTINUE;
+	if (IsXInputDevice(&ddi->guidProduct))
+		return DIENUM_CONTINUE;
 
 	HRESULT hr = di_instance->lpVtbl->CreateDevice(di_instance, &ddi->guidInstance, &di_pads[padCount], NULL);
 
@@ -1255,7 +1272,8 @@ static void findSavePath() {
 }
 
 const char *kinc_internal_save_path() {
-	if (savePath[0] == 0) findSavePath();
+	if (savePath[0] == 0)
+		findSavePath();
 	return savePath;
 }
 
@@ -1352,7 +1370,8 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	MyGetPointerPenInfo = (GetPointerPenInfoType)GetProcAddress(user32, "GetPointerPenInfo");
 	MyEnableNonClientDpiScaling = (EnableNonClientDpiScalingType)GetProcAddress(user32, "EnableNonClientDpiScaling");
 	initKeyTranslation();
-	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
+	for (int i = 0; i < 256; ++i)
+		keyPressed[i] = false;
 
 	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
 		touchPoints[i].sysID = -1;
@@ -1365,7 +1384,8 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&frequency);
 
-	for (int i = 0; i < 256; ++i) keyPressed[i] = false;
+	for (int i = 0; i < 256; ++i)
+		keyPressed[i] = false;
 
 	// Kore::System::_init(name, width, height, &win, &frame);
 	kinc_set_application_name(name);

@@ -412,7 +412,8 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	int formatByteSize = formatSize(dxgiFormat);
 	int rowPitch = render_target->texWidth * formatByteSize;
 	int align = rowPitch % d3d12_textureAlignment();
-	if (align != 0) rowPitch = rowPitch + (d3d12_textureAlignment() - align);
+	if (align != 0)
+		rowPitch = rowPitch + (d3d12_textureAlignment() - align);
 
 	// Create readback buffer
 	if (render_target->impl.renderTargetReadback == NULL) {
@@ -534,7 +535,8 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	target->impl.stage = unit.impl.unit;
 	currentRenderTargets[target->impl.stage] = target;
 	currentTextures[target->impl.stage] = NULL;
@@ -543,7 +545,8 @@ void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t 
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	target->impl.stage_depth = unit.impl.unit;
 	currentRenderTargets[target->impl.stage_depth] = target;
 	currentTextures[target->impl.stage_depth] = NULL;

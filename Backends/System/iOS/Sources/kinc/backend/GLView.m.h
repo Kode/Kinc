@@ -25,7 +25,8 @@ static void initTouches() {
 
 static int getTouchIndex(void *touch) {
 	for (int i = 0; i < touchmaxcount; ++i) {
-		if (touches[i] == touch) return i;
+		if (touches[i] == touch)
+			return i;
 	}
 	return -1;
 }
@@ -251,7 +252,8 @@ void kinc_internal_call_resize_callback(int window, int width, int height);
 		depthStencilRenderbuffer = 0;
 	}
 
-	if ([EAGLContext currentContext] == context) [EAGLContext setCurrentContext:nil];
+	if ([EAGLContext currentContext] == context)
+		[EAGLContext setCurrentContext:nil];
 
 	//[context release];
 	context = nil;
@@ -263,7 +265,8 @@ void kinc_internal_call_resize_callback(int window, int width, int height);
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 	for (UITouch *touch in touches) {
 		int index = getTouchIndex((__bridge void *)touch);
-		if (index == -1) index = addTouch((__bridge void *)touch);
+		if (index == -1)
+			index = addTouch((__bridge void *)touch);
 		if (index >= 0) {
 			CGPoint point = [touch locationInView:self];
 			float x = point.x * self.contentScaleFactor;
@@ -363,7 +366,8 @@ static bool shiftDown = false;
 - (void)insertText:(NSString *)text {
 	if ([text length] == 1) {
 		unichar ch = [text characterAtIndex:[text length] - 1];
-		if (ch == 8212) ch = '_';
+		if (ch == 8212)
+			ch = '_';
 		if (ch == L'\n') {
 			kinc_internal_keyboard_trigger_key_down(KINC_KEY_RETURN);
 			kinc_internal_keyboard_trigger_key_up(KINC_KEY_RETURN);

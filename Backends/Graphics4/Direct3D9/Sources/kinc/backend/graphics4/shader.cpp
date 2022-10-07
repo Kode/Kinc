@@ -16,7 +16,8 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *void_data, size_t lengt
 		char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		strcpy(shader->impl.attributes[i].name, name);
 		shader->impl.attributes[i].index = data[index++];
@@ -28,7 +29,8 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *void_data, size_t lengt
 		char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		strcpy(shader->impl.constants[i].name, name);
 		shader->impl.constants[i].regtype = data[index++];

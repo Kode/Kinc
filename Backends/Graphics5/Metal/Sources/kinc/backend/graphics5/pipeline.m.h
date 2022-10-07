@@ -317,7 +317,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	                                                                                          options:MTLPipelineOptionBufferTypeInfo
 	                                                                                       reflection:&reflection
 	                                                                                            error:&errors];
-	if (errors != nil) NSLog(@"%@", [errors localizedDescription]);
+	if (errors != nil)
+		NSLog(@"%@", [errors localizedDescription]);
 	assert(pipeline->impl._pipeline && !errors);
 
 	renderPipelineDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
@@ -326,7 +327,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	                                                                                               options:MTLPipelineOptionBufferTypeInfo
 	                                                                                            reflection:&reflection
 	                                                                                                 error:&errors];
-	if (errors != nil) NSLog(@"%@", [errors localizedDescription]);
+	if (errors != nil)
+		NSLog(@"%@", [errors localizedDescription]);
 	assert(pipeline->impl._pipelineDepth && !errors);
 
 	pipeline->impl._reflection = (__bridge_retained void *)reflection;

@@ -161,7 +161,8 @@ void setup_init_cmd() {
 void flush_init_cmd() {
 	VkResult err;
 
-	if (vk_ctx.setup_cmd == VK_NULL_HANDLE) return;
+	if (vk_ctx.setup_cmd == VK_NULL_HANDLE)
+		return;
 
 	err = vkEndCommandBuffer(vk_ctx.setup_cmd);
 	assert(!err);

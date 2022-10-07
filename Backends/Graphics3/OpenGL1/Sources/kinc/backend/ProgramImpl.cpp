@@ -100,7 +100,8 @@ void Graphics4::Program::link(VertexStructure **structures, int count) {
 	compileShader(vertexShader->id, vertexShader->source, vertexShader->length, VertexShader);
 	compileShader(fragmentShader->id, fragmentShader->source, fragmentShader->length, FragmentShader);
 #ifndef OPENGLES
-	if (geometryShader != nullptr) compileShader(geometryShader->id, geometryShader->source, geometryShader->length, GeometryShader);
+	if (geometryShader != nullptr)
+		compileShader(geometryShader->id, geometryShader->source, geometryShader->length, GeometryShader);
 	if (tessellationControlShader != nullptr)
 		compileShader(tessellationControlShader->id, tessellationControlShader->source, tessellationControlShader->length, TessellationControlShader);
 	if (tessellationEvaluationShader != nullptr)
@@ -110,9 +111,12 @@ void Graphics4::Program::link(VertexStructure **structures, int count) {
 	glAttachShader(programId, vertexShader->id);
 	glAttachShader(programId, fragmentShader->id);
 #ifndef OPENGLES
-	if (geometryShader != nullptr) glAttachShader(programId, geometryShader->id);
-	if (tessellationControlShader != nullptr) glAttachShader(programId, tessellationControlShader->id);
-	if (tessellationEvaluationShader != nullptr) glAttachShader(programId, tessellationEvaluationShader->id);
+	if (geometryShader != nullptr)
+		glAttachShader(programId, geometryShader->id);
+	if (tessellationControlShader != nullptr)
+		glAttachShader(programId, tessellationControlShader->id);
+	if (tessellationEvaluationShader != nullptr)
+		glAttachShader(programId, tessellationEvaluationShader->id);
 #endif
 	glCheckErrors();
 
@@ -178,7 +182,8 @@ Graphics4::ConstantLocation Graphics4::Program::getConstantLocation(const char *
 
 int ProgramImpl::findTexture(const char *name) {
 	for (int index = 0; index < textureCount; ++index) {
-		if (strcmp(textures[index], name) == 0) return index;
+		if (strcmp(textures[index], name) == 0)
+			return index;
 	}
 	return -1;
 }

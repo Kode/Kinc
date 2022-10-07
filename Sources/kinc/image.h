@@ -246,10 +246,12 @@ static int stb_eof(void *user) {
 }
 
 static _Bool endsWith(const char *str, const char *suffix) {
-	if (str == NULL || suffix == NULL) return 0;
+	if (str == NULL || suffix == NULL)
+		return 0;
 	size_t lenstr = strlen(str);
 	size_t lensuffix = strlen(suffix);
-	if (lensuffix > lenstr) return 0;
+	if (lensuffix > lenstr)
+		return 0;
 	return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
@@ -450,10 +452,14 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 		int w = 0;
 		int h = 0;
 
-		if (meta1fourcc == 0) w = meta1data;
-		if (meta1fourcc == 1) h = meta1data;
-		if (meta2fourcc == 0) w = meta2data;
-		if (meta2fourcc == 1) h = meta2data;
+		if (meta1fourcc == 0)
+			w = meta1data;
+		if (meta1fourcc == 1)
+			h = meta1data;
+		if (meta2fourcc == 0)
+			w = meta2data;
+		if (meta2fourcc == 1)
+			h = meta2data;
 
 		*width = w;
 		*height = h;

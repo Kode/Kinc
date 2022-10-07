@@ -13,7 +13,8 @@ id getMetalEncoder(void);
 kinc_g5_vertex_buffer_t *currentVertexBuffer = NULL;
 
 static void vertex_buffer_unset(kinc_g5_vertex_buffer_t *buffer) {
-	if (currentVertexBuffer == buffer) currentVertexBuffer = NULL;
+	if (currentVertexBuffer == buffer)
+		currentVertexBuffer = NULL;
 }
 
 void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc_g5_vertex_structure_t *structure, bool gpuMemory, int instanceDataStepRate) {

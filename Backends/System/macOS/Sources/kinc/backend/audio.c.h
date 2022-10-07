@@ -42,7 +42,8 @@ static kinc_a2_buffer_t a2_buffer;
 static void copySample(void *buffer) {
 	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 	a2_buffer.read_location += 4;
-	if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
+	if (a2_buffer.read_location >= a2_buffer.data_size)
+		a2_buffer.read_location = 0;
 	*(float *)buffer = value;
 }
 
@@ -119,7 +120,8 @@ void kinc_a2_init() {
 	kinc_log(KINC_LOG_LEVEL_INFO, "mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
 	kinc_log(KINC_LOG_LEVEL_INFO, "mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
 
-	if (soundPlaying) return;
+	if (soundPlaying)
+		return;
 
 	affirm(AudioDeviceCreateIOProcID(device, appIOProc, NULL, &theIOProcID));
 	affirm(AudioDeviceStart(device, theIOProcID));
@@ -130,8 +132,10 @@ void kinc_a2_init() {
 void kinc_a2_update() {}
 
 void kinc_a2_shutdown() {
-	if (!initialized) return;
-	if (!soundPlaying) return;
+	if (!initialized)
+		return;
+	if (!soundPlaying)
+		return;
 
 	affirm(AudioDeviceStop(device, theIOProcID));
 	affirm(AudioDeviceDestroyIOProcID(device, theIOProcID));

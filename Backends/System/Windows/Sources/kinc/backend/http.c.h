@@ -56,7 +56,8 @@ void kinc_http_request(const char *url, const char *path, const char *data, int 
 		                              data == 0 ? WINHTTP_NO_REQUEST_DATA : (LPVOID)data, optionalLength, optionalLength, 0);
 	}
 
-	if (bResults) bResults = WinHttpReceiveResponse(hRequest, NULL);
+	if (bResults)
+		bResults = WinHttpReceiveResponse(hRequest, NULL);
 
 	int returnDataIndex = 0;
 	if (bResults) {

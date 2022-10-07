@@ -435,7 +435,8 @@ kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipel
 
 static int findTexture(kinc_g4_pipeline_t *state, const char *name) {
 	for (int index = 0; index < state->impl.textureCount; ++index) {
-		if (strcmp(state->impl.textures[index], name) == 0) return index;
+		if (strcmp(state->impl.textures[index], name) == 0)
+			return index;
 	}
 	return -1;
 }

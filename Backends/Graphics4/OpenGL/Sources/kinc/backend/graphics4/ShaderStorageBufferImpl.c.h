@@ -9,7 +9,8 @@
 kinc_shader_storage_buffer_t *currentStorageBuffer = NULL;
 
 static void unset(kinc_shader_storage_buffer_t *buffer) {
-	if (currentStorageBuffer == buffer) currentStorageBuffer = NULL;
+	if (currentStorageBuffer == buffer)
+		currentStorageBuffer = NULL;
 }
 
 void kinc_shader_storage_buffer_init(kinc_shader_storage_buffer_t *buffer, int indexCount, kinc_g4_vertex_data_t type) {

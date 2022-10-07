@@ -285,8 +285,10 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 	case KINC_IMAGE_COMPRESSION_PVRTC:
 		texture->tex_width = kinc_maxi(texture->tex_width, texture->tex_height);
 		texture->tex_height = kinc_maxi(texture->tex_width, texture->tex_height);
-		if (texture->tex_width < 8) texture->tex_width = 8;
-		if (texture->tex_height < 8) texture->tex_height = 8;
+		if (texture->tex_width < 8)
+			texture->tex_width = 8;
+		if (texture->tex_height < 8)
+			texture->tex_height = 8;
 		break;
 	default:
 		texture->tex_width = image->width;

@@ -18,7 +18,8 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		shader->impl.attributes[i].hash = kinc_internal_hash_name(name);
 		shader->impl.attributes[i].index = data[index++];
@@ -30,7 +31,8 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		shader->impl.textures[i].hash = kinc_internal_hash_name(name);
 		shader->impl.textures[i].index = data[index++];
@@ -43,7 +45,8 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 		unsigned char name[256];
 		for (unsigned i2 = 0; i2 < 255; ++i2) {
 			name[i2] = data[index++];
-			if (name[i2] == 0) break;
+			if (name[i2] == 0)
+				break;
 		}
 		kinc_internal_shader_constant_t constant;
 		constant.hash = kinc_internal_hash_name(name);

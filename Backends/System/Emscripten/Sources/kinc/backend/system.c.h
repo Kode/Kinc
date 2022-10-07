@@ -18,7 +18,8 @@ static char **html5_argv;
 static bool initialized = false;
 
 static void drawfunc() {
-	if (!initialized) return;
+	if (!initialized)
+		return;
 	kinc_internal_update_callback();
 	kinc_a2_update();
 #ifdef KORE_OPENGL

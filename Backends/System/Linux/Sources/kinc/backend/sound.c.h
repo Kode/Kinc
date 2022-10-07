@@ -20,7 +20,8 @@ short buf[4096 * 4];
 void copySample(void *buffer) {
 	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 	a2_buffer.read_location += 4;
-	if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
+	if (a2_buffer.read_location >= a2_buffer.data_size)
+		a2_buffer.read_location = 0;
 	if (value != 0) {
 		int a = 3;
 		++a;

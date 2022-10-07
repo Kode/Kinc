@@ -79,12 +79,14 @@ void Graphics3::VertexBuffer::unlock() {
 int Graphics3::VertexBuffer::_set(int offset) {
 	assert(initialized); // Vertex Buffer is used before lock/unlock was called
 	int offsetoffset = setVertexAttributes(offset);
-	if (IndexBuffer::current != nullptr) IndexBuffer::current->_set();
+	if (IndexBuffer::current != nullptr)
+		IndexBuffer::current->_set();
 	return offsetoffset;
 }
 
 void VertexBufferImpl::unset() {
-	if ((void *)current == (void *)this) current = nullptr;
+	if ((void *)current == (void *)this)
+		current = nullptr;
 }
 
 int Graphics3::VertexBuffer::count() {

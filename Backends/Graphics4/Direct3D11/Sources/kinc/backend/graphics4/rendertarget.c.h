@@ -356,19 +356,26 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 		if (renderTarget->impl.renderTargetViewSample[i] != NULL &&
 		    renderTarget->impl.renderTargetViewSample[i] != renderTarget->impl.renderTargetViewRender[i])
 			renderTarget->impl.renderTargetViewSample[i]->lpVtbl->Release(renderTarget->impl.renderTargetViewSample[i]);
-		if (renderTarget->impl.depthStencilView[i] != NULL) renderTarget->impl.depthStencilView[i]->lpVtbl->Release(renderTarget->impl.depthStencilView[i]);
+		if (renderTarget->impl.depthStencilView[i] != NULL)
+			renderTarget->impl.depthStencilView[i]->lpVtbl->Release(renderTarget->impl.depthStencilView[i]);
 	}
-	if (renderTarget->impl.renderTargetSRV != NULL) renderTarget->impl.renderTargetSRV->lpVtbl->Release(renderTarget->impl.renderTargetSRV);
-	if (renderTarget->impl.depthStencilSRV != NULL) renderTarget->impl.depthStencilSRV->lpVtbl->Release(renderTarget->impl.depthStencilSRV);
-	if (renderTarget->impl.depthStencil != NULL) renderTarget->impl.depthStencil->lpVtbl->Release(renderTarget->impl.depthStencil);
-	if (renderTarget->impl.textureRender != NULL) renderTarget->impl.textureRender->lpVtbl->Release(renderTarget->impl.textureRender);
-	if (renderTarget->impl.textureStaging != NULL) renderTarget->impl.textureStaging->lpVtbl->Release(renderTarget->impl.textureStaging);
+	if (renderTarget->impl.renderTargetSRV != NULL)
+		renderTarget->impl.renderTargetSRV->lpVtbl->Release(renderTarget->impl.renderTargetSRV);
+	if (renderTarget->impl.depthStencilSRV != NULL)
+		renderTarget->impl.depthStencilSRV->lpVtbl->Release(renderTarget->impl.depthStencilSRV);
+	if (renderTarget->impl.depthStencil != NULL)
+		renderTarget->impl.depthStencil->lpVtbl->Release(renderTarget->impl.depthStencil);
+	if (renderTarget->impl.textureRender != NULL)
+		renderTarget->impl.textureRender->lpVtbl->Release(renderTarget->impl.textureRender);
+	if (renderTarget->impl.textureStaging != NULL)
+		renderTarget->impl.textureStaging->lpVtbl->Release(renderTarget->impl.textureStaging);
 	if (renderTarget->impl.textureSample != NULL && renderTarget->impl.textureSample != renderTarget->impl.textureRender)
 		renderTarget->impl.textureSample->lpVtbl->Release(renderTarget->impl.textureSample);
 }
 
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	if (renderTarget->impl.textureSample != renderTarget->impl.textureRender) {
 		dx_ctx.context->lpVtbl->ResolveSubresource(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureSample, 0,
 		                                           (ID3D11Resource *)renderTarget->impl.textureRender, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
@@ -384,7 +391,8 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderT
 }
 
 void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
-	if (unit.impl.unit < 0) return;
+	if (unit.impl.unit < 0)
+		return;
 	if (unit.impl.vertex) {
 		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
 	}

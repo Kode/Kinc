@@ -57,7 +57,8 @@ namespace {
 			connected = true;
 
 			char buf[128];
-			if (ioctl(file_descriptor, JSIOCGNAME(sizeof(buf)), buf) < 0) strncpy(buf, "Unknown", sizeof(buf));
+			if (ioctl(file_descriptor, JSIOCGNAME(sizeof(buf)), buf) < 0)
+				strncpy(buf, "Unknown", sizeof(buf));
 			snprintf(name, sizeof(name), "%s%s%s%s", buf, " (", gamepad_dev_name, ")");
 		}
 	}

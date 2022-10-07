@@ -275,7 +275,8 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	}
 	size_t filepathlength = strlen(filepath);
 	for (size_t i = 0; i < filepathlength; ++i)
-		if (filepath[i] == '/') filepath[i] = '\\';
+		if (filepath[i] == '/')
+			filepath[i] = '\\';
 #endif
 #ifdef KORE_WINDOWSAPP
 	kinc_internal_uwp_installed_location_path(filepath);

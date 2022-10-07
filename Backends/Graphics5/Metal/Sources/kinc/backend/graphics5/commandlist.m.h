@@ -167,12 +167,15 @@ extern bool kinc_internal_metal_has_depth;
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
 	if (targets[0]->framebuffer_index >= 0) {
-		for (int i = 0; i < 8; ++i) lastRenderTargets[i] = NULL;
+		for (int i = 0; i < 8; ++i)
+			lastRenderTargets[i] = NULL;
 		kinc_g5_internal_new_render_pass(NULL, 1, false, 0, 0, 0.0f, 0);
 	}
 	else {
-		for (int i = 0; i < count; ++i) lastRenderTargets[i] = targets[i];
-		for (int i = count; i < 8; ++i) lastRenderTargets[i] = NULL;
+		for (int i = 0; i < count; ++i)
+			lastRenderTargets[i] = targets[i];
+		for (int i = count; i < 8; ++i)
+			lastRenderTargets[i] = NULL;
 		kinc_g5_internal_new_render_pass(targets, count, false, 0, 0, 0.0f, 0);
 	}
 }
@@ -237,10 +240,12 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	}
 	else {
 		int count = 1;
-		while (lastRenderTargets[count] != NULL) count++;
+		while (lastRenderTargets[count] != NULL)
+			count++;
 		kinc_g5_internal_new_render_pass(lastRenderTargets, count, false, 0, 0, 0.0f, 0);
 	}
-	if (lastPipeline != NULL) kinc_g5_internal_pipeline_set(lastPipeline);
+	if (lastPipeline != NULL)
+		kinc_g5_internal_pipeline_set(lastPipeline);
 }
 
 void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {}

@@ -124,13 +124,15 @@ namespace {
 
 	int pow(int pow) {
 		int ret = 1;
-		for (int i = 0; i < pow; ++i) ret *= 2;
+		for (int i = 0; i < pow; ++i)
+			ret *= 2;
 		return ret;
 	}
 
 	int getPower2(int i) {
 		for (int power = 0;; ++power)
-			if (pow(power) >= i) return pow(power);
+			if (pow(power) >= i)
+				return pow(power);
 	}
 
 	void convertImageToPow2(Graphics3::Image::Format format, u8 *from, int fw, int fh, u8 *to, int tw, int th) {
@@ -188,8 +190,10 @@ void Graphics3::Texture::init(const char *format, bool readable) {
 #if defined(KORE_IOS)
 		texWidth = Kore::max(texWidth, texHeight);
 		texHeight = Kore::max(texWidth, texHeight);
-		if (texWidth < 8) texWidth = 8;
-		if (texHeight < 8) texHeight = 8;
+		if (texWidth < 8)
+			texWidth = 8;
+		if (texHeight < 8)
+			texHeight = 8;
 #elif defined(KORE_ANDROID)
 		texWidth = width;
 		texHeight = height;
@@ -217,7 +221,7 @@ void Graphics3::Texture::init(const char *format, bool readable) {
 	if (compressed) {
 #ifdef KORE_IOS
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
-//#elif defined(KORE_ANDROID)
+// #elif defined(KORE_ANDROID)
 //		u8 blockX = internalFormat >> 8;
 //		u8 blockY = internalFormat & 0xff;
 //		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);

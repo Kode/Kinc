@@ -20,7 +20,8 @@ static int16_t tempBuffer[AUDIO_BUFFER_SIZE];
 static void copySample(void *buffer) {
 	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 	a2_buffer.read_location += 4;
-	if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
+	if (a2_buffer.read_location >= a2_buffer.data_size)
+		a2_buffer.read_location = 0;
 	*(int16_t *)buffer = (int16_t)(value * 32767);
 }
 
@@ -83,12 +84,14 @@ void kinc_a2_init() {
 }
 
 void pauseAudio() {
-	if (bqPlayerPlay == NULL) return;
+	if (bqPlayerPlay == NULL)
+		return;
 	SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PAUSED);
 }
 
 void resumeAudio() {
-	if (bqPlayerPlay == NULL) return;
+	if (bqPlayerPlay == NULL)
+		return;
 	SLresult result = (*bqPlayerPlay)->SetPlayState(bqPlayerPlay, SL_PLAYSTATE_PLAYING);
 }
 

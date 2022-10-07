@@ -70,7 +70,8 @@ void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
 }
 
 void kinc_g5_internal_index_buffer_upload(kinc_g5_index_buffer_t *buffer, ID3D12GraphicsCommandList *commandList) {
-	if (!buffer->impl.gpu_memory) return;
+	if (!buffer->impl.gpu_memory)
+		return;
 
 	commandList->CopyBufferRegion(buffer->impl.index_buffer, 0, buffer->impl.upload_buffer, 0,
 	                              buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? sizeof(uint16_t) * buffer->impl.count

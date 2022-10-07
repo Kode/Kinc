@@ -39,7 +39,7 @@
 #endif
 
 #ifdef KORE_PI
-//#define GL_GLEXT_PROTOTYPES
+// #define GL_GLEXT_PROTOTYPES
 #include "GLES2/gl2.h"
 
 #include "EGL/egl.h"
