@@ -100,41 +100,44 @@ $(function() {
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 624; ++i) {</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        <span class="keywordtype">int</span> y = (MT[i] &amp; 1) + (MT[(i + 1) % 624]) &amp; 0x7fffffff;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        MT[i] = MT[(i + 397) % 624] ^ (y &gt;&gt; 1);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="keywordflow">if</span> ((y % 2) != 0) MT[i] = MT[i] ^ 0x9908b0df;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    }</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keywordtype">void</span> <a class="code" href="random_8h.html#af829cade27eeb2b66af11fbaf93f36fe">kinc_random_init</a>(<span class="keywordtype">int</span> seed) {</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    MT[0] = seed;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt; 624; ++i) MT[i] = 0x6c078965 * (MT[i - 1] ^ (MT[i - 1] &gt;&gt; 30)) + i;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;}</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keywordtype">int</span> <a class="code" href="random_8h.html#a033f32cb761f811c8db986b08be05a0f">kinc_random_get</a>() {</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordflow">if</span> (mermeme_index == 0) generateNumbers();</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">int</span> y = MT[mermeme_index];</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    y = y ^ (y &gt;&gt; 11);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    y = y ^ ((y &lt;&lt; 7) &amp; (0x9d2c5680));</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    y = y ^ ((y &lt;&lt; 15) &amp; (0xefc60000));</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    y = y ^ (y &gt;&gt; 18);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    mermeme_index = (mermeme_index + 1) % 624;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordflow">return</span> y;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;}</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="keywordtype">int</span> <a class="code" href="random_8h.html#a64a64344bf67edbb0a86882266712c92">kinc_random_get_max</a>(<span class="keywordtype">int</span> max) {</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="random_8h.html#a033f32cb761f811c8db986b08be05a0f">kinc_random_get</a>() % (max + 1);</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;}</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keywordtype">int</span> <a class="code" href="random_8h.html#a8b4918695f65c682389217cee1861902">kinc_random_get_in</a>(<span class="keywordtype">int</span> min, <span class="keywordtype">int</span> max) {</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="random_8h.html#a033f32cb761f811c8db986b08be05a0f">kinc_random_get</a>() % (max + 1 - min) + min;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;}</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;}</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="keywordflow">if</span> ((y % 2) != 0)</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;            MT[i] = MT[i] ^ 0x9908b0df;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    }</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keywordtype">void</span> <a class="code" href="random_8h.html#af829cade27eeb2b66af11fbaf93f36fe">kinc_random_init</a>(<span class="keywordtype">int</span> seed) {</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    MT[0] = seed;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt; 624; ++i)</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        MT[i] = 0x6c078965 * (MT[i - 1] ^ (MT[i - 1] &gt;&gt; 30)) + i;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;}</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">int</span> <a class="code" href="random_8h.html#a033f32cb761f811c8db986b08be05a0f">kinc_random_get</a>() {</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordflow">if</span> (mermeme_index == 0)</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        generateNumbers();</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">int</span> y = MT[mermeme_index];</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    y = y ^ (y &gt;&gt; 11);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    y = y ^ ((y &lt;&lt; 7) &amp; (0x9d2c5680));</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    y = y ^ ((y &lt;&lt; 15) &amp; (0xefc60000));</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    y = y ^ (y &gt;&gt; 18);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    mermeme_index = (mermeme_index + 1) % 624;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordflow">return</span> y;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;}</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="keywordtype">int</span> <a class="code" href="random_8h.html#a64a64344bf67edbb0a86882266712c92">kinc_random_get_max</a>(<span class="keywordtype">int</span> max) {</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="random_8h.html#a033f32cb761f811c8db986b08be05a0f">kinc_random_get</a>() % (max + 1);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;}</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="keywordtype">int</span> <a class="code" href="random_8h.html#a8b4918695f65c682389217cee1861902">kinc_random_get_in</a>(<span class="keywordtype">int</span> min, <span class="keywordtype">int</span> max) {</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="random_8h.html#a033f32cb761f811c8db986b08be05a0f">kinc_random_get</a>() % (max + 1 - min) + min;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;}</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;}</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <div class="ttc" id="arandom_8h_html_a033f32cb761f811c8db986b08be05a0f"><div class="ttname"><a href="random_8h.html#a033f32cb761f811c8db986b08be05a0f">kinc_random_get</a></div><div class="ttdeci">KINC_FUNC int kinc_random_get(void)</div><div class="ttdoc">Returns a random value.</div></div>
