@@ -57,8 +57,8 @@ struct touchpoint {
 static struct touchpoint touchPoints[MAX_TOUCH_POINTS];
 static int mouseX, mouseY;
 static bool keyPressed[256];
-int keyTranslated[256]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
-int cursor = 0;
+static int keyTranslated[256]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
+static int cursor = 0;
 
 static int GetTouchIndex(int dwID) {
 	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {

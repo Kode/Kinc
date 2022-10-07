@@ -547,6 +547,7 @@ void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture
 		}
 	}
 	if (!found) {
+		assert(current_state.texture_count < MAX_TEXTURES);
 		current_state.textures[current_state.texture_count] = &texture->impl._texture;
 		current_state.texture_units[current_state.texture_count] = unit.impl._unit;
 		current_state.texture_count += 1;
@@ -630,6 +631,7 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_
 		}
 	}
 	if (!found) {
+		assert(current_state.render_target_count < MAX_TEXTURES);
 		current_state.render_targets[current_state.render_target_count] = &render_target->impl._renderTarget;
 		current_state.render_target_units[current_state.render_target_count] = unit.impl._unit;
 		current_state.render_target_count += 1;
@@ -654,6 +656,7 @@ void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_
 		}
 	}
 	if (!found) {
+		assert(current_state.depth_render_target_count < MAX_TEXTURES);
 		current_state.depth_render_targets[current_state.depth_render_target_count] = &render_target->impl._renderTarget;
 		current_state.depth_render_target_units[current_state.depth_render_target_count] = unit.impl._unit;
 		current_state.depth_render_target_count += 1;
