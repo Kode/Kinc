@@ -1,1 +1,3 @@
 * -text
+# Yes github, it's really C
+*.h linguist-language=c
