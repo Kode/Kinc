@@ -1,3 +1,5 @@
 * -text
 # Yes github, it's really C
 *.h linguist-language=c
+*.c.h linguist-language=c
+Backends/System/Windows/Libraries/** linguist-vendored
