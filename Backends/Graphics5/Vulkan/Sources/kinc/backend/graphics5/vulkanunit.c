@@ -72,6 +72,7 @@ static VkSemaphore framebuffer_available;
 static void command_list_should_wait_for_framebuffer(void);
 
 #include "Vulkan.c.h"
+#include "sampler.c.h"
 #include "commandlist.c.h"
 #include "constantbuffer.c.h"
 #include "indexbuffer.c.h"

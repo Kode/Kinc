@@ -238,7 +238,7 @@ void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 }
 
 void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
-	kinc_g5_command_list_set_texture_addressing(&commandList, unit.impl._unit, (kinc_g5_texture_direction_t)dir, (kinc_g5_texture_addressing_t)addressing);
+	// kinc_g5_command_list_set_texture_addressing(&commandList, unit.impl._unit, (kinc_g5_texture_direction_t)dir, (kinc_g5_texture_addressing_t)addressing);
 }
 
 void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
@@ -447,7 +447,7 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	kinc_g5_command_list_set_texture_magnification_filter(&commandList, texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
+	// kinc_g5_command_list_set_texture_magnification_filter(&commandList, texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
 }
 
 void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -455,7 +455,7 @@ void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, 
 }
 
 void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	kinc_g5_command_list_set_texture_minification_filter(&commandList, texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
+	// kinc_g5_command_list_set_texture_minification_filter(&commandList, texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
 }
 
 void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -463,7 +463,7 @@ void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, k
 }
 
 void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
-	kinc_g5_command_list_set_texture_mipmap_filter(&commandList, texunit.impl._unit, (kinc_g5_mipmap_filter_t)filter);
+	// kinc_g5_command_list_set_texture_mipmap_filter(&commandList, texunit.impl._unit, (kinc_g5_mipmap_filter_t)filter);
 }
 
 void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
