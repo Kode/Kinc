@@ -438,8 +438,13 @@ void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uin
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	dx_ctx.context->lpVtbl->Map(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0, D3D11_MAP_READ, 0, &mappedResource);
-	memcpy(data, mappedResource.pData,
-	       renderTarget->texWidth * renderTarget->texHeight * formatRenderTargetByteSize((kinc_g4_render_target_format_t)renderTarget->impl.format));
+	int size;	
+	if(mappedResource.RowPitch != 0) {
+		size = mappedResource.RowPitch * renderTarget->texHeight;
+	} else {
+		size = renderTarget->texWidth * renderTarget->texHeight * formatRenderTargetByteSize((kinc_g4_render_target_format_t)renderTarget->impl.format);	
+	}
+	memcpy(data, mappedResource.pData, size);
 	dx_ctx.context->lpVtbl->Unmap(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0);
 }
 
