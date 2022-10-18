@@ -29,7 +29,7 @@ typedef enum kinc_g5_mipmap_filter {
 	KINC_G5_MIPMAP_FILTER_LINEAR // linear texture filter + linear mip filter -> trilinear filter
 } kinc_g5_mipmap_filter_t;
 
-typedef struct kinc_g5_sampler_descriptor {
+typedef struct kinc_g5_sampler_options {
 	kinc_g5_texture_addressing_t u_addressing;
 	kinc_g5_texture_addressing_t v_addressing;
 	kinc_g5_texture_addressing_t w_addressing;
@@ -45,13 +45,13 @@ typedef struct kinc_g5_sampler_descriptor {
 
 	bool is_comparison;
 	kinc_g5_compare_mode_t compare_mode;
-} kinc_g5_sampler_descriptor_t;
+} kinc_g5_sampler_options_t;
 
 typedef struct kinc_g5_sampler {
 	kinc_g5_sampler_impl_t impl;
 } kinc_g5_sampler_t;
 
-KINC_FUNC void kinc_g5_sampler_descriptor_defaults(kinc_g5_sampler_descriptor_t *descriptor);
+KINC_FUNC void kinc_g5_sampler_options_set_defaults(kinc_g5_sampler_options_t *options);
 
 /// <summary>
 /// Creates a sampler object.
@@ -60,7 +60,7 @@ KINC_FUNC void kinc_g5_sampler_descriptor_defaults(kinc_g5_sampler_descriptor_t 
 /// </summary>
 /// <param name="sampler">Pointer to the sampler object to initialize</param>
 /// <param name="descriptor">Descriptor for the sampler</param>
-KINC_FUNC void kinc_g5_sampler_create(kinc_g5_sampler_t *sampler, const kinc_g5_sampler_descriptor_t *descriptor);
+KINC_FUNC void kinc_g5_sampler_create(kinc_g5_sampler_t *sampler, const kinc_g5_sampler_options_t *options);
 KINC_FUNC void kinc_g5_sampler_destroy(kinc_g5_sampler_t *sampler);
 
 #ifdef __cplusplus
