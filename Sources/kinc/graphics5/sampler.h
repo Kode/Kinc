@@ -6,6 +6,7 @@
 /*! \file sampler.h
     \brief Provides functions for sampler objects.
 */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,16 +52,25 @@ typedef struct kinc_g5_sampler {
 	kinc_g5_sampler_impl_t impl;
 } kinc_g5_sampler_t;
 
+/// <summary>
+/// Initializes the passed options-object with the default-options.
+/// </summary>
+/// <param name="options">The options-object for which the default-options will be set</param>
 KINC_FUNC void kinc_g5_sampler_options_set_defaults(kinc_g5_sampler_options_t *options);
 
 /// <summary>
-/// Creates a sampler object.
+/// Creates a sampler-object.
 ///
 /// On platforms such as older OpenGL not all sampler attributes may be available.
 /// </summary>
 /// <param name="sampler">Pointer to the sampler object to initialize</param>
-/// <param name="descriptor">Descriptor for the sampler</param>
+/// <param name="descriptor">Options for the sampler</param>
 KINC_FUNC void kinc_g5_sampler_create(kinc_g5_sampler_t *sampler, const kinc_g5_sampler_options_t *options);
+
+/// <summary>
+/// Destroys a sampler-object.
+/// </summary>
+/// <param name="sampler">The sampler-object to destroy</param>
 KINC_FUNC void kinc_g5_sampler_destroy(kinc_g5_sampler_t *sampler);
 
 #ifdef __cplusplus
