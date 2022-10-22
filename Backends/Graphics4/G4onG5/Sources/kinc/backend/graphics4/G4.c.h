@@ -17,6 +17,7 @@
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/sampler.h>
 #include <kinc/io/filereader.h>
 #include <kinc/math/core.h>
 #include <kinc/math/matrix.h>
@@ -117,6 +118,7 @@ void kinc_g4_on_g5_internal_resize(int window, int width, int height) {
 
 void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	kinc_g5_internal_init_window(window, depthBufferBits, stencilBufferBits, vsync);
+
 	kinc_g5_command_list_init(&commandList);
 	windows[window].currentBuffer = -1;
 	for (int i = 0; i < bufferCount; ++i) {
@@ -139,6 +141,20 @@ static void startDraw() {
 	kinc_g5_constant_buffer_unlock(&fragmentConstantBuffer);
 	kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 	kinc_g5_command_list_set_fragment_constant_buffer(&commandList, &fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+
+	for (int i = 0; i < current_state.texture_count; ++i) {
+		for (int j = 0; j < KINC_G5_SHADER_TYPE_COUNT; ++j) {
+			if (current_state.texture_units[i].stages[j] >= 0) {
+				kinc_g5_sampler_t *sampler = get_current_sampler(j, current_state.texture_units[i].stages[j]);
+				kinc_g5_texture_unit_t unit;
+				for (int k = 0; k < KINC_G5_SHADER_TYPE_COUNT; ++k) {
+					unit.stages[k] = -1;
+				}
+				unit.stages[j] = current_state.texture_units[i].stages[j];
+				kinc_g5_command_list_set_sampler(&commandList, unit, sampler);
+			}
+		}
+	}
 }
 
 static void endDraw() {
@@ -237,14 +253,6 @@ void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 	endDraw();
 }
 
-void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
-	// kinc_g5_command_list_set_texture_addressing(&commandList, unit.impl._unit, (kinc_g5_texture_direction_t)dir, (kinc_g5_texture_addressing_t)addressing);
-}
-
-void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
-	kinc_g4_set_texture_addressing(unit, dir, addressing);
-}
-
 void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
 	if (windows[current_window].current_render_target_count > 0) {
 		if (windows[current_window].current_render_targets[0] == NULL) {
@@ -306,6 +314,8 @@ void kinc_g4_begin(int window) {
 	current_state.texture_count = 0;
 	current_state.render_target_count = 0;
 	current_state.depth_render_target_count = 0;
+
+	samplers_reset();
 
 	// commandList = new Graphics5::CommandList;
 	kinc_g5_command_list_begin(&commandList);
@@ -446,8 +456,32 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 		kinc_g5_constant_buffer_set_matrix3(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
 }
 
+void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		if (unit.impl._unit.stages[i] >= 0) {
+			if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
+				sampler_options[i][unit.impl._unit.stages[i]].u_addressing = (kinc_g5_texture_addressing_t)addressing;
+			}
+			if (dir == KINC_G4_TEXTURE_DIRECTION_V) {
+				sampler_options[i][unit.impl._unit.stages[i]].v_addressing = (kinc_g5_texture_addressing_t)addressing;
+			}
+			if (dir == KINC_G4_TEXTURE_DIRECTION_W) {
+				sampler_options[i][unit.impl._unit.stages[i]].w_addressing = (kinc_g5_texture_addressing_t)addressing;
+			}
+		}
+	}
+}
+
+void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
+	kinc_g4_set_texture_addressing(unit, dir, addressing);
+}
+
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	// kinc_g5_command_list_set_texture_magnification_filter(&commandList, texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		if (texunit.impl._unit.stages[i] >= 0) {
+			sampler_options[i][texunit.impl._unit.stages[i]].magnification_filter = (kinc_g5_texture_filter_t)filter;
+		}
+	}
 }
 
 void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -455,7 +489,11 @@ void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, 
 }
 
 void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	// kinc_g5_command_list_set_texture_minification_filter(&commandList, texunit.impl._unit, (kinc_g5_texture_filter_t)filter);
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		if (texunit.impl._unit.stages[i] >= 0) {
+			sampler_options[i][texunit.impl._unit.stages[i]].minification_filter = (kinc_g5_texture_filter_t)filter;
+		}
+	}
 }
 
 void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -463,21 +501,56 @@ void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, k
 }
 
 void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
-	// kinc_g5_command_list_set_texture_mipmap_filter(&commandList, texunit.impl._unit, (kinc_g5_mipmap_filter_t)filter);
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		if (texunit.impl._unit.stages[i] >= 0) {
+			sampler_options[i][texunit.impl._unit.stages[i]].mipmap_filter = (kinc_g5_mipmap_filter_t)filter;
+		}
+	}
 }
 
 void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
 	kinc_g4_set_texture_mipmap_filter(texunit, filter);
 }
 
-void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
-void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {}
+void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		if (unit.impl._unit.stages[i] >= 0) {
+			sampler_options[i][unit.impl._unit.stages[i]].is_comparison = enabled;
+		}
+	}
+}
+
+void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		if (unit.impl._unit.stages[i] >= 0) {
+			sampler_options[i][unit.impl._unit.stages[i]].compare_mode = (kinc_g5_compare_mode_t)mode;
+		}
+	}
+}
+
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {}
 void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {}
-void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {}
+
+void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		if (unit.impl._unit.stages[i] >= 0) {
+			sampler_options[i][unit.impl._unit.stages[i]].max_anisotropy = max_anisotropy;
+		}
+	}
+}
+
 void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {}
-void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_mind_clamp, float lod_max_clamp);
-void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_mind_clamp, float lod_max_clamp);
+
+void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		if (unit.impl._unit.stages[i] >= 0) {
+			sampler_options[i][unit.impl._unit.stages[i]].lod_min_clamp = lod_min_clamp;
+			sampler_options[i][unit.impl._unit.stages[i]].lod_max_clamp = lod_max_clamp;
+		}
+	}
+}
+
+void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {}
 
 void kinc_g4_restore_render_target() {
 	windows[current_window].current_render_targets[0] = NULL;

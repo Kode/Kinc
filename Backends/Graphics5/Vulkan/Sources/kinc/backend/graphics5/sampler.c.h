@@ -47,7 +47,7 @@ static VkFilter convert_texture_filter(kinc_g5_texture_filter_t filter) {
 	}
 }
 
-void kinc_g5_sampler_create(kinc_g5_sampler_t *sampler, const kinc_g5_sampler_options_t *options) {
+void kinc_g5_sampler_init(kinc_g5_sampler_t *sampler, const kinc_g5_sampler_options_t *options) {
 	VkSamplerCreateInfo info = {0};
 	info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	info.pNext = NULL;

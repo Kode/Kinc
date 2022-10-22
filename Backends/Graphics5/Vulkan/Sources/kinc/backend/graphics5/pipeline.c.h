@@ -286,17 +286,13 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 	int number = find_number(pipeline->impl.textureBindings, name);
 	assert(number == -1 || number >= 2); // something wrong with the SPIR-V when this triggers
 
-	if (number < 0) {
-		unit.fragment = -1;
-	}
-	else {
-		unit.fragment = number - 2;
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		unit.stages[i] = -1;
 	}
 
-	unit.vertex = -1;
-	unit.geometry = -1;
-	unit.tess_control = -1;
-	unit.tess_eval = -1;
+	if (number >= 0) {
+		unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] = number - 2;
+	}
 
 	return unit;
 }

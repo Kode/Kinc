@@ -900,12 +900,12 @@ void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *l
 }
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	vulkanTextures[unit.fragment] = texture;
-	vulkanRenderTargets[unit.fragment] = NULL;
+	vulkanTextures[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = texture;
+	vulkanRenderTargets[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = NULL;
 }
 
 void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
-	vulkanSamplers[unit.fragment] = sampler->impl.sampler;
+	vulkanSamplers[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = sampler->impl.sampler;
 }
 
 void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
@@ -927,13 +927,13 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	target->impl.stage = unit.fragment;
-	vulkanRenderTargets[unit.fragment] = target;
-	vulkanTextures[unit.fragment] = NULL;
+	target->impl.stage = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
+	vulkanRenderTargets[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = target;
+	vulkanTextures[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = NULL;
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	target->impl.stage_depth = unit.fragment;
-	vulkanRenderTargets[unit.fragment] = target;
-	vulkanTextures[unit.fragment] = NULL;
+	target->impl.stage_depth = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
+	vulkanRenderTargets[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = target;
+	vulkanTextures[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = NULL;
 }

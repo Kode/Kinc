@@ -42,7 +42,7 @@ typedef struct kinc_g5_sampler_options {
 	float lod_min_clamp;
 	float lod_max_clamp;
 
-	unsigned short max_anisotropy;
+	uint16_t max_anisotropy;
 
 	bool is_comparison;
 	kinc_g5_compare_mode_t compare_mode;
@@ -65,7 +65,7 @@ KINC_FUNC void kinc_g5_sampler_options_set_defaults(kinc_g5_sampler_options_t *o
 /// </summary>
 /// <param name="sampler">Pointer to the sampler object to initialize</param>
 /// <param name="descriptor">Options for the sampler</param>
-KINC_FUNC void kinc_g5_sampler_create(kinc_g5_sampler_t *sampler, const kinc_g5_sampler_options_t *options);
+KINC_FUNC void kinc_g5_sampler_init(kinc_g5_sampler_t *sampler, const kinc_g5_sampler_options_t *options);
 
 /// <summary>
 /// Destroys a sampler-object.
