@@ -4,6 +4,8 @@
 #include <kinc/graphics5/shader.h>
 #include <vulkan/vulkan_core.h>
 
+#include <assert.h>
+
 VkDescriptorSetLayout desc_layout;
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
@@ -28,7 +30,7 @@ static uint32_t find_number(kinc_internal_named_number *named_numbers, const cha
 			return named_numbers[i].number;
 		}
 	}
-	return 0;
+	return -1;
 }
 
 static void set_number(kinc_internal_named_number *named_numbers, const char *name, uint32_t number) {
@@ -281,7 +283,21 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 
 kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipeline, const char *name) {
 	kinc_g5_texture_unit_t unit;
-	unit.impl.binding = find_number(pipeline->impl.textureBindings, name);
+	int number = find_number(pipeline->impl.textureBindings, name);
+	assert(number == -1 || number >= 2); // something wrong with the SPIR-V when this triggers
+
+	if (number < 0) {
+		unit.fragment = -1;
+	}
+	else {
+		unit.fragment = number - 2;
+	}
+
+	unit.vertex = -1;
+	unit.geometry = -1;
+	unit.tess_control = -1;
+	unit.tess_eval = -1;
+
 	return unit;
 }
 
@@ -901,8 +917,4 @@ VkDescriptorSet getDescriptorSet() {
 	descriptor_sets_count += 1;
 
 	return descriptor_set;
-}
-
-bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2) {
-	return unit1->impl.binding == unit2->impl.binding;
 }

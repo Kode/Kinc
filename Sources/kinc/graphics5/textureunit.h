@@ -13,7 +13,12 @@ extern "C" {
 #endif
 
 typedef struct kinc_g5_texture_unit {
-	TextureUnit5Impl impl;
+	int vertex;
+	int fragment;
+	int geometry;
+	int tess_control;
+	int tess_eval;
+
 } kinc_g5_texture_unit_t;
 
 bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2);

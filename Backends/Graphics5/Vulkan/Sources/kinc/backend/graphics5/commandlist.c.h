@@ -900,14 +900,12 @@ void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *l
 }
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	assert(unit.impl.binding >= 2); // Make sure the spirv-bindings have been read correctly
-	vulkanTextures[unit.impl.binding - 2] = texture;
-	vulkanRenderTargets[unit.impl.binding - 2] = NULL;
+	vulkanTextures[unit.fragment] = texture;
+	vulkanRenderTargets[unit.fragment] = NULL;
 }
 
 void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
-	assert(unit.impl.binding >= 2); // Make sure the spirv-bindings have been read correctly
-	vulkanSamplers[unit.impl.binding - 2] = sampler->impl.sampler;
+	vulkanSamplers[unit.fragment] = sampler->impl.sampler;
 }
 
 void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
@@ -929,13 +927,13 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	target->impl.stage = unit.impl.binding - 2;
-	vulkanRenderTargets[unit.impl.binding - 2] = target;
-	vulkanTextures[unit.impl.binding - 2] = NULL;
+	target->impl.stage = unit.fragment;
+	vulkanRenderTargets[unit.fragment] = target;
+	vulkanTextures[unit.fragment] = NULL;
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	target->impl.stage_depth = unit.impl.binding - 2;
-	vulkanRenderTargets[unit.impl.binding - 2] = target;
-	vulkanTextures[unit.impl.binding - 2] = NULL;
+	target->impl.stage_depth = unit.fragment;
+	vulkanRenderTargets[unit.fragment] = target;
+	vulkanTextures[unit.fragment] = NULL;
 }
