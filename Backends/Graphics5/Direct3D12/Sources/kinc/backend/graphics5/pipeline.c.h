@@ -153,11 +153,11 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 	kinc_g5_texture_unit_t unit;
 	ShaderTexture vertexTexture = findTexture(pipe->vertexShader, name);
 	if (vertexTexture.texture != -1) {
-		unit.impl.unit = vertexTexture.texture;
+		unit.stages[KINC_G5_SHADER_TYPE_VERTEX] = vertexTexture.texture;
 	}
 	else {
 		ShaderTexture fragmentTexture = findTexture(pipe->fragmentShader, name);
-		unit.impl.unit = fragmentTexture.texture;
+		unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] = fragmentTexture.texture;
 	}
 	return unit;
 }
@@ -575,17 +575,9 @@ kinc_g5_constant_location_t kinc_g5_compute_pipeline_get_constant_location(kinc_
 
 kinc_g5_texture_unit_t kinc_g5_compute_pipeline_get_texture_unit(kinc_g5_compute_pipeline_t *pipeline, const char *name) {
 	kinc_g5_texture_unit_t unit;
-	ShaderTexture vertexTexture = findTexture(pipeline->compute_shader, name);
-	if (vertexTexture.texture != -1) {
-		unit.impl.unit = vertexTexture.texture;
-	}
-	else {
-		ShaderTexture fragmentTexture = findTexture(pipeline->compute_shader, name);
-		unit.impl.unit = fragmentTexture.texture;
+	ShaderTexture texture = findTexture(pipeline->compute_shader, name);
+	if (texture.texture != -1) {
+		unit.stages[KINC_G5_SHADER_TYPE_COMPUTE] = texture.texture;
 	}
 	return unit;
-}
-
-bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2) {
-	return unit1->impl.unit == unit2->impl.unit;
 }

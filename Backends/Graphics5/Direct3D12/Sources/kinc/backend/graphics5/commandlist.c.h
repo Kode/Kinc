@@ -42,6 +42,8 @@ void kinc_g5_command_list_init(struct kinc_g5_command_list *list) {
 
 void kinc_g5_command_list_destroy(struct kinc_g5_command_list *list) {}
 
+void kinc_g5_internal_reset_textures(void);
+
 void kinc_g5_command_list_begin(struct kinc_g5_command_list *list) {
 	assert(!list->impl.open);
 
@@ -50,6 +52,8 @@ void kinc_g5_command_list_begin(struct kinc_g5_command_list *list) {
 		list->impl._commandAllocator->Reset();
 		list->impl._commandList->Reset(list->impl._commandAllocator, NULL);
 	}
+
+	kinc_g5_internal_reset_textures();
 
 #ifndef NDEBUG
 	list->impl.open = true;
@@ -498,23 +502,17 @@ void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, in
 	list->impl._commandList->Dispatch(x, y, z);
 }
 
-void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
-                                                 kinc_g5_texture_addressing_t addressing) {}
-
-void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
-	bilinearFiltering = filter != KINC_G5_TEXTURE_FILTER_POINT;
-}
-
-void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
-	bilinearFiltering = filter != KINC_G5_TEXTURE_FILTER_POINT;
-}
-
-void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
-
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	kinc_g5_internal_texture_set(texture, unit.impl.unit);
+	kinc_g5_internal_texture_set(texture, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
+	kinc_g5_internal_set_textures(list->impl._commandList);
+}
+
+void kinc_g5_internal_sampler_set(kinc_g5_sampler_t *sampler, int unit);
+
+void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
+	kinc_g5_internal_sampler_set(sampler, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
 	kinc_g5_internal_set_textures(list->impl._commandList);
 }
 
@@ -535,9 +533,10 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] < 0) {
 		return;
-	target->impl.stage = unit.impl.unit;
+	}
+	target->impl.stage = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
 	currentRenderTargets[target->impl.stage] = target;
 	currentTextures[target->impl.stage] = NULL;
 
@@ -545,9 +544,10 @@ void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t 
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] < 0) {
 		return;
-	target->impl.stage_depth = unit.impl.unit;
+	}
+	target->impl.stage_depth = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
 	currentRenderTargets[target->impl.stage_depth] = target;
 	currentTextures[target->impl.stage_depth] = NULL;
 

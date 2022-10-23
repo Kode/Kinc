@@ -12,11 +12,8 @@
 
 kinc_g5_render_target_t *currentRenderTargets[textureCount] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 struct kinc_g5_texture *currentTextures[textureCount] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+static kinc_g5_sampler_t *current_samplers[textureCount] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
-bool bilinearFiltering = false;
-
-static ID3D12DescriptorHeap *samplerDescriptorHeapPoint;
-static ID3D12DescriptorHeap *samplerDescriptorHeapBilinear;
 static const int heapSize = 1024;
 static int heapIndex = 0;
 static ID3D12DescriptorHeap *srvHeap;
@@ -29,6 +26,14 @@ static ID3D12DescriptorHeap *samplerHeap;
 #else
 int d3d12_textureAlignment();
 #endif
+
+void kinc_g5_internal_reset_textures(void) {
+	for (int i = 0; i < textureCount; ++i) {
+		currentRenderTargets[i] = NULL;
+		currentTextures[i] = NULL;
+		current_samplers[i] = NULL;
+	}
+}
 
 static inline UINT64 GetRequiredIntermediateSize(ID3D12Resource *destinationResource, UINT FirstSubresource, UINT NumSubresources) {
 	D3D12_RESOURCE_DESC desc = destinationResource->GetDesc();
@@ -92,14 +97,14 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
 			heapIndex = 0;
 		}
 
-		ID3D12DescriptorHeap *samplerDescriptorHeap = bilinearFiltering ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvGpu = srvHeap->GetGPUDescriptorHandleForHeapStart();
 		D3D12_GPU_DESCRIPTOR_HANDLE samplerGpu = samplerHeap->GetGPUDescriptorHandleForHeapStart();
 		srvGpu.ptr += heapIndex * srvStep;
 		samplerGpu.ptr += heapIndex * samplerStep;
 
 		for (int i = 0; i < textureCount; ++i) {
-			if (currentRenderTargets[i] != NULL || currentTextures[i] != NULL) {
+			if (currentRenderTargets[i] != NULL || currentTextures[i] != NULL && current_samplers[i] != NULL) {
+				ID3D12DescriptorHeap *samplerDescriptorHeap = current_samplers[i]->impl.sampler_heap;
 
 				D3D12_CPU_DESCRIPTOR_HANDLE srvCpu = srvHeap->GetCPUDescriptorHandleForHeapStart();
 				D3D12_CPU_DESCRIPTOR_HANDLE samplerCpu = samplerHeap->GetCPUDescriptorHandleForHeapStart();
@@ -137,32 +142,8 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
 	}
 }
 
-static void createSampler(bool bilinear, D3D12_FILTER filter) {
-	D3D12_DESCRIPTOR_HEAP_DESC descHeapSampler = {0};
-	descHeapSampler.NumDescriptors = 2;
-	descHeapSampler.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
-	descHeapSampler.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device->CreateDescriptorHeap(&descHeapSampler, IID_GRAPHICS_PPV_ARGS(bilinear ? &samplerDescriptorHeapBilinear : &samplerDescriptorHeapPoint));
-
-	D3D12_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(D3D12_SAMPLER_DESC));
-	samplerDesc.Filter = filter;
-	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	device->CreateSampler(&samplerDesc, (bilinear ? samplerDescriptorHeapBilinear : samplerDescriptorHeapPoint)->GetCPUDescriptorHandleForHeapStart());
-}
-
-void createSamplersAndHeaps() {
-	createSampler(false, D3D12_FILTER_MIN_MAG_MIP_POINT);
-	createSampler(true, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT);
-
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {0};
+void createHeaps() {
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.NumDescriptors = heapSize;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
@@ -417,9 +398,15 @@ void kinc_g5_internal_texture_set(struct kinc_g5_texture *texture, int unit) {
 	currentRenderTargets[texture->impl.stage] = NULL;
 }
 
+void kinc_g5_internal_sampler_set(kinc_g5_sampler_t *sampler, int unit) {
+	if (unit < 0)
+		return;
+
+	current_samplers[unit] = sampler;
+}
+
 void kinc_g5_internal_texture_unset(struct kinc_g5_texture *texture) {
 	if (currentTextures[texture->impl.stage] == texture) {
-
 		currentTextures[texture->impl.stage] = NULL;
 	}
 }

@@ -97,6 +97,7 @@ inline struct dx_window *kinc_dx_current_window() {
 #include "pipeline.c.h"
 #include "raytrace.c.h"
 #include "rendertarget.c.h"
+#include "sampler.c.h"
 #include "shader.c.h"
 #include "texture.c.h"
 #include "vertexbuffer.c.h"

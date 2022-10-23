@@ -14,7 +14,7 @@ static void samplers_reset(void) {
 	}
 }
 
-bool compare_sampler_options(kinc_g5_sampler_options_t *options1, kinc_g5_sampler_options_t *options2) {
+bool sampler_options_equals(kinc_g5_sampler_options_t *options1, kinc_g5_sampler_options_t *options2) {
 	return options1->u_addressing == options2->u_addressing && options1->v_addressing == options2->v_addressing &&
 	       options1->w_addressing == options2->w_addressing && options1->minification_filter == options2->minification_filter &&
 	       options1->magnification_filter == options2->magnification_filter && options1->mipmap_filter == options2->mipmap_filter &&
@@ -35,7 +35,7 @@ static int sampler_cache_size = 0;
 // TODO: Please make this much faster
 static kinc_g5_sampler_t *get_current_sampler(int stage, int unit) {
 	for (int i = 0; i < sampler_cache_size; ++i) {
-		if (compare_sampler_options(&sampler_cache[i].options, &sampler_options[stage][unit])) {
+		if (sampler_options_equals(&sampler_cache[i].options, &sampler_options[stage][unit])) {
 			return &sampler_cache[i].sampler;
 		}
 	}
