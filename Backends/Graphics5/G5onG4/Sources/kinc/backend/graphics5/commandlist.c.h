@@ -193,6 +193,8 @@ void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_text
 	kinc_g4_set_texture(unit.impl.unit, &texture->impl.texture);
 }
 
+void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {}
+
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *render_target) {
 	// kinc_g4_render_target_use_color_as_texture(render_target->impl, unit.impl.unit);
 }
