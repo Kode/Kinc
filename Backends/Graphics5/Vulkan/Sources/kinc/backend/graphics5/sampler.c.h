@@ -1,6 +1,4 @@
-#include "vulkan.h"
 #include <kinc/graphics5/sampler.h>
-#include <vulkan/vulkan_core.h>
 
 static VkCompareOp convert_compare_mode(kinc_g5_compare_mode_t compare);
 
