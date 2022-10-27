@@ -405,30 +405,24 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 
 kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipeline, const char *name) {
 	kinc_g5_texture_unit_t unit;
-	unit.impl.index = -1;
-	unit.impl.vertex = false;
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		unit.stages[i] = -1;
+	}
 
 	MTLRenderPipelineReflection *reflection = (__bridge MTLRenderPipelineReflection *)pipeline->impl._reflection;
 	for (MTLArgument *arg in reflection.fragmentArguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
-			unit.impl.index = (int)[arg index];
+			unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] = (int)[arg index];
 			break;
 		}
 	}
 
-	if (unit.impl.index == -1) {
-		for (MTLArgument *arg in reflection.vertexArguments) {
-			if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
-				unit.impl.index = (int)[arg index];
-				unit.impl.vertex = true;
-				break;
-			}
+	for (MTLArgument *arg in reflection.vertexArguments) {
+		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
+			unit.stages[KINC_G5_SHADER_TYPE_VERTEX] = (int)[arg index];
+			break;
 		}
 	}
 
 	return unit;
-}
-
-bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2) {
-	return unit1->impl.index == unit2->impl.index && unit1->impl.vertex == unit2->impl.vertex;
 }
