@@ -20,9 +20,13 @@ kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipel
 }
 
 kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *pipe, const char *name) {
-	kinc_g4_texture_unit_t unit;
-	unit.impl._unit = kinc_g5_pipeline_get_texture_unit(&pipe->impl._pipeline, name);
-	return unit;
+	kinc_g5_texture_unit_t g5_unit = kinc_g5_pipeline_get_texture_unit(&pipe->impl._pipeline, name);
+
+	assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
+	kinc_g4_texture_unit_t g4_unit;
+	memcpy(&g4_unit.stages[0], &g5_unit.stages[0], KINC_G4_SHADER_TYPE_COUNT * sizeof(int));
+
+	return g4_unit;
 }
 
 void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *pipe) {

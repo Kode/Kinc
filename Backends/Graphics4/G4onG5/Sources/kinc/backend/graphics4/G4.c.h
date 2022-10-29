@@ -458,15 +458,15 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 
 void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
-		if (unit.impl._unit.stages[i] >= 0) {
+		if (unit.stages[i] >= 0) {
 			if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
-				sampler_options[i][unit.impl._unit.stages[i]].u_addressing = (kinc_g5_texture_addressing_t)addressing;
+				sampler_options[i][unit.stages[i]].u_addressing = (kinc_g5_texture_addressing_t)addressing;
 			}
 			if (dir == KINC_G4_TEXTURE_DIRECTION_V) {
-				sampler_options[i][unit.impl._unit.stages[i]].v_addressing = (kinc_g5_texture_addressing_t)addressing;
+				sampler_options[i][unit.stages[i]].v_addressing = (kinc_g5_texture_addressing_t)addressing;
 			}
 			if (dir == KINC_G4_TEXTURE_DIRECTION_W) {
-				sampler_options[i][unit.impl._unit.stages[i]].w_addressing = (kinc_g5_texture_addressing_t)addressing;
+				sampler_options[i][unit.stages[i]].w_addressing = (kinc_g5_texture_addressing_t)addressing;
 			}
 		}
 	}
@@ -478,8 +478,8 @@ void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_textu
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
-		if (texunit.impl._unit.stages[i] >= 0) {
-			sampler_options[i][texunit.impl._unit.stages[i]].magnification_filter = (kinc_g5_texture_filter_t)filter;
+		if (texunit.stages[i] >= 0) {
+			sampler_options[i][texunit.stages[i]].magnification_filter = (kinc_g5_texture_filter_t)filter;
 		}
 	}
 }
@@ -490,8 +490,8 @@ void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, 
 
 void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
-		if (texunit.impl._unit.stages[i] >= 0) {
-			sampler_options[i][texunit.impl._unit.stages[i]].minification_filter = (kinc_g5_texture_filter_t)filter;
+		if (texunit.stages[i] >= 0) {
+			sampler_options[i][texunit.stages[i]].minification_filter = (kinc_g5_texture_filter_t)filter;
 		}
 	}
 }
@@ -502,8 +502,8 @@ void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, k
 
 void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
-		if (texunit.impl._unit.stages[i] >= 0) {
-			sampler_options[i][texunit.impl._unit.stages[i]].mipmap_filter = (kinc_g5_mipmap_filter_t)filter;
+		if (texunit.stages[i] >= 0) {
+			sampler_options[i][texunit.stages[i]].mipmap_filter = (kinc_g5_mipmap_filter_t)filter;
 		}
 	}
 }
@@ -514,16 +514,16 @@ void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
-		if (unit.impl._unit.stages[i] >= 0) {
-			sampler_options[i][unit.impl._unit.stages[i]].is_comparison = enabled;
+		if (unit.stages[i] >= 0) {
+			sampler_options[i][unit.stages[i]].is_comparison = enabled;
 		}
 	}
 }
 
 void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
-		if (unit.impl._unit.stages[i] >= 0) {
-			sampler_options[i][unit.impl._unit.stages[i]].compare_mode = (kinc_g5_compare_mode_t)mode;
+		if (unit.stages[i] >= 0) {
+			sampler_options[i][unit.stages[i]].compare_mode = (kinc_g5_compare_mode_t)mode;
 		}
 	}
 }
@@ -533,8 +533,8 @@ void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compa
 
 void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
-		if (unit.impl._unit.stages[i] >= 0) {
-			sampler_options[i][unit.impl._unit.stages[i]].max_anisotropy = max_anisotropy;
+		if (unit.stages[i] >= 0) {
+			sampler_options[i][unit.stages[i]].max_anisotropy = max_anisotropy;
 		}
 	}
 }
@@ -543,9 +543,9 @@ void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t ma
 
 void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
-		if (unit.impl._unit.stages[i] >= 0) {
-			sampler_options[i][unit.impl._unit.stages[i]].lod_min_clamp = lod_min_clamp;
-			sampler_options[i][unit.impl._unit.stages[i]].lod_max_clamp = lod_max_clamp;
+		if (unit.stages[i] >= 0) {
+			sampler_options[i][unit.stages[i]].lod_min_clamp = lod_min_clamp;
+			sampler_options[i][unit.stages[i]].lod_max_clamp = lod_max_clamp;
 		}
 	}
 }
@@ -610,11 +610,15 @@ void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture
 		texture->impl._uploaded = true;
 	}
 
+	assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
+	kinc_g5_texture_unit_t g5_unit;
+	memcpy(&g5_unit.stages[0], &unit.stages[0], KINC_G5_SHADER_TYPE_COUNT * sizeof(int));
+
 	bool found = false;
 	for (int i = 0; i < current_state.texture_count; ++i) {
-		if (kinc_g5_texture_unit_equals(&current_state.texture_units[i], &unit.impl._unit)) {
+		if (kinc_g5_texture_unit_equals(&current_state.texture_units[i], &g5_unit)) {
 			current_state.textures[i] = &texture->impl._texture;
-			current_state.texture_units[i] = unit.impl._unit;
+			current_state.texture_units[i] = g5_unit;
 			found = true;
 			break;
 		}
@@ -622,11 +626,11 @@ void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture
 	if (!found) {
 		assert(current_state.texture_count < MAX_TEXTURES);
 		current_state.textures[current_state.texture_count] = &texture->impl._texture;
-		current_state.texture_units[current_state.texture_count] = unit.impl._unit;
+		current_state.texture_units[current_state.texture_count] = g5_unit;
 		current_state.texture_count += 1;
 	}
 
-	kinc_g5_command_list_set_texture(&commandList, unit.impl._unit, &texture->impl._texture);
+	kinc_g5_command_list_set_texture(&commandList, g5_unit, &texture->impl._texture);
 }
 
 void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {}
@@ -694,11 +698,15 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_
 		render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE;
 	}
 
+	assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
+	kinc_g5_texture_unit_t g5_unit;
+	memcpy(&g5_unit.stages[0], &unit.stages[0], KINC_G5_SHADER_TYPE_COUNT * sizeof(int));
+
 	bool found = false;
 	for (int i = 0; i < current_state.render_target_count; ++i) {
-		if (kinc_g5_texture_unit_equals(&current_state.render_target_units[i], &unit.impl._unit)) {
+		if (kinc_g5_texture_unit_equals(&current_state.render_target_units[i], &g5_unit)) {
 			current_state.render_targets[i] = &render_target->impl._renderTarget;
-			current_state.render_target_units[i] = unit.impl._unit;
+			current_state.render_target_units[i] = g5_unit;
 			found = true;
 			break;
 		}
@@ -706,11 +714,11 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_
 	if (!found) {
 		assert(current_state.render_target_count < MAX_TEXTURES);
 		current_state.render_targets[current_state.render_target_count] = &render_target->impl._renderTarget;
-		current_state.render_target_units[current_state.render_target_count] = unit.impl._unit;
+		current_state.render_target_units[current_state.render_target_count] = g5_unit;
 		current_state.render_target_count += 1;
 	}
 
-	kinc_g5_command_list_set_texture_from_render_target(&commandList, unit.impl._unit, &render_target->impl._renderTarget);
+	kinc_g5_command_list_set_texture_from_render_target(&commandList, g5_unit, &render_target->impl._renderTarget);
 }
 
 void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_target, kinc_g4_texture_unit_t unit) {
@@ -719,11 +727,15 @@ void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_
 		render_target->impl.state = KINC_INTERNAL_RENDER_TARGET_STATE_TEXTURE;
 	}
 
+	assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
+	kinc_g5_texture_unit_t g5_unit;
+	memcpy(&g5_unit.stages[0], &unit.stages[0], KINC_G5_SHADER_TYPE_COUNT * sizeof(int));
+
 	bool found = false;
 	for (int i = 0; i < current_state.depth_render_target_count; ++i) {
-		if (kinc_g5_texture_unit_equals(&current_state.depth_render_target_units[i], &unit.impl._unit)) {
+		if (kinc_g5_texture_unit_equals(&current_state.depth_render_target_units[i], &g5_unit)) {
 			current_state.depth_render_targets[i] = &render_target->impl._renderTarget;
-			current_state.depth_render_target_units[i] = unit.impl._unit;
+			current_state.depth_render_target_units[i] = g5_unit;
 			found = true;
 			break;
 		}
@@ -731,9 +743,9 @@ void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_
 	if (!found) {
 		assert(current_state.depth_render_target_count < MAX_TEXTURES);
 		current_state.depth_render_targets[current_state.depth_render_target_count] = &render_target->impl._renderTarget;
-		current_state.depth_render_target_units[current_state.depth_render_target_count] = unit.impl._unit;
+		current_state.depth_render_target_units[current_state.depth_render_target_count] = g5_unit;
 		current_state.depth_render_target_count += 1;
 	}
 
-	kinc_g5_command_list_set_texture_from_render_target_depth(&commandList, unit.impl._unit, &render_target->impl._renderTarget);
+	kinc_g5_command_list_set_texture_from_render_target_depth(&commandList, g5_unit, &render_target->impl._renderTarget);
 }
