@@ -42,14 +42,11 @@ void kinc_internal_resize(int window, int width, int height) {
 	kinc_g4_on_g5_internal_resize(window, width, height);
 }
 
-extern void kinc_internal_init_samplers(void);
-
 void kinc_g5_internal_init() {}
 
 void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	depthBits = depthBufferBits;
 	stencilBits = stencilBufferBits;
-	kinc_internal_init_samplers();
 	kinc_g5_render_target_init(&fallback_render_target, 32, 32, KINC_G5_RENDER_TARGET_FORMAT_32BIT, 0, 0);
 }
 

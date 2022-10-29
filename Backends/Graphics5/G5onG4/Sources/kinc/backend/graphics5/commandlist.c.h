@@ -177,15 +177,6 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {}
 
-void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
-                                                 kinc_g5_texture_addressing_t addressing) {}
-
-void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
-
-void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
-
-void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
-
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
 
 /*
@@ -201,6 +192,8 @@ void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
 	kinc_g4_set_texture(unit.impl.unit, &texture->impl.texture);
 }
+
+void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {}
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *render_target) {
 	// kinc_g4_render_target_use_color_as_texture(render_target->impl, unit.impl.unit);

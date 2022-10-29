@@ -272,7 +272,15 @@ void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_
 void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	kinc_g5_internal_texture_set(texture, unit.impl.index);
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLTexture> tex = (__bridge id<MTLTexture>)texture->impl._tex;
+	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+		[encoder setVertexTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
+	}
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		[encoder setFragmentTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]];
+	}
+
 }
 
 void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
@@ -291,56 +299,38 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
 
-extern bool kinc_internal_bilinear_filtering;
-
-void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
-	kinc_internal_bilinear_filtering = filter != KINC_G5_TEXTURE_FILTER_POINT;
-}
-
-void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
-
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
-
-void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
-                                                 kinc_g5_texture_addressing_t addressing) {}
-
-void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
-	kinc_internal_bilinear_filtering = filter != KINC_G5_TEXTURE_FILTER_POINT;
-}
-
-extern void kinc_internal_set_vertex_sampler(id encoder, int unit);
-extern void kinc_internal_set_fragment_sampler(id encoder, int unit);
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	id<MTLTexture> tex = (__bridge id<MTLTexture>)target->impl._tex;
-	if (unit.impl.vertex) {
-		if (unit.impl.index < 16) {
-			kinc_internal_set_vertex_sampler(encoder, unit.impl.index);
-		}
-		[encoder setVertexTexture:tex atIndex:unit.impl.index];
+	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+		[encoder setVertexTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
 	}
-	else {
-		if (unit.impl.index < 16) {
-			kinc_internal_set_fragment_sampler(encoder, unit.impl.index);
-		}
-		[encoder setFragmentTexture:tex atIndex:unit.impl.index];
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		[encoder setFragmentTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]];
 	}
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	id<MTLTexture> depth_tex = (__bridge id<MTLTexture>)target->impl._depthTex;
-	if (unit.impl.vertex) {
-		if (unit.impl.index < 16) {
-			kinc_internal_set_vertex_sampler(encoder, unit.impl.index);
-		}
-		[encoder setVertexTexture:depth_tex atIndex:unit.impl.index];
+	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+		[encoder setVertexTexture:depth_tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
 	}
-	else {
-		if (unit.impl.index < 16) {
-			kinc_internal_set_fragment_sampler(encoder, unit.impl.index);
-		}
-		[encoder setFragmentTexture:depth_tex atIndex:unit.impl.index];
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		[encoder setFragmentTexture:depth_tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]];
+	}
+}
+
+void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
+	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLSamplerState> mtl_sampler = (__bridge id<MTLSamplerState>)sampler->impl.sampler;
+	
+	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+		[encoder setFragmentSamplerState:mtl_sampler atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
+	}
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		[encoder setFragmentSamplerState:mtl_sampler atIndex:unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]];
 	}
 }

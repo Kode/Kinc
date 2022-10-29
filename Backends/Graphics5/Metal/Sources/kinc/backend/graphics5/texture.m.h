@@ -53,31 +53,6 @@ static int formatByteSize(kinc_image_format_t format) {
 	}
 }
 
-bool kinc_internal_bilinear_filtering = false;
-
-static id pointSampler;
-static id bilinearSampler;
-
-void kinc_internal_init_samplers(void) {
-	id<MTLDevice> device = getMetalDevice();
-
-	MTLSamplerDescriptor *desc = (MTLSamplerDescriptor *)[[MTLSamplerDescriptor alloc] init];
-	desc.minFilter = MTLSamplerMinMagFilterNearest;
-	desc.magFilter = MTLSamplerMinMagFilterNearest;
-	desc.sAddressMode = MTLSamplerAddressModeRepeat;
-	desc.tAddressMode = MTLSamplerAddressModeRepeat;
-	desc.mipFilter = MTLSamplerMipFilterNotMipmapped;
-	desc.maxAnisotropy = 1U;
-	desc.normalizedCoordinates = YES;
-	desc.lodMinClamp = 0.0f;
-	desc.lodMaxClamp = FLT_MAX;
-	pointSampler = [device newSamplerStateWithDescriptor:desc];
-
-	desc.minFilter = MTLSamplerMinMagFilterLinear;
-	desc.magFilter = MTLSamplerMinMagFilterLinear;
-	bilinearSampler = [device newSamplerStateWithDescriptor:desc];
-}
-
 static void create(kinc_g5_texture_t *texture, int width, int height, int format, bool writable) {
 	texture->impl.has_mipmaps = false;
 	id<MTLDevice> device = getMetalDevice();
@@ -204,32 +179,6 @@ void kinc_g5_internal_set_texture_descriptor(kinc_g5_texture_t *texture, kinc_g5
     texture->impl._sampler = [device newSamplerStateWithDescriptor:desc];
 }
 #endif
-
-void kinc_internal_set_vertex_sampler(id encoder, int unit) {
-	if (kinc_internal_bilinear_filtering) {
-		[encoder setVertexSamplerState:bilinearSampler atIndex:unit];
-	}
-	else {
-		[encoder setVertexSamplerState:pointSampler atIndex:unit];
-	}
-}
-
-void kinc_internal_set_fragment_sampler(id encoder, int unit) {
-	if (kinc_internal_bilinear_filtering) {
-		[encoder setFragmentSamplerState:bilinearSampler atIndex:unit];
-	}
-	else {
-		[encoder setFragmentSamplerState:pointSampler atIndex:unit];
-	}
-}
-
-void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
-	if (unit < 16) {
-		kinc_internal_set_fragment_sampler(encoder, unit);
-	}
-	[encoder setFragmentTexture:(__bridge id<MTLTexture>)texture->impl._tex atIndex:unit];
-}
 
 int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
 	switch (texture->format) {

@@ -14,10 +14,6 @@ struct texture_object {
 };
 
 typedef struct {
-	int binding;
-} TextureUnit5Impl;
-
-typedef struct {
 	uint8_t pixfmt;
 
 	struct texture_object texture;

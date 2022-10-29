@@ -1,3 +1,4 @@
+#include "kinc/graphics5/sampler.h"
 #include "vulkan.h"
 
 #include <kinc/graphics5/commandlist.h>
@@ -899,21 +900,15 @@ void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *l
 }
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	assert(unit.impl.binding >= 2); // Make sure the spirv-bindings have been read correctly
-	vulkanTextures[unit.impl.binding - 2] = texture;
-	vulkanRenderTargets[unit.impl.binding - 2] = NULL;
+	vulkanTextures[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = texture;
+	vulkanRenderTargets[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = NULL;
+}
+
+void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
+	vulkanSamplers[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = sampler->impl.sampler;
 }
 
 void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
-
-void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
-                                                 kinc_g5_texture_addressing_t addressing) {}
-
-void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
-
-void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {}
-
-void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {}
 
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
 
@@ -932,13 +927,13 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	target->impl.stage = unit.impl.binding - 2;
-	vulkanRenderTargets[unit.impl.binding - 2] = target;
-	vulkanTextures[unit.impl.binding - 2] = NULL;
+	target->impl.stage = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
+	vulkanRenderTargets[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = target;
+	vulkanTextures[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = NULL;
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	target->impl.stage_depth = unit.impl.binding - 2;
-	vulkanRenderTargets[unit.impl.binding - 2] = target;
-	vulkanTextures[unit.impl.binding - 2] = NULL;
+	target->impl.stage_depth = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
+	vulkanRenderTargets[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = target;
+	vulkanTextures[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = NULL;
 }

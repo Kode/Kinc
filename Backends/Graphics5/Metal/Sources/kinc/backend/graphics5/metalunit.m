@@ -4,6 +4,7 @@
 #include "indexbuffer.m.h"
 #include "pipeline.m.h"
 #include "rendertarget.m.h"
+#include "sampler.m.h"
 #include "shader.m.h"
 #include "texture.m.h"
 #include "vertexbuffer.m.h"

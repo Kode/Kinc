@@ -3,6 +3,7 @@
 #include <kinc/global.h>
 
 #include "rendertarget.h"
+#include "sampler.h"
 #include "texture.h"
 #include "textureunit.h"
 
@@ -29,27 +30,6 @@ struct kinc_g5_render_target;
 struct kinc_g5_texture;
 struct kinc_g5_vertex_buffer;
 struct kinc_g5_render_target;
-
-typedef enum kinc_g5_texture_addressing {
-	KINC_G5_TEXTURE_ADDRESSING_REPEAT,
-	KINC_G5_TEXTURE_ADDRESSING_MIRROR,
-	KINC_G5_TEXTURE_ADDRESSING_CLAMP,
-	KINC_G5_TEXTURE_ADDRESSING_BORDER
-} kinc_g5_texture_addressing_t;
-
-typedef enum kinc_g5_texture_filter {
-	KINC_G5_TEXTURE_FILTER_POINT,
-	KINC_G5_TEXTURE_FILTER_LINEAR,
-	KINC_G5_TEXTURE_FILTER_ANISOTROPIC
-} kinc_g5_texture_filter_t;
-
-typedef enum kinc_g5_mipmap_filter {
-	KINC_G5_MIPMAP_FILTER_NONE,
-	KINC_G5_MIPMAP_FILTER_POINT,
-	KINC_G5_MIPMAP_FILTER_LINEAR // linear texture filter + linear mip filter -> trilinear filter
-} kinc_g5_mipmap_filter_t;
-
-typedef enum kinc_g5_texture_direction { KINC_G5_TEXTURE_DIRECTION_U, KINC_G5_TEXTURE_DIRECTION_V, KINC_G5_TEXTURE_DIRECTION_W } kinc_g5_texture_direction_t;
 
 /*typedef enum kinc_g5_render_target_format {
     KINC_G5_RENDER_TARGET_FORMAT_32BIT,
@@ -327,31 +307,7 @@ KINC_FUNC void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5
 
 KINC_FUNC void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face);
 
-KINC_FUNC void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
-                                                           kinc_g5_texture_addressing_t addressing);
-
-/// <summary>
-/// Set the texture-sampling-mode for upscaled textures.
-/// </summary>
-/// <param name="unit">The texture-unit to set the texture-sampling-mode for</param>
-/// <param name="filter">The mode to set</param>
-KINC_FUNC void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit,
-                                                                     kinc_g5_texture_filter_t filter);
-
-/// <summary>
-/// Set the texture-sampling-mode for downscaled textures.
-/// </summary>
-/// <param name="unit">The texture-unit to set the texture-sampling-mode for</param>
-/// <param name="filter">The mode to set</param>
-KINC_FUNC void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit,
-                                                                    kinc_g5_texture_filter_t filter);
-
-/// <summary>
-/// Sets the mipmap-sampling-mode which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly interoplated.
-/// </summary>
-/// <param name="unit">The texture-unit to set the mipmap-sampling-mode for</param>
-/// <param name="filter">The mode to set</param>
-KINC_FUNC void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter);
+KINC_FUNC void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler);
 
 // Occlusion Query
 KINC_FUNC bool kinc_g5_command_list_init_occlusion_query(kinc_g5_command_list_t *list, unsigned *occlusionQuery);

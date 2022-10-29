@@ -75,7 +75,7 @@ extern "C" void createSwapChain(struct RenderEnvironment *env, const DXGI_SWAP_C
 #endif
 #endif
 
-void createSamplersAndHeaps();
+void createHeaps();
 extern bool bilinearFiltering;
 
 // ID3D12Resource* renderTarget;
@@ -291,7 +291,7 @@ static void createRootSignature() {
 	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 	device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&globalRootSignature));
 
-	createSamplersAndHeaps();
+	createHeaps();
 }
 
 static void createComputeRootSignature() {
