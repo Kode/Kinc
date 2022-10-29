@@ -345,20 +345,21 @@ kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(kinc_g4_pipel
 }
 
 kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *state, const char *name) {
-	kinc_g4_texture_unit_t unit;
-
 	int fragment_index = find_constant(state->fragment_shader->impl.constants, name);
 	int vertex_index = find_constant(state->vertex_shader->impl.constants, name);
 
+	kinc_g4_texture_unit_t unit;
+	for (int i = 0; i < KINC_G4_SHADER_TYPE_COUNT; ++i) {
+		unit.stages[i] = -1;
+	}
+
 	if (fragment_index >= 0) {
-		unit.impl.unit = state->fragment_shader->impl.constants[fragment_index].regindex;
+		unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] = state->fragment_shader->impl.constants[fragment_index].regindex;
 	}
-	else if (vertex_index >= 0) {
-		unit.impl.unit = state->vertex_shader->impl.constants[vertex_index].regindex;
+
+	if (vertex_index >= 0) {
+		unit.stages[KINC_G4_SHADER_TYPE_VERTEX] = state->vertex_shader->impl.constants[vertex_index].regindex;
 	}
-	else {
-		unit.impl.unit = -1;
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not find texture %s.", name);
-	}
+
 	return unit;
 }

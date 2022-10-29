@@ -273,7 +273,7 @@ namespace {
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	device->SetSamplerState(texunit.impl.unit, D3DSAMP_MAGFILTER, convertFilter(filter));
+	device->SetSamplerState(texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], D3DSAMP_MAGFILTER, convertFilter(filter));
 }
 
 void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -281,7 +281,7 @@ void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, 
 }
 
 void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	device->SetSamplerState(texunit.impl.unit, D3DSAMP_MINFILTER, convertFilter(filter));
+	device->SetSamplerState(texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], D3DSAMP_MINFILTER, convertFilter(filter));
 }
 
 void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -289,7 +289,7 @@ void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, k
 }
 
 void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
-	device->SetSamplerState(texunit.impl.unit, D3DSAMP_MIPFILTER, convertMipFilter(filter));
+	device->SetSamplerState(texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], D3DSAMP_MIPFILTER, convertMipFilter(filter));
 }
 
 void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
@@ -305,7 +305,7 @@ void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled)
 void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {}
 
 void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
-	device->SetSamplerState(unit.impl.unit, D3DSAMP_MAXANISOTROPY, max_anisotropy);
+	device->SetSamplerState(unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], D3DSAMP_MAXANISOTROPY, max_anisotropy);
 }
 
 void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {}
@@ -394,7 +394,7 @@ void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture
 		value = D3DTADDRESS_BORDER;
 		break;
 	}
-	device->SetSamplerState(unit.impl.unit, dir == KINC_G4_TEXTURE_DIRECTION_U ? D3DSAMP_ADDRESSU : D3DSAMP_ADDRESSV, value);
+	device->SetSamplerState(unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], dir == KINC_G4_TEXTURE_DIRECTION_U ? D3DSAMP_ADDRESSU : D3DSAMP_ADDRESSV, value);
 }
 
 void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
@@ -813,8 +813,7 @@ bool kinc_g4_supports_blend_constants() {
 		return false;
 	}
 
-	return (pCaps.SrcBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR) &&
-	       (pCaps.DestBlendCaps & D3DPBLENDCAPS_BLENDFACTOR == D3DPBLENDCAPS_BLENDFACTOR);
+	return ((pCaps.SrcBlendCaps & D3DPBLENDCAPS_BLENDFACTOR) != 0) && ((pCaps.DestBlendCaps & D3DPBLENDCAPS_BLENDFACTOR) != 0);
 }
 
 bool kinc_g4_supports_non_pow2_textures() {
@@ -824,7 +823,7 @@ bool kinc_g4_supports_non_pow2_textures() {
 		return false;
 	}
 	// only advertise full npot support
-	return (pCaps.TextureCaps & D3DPTEXTURECAPS_POW2 == 0) && (pCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL == 0);
+	return ((pCaps.TextureCaps & D3DPTEXTURECAPS_POW2) == 0) && ((pCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL) == 0);
 }
 
 bool kinc_g4_render_targets_inverted_y(void) {

@@ -68,8 +68,8 @@ void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
 }
 
 void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
-	kinc_microsoft_affirm(device->SetTexture(unit.impl.unit, texture->impl.texture));
-	texture->impl.stage = unit.impl.unit;
+	kinc_microsoft_affirm(device->SetTexture(unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], texture->impl.texture));
+	texture->impl.stage = unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT];
 	setTextures[texture->impl.stage] = texture;
 }
 
