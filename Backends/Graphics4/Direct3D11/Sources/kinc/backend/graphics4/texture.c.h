@@ -211,7 +211,7 @@ void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_
 	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0 && unit.stages[KINC_G4_SHADER_TYPE_VERTEX] < 0)
 		return;
 
-	if (unit.stages[KINC_G4_SHADER_TYPE_VERTEX >= 0]) {
+	if (unit.stages[KINC_G4_SHADER_TYPE_VERTEX] >= 0) {
 		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_VERTEX], 1, &texture->impl.view);
 	}
 
