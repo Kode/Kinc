@@ -98,27 +98,6 @@ static void render_target_init(kinc_g5_render_target_t *target, int width, int h
 	target->impl.stage_depth = -1;
 	target->impl.readbackBufferCreated = false;
 
-	VkSamplerCreateInfo samplerInfo = {0};
-	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.pNext = NULL;
-	samplerInfo.magFilter = VK_FILTER_LINEAR;
-	samplerInfo.minFilter = VK_FILTER_LINEAR;
-	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.mipLodBias = 0.0f;
-	samplerInfo.anisotropyEnable = VK_FALSE;
-	samplerInfo.maxAnisotropy = 1;
-	samplerInfo.compareOp = VK_COMPARE_OP_NEVER;
-	samplerInfo.minLod = 0.0f;
-	samplerInfo.maxLod = 0.0f;
-	samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-	samplerInfo.unnormalizedCoordinates = VK_FALSE;
-
-	VkResult err = vkCreateSampler(vk_ctx.device, &samplerInfo, NULL, &target->impl.sampler);
-	assert(!err);
-
 	if (framebuffer_index < 0) {
 		{
 			VkFormatProperties formatProperties;
@@ -201,8 +180,7 @@ static void render_target_init(kinc_g5_render_target_t *target, int width, int h
 			image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 			image.flags = 0;
 
-			/* create image */
-			err = vkCreateImage(vk_ctx.device, &image, NULL, &target->impl.depthImage);
+			VkResult err = vkCreateImage(vk_ctx.device, &image, NULL, &target->impl.depthImage);
 			assert(!err);
 
 			VkMemoryAllocateInfo mem_alloc = {0};
@@ -271,7 +249,7 @@ static void render_target_init(kinc_g5_render_target_t *target, int width, int h
 		fbufCreateInfo.height = height;
 		fbufCreateInfo.layers = 1;
 
-		err = vkCreateFramebuffer(vk_ctx.device, &fbufCreateInfo, NULL, &target->impl.framebuffer);
+		VkResult err = vkCreateFramebuffer(vk_ctx.device, &fbufCreateInfo, NULL, &target->impl.framebuffer);
 		assert(!err);
 	}
 }

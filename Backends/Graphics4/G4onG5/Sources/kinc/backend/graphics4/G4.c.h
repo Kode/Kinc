@@ -139,8 +139,6 @@ static void startDraw() {
 	}
 	kinc_g5_constant_buffer_unlock(&vertexConstantBuffer);
 	kinc_g5_constant_buffer_unlock(&fragmentConstantBuffer);
-	kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
-	kinc_g5_command_list_set_fragment_constant_buffer(&commandList, &fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 
 	for (int i = 0; i < current_state.texture_count; ++i) {
 		for (int j = 0; j < KINC_G5_SHADER_TYPE_COUNT; ++j) {
@@ -155,6 +153,9 @@ static void startDraw() {
 			}
 		}
 	}
+
+	kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+	kinc_g5_command_list_set_fragment_constant_buffer(&commandList, &fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 }
 
 static void endDraw() {

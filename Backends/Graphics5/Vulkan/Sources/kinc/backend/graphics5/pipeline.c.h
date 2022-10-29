@@ -764,12 +764,12 @@ static void update_textures(VkDescriptorSet descriptor_set) {
 	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
 		if (vulkanTextures[i] != NULL) {
-			tex_desc[i].sampler = vulkanTextures[i]->impl.texture.sampler;
+			tex_desc[i].sampler = vulkanSamplers[i];
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
 			texture_count++;
 		}
 		else if (vulkanRenderTargets[i] != NULL) {
-			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
+			tex_desc[i].sampler = vulkanSamplers[i];
 			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.depthView;
 				vulkanRenderTargets[i]->impl.stage_depth = -1;
@@ -853,7 +853,7 @@ VkDescriptorSet getDescriptorSet() {
 			texture_count++;
 		}
 		else if (vulkanRenderTargets[i] != NULL) {
-			tex_desc[i].sampler = vulkanRenderTargets[i]->impl.sampler;
+			tex_desc[i].sampler = vulkanSamplers[i];
 			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
 				tex_desc[i].imageView = vulkanRenderTargets[i]->impl.depthView;
 				vulkanRenderTargets[i]->impl.stage_depth = -1;

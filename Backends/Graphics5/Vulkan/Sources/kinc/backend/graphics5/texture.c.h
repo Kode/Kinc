@@ -257,24 +257,6 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 		assert(!"No support for B8G8R8A8_UNORM as texture image format");
 	}
 
-	VkSamplerCreateInfo sampler = {0};
-	sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	sampler.pNext = NULL;
-	sampler.magFilter = VK_FILTER_LINEAR;
-	sampler.minFilter = VK_FILTER_LINEAR;
-	sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-	sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	sampler.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	sampler.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	sampler.mipLodBias = 0.0f;
-	sampler.anisotropyEnable = VK_FALSE;
-	sampler.maxAnisotropy = 1;
-	sampler.compareOp = VK_COMPARE_OP_NEVER;
-	sampler.minLod = 0.0f;
-	sampler.maxLod = 0.0f;
-	sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-	sampler.unnormalizedCoordinates = VK_FALSE;
-
 	VkImageViewCreateInfo view = {0};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
@@ -292,11 +274,6 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 	view.subresourceRange.layerCount = 1;
 	view.flags = 0;
 
-	// create sampler
-	err = vkCreateSampler(vk_ctx.device, &sampler, NULL, &texture->impl.texture.sampler);
-	assert(!err);
-
-	// create image view
 	view.image = texture->impl.texture.image;
 	err = vkCreateImageView(vk_ctx.device, &view, NULL, &texture->impl.texture.view);
 	assert(!err);
@@ -319,24 +296,6 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 
 	flush_init_cmd();
 
-	VkSamplerCreateInfo sampler = {0};
-	sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	sampler.pNext = NULL;
-	sampler.magFilter = VK_FILTER_LINEAR;
-	sampler.minFilter = VK_FILTER_LINEAR;
-	sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-	sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	sampler.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	sampler.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	sampler.mipLodBias = 0.0f;
-	sampler.anisotropyEnable = VK_FALSE;
-	sampler.maxAnisotropy = 1;
-	sampler.compareOp = VK_COMPARE_OP_NEVER;
-	sampler.minLod = 0.0f;
-	sampler.maxLod = 0.0f;
-	sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-	sampler.unnormalizedCoordinates = VK_FALSE;
-
 	VkImageViewCreateInfo view = {0};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
@@ -354,11 +313,6 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	view.subresourceRange.layerCount = 1;
 	view.flags = 0;
 
-	// create sampler
-	err = vkCreateSampler(vk_ctx.device, &sampler, NULL, &texture->impl.texture.sampler);
-	assert(!err);
-
-	// create image view
 	view.image = texture->impl.texture.image;
 	err = vkCreateImageView(vk_ctx.device, &view, NULL, &texture->impl.texture.view);
 	assert(!err);
@@ -384,24 +338,6 @@ void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int wid
 
 	flush_init_cmd();
 
-	VkSamplerCreateInfo sampler = {0};
-	sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	sampler.pNext = NULL;
-	sampler.magFilter = VK_FILTER_LINEAR;
-	sampler.minFilter = VK_FILTER_LINEAR;
-	sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-	sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	sampler.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	sampler.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	sampler.mipLodBias = 0.0f;
-	sampler.anisotropyEnable = VK_FALSE;
-	sampler.maxAnisotropy = 1;
-	sampler.compareOp = VK_COMPARE_OP_NEVER;
-	sampler.minLod = 0.0f;
-	sampler.maxLod = 0.0f;
-	sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-	sampler.unnormalizedCoordinates = VK_FALSE;
-
 	VkImageViewCreateInfo view = {0};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
@@ -419,11 +355,6 @@ void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int wid
 	view.subresourceRange.layerCount = 1;
 	view.flags = 0;
 
-	// create sampler
-	err = vkCreateSampler(vk_ctx.device, &sampler, NULL, &texture->impl.texture.sampler);
-	assert(!err);
-
-	// create image view
 	view.image = texture->impl.texture.image;
 	err = vkCreateImageView(vk_ctx.device, &view, NULL, &texture->impl.texture.view);
 	assert(!err);
