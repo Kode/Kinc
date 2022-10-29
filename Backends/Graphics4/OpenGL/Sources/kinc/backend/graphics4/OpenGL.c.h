@@ -801,7 +801,7 @@ int kinc_g4_max_bound_textures(void) {
 }
 
 static void setTextureAddressingInternal(GLenum target, kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 	GLenum texDir;
 	switch (dir) {
 	case KINC_G4_TEXTURE_DIRECTION_U:
@@ -820,39 +820,39 @@ static void setTextureAddressingInternal(GLenum target, kinc_g4_texture_unit_t u
 	case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
 		glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
 		if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
-			texModesU[unit.impl.unit] = GL_CLAMP_TO_EDGE;
+			texModesU[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = GL_CLAMP_TO_EDGE;
 		}
 		else {
-			texModesV[unit.impl.unit] = GL_CLAMP_TO_EDGE;
+			texModesV[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = GL_CLAMP_TO_EDGE;
 		}
 		break;
 	case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
 		glTexParameteri(target, texDir, GL_REPEAT);
 		if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
-			texModesU[unit.impl.unit] = GL_REPEAT;
+			texModesU[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = GL_REPEAT;
 		}
 		else {
-			texModesV[unit.impl.unit] = GL_REPEAT;
+			texModesV[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = GL_REPEAT;
 		}
 		break;
 	case KINC_G4_TEXTURE_ADDRESSING_BORDER:
 		// unsupported
 		glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
 		if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
-			texModesU[unit.impl.unit] = GL_CLAMP_TO_EDGE;
+			texModesU[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = GL_CLAMP_TO_EDGE;
 		}
 		else {
-			texModesV[unit.impl.unit] = GL_CLAMP_TO_EDGE;
+			texModesV[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = GL_CLAMP_TO_EDGE;
 		}
 		break;
 	case KINC_G4_TEXTURE_ADDRESSING_MIRROR:
 		// unsupported
 		glTexParameteri(target, texDir, GL_REPEAT);
 		if (dir == KINC_G4_TEXTURE_DIRECTION_U) {
-			texModesU[unit.impl.unit] = GL_REPEAT;
+			texModesU[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = GL_REPEAT;
 		}
 		else {
-			texModesV[unit.impl.unit] = GL_REPEAT;
+			texModesV[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = GL_REPEAT;
 		}
 		break;
 	}
@@ -860,11 +860,11 @@ static void setTextureAddressingInternal(GLenum target, kinc_g4_texture_unit_t u
 }
 
 int Kinc_G4_Internal_TextureAddressingU(kinc_g4_texture_unit_t unit) {
-	return texModesU[unit.impl.unit];
+	return texModesU[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]];
 }
 
 int Kinc_G4_Internal_TextureAddressingV(kinc_g4_texture_unit_t unit) {
-	return texModesV[unit.impl.unit];
+	return texModesV[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]];
 }
 
 void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
@@ -878,7 +878,7 @@ void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_textu
 }
 
 static void setTextureMagnificationFilterInternal(GLenum target, kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	glActiveTexture(GL_TEXTURE0 + texunit.impl.unit);
+	glActiveTexture(GL_TEXTURE0 + texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 	glCheckErrors();
 	switch (filter) {
 	case KINC_G4_TEXTURE_FILTER_POINT:
@@ -943,31 +943,31 @@ static void setMinMipFilters(GLenum target, int unit) {
 }
 
 void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	minFilters[texunit.impl.unit] = filter;
-	setMinMipFilters(GL_TEXTURE_2D, texunit.impl.unit);
+	minFilters[texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = filter;
+	setMinMipFilters(GL_TEXTURE_2D, texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 }
 
 void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
-	minFilters[texunit.impl.unit] = filter;
+	minFilters[texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = filter;
 #ifndef KORE_OPENGL_ES
-	setMinMipFilters(GL_TEXTURE_3D, texunit.impl.unit);
+	setMinMipFilters(GL_TEXTURE_3D, texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 #endif
 }
 
 void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
-	mipFilters[texunit.impl.unit] = filter;
-	setMinMipFilters(GL_TEXTURE_2D, texunit.impl.unit);
+	mipFilters[texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = filter;
+	setMinMipFilters(GL_TEXTURE_2D, texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 }
 
 void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
-	mipFilters[texunit.impl.unit] = filter;
+	mipFilters[texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]] = filter;
 #ifndef KORE_OPENGL_ES
-	setMinMipFilters(GL_TEXTURE_3D, texunit.impl.unit);
+	setMinMipFilters(GL_TEXTURE_3D, texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 #endif
 }
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t texunit, bool enabled) {
-	if (texunit.impl.unit < 0)
+	if (texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 	if (enabled) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
@@ -979,13 +979,13 @@ void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t texunit, bool enabl
 }
 
 void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, Kinc_G4_Internal_StencilFunc(mode));
 }
 
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t texunit, bool enabled) {
-	if (texunit.impl.unit < 0)
+	if (texunit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 	if (enabled) {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
@@ -997,19 +997,19 @@ void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t texunit, bool enabl
 }
 
 void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, Kinc_G4_Internal_StencilFunc(mode));
 }
 
 void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
 }
 
 void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
 }

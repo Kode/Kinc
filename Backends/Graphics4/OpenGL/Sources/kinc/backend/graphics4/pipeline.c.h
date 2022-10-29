@@ -452,6 +452,9 @@ kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(kinc_g4_pipeline_t *sta
 		++state->impl.textureCount;
 	}
 	kinc_g4_texture_unit_t unit;
-	unit.impl.unit = index;
+	for (int i = 0; i < KINC_G4_SHADER_TYPE_COUNT; ++i) {
+		unit.stages[i] = -1;
+	}
+	unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] = index;
 	return unit;
 }

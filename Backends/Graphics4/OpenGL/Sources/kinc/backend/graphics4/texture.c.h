@@ -504,7 +504,7 @@ void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
 
 void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 	glCheckErrors();
 #ifdef KORE_ANDROID
 	if (texture->impl.external_oes) {
@@ -525,7 +525,7 @@ void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_uni
 
 void Kinc_G4_Internal_TextureImageSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 #if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_4))
-	glBindImageTexture(unit.impl.unit, texture->impl.texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, convertInternalFormat(texture->format));
+	glBindImageTexture(unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], texture->impl.texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, convertInternalFormat(texture->format));
 	glCheckErrors();
 #endif
 }

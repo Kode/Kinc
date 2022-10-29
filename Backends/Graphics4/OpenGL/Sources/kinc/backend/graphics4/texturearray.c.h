@@ -19,7 +19,7 @@ void kinc_g4_texture_array_destroy(kinc_g4_texture_array_t *array) {}
 
 void Kinc_G4_Internal_TextureArraySet(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {
 #ifdef GL_VERSION_4_2
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, array->impl.texture);
 #endif
 }

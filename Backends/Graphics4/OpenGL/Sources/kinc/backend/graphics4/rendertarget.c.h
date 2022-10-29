@@ -359,14 +359,14 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 	glDeleteFramebuffers(1, framebuffers);
 }
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 	glCheckErrors();
 	glBindTexture(renderTarget->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, renderTarget->impl._texture);
 	glCheckErrors();
 }
 
 void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
+	glActiveTexture(GL_TEXTURE0 + unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
 	glCheckErrors();
 	glBindTexture(renderTarget->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, renderTarget->impl._depthTexture);
 	glCheckErrors();
