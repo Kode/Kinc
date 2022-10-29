@@ -92,7 +92,17 @@ $(function() {
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">    _init(&quot;&quot;, readable);</span></div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">}</span></div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keywordtype">bool</span> kinc_g5_texture_unit_equals(<a class="code" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> *unit1, <a class="code" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> *unit2) {</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; KINC_G5_SHADER_TYPE_COUNT; ++i) {</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <span class="keywordflow">if</span> (unit1-&gt;stages[i] != unit2-&gt;stages[i]) {</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        }</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    }</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="astructkinc__g5__texture__unit_html"><div class="ttname"><a href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit</a></div><div class="ttdef"><b>Definition:</b> textureunit.h:16</div></div>
 <div class="ttc" id="agraphics5_2texture_8h_html"><div class="ttname"><a href="graphics5_2texture_8h.html">texture.h</a></div><div class="ttdoc">Provides functions for handling textures.</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

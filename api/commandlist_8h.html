@@ -69,7 +69,6 @@ $(function() {
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">commandlist.h File Reference</div>  </div>
@@ -80,6 +79,7 @@ $(function() {
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;<a class="el" href="global_8h_source.html">kinc/global.h</a>&gt;</code><br />
 <code>#include &quot;<a class="el" href="graphics5_2rendertarget_8h_source.html">rendertarget.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="sampler_8h_source.html">sampler.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="graphics5_2texture_8h_source.html">texture.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="graphics5_2textureunit_8h_source.html">textureunit.h</a>&quot;</code><br />
 <code>#include &lt;kinc/backend/graphics5/commandlist.h&gt;</code><br />
@@ -106,45 +106,9 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:aec4af88247f6b52720825b420ae231e3"><td class="memItemLeft" align="right" valign="top"><a id="aec4af88247f6b52720825b420ae231e3"></a>
-typedef enum kinc_g5_texture_addressing&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_addressing_t</b></td></tr>
-<tr class="separator:aec4af88247f6b52720825b420ae231e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8146ffef1acc69ca50b2c72395f014ea"><td class="memItemLeft" align="right" valign="top"><a id="a8146ffef1acc69ca50b2c72395f014ea"></a>
-typedef enum kinc_g5_texture_filter&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_filter_t</b></td></tr>
-<tr class="separator:a8146ffef1acc69ca50b2c72395f014ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91750b1dea92497117ae510caf7c3d0b"><td class="memItemLeft" align="right" valign="top"><a id="a91750b1dea92497117ae510caf7c3d0b"></a>
-typedef enum kinc_g5_mipmap_filter&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_mipmap_filter_t</b></td></tr>
-<tr class="separator:a91750b1dea92497117ae510caf7c3d0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a650f68aaea94960ae42b0bb0d354500b"><td class="memItemLeft" align="right" valign="top"><a id="a650f68aaea94960ae42b0bb0d354500b"></a>
-typedef enum kinc_g5_texture_direction&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_direction_t</b></td></tr>
-<tr class="separator:a650f68aaea94960ae42b0bb0d354500b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d78bfb1e7d0f9cb5f64743e5d0a0dc3"><td class="memItemLeft" align="right" valign="top"><a id="a5d78bfb1e7d0f9cb5f64743e5d0a0dc3"></a>
 typedef struct <a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_command_list_t</b></td></tr>
 <tr class="separator:a5d78bfb1e7d0f9cb5f64743e5d0a0dc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:a232700c0a9b310ca1755ae889e1f1bf3"><td class="memItemLeft" align="right" valign="top"><a id="a232700c0a9b310ca1755ae889e1f1bf3"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_addressing</b> { <b>KINC_G5_TEXTURE_ADDRESSING_REPEAT</b>, 
-<b>KINC_G5_TEXTURE_ADDRESSING_MIRROR</b>, 
-<b>KINC_G5_TEXTURE_ADDRESSING_CLAMP</b>, 
-<b>KINC_G5_TEXTURE_ADDRESSING_BORDER</b>
- }</td></tr>
-<tr class="separator:a232700c0a9b310ca1755ae889e1f1bf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb39ac9bd63225b07c6508edd6627eb4"><td class="memItemLeft" align="right" valign="top"><a id="acb39ac9bd63225b07c6508edd6627eb4"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_filter</b> { <b>KINC_G5_TEXTURE_FILTER_POINT</b>, 
-<b>KINC_G5_TEXTURE_FILTER_LINEAR</b>, 
-<b>KINC_G5_TEXTURE_FILTER_ANISOTROPIC</b>
- }</td></tr>
-<tr class="separator:acb39ac9bd63225b07c6508edd6627eb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac24ec4f0a0b7bd137bf7a0243233d40c"><td class="memItemLeft" align="right" valign="top"><a id="ac24ec4f0a0b7bd137bf7a0243233d40c"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_mipmap_filter</b> { <b>KINC_G5_MIPMAP_FILTER_NONE</b>, 
-<b>KINC_G5_MIPMAP_FILTER_POINT</b>, 
-<b>KINC_G5_MIPMAP_FILTER_LINEAR</b>
- }</td></tr>
-<tr class="separator:ac24ec4f0a0b7bd137bf7a0243233d40c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa467fe157279b5944d00d85906d4ecec"><td class="memItemLeft" align="right" valign="top"><a id="aa467fe157279b5944d00d85906d4ecec"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_texture_direction</b> { <b>KINC_G5_TEXTURE_DIRECTION_U</b>, 
-<b>KINC_G5_TEXTURE_DIRECTION_V</b>, 
-<b>KINC_G5_TEXTURE_DIRECTION_W</b>
- }</td></tr>
-<tr class="separator:aa467fe157279b5944d00d85906d4ecec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -256,18 +220,9 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <tr class="memitem:af02819da6a238219e0f9e8b3e9e0328c"><td class="memItemLeft" align="right" valign="top"><a id="af02819da6a238219e0f9e8b3e9e0328c"></a>
 KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_command_list_set_render_target_face</b> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *texture, int face)</td></tr>
 <tr class="separator:af02819da6a238219e0f9e8b3e9e0328c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afce6e82b3f3722429bb90f45c261d372"><td class="memItemLeft" align="right" valign="top"><a id="afce6e82b3f3722429bb90f45c261d372"></a>
-KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_command_list_set_texture_addressing</b> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit, kinc_g5_texture_direction_t dir, kinc_g5_texture_addressing_t addressing)</td></tr>
-<tr class="separator:afce6e82b3f3722429bb90f45c261d372"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6fd4ff57a66640ad03f057d1fae239cc"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a6fd4ff57a66640ad03f057d1fae239cc">kinc_g5_command_list_set_texture_magnification_filter</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> texunit, kinc_g5_texture_filter_t filter)</td></tr>
-<tr class="memdesc:a6fd4ff57a66640ad03f057d1fae239cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the texture-sampling-mode for upscaled textures.  <a href="commandlist_8h.html#a6fd4ff57a66640ad03f057d1fae239cc">More...</a><br /></td></tr>
-<tr class="separator:a6fd4ff57a66640ad03f057d1fae239cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a02854b5688dc56af44e946707704fc65"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a02854b5688dc56af44e946707704fc65">kinc_g5_command_list_set_texture_minification_filter</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> texunit, kinc_g5_texture_filter_t filter)</td></tr>
-<tr class="memdesc:a02854b5688dc56af44e946707704fc65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the texture-sampling-mode for downscaled textures.  <a href="commandlist_8h.html#a02854b5688dc56af44e946707704fc65">More...</a><br /></td></tr>
-<tr class="separator:a02854b5688dc56af44e946707704fc65"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15a6a6fba4a3f30c93da20088707e796"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a15a6a6fba4a3f30c93da20088707e796">kinc_g5_command_list_set_texture_mipmap_filter</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> texunit, kinc_g5_mipmap_filter_t filter)</td></tr>
-<tr class="memdesc:a15a6a6fba4a3f30c93da20088707e796"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the mipmap-sampling-mode which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly interoplated.  <a href="commandlist_8h.html#a15a6a6fba4a3f30c93da20088707e796">More...</a><br /></td></tr>
-<tr class="separator:a15a6a6fba4a3f30c93da20088707e796"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a0762bb0a63d593ebd9e5d232970123"><td class="memItemLeft" align="right" valign="top"><a id="a0a0762bb0a63d593ebd9e5d232970123"></a>
+KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_command_list_set_sampler</b> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit, <a class="el" href="structkinc__g5__sampler.html">kinc_g5_sampler_t</a> *sampler)</td></tr>
+<tr class="separator:a0a0762bb0a63d593ebd9e5d232970123"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5a03a6604f1d153f41407885d7f6170"><td class="memItemLeft" align="right" valign="top"><a id="af5a03a6604f1d153f41407885d7f6170"></a>
 KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_command_list_init_occlusion_query</b> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, unsigned *occlusionQuery)</td></tr>
 <tr class="separator:af5a03a6604f1d153f41407885d7f6170"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1281,135 +1236,6 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
     <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
     <tr><td class="paramname">unit</td><td>The texture-unit to assign the render-target to</td></tr>
     <tr><td class="paramname">target</td><td>The render-target to use</td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a6fd4ff57a66640ad03f057d1fae239cc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6fd4ff57a66640ad03f057d1fae239cc">&#9670;&nbsp;</a></span>kinc_g5_command_list_set_texture_magnification_filter()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g5_command_list_set_texture_magnification_filter </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
-          <td class="paramname"><em>list</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a>&#160;</td>
-          <td class="paramname"><em>texunit</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">kinc_g5_texture_filter_t&#160;</td>
-          <td class="paramname"><em>filter</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set the texture-sampling-mode for upscaled textures. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">unit</td><td>The texture-unit to set the texture-sampling-mode for</td></tr>
-    <tr><td class="paramname">filter</td><td>The mode to set</td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a02854b5688dc56af44e946707704fc65"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a02854b5688dc56af44e946707704fc65">&#9670;&nbsp;</a></span>kinc_g5_command_list_set_texture_minification_filter()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g5_command_list_set_texture_minification_filter </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
-          <td class="paramname"><em>list</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a>&#160;</td>
-          <td class="paramname"><em>texunit</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">kinc_g5_texture_filter_t&#160;</td>
-          <td class="paramname"><em>filter</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set the texture-sampling-mode for downscaled textures. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">unit</td><td>The texture-unit to set the texture-sampling-mode for</td></tr>
-    <tr><td class="paramname">filter</td><td>The mode to set</td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a15a6a6fba4a3f30c93da20088707e796"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a15a6a6fba4a3f30c93da20088707e796">&#9670;&nbsp;</a></span>kinc_g5_command_list_set_texture_mipmap_filter()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g5_command_list_set_texture_mipmap_filter </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
-          <td class="paramname"><em>list</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a>&#160;</td>
-          <td class="paramname"><em>texunit</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">kinc_g5_mipmap_filter_t&#160;</td>
-          <td class="paramname"><em>filter</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets the mipmap-sampling-mode which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly interoplated. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">unit</td><td>The texture-unit to set the mipmap-sampling-mode for</td></tr>
-    <tr><td class="paramname">filter</td><td>The mode to set</td></tr>
   </table>
   </dd>
 </dl>
