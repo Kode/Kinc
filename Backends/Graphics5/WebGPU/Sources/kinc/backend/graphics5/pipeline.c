@@ -217,7 +217,3 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	rpDesc.primitive = rsDesc;
 	pipe->impl.pipeline = wgpuDeviceCreateRenderPipeline(device, &rpDesc);
 }
-
-bool kinc_g5_texture_unit_equals(kinc_g5_texture_unit_t *unit1, kinc_g5_texture_unit_t *unit2) {
-	return true;
-}

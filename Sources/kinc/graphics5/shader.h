@@ -2,12 +2,6 @@
 
 #include <kinc/global.h>
 
-#include "texture.h"
-#include "vertexstructure.h"
-
-#include <kinc/math/matrix.h>
-
-#include <kinc/backend/graphics5/pipeline.h>
 #include <kinc/backend/graphics5/shader.h>
 
 /*! \file shader.h
