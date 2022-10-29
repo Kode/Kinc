@@ -374,30 +374,34 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 }
 
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0 && unit.stages[KINC_G4_SHADER_TYPE_VERTEX] < 0)
 		return;
+
 	if (renderTarget->impl.textureSample != renderTarget->impl.textureRender) {
 		dx_ctx.context->lpVtbl->ResolveSubresource(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureSample, 0,
 		                                           (ID3D11Resource *)renderTarget->impl.textureRender, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
-	if (unit.impl.vertex) {
-		dx_ctx.context->lpVtbl->VSSetShaderResources(
-		    dx_ctx.context, unit.impl.unit, 1, renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
+
+	if (unit.stages[KINC_G4_SHADER_TYPE_VERTEX] >= 0) {
+		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_VERTEX], 1,
+		                                             renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV
+		                                                                             : &renderTarget->impl.renderTargetSRV);
 	}
-	else {
-		dx_ctx.context->lpVtbl->PSSetShaderResources(
-		    dx_ctx.context, unit.impl.unit, 1, renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
+
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] >= 0) {
+		dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1,
+		                                             renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV
+		                                                                             : &renderTarget->impl.renderTargetSRV);
 	}
 }
 
 void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
-	if (unit.impl.unit < 0)
-		return;
-	if (unit.impl.vertex) {
-		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
+	if (unit.stages[KINC_G4_SHADER_TYPE_VERTEX] >= 0) {
+		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_VERTEX], 1, &renderTarget->impl.depthStencilSRV);
 	}
-	else {
-		dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &renderTarget->impl.depthStencilSRV);
+
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] >= 0) {
+		dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &renderTarget->impl.depthStencilSRV);
 	}
 }
 
@@ -438,11 +442,12 @@ void kinc_g4_render_target_get_pixels(kinc_g4_render_target_t *renderTarget, uin
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	dx_ctx.context->lpVtbl->Map(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0, D3D11_MAP_READ, 0, &mappedResource);
-	int size;	
-	if(mappedResource.RowPitch != 0) {
+	int size;
+	if (mappedResource.RowPitch != 0) {
 		size = mappedResource.RowPitch * renderTarget->texHeight;
-	} else {
-		size = renderTarget->texWidth * renderTarget->texHeight * formatRenderTargetByteSize((kinc_g4_render_target_format_t)renderTarget->impl.format);	
+	}
+	else {
+		size = renderTarget->texWidth * renderTarget->texHeight * formatRenderTargetByteSize((kinc_g4_render_target_format_t)renderTarget->impl.format);
 	}
 	memcpy(data, mappedResource.pData, size);
 	dx_ctx.context->lpVtbl->Unmap(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureStaging, 0);

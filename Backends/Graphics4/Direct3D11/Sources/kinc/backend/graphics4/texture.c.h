@@ -208,21 +208,25 @@ void kinc_internal_texture_unmipmap(kinc_g4_texture_t *texture) {
 }
 
 void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0 && unit.stages[KINC_G4_SHADER_TYPE_VERTEX] < 0)
 		return;
-	if (unit.impl.vertex) {
-		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &texture->impl.view);
+
+	if (unit.stages[KINC_G4_SHADER_TYPE_VERTEX >= 0]) {
+		dx_ctx.context->lpVtbl->VSSetShaderResources(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_VERTEX], 1, &texture->impl.view);
 	}
-	else {
-		dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &texture->impl.view);
+
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] >= 0) {
+		dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &texture->impl.view);
 	}
-	texture->impl.stage = unit.impl.unit;
+
+	texture->impl.stage = unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] >= 0 ? unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] : unit.stages[KINC_G4_SHADER_TYPE_VERTEX];
 	setTextures[texture->impl.stage] = texture;
 }
 
 void kinc_internal_texture_set_image(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
+
 	if (texture->impl.computeView == NULL) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC du;
 		du.Format = texture->format == KINC_IMAGE_FORMAT_RGBA32 ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8_UNORM;
@@ -233,7 +237,8 @@ void kinc_internal_texture_set_image(kinc_g4_texture_t *texture, kinc_g4_texture
 		kinc_microsoft_affirm(
 		    dx_ctx.device->lpVtbl->CreateUnorderedAccessView(dx_ctx.device, (ID3D11Resource *)texture->impl.texture3D, &du, &texture->impl.computeView));
 	}
-	dx_ctx.context->lpVtbl->OMSetRenderTargetsAndUnorderedAccessViews(dx_ctx.context, 0, NULL, NULL, unit.impl.unit, 1, &texture->impl.computeView, NULL);
+	dx_ctx.context->lpVtbl->OMSetRenderTargetsAndUnorderedAccessViews(dx_ctx.context, 0, NULL, NULL, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1,
+	                                                                  &texture->impl.computeView, NULL);
 }
 
 void kinc_internal_texture_unset(kinc_g4_texture_t *texture) {

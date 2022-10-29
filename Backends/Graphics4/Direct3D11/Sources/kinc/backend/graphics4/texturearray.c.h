@@ -30,9 +30,10 @@ void kinc_g4_texture_array_init(kinc_g4_texture_array_t *array, kinc_image_t *te
 void kinc_g4_texture_array_destroy(kinc_g4_texture_array_t *array) {}
 
 void kinc_internal_texture_array_set(kinc_g4_texture_array_t *array, kinc_g4_texture_unit_t unit) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
-	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.impl.unit, 1, &array->impl.view);
+
+	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &array->impl.view);
 	// this->stage = unit.unit;
 	// setTextures[stage] = this;
 }

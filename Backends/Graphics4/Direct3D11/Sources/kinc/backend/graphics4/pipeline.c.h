@@ -325,32 +325,20 @@ kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(struct kinc_g4_pipeline
 	uint32_t hash = kinc_internal_hash_name((unsigned char *)unitName);
 
 	kinc_g4_texture_unit_t unit;
+	for (int i = 0; i < KINC_G4_SHADER_TYPE_COUNT; ++i) {
+		unit.stages[i] = -1;
+	}
+
+	kinc_internal_hash_index_t *fragmentUnit = findTextureUnit(state->fragment_shader->impl.textures, hash);
+	if (fragmentUnit != NULL) {
+		unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] = fragmentUnit->index + unitOffset;
+	}
+
 	kinc_internal_hash_index_t *vertexUnit = findTextureUnit(state->vertex_shader->impl.textures, hash);
-	if (vertexUnit == NULL) {
-		kinc_internal_hash_index_t *fragmentUnit = findTextureUnit(state->fragment_shader->impl.textures, hash);
-		if (fragmentUnit == NULL) {
-			unit.impl.unit = -1;
-#ifndef NDEBUG
-			static int notFoundCount = 0;
-			if (notFoundCount < 10) {
-				kinc_log(KINC_LOG_LEVEL_WARNING, "Sampler %s not found.", unitName);
-				++notFoundCount;
-			}
-			else if (notFoundCount == 10) {
-				kinc_log(KINC_LOG_LEVEL_WARNING, "Giving up on sampler not found messages.", unitName);
-				++notFoundCount;
-			}
-#endif
-		}
-		else {
-			unit.impl.unit = fragmentUnit->index + unitOffset;
-			unit.impl.vertex = false;
-		}
+	if (vertexUnit != NULL) {
+		unit.stages[KINC_G4_SHADER_TYPE_VERTEX] = vertexUnit->index + unitOffset;
 	}
-	else {
-		unit.impl.unit = vertexUnit->index + unitOffset;
-		unit.impl.vertex = true;
-	}
+
 	return unit;
 }
 

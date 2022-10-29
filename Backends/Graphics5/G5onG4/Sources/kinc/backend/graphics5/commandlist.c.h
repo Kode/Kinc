@@ -5,6 +5,9 @@
 
 #include <kinc/graphics4/graphics.h>
 
+#include <assert.h>
+#include <string.h>
+
 #ifdef KORE_MICROSOFT
 #include <malloc.h>
 #endif
@@ -190,7 +193,10 @@ void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
 */
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	kinc_g4_set_texture(unit.impl.unit, &texture->impl.texture);
+	assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
+	kinc_g4_texture_unit_t g4_unit;
+	memcpy(&g4_unit.stages[0], &unit.stages[0], KINC_G4_SHADER_TYPE_COUNT * sizeof(int));
+	kinc_g4_set_texture(g4_unit, &texture->impl.texture);
 }
 
 void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {}

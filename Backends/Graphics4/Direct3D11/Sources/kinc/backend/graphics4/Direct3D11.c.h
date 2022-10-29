@@ -402,24 +402,24 @@ static D3D11_TEXTURE_ADDRESS_MODE convertAddressing(kinc_g4_texture_addressing_t
 }
 
 void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
-	if (unit.impl.unit < 0) {
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0) {
 		return;
 	}
 
 	switch (dir) {
 	case KINC_G4_TEXTURE_DIRECTION_U:
-		lastSamplers[unit.impl.unit].AddressU = convertAddressing(addressing);
+		lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].AddressU = convertAddressing(addressing);
 		break;
 	case KINC_G4_TEXTURE_DIRECTION_V:
-		lastSamplers[unit.impl.unit].AddressV = convertAddressing(addressing);
+		lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].AddressV = convertAddressing(addressing);
 		break;
 	case KINC_G4_TEXTURE_DIRECTION_W:
-		lastSamplers[unit.impl.unit].AddressW = convertAddressing(addressing);
+		lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].AddressW = convertAddressing(addressing);
 		break;
 	}
 
-	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]]);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
@@ -826,14 +826,14 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	switch (filter) {
 	case KINC_G4_TEXTURE_FILTER_POINT:
-		switch (lastSamplers[unit.impl.unit].Filter) {
+		switch (lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 			break;
@@ -854,7 +854,7 @@ void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_
 		}
 		break;
 	case KINC_G4_TEXTURE_FILTER_LINEAR:
-		switch (lastSamplers[unit.impl.unit].Filter) {
+		switch (lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
 			d3d11filter = D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
@@ -878,11 +878,11 @@ void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_
 		break;
 	}
 
-	lastSamplers[unit.impl.unit].Filter = d3d11filter;
-	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter = d3d11filter;
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]]);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -890,14 +890,14 @@ void kinc_g4_set_texture3d_magnification_filter(kinc_g4_texture_unit_t texunit, 
 }
 
 void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	switch (filter) {
 	case KINC_G4_TEXTURE_FILTER_POINT:
-		switch (lastSamplers[unit.impl.unit].Filter) {
+		switch (lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
 			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -918,7 +918,7 @@ void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g
 		}
 		break;
 	case KINC_G4_TEXTURE_FILTER_LINEAR:
-		switch (lastSamplers[unit.impl.unit].Filter) {
+		switch (lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT:
 			d3d11filter = D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
@@ -943,11 +943,11 @@ void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g
 		break;
 	}
 
-	lastSamplers[unit.impl.unit].Filter = d3d11filter;
-	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter = d3d11filter;
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]]);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter) {
@@ -955,7 +955,7 @@ void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, k
 }
 
 void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 
 	D3D11_FILTER d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -963,7 +963,7 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipm
 	switch (filter) {
 	case KINC_G4_MIPMAP_FILTER_NONE:
 	case KINC_G4_MIPMAP_FILTER_POINT:
-		switch (lastSamplers[unit.impl.unit].Filter) {
+		switch (lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
 			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -986,7 +986,7 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipm
 		}
 		break;
 	case KINC_G4_MIPMAP_FILTER_LINEAR:
-		switch (lastSamplers[unit.impl.unit].Filter) {
+		switch (lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter) {
 		case D3D11_FILTER_MIN_MAG_MIP_POINT:
 		case D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR:
 			d3d11filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
@@ -1010,11 +1010,11 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipm
 		break;
 	}
 
-	lastSamplers[unit.impl.unit].Filter = d3d11filter;
-	lastSamplers[unit.impl.unit].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter = d3d11filter;
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].MaxAnisotropy = d3d11filter == D3D11_FILTER_ANISOTROPIC ? D3D11_REQ_MAXANISOTROPY : 0;
 
-	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]]);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &sampler);
 }
 
 void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4_mipmap_filter_t filter) {
@@ -1022,29 +1022,29 @@ void kinc_g4_set_texture3d_mipmap_filter(kinc_g4_texture_unit_t texunit, kinc_g4
 }
 
 void kinc_g4_set_texture_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 
 	if (enabled) {
-		lastSamplers[unit.impl.unit].ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-		lastSamplers[unit.impl.unit].Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+		lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+		lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 	}
 	else {
-		lastSamplers[unit.impl.unit].ComparisonFunc = D3D11_COMPARISON_NEVER;
+		lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].ComparisonFunc = D3D11_COMPARISON_NEVER;
 	}
 
-	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]]);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &sampler);
 }
 
 void kinc_g4_set_texture_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compare_mode_t mode) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
 
-	lastSamplers[unit.impl.unit].ComparisonFunc = get_comparison(mode);
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].ComparisonFunc = get_comparison(mode);
 
-	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]]);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &sampler);
 }
 
 void kinc_g4_set_cubemap_compare_mode(kinc_g4_texture_unit_t unit, bool enabled) {
@@ -1056,12 +1056,13 @@ void kinc_g4_set_cubemap_compare_func(kinc_g4_texture_unit_t unit, kinc_g4_compa
 }
 
 void kinc_g4_set_texture_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
-	lastSamplers[unit.impl.unit].MaxAnisotropy = max_anisotropy;
 
-	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].MaxAnisotropy = max_anisotropy;
+
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]]);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &sampler);
 }
 
 void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t max_anisotropy) {
@@ -1069,13 +1070,14 @@ void kinc_g4_set_cubemap_max_anisotropy(kinc_g4_texture_unit_t unit, uint16_t ma
 }
 
 void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {
-	if (unit.impl.unit < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)
 		return;
-	lastSamplers[unit.impl.unit].MinLOD = lod_min_clamp;
-	lastSamplers[unit.impl.unit].MaxLOD = lod_max_clamp;
 
-	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.impl.unit]);
-	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.impl.unit, 1, &sampler);
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].MinLOD = lod_min_clamp;
+	lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]].MaxLOD = lod_max_clamp;
+
+	ID3D11SamplerState *sampler = getSamplerState(&lastSamplers[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]]);
+	dx_ctx.context->lpVtbl->PSSetSamplers(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &sampler);
 }
 
 void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {

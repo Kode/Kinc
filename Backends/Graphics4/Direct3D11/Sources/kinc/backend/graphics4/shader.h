@@ -51,11 +51,6 @@ typedef struct {
 	uint8_t tessControlRows;
 } kinc_g4_constant_location_impl_t;
 
-typedef struct {
-	int unit;
-	bool vertex;
-} kinc_g4_texture_unit_impl_t;
-
 #ifdef __cplusplus
 }
 #endif
