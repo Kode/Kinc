@@ -151,6 +151,10 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(struct kinc_g
 
 kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipe, const char *name) {
 	kinc_g5_texture_unit_t unit;
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		unit.stages[i] = -1;
+	}
+
 	ShaderTexture vertexTexture = findTexture(pipe->vertexShader, name);
 	if (vertexTexture.texture != -1) {
 		unit.stages[KINC_G5_SHADER_TYPE_VERTEX] = vertexTexture.texture;
