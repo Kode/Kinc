@@ -103,7 +103,7 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
 		samplerGpu.ptr += heapIndex * samplerStep;
 
 		for (int i = 0; i < textureCount; ++i) {
-			if (currentRenderTargets[i] != NULL || currentTextures[i] != NULL && current_samplers[i] != NULL) {
+			if ((currentRenderTargets[i] != NULL || currentTextures[i] != NULL) && current_samplers[i] != NULL) {
 				ID3D12DescriptorHeap *samplerDescriptorHeap = current_samplers[i]->impl.sampler_heap;
 
 				D3D12_CPU_DESCRIPTOR_HANDLE srvCpu = srvHeap->GetCPUDescriptorHandleForHeapStart();
