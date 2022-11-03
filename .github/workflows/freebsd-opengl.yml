@@ -20,7 +20,7 @@ jobs:
       run: git submodule update --init Tools/freebsd_x64
     - name: Compile in FreeBSD VM
       id: build
-      uses: vmactions/freebsd-vm@v0.2.0
+      uses: vmactions/freebsd-vm@v0
       with:
         usesh: true
         copyback: false
