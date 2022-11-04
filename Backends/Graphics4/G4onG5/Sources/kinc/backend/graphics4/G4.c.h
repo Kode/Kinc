@@ -116,6 +116,13 @@ void kinc_g4_on_g5_internal_resize(int window, int width, int height) {
 	windows[window].resized = true;
 }
 
+void kinc_g4_on_g5_internal_restore_render_target() {
+	windows[current_window].current_render_targets[0] = NULL;
+	kinc_g5_render_target_t *render_target = &windows[current_window].framebuffers[windows[current_window].currentBuffer];
+	kinc_g5_command_list_set_render_targets(&commandList, &render_target, 1);
+	windows[current_window].current_render_target_count = 1;
+}
+
 void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	kinc_g5_internal_init_window(window, depthBufferBits, stencilBufferBits, vsync);
 
@@ -166,7 +173,7 @@ static void endDraw() {
 		kinc_g5_command_list_wait_for_execution_to_finish(&commandList);
 		kinc_g5_command_list_begin(&commandList);
 		if (windows[current_window].current_render_targets[0] == NULL) {
-			kinc_g4_restore_render_target();
+			kinc_g4_on_g5_internal_restore_render_target();
 		}
 		else {
 			const int count = windows[current_window].current_render_target_count;
@@ -554,10 +561,9 @@ void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, f
 void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {}
 
 void kinc_g4_restore_render_target() {
-	windows[current_window].current_render_targets[0] = NULL;
-	kinc_g5_render_target_t *render_target = &windows[current_window].framebuffers[windows[current_window].currentBuffer];
-	kinc_g5_command_list_set_render_targets(&commandList, &render_target, 1);
-	windows[current_window].current_render_target_count = 1;
+	kinc_g4_on_g5_internal_restore_render_target();
+	current_state.viewport_set = false;
+	current_state.scissor_set = false;
 }
 
 void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
@@ -575,10 +581,14 @@ void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
 		render_targets[i] = &targets[i]->impl._renderTarget;
 	}
 	kinc_g5_command_list_set_render_targets(&commandList, render_targets, count);
+	current_state.viewport_set = false;
+	current_state.scissor_set = false;
 }
 
 void kinc_g4_set_render_target_face(kinc_g4_render_target_t *texture, int face) {
 	kinc_g5_command_list_set_render_target_face(&commandList, &texture->impl._renderTarget, face);
+	current_state.viewport_set = false;
+	current_state.scissor_set = false;
 }
 
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
