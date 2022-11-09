@@ -139,6 +139,22 @@ void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBu
 	kinc_g5_command_list_begin(&commandList);
 }
 
+void kinc_g4_on_g5_internal_set_samplers(int count, kinc_g5_texture_unit_t *texture_units) {
+	for (int i = 0; i < count; ++i) {
+		for (int j = 0; j < KINC_G5_SHADER_TYPE_COUNT; ++j) {
+			if (texture_units[i].stages[j] >= 0) {
+				kinc_g5_sampler_t *sampler = get_current_sampler(j, texture_units[i].stages[j]);
+				kinc_g5_texture_unit_t unit;
+				for (int k = 0; k < KINC_G5_SHADER_TYPE_COUNT; ++k) {
+					unit.stages[k] = -1;
+				}
+				unit.stages[j] = texture_units[i].stages[j];
+				kinc_g5_command_list_set_sampler(&commandList, unit, sampler);
+			}
+		}
+	}
+}
+
 static void startDraw() {
 	if ((constantBufferIndex + 1) >= constantBufferMultiply || waitAfterNextDraw) {
 		memcpy(current_state.vertex_constant_data, vertexConstantBuffer.data, constantBufferSize);
@@ -147,19 +163,9 @@ static void startDraw() {
 	kinc_g5_constant_buffer_unlock(&vertexConstantBuffer);
 	kinc_g5_constant_buffer_unlock(&fragmentConstantBuffer);
 
-	for (int i = 0; i < current_state.texture_count; ++i) {
-		for (int j = 0; j < KINC_G5_SHADER_TYPE_COUNT; ++j) {
-			if (current_state.texture_units[i].stages[j] >= 0) {
-				kinc_g5_sampler_t *sampler = get_current_sampler(j, current_state.texture_units[i].stages[j]);
-				kinc_g5_texture_unit_t unit;
-				for (int k = 0; k < KINC_G5_SHADER_TYPE_COUNT; ++k) {
-					unit.stages[k] = -1;
-				}
-				unit.stages[j] = current_state.texture_units[i].stages[j];
-				kinc_g5_command_list_set_sampler(&commandList, unit, sampler);
-			}
-		}
-	}
+	kinc_g4_on_g5_internal_set_samplers(current_state.texture_count, current_state.texture_units);
+	kinc_g4_on_g5_internal_set_samplers(current_state.render_target_count, current_state.render_target_units);
+	kinc_g4_on_g5_internal_set_samplers(current_state.depth_render_target_count, current_state.depth_render_target_units);
 
 	kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 	kinc_g5_command_list_set_fragment_constant_buffer(&commandList, &fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
