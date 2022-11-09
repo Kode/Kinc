@@ -248,7 +248,12 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 		kinc_g5_internal_pipeline_set(lastPipeline);
 }
 
-void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {}
+void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {
+	id<MTLCommandQueue> commandQueue = getMetalQueue();
+	id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+	[commandBuffer commit];
+	[commandBuffer waitUntilCompleted];
+}
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	id<MTLBuffer> buf = (__bridge id<MTLBuffer>)buffer->impl._buffer;
