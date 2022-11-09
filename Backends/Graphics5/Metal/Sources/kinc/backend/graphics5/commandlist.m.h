@@ -331,9 +331,9 @@ void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_l
 void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	id<MTLSamplerState> mtl_sampler = (__bridge id<MTLSamplerState>)sampler->impl.sampler;
-	
+
 	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
-		[encoder setFragmentSamplerState:mtl_sampler atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
+		[encoder setVertexSamplerState:mtl_sampler atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
 	}
 	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
 		[encoder setFragmentSamplerState:mtl_sampler atIndex:unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]];
