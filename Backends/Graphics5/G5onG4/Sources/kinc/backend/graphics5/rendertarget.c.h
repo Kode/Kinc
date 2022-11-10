@@ -6,7 +6,7 @@ void kinc_g5_render_target_init_with_multisampling(kinc_g5_render_target_t *rend
                                                    int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
 	renderTarget->texWidth = renderTarget->width = width;
 	renderTarget->texHeight = renderTarget->height = height;
-    renderTarget->framebuffer_index = -1;
+	renderTarget->framebuffer_index = -1;
 	kinc_g4_render_target_init_with_multisampling(&renderTarget->impl.target, width, height, (kinc_g4_render_target_format_t)format, depthBufferBits,
 	                                              stencilBufferBits, samples_per_pixel);
 }
@@ -14,9 +14,9 @@ void kinc_g5_render_target_init_with_multisampling(kinc_g5_render_target_t *rend
 void kinc_g5_render_target_init_framebuffer_with_multisampling(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format,
                                                                int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
 	target->framebuffer_index = 0;
-    target->width = target->texWidth = width;
-    target->height = target->texHeight = height;
-                                                               }
+	target->width = target->texWidth = width;
+	target->height = target->texHeight = height;
+}
 
 void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t *target, int cubeMapSize, kinc_g5_render_target_format_t format,
                                                         int depthBufferBits, int stencilBufferBits, int samples_per_pixel) {
@@ -24,20 +24,12 @@ void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t 
 	target->texHeight = target->height = cubeMapSize;
 	target->isCubeMap = true;
 	target->framebuffer_index = -1;
-	kinc_g4_render_target_init_cube_with_multisampling(&target->impl.target, cubeMapSize, (kinc_g4_render_target_format_t)format, depthBufferBits, stencilBufferBits,
-	                                                   samples_per_pixel);
+	kinc_g4_render_target_init_cube_with_multisampling(&target->impl.target, cubeMapSize, (kinc_g4_render_target_format_t)format, depthBufferBits,
+	                                                   stencilBufferBits, samples_per_pixel);
 }
 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *renderTarget) {
 	kinc_g4_render_target_destroy(&renderTarget->impl.target);
-}
-
-void kinc_g5_render_target_use_color_as_texture(kinc_g5_render_target_t *renderTarget, kinc_g5_texture_unit_t unit) {
-	kinc_g4_render_target_use_color_as_texture(&renderTarget->impl.target, unit.impl.unit);
-}
-
-void kinc_g5_render_target_use_depth_as_texture(kinc_g5_render_target_t *renderTarget, kinc_g5_texture_unit_t unit) {
-	kinc_g4_render_target_use_depth_as_texture(&renderTarget->impl.target, unit.impl.unit);
 }
 
 void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *renderTarget, kinc_g5_render_target_t *source) {

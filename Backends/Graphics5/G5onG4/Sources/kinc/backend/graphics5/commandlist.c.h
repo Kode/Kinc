@@ -40,12 +40,11 @@ typedef enum command {
 	SetRenderTargets,
 	SetRenderTargetFace,
 	DrawInstanced,
+	SetSampler,
 	SetTexture,
-	SetTextureAdressing,
-	SetTextureMagnificationFilter,
-	SetTextureMinificationFilter,
-	SetTextureMipmapFilter,
 	SetImageTexture,
+	SetTextureFromRenderTarget,
+	SetTextureFromRenderTargetDepth,
 	SetVertexConstantBuffer,
 	SetFragmentConstantBuffer,
 	SetBlendConstant,
@@ -240,7 +239,7 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 			int first_framebuffer_index = -1;
 			for (int i = 0; i < count; ++i) {
 				READ(kinc_g5_render_target_t *, buffer);
-				if(i == 0) {
+				if (i == 0) {
 					first_framebuffer_index = buffer->framebuffer_index;
 				}
 				buffers[i] = &buffer->impl.target;
@@ -269,45 +268,37 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 			kinc_g4_draw_indexed_vertices_instanced_from_to(instanceCount, start, count);
 			break;
 		}
+		case SetSampler: {
+			assert(false);
+			// TODO
+			break;
+		}
 		case SetTexture: {
 			READ(kinc_g5_texture_unit_t, unit);
 			READ(kinc_g5_texture_t *, texture);
-			kinc_g4_set_texture(unit.impl.unit, &texture->impl.texture);
-			break;
-		}
-		case SetTextureAdressing: {
-			READ(kinc_g5_texture_unit_t, unit);
-			READ(kinc_g5_texture_direction_t, dir);
-			READ(kinc_g5_texture_addressing_t, addressing);
-			// assume for now that g5 and g4 match for the texture addressing and direction enums
-			kinc_g4_set_texture_addressing(unit.impl.unit, (kinc_g4_texture_direction_t)dir, (kinc_g4_texture_addressing_t)addressing);
-			break;
-		}
-		case SetTextureMagnificationFilter: {
-			READ(kinc_g5_texture_unit_t, unit);
-			READ(kinc_g5_texture_filter_t, filter);
-			// the G5 filters should be the same as the G4 filters
-			kinc_g4_set_texture_magnification_filter(unit.impl.unit, (kinc_g4_texture_filter_t)filter);
-			break;
-		}
-		case SetTextureMinificationFilter: {
-			READ(kinc_g5_texture_unit_t, unit);
-			READ(kinc_g5_texture_filter_t, filter);
-			// the G5 filters should be the same as the G4 filters
-			kinc_g4_set_texture_minification_filter(unit.impl.unit, (kinc_g4_texture_filter_t)filter);
-			break;
-		}
-		case SetTextureMipmapFilter: {
-			READ(kinc_g5_texture_unit_t, unit);
-			READ(kinc_g5_texture_filter_t, filter);
-			// the G5 filters should be the same as the G4 filters
-			kinc_g4_set_texture_mipmap_filter(unit.impl.unit, (kinc_g4_mipmap_filter_t)filter);
+			assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
+			kinc_g4_texture_unit_t g4_unit;
+			memcpy(&g4_unit.stages[0], &unit.stages[0], KINC_G4_SHADER_TYPE_COUNT * sizeof(int));
+			kinc_g4_set_texture(g4_unit, &texture->impl.texture);
 			break;
 		}
 		case SetImageTexture: {
 			READ(kinc_g5_texture_unit_t, unit);
 			READ(kinc_g5_texture_t *, texture);
-			kinc_g4_set_image_texture(unit.impl.unit, &texture->impl.texture);
+			assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
+			kinc_g4_texture_unit_t g4_unit;
+			memcpy(&g4_unit.stages[0], &unit.stages[0], KINC_G4_SHADER_TYPE_COUNT * sizeof(int));
+			kinc_g4_set_image_texture(g4_unit, &texture->impl.texture);
+			break;
+		}
+		case SetTextureFromRenderTarget: {
+			assert(false);
+			// TODO
+			break;
+		}
+		case SetTextureFromRenderTargetDepth: {
+			assert(false);
+			// TODO
 			break;
 		}
 		case SetVertexConstantBuffer: {
@@ -357,32 +348,6 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	kinc_log(KINC_LOG_LEVEL_ERROR, "kinc_g5_command_list_get_render_target_pixels not implemented");
 }
 
-void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
-                                                 kinc_g5_texture_addressing_t addressing) {
-	WRITE(command_t, SetTextureAdressing);
-	WRITE(kinc_g5_texture_unit_t, unit);
-	WRITE(kinc_g5_texture_direction_t, dir);
-	WRITE(kinc_g5_texture_addressing_t, addressing);
-}
-
-void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
-	WRITE(command_t, SetTextureMagnificationFilter);
-	WRITE(kinc_g5_texture_unit_t, texunit);
-	WRITE(kinc_g5_texture_filter_t, filter);
-}
-
-void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
-	WRITE(command_t, SetTextureMinificationFilter);
-	WRITE(kinc_g5_texture_unit_t, texunit);
-	WRITE(kinc_g5_texture_filter_t, filter);
-}
-
-void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {
-	WRITE(command_t, SetTextureMipmapFilter);
-	WRITE(kinc_g5_texture_unit_t, texunit);
-	WRITE(kinc_g5_mipmap_filter_t, filter);
-}
-
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {
 	WRITE(command_t, SetRenderTargetFace);
 	WRITE(kinc_g5_render_target_t *, texture);
@@ -395,18 +360,20 @@ void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_text
 	WRITE(kinc_g5_texture_t *, texture);
 }
 
-void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {}
+void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
+	WRITE(command_t, SetSampler);
+}
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *render_target) {
-	// kinc_g4_render_target_use_color_as_texture(render_target->impl, unit.impl.unit);
+	WRITE(command_t, SetTextureFromRenderTarget);
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit,
                                                                kinc_g5_render_target_t *render_target) {
-	// kinc_g4_render_target_use_depth_as_texture(render_target->impl, unit.impl.unit);
+	WRITE(command_t, SetTextureFromRenderTargetDepth);
 }
 
-texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
+void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
 	WRITE(command_t, SetImageTexture);
 	WRITE(kinc_g5_texture_unit_t, unit);
 	WRITE(kinc_g5_texture_t *, texture);
