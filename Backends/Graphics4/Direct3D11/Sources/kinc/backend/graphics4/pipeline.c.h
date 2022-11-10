@@ -227,6 +227,33 @@ static kinc_internal_hash_index_t *findTextureUnit(kinc_internal_hash_index_t *u
 	return NULL;
 }
 
+void kinc_g4_pipeline_get_constant_locations(kinc_g4_pipeline_t *state, kinc_g4_constant_location_t *vertex_locations,
+                                             kinc_g4_constant_location_t *fragment_locations, int *vertex_sizes, int *fragment_sizes, int *max_vertex,
+                                             int *max_fragment) {
+
+	// *max_vertex = state->vertex_shader->impl.constantsSize;
+	// *max_fragment = state->fragment_shader->impl.constantsSize;
+	// if (vertex_locations != null && fragment_locations != null) {
+	// 	for (int i = 0; i < state->vertex_shader->impl.constantsSize; i++) {
+	// 		kinc_internal_shader_constant_t *constant = state->vertex_shader->impl.constants[i];
+	// 		vertex_location[i].impl.vertexOffset = constant->offset;
+	// 		vertex_location[i].impl.vertexSize = constant->size;
+	// 		vertex_location[i].impl.vertexColumns = constant->columns;
+	// 		vertex_location[i].impl.vertexRows = constant->rows;
+	// 		vertex_sizes[i] = constant->size;
+	// 	}
+
+	// 	for (int i = 0; i < state->fragment_shader->impl.constantsSize; i++) {
+	// 		kinc_internal_shader_constant_t *constant = state->fragment_shader->impl.constants[i];
+	// 		fragment_location[i].impl.vertexOffset = constant->offset;
+	// 		fragment_location[i].impl.vertexSize = constant->size;
+	// 		fragment_location[i].impl.vertexColumns = constant->columns;
+	// 		fragment_location[i].impl.vertexRows = constant->rows;
+	// 		fragment_sizes[i] = constant->size;
+	// 	}
+	// }
+}
+
 kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(struct kinc_g4_pipeline *state, const char *name) {
 	kinc_g4_constant_location_t location;
 

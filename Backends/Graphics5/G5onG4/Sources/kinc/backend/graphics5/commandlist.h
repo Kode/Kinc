@@ -6,10 +6,12 @@ extern "C" {
 
 struct kinc_g5_pipeline;
 
+#define KINC_G5ONG4_COMMANDS_SIZE 1024
+
 typedef struct {
 	struct kinc_g5_pipeline *_currentPipeline;
 	int _indexCount;
-	int64_t commands[1024];
+	char commands[KINC_G5ONG4_COMMANDS_SIZE];
 	int commandIndex;
 	bool closed;
 } CommandList5Impl;

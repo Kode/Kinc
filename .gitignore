@@ -9,8 +9,9 @@
 *.vert
 *.frag
 *.comp
-**/Deployment/Empty
-**/Deployment/MultiWindow
+# Ignore deployment directories, but not the keepme files (order is important)
+**/Deployment/**
+!**/Deployment/keepme
 compile_commands.json
 .vscode/**
 **/Deployment/**
