@@ -1,9 +1,11 @@
+#include <kinc/graphics4/graphics.h>
 #include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/vertexbuffer.h>
 
-#include <kinc/graphics4/graphics.h>
+#include <kinc/log.h>
 
 #include <assert.h>
 #include <string.h>
@@ -12,7 +14,46 @@
 #include <malloc.h>
 #endif
 
-enum Commands { Clear, Draw, SetViewport, SetScissor, SetPipeline, SetVertexBuffer, SetIndexBuffer, SetRenderTarget, DrawInstanced };
+#define WRITE(type, value)                                                                                                                                     \
+	if (list->impl.commandIndex + sizeof(type) > KINC_G5ONG4_COMMANDS_SIZE) {                                                                                  \
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Trying to write too many commands to the command list.");                                                              \
+		return;                                                                                                                                                \
+	}                                                                                                                                                          \
+	*(type *)(&list->impl.commands[list->impl.commandIndex]) = value;                                                                                          \
+	list->impl.commandIndex += sizeof(type);
+#define READ(type, var)                                                                                                                                        \
+	if (index + sizeof(type) > KINC_G5ONG4_COMMANDS_SIZE) {                                                                                                    \
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Trying to read beyond the end of the command list?");                                                                  \
+		return;                                                                                                                                                \
+	}                                                                                                                                                          \
+	type var = *(type *)(&list->impl.commands[index]);                                                                                                         \
+	index += sizeof(type);
+
+typedef enum command {
+	Clear,
+	Draw,
+	SetViewport,
+	SetScissor,
+	SetPipeline,
+	SetVertexBuffers,
+	SetIndexBuffer,
+	SetRenderTargets,
+	SetRenderTargetFace,
+	DrawInstanced,
+	SetTexture,
+	SetTextureAdressing,
+	SetTextureMagnificationFilter,
+	SetTextureMinificationFilter,
+	SetTextureMipmapFilter,
+	SetImageTexture,
+	SetVertexConstantBuffer,
+	SetFragmentConstantBuffer,
+	SetBlendConstant,
+} command_t;
+
+void kinc_g4_pipeline_get_constant_locations(kinc_g4_pipeline_t *state, kinc_g4_constant_location_t *vertex_locations,
+                                             kinc_g4_constant_location_t *fragment_locations, int *vertex_sizes, int *fragment_sizes, int *max_vertex,
+                                             int *max_fragment);
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {}
 
@@ -22,75 +63,15 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	list->impl.commandIndex = 0;
 }
 
-void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
-	int index = 0;
-	while (index < list->impl.commandIndex) {
-		switch (list->impl.commands[index]) {
-		case Clear:
-			kinc_g4_clear((unsigned)list->impl.commands[index + 1], (unsigned)list->impl.commands[index + 2], 0.0f, 0);
-			index += 3;
-			break;
-		case Draw:
-			kinc_g4_draw_indexed_vertices_from_to((int)list->impl.commands[index + 1], (int)list->impl.commands[index + 2]);
-			index += 3;
-			break;
-		case SetViewport:
-			kinc_g4_viewport((int)list->impl.commands[index + 1], (int)list->impl.commands[index + 2], (int)list->impl.commands[index + 3],
-			                 (int)list->impl.commands[index + 4]);
-			index += 5;
-			break;
-		case SetScissor:
-			kinc_g4_scissor((int)list->impl.commands[index + 1], (int)list->impl.commands[index + 2], (int)list->impl.commands[index + 3],
-			                (int)list->impl.commands[index + 4]);
-			index += 5;
-			break;
-		case SetPipeline: {
-			kinc_g5_pipeline_t *pipeline = (kinc_g5_pipeline_t *)list->impl.commands[index + 1];
-			kinc_g4_set_pipeline(&pipeline->impl.pipe);
-			index += 2;
-			break;
-		}
-		case SetVertexBuffer: {
-			// kinc_g5_vertex_buffer_t *vb = (kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1];
-			int count = (int)list->impl.commands[index + 1];
-#ifdef KORE_MICROSOFT
-			kinc_g4_vertex_buffer_t **buffers = (kinc_g4_vertex_buffer_t **)alloca(sizeof(kinc_g4_vertex_buffer_t *) * count);
-#else
-			kinc_g4_vertex_buffer_t *buffers[count];
-#endif
-			for (int i = 0; i < count; ++i) {
-				buffers[i] = &(((kinc_g5_vertex_buffer_t *)list->impl.commands[index + 1 + i])->impl.buffer);
-			}
-			kinc_g4_set_vertex_buffers(buffers, count);
-			index += (2 + count);
-			break;
-		}
-		case SetIndexBuffer: {
-			kinc_g5_index_buffer_t *ib = (kinc_g5_index_buffer_t *)list->impl.commands[index + 1];
-			kinc_g4_set_index_buffer(&ib->impl.buffer);
-			index += 2;
-			break;
-		}
-		case SetRenderTarget:
-
-			index += 2;
-			break;
-		case DrawInstanced:
-			kinc_g4_draw_indexed_vertices_instanced_from_to((int)list->impl.commands[index + 1], (int)list->impl.commands[index + 2],
-			                                                (int)list->impl.commands[index + 3]);
-			index += 4;
-			break;
-		default:
-			return;
-		}
-	}
-}
+void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
                                 int stencil) {
-	list->impl.commands[list->impl.commandIndex++] = Clear;
-	list->impl.commands[list->impl.commandIndex++] = flags;
-	list->impl.commands[list->impl.commandIndex++] = color;
+	WRITE(command_t, Clear);
+	WRITE(unsigned, flags);
+	WRITE(unsigned, color);
+	WRITE(float, depth);
+	WRITE(int, stencil);
 }
 
 void kinc_g5_command_list_render_target_to_framebuffer_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
@@ -99,104 +80,319 @@ void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_
 void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
 
 void kinc_g5_command_list_draw_indexed_vertices(kinc_g5_command_list_t *list) {
-	list->impl.commands[list->impl.commandIndex++] = Draw;
-	list->impl.commands[list->impl.commandIndex++] = 0;
-	list->impl.commands[list->impl.commandIndex++] = list->impl._indexCount;
+	kinc_g5_command_list_draw_indexed_vertices_from_to(list, 0, list->impl._indexCount);
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *list, int start, int count) {
-	list->impl.commands[list->impl.commandIndex++] = Draw;
-	list->impl.commands[list->impl.commandIndex++] = start;
-	list->impl.commands[list->impl.commandIndex++] = count;
+	WRITE(command_t, Draw);
+	WRITE(int, start);
+	WRITE(int, count);
 }
 
 void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t *list, int instanceCount) {
-	list->impl.commands[list->impl.commandIndex++] = DrawInstanced;
-	list->impl.commands[list->impl.commandIndex++] = instanceCount;
-	list->impl.commands[list->impl.commandIndex++] = 0;
-	list->impl.commands[list->impl.commandIndex++] = list->impl._indexCount;
+	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(list, instanceCount, 0, list->impl._indexCount);
 }
 void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
-	list->impl.commands[list->impl.commandIndex++] = DrawInstanced;
-	list->impl.commands[list->impl.commandIndex++] = instanceCount;
-	list->impl.commands[list->impl.commandIndex++] = start;
-	list->impl.commands[list->impl.commandIndex++] = count;
+	WRITE(command_t, DrawInstanced);
+	WRITE(int, instanceCount);
+	WRITE(int, start);
+	WRITE(int, count);
 }
 
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
-	list->impl.commands[list->impl.commandIndex++] = SetViewport;
-	list->impl.commands[list->impl.commandIndex++] = x;
-	list->impl.commands[list->impl.commandIndex++] = y;
-	list->impl.commands[list->impl.commandIndex++] = width;
-	list->impl.commands[list->impl.commandIndex++] = height;
+	WRITE(command_t, SetViewport);
+	WRITE(int, x);
+	WRITE(int, y);
+	WRITE(int, width);
+	WRITE(int, height);
 }
 
 void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
-	list->impl.commands[list->impl.commandIndex++] = SetScissor;
-	list->impl.commands[list->impl.commandIndex++] = x;
-	list->impl.commands[list->impl.commandIndex++] = y;
-	list->impl.commands[list->impl.commandIndex++] = width;
-	list->impl.commands[list->impl.commandIndex++] = height;
+	WRITE(command_t, SetScissor);
+	WRITE(int, x);
+	WRITE(int, y);
+	WRITE(int, width);
+	WRITE(int, height);
 }
 
 void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {}
 
 void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc_g5_pipeline *pipeline) {
-	list->impl.commands[list->impl.commandIndex++] = SetPipeline;
-	list->impl.commands[list->impl.commandIndex++] = (int64_t)pipeline;
+	WRITE(command_t, SetPipeline);
+	WRITE(kinc_g5_pipeline_t *, pipeline);
 }
 
-void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {}
+void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
+	WRITE(command_t, SetBlendConstant);
+	WRITE(float, r);
+	WRITE(float, g);
+	WRITE(float, b);
+	WRITE(float, a);
+}
 
 void kinc_g5_command_list_set_vertex_buffers(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer **buffers, int *offsets, int count) {
-	list->impl.commands[list->impl.commandIndex++] = SetVertexBuffer;
-	list->impl.commands[list->impl.commandIndex++] = count;
+	WRITE(command_t, SetVertexBuffers);
+	WRITE(int, count);
 	for (int i = 0; i < count; ++i) {
-		list->impl.commands[list->impl.commandIndex++] = (int64_t)buffers[i];
-		// list->impl.commands[list->impl.commandIndex++] = (int64_t)offsets[i];
+		WRITE(kinc_g5_vertex_buffer_t *, buffers[i]);
+		if (offsets[i] != 0) {
+			kinc_log(KINC_LOG_LEVEL_ERROR, "kinc_g5_command_list_set_vertex_buffers: offsets not supported");
+		}
 	}
 }
 
 void kinc_g5_command_list_set_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer) {
-	list->impl.commands[list->impl.commandIndex++] = SetIndexBuffer;
-	list->impl.commands[list->impl.commandIndex++] = (int64_t)&buffer;
+	WRITE(command_t, SetIndexBuffer);
+	WRITE(kinc_g5_index_buffer_t *, buffer);
+	list->impl._indexCount = buffer->impl.myCount;
 }
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
-	list->impl.commands[list->impl.commandIndex++] = SetRenderTarget;
-	list->impl.commands[list->impl.commandIndex++] = (int64_t)targets[0];
+	WRITE(command_t, SetRenderTargets);
+	WRITE(int, count);
+	for (int i = 0; i < count; ++i) {
+		WRITE(kinc_g5_render_target_t *, targets[i]);
+	}
 }
 
 void kinc_g5_command_list_upload_index_buffer(kinc_g5_command_list_t *list, struct kinc_g5_index_buffer *buffer) {}
 void kinc_g5_command_list_upload_vertex_buffer(kinc_g5_command_list_t *list, struct kinc_g5_vertex_buffer *buffer) {}
 void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, struct kinc_g5_texture *texture) {}
-void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, kinc_g5_render_target_t *render_target, uint8_t *data) {}
 
-void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {}
-
-void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {}
-
-void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {}
-
-void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {}
-
-void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
-
-/*
-void Graphics5::setVertexBuffers(VertexBuffer** buffers, int count) {
-    buffers[0]->_set(0);
+void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
+	WRITE(command_t, SetVertexConstantBuffer);
+	WRITE(kinc_g5_constant_buffer_t *, buffer);
 }
 
-void Graphics5::setIndexBuffer(IndexBuffer& buffer) {
-    buffer._set();
+void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
+	WRITE(command_t, SetFragmentConstantBuffer);
+	WRITE(kinc_g5_constant_buffer_t *, buffer);
 }
-*/
+
+void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
+	kinc_g5_pipeline_t *current_pipeline = NULL;
+	int index = 0;
+	while (index < list->impl.commandIndex) {
+		READ(command_t, command);
+		switch (command) {
+		case Clear: {
+			READ(unsigned, flags);
+			READ(unsigned, color);
+			READ(float, depth);
+			READ(int, stencil);
+			kinc_g4_clear(flags, color, depth, stencil);
+			break;
+		}
+		case Draw: {
+			READ(int, start);
+			READ(int, count);
+			kinc_g4_draw_indexed_vertices_from_to(start, count);
+			break;
+		}
+		case SetViewport: {
+			READ(int, x);
+			READ(int, y);
+			READ(int, width);
+			READ(int, height);
+			kinc_g4_viewport(x, y, width, height);
+			break;
+		}
+		case SetScissor: {
+			READ(int, x);
+			READ(int, y);
+			READ(int, width);
+			READ(int, height);
+			kinc_g4_scissor(x, y, width, height);
+			break;
+		}
+		case SetPipeline: {
+			READ(kinc_g5_pipeline_t *, pipeline);
+			current_pipeline = pipeline;
+			kinc_g4_set_pipeline(&pipeline->impl.pipe);
+			break;
+		}
+		case SetVertexBuffers: {
+			READ(int, count);
+#ifdef KORE_MICROSOFT
+			kinc_g4_vertex_buffer_t **buffers = (kinc_g4_vertex_buffer_t **)alloca(sizeof(kinc_g4_vertex_buffer_t *) * count);
+#else
+			kinc_g4_vertex_buffer_t *buffers[count];
+#endif
+			for (int i = 0; i < count; ++i) {
+				READ(kinc_g5_vertex_buffer_t *, buffer);
+				buffers[i] = &buffer->impl.buffer;
+			}
+			kinc_g4_set_vertex_buffers(buffers, count);
+			break;
+		}
+		case SetIndexBuffer: {
+			READ(kinc_g5_index_buffer_t *, buffer);
+			kinc_g4_set_index_buffer(&buffer->impl.buffer);
+			break;
+		}
+		case SetRenderTargets: {
+			READ(int, count);
+#ifdef KORE_MICROSOFT
+			kinc_g4_render_target_t **buffers = (kinc_g4_render_target_t **)alloca(sizeof(kinc_g4_render_target_t *) * count);
+#else
+			kinc_g4_render_target_t *buffers[count];
+#endif
+			int first_framebuffer_index = -1;
+			for (int i = 0; i < count; ++i) {
+				READ(kinc_g5_render_target_t *, buffer);
+				if(i == 0) {
+					first_framebuffer_index = buffer->framebuffer_index;
+				}
+				buffers[i] = &buffer->impl.target;
+			}
+			if (first_framebuffer_index >= 0) {
+				if (count > 1) {
+					kinc_log(KINC_LOG_LEVEL_ERROR, "Rendering to backbuffer and render targets at the same time is not supported");
+				}
+				kinc_g4_restore_render_target();
+			}
+			else {
+				kinc_g4_set_render_targets(buffers, count);
+			}
+			break;
+		}
+		case SetRenderTargetFace: {
+			READ(kinc_g5_render_target_t *, target);
+			READ(int, face);
+			kinc_g4_set_render_target_face(&target->impl.target, face);
+			break;
+		}
+		case DrawInstanced: {
+			READ(int, instanceCount);
+			READ(int, start);
+			READ(int, count);
+			kinc_g4_draw_indexed_vertices_instanced_from_to(instanceCount, start, count);
+			break;
+		}
+		case SetTexture: {
+			READ(kinc_g5_texture_unit_t, unit);
+			READ(kinc_g5_texture_t *, texture);
+			kinc_g4_set_texture(unit.impl.unit, &texture->impl.texture);
+			break;
+		}
+		case SetTextureAdressing: {
+			READ(kinc_g5_texture_unit_t, unit);
+			READ(kinc_g5_texture_direction_t, dir);
+			READ(kinc_g5_texture_addressing_t, addressing);
+			// assume for now that g5 and g4 match for the texture addressing and direction enums
+			kinc_g4_set_texture_addressing(unit.impl.unit, (kinc_g4_texture_direction_t)dir, (kinc_g4_texture_addressing_t)addressing);
+			break;
+		}
+		case SetTextureMagnificationFilter: {
+			READ(kinc_g5_texture_unit_t, unit);
+			READ(kinc_g5_texture_filter_t, filter);
+			// the G5 filters should be the same as the G4 filters
+			kinc_g4_set_texture_magnification_filter(unit.impl.unit, (kinc_g4_texture_filter_t)filter);
+			break;
+		}
+		case SetTextureMinificationFilter: {
+			READ(kinc_g5_texture_unit_t, unit);
+			READ(kinc_g5_texture_filter_t, filter);
+			// the G5 filters should be the same as the G4 filters
+			kinc_g4_set_texture_minification_filter(unit.impl.unit, (kinc_g4_texture_filter_t)filter);
+			break;
+		}
+		case SetTextureMipmapFilter: {
+			READ(kinc_g5_texture_unit_t, unit);
+			READ(kinc_g5_texture_filter_t, filter);
+			// the G5 filters should be the same as the G4 filters
+			kinc_g4_set_texture_mipmap_filter(unit.impl.unit, (kinc_g4_mipmap_filter_t)filter);
+			break;
+		}
+		case SetImageTexture: {
+			READ(kinc_g5_texture_unit_t, unit);
+			READ(kinc_g5_texture_t *, texture);
+			kinc_g4_set_image_texture(unit.impl.unit, &texture->impl.texture);
+			break;
+		}
+		case SetVertexConstantBuffer: {
+			READ(kinc_g5_constant_buffer_t *, buffer);
+			(void)buffer;
+			(void)current_pipeline;
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Constant buffers are not supported on G5onG4 at the moment.");
+			// 		if(current_pipeline == NULL) {
+			// 			kinc_log(KINC_LOG_LEVEL_ERROR, "Please set the pipeline before setting constant buffers.");
+			// 		} else {
+			// 			kinc_g4_constant_location_t *constant_locations = current_pipeline->impl.pipe.vertex_locations;
+			// 			int *sizes = current_pipeline->impl.pipe.vertex_sizes;
+			// 			char *data = buffer->data;
+			// 			for(int i = 0; i < current_pipeline->impl.pipe.vertex_count; ++i) {
+			// 				// kinc_g4_set
+			// 				// kinc_g4_set_vertex_constant_buffer(constant_locations[i], sizes[i], data);
+			// 				data += sizes[i];
+			// 			}
+			// 		}
+			break;
+		}
+		case SetFragmentConstantBuffer: {
+			READ(kinc_g5_constant_buffer_t *, buffer);
+			(void)buffer;
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Constant buffers are not supported on G5onG4 at the moment.");
+			break;
+		}
+		case SetBlendConstant: {
+			READ(float, r);
+			READ(float, g);
+			READ(float, b);
+			READ(float, a);
+			kinc_g4_set_blend_constant(r, g, b, a);
+		}
+		default:
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Unknown command %i\n", command);
+			return;
+		}
+	}
+}
+
+void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {
+	kinc_g4_flush();
+}
+
+void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list, struct kinc_g5_render_target *render_target, uint8_t *data) {
+	kinc_log(KINC_LOG_LEVEL_ERROR, "kinc_g5_command_list_get_render_target_pixels not implemented");
+}
+
+void kinc_g5_command_list_set_texture_addressing(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_direction_t dir,
+                                                 kinc_g5_texture_addressing_t addressing) {
+	WRITE(command_t, SetTextureAdressing);
+	WRITE(kinc_g5_texture_unit_t, unit);
+	WRITE(kinc_g5_texture_direction_t, dir);
+	WRITE(kinc_g5_texture_addressing_t, addressing);
+}
+
+void kinc_g5_command_list_set_texture_magnification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
+	WRITE(command_t, SetTextureMagnificationFilter);
+	WRITE(kinc_g5_texture_unit_t, texunit);
+	WRITE(kinc_g5_texture_filter_t, filter);
+}
+
+void kinc_g5_command_list_set_texture_minification_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_texture_filter_t filter) {
+	WRITE(command_t, SetTextureMinificationFilter);
+	WRITE(kinc_g5_texture_unit_t, texunit);
+	WRITE(kinc_g5_texture_filter_t, filter);
+}
+
+void kinc_g5_command_list_set_texture_mipmap_filter(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t texunit, kinc_g5_mipmap_filter_t filter) {
+	WRITE(command_t, SetTextureMipmapFilter);
+	WRITE(kinc_g5_texture_unit_t, texunit);
+	WRITE(kinc_g5_mipmap_filter_t, filter);
+}
+
+void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {
+	WRITE(command_t, SetRenderTargetFace);
+	WRITE(kinc_g5_render_target_t *, texture);
+	WRITE(int, face);
+}
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
-	kinc_g4_texture_unit_t g4_unit;
-	memcpy(&g4_unit.stages[0], &unit.stages[0], KINC_G4_SHADER_TYPE_COUNT * sizeof(int));
-	kinc_g4_set_texture(g4_unit, &texture->impl.texture);
+	WRITE(command_t, SetTexture);
+	WRITE(kinc_g5_texture_unit_t, unit);
+	WRITE(kinc_g5_texture_t *, texture);
 }
 
 void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {}
@@ -210,7 +406,11 @@ void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_l
 	// kinc_g4_render_target_use_depth_as_texture(render_target->impl, unit.impl.unit);
 }
 
-void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
+texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
+	WRITE(command_t, SetImageTexture);
+	WRITE(kinc_g5_texture_unit_t, unit);
+	WRITE(kinc_g5_texture_t *, texture);
+}
 
 bool kinc_g5_command_list_init_occlusion_query(kinc_g5_command_list_t *list, unsigned *occlusionQuery) {
 	return false;
@@ -225,7 +425,3 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 }
 
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
-
-/*void Graphics5::setPipeline(PipelineState* pipeline) {
-    pipeline->set(pipeline);
-}*/

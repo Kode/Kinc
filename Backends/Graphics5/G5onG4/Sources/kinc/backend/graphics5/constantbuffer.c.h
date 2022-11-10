@@ -11,20 +11,18 @@ bool kinc_g5_transposeMat4 = false;
 
 void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	buffer->impl.mySize = size;
-	buffer->data = NULL;
+	buffer->data = malloc(size);
 }
 
-void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {}
-
-void kinc_g5_constant_buffer_lock_all(kinc_g5_constant_buffer_t *buffer) {
-	kinc_g5_constant_buffer_lock(buffer, 0, kinc_g5_constant_buffer_size(buffer));
+void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {
+	free(buffer->data);
 }
+
+void kinc_g5_constant_buffer_lock_all(kinc_g5_constant_buffer_t *buffer) {}
 
 void kinc_g5_constant_buffer_lock(kinc_g5_constant_buffer_t *buffer, int start, int count) {}
 
-void kinc_g5_constant_buffer_unlock(kinc_g5_constant_buffer_t *buffer) {
-	buffer->data = NULL;
-}
+void kinc_g5_constant_buffer_unlock(kinc_g5_constant_buffer_t *buffer) {}
 
 int kinc_g5_constant_buffer_size(kinc_g5_constant_buffer_t *buffer) {
 	return buffer->impl.mySize;
