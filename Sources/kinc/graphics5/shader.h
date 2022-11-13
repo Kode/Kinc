@@ -4,6 +4,8 @@
 
 #include <kinc/backend/graphics5/shader.h>
 
+#include <stddef.h>
+
 /*! \file shader.h
     \brief Provides functions for creating and destroying shaders.
 */
