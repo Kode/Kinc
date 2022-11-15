@@ -241,7 +241,7 @@ void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *l
 	waitForFence(list->impl.fence, list->impl.fence_value, list->impl.fence_event);
 }
 
-bool kinc_g5_non_pow2_textures_qupported(void) {
+bool kinc_g5_non_pow2_textures_supported(void) {
 	return true;
 }
 
