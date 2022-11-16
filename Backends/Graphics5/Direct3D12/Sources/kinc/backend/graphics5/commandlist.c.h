@@ -241,7 +241,7 @@ void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *l
 	waitForFence(list->impl.fence, list->impl.fence_value, list->impl.fence_event);
 }
 
-bool kinc_g5_non_pow2_textures_qupported(void) {
+bool kinc_g5_non_pow2_textures_supported(void) {
 	return true;
 }
 
@@ -505,14 +505,24 @@ void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, in
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	kinc_g5_internal_texture_set(texture, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		kinc_g5_internal_texture_set(texture, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
+	}
+	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+		kinc_g5_internal_texture_set(texture, unit.stages[KINC_G5_SHADER_TYPE_VERTEX]);
+	}
 	kinc_g5_internal_set_textures(list->impl._commandList);
 }
 
 void kinc_g5_internal_sampler_set(kinc_g5_sampler_t *sampler, int unit);
 
 void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
-	kinc_g5_internal_sampler_set(sampler, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		kinc_g5_internal_sampler_set(sampler, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
+	}
+	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+		kinc_g5_internal_sampler_set(sampler, unit.stages[KINC_G5_SHADER_TYPE_VERTEX]);
+	}
 	kinc_g5_internal_set_textures(list->impl._commandList);
 }
 
@@ -533,22 +543,28 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] < 0) {
-		return;
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		target->impl.stage = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
+		currentRenderTargets[target->impl.stage] = target;
 	}
-	target->impl.stage = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
-	currentRenderTargets[target->impl.stage] = target;
+	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+		target->impl.stage = unit.stages[KINC_G5_SHADER_TYPE_VERTEX];
+		currentRenderTargets[target->impl.stage] = target;
+	}
 	currentTextures[target->impl.stage] = NULL;
 
 	kinc_g5_internal_set_textures(list->impl._commandList);
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] < 0) {
-		return;
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		target->impl.stage_depth = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
+		currentRenderTargets[target->impl.stage_depth] = target;
 	}
-	target->impl.stage_depth = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
-	currentRenderTargets[target->impl.stage_depth] = target;
+	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+		target->impl.stage_depth = unit.stages[KINC_G5_SHADER_TYPE_VERTEX];
+		currentRenderTargets[target->impl.stage_depth] = target;
+	}
 	currentTextures[target->impl.stage_depth] = NULL;
 
 	kinc_g5_internal_set_textures(list->impl._commandList);
