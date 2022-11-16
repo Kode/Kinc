@@ -120,11 +120,6 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
 					device->CopyDescriptorsSimple(1, srvCpu, sourceCpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 					                              D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-
-					if (is_depth) {
-						currentRenderTargets[i]->impl.stage_depth = -1;
-						currentRenderTargets[i] = NULL;
-					}
 				}
 				else {
 					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = currentTextures[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
