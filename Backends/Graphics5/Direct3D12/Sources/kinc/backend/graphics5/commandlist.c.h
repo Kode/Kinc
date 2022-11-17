@@ -487,8 +487,10 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 		list->impl._commandList->ResourceBarrier(1, &barrier);
 	}
 
+	kinc_g5_command_list_end(list);
 	kinc_g5_command_list_execute(list);
 	kinc_g5_command_list_wait_for_execution_to_finish(list);
+	kinc_g5_command_list_begin(list);
 
 	// Read buffer
 	void *p;
