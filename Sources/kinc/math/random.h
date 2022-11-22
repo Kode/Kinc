@@ -1,6 +1,7 @@
 #pragma once
 
 #include <kinc/global.h>
+#include <assert.h>
 
 /*! \file random.h
     \brief Generates values which are kind of random.
@@ -43,6 +44,7 @@ KINC_FUNC int kinc_random_get_in(int min, int max);
 // MT19937
 
 static int MT[624];
+static int random_initialized = 0;
 static int mermeme_index = 0;
 
 static void generateNumbers() {
@@ -58,9 +60,12 @@ void kinc_random_init(int seed) {
 	MT[0] = seed;
 	for (int i = 1; i < 624; ++i)
 		MT[i] = 0x6c078965 * (MT[i - 1] ^ (MT[i - 1] >> 30)) + i;
+	random_initialized = 1;
 }
 
 int kinc_random_get() {
+	assert(random_initialized || !"kinc_random_init() must be called before using kinc_random_get()");
+
 	if (mermeme_index == 0)
 		generateNumbers();
 
