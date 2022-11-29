@@ -9,3 +9,7 @@
 #include "string.h"
 #include "system.h"
 #include "window.h"
+
+bool kinc_debugger_attached(void) {
+	return false;
+}

@@ -182,6 +182,12 @@ KINC_INLINE void kinc_debug_break(void) {
 }
 
 /// <summary>
+/// Returns whether a debugger is currently attached to the running program. This is not yet working though.
+/// </summary>
+/// <returns>Whether a debugger is currently attached</returns>
+KINC_FUNC bool kinc_debugger_attached(void);
+
+/// <summary>
 /// Copies the provided string to the system's clipboard.
 /// </summary>
 /// <param name="text">The text to be copied into the clipboard</param>
