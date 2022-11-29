@@ -165,6 +165,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a8795a2dac9bd17d4d8f493f8313cfdf1"><td class="memItemLeft" align="right" valign="top">KINC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a8795a2dac9bd17d4d8f493f8313cfdf1">kinc_debug_break</a> (void)</td></tr>
 <tr class="memdesc:a8795a2dac9bd17d4d8f493f8313cfdf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tries to halt program-execution in an attached debugger when compiled in debug-mode (aka when NDEBUG is not defined).  <a href="system_8h.html#a8795a2dac9bd17d4d8f493f8313cfdf1">More...</a><br /></td></tr>
 <tr class="separator:a8795a2dac9bd17d4d8f493f8313cfdf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b53ceb0bb457451902cadbc1de15968"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a1b53ceb0bb457451902cadbc1de15968">kinc_debugger_attached</a> (void)</td></tr>
+<tr class="memdesc:a1b53ceb0bb457451902cadbc1de15968"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether a debugger is currently attached to the running program. This is not yet working though.  <a href="system_8h.html#a1b53ceb0bb457451902cadbc1de15968">More...</a><br /></td></tr>
+<tr class="separator:a1b53ceb0bb457451902cadbc1de15968"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac28b5ac7548d6daf2aa7a5fb20dc98cd"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#ac28b5ac7548d6daf2aa7a5fb20dc98cd">kinc_copy_to_clipboard</a> (const char *text)</td></tr>
 <tr class="memdesc:ac28b5ac7548d6daf2aa7a5fb20dc98cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies the provided string to the system's clipboard.  <a href="system_8h.html#ac28b5ac7548d6daf2aa7a5fb20dc98cd">More...</a><br /></td></tr>
 <tr class="separator:ac28b5ac7548d6daf2aa7a5fb20dc98cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -334,6 +337,27 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Tries to halt program-execution in an attached debugger when compiled in debug-mode (aka when NDEBUG is not defined). </p>
+
+</div>
+</div>
+<a id="a1b53ceb0bb457451902cadbc1de15968"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b53ceb0bb457451902cadbc1de15968">&#9670;&nbsp;</a></span>kinc_debugger_attached()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC bool kinc_debugger_attached </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns whether a debugger is currently attached to the running program. This is not yet working though. </p>
+<dl class="section return"><dt>Returns</dt><dd>Whether a debugger is currently attached</dd></dl>
 
 </div>
 </div>
