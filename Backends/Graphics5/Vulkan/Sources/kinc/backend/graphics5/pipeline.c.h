@@ -682,13 +682,13 @@ void createDescriptorLayout() {
 	memset(layoutBindings, 0, sizeof(layoutBindings));
 
 	layoutBindings[0].binding = 0;
-	layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 	layoutBindings[0].descriptorCount = 1;
 	layoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	layoutBindings[0].pImmutableSamplers = NULL;
 
 	layoutBindings[1].binding = 1;
-	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 	layoutBindings[1].descriptorCount = 1;
 	layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	layoutBindings[1].pImmutableSamplers = NULL;
@@ -713,7 +713,7 @@ void createDescriptorLayout() {
 	VkDescriptorPoolSize typeCounts[2];
 	memset(typeCounts, 0, sizeof(typeCounts));
 
-	typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	typeCounts[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 	typeCounts[0].descriptorCount = 2 * 1024;
 
 	typeCounts[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -873,14 +873,14 @@ VkDescriptorSet getDescriptorSet() {
 	writes[0].dstSet = descriptor_set;
 	writes[0].dstBinding = 0;
 	writes[0].descriptorCount = 1;
-	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	writes[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 	writes[0].pBufferInfo = &buffer_descs[0];
 
 	writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	writes[1].dstSet = descriptor_set;
 	writes[1].dstBinding = 1;
 	writes[1].descriptorCount = 1;
-	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	writes[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 	writes[1].pBufferInfo = &buffer_descs[1];
 
 	for (int i = 2; i < 18; ++i) {
