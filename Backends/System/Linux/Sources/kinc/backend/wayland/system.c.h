@@ -1181,7 +1181,7 @@ bool kinc_wayland_handle_messages() {
 
 #ifdef KINC_EGL
 EGLDisplay kinc_wayland_egl_get_display() {
-	return eglGetDisplay(wl_ctx.display);
+	return eglGetDisplay((EGLNativeDisplayType)wl_ctx.display);
 }
 
 EGLNativeWindowType kinc_wayland_egl_get_native_window(EGLDisplay display, EGLConfig config, int window_index) {
