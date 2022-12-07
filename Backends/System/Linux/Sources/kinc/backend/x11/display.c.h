@@ -1,5 +1,6 @@
 
 #include "x11.h"
+#include <string.h>
 
 // TODO: deal with monitor hotplugging and such
 
