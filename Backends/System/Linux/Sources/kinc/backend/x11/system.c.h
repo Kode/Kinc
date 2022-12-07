@@ -9,6 +9,8 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 struct kinc_x11_procs xlib = {0};
 struct x11_context x11_ctx = {0};
@@ -193,10 +195,16 @@ bool kinc_x11_init() {
 	int count;
 	XDeviceInfoPtr devices = (XDeviceInfoPtr)xlib.XListInputDevices(x11_ctx.display, &count);
 	for (int i = 0; i < count; i++) {
-		if (strstr(devices[i].name, "stylus")) {
+		strncpy(buffer, devices[i].name, 1023);
+		buffer[1023] = 0;
+		for (int j = 0; buffer[j]; j++) {
+			buffer[j] = tolower(buffer[j]);
+		}
+
+		if (strstr(buffer, "stylus") || strstr(buffer, "pen") || strstr(buffer, "wacom")) {
 			init_pen_device(&devices[i], &x11_ctx.pen, false);
 		}
-		if (strstr(devices[i].name, "eraser")) {
+		if (strstr(buffer, "eraser")) {
 			init_pen_device(&devices[i], &x11_ctx.eraser, true);
 		}
 	}
