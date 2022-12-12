@@ -4,6 +4,7 @@
 #include <SLES/OpenSLES_Android.h>
 
 #include <string.h>
+#include <stdlib.h>
 
 static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
 static kinc_a2_buffer_t a2_buffer;
