@@ -118,6 +118,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
 		kinc_file_reader_t file;
 		if (!kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET)) {
+			sound->in_use = false;
 			return NULL;
 		}
 		uint8_t *filedata = (uint8_t *)malloc(kinc_file_reader_size(&file));
@@ -135,6 +136,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 		{
 			kinc_file_reader_t file;
 			if (!kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET)) {
+				sound->in_use = false;
 				return NULL;
 			}
 			uint8_t *filedata = (uint8_t *)malloc(kinc_file_reader_size(&file));
