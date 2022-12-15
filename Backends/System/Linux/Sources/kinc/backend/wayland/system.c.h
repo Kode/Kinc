@@ -305,20 +305,7 @@ void wl_pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_
 void wl_pointer_handle_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state) {
 	struct kinc_wl_mouse *mouse = data;
 	struct kinc_wl_window *window = &wl_ctx.windows[mouse->current_window];
-	int kinc_button = 0;
-	switch (button) {
-	case BTN_LEFT:
-		kinc_button = 0;
-		break;
-	case BTN_RIGHT:
-		kinc_button = 1;
-		break;
-	case BTN_MIDDLE:
-		kinc_button = 2;
-		break;
-	default:
-		break;
-	}
+	int kinc_button = button - BTN_MOUSE; // evdev codes should have the same order as Kinc buttons
 	if (!window->decorations.server_side) {
 		if (kinc_button == 0) {
 			enum xdg_toplevel_resize_edge edges = XDG_TOPLEVEL_RESIZE_EDGE_NONE;

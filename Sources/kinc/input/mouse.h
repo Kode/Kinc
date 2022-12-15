@@ -12,14 +12,26 @@
 extern "C" {
 #endif
 
+#define KINC_MOUSE_LEFT 0
+#define KINC_MOUSE_RIGHT 1
+#define KINC_MOUSE_MIDDLE 2
+// eg backward sidebutton
+#define KINC_MOUSE_EXTRA1 3
+// eg forward sidebutton
+#define KINC_MOUSE_EXTRA2 4
+
 /// <summary>
 /// Sets the mouse-press-callback which is called when a mouse-button is pressed.
+/// The button callback argument will usually contain one of the KINC_MOUSE_* values,
+/// but can contain higher values on certain platforms when mice with a lot of buttons are used.
 /// </summary>
 /// <param name="value">The callback</param>
 KINC_FUNC void kinc_mouse_set_press_callback(void (*value)(int /*window*/, int /*button*/, int /*x*/, int /*y*/));
 
 /// <summary>
 /// Sets the mouse-release-callback which is called when a mouse-button is released.
+/// The button callback argument will usually contain one of the KINC_MOUSE_* values,
+/// but can contain higher values on certain platforms when mice with a lot of buttons are used.
 /// </summary>
 /// <param name="value">The callback</param>
 KINC_FUNC void kinc_mouse_set_release_callback(void (*value)(int /*window*/, int /*button*/, int /*x*/, int /*y*/));
