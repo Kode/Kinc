@@ -66,6 +66,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">mouse.h File Reference</div>  </div>
@@ -79,13 +80,31 @@ $(function() {
 </div>
 <p><a href="mouse_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a16182a95e7fbc5d287e2af631973c86d"><td class="memItemLeft" align="right" valign="top"><a id="a16182a95e7fbc5d287e2af631973c86d"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_MOUSE_LEFT</b>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:a16182a95e7fbc5d287e2af631973c86d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac278a5e52ca78ce00f64e867fa48172b"><td class="memItemLeft" align="right" valign="top"><a id="ac278a5e52ca78ce00f64e867fa48172b"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_MOUSE_RIGHT</b>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:ac278a5e52ca78ce00f64e867fa48172b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3eb89b5b7b5c57aae938607bcb5c65fd"><td class="memItemLeft" align="right" valign="top"><a id="a3eb89b5b7b5c57aae938607bcb5c65fd"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_MOUSE_MIDDLE</b>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:a3eb89b5b7b5c57aae938607bcb5c65fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01a18a4a895bc6c00121f0b61f0d6e7d"><td class="memItemLeft" align="right" valign="top"><a id="a01a18a4a895bc6c00121f0b61f0d6e7d"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_MOUSE_EXTRA1</b>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:a01a18a4a895bc6c00121f0b61f0d6e7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a42700279332972433a2a689d224cb9"><td class="memItemLeft" align="right" valign="top"><a id="a7a42700279332972433a2a689d224cb9"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_MOUSE_EXTRA2</b>&#160;&#160;&#160;4</td></tr>
+<tr class="separator:a7a42700279332972433a2a689d224cb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a176b62f967d48cff6ea150396584598d"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mouse_8h.html#a176b62f967d48cff6ea150396584598d">kinc_mouse_set_press_callback</a> (void(*value)(int, int, int, int))</td></tr>
-<tr class="memdesc:a176b62f967d48cff6ea150396584598d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the mouse-press-callback which is called when a mouse-button is pressed.  <a href="mouse_8h.html#a176b62f967d48cff6ea150396584598d">More...</a><br /></td></tr>
+<tr class="memdesc:a176b62f967d48cff6ea150396584598d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the mouse-press-callback which is called when a mouse-button is pressed. The button callback argument will usually contain one of the KINC_MOUSE_* values, but can contain higher values on certain platforms when mice with a lot of buttons are used.  <a href="mouse_8h.html#a176b62f967d48cff6ea150396584598d">More...</a><br /></td></tr>
 <tr class="separator:a176b62f967d48cff6ea150396584598d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1852a98e7566ede4e0099b9df51e8311"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mouse_8h.html#a1852a98e7566ede4e0099b9df51e8311">kinc_mouse_set_release_callback</a> (void(*value)(int, int, int, int))</td></tr>
-<tr class="memdesc:a1852a98e7566ede4e0099b9df51e8311"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the mouse-release-callback which is called when a mouse-button is released.  <a href="mouse_8h.html#a1852a98e7566ede4e0099b9df51e8311">More...</a><br /></td></tr>
+<tr class="memdesc:a1852a98e7566ede4e0099b9df51e8311"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the mouse-release-callback which is called when a mouse-button is released. The button callback argument will usually contain one of the KINC_MOUSE_* values, but can contain higher values on certain platforms when mice with a lot of buttons are used.  <a href="mouse_8h.html#a1852a98e7566ede4e0099b9df51e8311">More...</a><br /></td></tr>
 <tr class="separator:a1852a98e7566ede4e0099b9df51e8311"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a793559b23dd76158178053b4863b5193"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mouse_8h.html#a793559b23dd76158178053b4863b5193">kinc_mouse_set_move_callback</a> (void(*value)(int, int, int, int, int))</td></tr>
 <tr class="memdesc:a793559b23dd76158178053b4863b5193"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the mouse-move-callback which is called when the mouse is moved.  <a href="mouse_8h.html#a793559b23dd76158178053b4863b5193">More...</a><br /></td></tr>
@@ -426,7 +445,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Sets the mouse-press-callback which is called when a mouse-button is pressed. </p>
+<p>Sets the mouse-press-callback which is called when a mouse-button is pressed. The button callback argument will usually contain one of the KINC_MOUSE_* values, but can contain higher values on certain platforms when mice with a lot of buttons are used. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">value</td><td>The callback</td></tr>
@@ -452,7 +471,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Sets the mouse-release-callback which is called when a mouse-button is released. </p>
+<p>Sets the mouse-release-callback which is called when a mouse-button is released. The button callback argument will usually contain one of the KINC_MOUSE_* values, but can contain higher values on certain platforms when mice with a lot of buttons are used. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">value</td><td>The callback</td></tr>
