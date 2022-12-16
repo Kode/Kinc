@@ -12,6 +12,9 @@
 #include <string.h>
 #include <ctype.h>
 
+#define Button6 6
+#define Button7 7
+
 struct kinc_x11_procs xlib = {0};
 struct x11_context x11_ctx = {0};
 
@@ -671,6 +674,15 @@ bool kinc_x11_handle_messages() {
 			case Button3:
 				kinc_internal_mouse_trigger_press(window_index, 1, button->x, button->y);
 				break;
+			// buttons 4-7 are for mouse wheel events because why not
+			case Button4:
+			case Button5:
+			case Button6:
+			case Button7:
+				break;
+			default:
+				kinc_internal_mouse_trigger_press(window_index, button->button - Button1 - 4, button->x, button->y);
+				break;
 			}
 			break;
 		}
@@ -694,6 +706,13 @@ bool kinc_x11_handle_messages() {
 				break;
 			case Button5:
 				kinc_internal_mouse_trigger_scroll(window_index, 1);
+				break;
+			// button 6 and 7 seem to be horizontal scrolling, which is not exposed in Kinc's api at the moment
+			case Button6:
+			case Button7:
+				break;
+			default:
+				kinc_internal_mouse_trigger_release(window_index, button->button - Button1 - 4, button->x, button->y);
 				break;
 			}
 			break;
