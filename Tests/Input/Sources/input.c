@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-static void update(void) {
+static void update(void *data) {
 	kinc_g4_begin(0);
 	kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0, 0.0f, 0);
 	kinc_g4_end(0);
@@ -46,7 +46,7 @@ static void key_press(unsigned character) {
 
 int kickstart(int argc, char **argv) {
 	kinc_init("Shader", 1024, 768, NULL, NULL);
-	kinc_set_update_callback(update);
+	kinc_set_update_callback(update, NULL);
 
 	kinc_mouse_set_enter_window_callback(mouse_enter_window);
 	kinc_mouse_set_leave_window_callback(mouse_leave_window);

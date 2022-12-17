@@ -31,7 +31,7 @@ static void *allocate(size_t size) {
 	return &heap[old_top];
 }
 
-static void update(void) {
+static void update(void *data) {
 	kinc_g4_begin(0);
 
 	kinc_g4_render_target_t *render_targets = {&render_target};
@@ -75,7 +75,7 @@ static void load_shader(const char *filename, kinc_g4_shader_t *shader, kinc_g4_
 
 int kickstart(int argc, char **argv) {
 	kinc_init("Shader", 1024, 768, NULL, NULL);
-	kinc_set_update_callback(update);
+	kinc_set_update_callback(update, NULL);
 
 	heap = (uint8_t *)malloc(HEAP_SIZE);
 	assert(heap != NULL);

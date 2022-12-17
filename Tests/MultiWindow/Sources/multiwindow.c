@@ -37,7 +37,7 @@ static void *allocate(size_t size) {
 	return &heap[old_top];
 }
 
-static void update(void) {
+static void update(void *data) {
 	for (int window = 0; window < WINDOW_COUNT; window++) {
 		if (windows[window].open) {
 			kinc_g4_begin(window);
@@ -78,15 +78,15 @@ static bool window_close(void *data) {
 	return true;
 }
 
-static char *copy_callback() {
+static char *copy_callback(void *data) {
 	return "Hello World!";
 }
 
-static void paste_callback(char *text) {
+static void paste_callback(char *text, void *data) {
 	kinc_log(KINC_LOG_LEVEL_INFO, "Pasted: %s", text);
 }
 
-static void drop_files_callback(wchar_t *text) {
+static void drop_files_callback(wchar_t *text, void *data) {
 	char dest[1024];
 	wcstombs(dest, text, sizeof(dest));
 	kinc_log(KINC_LOG_LEVEL_INFO, "Dropped: %s", dest);
@@ -98,7 +98,7 @@ int kickstart(int argc, char **argv) {
 	// first_window_options.mode = KINC_WINDOW_MODE_FULLSCREEN;
 	int first_window = kinc_init("MultiWindow", 1024, 768, &first_window_options, NULL);
 	// return 0;
-	kinc_set_update_callback(update);
+	kinc_set_update_callback(update, NULL);
 
 	heap = (uint8_t *)malloc(HEAP_SIZE);
 	assert(heap != NULL);
@@ -158,9 +158,9 @@ int kickstart(int argc, char **argv) {
 
 	kinc_mouse_set_press_callback(mouse_down);
 	kinc_mouse_set_release_callback(mouse_up);
-	kinc_set_copy_callback(copy_callback);
-	kinc_set_paste_callback(paste_callback);
-	kinc_set_drop_files_callback(drop_files_callback);
+	kinc_set_copy_callback(copy_callback, NULL);
+	kinc_set_paste_callback(paste_callback, NULL);
+	kinc_set_drop_files_callback(drop_files_callback, NULL);
 	kinc_start();
 
 	return 0;
