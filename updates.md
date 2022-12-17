@@ -1,3 +1,4 @@
+* 2022-12-17: The callbacks in system.h now all take an additional data-parameter that's set via the callback-set-functions.
 * 2022-12-14: The --shaderversion-parameter for kmake was removed. In its place there's now a Project.setMinimumShaderVersion-function that can be used in kfiles.
 * 2022-09-29: kinc_g4_non_pow2_textures_supported was renamed to kinc_g4_supports_non_pow2_textures.
 * 2022-09-08: The init-functions for render-targets have been changed - it should be apparent from the function-signatures what has to be done, they are simply less silly now.

@@ -196,74 +196,86 @@ KINC_FUNC void kinc_copy_to_clipboard(const char *text);
 /// <summary>
 /// Sets the update-callback which drives the application and is called for every frame.
 /// </summary>
-/// <param name="value">The callback</param>
-KINC_FUNC void kinc_set_update_callback(void (*value)(void));
+/// <param name="callback">The callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_update_callback(void (*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called whenever the application is brought to the foreground.
 /// </summary>
-/// <param name="value">The foreground-callback</param>
-KINC_FUNC void kinc_set_foreground_callback(void (*value)(void));
+/// <param name="callback">The foreground-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_foreground_callback(void (*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called whenever the application was paused and is being resumed.
 /// </summary>
-/// <param name="value">The resume-callback</param>
-KINC_FUNC void kinc_set_resume_callback(void (*value)(void));
+/// <param name="callback">The resume-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_resume_callback(void (*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called whenever the application is paused.
 /// </summary>
-/// <param name="value">The pause-callback</param>
-KINC_FUNC void kinc_set_pause_callback(void (*value)(void));
+/// <param name="callback">The pause-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_pause_callback(void (*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called whenever the application is brought to the background.
 /// </summary>
-/// <param name="value">The background-callback</param>
-KINC_FUNC void kinc_set_background_callback(void (*value)(void));
+/// <param name="callback">The background-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_background_callback(void (*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called whenever the application is about to shut down.
 /// </summary>
-/// <param name="value">The shutdown-callback</param>
-KINC_FUNC void kinc_set_shutdown_callback(void (*value)(void));
+/// <param name="callback">The shutdown-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_shutdown_callback(void (*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called when files are dropped on the application-window.
 /// </summary>
-/// <param name="value">The drop-files-callback</param>
-KINC_FUNC void kinc_set_drop_files_callback(void (*value)(wchar_t *));
+/// <param name="callback">The drop-files-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_drop_files_callback(void (*callback)(wchar_t *, void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called when the application is instructed to cut, typically via ctrl+x or cmd+x.
 /// </summary>
-/// <param name="value">The cut-callback</param>
-KINC_FUNC void kinc_set_cut_callback(char *(*value)(void));
+/// <param name="callback">The cut-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_cut_callback(char *(*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called when the application is instructed to copy, typically via ctrl+c or cmd+c.
 /// </summary>
-/// <param name="value">The copy-callback</param>
-KINC_FUNC void kinc_set_copy_callback(char *(*value)(void));
+/// <param name="callback">The copy-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_copy_callback(char *(*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called when the application is instructed to paste, typically via ctrl+v or cmd+v.
 /// </summary>
-/// <param name="value">The paste-callback</param>
-KINC_FUNC void kinc_set_paste_callback(void (*value)(char *));
+/// <param name="callback">The paste-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_paste_callback(void (*callback)(char *, void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called when a user logs in.
 /// </summary>
-/// <param name="value">The login-callback</param>
-KINC_FUNC void kinc_set_login_callback(void (*value)(void));
+/// <param name="callback">The login-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_login_callback(void (*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called when a user logs out.
 /// </summary>
-/// <param name="value">The logout-callback</param>
-KINC_FUNC void kinc_set_logout_callback(void (*value)(void));
+/// <param name="callback">The logout-callback</param>
+/// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
+KINC_FUNC void kinc_set_logout_callback(void (*callback)(void *), void *data);
 
 bool kinc_internal_frame(void);
 const char *kinc_internal_save_path(void);
@@ -310,142 +322,166 @@ double kinc_time(void) {
 }
 #endif
 
-static void (*update_callback)(void) = NULL;
-static void (*foreground_callback)(void) = NULL;
-static void (*background_callback)(void) = NULL;
-static void (*pause_callback)(void) = NULL;
-static void (*resume_callback)(void) = NULL;
-static void (*shutdown_callback)(void) = NULL;
-static void (*drop_files_callback)(wchar_t *) = NULL;
-static char *(*cut_callback)(void) = NULL;
-static char *(*copy_callback)(void) = NULL;
-static void (*paste_callback)(char *) = NULL;
-static void (*login_callback)(void) = NULL;
-static void (*logout_callback)(void) = NULL;
+static void (*update_callback)(void *) = NULL;
+static void *update_callback_data = NULL;
+static void (*foreground_callback)(void *) = NULL;
+static void *foreground_callback_data = NULL;
+static void (*background_callback)(void *) = NULL;
+static void *background_callback_data = NULL;
+static void (*pause_callback)(void *) = NULL;
+static void *pause_callback_data = NULL;
+static void (*resume_callback)(void *) = NULL;
+static void *resume_callback_data = NULL;
+static void (*shutdown_callback)(void *) = NULL;
+static void *shutdown_callback_data = NULL;
+static void (*drop_files_callback)(wchar_t *, void *) = NULL;
+static void *drop_files_callback_data = NULL;
+static char *(*cut_callback)(void *) = NULL;
+static void *cut_callback_data = NULL;
+static char *(*copy_callback)(void *) = NULL;
+static void *copy_callback_data = NULL;
+static void (*paste_callback)(char *, void *) = NULL;
+static void *paste_callback_data = NULL;
+static void (*login_callback)(void *) = NULL;
+static void *login_callback_data = NULL;
+static void (*logout_callback)(void *) = NULL;
+static void *logout_callback_data = NULL;
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)
 bool withAutoreleasepool(bool (*f)(void));
 #endif
 
-void kinc_set_update_callback(void (*value)(void)) {
-	update_callback = value;
+void kinc_set_update_callback(void (*callback)(void *), void *data) {
+	update_callback = callback;
+	update_callback_data = data;
 }
 
-void kinc_set_foreground_callback(void (*value)(void)) {
-	foreground_callback = value;
+void kinc_set_foreground_callback(void (*callback)(void *), void *data) {
+	foreground_callback = callback;
+	foreground_callback_data = data;
 }
 
-void kinc_set_resume_callback(void (*value)(void)) {
-	resume_callback = value;
+void kinc_set_resume_callback(void (*callback)(void *), void *data) {
+	resume_callback = callback;
+	resume_callback_data = data;
 }
 
-void kinc_set_pause_callback(void (*value)(void)) {
-	pause_callback = value;
+void kinc_set_pause_callback(void (*callback)(void *), void *data) {
+	pause_callback = callback;
+	pause_callback_data = data;
 }
 
-void kinc_set_background_callback(void (*value)(void)) {
-	background_callback = value;
+void kinc_set_background_callback(void (*callback)(void *), void *data) {
+	background_callback = callback;
+	background_callback_data = data;
 }
 
-void kinc_set_shutdown_callback(void (*value)(void)) {
-	shutdown_callback = value;
+void kinc_set_shutdown_callback(void (*callback)(void *), void *data) {
+	shutdown_callback = callback;
+	shutdown_callback_data = data;
 }
 
-void kinc_set_drop_files_callback(void (*value)(wchar_t *)) {
-	drop_files_callback = value;
+void kinc_set_drop_files_callback(void (*callback)(wchar_t *, void *), void *data) {
+	drop_files_callback = callback;
+	drop_files_callback_data = data;
 }
 
-void kinc_set_cut_callback(char *(*value)(void)) {
-	cut_callback = value;
+void kinc_set_cut_callback(char *(*callback)(void *), void *data) {
+	cut_callback = callback;
+	cut_callback_data = data;
 }
 
-void kinc_set_copy_callback(char *(*value)(void)) {
-	copy_callback = value;
+void kinc_set_copy_callback(char *(*callback)(void *), void *data) {
+	copy_callback = callback;
+	copy_callback_data = data;
 }
 
-void kinc_set_paste_callback(void (*value)(char *)) {
-	paste_callback = value;
+void kinc_set_paste_callback(void (*callback)(char *, void *), void *data) {
+	paste_callback = callback;
+	paste_callback_data = data;
 }
 
-void kinc_set_login_callback(void (*value)(void)) {
-	login_callback = value;
+void kinc_set_login_callback(void (*callback)(void *), void *data) {
+	login_callback = callback;
+	login_callback_data = data;
 }
 
-void kinc_set_logout_callback(void (*value)(void)) {
-	logout_callback = value;
+void kinc_set_logout_callback(void (*callback)(void *), void *data) {
+	logout_callback = callback;
+	logout_callback_data = data;
 }
 
 void kinc_internal_update_callback(void) {
 	if (update_callback != NULL) {
-		update_callback();
+		update_callback(update_callback_data);
 	}
 }
 
 void kinc_internal_foreground_callback(void) {
 	if (foreground_callback != NULL) {
-		foreground_callback();
+		foreground_callback(foreground_callback_data);
 	}
 }
 
 void kinc_internal_resume_callback(void) {
 	if (resume_callback != NULL) {
-		resume_callback();
+		resume_callback(resume_callback_data);
 	}
 }
 
 void kinc_internal_pause_callback(void) {
 	if (pause_callback != NULL) {
-		pause_callback();
+		pause_callback(pause_callback_data);
 	}
 }
 
 void kinc_internal_background_callback(void) {
 	if (background_callback != NULL) {
-		background_callback();
+		background_callback(background_callback_data);
 	}
 }
 
 void kinc_internal_shutdown_callback(void) {
 	if (shutdown_callback != NULL) {
-		shutdown_callback();
+		shutdown_callback(shutdown_callback_data);
 	}
 }
 
 void kinc_internal_drop_files_callback(wchar_t *filePath) {
 	if (drop_files_callback != NULL) {
-		drop_files_callback(filePath);
+		drop_files_callback(filePath, drop_files_callback_data);
 	}
 }
 
 char *kinc_internal_cut_callback(void) {
 	if (cut_callback != NULL) {
-		return cut_callback();
+		return cut_callback(cut_callback_data);
 	}
 	return NULL;
 }
 
 char *kinc_internal_copy_callback(void) {
 	if (copy_callback != NULL) {
-		return copy_callback();
+		return copy_callback(copy_callback_data);
 	}
 	return NULL;
 }
 
 void kinc_internal_paste_callback(char *value) {
 	if (paste_callback != NULL) {
-		paste_callback(value);
+		paste_callback(value, paste_callback_data);
 	}
 }
 
 void kinc_internal_login_callback(void) {
 	if (login_callback != NULL) {
-		login_callback();
+		login_callback(login_callback_data);
 	}
 }
 
 void kinc_internal_logout_callback(void) {
 	if (logout_callback != NULL) {
-		logout_callback();
+		logout_callback(logout_callback_data);
 	}
 }
 
