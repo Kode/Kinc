@@ -347,8 +347,6 @@ void kinc_g4_draw_indexed_vertices() {
 	}
 	kinc_internal_set_constants();
 	dx_ctx.context->lpVtbl->DrawIndexed(dx_ctx.context, currentIndexBuffer->impl.count, 0, 0);
-
-	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
@@ -365,8 +363,6 @@ void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex
 	}
 	kinc_internal_set_constants();
 	dx_ctx.context->lpVtbl->DrawIndexed(dx_ctx.context, count, start, vertex_offset);
-
-	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, 0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullviews);
 }
 
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
