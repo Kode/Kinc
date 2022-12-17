@@ -1160,7 +1160,7 @@ ALPHABETICAL_INDEX     = YES
 # while generating the index headers.
 # This tag requires that the tag ALPHABETICAL_INDEX is set to YES.
 
-IGNORE_PREFIX          =
+IGNORE_PREFIX          = kinc_ KINC_
 
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output
