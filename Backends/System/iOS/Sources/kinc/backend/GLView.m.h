@@ -371,6 +371,32 @@ static bool shiftDown = false;
 		if (ch == L'\n') {
 			kinc_internal_keyboard_trigger_key_down(KINC_KEY_RETURN);
 			kinc_internal_keyboard_trigger_key_up(KINC_KEY_RETURN);
+			return;
+		}
+
+		if (ch == L'.') {
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_PERIOD);
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_PERIOD);
+		}
+		else if (ch == L'%') {
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_PERCENT);
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_PERCENT);
+		}
+		else if (ch == L'(') {
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_OPEN_PAREN);
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_OPEN_PAREN);
+		}
+		else if (ch == L'&') {
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_AMPERSAND);
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_AMPERSAND);
+		}
+		else if (ch == L'$') {
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_DOLLAR);
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_DOLLAR);
+		}
+		else if (ch == L'#') {
+			kinc_internal_keyboard_trigger_key_down(KINC_KEY_HASH);
+			kinc_internal_keyboard_trigger_key_up(KINC_KEY_HASH);
 		}
 		else if (ch >= L'a' && ch <= L'z') {
 			if (shiftDown) {
@@ -379,7 +405,6 @@ static bool shiftDown = false;
 			}
 			kinc_internal_keyboard_trigger_key_down(ch + KINC_KEY_A - L'a');
 			kinc_internal_keyboard_trigger_key_up(ch + KINC_KEY_A - L'a');
-			kinc_internal_keyboard_trigger_key_press(ch);
 		}
 		else {
 			if (!shiftDown) {
@@ -388,8 +413,9 @@ static bool shiftDown = false;
 			}
 			kinc_internal_keyboard_trigger_key_down(ch + KINC_KEY_A - L'A');
 			kinc_internal_keyboard_trigger_key_up(ch + KINC_KEY_A - L'A');
-			kinc_internal_keyboard_trigger_key_press(ch);
 		}
+
+		kinc_internal_keyboard_trigger_key_press(ch);
 	}
 }
 
