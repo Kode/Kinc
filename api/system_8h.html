@@ -207,12 +207,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a83ccc5db2410062a80d60f91b4b7f3e7"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a83ccc5db2410062a80d60f91b4b7f3e7">kinc_set_logout_callback</a> (void(*callback)(void *), void *data)</td></tr>
 <tr class="memdesc:a83ccc5db2410062a80d60f91b4b7f3e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when a user logs out.  <a href="system_8h.html#a83ccc5db2410062a80d60f91b4b7f3e7">More...</a><br /></td></tr>
 <tr class="separator:a83ccc5db2410062a80d60f91b4b7f3e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d5716d76ba844933f37a18af023bc3b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a0d5716d76ba844933f37a18af023bc3b">kinc_start_LivePP</a> (void)</td></tr>
-<tr class="memdesc:a0d5716d76ba844933f37a18af023bc3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Currently only supported on Windows. Starts up Live++ (see <a href="https://liveplusplus.tech">https://liveplusplus.tech</a>), tyipcally called right before <a class="el" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733" title="Starts Kinc&#39;s main-loop. kinc_set_update_callback should be called before kinc_start so the main-loop...">kinc_start()</a>. After calling this you can hit Ctrl+Alt+F11 to hot-reload. Call Project.addLivePP(path) in your kfile to make this do something. The path-parameter for addLivePP is the path to the unpacked Live++-archive that has to contain a LivePP-subdirectory. This will set the appropricate compiler- and linker-options and set the KINC_LIVEPP-define for the Debug- and Develop-configs (it does not touch the Release-config).  <a href="system_8h.html#a0d5716d76ba844933f37a18af023bc3b">More...</a><br /></td></tr>
-<tr class="separator:a0d5716d76ba844933f37a18af023bc3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac54ecc64adde52576764149d78453b5b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#ac54ecc64adde52576764149d78453b5b">kinc_stop_LivePP</a> (void)</td></tr>
-<tr class="memdesc:ac54ecc64adde52576764149d78453b5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops Live++, typically called right after <a class="el" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733" title="Starts Kinc&#39;s main-loop. kinc_set_update_callback should be called before kinc_start so the main-loop...">kinc_start()</a>.  <a href="system_8h.html#ac54ecc64adde52576764149d78453b5b">More...</a><br /></td></tr>
-<tr class="separator:ac54ecc64adde52576764149d78453b5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7150c6ba73428b4600d77adaeca0d8f3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a7150c6ba73428b4600d77adaeca0d8f3">kinc_LivePP_start</a> (void)</td></tr>
+<tr class="memdesc:a7150c6ba73428b4600d77adaeca0d8f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Currently only supported on Windows. Starts up Live++ (see <a href="https://liveplusplus.tech">https://liveplusplus.tech</a>), tyipcally called right before <a class="el" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733" title="Starts Kinc&#39;s main-loop. kinc_set_update_callback should be called before kinc_start so the main-loop...">kinc_start()</a>. After calling this you can hit Ctrl+Alt+F11 to hot-reload. Call Project.addLivePP(path) in your kfile to make this do something. The path-parameter for addLivePP is the path to the unpacked Live++-archive that has to contain a LivePP-subdirectory. This will set the appropricate compiler- and linker-options and set the KINC_LIVEPP-define for the Debug- and Develop-configs (it does not touch the Release-config).  <a href="system_8h.html#a7150c6ba73428b4600d77adaeca0d8f3">More...</a><br /></td></tr>
+<tr class="separator:a7150c6ba73428b4600d77adaeca0d8f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0ae3877a74d69b2d9caf84639f224fc"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#ae0ae3877a74d69b2d9caf84639f224fc">kinc_LivePP_stop</a> (void)</td></tr>
+<tr class="memdesc:ae0ae3877a74d69b2d9caf84639f224fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops Live++, typically called right after <a class="el" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733" title="Starts Kinc&#39;s main-loop. kinc_set_update_callback should be called before kinc_start so the main-loop...">kinc_start()</a>.  <a href="system_8h.html#ae0ae3877a74d69b2d9caf84639f224fc">More...</a><br /></td></tr>
+<tr class="separator:ae0ae3877a74d69b2d9caf84639f224fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides basic system and application-management functionality which doesn't fit anywhere else. </p>
@@ -496,6 +496,48 @@ Functions</h2></td></tr>
 
 <p>Returns the current system-language. </p>
 <dl class="section return"><dt>Returns</dt><dd>The current system-language as a two-letter language code</dd></dl>
+
+</div>
+</div>
+<a id="a7150c6ba73428b4600d77adaeca0d8f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7150c6ba73428b4600d77adaeca0d8f3">&#9670;&nbsp;</a></span>kinc_LivePP_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_LivePP_start </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Currently only supported on Windows. Starts up Live++ (see <a href="https://liveplusplus.tech">https://liveplusplus.tech</a>), tyipcally called right before <a class="el" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733" title="Starts Kinc&#39;s main-loop. kinc_set_update_callback should be called before kinc_start so the main-loop...">kinc_start()</a>. After calling this you can hit Ctrl+Alt+F11 to hot-reload. Call Project.addLivePP(path) in your kfile to make this do something. The path-parameter for addLivePP is the path to the unpacked Live++-archive that has to contain a LivePP-subdirectory. This will set the appropricate compiler- and linker-options and set the KINC_LIVEPP-define for the Debug- and Develop-configs (it does not touch the Release-config). </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="ae0ae3877a74d69b2d9caf84639f224fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0ae3877a74d69b2d9caf84639f224fc">&#9670;&nbsp;</a></span>kinc_LivePP_stop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_LivePP_stop </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stops Live++, typically called right after <a class="el" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733" title="Starts Kinc&#39;s main-loop. kinc_set_update_callback should be called before kinc_start so the main-loop...">kinc_start()</a>. </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
@@ -1108,27 +1150,6 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a0d5716d76ba844933f37a18af023bc3b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0d5716d76ba844933f37a18af023bc3b">&#9670;&nbsp;</a></span>kinc_start_LivePP()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_start_LivePP </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Currently only supported on Windows. Starts up Live++ (see <a href="https://liveplusplus.tech">https://liveplusplus.tech</a>), tyipcally called right before <a class="el" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733" title="Starts Kinc&#39;s main-loop. kinc_set_update_callback should be called before kinc_start so the main-loop...">kinc_start()</a>. After calling this you can hit Ctrl+Alt+F11 to hot-reload. Call Project.addLivePP(path) in your kfile to make this do something. The path-parameter for addLivePP is the path to the unpacked Live++-archive that has to contain a LivePP-subdirectory. This will set the appropricate compiler- and linker-options and set the KINC_LIVEPP-define for the Debug- and Develop-configs (it does not touch the Release-config). </p>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
-
-</div>
-</div>
 <a id="a9fc16f004fa12306b3f74e166a2f9658"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9fc16f004fa12306b3f74e166a2f9658">&#9670;&nbsp;</a></span>kinc_stop()</h2>
 
@@ -1146,27 +1167,6 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Stops Kinc's main loop and thereby returns to the function which called kinc_start. </p>
-
-</div>
-</div>
-<a id="ac54ecc64adde52576764149d78453b5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac54ecc64adde52576764149d78453b5b">&#9670;&nbsp;</a></span>kinc_stop_LivePP()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_stop_LivePP </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Stops Live++, typically called right after <a class="el" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733" title="Starts Kinc&#39;s main-loop. kinc_set_update_callback should be called before kinc_start so the main-loop...">kinc_start()</a>. </p>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
