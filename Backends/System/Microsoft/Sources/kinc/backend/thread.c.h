@@ -1,5 +1,13 @@
 #include <kinc/threads/thread.h>
 
+#ifdef KINC_VTUNE
+#include <ittnotify.h>
+#endif
+
+#ifdef KINC_SUPERLUMINAL
+#include <Superluminal/PerformanceAPI_capi.h>
+#endif
+
 void kinc_threads_init() {}
 
 void kinc_threads_quit() {}
@@ -46,6 +54,20 @@ bool kinc_thread_try_to_destroy(kinc_thread_t *thread) {
 		return true;
 	}
 	return false;
+}
+
+void kinc_thread_set_name(const char *name) {
+	wchar_t wide_name[256];
+	MultiByteToWideChar(CP_ACP, 0, name, -1, wide_name, 256);
+	SetThreadDescription(GetCurrentThread(), wide_name);
+
+#ifdef KINC_VTUNE
+	__itt_thread_set_name(name);
+#endif
+
+#ifdef KINC_SUPERLUMINAL
+	PerformanceAPI_SetCurrentThreadName(name);
+#endif
 }
 
 void kinc_thread_sleep(int milliseconds) {
