@@ -287,14 +287,14 @@ KINC_FUNC void kinc_set_logout_callback(void (*callback)(void *), void *data);
 /// for the Debug- and Develop-configs (it does not touch the Release-config).
 /// </summary>
 /// <returns></returns>
-KINC_FUNC void kinc_start_LivePP(void);
+KINC_FUNC void kinc_LivePP_start(void);
 
 /// <summary>
 /// Stops Live++, typically called right after kinc_start().
 /// </summary>
 /// <param name=""></param>
 /// <returns></returns>
-KINC_FUNC void kinc_stop_LivePP(void);
+KINC_FUNC void kinc_LivePP_stop(void);
 
 bool kinc_internal_frame(void);
 const char *kinc_internal_save_path(void);

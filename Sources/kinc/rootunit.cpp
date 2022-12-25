@@ -7,7 +7,7 @@
 
 static lpp::LppDefaultAgent lppAgent;
 
-void kinc_start_LivePP(void) {
+void kinc_LivePP_start(void) {
 	// create a default agent, loading the Live++ agent from the given path, e.g. "ThirdParty/LivePP"
 	lppAgent = lpp::LppCreateDefaultAgent(KINC_LIVEPP_PATH);
 
@@ -15,7 +15,7 @@ void kinc_start_LivePP(void) {
 	lppAgent.EnableModule(lpp::LppGetCurrentModulePath(), lpp::LPP_MODULES_OPTION_ALL_IMPORT_MODULES);
 }
 
-void kinc_stop_LivePP(void) {
+void kinc_LivePP_stop(void) {
 	// destroy the Live++ agent
 	lpp::LppDestroyDefaultAgent(&lppAgent);
 }
