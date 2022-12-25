@@ -277,6 +277,25 @@ KINC_FUNC void kinc_set_login_callback(void (*callback)(void *), void *data);
 /// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
 KINC_FUNC void kinc_set_logout_callback(void (*callback)(void *), void *data);
 
+/// <summary>
+/// Currently only supported on Windows.
+/// Starts up Live++ (see https://liveplusplus.tech), tyipcally called right before kinc_start().
+/// After calling this you can hit Ctrl+Alt+F11 to hot-reload.
+/// Call Project.addLivePP(path) in your kfile to make this do something.
+/// The path-parameter for addLivePP is the path to the unpacked Live++-archive that has to contain a LivePP-subdirectory.
+/// This will set the appropricate compiler- and linker-options and set the KINC_LIVEPP-define
+/// for the Debug- and Develop-configs (it does not touch the Release-config).
+/// </summary>
+/// <returns></returns>
+KINC_FUNC void kinc_start_LivePP(void);
+
+/// <summary>
+/// Stops Live++, typically called right after kinc_start().
+/// </summary>
+/// <param name=""></param>
+/// <returns></returns>
+KINC_FUNC void kinc_stop_LivePP(void);
+
 bool kinc_internal_frame(void);
 const char *kinc_internal_save_path(void);
 bool kinc_internal_handle_messages(void);
