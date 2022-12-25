@@ -109,6 +109,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a06847a0ff40997859e5942a7332b4c38"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="thread_8h.html#a06847a0ff40997859e5942a7332b4c38">kinc_thread_try_to_destroy</a> (<a class="el" href="structkinc__thread.html">kinc_thread_t</a> *thread)</td></tr>
 <tr class="memdesc:a06847a0ff40997859e5942a7332b4c38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to destroy a thread.  <a href="thread_8h.html#a06847a0ff40997859e5942a7332b4c38">More...</a><br /></td></tr>
 <tr class="separator:a06847a0ff40997859e5942a7332b4c38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c4d6566d57d4d721ac94760941075cb"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="thread_8h.html#a6c4d6566d57d4d721ac94760941075cb">kinc_thread_set_name</a> (const char *name)</td></tr>
+<tr class="memdesc:a6c4d6566d57d4d721ac94760941075cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a name to the current thread which will then show up in debuggers and profilers.  <a href="thread_8h.html#a6c4d6566d57d4d721ac94760941075cb">More...</a><br /></td></tr>
+<tr class="separator:a6c4d6566d57d4d721ac94760941075cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af67c54a60ce4129612e8484cadddace2"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="thread_8h.html#af67c54a60ce4129612e8484cadddace2">kinc_thread_sleep</a> (int milliseconds)</td></tr>
 <tr class="memdesc:af67c54a60ce4129612e8484cadddace2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Puts the current thread to sleep.  <a href="thread_8h.html#af67c54a60ce4129612e8484cadddace2">More...</a><br /></td></tr>
 <tr class="separator:af67c54a60ce4129612e8484cadddace2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,6 +157,32 @@ Functions</h2></td></tr>
     <tr><td class="paramname">thread</td><td>The thread-object to initialize with the new thread</td></tr>
     <tr><td class="paramname">func</td><td>The function used to start a new thread</td></tr>
     <tr><td class="paramname">param</td><td>A parameter that is passed to the thread-function when the thread starts running</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a6c4d6566d57d4d721ac94760941075cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c4d6566d57d4d721ac94760941075cb">&#9670;&nbsp;</a></span>kinc_thread_set_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_thread_set_name </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Assigns a name to the current thread which will then show up in debuggers and profilers. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>The name to assign to the thread</td></tr>
   </table>
   </dd>
 </dl>
