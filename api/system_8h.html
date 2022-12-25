@@ -207,6 +207,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a83ccc5db2410062a80d60f91b4b7f3e7"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a83ccc5db2410062a80d60f91b4b7f3e7">kinc_set_logout_callback</a> (void(*callback)(void *), void *data)</td></tr>
 <tr class="memdesc:a83ccc5db2410062a80d60f91b4b7f3e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when a user logs out.  <a href="system_8h.html#a83ccc5db2410062a80d60f91b4b7f3e7">More...</a><br /></td></tr>
 <tr class="separator:a83ccc5db2410062a80d60f91b4b7f3e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f0e3a784c08f943097e144dd98aff2c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a1f0e3a784c08f943097e144dd98aff2c">kinc_marker_start</a> (const char *name, uint32_t color)</td></tr>
+<tr class="memdesc:a1f0e3a784c08f943097e144dd98aff2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts a marker for profiling. Please match it with a marker_end-call in the same function.  <a href="system_8h.html#a1f0e3a784c08f943097e144dd98aff2c">More...</a><br /></td></tr>
+<tr class="separator:a1f0e3a784c08f943097e144dd98aff2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97785096184a8a877b486080e1347d64"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a97785096184a8a877b486080e1347d64">kinc_marker_end</a> (const char *name)</td></tr>
+<tr class="memdesc:a97785096184a8a877b486080e1347d64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ends the previously started marker of the same function.  <a href="system_8h.html#a97785096184a8a877b486080e1347d64">More...</a><br /></td></tr>
+<tr class="separator:a97785096184a8a877b486080e1347d64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7150c6ba73428b4600d77adaeca0d8f3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a7150c6ba73428b4600d77adaeca0d8f3">kinc_LivePP_start</a> (void)</td></tr>
 <tr class="memdesc:a7150c6ba73428b4600d77adaeca0d8f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Currently only supported on Windows. Starts up Live++ (see <a href="https://liveplusplus.tech">https://liveplusplus.tech</a>), tyipcally called right before <a class="el" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733" title="Starts Kinc&#39;s main-loop. kinc_set_update_callback should be called before kinc_start so the main-loop...">kinc_start()</a>. After calling this you can hit Ctrl+Alt+F11 to hot-reload. Call Project.addLivePP(path) in your kfile to make this do something. The path-parameter for addLivePP is the path to the unpacked Live++-archive that has to contain a LivePP-subdirectory. This will set the appropricate compiler- and linker-options and set the KINC_LIVEPP-define for the Debug- and Develop-configs (it does not touch the Release-config).  <a href="system_8h.html#a7150c6ba73428b4600d77adaeca0d8f3">More...</a><br /></td></tr>
 <tr class="separator:a7150c6ba73428b4600d77adaeca0d8f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -584,6 +590,79 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Instructs the system to login a user if that is supported. </p>
+
+</div>
+</div>
+<a id="a97785096184a8a877b486080e1347d64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97785096184a8a877b486080e1347d64">&#9670;&nbsp;</a></span>kinc_marker_end()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void kinc_marker_end </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Ends the previously started marker of the same function. </p>
+
+</div>
+</div>
+<a id="a1f0e3a784c08f943097e144dd98aff2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f0e3a784c08f943097e144dd98aff2c">&#9670;&nbsp;</a></span>kinc_marker_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void kinc_marker_start </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>color</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Starts a marker for profiling. Please match it with a marker_end-call in the same function. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>A unique name that will be shown in the profiler</td></tr>
+    <tr><td class="paramname">color</td><td>A nice color in RGBX that will show up in the profiler</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

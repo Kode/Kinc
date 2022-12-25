@@ -66,7 +66,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">vertexstructure.h File Reference</div>  </div>
 </div><!--header-->
@@ -90,10 +91,108 @@ typedef <a class="el" href="structkinc__g4__vertex__element.html">kinc_g4_vertex
 <tr class="memitem:a43252e0b0b809e5af3e641ec4686db85"><td class="memItemLeft" align="right" valign="top"><a id="a43252e0b0b809e5af3e641ec4686db85"></a>
 typedef <a class="el" href="structkinc__g4__vertex__structure.html">kinc_g4_vertex_structure_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_vertex_structure_t</b></td></tr>
 <tr class="separator:a43252e0b0b809e5af3e641ec4686db85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a846dabfd85843d808a13d965e3afd497"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2vertexstructure_8h.html#a846dabfd85843d808a13d965e3afd497">kinc_g5_vertex_structure_init</a> (<a class="el" href="structkinc__g4__vertex__structure.html">kinc_g5_vertex_structure_t</a> *structure)</td></tr>
+<tr class="memdesc:a846dabfd85843d808a13d965e3afd497"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a vertex-structure.  <a href="graphics5_2vertexstructure_8h.html#a846dabfd85843d808a13d965e3afd497">More...</a><br /></td></tr>
+<tr class="separator:a846dabfd85843d808a13d965e3afd497"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2a09b78164f95b9a51f2783fcb27129"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2vertexstructure_8h.html#ad2a09b78164f95b9a51f2783fcb27129">kinc_g5_vertex_structure_add</a> (<a class="el" href="structkinc__g4__vertex__structure.html">kinc_g5_vertex_structure_t</a> *structure, const char *name, kinc_g5_vertex_data_t data)</td></tr>
+<tr class="memdesc:ad2a09b78164f95b9a51f2783fcb27129"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an element to a vertex-structure.  <a href="graphics5_2vertexstructure_8h.html#ad2a09b78164f95b9a51f2783fcb27129">More...</a><br /></td></tr>
+<tr class="separator:ad2a09b78164f95b9a51f2783fcb27129"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides types for setting up the structure of vertices in a vertex-buffer. </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="ad2a09b78164f95b9a51f2783fcb27129"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2a09b78164f95b9a51f2783fcb27129">&#9670;&nbsp;</a></span>kinc_g5_vertex_structure_add()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void kinc_g5_vertex_structure_add </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g4__vertex__structure.html">kinc_g5_vertex_structure_t</a> *&#160;</td>
+          <td class="paramname"><em>structure</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">kinc_g5_vertex_data_t&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Adds an element to a vertex-structure. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">structure</td><td>The structure to add an element to</td></tr>
+    <tr><td class="paramname">name</td><td>The name to use for the new element</td></tr>
+    <tr><td class="paramname">data</td><td>The type of data to assign for the new element</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="a846dabfd85843d808a13d965e3afd497"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a846dabfd85843d808a13d965e3afd497">&#9670;&nbsp;</a></span>kinc_g5_vertex_structure_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void kinc_g5_vertex_structure_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g4__vertex__structure.html">kinc_g5_vertex_structure_t</a> *&#160;</td>
+          <td class="paramname"><em>structure</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Initializes a vertex-structure. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">structure</td><td>The structure to initialize</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1
