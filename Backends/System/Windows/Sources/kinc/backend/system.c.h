@@ -27,6 +27,12 @@
 #include <shellapi.h>
 #include <shlobj.h>
 
+#if defined(KINC_VTUNE)
+#include <ittnotify.h>
+
+__itt_domain *kinc_itt_domain;
+#endif
+
 #ifdef KORE_G4ONG5
 #define Graphics Graphics5
 #elif KORE_G4
@@ -1363,6 +1369,10 @@ static void init_crash_handler() {
 
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	init_crash_handler();
+
+#if defined(KINC_VTUNE)
+	kinc_itt_domain = __itt_domain_create(name);
+#endif
 
 	// Pen functions are only in Windows 8 and later, so load them dynamically
 	HMODULE user32 = LoadLibraryA("user32.dll");

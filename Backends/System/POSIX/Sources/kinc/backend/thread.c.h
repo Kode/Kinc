@@ -62,6 +62,14 @@ void kinc_threads_quit() {}
 
 #endif
 
+void kinc_thread_set_name(const char *name) {
+#if !defined(KORE_IOS) && !defined(KORE_MACOS)
+	pthread_setname_np(pthread_self(), name);
+#else
+	pthread_setname_np(name);
+#endif
+}
+
 void kinc_thread_sleep(int milliseconds) {
 	usleep(1000 * (useconds_t)milliseconds);
 }

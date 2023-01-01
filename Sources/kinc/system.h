@@ -277,6 +277,63 @@ KINC_FUNC void kinc_set_login_callback(void (*callback)(void *), void *data);
 /// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
 KINC_FUNC void kinc_set_logout_callback(void (*callback)(void *), void *data);
 
+#ifdef KINC_VTUNE
+#include <ittnotify.h>
+
+extern __itt_domain *kinc_itt_domain;
+#endif
+
+#ifdef KINC_SUPERLUMINAL
+#include <Superluminal/PerformanceAPI_capi.h>
+#endif
+
+/// <summary>
+/// Starts a marker for profiling. Please match it with a marker_end-call in the same function.
+/// </summary>
+/// <param name="name">A unique name that will be shown in the profiler</param>
+/// <param name="color">A nice color in RGBX that will show up in the profiler</param>
+static inline void kinc_marker_start(const char *name, uint32_t color) {
+#ifdef KINC_VTUNE
+	__itt_task_begin(kinc_itt_domain, __itt_null, __itt_null, __itt_string_handle_create(name));
+#endif
+
+#ifdef KINC_SUPERLUMINAL
+	PerformanceAPI_BeginEvent(name, NULL, color);
+#endif
+}
+
+/// <summary>
+/// Ends the previously started marker of the same function.
+/// </summary>
+static inline void kinc_marker_end(const char *name) {
+#ifdef KINC_VTUNE
+	__itt_task_end(kinc_itt_domain);
+#endif
+
+#ifdef KINC_SUPERLUMINAL
+	PerformanceAPI_EndEvent();
+#endif
+}
+
+/// <summary>
+/// Currently only supported on Windows.
+/// Starts up Live++ (see https://liveplusplus.tech), tyipcally called right before kinc_start().
+/// After calling this you can hit Ctrl+Alt+F11 to hot-reload.
+/// Call Project.addLivePP(path) in your kfile to make this do something.
+/// The path-parameter for addLivePP is the path to the unpacked Live++-archive that has to contain a LivePP-subdirectory.
+/// This will set the appropricate compiler- and linker-options and set the KINC_LIVEPP-define
+/// for the Debug- and Develop-configs (it does not touch the Release-config).
+/// </summary>
+/// <returns></returns>
+KINC_FUNC void kinc_LivePP_start(void);
+
+/// <summary>
+/// Stops Live++, typically called right after kinc_start().
+/// </summary>
+/// <param name=""></param>
+/// <returns></returns>
+KINC_FUNC void kinc_LivePP_stop(void);
+
 bool kinc_internal_frame(void);
 const char *kinc_internal_save_path(void);
 bool kinc_internal_handle_messages(void);

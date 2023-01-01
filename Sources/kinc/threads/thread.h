@@ -50,6 +50,12 @@ KINC_FUNC void kinc_thread_wait_and_destroy(kinc_thread_t *thread);
 KINC_FUNC bool kinc_thread_try_to_destroy(kinc_thread_t *thread);
 
 /// <summary>
+/// Assigns a name to the current thread which will then show up in debuggers and profilers.
+/// </summary>
+/// <param name="name">The name to assign to the thread</param>
+KINC_FUNC void kinc_thread_set_name(const char *name);
+
+/// <summary>
 /// Puts the current thread to sleep.
 /// </summary>
 /// <param name="milliseconds">How long to sleep</param>
