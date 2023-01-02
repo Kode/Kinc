@@ -14,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Set name
+      run: git config --global user.name "Robbot"
+    - name: Set email
+      run: git config --global user.email "robbot2019@robdangero.us"
     - name: Clone Samples
       run: git clone https://github.com/Kode/Kinc-Samples.git
     - name: Get Kinc-Submodule
@@ -22,10 +26,6 @@ jobs:
     - name: Checkout Kinc
       working-directory: Kinc-Samples/Kinc
       run: git checkout main
-    - name: Set name
-      run: git config --global user.name "Robbot"
-    - name: Set email
-      run: git config --global user.email "robbot2019@robdangero.us"
     - name: Add Kinc
       working-directory: Kinc-Samples
       run: git add Kinc
@@ -35,5 +35,24 @@ jobs:
     - name: Push
       working-directory: Kinc-Samples
       run: git push https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples.git
+      env:
+        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
+    - name: Clone Samples
+      run: git clone https://github.com/Kode/Kinc-Samples-Switch.git
+    - name: Get Kinc-Submodule
+      working-directory: Kinc-Samples-Switch
+      run: git submodule update --init --remote Kinc
+    - name: Checkout Kinc
+      working-directory: Kinc-Samples-Switch/Kinc
+      run: git checkout main
+    - name: Add Kinc
+      working-directory: Kinc-Samples-Switch
+      run: git add Kinc
+    - name: Commit
+      working-directory: Kinc-Samples-Switch
+      run: git commit -m "Update Kinc"
+    - name: Push
+      working-directory: Kinc-Samples-Switch
+      run: git push https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-Switch.git
       env:
         ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
