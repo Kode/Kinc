@@ -38,7 +38,9 @@ jobs:
       env:
         ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
     - name: Clone Samples
-      run: git clone https://github.com/Kode/Kinc-Samples-Switch.git
+      run: git clone https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-Switch.git
+      env:
+        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
     - name: Get Kinc-Submodule
       working-directory: Kinc-Samples-Switch
       run: git submodule update --init --remote Kinc
