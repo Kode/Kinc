@@ -83,14 +83,14 @@ if (platform === Platform.Windows) {
 		project.addDefine('KORE_OPENGL');
 		project.addDefine('GLEW_STATIC');
 	}
-	else if (graphics === GraphicsApi.Direct3D11 || graphics === GraphicsApi.Default) {
+	else if (graphics === GraphicsApi.Direct3D11) {
 		g4 = true;
 		addBackend('Graphics4/Direct3D11');
 		project.addDefine('KORE_DIRECT3D');
 		project.addDefine('KORE_DIRECT3D11');
 		project.addLib('d3d11');
 	}
-	else if (graphics === GraphicsApi.Direct3D12) {
+	else if (graphics === GraphicsApi.Direct3D12 || graphics === GraphicsApi.Default) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Direct3D12');
@@ -260,7 +260,7 @@ else if (platform === Platform.Android) {
 	project.addDefine('KORE_ANDROID');
 	addBackend('System/Android');
 	addBackend('System/POSIX');
-	if (graphics === GraphicsApi.Vulkan) {
+	if (graphics === GraphicsApi.Vulkan || graphics === GraphicsApi.Default) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Vulkan');
@@ -269,7 +269,7 @@ else if (platform === Platform.Android) {
 		project.addLib('vulkan');
 		project.addDefine('KORE_ANDROID_API=24');
 	}
-	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
+	else if (graphics === GraphicsApi.OpenGL) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addDefine('KORE_OPENGL');
@@ -443,14 +443,14 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		project.addDefine('KINC_NO_WAYLAND');
 	}
 
-	if (graphics === GraphicsApi.Vulkan) {
+	if (graphics === GraphicsApi.Vulkan || (platform === Platform.Linux && graphics === GraphicsApi.Default)) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Vulkan');
 		project.addLib('vulkan');
 		project.addDefine('KORE_VULKAN');
 	}
-	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
+	else if (graphics === GraphicsApi.OpenGL || (platform === Platform.FreeBSD && graphics === GraphicsApi.Default)) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/glew.c');
