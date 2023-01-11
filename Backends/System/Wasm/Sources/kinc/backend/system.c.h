@@ -59,7 +59,7 @@ __attribute__((export_name("_start"))) void _start(void) {
 	kickstart(0, NULL);
 }
 
-__attribute__((export_name("_update"))) void _update() {
+__attribute__((export_name("_update"))) void _update(void) {
 	kinc_internal_update_callback();
 	kinc_a2_update();
 }
