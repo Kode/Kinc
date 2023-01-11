@@ -326,7 +326,7 @@ else if (platform === Platform.Wasm) {
 		project.addDefine('KORE_OPENGL_ES');
 	}
 	else {
-		throw new Error('Graphics API ' + graphics + ' is not available for Emscripten.');
+		throw new Error('Graphics API ' + graphics + ' is not available for Wasm.');
 	}
 }
 else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
