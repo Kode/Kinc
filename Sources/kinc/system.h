@@ -581,7 +581,7 @@ bool kinc_internal_frame(void) {
 void kinc_start(void) {
 	running = true;
 
-#if !defined(KORE_EMSCRIPTEN) && !defined(KORE_TIZEN)
+#if !defined(KORE_WASM) && !defined(KORE_EMSCRIPTEN) && !defined(KORE_TIZEN)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 
 #if defined(KORE_IOS) || defined(KORE_MACOS)

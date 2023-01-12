@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+extern int kinc_internal_window_width;
+extern int kinc_internal_window_height;
+
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	kinc_window_options_t defaultWin;
 	if (win == NULL) {
@@ -21,6 +24,9 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	}
 	win->width = width;
 	win->height = height;
+
+	kinc_internal_window_width = width;
+	kinc_internal_window_height = height;
 
 	kinc_g4_internal_init();
 	kinc_g4_internal_init_window(0, frame->depth_bits, frame->stencil_bits, true);
@@ -51,4 +57,9 @@ extern int kickstart(int argc, char **argv);
 
 __attribute__((export_name("_start"))) void _start(void) {
 	kickstart(0, NULL);
+}
+
+__attribute__((export_name("_update"))) void _update(void) {
+	kinc_internal_update_callback();
+	kinc_a2_update();
 }

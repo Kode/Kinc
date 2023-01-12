@@ -126,6 +126,8 @@ typedef char GLchar;
 #define GL_BYTE 0x1400
 #define GL_SHORT 0x1402
 #define GL_INT 0x1404
+#define GL_CONSTANT_COLOR 0x8001
+#define GL_ONE_MINUS_CONSTANT_COLOR 0x8002
 
 __attribute__((import_module("imports"), import_name("glUniform1i"))) void glUniform1i(GLint location, GLint v0);
 __attribute__((import_module("imports"), import_name("glUniform2i"))) void glUniform2i(GLint location, GLint v0, GLint v1);
@@ -234,3 +236,4 @@ __attribute__((import_module("imports"), import_name("glEnableVertexAttribArray"
 __attribute__((import_module("imports"), import_name("glDisableVertexAttribArray"))) void glDisableVertexAttribArray(GLuint index);
 __attribute__((import_module("imports"), import_name("glVertexAttribPointer"))) void
 glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+__attribute__((import_module("imports"), import_name("glBlendColor"))) void glBlendColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
