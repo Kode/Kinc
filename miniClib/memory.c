@@ -1,6 +1,16 @@
 #include "stdlib.h"
 
+#ifdef KORE_WASM
+static unsigned char buffer[1024 * 1024];
+static unsigned int allocated = 1;
+#endif
+
 void *malloc(size_t size) {
+#ifdef KORE_WASM
+	void *p = &buffer[allocated];
+	allocated += size;
+	return p;
+#endif
 	return NULL;
 }
 
