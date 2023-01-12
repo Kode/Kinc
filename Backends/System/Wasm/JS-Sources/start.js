@@ -178,6 +178,32 @@ async function init() {
         },
         glDisableVertexAttribArray: function(index) {
           gl.disableVertexAttribArray(index);
+        },
+
+        js_fprintf: function(format) {
+          console.log(read_string(format));
+        },
+        js_fopen: function(filename) {
+          const req = new XMLHttpRequest();
+          req.open("GET", read_string(filename), false);
+          req.send();
+          let str = req.response;
+          file_buffer = new ArrayBuffer(str.length);
+          let buf_view = new Uint8Array(file_buffer);
+          for (let i = 0; i < str.length; ++i) {
+            buf_view[i] = str.charCodeAt(i);
+          }
+          return 1;
+        },
+        js_ftell: function(stream) {
+          return file_buffer.byteLength;
+        },
+        js_fread: function(ptr, size, count, stream) {
+          let buf_view = new Uint8Array(file_buffer);
+          for (let i = 0; i < count; ++i) {
+            heapu8[ptr + i] = buf_view[i];
+          }
+          return file_buffer.byteLength;
         }
       }
     }
