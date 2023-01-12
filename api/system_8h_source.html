@@ -461,7 +461,7 @@ $(function() {
 <div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733">kinc_start</a>(<span class="keywordtype">void</span>) {</div>
 <div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;    running = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160; </div>
-<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;<span class="preprocessor">#if !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_TIZEN)</span></div>
+<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;<span class="preprocessor">#if !defined(KORE_WASM) &amp;&amp; !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_TIZEN)</span></div>
 <div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;    <span class="comment">// if (Graphics::hasWindow()) Graphics::swapBuffers();</span></div>
 <div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160; </div>
 <div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
