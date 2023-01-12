@@ -213,6 +213,12 @@ async function init() {
   instance = result.instance;
   instance.exports._start();
 
+  function update() {
+    instance.exports._update();
+    window.requestAnimationFrame(update);
+  }
+  window.requestAnimationFrame(update);
+
   kanvas.addEventListener('click', (event) => {
   //  start_audio_thread();
   });
