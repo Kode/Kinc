@@ -292,6 +292,9 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 		strcpy(filepath, filename);
 	}
 #endif
+#ifdef KORE_WASM
+	strcpy(filepath, filename);
+#endif
 #ifdef KORE_EMSCRIPTEN
 	strcpy(filepath, KORE_DEBUGDIR);
 	strcat(filepath, "/");
