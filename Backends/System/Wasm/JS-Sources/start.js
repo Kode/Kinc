@@ -49,6 +49,7 @@ async function init() {
 	const gl = kanvas.getContext('webgl2', { majorVersion: 2, minorVersion: 0, antialias: true, alpha: false });
 
 	let file_buffer = null;
+	let file_buffer_pos = 0;
 	let gl_programs = [null];
 	let gl_shaders = [null];
 	let gl_buffers = [null];
@@ -234,8 +235,10 @@ async function init() {
 				js_fopen: function(filename) {
 					const req = new XMLHttpRequest();
 					req.open("GET", read_string(filename), false);
+					req.overrideMimeType("text/plain; charset=x-user-defined");
 					req.send();
 					let str = req.response;
+					file_buffer_pos = 0;
 					file_buffer = new ArrayBuffer(str.length);
 					let buf_view = new Uint8Array(file_buffer);
 					for (let i = 0; i < str.length; ++i) {
@@ -244,14 +247,19 @@ async function init() {
 					return 1;
 				},
 				js_ftell: function(stream) {
-					return file_buffer.byteLength;
+					return file_buffer_pos;
+				},
+				js_fseek: function(stream, offset, origin) {
+					file_buffer_pos = offset;
+					if (origin == 1) file_buffer_pos += file_buffer.byteLength; // SEEK_END
+					return 0;
 				},
 				js_fread: function(ptr, size, count, stream) {
 					let buf_view = new Uint8Array(file_buffer);
 					for (let i = 0; i < count; ++i) {
-						heapu8[ptr + i] = buf_view[i];
+						heapu8[ptr + i] = buf_view[file_buffer_pos++];
 					}
-					return file_buffer.byteLength;
+					return count;
 				}
 			}
 		}
