@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 #define SEEK_SET 0
-#define SEEK_END 0
+#define SEEK_END 1
 
 typedef int FILE;
 

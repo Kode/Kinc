@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+__attribute__((import_module("imports"), import_name("js_time"))) int js_time();
+
 extern int kinc_internal_window_width;
 extern int kinc_internal_window_height;
 
@@ -44,11 +46,11 @@ double kinc_frequency(void) {
 }
 
 kinc_ticks_t kinc_timestamp(void) {
-	return (kinc_ticks_t)(0.0);
+	return (kinc_ticks_t)(js_time());
 }
 
 double kinc_time(void) {
-	return 0.0;
+	return js_time() / 1000.0;
 }
 
 void kinc_internal_shutdown(void) {}
