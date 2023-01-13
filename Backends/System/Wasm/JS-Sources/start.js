@@ -263,6 +263,24 @@ async function init() {
 				},
 				js_time: function() {
 					return window.performance.now();
+				},
+				js_pow: function(x) {
+					return Math.pow(x);
+				},
+				js_floor: function(x) {
+					return Math.floor(x);
+				},
+				js_sin: function(x) {
+					return Math.sin(x);
+				},
+				js_cos: function(x) {
+					return Math.cos(x);
+				},
+				js_log: function(base, exponent) {
+					return Math.log(base, exponent);
+				},
+				js_exp: function(x) {
+					return Math.exp(x);
 				}
 			}
 		}
