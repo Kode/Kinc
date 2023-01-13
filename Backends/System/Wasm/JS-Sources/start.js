@@ -33,6 +33,13 @@ function read_string(ptr) {
 	return str;
 }
 
+function write_string(ptr, str) {
+	for (let i = 0; i < str.length; ++i) {
+		heapu8[ptr + i] = str.charCodeAt(i);
+	}
+	heapu8[ptr + str.length] = 0;
+}
+
 async function init() {
 	memory = new WebAssembly.Memory({ initial: 18, maximum: 18, shared: true }); // has to match what's defined in the wasm-module when shared is true
 	heapu8 = new Uint8Array(memory.buffer);
@@ -46,6 +53,8 @@ async function init() {
 	let gl_shaders = [null];
 	let gl_buffers = [null];
 	let gl_framebuffers = [null];
+	let gl_textures = [null];
+	let gl_locations = [null];
 
 	const result = await WebAssembly.instantiateStreaming(
 		fetch("./ShaderTest.wasm"), {
@@ -62,7 +71,7 @@ async function init() {
 					// return gl.getParameter(name);
 				},
 				glUniform1i: function(location, v0) {
-					gl.uniform1i(location, v0);
+					gl.uniform1i(gl_locations[location], v0);
 				},
 				glDrawElements: function(mode, count, type, offset) {
 					gl.drawElements(mode, count, type, offset);
@@ -126,8 +135,10 @@ async function init() {
 					gl.blendEquationSeparate(mode_rgb, mode_alpha);
 				},
 				glGenBuffers: function(n, buffers) {
-					gl_buffers.push(gl.createBuffer());
-					heapu32[buffers / 4] = gl_buffers.length - 1;
+					for (let i = 0; i < n; ++i) {
+						gl_buffers.push(gl.createBuffer());
+						heapu32[buffers / 4 + i] = gl_buffers.length - 1;
+					}
 				},
 				glBufferData: function(target, size, data, usage) {
 					gl.bufferData(target, heapu8.subarray(data, data + Number(size)), usage);
@@ -179,7 +190,44 @@ async function init() {
 				glDisableVertexAttribArray: function(index) {
 					gl.disableVertexAttribArray(index);
 				},
-
+				glGetUniformLocation: function(program, name) {
+					gl_locations.push(gl.getUniformLocation(gl_programs[program], read_string(name)));
+					return gl_locations.length - 1;
+				},
+				glUniformMatrix3fv: function(location, count, transpose, value) {
+					var f32 = new Float32Array(memory.buffer, value, 3 * 3);
+					gl.uniformMatrix3fv(gl_locations[location], transpose, f32);
+				},
+				glActiveTexture: function(texture) {
+					gl.activeTexture(texture);
+				},
+				glBindTexture: function(target, texture) {
+					gl.bindTexture(target, gl_textures[texture]);
+				},
+				glTexParameteri: function(target, pname, param) {
+					gl.texParameteri(target, pname, param);
+				},
+				glGetActiveUniform: function(program, index, bufSize, length, size, type, name) {
+					let u = gl.getActiveUniform(gl_programs[program], index);
+					heapu32[size / 4] = u.size;
+					heapu32[type / 4] = u.type;
+					write_string(name, u.name);
+				},
+				glGenTextures: function(n, textures) {
+					for (let i = 0; i < n; ++i) {
+						gl_textures.push(gl.createTexture());
+						heapu32[textures / 4 + i] = gl_textures.length - 1;
+					}
+				},
+				glTexImage2D: function(target, level, internalformat, width, height, border, format, type, data) {
+					gl.texImage2D(target, level, internalformat, width, height, border, format, type, heapu8.subarray(data));
+				},
+				glPixelStorei: function(pname, param) {
+					gl.pixelStorei(pname, param);
+				},
+				glCompressedTexImage2D: function(target, level, internalformat, width, height, border, imageSize, data) {
+					gl.compressedTexImage2D(target, level, internalformat, width, height, border, imageSize, heapu8.subarray(data));
+				},
 				js_fprintf: function(format) {
 					console.log(read_string(format));
 				},
