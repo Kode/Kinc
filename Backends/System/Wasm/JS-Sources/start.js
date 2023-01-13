@@ -260,6 +260,9 @@ async function init() {
 						heapu8[ptr + i] = buf_view[file_buffer_pos++];
 					}
 					return count;
+				},
+				js_time: function() {
+					return window.performance.now();
 				}
 			}
 		}
