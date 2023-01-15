@@ -85,6 +85,11 @@ void kinc_g5_command_list_clear(struct kinc_g5_command_list *list, kinc_g5_rende
 		                             : (flags & KINC_G5_CLEAR_DEPTH)                                  ? D3D12_CLEAR_FLAG_DEPTH
 		                                                                                              : D3D12_CLEAR_FLAG_STENCIL;
 
+		if (renderTarget->framebuffer_index >= 0) {
+			dx_window *window = kinc_dx_current_window();
+			list->impl._commandList->ClearDepthStencilView(
+			    window->depthStencilDescriptorHeap[renderTarget->framebuffer_index]->GetCPUDescriptorHandleForHeapStart(), d3dflags, depth, stencil, 0, NULL);
+		}
 		if (renderTarget->impl.depthStencilDescriptorHeap != NULL) {
 			list->impl._commandList->ClearDepthStencilView(renderTarget->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), d3dflags, depth,
 			                                               stencil, 0, NULL);
@@ -326,6 +331,7 @@ void kinc_g5_command_list_set_render_targets(struct kinc_g5_command_list *list, 
 	assert(list->impl.open);
 
 	kinc_g5_render_target_t *render_target = targets[0];
+
 	D3D12_CPU_DESCRIPTOR_HANDLE target_descriptors[16];
 	for (int i = 0; i < count; ++i) {
 		target_descriptors[i] = targets[i]->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -333,7 +339,12 @@ void kinc_g5_command_list_set_render_targets(struct kinc_g5_command_list *list, 
 
 	assert(render_target != NULL);
 
-	if (render_target->impl.depthStencilDescriptorHeap != NULL) {
+	if (render_target->framebuffer_index >= 0) {
+		dx_window *window = kinc_dx_current_window();
+		D3D12_CPU_DESCRIPTOR_HANDLE heapStart = window->depthStencilDescriptorHeap[render_target->framebuffer_index]->GetCPUDescriptorHandleForHeapStart();
+		list->impl._commandList->OMSetRenderTargets(count, &target_descriptors[0], false, &heapStart);
+	}
+	else if (render_target->impl.depthStencilDescriptorHeap != NULL) {
 		D3D12_CPU_DESCRIPTOR_HANDLE heapStart = render_target->impl.depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		list->impl._commandList->OMSetRenderTargets(count, &target_descriptors[0], false, &heapStart);
 	}

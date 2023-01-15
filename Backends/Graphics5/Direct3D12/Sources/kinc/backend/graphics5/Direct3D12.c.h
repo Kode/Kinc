@@ -94,7 +94,7 @@ extern "C" struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_L
 #ifdef KORE_WINDOWS
 	kinc_microsoft_affirm(D3D12CreateDevice(NULL, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
 
-	D3D12_COMMAND_QUEUE_DESC queueDesc = {0};
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
@@ -129,11 +129,13 @@ extern "C" void setupSwapChain(struct dx_window *window) {
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&renderTargetDescriptorHeap));*/
 
-	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-	dsvHeapDesc.NumDescriptors = 1;
-	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	kinc_microsoft_affirm(device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&window->depthStencilDescriptorHeap)));
+	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
+		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+		dsvHeapDesc.NumDescriptors = 1;
+		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		kinc_microsoft_affirm(device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&window->depthStencilDescriptorHeap[i])));
+	}
 
 	D3D12_RESOURCE_DESC depthTexture = {};
 	depthTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -160,10 +162,12 @@ extern "C" void setupSwapChain(struct dx_window *window) {
 	heapProperties.CreationNodeMask = 1;
 	heapProperties.VisibleNodeMask = 1;
 
-	kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-	                                                      IID_GRAPHICS_PPV_ARGS(&window->depthStencilTexture)));
+	for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
+		kinc_microsoft_affirm(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &depthTexture, D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		                                                      &clearValue, IID_GRAPHICS_PPV_ARGS(&window->depthStencilTexture[i])));
 
-	device->CreateDepthStencilView(window->depthStencilTexture, NULL, window->depthStencilDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		device->CreateDepthStencilView(window->depthStencilTexture[i], NULL, window->depthStencilDescriptorHeap[i]->GetCPUDescriptorHandleForHeapStart());
+	}
 
 	window->current_fence_value = 0;
 
@@ -527,8 +531,10 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 	window->current_backbuffer = (window->current_backbuffer + 1) % QUEUE_SLOT_COUNT;
 
 	if (window->new_width != window->width || window->new_height != window->height) {
-		window->depthStencilDescriptorHeap->Release();
-		window->depthStencilTexture->Release();
+		for (int i = 0; i < QUEUE_SLOT_COUNT; ++i) {
+			window->depthStencilDescriptorHeap[i]->Release();
+			window->depthStencilTexture[i]->Release();
+		}
 #ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 		kinc_microsoft_affirm(window->swapChain->ResizeBuffers(2, window->new_width, window->new_height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 #endif
