@@ -38,8 +38,6 @@ struct dx_window {
 #ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 	struct IDXGISwapChain *swapChain;
 #endif
-	struct ID3D12DescriptorHeap *depthStencilDescriptorHeap[QUEUE_SLOT_COUNT];
-	struct ID3D12Resource *depthStencilTexture[QUEUE_SLOT_COUNT];
 	UINT64 current_fence_value;
 	UINT64 fence_values[QUEUE_SLOT_COUNT];
 	HANDLE frame_fence_events[QUEUE_SLOT_COUNT];

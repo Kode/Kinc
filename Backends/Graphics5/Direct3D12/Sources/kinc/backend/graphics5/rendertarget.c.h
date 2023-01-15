@@ -145,7 +145,7 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 	device->CreateShaderResourceView(render_target->impl.renderTarget, &shaderResourceViewDesc,
 	                                 render_target->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-	if (depthBufferBits > 0 && framebuffer_index < 0) {
+	if (depthBufferBits > 0) {
 		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 		dsvHeapDesc.NumDescriptors = 1;
 		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
