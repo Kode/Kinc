@@ -276,11 +276,17 @@ async function init() {
 				js_cos: function(x) {
 					return Math.cos(x);
 				},
+				js_tan: function(x) {
+					return Math.tan(x);
+				},
 				js_log: function(base, exponent) {
 					return Math.log(base, exponent);
 				},
 				js_exp: function(x) {
 					return Math.exp(x);
+				},
+				js_sqrt: function(x) {
+					return Math.sqrt(x);
 				}
 			}
 		}
