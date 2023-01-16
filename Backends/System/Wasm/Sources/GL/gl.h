@@ -237,3 +237,5 @@ __attribute__((import_module("imports"), import_name("glDisableVertexAttribArray
 __attribute__((import_module("imports"), import_name("glVertexAttribPointer"))) void
 glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
 __attribute__((import_module("imports"), import_name("glBlendColor"))) void glBlendColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+__attribute__((import_module("imports"), import_name("glDrawElementsInstanced"))) void glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei instancecount);
+__attribute__((import_module("imports"), import_name("glVertexAttribDivisor"))) void glVertexAttribDivisor(GLuint index, GLuint divisor);
