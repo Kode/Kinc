@@ -303,7 +303,43 @@ async function init() {
 	window.requestAnimationFrame(update);
 
 	kanvas.addEventListener('click', (event) => {
-	//  start_audio_thread();
+		// start_audio_thread();
+	});
+
+	kanvas.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+	});
+
+	kanvas.addEventListener('mousedown', (event) => {
+		instance.exports._mousedown(event.button, event.clientX, event.clientY);
+	});
+
+	kanvas.addEventListener('mouseup', (event) => {
+		instance.exports._mouseup(event.button, event.clientX, event.clientY);
+	});
+
+	kanvas.addEventListener('mousemove', (event) => {
+		instance.exports._mousemove(event.clientX, event.clientY);
+	});
+
+	kanvas.addEventListener('wheel', (event) => {
+		instance.exports._wheel(event.deltaY);
+	});
+
+	kanvas.addEventListener('keydown', (event) => {
+		if (event.repeat) {
+			event.preventDefault();
+			return;
+		}
+		instance.exports._keydown(event.keyCode);
+	});
+
+	kanvas.addEventListener('keyup', (event) => {
+		if (event.repeat) {
+			event.preventDefault();
+			return;
+		}
+		instance.exports._keyup(event.keyCode);
 	});
 }
 
