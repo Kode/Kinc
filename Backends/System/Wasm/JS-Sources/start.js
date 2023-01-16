@@ -2,7 +2,10 @@
 
 let memory = null;
 let heapu8 = null;
+let heapu16 = null;
 let heapu32 = null;
+let heapi32 = null;
+let heapf32 = null;
 let mod = null;
 let instance = null;
 
@@ -41,12 +44,45 @@ function write_string(ptr, str) {
 }
 
 async function init() {
-	memory = new WebAssembly.Memory({ initial: 18, maximum: 18, shared: true }); // has to match what's defined in the wasm-module when shared is true
+	let wasm_bytes = null;
+	await fetch("./ShaderTest.wasm").then(res => res.arrayBuffer()).then(buffer => wasm_bytes = new Uint8Array(buffer));
+
+	// Read memory size from wasm file
+	let memory_size = 0;
+	let i = 8;
+	while (i < wasm_bytes.length) {
+		function read_leb() {
+			let result = 0;
+			let shift = 0;
+			while (true) {
+				let byte = wasm_bytes[i++];
+				result |= (byte & 0x7f) << shift;
+				if ((byte & 0x80) == 0) return result;
+				shift += 7;
+			}
+		}
+		let type = read_leb()
+		let length = read_leb()
+		if (type == 6) {
+			read_leb(); // count
+			i++; // gtype
+			i++; // mutable
+			read_leb(); // opcode
+			memory_size = read_leb() / 65536 + 1;
+			break;
+		}
+		i += length;
+	}
+
+	memory = new WebAssembly.Memory({ initial: memory_size, maximum: memory_size, shared: true });
 	heapu8 = new Uint8Array(memory.buffer);
+	heapu16 = new Uint16Array(memory.buffer);
 	heapu32 = new Uint32Array(memory.buffer);
+	heapi32 = new Int32Array(memory.buffer);
+	heapf32 = new Float32Array(memory.buffer);
 
 	const kanvas = document.getElementById('kanvas');
-	const gl = kanvas.getContext('webgl2', { majorVersion: 2, minorVersion: 0, antialias: true, alpha: false });
+	const gl = kanvas.getContext('webgl2', { antialias: false, alpha: false });
 
 	let file_buffer = null;
 	let file_buffer_pos = 0;
@@ -57,8 +93,8 @@ async function init() {
 	let gl_textures = [null];
 	let gl_locations = [null];
 
-	const result = await WebAssembly.instantiateStreaming(
-		fetch("./ShaderTest.wasm"), {
+	const result = await WebAssembly.instantiate(
+		wasm_bytes, {
 			env: { memory },
 			imports: {
 				create_thread,
