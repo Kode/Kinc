@@ -1,15 +1,21 @@
 #include "stdlib.h"
 
 #ifdef KORE_WASM
-static unsigned char buffer[1024 * 1024];
-static unsigned int allocated = 1;
+__attribute__((import_module("imports"), import_name("js_fprintf"))) void js_fprintf(const char *format);
+
+#define HEAP_SIZE 1024 * 1024 * 8
+static unsigned char heap[HEAP_SIZE];
+static size_t heap_top = 1;
 #endif
 
 void *malloc(size_t size) {
 #ifdef KORE_WASM
-	void *p = &buffer[allocated];
-	allocated += size;
-	return p;
+	size_t old_top = heap_top;
+	heap_top += size;
+	if (heap_top >= HEAP_SIZE) {
+		js_fprintf("malloc: out of memory");
+	}
+	return &heap[old_top];
 #endif
 	return NULL;
 }

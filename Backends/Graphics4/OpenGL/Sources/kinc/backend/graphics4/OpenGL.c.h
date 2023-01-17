@@ -491,6 +491,9 @@ void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int star
 	void *_start = sixteen ? (void *)(start * sizeof(uint16_t)) : (void *)(start * sizeof(uint32_t));
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 	((void (*)(GLenum, GLsizei, GLenum, void *, GLsizei))glesDrawElementsInstanced)(GL_TRIANGLES, count, type, _start, instanceCount);
+#elif defined(KORE_OPENGL_ES) && defined(KORE_WASM)
+	glDrawElementsInstanced(GL_TRIANGLES, count, type, _start, instanceCount);
+	glCheckErrors();
 #elif !defined(KORE_OPENGL_ES)
 	if (Kinc_Internal_ProgramUsesTessellation) {
 		glDrawElementsInstanced(GL_PATCHES, count, type, _start, instanceCount);
@@ -1049,7 +1052,7 @@ void kinc_g4_set_render_targets(kinc_g4_render_target_t **targets, int count) {
 			buffers[i] = GL_COLOR_ATTACHMENT0 + i;
 #if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
 		((void (*)(GLsizei, GLenum *))glesDrawBuffers)(count, buffers);
-#elif !defined(KORE_OPENGL_ES) || defined(KORE_EMSCRIPTEN)
+#elif !defined(KORE_OPENGL_ES) || defined(KORE_EMSCRIPTEN) || defined(KORE_WASM)
 		glDrawBuffers(count, buffers);
 #endif
 		glCheckErrors();

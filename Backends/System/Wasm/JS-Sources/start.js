@@ -2,7 +2,10 @@
 
 let memory = null;
 let heapu8 = null;
+let heapu16 = null;
 let heapu32 = null;
+let heapi32 = null;
+let heapf32 = null;
 let mod = null;
 let instance = null;
 
@@ -41,12 +44,50 @@ function write_string(ptr, str) {
 }
 
 async function init() {
-	memory = new WebAssembly.Memory({ initial: 18, maximum: 18, shared: true }); // has to match what's defined in the wasm-module when shared is true
+	let wasm_bytes = null;
+	await fetch("./ShaderTest.wasm").then(res => res.arrayBuffer()).then(buffer => wasm_bytes = new Uint8Array(buffer));
+
+	// Read memory size from wasm file
+	let memory_size = 0;
+	let i = 8;
+	while (i < wasm_bytes.length) {
+		function read_leb() {
+			let result = 0;
+			let shift = 0;
+			while (true) {
+				let byte = wasm_bytes[i++];
+				result |= (byte & 0x7f) << shift;
+				if ((byte & 0x80) == 0) return result;
+				shift += 7;
+			}
+		}
+		let type = read_leb()
+		let length = read_leb()
+		if (type == 6) {
+			read_leb(); // count
+			i++; // gtype
+			i++; // mutable
+			read_leb(); // opcode
+			memory_size = read_leb() / 65536 + 1;
+			break;
+		}
+		i += length;
+	}
+
+	memory = new WebAssembly.Memory({ initial: memory_size, maximum: memory_size, shared: true });
 	heapu8 = new Uint8Array(memory.buffer);
+	heapu16 = new Uint16Array(memory.buffer);
 	heapu32 = new Uint32Array(memory.buffer);
+	heapi32 = new Int32Array(memory.buffer);
+	heapf32 = new Float32Array(memory.buffer);
 
 	const kanvas = document.getElementById('kanvas');
-	const gl = kanvas.getContext('webgl2', { majorVersion: 2, minorVersion: 0, antialias: true, alpha: false });
+	const gl = kanvas.getContext('webgl2', { antialias: false, alpha: false });
+	// gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
+	gl.getExtension("EXT_color_buffer_float");
+	gl.getExtension("OES_texture_float_linear");
+	gl.getExtension("OES_texture_half_float_linear");
+	gl.getExtension("EXT_texture_filter_anisotropic");
 
 	let file_buffer = null;
 	let file_buffer_pos = 0;
@@ -54,32 +95,80 @@ async function init() {
 	let gl_shaders = [null];
 	let gl_buffers = [null];
 	let gl_framebuffers = [null];
+	let gl_renderbuffers = [null];
 	let gl_textures = [null];
 	let gl_locations = [null];
 
-	const result = await WebAssembly.instantiateStreaming(
-		fetch("./ShaderTest.wasm"), {
+	const result = await WebAssembly.instantiate(
+		wasm_bytes, {
 			env: { memory },
 			imports: {
 				create_thread,
 				glViewport: function(x, y, width, height) {
 					gl.viewport(x, y, width, height);
 				},
+				glScissor: function(x, y, width, height) {
+					gl.scissor(x, y, width, height);
+				},
 				glGetIntegerv: function(pname, data) {
-					// heapu32[data / 4] = gl.getParameter(pname);
+					if (pname == 2) { // GL_MAJOR_VERSION
+						heapu32[data / 4] = 3;
+					}
+					else {
+						heapu32[data / 4] = gl.getParameter(pname);
+					}
+				},
+				glGetFloatv: function(pname, data) {
+					heapf32[data / 4] = gl.getParameter(pname);
 				},
 				glGetString: function(name) {
 					// return gl.getParameter(name);
 				},
-				glUniform1i: function(location, v0) {
-					gl.uniform1i(gl_locations[location], v0);
-				},
 				glDrawElements: function(mode, count, type, offset) {
 					gl.drawElements(mode, count, type, offset);
 				},
+				glDrawElementsInstanced: function(mode, count, type, indices, instancecount) {
+					gl.drawElementsInstanced(mode, count, type, indices, instancecount);
+				},
+				glVertexAttribDivisor: function(index, divisor) {
+					gl.vertexAttribDivisor(index, divisor);
+				},
 				glBindFramebuffer: function(target, framebuffer) {
-					// gl.bindFramebuffer(target, gl_framebuffers[framebuffer]);
-					gl.bindFramebuffer(target, gl_framebuffers[0]);
+					gl.bindFramebuffer(target, gl_framebuffers[framebuffer]);
+				},
+				glFramebufferTexture2D: function(target, attachment, textarget, texture, level) {
+					gl.framebufferTexture2D(target, attachment, textarget, gl_textures[texture], level);
+					if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
+						console.log("Incomplete framebuffer");
+					}
+				},
+				glGenFramebuffers: function(n, framebuffers) {
+					for (let i = 0; i < n; ++i) {
+						gl_framebuffers.push(gl.createFramebuffer());
+						heapu32[framebuffers / 4 + i] = gl_framebuffers.length - 1;
+					}
+				},
+				glGenRenderbuffers: function(n, renderbuffers) {
+					for (let i = 0; i < n; ++i) {
+						gl_renderbuffers.push(gl.createRenderbuffer());
+						heapu32[renderbuffers / 4 + i] = gl_renderbuffers.length - 1;
+					}
+				},
+				glBindRenderbuffer: function(target, renderbuffer) {
+					gl.bindRenderbuffer(target, gl_renderbuffers[renderbuffer]);
+				},
+				glRenderbufferStorage: function(target, internalformat, width, height) {
+					gl.renderbufferStorage(target, internalformat, width, height)
+				},
+				glFramebufferRenderbuffer: function(target, attachment, renderbuffertarget, renderbuffer) {
+					gl.framebufferRenderbuffer(target, attachment, renderbuffertarget, gl_renderbuffers[renderbuffer]);
+				},
+				glReadPixels: function(x, y, width, height, format, type, data) {
+					let pixels = type == gl.FLOAT ? heapf32.subarray(data / 4) : heapu8.subarray(data);
+					gl.readPixels(x, y, width, height, format, type, pixels);
+				},
+				glTexSubImage2D: function(target, level, xoffset, yoffset, width, height, format, type, pixels) {
+					gl.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, heapu8.subarray(pixels));
 				},
 				glEnable: function(cap) {
 					gl.enable(cap);
@@ -161,7 +250,7 @@ async function init() {
 					heapu32[params / 4] = gl.getProgramParameter(gl_programs[program], pname);
 				},
 				glGetProgramInfoLog: function(program) {
-					gl.getProgramInfoLog(gl_programs[program]);
+					console.log(gl.getProgramInfoLog(gl_programs[program]));
 				},
 				glCreateShader: function(type) {
 					gl_shaders.push(gl.createShader(type));
@@ -177,7 +266,7 @@ async function init() {
 					heapu32[params / 4] = gl.getShaderParameter(gl_shaders[shader], pname);
 				},
 				glGetShaderInfoLog: function(shader) {
-					gl.getShaderInfoLog(gl_shaders[shader]);
+					console.log(gl.getShaderInfoLog(gl_shaders[shader]));
 				},
 				glBufferSubData: function(target, offset, size, data) {
 					gl.bufferSubData(target, Number(offset), heapu8.subarray(data, data + Number(size)), 0);
@@ -195,9 +284,64 @@ async function init() {
 					gl_locations.push(gl.getUniformLocation(gl_programs[program], read_string(name)));
 					return gl_locations.length - 1;
 				},
+				glUniform1i: function(location, v0) {
+					gl.uniform1i(gl_locations[location], v0);
+				},
+				glUniform2i: function(location, v0, v1) {
+					gl.uniform2i(gl_locations[location], v0, v1);
+				},
+				glUniform3i: function(location, v0, v1, v2) {
+					gl.uniform3i(gl_locations[location], v0, v1, v2);
+				},
+				glUniform4i: function(location, v0, v1, v2, v3) {
+					gl.uniform4i(gl_locations[location], v0, v1, v2, v3);
+				},
+				glUniform1iv: function(location, count, value) {
+					gl.uniform1iv(gl_locations[location], count, heapi32.subarray(value / 4));
+				},
+				glUniform2iv: function(location, count, value) {
+					gl.uniform2iv(gl_locations[location], count, heapi32.subarray(value / 4));
+				},
+				glUniform3iv: function(location, count, value) {
+					gl.uniform3iv(gl_locations[location], count, heapi32.subarray(value / 4));
+				},
+				glUniform4iv: function(location, count, value) {
+					gl.uniform4iv(gl_locations[location], count, heapi32.subarray(value / 4));
+				},
+				glUniform1f: function(location, v0) {
+					gl.uniform1f(gl_locations[location], v0);
+				},
+				glUniform2f: function(location, v0, v1) {
+					gl.uniform2f(gl_locations[location], v0, v1);
+				},
+				glUniform3f: function(location, v0, v1, v2) {
+					gl.uniform3f(gl_locations[location], v0, v1, v2);
+				},
+				glUniform4f: function(location, v0, v1, v2, v3) {
+					gl.uniform4f(gl_locations[location], v0, v1, v2, v3);
+				},
+				glUniform1fv: function(location, count, value) {
+					gl.uniform1fv(gl_locations[location], count, heapf32.subarray(value / 4));
+				},
+				glUniform2fv: function(location, count, value) {
+					gl.uniform2fv(gl_locations[location], count, heapf32.subarray(value / 4));
+				},
+				glUniform3fv: function(location, count, value) {
+					gl.uniform3fv(gl_locations[location], count, heapf32.subarray(value / 4));
+				},
+				glUniform4fv: function(location, count, value) {
+					gl.uniform4fv(gl_locations[location], count, heapf32.subarray(value / 4));
+				},
 				glUniformMatrix3fv: function(location, count, transpose, value) {
 					var f32 = new Float32Array(memory.buffer, value, 3 * 3);
 					gl.uniformMatrix3fv(gl_locations[location], transpose, f32);
+				},
+				glUniformMatrix4fv: function(location, count, transpose, value) {
+					var f32 = new Float32Array(memory.buffer, value, 4 * 4);
+					gl.uniformMatrix4fv(gl_locations[location], transpose, f32);
+				},
+				glTexParameterf: function(target, pname, param) {
+					gl.texParameterf(target, pname, param);
 				},
 				glActiveTexture: function(texture) {
 					gl.activeTexture(texture);
@@ -221,13 +365,26 @@ async function init() {
 					}
 				},
 				glTexImage2D: function(target, level, internalformat, width, height, border, format, type, data) {
-					gl.texImage2D(target, level, internalformat, width, height, border, format, type, heapu8.subarray(data));
+					let pixels = type == gl.FLOAT ? heapf32.subarray(data / 4) :
+								 type == gl.UNSIGNED_INT ? heapu32.subarray(data / 4) :
+								 type == gl.UNSIGNED_SHORT ? heapu16.subarray(data / 2) : heapu8.subarray(data);
+					gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 				},
 				glPixelStorei: function(pname, param) {
 					gl.pixelStorei(pname, param);
 				},
 				glCompressedTexImage2D: function(target, level, internalformat, width, height, border, imageSize, data) {
 					gl.compressedTexImage2D(target, level, internalformat, width, height, border, imageSize, heapu8.subarray(data));
+				},
+				glDrawBuffers: function(n, bufs) {
+					let ar = [];
+					for (let i = 0; i < n; ++i) {
+						ar.push(gl.COLOR_ATTACHMENT0 + i);
+					}
+					gl.drawBuffers(ar);
+				},
+				glGenerateMipmap: function(target) {
+					gl.generateMipmap(target);
 				},
 				js_fprintf: function(format) {
 					console.log(read_string(format));
@@ -276,11 +433,17 @@ async function init() {
 				js_cos: function(x) {
 					return Math.cos(x);
 				},
+				js_tan: function(x) {
+					return Math.tan(x);
+				},
 				js_log: function(base, exponent) {
 					return Math.log(base, exponent);
 				},
 				js_exp: function(x) {
 					return Math.exp(x);
+				},
+				js_sqrt: function(x) {
+					return Math.sqrt(x);
 				}
 			}
 		}
@@ -297,7 +460,43 @@ async function init() {
 	window.requestAnimationFrame(update);
 
 	kanvas.addEventListener('click', (event) => {
-	//  start_audio_thread();
+		// start_audio_thread();
+	});
+
+	kanvas.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+	});
+
+	kanvas.addEventListener('mousedown', (event) => {
+		instance.exports._mousedown(event.button, event.clientX, event.clientY);
+	});
+
+	kanvas.addEventListener('mouseup', (event) => {
+		instance.exports._mouseup(event.button, event.clientX, event.clientY);
+	});
+
+	kanvas.addEventListener('mousemove', (event) => {
+		instance.exports._mousemove(event.clientX, event.clientY);
+	});
+
+	kanvas.addEventListener('wheel', (event) => {
+		instance.exports._wheel(event.deltaY);
+	});
+
+	kanvas.addEventListener('keydown', (event) => {
+		if (event.repeat) {
+			event.preventDefault();
+			return;
+		}
+		instance.exports._keydown(event.keyCode);
+	});
+
+	kanvas.addEventListener('keyup', (event) => {
+		if (event.repeat) {
+			event.preventDefault();
+			return;
+		}
+		instance.exports._keyup(event.keyCode);
 	});
 }
 

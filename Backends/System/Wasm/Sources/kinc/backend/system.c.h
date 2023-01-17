@@ -65,3 +65,27 @@ __attribute__((export_name("_update"))) void _update(void) {
 	kinc_internal_update_callback();
 	kinc_a2_update();
 }
+
+__attribute__((export_name("_mousedown"))) void _mousedown(int button, int x, int y) {
+	kinc_internal_mouse_trigger_press(0, button, x, y);
+}
+
+__attribute__((export_name("_mouseup"))) void _mouseup(int button, int x, int y) {
+	kinc_internal_mouse_trigger_release(0, button, x, y);
+}
+
+__attribute__((export_name("_mousemove"))) void _mousemove(int x, int y) {
+	kinc_internal_mouse_trigger_move(0, x, y);
+}
+
+__attribute__((export_name("_wheel"))) void _wheel(int delta) {
+	kinc_internal_mouse_trigger_scroll(0, delta);
+}
+
+__attribute__((export_name("_keydown"))) void _keydown(int key) {
+	kinc_internal_keyboard_trigger_key_down(key);
+}
+
+__attribute__((export_name("_keyup"))) void _keyup(int key) {
+	kinc_internal_keyboard_trigger_key_up(key);
+}
