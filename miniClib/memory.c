@@ -5,11 +5,15 @@ __attribute__((import_module("imports"), import_name("js_fprintf"))) void js_fpr
 
 #define HEAP_SIZE 1024 * 1024 * 8
 static unsigned char heap[HEAP_SIZE];
-static size_t heap_top = 1;
+static size_t heap_top = 4;
 #endif
 
 void *malloc(size_t size) {
 #ifdef KORE_WASM
+	// Align to 4 bytes to make js typed arrays work
+	if (size % 4 != 0) {
+		size += 4 - size % 4;
+	}
 	size_t old_top = heap_top;
 	heap_top += size;
 	if (heap_top >= HEAP_SIZE) {

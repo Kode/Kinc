@@ -386,6 +386,30 @@ async function init() {
 				glGenerateMipmap: function(target) {
 					gl.generateMipmap(target);
 				},
+				glFlush: function() {
+					gl.flush();
+				},
+				glDeleteBuffers: function(n, buffers) {
+					for (let i = 0; i < n; ++i) {
+						gl.deleteBuffer(gl_buffers[heapu32[buffers / 4 + i]]);
+					}
+				},
+				glDeleteTextures: function(n, textures) {
+					for (let i = 0; i < n; ++i) {
+						gl.deleteTexture(gl_textures[heapu32[textures / 4 + i]]);
+					}
+				},
+				glDeleteFramebuffers: function(n, framebuffers) {
+					for (let i = 0; i < n; ++i) {
+						gl.deleteFramebuffer(gl_framebuffers[heapu32[framebuffers / 4 + i]]);
+					}
+				},
+				glDeleteProgram: function(program) {
+					gl.deleteProgram(gl_programs[program]);
+				},
+				glDeleteShader: function(shader) {
+					gl.deleteShader(gl_shaders[shader]);
+				},
 				js_fprintf: function(format) {
 					console.log(read_string(format));
 				},
@@ -444,6 +468,9 @@ async function init() {
 				},
 				js_sqrt: function(x) {
 					return Math.sqrt(x);
+				},
+				js_eval: function(str) {
+					(1, eval)(read_string(str));
 				}
 			}
 		}
