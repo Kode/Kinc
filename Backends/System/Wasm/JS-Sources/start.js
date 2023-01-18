@@ -468,6 +468,9 @@ async function init() {
 				},
 				js_sqrt: function(x) {
 					return Math.sqrt(x);
+				},
+				js_eval: function(str) {
+					(1, eval)(read_string(str));
 				}
 			}
 		}
