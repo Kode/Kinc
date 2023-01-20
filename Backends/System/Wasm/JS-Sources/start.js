@@ -321,16 +321,20 @@ async function init() {
 					gl.uniform4f(gl_locations[location], v0, v1, v2, v3);
 				},
 				glUniform1fv: function(location, count, value) {
-					gl.uniform1fv(gl_locations[location], count, heapf32.subarray(value / 4));
+					var f32 = new Float32Array(memory.buffer, value, count);
+					gl.uniform1fv(gl_locations[location], f32);
 				},
 				glUniform2fv: function(location, count, value) {
-					gl.uniform2fv(gl_locations[location], count, heapf32.subarray(value / 4));
+					var f32 = new Float32Array(memory.buffer, value, count * 2);
+					gl.uniform2fv(gl_locations[location], f32);
 				},
 				glUniform3fv: function(location, count, value) {
-					gl.uniform3fv(gl_locations[location], count, heapf32.subarray(value / 4));
+					var f32 = new Float32Array(memory.buffer, value, count * 3);
+					gl.uniform3fv(gl_locations[location], f32);
 				},
 				glUniform4fv: function(location, count, value) {
-					gl.uniform4fv(gl_locations[location], count, heapf32.subarray(value / 4));
+					var f32 = new Float32Array(memory.buffer, value, count * 4);
+					gl.uniform4fv(gl_locations[location], f32);
 				},
 				glUniformMatrix3fv: function(location, count, transpose, value) {
 					var f32 = new Float32Array(memory.buffer, value, 3 * 3);
@@ -367,7 +371,8 @@ async function init() {
 				glTexImage2D: function(target, level, internalformat, width, height, border, format, type, data) {
 					let pixels = type == gl.FLOAT ? heapf32.subarray(data / 4) :
 								 type == gl.UNSIGNED_INT ? heapu32.subarray(data / 4) :
-								 type == gl.UNSIGNED_SHORT ? heapu16.subarray(data / 2) : heapu8.subarray(data);
+								 type == gl.UNSIGNED_SHORT ? heapu16.subarray(data / 2) :
+								 type == gl.HALF_FLOAT ? heapu16.subarray(data / 2) : heapu8.subarray(data);
 					gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 				},
 				glPixelStorei: function(pname, param) {

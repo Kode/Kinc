@@ -119,6 +119,8 @@ typedef char GLchar;
 #define GL_RENDERBUFFER 0x8D41
 #define GL_RGBA 0x1908
 #define GL_LUMINANCE 0x1909
+#define GL_R8 0x8229
+#define GL_RED 0x1903
 #define GL_UNSIGNED_BYTE 0x1401
 #define GL_RGB 0x1907
 #define GL_UNPACK_ALIGNMENT 0x0CF5
