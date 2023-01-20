@@ -132,7 +132,7 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 			glCheckErrors();
 			glBindTexture(texType, renderTarget->impl._depthTexture);
 			glCheckErrors();
-#ifdef KORE_EMSCRIPTEN
+#if defined(KORE_EMSCRIPTEN) || defined(KORE_WASM)
 			GLint format = GL_DEPTH_COMPONENT16;
 #else
 			GLint format = depthBufferBits == 16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT;
