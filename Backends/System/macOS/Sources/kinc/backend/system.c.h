@@ -69,3 +69,7 @@ int kinc_cpu_cores(void) {
 	sysctlbyname("hw.physicalcpu", &proper_cpu_count, &count_length, 0, 0);
 	return (int)proper_cpu_count;
 }
+
+int kinc_hardware_threads(void) {
+	return sysconf(_SC_NPROCESSORS_ONLN);
+}

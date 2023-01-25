@@ -112,6 +112,12 @@ KINC_FUNC kinc_ticks_t kinc_timestamp(void);
 KINC_FUNC int kinc_cpu_cores(void);
 
 /// <summary>
+/// Returns the number of hardware-threads
+/// </summary>
+/// <returns>Number of hardware-threads</returns>
+KINC_FUNC int kinc_hardware_threads(void);
+
+/// <summary>
 /// Returns the current time. This can also be calculated ala kinc_timestamp() / kinc_frequency() but kinc_time is a little more precise on some systems.
 /// </summary>
 /// <returns>The current time in seconds</returns>

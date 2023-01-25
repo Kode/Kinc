@@ -1465,3 +1465,9 @@ int kinc_cpu_cores(void) {
 
 	return proper_cpu_count;
 }
+
+int kinc_hardware_threads(void) {
+	SYSTEM_INFO sysinfo;
+	GetSystemInfo(&sysinfo);
+	return sysinfo.dwNumberOfProcessors;
+}

@@ -273,6 +273,10 @@ int kinc_cpu_cores(void) {
 	};
 }
 
+int kinc_hardware_threads(void) {
+	return sysconf(_SC_NPROCESSORS_ONLN);
+}
+
 #include <xkbcommon/xkbcommon.h>
 
 int xkb_to_kinc(xkb_keysym_t symbol) {
