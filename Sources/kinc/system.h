@@ -713,13 +713,6 @@ void kinc_copy_to_clipboard(const char *text) {
 }
 #endif
 
-#if !defined(KORE_WINDOWS) && !defined(KORE_LINUX) && !defined(KORE_MACOS)
-int kinc_cpu_cores(void) {
-	kinc_log(KINC_LOG_LEVEL_WARNING, "Oh no, kinc_cpu_cores is not implemented for this system and just returns 1.");
-	return 1;
-}
-#endif
-
 #endif
 
 #endif

@@ -18,6 +18,9 @@
 #include <kinc/threads/mutex.h>
 #include <kinc/video.h>
 #include <kinc/window.h>
+
+#include <unistd.h>
+
 #include <stdlib.h>
 
 void pauseAudio();
@@ -1274,4 +1277,12 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 			return true;
 		}
 	}
+}
+
+int kinc_cpu_cores(void) {
+	return kinc_hardware_threads();
+}
+
+int kinc_hardware_threads(void) {
+	return sysconf(_SC_NPROCESSORS_ONLN);
 }
