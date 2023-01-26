@@ -589,20 +589,13 @@ $(function() {
 <div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;}</div>
 <div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160; </div>
-<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;<span class="preprocessor">#if !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_LINUX) &amp;&amp; !defined(KORE_MACOS)</span></div>
-<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a935c65ed8f7f978f7038446c09b87fd3">kinc_cpu_cores</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;    <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_WARNING, <span class="stringliteral">&quot;Oh no, kinc_cpu_cores is not implemented for this system and just returns 1.&quot;</span>);</div>
-<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;    <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;}</div>
-<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160; </div>
-<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160; </div>
-<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160; </div>
-<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;}</div>
-<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160; </div>
+<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160; </div>
+<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;}</div>
+<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="afilereader_8h_html"><div class="ttname"><a href="filereader_8h.html">filereader.h</a></div><div class="ttdoc">Provides an API very similar to fread and friends but handles the intricacies of where files are actu...</div></div>
 <div class="ttc" id="afilereader_8h_html_a4e30e4610f0e57dc244b8fb7a0271681"><div class="ttname"><a href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a></div><div class="ttdeci">KINC_FUNC bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filepath, int type)</div><div class="ttdoc">Opens a file for reading.</div></div>
 <div class="ttc" id="afilereader_8h_html_a72da9b6963f48433a7e89cf73e1c6f45"><div class="ttname"><a href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a></div><div class="ttdeci">KINC_FUNC size_t kinc_file_reader_size(kinc_file_reader_t *reader)</div><div class="ttdoc">Figures out the size of a file.</div></div>
