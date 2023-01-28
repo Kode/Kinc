@@ -305,6 +305,14 @@ double kinc_time(void) {
 #endif
 }
 
+int kinc_cpu_cores(void) {
+	return 4;
+}
+
+int kinc_hardware_threads(void) {
+	return 4;
+}
+
 extern int kickstart(int argc, char **argv);
 
 #ifdef KORE_WEBGPU

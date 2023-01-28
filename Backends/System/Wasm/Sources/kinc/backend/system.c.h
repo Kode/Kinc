@@ -53,6 +53,14 @@ double kinc_time(void) {
 	return js_time() / 1000.0;
 }
 
+int kinc_cpu_cores(void) {
+	return 4;
+}
+
+int kinc_hardware_threads(void) {
+	return 4;
+}
+
 void kinc_internal_shutdown(void) {}
 
 extern int kickstart(int argc, char **argv);
