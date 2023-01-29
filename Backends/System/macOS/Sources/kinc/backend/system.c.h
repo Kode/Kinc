@@ -5,8 +5,6 @@
 #include <kinc/system.h>
 #include <kinc/video.h>
 
-#include <sys/sysctl.h>
-
 static int mouseX, mouseY;
 static bool keyboardShown = false;
 
@@ -62,14 +60,3 @@ bool kinc_gamepad_connected(int num) {
 }
 
 void kinc_gamepad_rumble(int gamepad, float left, float right) {}
-
-int kinc_cpu_cores(void) {
-	uint32_t proper_cpu_count = 1;
-	size_t count_length = sizeof(count_length);
-	sysctlbyname("hw.physicalcpu", &proper_cpu_count, &count_length, 0, 0);
-	return (int)proper_cpu_count;
-}
-
-int kinc_hardware_threads(void) {
-	return sysconf(_SC_NPROCESSORS_ONLN);
-}
