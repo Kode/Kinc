@@ -274,7 +274,11 @@ int kinc_cpu_cores(void) {
 }
 
 int kinc_hardware_threads(void) {
+#ifndef __FreeBSD__
 	return sysconf(_SC_NPROCESSORS_ONLN);
+#else
+	return kinc_cpu_cores();
+#endif
 }
 
 #include <xkbcommon/xkbcommon.h>
