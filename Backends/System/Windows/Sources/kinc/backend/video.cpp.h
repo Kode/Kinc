@@ -2,11 +2,150 @@
 
 #ifdef KORE_DIRECT3D12
 
-#include <mfapi.h>
+/*#include <mfapi.h>
 #include <mfd3d12.h>
 #include <mferror.h>
 #include <mfidl.h>
-#include <mfreadwrite.h>
+#include <mfreadwrite.h>*/
+
+#include <d3d12video.h>
+#include <malloc.h>
+
+#include <assert.h>
+
+extern "C" ID3D12Device *device;
+
+#if 0
+void kinc_video_init(kinc_video_t *video, const char *filename) {}
+
+void kinc_video_destroy(kinc_video_t *video) {}
+
+kinc_g4_texture_t *kinc_video_current_image(kinc_video_t *video) {
+	return NULL;
+}
+
+int kinc_video_width(kinc_video_t *video) {
+	return 64;
+}
+
+int kinc_video_height(kinc_video_t *video) {
+	return 64;
+}
+
+void kinc_video_play(kinc_video_t *video, bool loop) {
+	MFStartup(MF_VERSION, MFSTARTUP_FULL);
+
+	UINT resetToken;
+	IMFDXGIDeviceManager *dxgiDeviceManager;
+	MFCreateDXGIDeviceManager(&resetToken, &dxgiDeviceManager);
+
+	dxgiDeviceManager->ResetDevice(device, resetToken);
+
+	IMFSourceReader *sourceReader;
+	{
+		IMFAttributes *creationAttributes;
+		MFCreateAttributes(&creationAttributes, 1);
+		creationAttributes->SetUnknown(MF_SOURCE_READER_D3D_MANAGER, dxgiDeviceManager);
+		// creationAttributes->SetUINT32(MF_READWRITE_ENABLE_HARDWARE_TRANSFORMS, TRUE);
+
+		IMFByteStream *stream;
+		MFCreateFile(MF_FILE_ACCESSMODE::MF_ACCESSMODE_READ, MF_FILE_OPENMODE::MF_OPENMODE_FAIL_IF_NOT_EXIST, MF_FILE_FLAGS::MF_FILEFLAGS_NONE, L"test.mp4",
+		             &stream);
+		MFCreateSourceReaderFromByteStream(stream, creationAttributes, &sourceReader);
+	}
+
+	{
+		IMFMediaType *pVideoMediaType;
+		HRESULT hr = MFCreateMediaType(&pVideoMediaType);
+
+		hr = pVideoMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
+		hr = pVideoMediaType->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_H264);
+		// hr = pVideoMediaType->SetUINT32(MF_MT_D3D_RESOURCE_VERSION, MF_D3D12_RESOURCE);
+		// hr = pVideoMediaType->SetUINT32(MF_MT_D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS, TRUE);
+
+		hr = sourceReader->SetCurrentMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM, NULL, pVideoMediaType);
+		assert(SUCCEEDED(hr));
+	}
+
+	IMFTransform *transform;
+	{
+		IMFSourceReaderEx *sourceReaderEx = (IMFSourceReaderEx *)sourceReader;
+		GUID cat = MFT_CATEGORY_VIDEO_DECODER;
+
+		HRESULT hr;
+		hr = sourceReaderEx->GetTransformForStream(MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &cat, &transform);
+
+		hr = transform->ProcessMessage(MFT_MESSAGE_SET_D3D_MANAGER, (ULONG_PTR)dxgiDeviceManager);
+	}
+
+	HRESULT hr = sourceReader->SetStreamSelection(MF_SOURCE_READER_ALL_STREAMS, FALSE);
+	hr = sourceReader->SetStreamSelection(MF_SOURCE_READER_FIRST_VIDEO_STREAM, TRUE);
+
+	size_t decodedFrames = 0;
+	IMFD3D12SynchronizationObjectCommands *pMFSyncCmd;
+	IMFD3D12SynchronizationObject *pMFSyncObjs;
+	HANDLE sampleResourceReady = CreateEvent(NULL, TRUE, FALSE, NULL);
+	HANDLE sampleResourceFinalRelease = CreateEvent(NULL, TRUE, FALSE, NULL);
+	while (true) {
+		DWORD readFlags = decodedFrames == 0 ? 0 : MF_SOURCE_READER_CONTROLF_DRAIN;
+		DWORD dwActualStreamIndex;
+		DWORD dwStreamFlags;
+		LONGLONG llTimestamp;
+		IMFSample *sample;
+		hr = sourceReader->ReadSample(MF_SOURCE_READER_FIRST_VIDEO_STREAM, readFlags, &dwActualStreamIndex, &dwStreamFlags, &llTimestamp, &sample);
+		assert(SUCCEEDED(hr));
+
+		if (decodedFrames++ == 0) {
+		}
+
+		if (!sample)
+			break; // finished draining
+
+		DWORD bufferCount;
+		sample->GetBufferCount(&bufferCount);
+
+		IMFMediaBuffer *output_media_buffer;
+		hr = sample->GetBufferByIndex(0, &output_media_buffer);
+
+		IMFDXGIBuffer *spDXGIBuffer = (IMFDXGIBuffer *)output_media_buffer;
+		if (SUCCEEDED(hr)) {
+			ID3D12Resource *texture;
+			hr = spDXGIBuffer->GetResource(IID_PPV_ARGS(&texture));
+			assert(SUCCEEDED(hr));
+			texture->SetName(L"MFT texture");
+
+			hr = spDXGIBuffer->GetUnknown(MF_D3D12_SYNCHRONIZATION_OBJECT, IID_PPV_ARGS(&pMFSyncCmd));
+			assert(SUCCEEDED(hr));
+			hr = spDXGIBuffer->GetUnknown(MF_D3D12_SYNCHRONIZATION_OBJECT, IID_PPV_ARGS(&pMFSyncObjs));
+			assert(SUCCEEDED(hr));
+
+			pMFSyncCmd->SignalEventOnResourceReady(sampleResourceReady);
+		}
+	}
+}
+
+void kinc_video_pause(kinc_video_t *video) {}
+
+void kinc_video_stop(kinc_video_t *video) {}
+
+void kinc_video_update(kinc_video_t *video, double time) {}
+
+double kinc_video_duration(kinc_video_t *video) {
+	return 0.0;
+}
+
+double kinc_video_position(kinc_video_t *video) {
+	return 0.0;
+}
+
+bool kinc_video_finished(kinc_video_t *video) {
+	return true;
+}
+
+bool kinc_video_paused(kinc_video_t *video) {
+	return true;
+}
+#endif
 
 void kinc_video_init(kinc_video_t *video, const char *filename) {}
 
@@ -24,7 +163,84 @@ int kinc_video_height(kinc_video_t *video) {
 	return 64;
 }
 
-void kinc_video_play(kinc_video_t *video, bool loop) {}
+void kinc_video_play(kinc_video_t *video, bool loop) {
+	ID3D12VideoDevice *video_device = NULL;
+	HRESULT result = device->QueryInterface(IID_PPV_ARGS(&video_device));
+
+	D3D12_FEATURE_DATA_VIDEO_DECODE_PROFILE_COUNT decode_profile_count = {};
+	decode_profile_count.NodeIndex = 0;
+	result = video_device->CheckFeatureSupport(D3D12_FEATURE_VIDEO_DECODE_PROFILE_COUNT, &decode_profile_count, sizeof(decode_profile_count));
+
+	GUID *guids = (GUID *)_alloca(sizeof(GUID) * decode_profile_count.ProfileCount);
+	D3D12_FEATURE_DATA_VIDEO_DECODE_PROFILES profiles = {};
+	profiles.NodeIndex = 0;
+	profiles.ProfileCount = decode_profile_count.ProfileCount;
+	profiles.pProfiles = guids;
+	result = video_device->CheckFeatureSupport(D3D12_FEATURE_VIDEO_DECODE_PROFILES, &profiles, sizeof(profiles));
+
+	// for (UINT i = 0; i < decode_profile_count.ProfileCount; ++i) {
+	UINT i = 0;
+	D3D12_VIDEO_DECODE_CONFIGURATION decode_config = {guids[i], D3D12_BITSTREAM_ENCRYPTION_TYPE_NONE, D3D12_VIDEO_FRAME_CODED_INTERLACE_TYPE_NONE};
+
+	D3D12_FEATURE_DATA_VIDEO_DECODE_FORMAT_COUNT formats_count;
+	formats_count.NodeIndex = 0;
+	formats_count.Configuration = decode_config;
+	result = video_device->CheckFeatureSupport(D3D12_FEATURE_VIDEO_DECODE_FORMAT_COUNT, &formats_count, sizeof(formats_count));
+
+	D3D12_FEATURE_DATA_VIDEO_DECODE_FORMATS formats;
+	formats.NodeIndex = 0;
+	formats.Configuration = decode_config;
+	formats.FormatCount = formats_count.FormatCount;
+	formats.pOutputFormats = (DXGI_FORMAT *)_alloca(sizeof(DXGI_FORMAT) * formats_count.FormatCount);
+	result = video_device->CheckFeatureSupport(D3D12_FEATURE_VIDEO_DECODE_FORMATS, &formats, sizeof(formats));
+	//}
+
+	ID3D12VideoDecoder *decoder;
+	D3D12_VIDEO_DECODER_DESC video_decoder_desc;
+	video_decoder_desc.NodeMask = 0;
+	video_decoder_desc.Configuration = decode_config;
+	result = video_device->CreateVideoDecoder(&video_decoder_desc, IID_PPV_ARGS(&decoder));
+
+	ID3D12VideoDecoderHeap *decoder_heap;
+	D3D12_VIDEO_DECODER_HEAP_DESC video_decoder_heap_desc;
+	video_decoder_heap_desc.NodeMask = 0;
+	video_decoder_heap_desc.BitRate = 0;
+	video_decoder_heap_desc.Configuration = decode_config;
+	video_decoder_heap_desc.DecodeWidth = 1280;
+	video_decoder_heap_desc.DecodeHeight = 720;
+	video_decoder_heap_desc.Format = formats.pOutputFormats[0];
+	video_decoder_heap_desc.FrameRate.Numerator = 0;
+	video_decoder_heap_desc.FrameRate.Denominator = 1;
+	video_decoder_heap_desc.MaxDecodePictureBufferCount = 2;
+	result = video_device->CreateVideoDecoderHeap(&video_decoder_heap_desc, IID_PPV_ARGS(&decoder_heap));
+
+	ID3D12CommandAllocator *command_allocator;
+	result = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE, IID_PPV_ARGS(&command_allocator));
+
+	ID3D12VideoDecodeCommandList *command_list;
+	result = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE, command_allocator, NULL, IID_PPV_ARGS(&command_list));
+
+	D3D12_VIDEO_DECODE_INPUT_STREAM_ARGUMENTS input_arguments;
+	input_arguments.CompressedBitstream.pBuffer;
+	input_arguments.CompressedBitstream.Size;
+	input_arguments.CompressedBitstream.Offset;
+	input_arguments.FrameArguments[0].pData;
+	input_arguments.FrameArguments[0].Size;
+	input_arguments.FrameArguments[0].Type;
+	input_arguments.NumFrameArguments = 1;
+	input_arguments.pHeap = decoder_heap;
+	input_arguments.ReferenceFrames;
+
+	D3D12_VIDEO_DECODE_OUTPUT_STREAM_ARGUMENTS output_arguments;
+	output_arguments.ConversionArguments.Enable = FALSE;
+	output_arguments.OutputSubresource = 0;
+	output_arguments.pOutputTexture2D;
+
+	command_list->DecodeFrame(decoder, &output_arguments, &input_arguments);
+
+	int a = 3;
+	++a;
+}
 
 void kinc_video_pause(kinc_video_t *video) {}
 

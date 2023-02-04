@@ -1,6 +1,12 @@
+#ifdef KORE_DIRECT3D12
+// Windows 10
+#define WINVER 0x0A00
+#define _WIN32_WINNT 0x0A00
+#else
 // Windows 7
 #define WINVER 0x0601
 #define _WIN32_WINNT 0x0601
+#endif
 
 #define NOATOM
 // #define NOCLIPBOARD
