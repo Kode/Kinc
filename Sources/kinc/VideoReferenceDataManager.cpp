@@ -60,10 +60,6 @@ namespace D3D12TranslationLayer {
 			if (remappedIndex == m_invalidIndex || remappedIndex == m_currentOutputIndex) {
 				// Caller specified an invalid reference index.  Remap it to the current
 				// picture index to avoid crashing and still attempt to decode.
-				if (g_hTracelogging) {
-					TraceLoggingWrite(g_hTracelogging, "Decode - Invalid Reference Index", TraceLoggingValue(index, "Index"),
-					                  TraceLoggingValue(m_currentOutputIndex, "OutputIndex"));
-				}
 
 				remappedIndex = m_currentOutputIndex;
 
@@ -76,13 +72,13 @@ namespace D3D12TranslationLayer {
 
 			ReferenceData &referenceData = referenceDatas[remappedIndex];
 
-			decoderHeapsParameter[remappedIndex] = referenceData.decoderHeap->GetForUse(COMMAND_LIST_TYPE::VIDEO_DECODE);
+			decoderHeapsParameter[remappedIndex] = referenceData.decoderHeap->heap;
 
 			if (fTransitionSubresource) {
 				TransitionReference(referenceData, D3D12_RESOURCE_STATE_VIDEO_DECODE_READ);
 			}
 
-			textures[remappedIndex] = referenceData.referenceTexture->GetUnderlyingResource();
+			textures[remappedIndex] = referenceData.referenceTexture;
 			texturesSubresources[remappedIndex] = referenceData.subresourceIndex;
 		}
 
@@ -107,8 +103,8 @@ namespace D3D12TranslationLayer {
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------
-	_Use_decl_annotations_ UINT16 ReferenceDataManager::StoreFutureReference(UINT16 index, std::shared_ptr<VideoDecoderHeap> &decoderHeap, Resource *pTexture2D,
-	                                                                         UINT subresourceIndex) {
+	_Use_decl_annotations_ UINT16 ReferenceDataManager::StoreFutureReference(UINT16 index, std::shared_ptr<VideoDecoderHeap> &decoderHeap,
+	                                                                         ID3D12Resource *pTexture2D, UINT subresourceIndex) {
 		// Check if the index was in use.
 		UINT16 remappedIndex = FindRemappedIndex(index);
 
@@ -126,9 +122,6 @@ namespace D3D12TranslationLayer {
 
 		if (remappedIndex == m_invalidIndex) {
 			// No unused entry exists.  Indicates a problem with MaxDPB.
-			if (g_hTracelogging) {
-				TraceLoggingWrite(g_hTracelogging, "Decode - No available reference map entry for output.");
-			}
 			assert(false);
 		}
 
@@ -193,7 +186,8 @@ namespace D3D12TranslationLayer {
 
 	//----------------------------------------------------------------------------------------------------------------------------------
 	_Use_decl_annotations_ void ReferenceDataManager::Resize(UINT16 dpb, ReferenceOnlyDesc *pReferenceOnly, bool fArrayOfTexture) {
-		m_fArrayOfTexture = fArrayOfTexture;
+		assert(false);
+		/*m_fArrayOfTexture = fArrayOfTexture;
 
 		ResizeDataStructures(dpb);
 		ResetInternalTrackingReferenceUsage();
@@ -203,50 +197,50 @@ namespace D3D12TranslationLayer {
 		m_fReferenceOnly = pReferenceOnly != nullptr;
 
 		if (m_fReferenceOnly) {
-			ResourceCreationArgs ResourceArgs = {};
+		    ResourceCreationArgs ResourceArgs = {};
 
-			if (fArrayOfTexture) {
-				ResourceArgs.m_desc12 =
-				    CD3DX12_RESOURCE_DESC::Tex2D(pReferenceOnly->Format, pReferenceOnly->Width, pReferenceOnly->Height, 1, 1, 1, 0,
-				                                 D3D12_RESOURCE_FLAG_VIDEO_DECODE_REFERENCE_ONLY | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
-				ResourceArgs.m_appDesc = AppResourceDesc(ResourceArgs.m_desc12, RESOURCE_USAGE_DEFAULT, RESOURCE_CPU_ACCESS_NONE, RESOURCE_BIND_DECODER);
+		    if (fArrayOfTexture) {
+		        ResourceArgs.m_desc12 =
+		            CD3DX12_RESOURCE_DESC::Tex2D(pReferenceOnly->Format, pReferenceOnly->Width, pReferenceOnly->Height, 1, 1, 1, 0,
+		                                         D3D12_RESOURCE_FLAG_VIDEO_DECODE_REFERENCE_ONLY | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
+		        ResourceArgs.m_appDesc = AppResourceDesc(ResourceArgs.m_desc12, RESOURCE_USAGE_DEFAULT, RESOURCE_CPU_ACCESS_NONE, RESOURCE_BIND_DECODER);
 
-				UINT64 resourceSize = 0;
-				m_pImmediateContext->m_pDevice12->GetCopyableFootprints(&ResourceArgs.m_desc12, 0, 1, 0, nullptr, nullptr, nullptr, &resourceSize);
-				ResourceArgs.m_heapDesc = CD3DX12_HEAP_DESC(resourceSize, m_pImmediateContext->GetHeapProperties(D3D12_HEAP_TYPE_DEFAULT));
+		        UINT64 resourceSize = 0;
+		        m_pImmediateContext->m_pDevice12->GetCopyableFootprints(&ResourceArgs.m_desc12, 0, 1, 0, nullptr, nullptr, nullptr, &resourceSize);
+		        ResourceArgs.m_heapDesc = CD3DX12_HEAP_DESC(resourceSize, m_pImmediateContext->GetHeapProperties(D3D12_HEAP_TYPE_DEFAULT));
 
-				for (ReferenceData &referenceData : referenceDatas) {
-					if (!referenceData.referenceOnlyTexture ||
-					    0 != memcmp(referenceData.referenceOnlyTexture->Parent(), &ResourceArgs, sizeof(ResourceCreationArgs))) {
-						referenceData.referenceOnlyTexture =
-						    Resource::CreateResource(m_pImmediateContext, ResourceArgs, ResourceAllocationContext::ImmediateContextThreadLongLived);
-						assert(0 == memcmp(referenceData.referenceOnlyTexture->Parent(), &ResourceArgs, sizeof(ResourceCreationArgs)));
-					}
+		        for (ReferenceData &referenceData : referenceDatas) {
+		            if (!referenceData.referenceOnlyTexture ||
+		                0 != memcmp(referenceData.referenceOnlyTexture->Parent(), &ResourceArgs, sizeof(ResourceCreationArgs))) {
+		                referenceData.referenceOnlyTexture =
+		                    Resource::CreateResource(m_pImmediateContext, ResourceArgs, ResourceAllocationContext::ImmediateContextThreadLongLived);
+		                assert(0 == memcmp(referenceData.referenceOnlyTexture->Parent(), &ResourceArgs, sizeof(ResourceCreationArgs)));
+		            }
 
-					referenceData.referenceTexture = referenceData.referenceOnlyTexture.get();
-					referenceData.subresourceIndex = 0u;
-				}
-			}
-			else {
-				ResourceArgs.m_desc12 =
-				    CD3DX12_RESOURCE_DESC::Tex2D(pReferenceOnly->Format, pReferenceOnly->Width, pReferenceOnly->Height, dpb, 1, 1, 0,
-				                                 D3D12_RESOURCE_FLAG_VIDEO_DECODE_REFERENCE_ONLY | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
-				ResourceArgs.m_appDesc = AppResourceDesc(ResourceArgs.m_desc12, RESOURCE_USAGE_DEFAULT, RESOURCE_CPU_ACCESS_NONE, RESOURCE_BIND_DECODER);
+		            referenceData.referenceTexture = referenceData.referenceOnlyTexture.get();
+		            referenceData.subresourceIndex = 0u;
+		        }
+		    }
+		    else {
+		        ResourceArgs.m_desc12 =
+		            CD3DX12_RESOURCE_DESC::Tex2D(pReferenceOnly->Format, pReferenceOnly->Width, pReferenceOnly->Height, dpb, 1, 1, 0,
+		                                         D3D12_RESOURCE_FLAG_VIDEO_DECODE_REFERENCE_ONLY | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
+		        ResourceArgs.m_appDesc = AppResourceDesc(ResourceArgs.m_desc12, RESOURCE_USAGE_DEFAULT, RESOURCE_CPU_ACCESS_NONE, RESOURCE_BIND_DECODER);
 
-				UINT64 resourceSize = 0;
-				m_pImmediateContext->m_pDevice12->GetCopyableFootprints(&ResourceArgs.m_desc12, 0, 1, 0, nullptr, nullptr, nullptr, &resourceSize);
-				ResourceArgs.m_heapDesc = CD3DX12_HEAP_DESC(resourceSize, m_pImmediateContext->GetHeapProperties(D3D12_HEAP_TYPE_DEFAULT));
+		        UINT64 resourceSize = 0;
+		        m_pImmediateContext->m_pDevice12->GetCopyableFootprints(&ResourceArgs.m_desc12, 0, 1, 0, nullptr, nullptr, nullptr, &resourceSize);
+		        ResourceArgs.m_heapDesc = CD3DX12_HEAP_DESC(resourceSize, m_pImmediateContext->GetHeapProperties(D3D12_HEAP_TYPE_DEFAULT));
 
-				unique_comptr<Resource> spReferenceOnlyTextureArray =
-				    Resource::CreateResource(m_pImmediateContext, ResourceArgs, ResourceAllocationContext::ImmediateContextThreadLongLived);
+		        unique_comptr<Resource> spReferenceOnlyTextureArray =
+		            Resource::CreateResource(m_pImmediateContext, ResourceArgs, ResourceAllocationContext::ImmediateContextThreadLongLived);
 
-				for (size_t i = 0; i < referenceDatas.size(); i++) {
-					referenceDatas[i].referenceOnlyTexture = spReferenceOnlyTextureArray.get();
-					referenceDatas[i].referenceTexture = spReferenceOnlyTextureArray.get();
-					referenceDatas[i].subresourceIndex = static_cast<UINT>(i);
-				}
-			}
-		}
+		        for (size_t i = 0; i < referenceDatas.size(); i++) {
+		            referenceDatas[i].referenceOnlyTexture = spReferenceOnlyTextureArray.get();
+		            referenceDatas[i].referenceTexture = spReferenceOnlyTextureArray.get();
+		            referenceDatas[i].subresourceIndex = static_cast<UINT>(i);
+		        }
+		    }
+		}*/
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------
@@ -275,16 +269,17 @@ namespace D3D12TranslationLayer {
 
 	//----------------------------------------------------------------------------------------------------------------------------------
 	_Use_decl_annotations_ void ReferenceDataManager::TransitionReference(ReferenceData &referenceData, D3D12_RESOURCE_STATES decodeState) {
-		AppResourceDesc *pAppDesc = referenceData.referenceTexture->AppDesc();
-		VIDEO_PROCESSOR_INPUT_VIEW_DESC_INTERNAL viewDesc = {pAppDesc->Format(), /*MipSlice=*/0, /*ArraySlice=*/referenceData.subresourceIndex};
+		assert(false);
+		// AppResourceDesc *pAppDesc = referenceData.referenceTexture->AppDesc();
+		// VIDEO_PROCESSOR_INPUT_VIEW_DESC_INTERNAL viewDesc = {pAppDesc->Format(), /*MipSlice=*/0, /*ArraySlice=*/referenceData.subresourceIndex};
 
-		const UINT8 MipLevels = pAppDesc->MipLevels();
-		const UINT16 ArraySize = pAppDesc->ArraySize();
-		const UINT8 PlaneCount = (referenceData.referenceTexture->SubresourceMultiplier() * pAppDesc->NonOpaquePlaneCount());
+		// const UINT8 MipLevels = pAppDesc->MipLevels();
+		// const UINT16 ArraySize = pAppDesc->ArraySize();
+		// const UINT8 PlaneCount = (referenceData.referenceTexture->SubresourceMultiplier() * pAppDesc->NonOpaquePlaneCount());
 
-		CViewSubresourceSubset SubresourceSubset(viewDesc, MipLevels, ArraySize, PlaneCount);
+		// CViewSubresourceSubset SubresourceSubset(viewDesc, MipLevels, ArraySize, PlaneCount);
 
-		m_pImmediateContext->GetResourceStateManager().TransitionSubresources(referenceData.referenceTexture, SubresourceSubset, decodeState,
-		                                                                      COMMAND_LIST_TYPE::VIDEO_DECODE);
+		// m_pImmediateContext->GetResourceStateManager().TransitionSubresources(referenceData.referenceTexture, SubresourceSubset, decodeState,
+		// COMMAND_LIST_TYPE::VIDEO_DECODE);
 	}
 };

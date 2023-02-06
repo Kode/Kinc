@@ -189,4 +189,5 @@ namespace D3D12TranslationLayer {
 		static_assert(static_cast<T>(-1) > 0, "Signed type passed to IsPow2");
 		return !(num & (num - 1));
 	}
+
 };

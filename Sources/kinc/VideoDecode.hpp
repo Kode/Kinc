@@ -102,13 +102,13 @@ namespace D3D12TranslationLayer {
 
 	typedef struct VIDEO_DECODE_COMPONENT_HISTOGRAM {
 		UINT64 Offset;
-		Resource *pBuffer;
+		ID3D12Resource *pBuffer;
 	} VIDEO_DECODE_COMPONENT_HISTOGRAM;
 
 	const UINT VIDEO_DECODE_MAX_HISTOGRAM_COMPONENTS = 4;
 
 	typedef struct VIDEO_DECODE_OUTPUT_STREAM_ARGUMENTS {
-		Resource *pOutputTexture2D;
+		ID3D12Resource *pOutputTexture2D;
 		CViewSubresourceSubset SubresourceSubset;
 		VIDEO_DECODE_OUTPUT_CONVERSION_ARGUMENTS ConversionArguments;
 		VIDEO_DECODE_COMPONENT_HISTOGRAM Histograms[VIDEO_DECODE_MAX_HISTOGRAM_COMPONENTS];
@@ -118,7 +118,7 @@ namespace D3D12TranslationLayer {
 	class VideoDecode {
 	public:
 		friend class ImmediateContext;
-		VideoDecode(_In_ ImmediateContext *pDevice, VideoDecodeCreationArgs const &args);
+		VideoDecode(VideoDecodeCreationArgs const &args);
 		virtual ~VideoDecode() noexcept;
 
 		static HRESULT GetVideoDecoderBufferTypeCount(_In_ const VIDEO_DECODE_DESC *pDesc, _Out_ UINT *pBufferTypeCount) noexcept;
@@ -144,7 +144,7 @@ namespace D3D12TranslationLayer {
 		GUID GetDecodeProfile(VIDEO_DECODE_PROFILE_TYPE ProfileType, VIDEO_DECODE_PROFILE_BIT_DEPTH BitDepth) noexcept;
 		void LogPicParams() const;
 		void ReleaseUnusedReferences();
-		void UpdateCurrPic(_In_ Resource *pTexture2D, UINT subresourceIndex);
+		void UpdateCurrPic(_In_ ID3D12Resource *pTexture2D, UINT subresourceIndex);
 		void PrepareForDecodeFrame(_In_ const VIDEO_DECODE_INPUT_STREAM_ARGUMENTS *pInputArguments,
 		                           _In_ const VIDEO_DECODE_OUTPUT_STREAM_ARGUMENTS *pOutputArguments);
 		void CachePicParams(_In_ const VIDEO_DECODE_INPUT_STREAM_ARGUMENTS *pInputArguments);

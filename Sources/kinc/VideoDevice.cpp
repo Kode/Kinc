@@ -135,9 +135,7 @@ namespace D3D12TranslationLayer {
 		VideoDecode::GetVideoDecoderBufferInfo(pDesc, Index, pType, pSize, false);
 	}
 
-	extern "C" {
-	ID3D12Device *device = NULL;
-	}
+	extern "C" ID3D12Device *device;
 
 	//----------------------------------------------------------------------------------------------------------------------------------
 	_Use_decl_annotations_ void VideoDevice::GetVideoDecoderConfigCount(const VIDEO_DECODE_DESC *pDesc, UINT *pConfigCount) {
