@@ -66,7 +66,15 @@ static OSStatus appIOProc(AudioDeviceID inDevice, const AudioTimeStamp *inNow, c
 	return kAudioHardwareNoError;
 }
 
+static bool initialized = false;
+
 void kinc_a2_init() {
+	if (initialized) {
+		return;
+	}
+
+	initialized = true;
+
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;

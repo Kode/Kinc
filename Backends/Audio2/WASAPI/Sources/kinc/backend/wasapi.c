@@ -155,14 +155,16 @@ static bool initDefaultDevice() {
 static void copyS16Sample(int16_t *buffer) {
 	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 	a2_buffer.read_location += 4;
-	if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
+	if (a2_buffer.read_location >= a2_buffer.data_size)
+		a2_buffer.read_location = 0;
 	*buffer = (int16_t)(value * 32767);
 }
 
 static void copyFloatSample(float *buffer) {
 	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
 	a2_buffer.read_location += 4;
-	if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
+	if (a2_buffer.read_location >= a2_buffer.data_size)
+		a2_buffer.read_location = 0;
 	*buffer = value;
 }
 
@@ -243,7 +245,15 @@ static DWORD WINAPI audioThread(LPVOID ignored) {
 
 void kinc_windows_co_initialize(void);
 
+static bool initialized = false;
+
 void kinc_a2_init() {
+	if (initialized) {
+		return;
+	}
+
+	initialized = true;
+
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;

@@ -128,6 +128,8 @@ void kinc_a1_init() {
 		streamchannels[i].position = 0;
 	}
 	kinc_mutex_init(&mutex);
+
+	kinc_a2_init();
 	kinc_a2_set_callback(kinc_a1_mix);
 }
 

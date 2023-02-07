@@ -40,7 +40,15 @@ static void bqPlayerCallback(SLAndroidSimpleBufferQueueItf caller, void *context
 	}
 }
 
+static bool initialized = false;
+
 void kinc_a2_init() {
+	if (initialized) {
+		return;
+	}
+
+	initialized = true;
+
 	kinc_a2_samples_per_second = 44100;
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
