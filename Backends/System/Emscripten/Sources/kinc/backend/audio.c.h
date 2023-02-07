@@ -64,14 +64,14 @@ static void iter() {
 	}
 }
 
-static bool initialized = false;
+static bool a2_initialized = false;
 
 void kinc_a2_init() {
-	if (initialized) {
+	if (a2_initialized) {
 		return;
 	}
 
-	initialized = true;
+	a2_initialized = true;
 
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
