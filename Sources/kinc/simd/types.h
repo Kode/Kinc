@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 //SSE Capability check
-#if defined(__SSE__) || _M_IX86_FP == 2 || _M_IX86_FP == 1 || (defined(KORE_WINDOWS) && !defined(__aarch64__)) ||                                              \
+#if defined(__SSE__) || _M_IX86_FP == 2 || _M_IX86_FP == 1 || (defined(KORE_WINDOWS) && !defined(__aarch64__)) ||	\
     (defined(KORE_WINDOWSAPP) && !defined(__aarch64__)) || (defined(KORE_MACOS) && __x86_64)
 
 	#define KINC_SSE
@@ -43,7 +43,9 @@ extern "C" {
 #endif
 
 //No SIMD Capabilities
-#if !defined(KINC_AVX) && !defined(KINC_SSE) && !defined(KINC_SSE2) && !defined(KINC_NEON)
+#if !defined(KINC_SSE4_2) && !defined(KINC_SSE4_1) && !defined(KINC_SSSE3) && !defined(KINC_SSE3) && 	\
+	!defined(KINC_SSE2) && !defined(KINC_SSE) && !defined(KINC_NEON)
+
 	#define KINC_NOSIMD
 #endif
 
