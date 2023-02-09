@@ -159,19 +159,19 @@ static inline kinc_uint32x4_t kinc_uint32x4_sub(kinc_uint32x4_t a, kinc_uint32x4
 
 static inline kinc_uint32x4_t kinc_uint32x4_max(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_t value;
-	value.values[0] = kinc_max(a.values[0], b.values[0]);
-	value.values[1] = kinc_max(a.values[1], b.values[1]);
-	value.values[2] = kinc_max(a.values[2], b.values[2]);
-	value.values[3] = kinc_max(a.values[3], b.values[3]);
+	value.values[0] = a.values[0] > b.values[0] ? a.values[0] : b.values[0];
+	value.values[1] = a.values[1] > b.values[1] ? a.values[1] : b.values[1]; 
+	value.values[2] = a.values[2] > b.values[2] ? a.values[2] : b.values[2]; 
+	value.values[3] = a.values[3] > b.values[3] ? a.values[3] : b.values[3]; 
 	return value;
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_min(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_t value;
-	value.values[0] = kinc_min(a.values[0], b.values[0]);
-	value.values[1] = kinc_min(a.values[1], b.values[1]);
-	value.values[2] = kinc_min(a.values[2], b.values[2]);
-	value.values[3] = kinc_min(a.values[3], b.values[3]);
+	value.values[0] = a.values[0] > b.values[0] ? b.values[0] : a.values[0];
+	value.values[1] = a.values[1] > b.values[1] ? b.values[1] : a.values[1]; 
+	value.values[2] = a.values[2] > b.values[2] ? b.values[2] : a.values[2]; 
+	value.values[3] = a.values[3] > b.values[3] ? b.values[3] : a.values[3]; 
 	return value;
 }
 

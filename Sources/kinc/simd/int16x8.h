@@ -225,27 +225,27 @@ static inline kinc_int16x8_t kinc_int16x8_sub(kinc_int16x8_t a, kinc_int16x8_t b
 
 static inline kinc_int16x8_t kinc_int16x8_max(kinc_int16x8_t a, kinc_int16x8_t b) {
 	kinc_int16x8_t value;
-	value.values[0] = kinc_max(a.values[0], b.values[0]);
-	value.values[1] = kinc_max(a.values[1], b.values[1]);
-	value.values[2] = kinc_max(a.values[2], b.values[2]);
-	value.values[3] = kinc_max(a.values[3], b.values[3]);
-	value.values[4] = kinc_max(a.values[4], b.values[4]);
-	value.values[5] = kinc_max(a.values[5], b.values[5]);
-	value.values[6] = kinc_max(a.values[6], b.values[6]);
-	value.values[7] = kinc_max(a.values[7], b.values[7]);
+	value.values[0] = a.values[0] > b.values[0] ? a.values[0] : b.values[0];
+	value.values[1] = a.values[1] > b.values[1] ? a.values[1] : b.values[1];
+	value.values[2] = a.values[2] > b.values[2] ? a.values[2] : b.values[2];
+	value.values[3] = a.values[3] > b.values[3] ? a.values[3] : b.values[3];
+	value.values[4] = a.values[4] > b.values[4] ? a.values[4] : b.values[4];
+	value.values[5] = a.values[5] > b.values[5] ? a.values[5] : b.values[5];
+	value.values[6] = a.values[6] > b.values[6] ? a.values[6] : b.values[6];
+	value.values[7] = a.values[7] > b.values[7] ? a.values[7] : b.values[7];
 	return value;
 }
 
 static inline kinc_int16x8_t kinc_int16x8_min(kinc_int16x8_t a, kinc_int16x8_t b) {
 	kinc_int16x8_t value;
-	value.values[0] = kinc_min(a.values[0], b.values[0]);
-	value.values[1] = kinc_min(a.values[1], b.values[1]);
-	value.values[2] = kinc_min(a.values[2], b.values[2]);
-	value.values[3] = kinc_min(a.values[3], b.values[3]);
-	value.values[4] = kinc_min(a.values[4], b.values[4]);
-	value.values[5] = kinc_min(a.values[5], b.values[5]);
-	value.values[6] = kinc_min(a.values[6], b.values[6]);
-	value.values[7] = kinc_min(a.values[7], b.values[7]);
+	value.values[0] = a.values[0] > b.values[0] ? b.values[0] : a.values[0];
+	value.values[1] = a.values[1] > b.values[1] ? b.values[1] : a.values[1];
+	value.values[2] = a.values[2] > b.values[2] ? b.values[2] : a.values[2];
+	value.values[3] = a.values[3] > b.values[3] ? b.values[3] : a.values[3];
+	value.values[4] = a.values[4] > b.values[4] ? b.values[4] : a.values[4];
+	value.values[5] = a.values[5] > b.values[5] ? b.values[5] : a.values[5];
+	value.values[6] = a.values[6] > b.values[6] ? b.values[6] : a.values[6];
+	value.values[7] = a.values[7] > b.values[7] ? b.values[7] : a.values[7];
 	return value;
 }
 

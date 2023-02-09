@@ -262,43 +262,43 @@ static inline kinc_int8x16_t kinc_int8x16_sub(kinc_int8x16_t a, kinc_int8x16_t b
 
 static inline kinc_int8x16_t kinc_int8x16_max(kinc_int8x16_t a, kinc_int8x16_t b) {
 	kinc_int8x16_t value;
-	value.values[0] = kinc_max(a.values[0], b.values[0]);
-	value.values[1] = kinc_max(a.values[1], b.values[1]);
-	value.values[2] = kinc_max(a.values[2], b.values[2]);
-	value.values[3] = kinc_max(a.values[3], b.values[3]);
-	value.values[4] = kinc_max(a.values[4], b.values[4]);
-	value.values[5] = kinc_max(a.values[5], b.values[5]);
-	value.values[6] = kinc_max(a.values[6], b.values[6]);
-	value.values[7] = kinc_max(a.values[7], b.values[7]);
-	value.values[8] = kinc_max(a.values[8], b.values[8]);
-	value.values[9] = kinc_max(a.values[9], b.values[9]);
-	value.values[10] = kinc_max(a.values[10], b.values[10]);
-	value.values[11] = kinc_max(a.values[11], b.values[11]);
-	value.values[12] = kinc_max(a.values[12], b.values[12]);
-	value.values[13] = kinc_max(a.values[13], b.values[13]);
-	value.values[14] = kinc_max(a.values[14], b.values[14]);
-	value.values[15] = kinc_max(a.values[15], b.values[15]);
+	value.values[0] =  a.values[0] > b.values[0] ? a.values[0] : b.values[0];
+	value.values[1] =  a.values[1] > b.values[1] ? a.values[1] : b.values[1];
+	value.values[2] =  a.values[2] > b.values[2] ? a.values[2] : b.values[2];
+	value.values[3] =  a.values[3] > b.values[3] ? a.values[3] : b.values[3];
+	value.values[4] =  a.values[4] > b.values[4] ? a.values[4] : b.values[4];
+	value.values[5] =  a.values[5] > b.values[5] ? a.values[5] : b.values[5];
+	value.values[6] =  a.values[6] > b.values[6] ? a.values[6] : b.values[6];
+	value.values[7] =  a.values[7] > b.values[7] ? a.values[7] : b.values[7];
+	value.values[8] =  a.values[8] > b.values[8] ? a.values[8] : b.values[8];
+	value.values[9] =  a.values[9] > b.values[9] ? a.values[9] : b.values[9];
+	value.values[10] = a.values[10] > b.values[10] ? a.values[10] : b.values[10];
+	value.values[11] = a.values[11] > b.values[11] ? a.values[11] : b.values[11];
+	value.values[12] = a.values[12] > b.values[12] ? a.values[12] : b.values[12];
+	value.values[13] = a.values[13] > b.values[13] ? a.values[13] : b.values[13];
+	value.values[14] = a.values[14] > b.values[14] ? a.values[14] : b.values[14];
+	value.values[15] = a.values[15] > b.values[15] ? a.values[15] : b.values[15];
 	return value;
 }
 
 static inline kinc_int8x16_t kinc_int8x16_min(kinc_int8x16_t a, kinc_int8x16_t b) {
 	kinc_int8x16_t value;
-	value.values[0] = kinc_min(a.values[0], b.values[0]);
-	value.values[1] = kinc_min(a.values[1], b.values[1]);
-	value.values[2] = kinc_min(a.values[2], b.values[2]);
-	value.values[3] = kinc_min(a.values[3], b.values[3]);
-	value.values[4] = kinc_min(a.values[4], b.values[4]);
-	value.values[5] = kinc_min(a.values[5], b.values[5]);
-	value.values[6] = kinc_min(a.values[6], b.values[6]);
-	value.values[7] = kinc_min(a.values[7], b.values[7]);
-	value.values[8] = kinc_min(a.values[8], b.values[8]);
-	value.values[9] = kinc_min(a.values[9], b.values[9]);
-	value.values[10] = kinc_min(a.values[10], b.values[10]);
-	value.values[11] = kinc_min(a.values[11], b.values[11]);
-	value.values[12] = kinc_min(a.values[12], b.values[12]);
-	value.values[13] = kinc_min(a.values[13], b.values[13]);
-	value.values[14] = kinc_min(a.values[14], b.values[14]);
-	value.values[15] = kinc_min(a.values[15], b.values[15]);
+	value.values[0] =  a.values[0] > b.values[0] ? b.values[0] : a.values[0];
+	value.values[1] =  a.values[1] > b.values[1] ? b.values[1] : a.values[1];
+	value.values[2] =  a.values[2] > b.values[2] ? b.values[2] : a.values[2];
+	value.values[3] =  a.values[3] > b.values[3] ? b.values[3] : a.values[3];
+	value.values[4] =  a.values[4] > b.values[4] ? b.values[4] : a.values[4];
+	value.values[5] =  a.values[5] > b.values[5] ? b.values[5] : a.values[5];
+	value.values[6] =  a.values[6] > b.values[6] ? b.values[6] : a.values[6];
+	value.values[7] =  a.values[7] > b.values[7] ? b.values[7] : a.values[7];
+	value.values[8] =  a.values[8] > b.values[8] ? b.values[8] : a.values[8];
+	value.values[9] =  a.values[9] > b.values[9] ? b.values[9] : a.values[9];
+	value.values[10] = a.values[10] > b.values[10] ? b.values[10] : a.values[10];
+	value.values[11] = a.values[11] > b.values[11] ? b.values[11] : a.values[11];
+	value.values[12] = a.values[12] > b.values[12] ? b.values[12] : a.values[12];
+	value.values[13] = a.values[13] > b.values[13] ? b.values[13] : a.values[13];
+	value.values[14] = a.values[14] > b.values[14] ? b.values[14] : a.values[14];
+	value.values[15] = a.values[15] > b.values[15] ? b.values[15] : a.values[15];
 	return value;
 }
 
