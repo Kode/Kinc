@@ -12,8 +12,7 @@ extern "C" {
 
 #if defined(KINC_SSE)
 
-static inline kinc_float32x4_t kinc_float32x4_intrin_load(float const *values)
-{
+static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
 	//Parameter doesn't behave like SIMD int types
 	return _mm_load_ps(values);
 }
@@ -26,8 +25,7 @@ static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
 	return _mm_set_ps1(t);
 }
 
-static inline void kinc_float32x4_store(float *destination, kinc_float32x4_t value)
-{
+static inline void kinc_float32x4_store(float *destination, kinc_float32x4_t value) {
 	_mm_store_ps(destination, value);
 }
 
@@ -116,8 +114,7 @@ static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float
 
 #elif defined(KINC_NEON)
 
-static inline kinc_float32x4_t kinc_float32x4_intrin_load(float const *values)
-{
+static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
 	return vld1q_f32(values);
 }
 
@@ -129,8 +126,7 @@ static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
 	return (kinc_float32x4_t){t, t, t, t};
 }
 
-static inline kinc_float32x4_t kinc_float32x4_store(float *destination, kinc_float32x4_t value)
-{
+static inline kinc_float32x4_t kinc_float32x4_store(float *destination, kinc_float32x4_t value) {
 	vst1q_f32(destination, value);
 }
 
@@ -225,8 +221,7 @@ static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float
 
 #include <math.h>
 
-static inline kinc_float32x4_t kinc_float32x4_intrin_load(float const *values)
-{
+static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
 	kinc_float32x4_t value;
 	value.values[0] = values[0];
 	value.values[1] = values[1];
@@ -253,8 +248,7 @@ static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
 	return value;
 }
 
-static inline void kinc_float32x4_store(float *destination, kinc_float32x4_t value)
-{
+static inline void kinc_float32x4_store(float *destination, kinc_float32x4_t value) {
 	destination[0] = value.values[0];
 	destination[1] = value.values[1];
 	destination[2] = value.values[2];

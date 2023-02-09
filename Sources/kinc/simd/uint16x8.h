@@ -12,9 +12,8 @@ extern "C" {
 
 #if defined(KINC_SSE2)
 
-static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(uint16_t const *values)
-{
-	return _mm_load_si128((kinc_uint16x8_t const *)values);
+static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(const uint16_t *values) {
+	return _mm_load_si128((const kinc_uint16x8_t *)values);
 }
 
 static inline kinc_uint16x8_t kinc_uint16x8_load(const uint16_t values[8]) {
@@ -25,8 +24,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {
 	return _mm_set1_epi16(t);
 }
 
-static inline void kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value)
-{
+static inline void kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value) {
 	_mm_store_si128((kinc_uint16x8_t *)destination, value);
 }
 
@@ -77,8 +75,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 
 #elif defined(KINC_NEON)
 
-static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(uint16_t const *values)
-{
+static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(const uint16_t *values) {
 	return vld1q_u16(values);
 }
 
@@ -90,8 +87,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {
 	return (kinc_uint16x8_t){t, t, t, t, t, t, t, t};
 }
 
-static inline kinc_uint16x8_t kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value)
-{
+static inline kinc_uint16x8_t kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value) {
 	vst1q_u16(destination, value);
 }
 
@@ -137,8 +133,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 
 #else
 
-static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(uint16_t const *values)
-{
+static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(const uint16_t *values) {
 	kinc_uint16x8_t value;
 	value.values[0] = values[0];
 	value.values[1] = values[1];
@@ -177,8 +172,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {
 	return value;
 }
 
-static inline void kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value)
-{
+static inline void kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value) {
 	destination[0] = value.values[0];
 	destination[1] = value.values[1];
 	destination[2] = value.values[2];
