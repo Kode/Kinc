@@ -12,12 +12,22 @@ extern "C" {
 
 #if defined(KINC_SSE2)
 
+static inline kinc_int16x8_t kinc_int16x8_intrin_load(int16_t const *values)
+{
+	return _mm_load_si128((kinc_int16x8_t const *)values);
+}
+
 static inline kinc_int16x8_t kinc_int16x8_load(const int16_t values[8]) {
 	return _mm_set_epi16(values[7], values[6], values[5], values[4], values[3], values[2], values[1], values[0]);
 }
 
 static inline kinc_int16x8_t kinc_int16x8_load_all(int16_t t) {
 	return _mm_set1_epi16(t);
+}
+
+static inline void kinc_int16x8_store(int16_t *destination, kinc_int16x8_t value)
+{
+	_mm_store_si128((kinc_int16x8_t *)destination, value);
 }
 
 static inline int16_t kinc_int16x8_get(kinc_int16x8_t t, int index) {
@@ -93,12 +103,22 @@ static inline kinc_int16x8_t kinc_int16x8_not(kinc_int16x8_t t) {
 
 #elif defined(KINC_NEON)
 
+static inline kinc_int16x8_t kinc_int16x8_intrin_load(int16_t const *values)
+{
+	return vld1q_s16(values);
+}
+
 static inline kinc_int16x8_t kinc_int16x8_load(const int16_t values[8]) {
 	return (kinc_int16x8_t){values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]};
 }
 
 static inline kinc_int16x8_t kinc_int16x8_load_all(int16_t t) {
 	return (kinc_int16x8_t){t, t, t, t, t, t, t, t};
+}
+
+static inline kinc_int16x8_t kinc_int16x8_store(int16_t *destination, kinc_int16x8_t value)
+{
+	vst1q_s16(destination, value);
 }
 
 static inline int16_t kinc_int16x8_get(kinc_int16x8_t t, int index) {
@@ -167,6 +187,20 @@ static inline kinc_int16x8_t kinc_int16x8_not(kinc_int16x8_t t) {
 
 #else
 
+static inline kinc_int16x8_t kinc_int16x8_intrin_load(int16_t const *values)
+{
+	kinc_int16x8_t value;
+	value.values[0] = values[0];
+	value.values[1] = values[1];
+	value.values[2] = values[2];
+	value.values[3] = values[3];
+	value.values[4] = values[4];
+	value.values[5] = values[5];
+	value.values[6] = values[6];
+	value.values[7] = values[7];
+	return value;
+}
+
 static inline kinc_int16x8_t kinc_int16x8_load(const int16_t values[8]) {
 	kinc_int16x8_t value;
 	value.values[0] = values[0];
@@ -191,6 +225,18 @@ static inline kinc_int16x8_t kinc_int16x8_load_all(int16_t t) {
 	value.values[6] = t;
 	value.values[7] = t;
 	return value;
+}
+
+static inline void kinc_int16x8_store(int16_t *destination, kinc_int16x8_t value)
+{
+	destination[0] = value.values[0];
+	destination[1] = value.values[1];
+	destination[2] = value.values[2];
+	destination[3] = value.values[3];
+	destination[4] = value.values[4];
+	destination[5] = value.values[5];
+	destination[6] = value.values[6];
+	destination[7] = value.values[7];
 }
 
 static inline int16_t kinc_int16x8_get(kinc_int16x8_t t, int index) {

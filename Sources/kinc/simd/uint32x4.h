@@ -12,12 +12,22 @@ extern "C" {
 
 #if defined(KINC_SSE2)
 
+static inline kinc_uint32x4_t kinc_uint32x4_intrin_load(uint32_t const *values)
+{
+	return _mm_load_si128((kinc_uint32x4_t const *)values);
+}
+
 static inline kinc_uint32x4_t kinc_uint32x4_load(const uint32_t values[4]) {
 	return _mm_set_epi32(values[3], values[2], values[1], values[0]);
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_load_all(uint32_t t) {
 	return _mm_set1_epi32(t);
+}
+
+static inline void kinc_uint32x4_store(uint32_t *destination, kinc_uint32x4_t value)
+{
+	_mm_store_si128((kinc_uint32x4_t *)destination, value);
 }
 
 static inline uint32_t kinc_uint32x4_get(kinc_uint32x4_t t, int index) {
@@ -67,12 +77,22 @@ static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 
 #elif defined(KINC_NEON)
 
+static inline kinc_uint32x4_t kinc_uint32x4_intrin_load(uint32_t const *values)
+{
+	return vld1q_u32(values);
+}
+
 static inline kinc_uint32x4_t kinc_uint32x4_load(const uint32_t values[4]) {
 	return (kinc_uint32x4_t){values[0], values[1], values[2], values[3]};
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_load_all(uint32_t t) {
 	return (kinc_uint32x4_t){t, t, t, t};
+}
+
+static inline void kinc_uint32x4_store(uint32_t *destination, kinc_uint32x4_t value)
+{
+	vst1q_u32(destination, value);
 }
 
 static inline uint32_t kinc_uint32x4_get(kinc_uint32x4_t t, int index) {
@@ -117,6 +137,16 @@ static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 
 #else
 
+static inline kinc_uint32x4_t kinc_uint32x4_intrin_load(uint32_t const *values)
+{
+	kinc_uint32x4_t value;
+	value.values[0] = values[0];
+	value.values[1] = values[1];
+	value.values[2] = values[2];
+	value.values[3] = values[3];
+	return value;
+}
+
 static inline kinc_uint32x4_t kinc_uint32x4_load(const uint32_t values[4]) {
 	kinc_uint32x4_t value;
 	value.values[0] = values[0];
@@ -133,6 +163,14 @@ static inline kinc_uint32x4_t kinc_uint32x4_load_all(uint32_t t) {
 	value.values[2] = t;
 	value.values[3] = t;
 	return value;
+}
+
+static inline void kinc_uint32x4_store(uint32_t *destination, kinc_uint32x4_t value)
+{
+	destination[0] = value.values[0];
+	destination[1] = value.values[1];
+	destination[2] = value.values[2];
+	destination[3] = value.values[3];
 }
 
 static inline uint32_t kinc_uint32x4_get(kinc_uint32x4_t t, int index) {

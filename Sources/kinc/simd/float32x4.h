@@ -12,12 +12,23 @@ extern "C" {
 
 #if defined(KINC_SSE)
 
+static inline kinc_float32x4_t kinc_float32x4_intrin_load(float const *values)
+{
+	//Parameter doesn't behave like SIMD int types
+	return _mm_load_ps(values);
+}
+
 static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, float d) {
 	return _mm_set_ps(d, c, b, a);
 }
 
 static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
 	return _mm_set_ps1(t);
+}
+
+static inline void kinc_float32x4_store(float *destination, kinc_float32x4_t value)
+{
+	_mm_store_ps(destination, value);
 }
 
 static inline float kinc_float32x4_get(kinc_float32x4_t t, int index) {
@@ -105,12 +116,22 @@ static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float
 
 #elif defined(KINC_NEON)
 
+static inline kinc_float32x4_t kinc_float32x4_intrin_load(float const *values)
+{
+	return vld1q_f32(values);
+}
+
 static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, float d) {
 	return (kinc_float32x4_t){a, b, c, d};
 }
 
 static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
 	return (kinc_float32x4_t){t, t, t, t};
+}
+
+static inline kinc_float32x4_t kinc_float32x4_store(float *destination, kinc_float32x4_t value)
+{
+	vst1q_f32(destination, value);
 }
 
 static inline float kinc_float32x4_get(kinc_float32x4_t t, int index) {
@@ -204,6 +225,16 @@ static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float
 
 #include <math.h>
 
+static inline kinc_float32x4_t kinc_float32x4_intrin_load(float const *values)
+{
+	kinc_float32x4_t value;
+	value.values[0] = values[0];
+	value.values[1] = values[1];
+	value.values[2] = values[2];
+	value.values[3] = values[3];
+	return value;
+}
+
 static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, float d) {
 	kinc_float32x4_t value;
 	value.values[0] = a;
@@ -220,6 +251,14 @@ static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
 	value.values[2] = t;
 	value.values[3] = t;
 	return value;
+}
+
+static inline void kinc_float32x4_store(float *destination, kinc_float32x4_t value)
+{
+	destination[0] = value.values[0];
+	destination[1] = value.values[1];
+	destination[2] = value.values[2];
+	destination[3] = value.values[3];
 }
 
 static inline float kinc_float32x4_get(kinc_float32x4_t t, int index) {
