@@ -101,7 +101,7 @@ static inline kinc_int32x4_t kinc_int32x4_not(kinc_int32x4_t t) {
 
 #elif defined(KINC_NEON)
 
-static inline kinc_int32x4_t kinc_int32x4_intrin_load(int32_t const *values) {
+static inline kinc_int32x4_t kinc_int32x4_intrin_load(const int32_t *values) {
 	return vld1q_s32(values);
 }
 

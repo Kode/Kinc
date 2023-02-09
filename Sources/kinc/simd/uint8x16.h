@@ -113,7 +113,7 @@ static inline kinc_uint8x16_t kinc_uint8x16_load_all(uint8_t t) {
 	return (kinc_uint8x16_t){t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t};
 }
 
-static inline kinc_uint8x16_t kinc_uint8x16_store(uint8_t *destination, kinc_uint8x16_t value) {
+static inline void kinc_uint8x16_store(uint8_t *destination, kinc_uint8x16_t value) {
 	vst1q_u8(destination, value);
 }
 
