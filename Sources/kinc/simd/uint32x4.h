@@ -45,6 +45,36 @@ static inline kinc_uint32x4_t kinc_uint32x4_sub(kinc_uint32x4_t a, kinc_uint32x4
 	return _mm_sub_epi32(a, b);
 }
 
+static inline kinc_uint32x4_t kinc_uint32x4_max(kinc_uint32x4_t a, kinc_uint32x4_t b) {
+	//No obvious intrinsic here; use a subpar fallback method
+	uint32_t values[4];
+
+	for(int i = 0; i < 4; ++i) {
+
+		uint32_t a_single = kinc_uint32x4_get(a, i);
+		uint32_t b_single = kinc_uint32x4_get(b, i);
+
+		a_single > b_single ? values[i] = a_single : values[i] = b_single;
+	}
+
+	return kinc_uint32x4_load(values);
+}
+
+static inline kinc_uint32x4_t kinc_uint32x4_min(kinc_uint32x4_t a, kinc_uint32x4_t b) {
+	//No obvious intrinsic here; use a subpar fallback method
+	uint32_t values[4];
+
+	for(int i = 0; i < 4; ++i) {
+
+		uint32_t a_single = kinc_uint32x4_get(a, i);
+		uint32_t b_single = kinc_uint32x4_get(b, i);
+
+		a_single > b_single ? values[i] = b_single : values[i] = a_single;
+	}
+
+	return kinc_uint32x4_load(values);
+}
+
 static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpeq(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	return _mm_cmpeq_epi32(a, b);
 }
@@ -101,6 +131,14 @@ static inline kinc_uint32x4_t kinc_uint32x4_add(kinc_uint32x4_t a, kinc_uint32x4
 
 static inline kinc_uint32x4_t kinc_uint32x4_sub(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	return vsubq_u32(a, b);
+}
+
+static inline kinc_uint32x4_t kinc_uint32x4_max(kinc_uint32x4_t a, kinc_uint32x4_t b) {
+	return vmaxq_u32(a, b);
+}
+
+static inline kinc_uint32x4_t kinc_uint32x4_min(kinc_uint32x4_t a, kinc_uint32x4_t b) {
+	return vminq_u32(a, b);
 }
 
 static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpeq(kinc_uint32x4_t a, kinc_uint32x4_t b) {

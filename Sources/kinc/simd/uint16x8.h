@@ -45,6 +45,36 @@ static inline kinc_uint16x8_t kinc_uint16x8_sub(kinc_uint16x8_t a, kinc_uint16x8
 	return _mm_sub_epi16(a, b);
 }
 
+static inline kinc_uint16x8_t kinc_uint16x8_max(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	//No obvious intrinsic here; use a subpar fallback method
+	uint16_t values[8];
+
+	for(int i = 0; i < 8; ++i) {
+
+		uint16_t a_single = kinc_uint16x8_get(a, i);
+		uint16_t b_single = kinc_uint16x8_get(b, i);
+
+		a_single > b_single ? values[i] = a_single : values[i] = b_single;
+	}
+
+	return kinc_uint16x8_load(values);
+}
+
+static inline kinc_uint16x8_t kinc_uint16x8_min(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	//No obvious intrinsic here; use a subpar fallback method
+	uint16_t values[8];
+
+	for(int i = 0; i < 8; ++i) {
+
+		uint16_t a_single = kinc_uint16x8_get(a, i);
+		uint16_t b_single = kinc_uint16x8_get(b, i);
+
+		a_single > b_single ? values[i] = b_single : values[i] = a_single;
+	}
+
+	return kinc_uint16x8_load(values);
+}
+
 static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpeq(kinc_uint16x8_t a, kinc_uint16x8_t b) {
 	return _mm_cmpeq_epi16(a, b);
 }
@@ -101,6 +131,14 @@ static inline kinc_uint16x8_t kinc_uint16x8_add(kinc_uint16x8_t a, kinc_uint16x8
 
 static inline kinc_uint16x8_t kinc_uint16x8_sub(kinc_uint16x8_t a, kinc_uint16x8_t b) {
 	return vsubq_u16(a, b);
+}
+
+static inline kinc_uint16x8_t kinc_uint16x8_max(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	return vmaxq_u16(a, b);
+}
+
+static inline kinc_uint16x8_t kinc_uint16x8_min(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	return vminq_u16(a, b);
 }
 
 static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpeq(kinc_uint16x8_t a, kinc_uint16x8_t b) {
