@@ -72,7 +72,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_xor(kinc_uint16x8_t a, kinc_uint16x8
 }
 
 static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
-	return ~t;
+	return _mm_xor_si128(t, _mm_set1_epi32(0xffffffff));
 }
 
 #elif defined(KINC_NEON)

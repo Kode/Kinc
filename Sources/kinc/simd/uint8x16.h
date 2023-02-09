@@ -97,9 +97,7 @@ static inline kinc_uint8x16_t kinc_uint8x16_xor(kinc_uint8x16_t a, kinc_uint8x16
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_not(kinc_uint8x16_t t) {
-	//__m128i mask = _mm_set1_epi8(0xff);
-	// return _mm_xor_si128(t, mask);
-	return ~t;
+	return _mm_xor_si128(t, _mm_set1_epi32(0xffffffff));
 }
 
 #elif defined(KINC_NEON)
