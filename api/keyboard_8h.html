@@ -654,15 +654,15 @@ Functions</h2></td></tr>
 <tr class="memitem:a6882f8e969dbba9c42d0079564f15b3d"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="keyboard_8h.html#a6882f8e969dbba9c42d0079564f15b3d">kinc_keyboard_active</a> (void)</td></tr>
 <tr class="memdesc:a6882f8e969dbba9c42d0079564f15b3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Figure out whether the keyboard is currently shown if the system is using a software-keyboard.  <a href="keyboard_8h.html#a6882f8e969dbba9c42d0079564f15b3d">More...</a><br /></td></tr>
 <tr class="separator:a6882f8e969dbba9c42d0079564f15b3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84bd56cfc17d89fd7b47c1991ffab40f"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="keyboard_8h.html#a84bd56cfc17d89fd7b47c1991ffab40f">kinc_keyboard_set_key_down_callback</a> (void(*value)(int))</td></tr>
-<tr class="memdesc:a84bd56cfc17d89fd7b47c1991ffab40f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the keyboard-key-down-callback which is called with a key-code when a key goes down. Do not use this for text-input, that's what the key-press-callback is here for.  <a href="keyboard_8h.html#a84bd56cfc17d89fd7b47c1991ffab40f">More...</a><br /></td></tr>
-<tr class="separator:a84bd56cfc17d89fd7b47c1991ffab40f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8558ace94769c3d5516df0b0482c8e59"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="keyboard_8h.html#a8558ace94769c3d5516df0b0482c8e59">kinc_keyboard_set_key_up_callback</a> (void(*value)(int))</td></tr>
-<tr class="memdesc:a8558ace94769c3d5516df0b0482c8e59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the keyboard-key-up-callback which is called with a key-code when a key goes up. Do not use this for text-input, that's what the key-press-callback is here for.  <a href="keyboard_8h.html#a8558ace94769c3d5516df0b0482c8e59">More...</a><br /></td></tr>
-<tr class="separator:a8558ace94769c3d5516df0b0482c8e59"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a89113cf7a0dd57d8e61c032bb24866"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="keyboard_8h.html#a0a89113cf7a0dd57d8e61c032bb24866">kinc_keyboard_set_key_press_callback</a> (void(*value)(unsigned))</td></tr>
-<tr class="memdesc:a0a89113cf7a0dd57d8e61c032bb24866"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the keyboard-key-press-callback which is called when the system decides that a character came in via the keyboard. Use this for text-input.  <a href="keyboard_8h.html#a0a89113cf7a0dd57d8e61c032bb24866">More...</a><br /></td></tr>
-<tr class="separator:a0a89113cf7a0dd57d8e61c032bb24866"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acbb2ab9064b81404b6b7e2295938ed7d"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="keyboard_8h.html#acbb2ab9064b81404b6b7e2295938ed7d">kinc_keyboard_set_key_down_callback</a> (void(*value)(int, void *), void *data)</td></tr>
+<tr class="memdesc:acbb2ab9064b81404b6b7e2295938ed7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the keyboard-key-down-callback which is called with a key-code when a key goes down. Do not use this for text-input, that's what the key-press-callback is here for.  <a href="keyboard_8h.html#acbb2ab9064b81404b6b7e2295938ed7d">More...</a><br /></td></tr>
+<tr class="separator:acbb2ab9064b81404b6b7e2295938ed7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9564bfb6b484a13cee46acc177ceb9f7"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="keyboard_8h.html#a9564bfb6b484a13cee46acc177ceb9f7">kinc_keyboard_set_key_up_callback</a> (void(*value)(int, void *), void *data)</td></tr>
+<tr class="memdesc:a9564bfb6b484a13cee46acc177ceb9f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the keyboard-key-up-callback which is called with a key-code when a key goes up. Do not use this for text-input, that's what the key-press-callback is here for.  <a href="keyboard_8h.html#a9564bfb6b484a13cee46acc177ceb9f7">More...</a><br /></td></tr>
+<tr class="separator:a9564bfb6b484a13cee46acc177ceb9f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47a32ddbdf70ab2a67cde6813c77b12b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="keyboard_8h.html#a47a32ddbdf70ab2a67cde6813c77b12b">kinc_keyboard_set_key_press_callback</a> (void(*value)(unsigned, void *), void *data)</td></tr>
+<tr class="memdesc:a47a32ddbdf70ab2a67cde6813c77b12b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the keyboard-key-press-callback which is called when the system decides that a character came in via the keyboard. Use this for text-input.  <a href="keyboard_8h.html#a47a32ddbdf70ab2a67cde6813c77b12b">More...</a><br /></td></tr>
+<tr class="separator:a47a32ddbdf70ab2a67cde6813c77b12b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides keyboard-support. </p>
@@ -708,8 +708,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a84bd56cfc17d89fd7b47c1991ffab40f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a84bd56cfc17d89fd7b47c1991ffab40f">&#9670;&nbsp;</a></span>kinc_keyboard_set_key_down_callback()</h2>
+<a id="acbb2ab9064b81404b6b7e2295938ed7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acbb2ab9064b81404b6b7e2295938ed7d">&#9670;&nbsp;</a></span>kinc_keyboard_set_key_down_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -717,9 +717,19 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_keyboard_set_key_down_callback </td>
           <td>(</td>
-          <td class="paramtype">void(*)(int)&#160;</td>
-          <td class="paramname"><em>value</em></td><td>)</td>
+          <td class="paramtype">void(*)(int, void *)&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -734,8 +744,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a0a89113cf7a0dd57d8e61c032bb24866"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a89113cf7a0dd57d8e61c032bb24866">&#9670;&nbsp;</a></span>kinc_keyboard_set_key_press_callback()</h2>
+<a id="a47a32ddbdf70ab2a67cde6813c77b12b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47a32ddbdf70ab2a67cde6813c77b12b">&#9670;&nbsp;</a></span>kinc_keyboard_set_key_press_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -743,9 +753,19 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_keyboard_set_key_press_callback </td>
           <td>(</td>
-          <td class="paramtype">void(*)(unsigned)&#160;</td>
-          <td class="paramname"><em>value</em></td><td>)</td>
+          <td class="paramtype">void(*)(unsigned, void *)&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -760,8 +780,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a8558ace94769c3d5516df0b0482c8e59"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8558ace94769c3d5516df0b0482c8e59">&#9670;&nbsp;</a></span>kinc_keyboard_set_key_up_callback()</h2>
+<a id="a9564bfb6b484a13cee46acc177ceb9f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9564bfb6b484a13cee46acc177ceb9f7">&#9670;&nbsp;</a></span>kinc_keyboard_set_key_up_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -769,9 +789,19 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_keyboard_set_key_up_callback </td>
           <td>(</td>
-          <td class="paramtype">void(*)(int)&#160;</td>
-          <td class="paramname"><em>value</em></td><td>)</td>
+          <td class="paramtype">void(*)(int, void *)&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
