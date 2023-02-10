@@ -247,19 +247,19 @@ static inline kinc_uint32x4_t kinc_uint32x4_min(kinc_uint32x4_t a, kinc_uint32x4
 
 static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpeq(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_mask_t mask;
-	mask.values[0] = a.values[0] == b.values[0] ? 0xffff : 0;
-	mask.values[1] = a.values[1] == b.values[1] ? 0xffff : 0;
-	mask.values[2] = a.values[2] == b.values[2] ? 0xffff : 0;
-	mask.values[3] = a.values[3] == b.values[3] ? 0xffff : 0;
+	mask.values[0] = a.values[0] == b.values[0] ? 0xffffffff : 0;
+	mask.values[1] = a.values[1] == b.values[1] ? 0xffffffff : 0;
+	mask.values[2] = a.values[2] == b.values[2] ? 0xffffffff : 0;
+	mask.values[3] = a.values[3] == b.values[3] ? 0xffffffff : 0;
 	return mask;
 }
 
 static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpneq(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_mask_t mask;
-	mask.values[0] = a.values[0] != b.values[0] ? 0xffff : 0;
-	mask.values[1] = a.values[1] != b.values[1] ? 0xffff : 0;
-	mask.values[2] = a.values[2] != b.values[2] ? 0xffff : 0;
-	mask.values[3] = a.values[3] != b.values[3] ? 0xffff : 0;
+	mask.values[0] = a.values[0] != b.values[0] ? 0xffffffff : 0;
+	mask.values[1] = a.values[1] != b.values[1] ? 0xffffffff : 0;
+	mask.values[2] = a.values[2] != b.values[2] ? 0xffffffff : 0;
+	mask.values[3] = a.values[3] != b.values[3] ? 0xffffffff : 0;
 	return mask;
 }
 
