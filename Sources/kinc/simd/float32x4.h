@@ -129,13 +129,7 @@ static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, fl
 }
 
 static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
-	kinc_float32x4_t value;
-	value.n128_f32[0] = t;
-	value.n128_f32[1] = t;
-	value.n128_f32[2] = t;
-	value.n128_f32[3] = t;
-
-	return value;
+	return vdupq_n_f32(t);
 }
 
 static inline kinc_float32x4_t kinc_float32x4_store(float *destination, kinc_float32x4_t value) {

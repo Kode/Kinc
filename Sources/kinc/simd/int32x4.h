@@ -116,13 +116,7 @@ static inline kinc_int32x4_t kinc_int32x4_load(const int32_t values[4]) {
 }
 
 static inline kinc_int32x4_t kinc_int32x4_load_all(int32_t t) {
-	kinc_int32x4_t value;
-	value.n128_i32[0] = t;
-	value.n128_i32[1] = t;
-	value.n128_i32[2] = t;
-	value.n128_i32[3] = t;
-
-	return value;
+	return vdupq_n_s32(t);
 }
 
 static inline void kinc_int32x4_store(int32_t *destination, kinc_int32x4_t value) {

@@ -127,25 +127,7 @@ static inline kinc_uint8x16_t kinc_uint8x16_load(const uint8_t values[16]) {
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_load_all(uint8_t t) {
-	kinc_uint8x16_t value;
-	value.n128_u8[0] = t;
-	value.n128_u8[1] = t;
-	value.n128_u8[2] = t;
-	value.n128_u8[3] = t;
-	value.n128_u8[4] = t;
-	value.n128_u8[5] = t;
-	value.n128_u8[6] = t;
-	value.n128_u8[7] = t;
-	value.n128_u8[8] = t;
-	value.n128_u8[9] = t;
-	value.n128_u8[10] = t;
-	value.n128_u8[11] = t;
-	value.n128_u8[12] = t;
-	value.n128_u8[13] = t;
-	value.n128_u8[14] = t;
-	value.n128_u8[15] = t;
-
-	return value;
+	return vdupq_n_u8(t);
 }
 
 static inline void kinc_uint8x16_store(uint8_t *destination, kinc_uint8x16_t value) {
