@@ -85,49 +85,33 @@ extern "C" {
 		int8_t values[16];
 	} kinc_int8x16_t;
 
-	typedef struct kinc_int8x16_mask {
-		uint8_t values[16];
-	} kinc_int8x16_mask_t;
-
 	typedef struct kinc_uint8x16 {
 		uint8_t values[16];
 	} kinc_uint8x16_t;
-
-	typedef struct kinc_uint8x16_mask {
-		uint8_t values[16];
-	} kinc_uint8x16_mask_t;
 
 	typedef struct kinc_int16x8 {
 		int16_t values[8];
 	} kinc_int16x8_t;
 
-	typedef struct kinc_int16x8_mask {
-		int16_t values[8];
-	} kinc_int16x8_mask_t;
-
 	typedef struct kinc_uint16x8 {
 		uint16_t values[8];
 	} kinc_uint16x8_t;
-
-	typedef struct kinc_uint16x8_mask {
-		uint16_t values[8];
-	} kinc_uint16x8_mask_t;
 
 	typedef struct kinc_int32x4 {
 		int32_t values[4];
 	} kinc_int32x4_t;
 
-	typedef struct kinc_int32x4_mask {
-		int32_t values[4];
-	} kinc_int32x4_mask_t;
-
 	typedef struct kinc_uint32x4 {
 		uint32_t values[4];
 	} kinc_uint32x4_t;
 
-	typedef struct kinc_uint32x4_mask {
-		uint32_t values[4];
-	} kinc_uint32x4_mask_t;
+	typedef kinc_int8x16_t kinc_int8x16_mask_t;
+	typedef kinc_uint8x16_t kinc_uint8x16_mask_t;
+	typedef kinc_int16x8_t kinc_int16x8_mask_t;
+	typedef kinc_uint16x8_t kinc_uint16x8_mask_t;
+	typedef kinc_int32x4_t kinc_int32x4_mask_t;
+	typedef kinc_uint32x4_t kinc_uint32x4_mask_t;
+
 
 #elif defined(KINC_NEON)
 
@@ -157,59 +141,45 @@ extern "C" {
 		float values[4];
 	} kinc_float32x4_t;
 
+	//Note: Float mask operates a bit differently than int masks
+	//Int/UInt masks are intended to mixed with SIMD base type functions like and/or/xor etc.
+	//so they're basically just the underlying type in the first place
 	typedef struct kinc_float32x4_mask {
 		int values[4];
 	} kinc_float32x4_mask_t;
-
 
 
 	typedef struct kinc_int8x16 {
 		int8_t values[16];
 	} kinc_int8x16_t;
 
-	typedef struct kinc_int8x16_mask {
-		uint8_t values[16];
-	} kinc_int8x16_mask_t;
-
 	typedef struct kinc_uint8x16 {
 		uint8_t values[16];
 	} kinc_uint8x16_t;
-
-	typedef struct kinc_uint8x16_mask {
-		uint8_t values[16];
-	} kinc_uint8x16_mask_t;
 
 	typedef struct kinc_int16x8 {
 		int16_t values[8];
 	} kinc_int16x8_t;
 
-	typedef struct kinc_int16x8_mask {
-		int16_t values[8];
-	} kinc_int16x8_mask_t;
-
 	typedef struct kinc_uint16x8 {
 		uint16_t values[8];
 	} kinc_uint16x8_t;
-
-	typedef struct kinc_uint16x8_mask {
-		uint16_t values[8];
-	} kinc_uint16x8_mask_t;
 
 	typedef struct kinc_int32x4 {
 		int32_t values[4];
 	} kinc_int32x4_t;
 
-	typedef struct kinc_int32x4_mask {
-		int32_t values[4];
-	} kinc_int32x4_mask_t;
-
 	typedef struct kinc_uint32x4 {
 		uint32_t values[4];
 	} kinc_uint32x4_t;
 
-	typedef struct kinc_uint32x4_mask {
-		uint32_t values[4];
-	} kinc_uint32x4_mask_t;
+	typedef kinc_int8x16_t kinc_int8x16_mask_t;
+	typedef kinc_uint8x16_t kinc_uint8x16_mask_t;
+	typedef kinc_int16x8_t kinc_int16x8_mask_t;
+	typedef kinc_uint16x8_t kinc_uint16x8_mask_t;
+	typedef kinc_int32x4_t kinc_int32x4_mask_t;
+	typedef kinc_uint32x4_t kinc_uint32x4_mask_t;
+
 
 #endif
 
