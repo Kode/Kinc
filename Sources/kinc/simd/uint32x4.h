@@ -54,7 +54,7 @@ static inline kinc_uint32x4_t kinc_uint32x4_max(kinc_uint32x4_t a, kinc_uint32x4
 		uint32_t a_single = kinc_uint32x4_get(a, i);
 		uint32_t b_single = kinc_uint32x4_get(b, i);
 
-		a_single > b_single ? values[i] = a_single : values[i] = b_single;
+		values[i] = a_single > b_single ? a_single : b_single;
 	}
 
 	return kinc_uint32x4_load(values);
@@ -69,7 +69,7 @@ static inline kinc_uint32x4_t kinc_uint32x4_min(kinc_uint32x4_t a, kinc_uint32x4
 		uint32_t a_single = kinc_uint32x4_get(a, i);
 		uint32_t b_single = kinc_uint32x4_get(b, i);
 
-		a_single > b_single ? values[i] = b_single : values[i] = a_single;
+		values[i] = a_single > b_single ? b_single : a_single;
 	}
 
 	return kinc_uint32x4_load(values);

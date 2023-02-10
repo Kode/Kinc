@@ -54,7 +54,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_max(kinc_uint16x8_t a, kinc_uint16x8
 		uint16_t a_single = kinc_uint16x8_get(a, i);
 		uint16_t b_single = kinc_uint16x8_get(b, i);
 
-		a_single > b_single ? values[i] = a_single : values[i] = b_single;
+		values[i] = a_single > b_single ? a_single : b_single;
 	}
 
 	return kinc_uint16x8_load(values);
@@ -69,7 +69,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_min(kinc_uint16x8_t a, kinc_uint16x8
 		uint16_t a_single = kinc_uint16x8_get(a, i);
 		uint16_t b_single = kinc_uint16x8_get(b, i);
 
-		a_single > b_single ? values[i] = b_single : values[i] = a_single;
+		values[i] = a_single > b_single ? b_single : a_single;
 	}
 
 	return kinc_uint16x8_load(values);
