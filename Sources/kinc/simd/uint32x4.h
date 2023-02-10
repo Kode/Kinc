@@ -122,7 +122,7 @@ static inline void kinc_uint32x4_store(uint32_t *destination, kinc_uint32x4_t va
 }
 
 static inline uint32_t kinc_uint32x4_get(kinc_uint32x4_t t, int index) {
-	return t[index];
+	return t.n128_u32[index];
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_add(kinc_uint32x4_t a, kinc_uint32x4_t b) {

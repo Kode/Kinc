@@ -123,7 +123,7 @@ static inline void kinc_int8x16_store(int8_t *destination, kinc_int8x16_t value)
 }
 
 static inline int8_t kinc_int8x16_get(kinc_int8x16_t t, int index) {
-	return t[index];
+	return t.n128_i8[index];
 }
 
 static inline kinc_int8x16_t kinc_int8x16_add(kinc_int8x16_t a, kinc_int8x16_t b) {
