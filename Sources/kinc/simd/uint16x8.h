@@ -110,11 +110,31 @@ static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(const uint16_t *values) 
 }
 
 static inline kinc_uint16x8_t kinc_uint16x8_load(const uint16_t values[8]) {
-	return (kinc_uint16x8_t){values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]};
+	kinc_uint16x8_t value;
+	value.n128_u16[0] = values[0];
+	value.n128_u16[1] = values[1];
+	value.n128_u16[2] = values[2];
+	value.n128_u16[3] = values[3];
+	value.n128_u16[4] = values[4];
+	value.n128_u16[5] = values[5];
+	value.n128_u16[6] = values[6];
+	value.n128_u16[7] = values[7];
+
+	return value;
 }
 
 static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {
-	return (kinc_uint16x8_t){t, t, t, t, t, t, t, t};
+	kinc_uint16x8_t value;
+	value.n128_u16[0] = t;
+	value.n128_u16[1] = t;
+	value.n128_u16[2] = t;
+	value.n128_u16[3] = t;
+	value.n128_u16[4] = t;
+	value.n128_u16[5] = t;
+	value.n128_u16[6] = t;
+	value.n128_u16[7] = t;
+
+	return value;
 }
 
 static inline kinc_uint16x8_t kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value) {

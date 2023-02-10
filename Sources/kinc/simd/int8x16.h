@@ -110,12 +110,47 @@ static inline kinc_int8x16_t kinc_int8x16_intrin_load(const int8_t *values) {
 }
 
 static inline kinc_int8x16_t kinc_int8x16_load(const int8_t values[16]) {
-	return (kinc_int8x16_t){values[0], values[1], values[2],  values[3],  values[4],  values[5],  values[6],  values[7],
-	                        values[8], values[9], values[10], values[11], values[12], values[13], values[14], values[15]};
+	kinc_int8x16_t value;
+	value.n128_i8[0] = values[0];
+	value.n128_i8[1] = values[1];
+	value.n128_i8[2] = values[2];
+	value.n128_i8[3] = values[3];
+	value.n128_i8[4] = values[4];
+	value.n128_i8[5] = values[5];
+	value.n128_i8[6] = values[6];
+	value.n128_i8[7] = values[7];
+	value.n128_i8[8] = values[8];
+	value.n128_i8[9] = values[9];
+	value.n128_i8[10] = values[10];
+	value.n128_i8[11] = values[11];
+	value.n128_i8[12] = values[12];
+	value.n128_i8[13] = values[13];
+	value.n128_i8[14] = values[14];
+	value.n128_i8[15] = values[15];
+	
+	return value;
 }
 
 static inline kinc_int8x16_t kinc_int8x16_load_all(int8_t t) {
-	return (kinc_int8x16_t){t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t};
+	kinc_int8x16_t value;
+	value.n128_i8[0] = t;
+	value.n128_i8[1] = t;
+	value.n128_i8[2] = t;
+	value.n128_i8[3] = t;
+	value.n128_i8[4] = t;
+	value.n128_i8[5] = t;
+	value.n128_i8[6] = t;
+	value.n128_i8[7] = t;
+	value.n128_i8[8] = t;
+	value.n128_i8[9] = t;
+	value.n128_i8[10] = t;
+	value.n128_i8[11] = t;
+	value.n128_i8[12] = t;
+	value.n128_i8[13] = t;
+	value.n128_i8[14] = t;
+	value.n128_i8[15] = t;
+	
+	return value;
 }
 
 static inline void kinc_int8x16_store(int8_t *destination, kinc_int8x16_t value) {

@@ -119,11 +119,23 @@ static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
 }
 
 static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, float d) {
-	return (kinc_float32x4_t){a, b, c, d};
+	kinc_float32x4_t value;
+	value.n128_f32[0] = a;
+	value.n128_f32[1] = b;
+	value.n128_f32[2] = c;
+	value.n128_f32[3] = d;
+
+	return value;
 }
 
 static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
-	return (kinc_float32x4_t){t, t, t, t};
+	kinc_float32x4_t value;
+	value.n128_f32[0] = t;
+	value.n128_f32[1] = t;
+	value.n128_f32[2] = t;
+	value.n128_f32[3] = t;
+
+	return value;
 }
 
 static inline kinc_float32x4_t kinc_float32x4_store(float *destination, kinc_float32x4_t value) {

@@ -110,11 +110,23 @@ static inline kinc_uint32x4_t kinc_uint32x4_intrin_load(const uint32_t *values) 
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_load(const uint32_t values[4]) {
-	return (kinc_uint32x4_t){values[0], values[1], values[2], values[3]};
+	kinc_uint32x4_t value;
+	value.n128_u32[0] = values[0];
+	value.n128_u32[1] = values[1];
+	value.n128_u32[2] = values[2];
+	value.n128_u32[3] = values[3];
+
+	return value;
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_load_all(uint32_t t) {
-	return (kinc_uint32x4_t){t, t, t, t};
+	kinc_uint32x4_t value;
+	value.n128_u32[0] = t;
+	value.n128_u32[1] = t;
+	value.n128_u32[2] = t;
+	value.n128_u32[3] = t;
+
+	return value;
 }
 
 static inline void kinc_uint32x4_store(uint32_t *destination, kinc_uint32x4_t value) {
