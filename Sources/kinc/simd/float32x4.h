@@ -119,11 +119,11 @@ static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
 }
 
 static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, float d) {
-	kinc_float32x4_t value;
-	value.n128_f32[0] = a;
-	value.n128_f32[1] = b;
-	value.n128_f32[2] = c;
-	value.n128_f32[3] = d;
+	kinc_float32x4_t value = vdupq_n_f32(0.0f);
+	value = vsetq_lane_f32(a, value, 0);
+	value = vsetq_lane_f32(b, value, 1);
+	value = vsetq_lane_f32(c, value, 2);
+	value = vsetq_lane_f32(d, value, 3);
 
 	return value;
 }

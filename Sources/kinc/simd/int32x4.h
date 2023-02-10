@@ -106,11 +106,11 @@ static inline kinc_int32x4_t kinc_int32x4_intrin_load(const int32_t *values) {
 }
 
 static inline kinc_int32x4_t kinc_int32x4_load(const int32_t values[4]) {
-	kinc_int32x4_t value;
-	value.n128_i32[0] = values[0];
-	value.n128_i32[1] = values[1];
-	value.n128_i32[2] = values[2];
-	value.n128_i32[3] = values[3];
+	kinc_int32x4_t value = vdupq_n_s32(0);
+	value = vsetq_lane_s32(values[0], value, 0);
+	value = vsetq_lane_s32(values[1], value, 1);
+	value = vsetq_lane_s32(values[2], value, 2);
+	value = vsetq_lane_s32(values[3], value, 3);
 
 	return value;
 }

@@ -110,23 +110,23 @@ static inline kinc_int8x16_t kinc_int8x16_intrin_load(const int8_t *values) {
 }
 
 static inline kinc_int8x16_t kinc_int8x16_load(const int8_t values[16]) {
-	kinc_int8x16_t value;
-	value.n128_i8[0] = values[0];
-	value.n128_i8[1] = values[1];
-	value.n128_i8[2] = values[2];
-	value.n128_i8[3] = values[3];
-	value.n128_i8[4] = values[4];
-	value.n128_i8[5] = values[5];
-	value.n128_i8[6] = values[6];
-	value.n128_i8[7] = values[7];
-	value.n128_i8[8] = values[8];
-	value.n128_i8[9] = values[9];
-	value.n128_i8[10] = values[10];
-	value.n128_i8[11] = values[11];
-	value.n128_i8[12] = values[12];
-	value.n128_i8[13] = values[13];
-	value.n128_i8[14] = values[14];
-	value.n128_i8[15] = values[15];
+	kinc_int8x16_t value = vdupq_n_s8(0);
+	value = vsetq_lane_s8(values[0], value, 0);
+	value = vsetq_lane_s8(values[1], value, 1);
+	value = vsetq_lane_s8(values[2], value, 2);
+	value = vsetq_lane_s8(values[3], value, 3);
+	value = vsetq_lane_s8(values[4], value, 4);
+	value = vsetq_lane_s8(values[5], value, 5);
+	value = vsetq_lane_s8(values[6], value, 6);
+	value = vsetq_lane_s8(values[7], value, 7);
+	value = vsetq_lane_s8(values[8], value, 8);
+	value = vsetq_lane_s8(values[9], value, 9);
+	value = vsetq_lane_s8(values[10], value, 10);
+	value = vsetq_lane_s8(values[11], value, 11);
+	value = vsetq_lane_s8(values[12], value, 12);
+	value = vsetq_lane_s8(values[13], value, 13);
+	value = vsetq_lane_s8(values[14], value, 14);
+	value = vsetq_lane_s8(values[15], value, 15);
 	
 	return value;
 }

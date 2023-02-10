@@ -106,15 +106,15 @@ static inline kinc_int16x8_t kinc_int16x8_intrin_load(const int16_t *values) {
 }
 
 static inline kinc_int16x8_t kinc_int16x8_load(const int16_t values[8]) {
-	kinc_int16x8_t value;
-	value.n128_i16[0] = values[0];
-	value.n128_i16[1] = values[1];
-	value.n128_i16[2] = values[2];
-	value.n128_i16[3] = values[3];
-	value.n128_i16[4] = values[4];
-	value.n128_i16[5] = values[5];
-	value.n128_i16[6] = values[6];
-	value.n128_i16[7] = values[7];
+	kinc_int16x8_t value = vdupq_n_s16(0);
+	value = vsetq_lane_s16(values[0], value, 0);
+	value = vsetq_lane_s16(values[1], value, 1);
+	value = vsetq_lane_s16(values[2], value, 2);
+	value = vsetq_lane_s16(values[3], value, 3);
+	value = vsetq_lane_s16(values[4], value, 4);
+	value = vsetq_lane_s16(values[5], value, 5);
+	value = vsetq_lane_s16(values[6], value, 6);
+	value = vsetq_lane_s16(values[7], value, 7);
 
 	return value;
 }
