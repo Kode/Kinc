@@ -124,7 +124,7 @@ static inline void kinc_int32x4_store(int32_t *destination, kinc_int32x4_t value
 }
 
 static inline int32_t kinc_int32x4_get(kinc_int32x4_t t, int index) {
-	return vgetq_lane_s32(t, index);
+	return t[index];
 }
 
 static inline kinc_int32x4_t kinc_int32x4_add(kinc_int32x4_t a, kinc_int32x4_t b) {

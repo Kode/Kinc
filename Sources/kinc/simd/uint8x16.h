@@ -135,7 +135,7 @@ static inline void kinc_uint8x16_store(uint8_t *destination, kinc_uint8x16_t val
 }
 
 static inline uint8_t kinc_uint8x16_get(kinc_uint8x16_t t, int index) {
-	return vgetq_lane_u8(t, index);
+	return t[index];
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_add(kinc_uint8x16_t a, kinc_uint8x16_t b) {

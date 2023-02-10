@@ -137,7 +137,7 @@ static inline kinc_float32x4_t kinc_float32x4_store(float *destination, kinc_flo
 }
 
 static inline float kinc_float32x4_get(kinc_float32x4_t t, int index) {
-	return vgetq_lane_f32(t, index);
+	return t[index];
 }
 
 static inline kinc_float32x4_t kinc_float32x4_abs(kinc_float32x4_t t) {
