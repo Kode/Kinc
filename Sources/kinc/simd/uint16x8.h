@@ -127,7 +127,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {
 	return vdupq_n_u16(t);
 }
 
-static inline kinc_uint16x8_t kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value) {
+static inline void kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value) {
 	vst1q_u16(destination, value);
 }
 
