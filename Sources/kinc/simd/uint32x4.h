@@ -114,7 +114,7 @@ static inline kinc_uint32x4_t kinc_uint32x4_load(const uint32_t values[4]) {
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_load_all(uint32_t t) {
-	return vdupq_n_u32(t);
+	return (kinc_uint32x4_t){t, t, t, t};
 }
 
 static inline void kinc_uint32x4_store(uint32_t *destination, kinc_uint32x4_t value) {

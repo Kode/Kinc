@@ -110,7 +110,7 @@ static inline kinc_int32x4_t kinc_int32x4_load(const int32_t values[4]) {
 }
 
 static inline kinc_int32x4_t kinc_int32x4_load_all(int32_t t) {
-	return vdupq_n_s32(t);
+	return (kinc_int32x4_t){t, t, t, t};
 }
 
 static inline void kinc_int32x4_store(int32_t *destination, kinc_int32x4_t value) {

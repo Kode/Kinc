@@ -110,7 +110,7 @@ static inline kinc_uint8x16_t kinc_uint8x16_load(const uint8_t values[16]) {
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_load_all(uint8_t t) {
-	return vdupq_n_u8(t);
+	return (kinc_uint8x16_t){t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t};
 }
 
 static inline void kinc_uint8x16_store(uint8_t *destination, kinc_uint8x16_t value) {
