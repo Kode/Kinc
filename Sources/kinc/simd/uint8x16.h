@@ -105,25 +105,8 @@ static inline kinc_uint8x16_t kinc_uint8x16_intrin_load(const uint8_t *values) {
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_load(const uint8_t values[16]) {
-	kinc_uint8x16_t value = vdupq_n_u8(0);
-	value = vsetq_lane_u8(values[0], value, 0);
-	value = vsetq_lane_u8(values[1], value, 1);
-	value = vsetq_lane_u8(values[2], value, 2);
-	value = vsetq_lane_u8(values[3], value, 3);
-	value = vsetq_lane_u8(values[4], value, 4);
-	value = vsetq_lane_u8(values[5], value, 5);
-	value = vsetq_lane_u8(values[6], value, 6);
-	value = vsetq_lane_u8(values[7], value, 7);
-	value = vsetq_lane_u8(values[8], value, 8);
-	value = vsetq_lane_u8(values[9], value, 9);
-	value = vsetq_lane_u8(values[10], value, 10);
-	value = vsetq_lane_u8(values[11], value, 11);
-	value = vsetq_lane_u8(values[12], value, 12);
-	value = vsetq_lane_u8(values[13], value, 13);
-	value = vsetq_lane_u8(values[14], value, 14);
-	value = vsetq_lane_u8(values[15], value, 15);
-
-	return value;
+	return (kinc_uint8x16_t){values[0], values[1], values[2],  values[3],  values[4],  values[5],  values[6],  values[7],
+	                         values[8], values[9], values[10], values[11], values[12], values[13], values[14], values[15]};
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_load_all(uint8_t t) {

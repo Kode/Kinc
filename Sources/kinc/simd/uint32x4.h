@@ -110,13 +110,7 @@ static inline kinc_uint32x4_t kinc_uint32x4_intrin_load(const uint32_t *values) 
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_load(const uint32_t values[4]) {
-	kinc_uint32x4_t value = vdupq_n_u32(0);
-	value = vsetq_lane_u32(values[0], value, 0);
-	value = vsetq_lane_u32(values[1], value, 1);
-	value = vsetq_lane_u32(values[2], value, 2);
-	value = vsetq_lane_u32(values[3], value, 3);
-
-	return value;
+	return (kinc_uint32x4_t){values[0], values[1], values[2], values[3]};
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_load_all(uint32_t t) {

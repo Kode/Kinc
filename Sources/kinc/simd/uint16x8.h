@@ -110,17 +110,7 @@ static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(const uint16_t *values) 
 }
 
 static inline kinc_uint16x8_t kinc_uint16x8_load(const uint16_t values[8]) {
-	kinc_uint16x8_t value = vdupq_n_u16(0);
-	value = vsetq_lane_u16(values[0], value, 0);
-	value = vsetq_lane_u16(values[1], value, 1);
-	value = vsetq_lane_u16(values[2], value, 2);
-	value = vsetq_lane_u16(values[3], value, 3);
-	value = vsetq_lane_u16(values[4], value, 4);
-	value = vsetq_lane_u16(values[5], value, 5);
-	value = vsetq_lane_u16(values[6], value, 6);
-	value = vsetq_lane_u16(values[7], value, 7);
-
-	return value;
+	return (kinc_uint16x8_t){values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]};
 }
 
 static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {
