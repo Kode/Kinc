@@ -39,7 +39,8 @@ KINC_FUNC void kinc_a1_init(void);
 /// <param name="loop">Whether or not to automatically loop the sound</param>
 /// <param name="pitch">Changes the pitch by providing a value that's not 1.0f</param>
 /// <param name="unique">Makes sure that a sound is not played more than once at the same time</param>
-/// <returns>A channel object that can be used to control the playing sound</returns>
+/// <returns>A channel object that can be used to control the playing sound. Please be a ware that NULL is returned when the maximum number of simultaneously
+/// played channels was reached.</returns>
 KINC_FUNC kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float pitch, bool unique);
 
 /// <summary>
