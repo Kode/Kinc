@@ -1,4 +1,5 @@
-* 2022-12-19: The keyboard-callbacks now take an additional data-parameter as well but it's again Dave's fault.
+* 2023-02-11: The randomizer now uses xoshiro256** instead of a mermeme-twister.
+* 2023-02-09: The keyboard-callbacks now take an additional data-parameter as well but it's again Dave's fault.
 * 2022-12-19: The mouse-callbacks now take an additional data-parameter as well but it's Dave's fault.
 * 2022-12-17: The callbacks in system.h now all take an additional data-parameter that's set via the callback-set-functions.
 * 2022-12-14: The --shaderversion-parameter for kmake was removed. In its place there's now a Project.setMinimumShaderVersion-function that can be used in kfiles.

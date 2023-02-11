@@ -1,7 +1,6 @@
 #pragma once
 
 #include <kinc/global.h>
-#include <assert.h>
 
 /*! \file random.h
     \brief Generates values which are kind of random.
@@ -12,7 +11,7 @@ extern "C" {
 #endif
 
 /// <summary>
-/// Initialize the randomizer.
+/// Initializes the randomizer with a seed. This is optional but helpful.
 /// </summary>
 /// <param name="seed">A value which should ideally be pretty random</param>
 KINC_FUNC void kinc_random_init(int seed);
@@ -41,42 +40,41 @@ KINC_FUNC int kinc_random_get_in(int min, int max);
 
 #ifdef KINC_IMPLEMENTATION
 
-// MT19937
+// xoshiro256** 1.0
 
-static int MT[624];
-static int random_initialized = 0;
-static int mermeme_index = 0;
+static inline uint64_t rotl(const uint64_t x, int k) {
+	return (x << k) | (x >> (64 - k));
+}
 
-static void generateNumbers() {
-	for (int i = 0; i < 624; ++i) {
-		int y = (MT[i] & 1) + (MT[(i + 1) % 624]) & 0x7fffffff;
-		MT[i] = MT[(i + 397) % 624] ^ (y >> 1);
-		if ((y % 2) != 0)
-			MT[i] = MT[i] ^ 0x9908b0df;
-	}
+static uint64_t s[4] = {1, 2, 3, 4};
+
+uint64_t next(void) {
+	const uint64_t result = rotl(s[1] * 5, 7) * 9;
+
+	const uint64_t t = s[1] << 17;
+
+	s[2] ^= s[0];
+	s[3] ^= s[1];
+	s[1] ^= s[2];
+	s[0] ^= s[3];
+
+	s[2] ^= t;
+
+	s[3] = rotl(s[3], 45);
+
+	return result;
 }
 
 void kinc_random_init(int seed) {
-	MT[0] = seed;
-	for (int i = 1; i < 624; ++i)
-		MT[i] = 0x6c078965 * (MT[i - 1] ^ (MT[i - 1] >> 30)) + i;
-	random_initialized = 1;
+	s[0] = seed;
+	s[1] = next();
+	s[2] = next();
+	s[3] = next();
 }
 
-int kinc_random_get() {
-	assert(random_initialized || !"kinc_random_init() must be called before using kinc_random_get()");
-
-	if (mermeme_index == 0)
-		generateNumbers();
-
-	int y = MT[mermeme_index];
-	y = y ^ (y >> 11);
-	y = y ^ ((y << 7) & (0x9d2c5680));
-	y = y ^ ((y << 15) & (0xefc60000));
-	y = y ^ (y >> 18);
-
-	mermeme_index = (mermeme_index + 1) % 624;
-	return y;
+int kinc_random_get(void) {
+	uint64_t value = next();
+	return *(int *)&value;
 }
 
 int kinc_random_get_max(int max) {
