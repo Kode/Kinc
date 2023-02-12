@@ -12,12 +12,20 @@ extern "C" {
 
 #if defined(KINC_SSE2)
 
+static inline kinc_int32x4_t kinc_int32x4_intrin_load(const int32_t *values) {
+	return _mm_load_si128((const kinc_int32x4_t *)values);
+}
+
 static inline kinc_int32x4_t kinc_int32x4_load(const int32_t values[4]) {
 	return _mm_set_epi32(values[3], values[2], values[1], values[0]);
 }
 
 static inline kinc_int32x4_t kinc_int32x4_load_all(int32_t t) {
 	return _mm_set1_epi32(t);
+}
+
+static inline void kinc_int32x4_store(int32_t *destination, kinc_int32x4_t value) {
+	_mm_store_si128((kinc_int32x4_t *)destination, value);
 }
 
 static inline int32_t kinc_int32x4_get(kinc_int32x4_t t, int index) {
@@ -93,12 +101,20 @@ static inline kinc_int32x4_t kinc_int32x4_not(kinc_int32x4_t t) {
 
 #elif defined(KINC_NEON)
 
+static inline kinc_int32x4_t kinc_int32x4_intrin_load(const int32_t *values) {
+	return vld1q_s32(values);
+}
+
 static inline kinc_int32x4_t kinc_int32x4_load(const int32_t values[4]) {
 	return (kinc_int32x4_t){values[0], values[1], values[2], values[3]};
 }
 
 static inline kinc_int32x4_t kinc_int32x4_load_all(int32_t t) {
 	return (kinc_int32x4_t){t, t, t, t};
+}
+
+static inline void kinc_int32x4_store(int32_t *destination, kinc_int32x4_t value) {
+	vst1q_s32(destination, value);
 }
 
 static inline int32_t kinc_int32x4_get(kinc_int32x4_t t, int index) {
@@ -167,6 +183,15 @@ static inline kinc_int32x4_t kinc_int32x4_not(kinc_int32x4_t t) {
 
 #else
 
+static inline kinc_int32x4_t kinc_int32x4_intrin_load(const int32_t *values) {
+	kinc_int32x4_t value;
+	value.values[0] = values[0];
+	value.values[1] = values[1];
+	value.values[2] = values[2];
+	value.values[3] = values[3];
+	return value;
+}
+
 static inline kinc_int32x4_t kinc_int32x4_load(const int32_t values[4]) {
 	kinc_int32x4_t value;
 	value.values[0] = values[0];
@@ -183,6 +208,13 @@ static inline kinc_int32x4_t kinc_int32x4_load_all(int32_t t) {
 	value.values[2] = t;
 	value.values[3] = t;
 	return value;
+}
+
+static inline void kinc_int32x4_store(int32_t *destination, kinc_int32x4_t value) {
+	destination[0] = value.values[0];
+	destination[1] = value.values[1];
+	destination[2] = value.values[2];
+	destination[3] = value.values[3];
 }
 
 static inline int32_t kinc_int32x4_get(kinc_int32x4_t t, int index) {
@@ -209,19 +241,19 @@ static inline kinc_int32x4_t kinc_int32x4_sub(kinc_int32x4_t a, kinc_int32x4_t b
 
 static inline kinc_int32x4_t kinc_int32x4_max(kinc_int32x4_t a, kinc_int32x4_t b) {
 	kinc_int32x4_t value;
-	value.values[0] = kinc_max(a.values[0], b.values[0]);
-	value.values[1] = kinc_max(a.values[1], b.values[1]);
-	value.values[2] = kinc_max(a.values[2], b.values[2]);
-	value.values[3] = kinc_max(a.values[3], b.values[3]);
+	value.values[0] = a.values[0] > b.values[0] ? a.values[0] : b.values[0];
+	value.values[1] = a.values[1] > b.values[1] ? a.values[1] : b.values[1]; 
+	value.values[2] = a.values[2] > b.values[2] ? a.values[2] : b.values[2]; 
+	value.values[3] = a.values[3] > b.values[3] ? a.values[3] : b.values[3]; 
 	return value;
 }
 
 static inline kinc_int32x4_t kinc_int32x4_min(kinc_int32x4_t a, kinc_int32x4_t b) {
 	kinc_int32x4_t value;
-	value.values[0] = kinc_min(a.values[0], b.values[0]);
-	value.values[1] = kinc_min(a.values[1], b.values[1]);
-	value.values[2] = kinc_min(a.values[2], b.values[2]);
-	value.values[3] = kinc_min(a.values[3], b.values[3]);
+	value.values[0] = a.values[0] > b.values[0] ? b.values[0] : a.values[0];
+	value.values[1] = a.values[1] > b.values[1] ? b.values[1] : a.values[1]; 
+	value.values[2] = a.values[2] > b.values[2] ? b.values[2] : a.values[2]; 
+	value.values[3] = a.values[3] > b.values[3] ? b.values[3] : a.values[3]; 
 	return value;
 }
 

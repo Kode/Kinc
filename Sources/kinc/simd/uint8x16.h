@@ -12,6 +12,10 @@ extern "C" {
 
 #if defined(KINC_SSE2)
 
+static inline kinc_uint8x16_t kinc_uint8x16_intrin_load(const uint8_t *values) {
+	return _mm_load_si128((const kinc_uint8x16_t *)values);
+}
+
 static inline kinc_uint8x16_t kinc_uint8x16_load(const uint8_t values[16]) {
 	return _mm_set_epi8(values[15], values[14], values[13], values[12], values[11], values[10], values[9], values[8], values[7], values[6], values[5],
 	                    values[4], values[3], values[2], values[1], values[0]);
@@ -19,6 +23,10 @@ static inline kinc_uint8x16_t kinc_uint8x16_load(const uint8_t values[16]) {
 
 static inline kinc_uint8x16_t kinc_uint8x16_load_all(uint8_t t) {
 	return _mm_set1_epi8(t);
+}
+
+static inline void kinc_uint8x16_store(uint8_t *destination, kinc_uint8x16_t value) {
+	_mm_store_si128((kinc_uint8x16_t *)destination, value);
 }
 
 static inline uint8_t kinc_uint8x16_get(kinc_uint8x16_t t, int index) {
@@ -87,12 +95,14 @@ static inline kinc_uint8x16_t kinc_uint8x16_xor(kinc_uint8x16_t a, kinc_uint8x16
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_not(kinc_uint8x16_t t) {
-	//__m128i mask = _mm_set1_epi8(0xff);
-	// return _mm_xor_si128(t, mask);
-	return ~t;
+	return _mm_xor_si128(t, _mm_set1_epi32(0xffffffff));
 }
 
 #elif defined(KINC_NEON)
+
+static inline kinc_uint8x16_t kinc_uint8x16_intrin_load(const uint8_t *values) {
+	return vld1q_u8(values);
+}
 
 static inline kinc_uint8x16_t kinc_uint8x16_load(const uint8_t values[16]) {
 	return (kinc_uint8x16_t){values[0], values[1], values[2],  values[3],  values[4],  values[5],  values[6],  values[7],
@@ -101,6 +111,10 @@ static inline kinc_uint8x16_t kinc_uint8x16_load(const uint8_t values[16]) {
 
 static inline kinc_uint8x16_t kinc_uint8x16_load_all(uint8_t t) {
 	return (kinc_uint8x16_t){t, t, t, t, t, t, t, t, t, t, t, t, t, t, t, t};
+}
+
+static inline void kinc_uint8x16_store(uint8_t *destination, kinc_uint8x16_t value) {
+	vst1q_u8(destination, value);
 }
 
 static inline uint8_t kinc_uint8x16_get(kinc_uint8x16_t t, int index) {
@@ -169,6 +183,27 @@ static inline kinc_uint8x16_t kinc_uint8x16_not(kinc_uint8x16_t t) {
 
 #else
 
+static inline kinc_uint8x16_t kinc_uint8x16_intrin_load(const uint8_t *values) {
+	kinc_uint8x16_t value;
+	value.values[0] = values[0];
+	value.values[1] = values[1];
+	value.values[2] = values[2];
+	value.values[3] = values[3];
+	value.values[4] = values[4];
+	value.values[5] = values[5];
+	value.values[6] = values[6];
+	value.values[7] = values[7];
+	value.values[8] = values[8];
+	value.values[9] = values[9];
+	value.values[10] = values[10];
+	value.values[11] = values[11];
+	value.values[12] = values[12];
+	value.values[13] = values[13];
+	value.values[14] = values[14];
+	value.values[15] = values[15];
+	return value;
+}
+
 static inline kinc_uint8x16_t kinc_uint8x16_load(const uint8_t values[16]) {
 	kinc_uint8x16_t value;
 	value.values[0] = values[0];
@@ -209,6 +244,25 @@ static inline kinc_uint8x16_t kinc_uint8x16_load_all(uint8_t t) {
 	value.values[14] = t;
 	value.values[15] = t;
 	return value;
+}
+
+static inline void kinc_uint8x16_store(uint8_t *destination, kinc_uint8x16_t value) {
+	destination[0] = value.values[0];
+	destination[1] = value.values[1];
+	destination[2] = value.values[2];
+	destination[3] = value.values[3];
+	destination[4] = value.values[4];
+	destination[5] = value.values[5];
+	destination[6] = value.values[6];
+	destination[7] = value.values[7];
+	destination[8] = value.values[8];
+	destination[9] = value.values[9];
+	destination[10] = value.values[10];
+	destination[11] = value.values[11];
+	destination[12] = value.values[12];
+	destination[13] = value.values[13];
+	destination[14] = value.values[14];
+	destination[15] = value.values[15];
 }
 
 static inline uint8_t kinc_uint8x16_get(kinc_uint8x16_t t, int index) {
@@ -259,43 +313,43 @@ static inline kinc_uint8x16_t kinc_uint8x16_sub(kinc_uint8x16_t a, kinc_uint8x16
 
 static inline kinc_uint8x16_t kinc_uint8x16_max(kinc_uint8x16_t a, kinc_uint8x16_t b) {
 	kinc_uint8x16_t value;
-	value.values[0] = kinc_max(a.values[0], b.values[0]);
-	value.values[1] = kinc_max(a.values[1], b.values[1]);
-	value.values[2] = kinc_max(a.values[2], b.values[2]);
-	value.values[3] = kinc_max(a.values[3], b.values[3]);
-	value.values[4] = kinc_max(a.values[4], b.values[4]);
-	value.values[5] = kinc_max(a.values[5], b.values[5]);
-	value.values[6] = kinc_max(a.values[6], b.values[6]);
-	value.values[7] = kinc_max(a.values[7], b.values[7]);
-	value.values[8] = kinc_max(a.values[8], b.values[8]);
-	value.values[9] = kinc_max(a.values[9], b.values[9]);
-	value.values[10] = kinc_max(a.values[10], b.values[10]);
-	value.values[11] = kinc_max(a.values[11], b.values[11]);
-	value.values[12] = kinc_max(a.values[12], b.values[12]);
-	value.values[13] = kinc_max(a.values[13], b.values[13]);
-	value.values[14] = kinc_max(a.values[14], b.values[14]);
-	value.values[15] = kinc_max(a.values[15], b.values[15]);
+	value.values[0] =  a.values[0] > b.values[0] ? a.values[0] : b.values[0];
+	value.values[1] =  a.values[1] > b.values[1] ? a.values[1] : b.values[1];
+	value.values[2] =  a.values[2] > b.values[2] ? a.values[2] : b.values[2];
+	value.values[3] =  a.values[3] > b.values[3] ? a.values[3] : b.values[3];
+	value.values[4] =  a.values[4] > b.values[4] ? a.values[4] : b.values[4];
+	value.values[5] =  a.values[5] > b.values[5] ? a.values[5] : b.values[5];
+	value.values[6] =  a.values[6] > b.values[6] ? a.values[6] : b.values[6];
+	value.values[7] =  a.values[7] > b.values[7] ? a.values[7] : b.values[7];
+	value.values[8] =  a.values[8] > b.values[8] ? a.values[8] : b.values[8];
+	value.values[9] =  a.values[9] > b.values[9] ? a.values[9] : b.values[9];
+	value.values[10] = a.values[10] > b.values[10] ? a.values[10] : b.values[10];
+	value.values[11] = a.values[11] > b.values[11] ? a.values[11] : b.values[11];
+	value.values[12] = a.values[12] > b.values[12] ? a.values[12] : b.values[12];
+	value.values[13] = a.values[13] > b.values[13] ? a.values[13] : b.values[13];
+	value.values[14] = a.values[14] > b.values[14] ? a.values[14] : b.values[14];
+	value.values[15] = a.values[15] > b.values[15] ? a.values[15] : b.values[15];
 	return value;
 }
 
 static inline kinc_uint8x16_t kinc_uint8x16_min(kinc_uint8x16_t a, kinc_uint8x16_t b) {
 	kinc_uint8x16_t value;
-	value.values[0] = kinc_min(a.values[0], b.values[0]);
-	value.values[1] = kinc_min(a.values[1], b.values[1]);
-	value.values[2] = kinc_min(a.values[2], b.values[2]);
-	value.values[3] = kinc_min(a.values[3], b.values[3]);
-	value.values[4] = kinc_min(a.values[4], b.values[4]);
-	value.values[5] = kinc_min(a.values[5], b.values[5]);
-	value.values[6] = kinc_min(a.values[6], b.values[6]);
-	value.values[7] = kinc_min(a.values[7], b.values[7]);
-	value.values[8] = kinc_min(a.values[8], b.values[8]);
-	value.values[9] = kinc_min(a.values[9], b.values[9]);
-	value.values[10] = kinc_min(a.values[10], b.values[10]);
-	value.values[11] = kinc_min(a.values[11], b.values[11]);
-	value.values[12] = kinc_min(a.values[12], b.values[12]);
-	value.values[13] = kinc_min(a.values[13], b.values[13]);
-	value.values[14] = kinc_min(a.values[14], b.values[14]);
-	value.values[15] = kinc_min(a.values[15], b.values[15]);
+	value.values[0] =  a.values[0] > b.values[0] ? b.values[0] : a.values[0];
+	value.values[1] =  a.values[1] > b.values[1] ? b.values[1] : a.values[1];
+	value.values[2] =  a.values[2] > b.values[2] ? b.values[2] : a.values[2];
+	value.values[3] =  a.values[3] > b.values[3] ? b.values[3] : a.values[3];
+	value.values[4] =  a.values[4] > b.values[4] ? b.values[4] : a.values[4];
+	value.values[5] =  a.values[5] > b.values[5] ? b.values[5] : a.values[5];
+	value.values[6] =  a.values[6] > b.values[6] ? b.values[6] : a.values[6];
+	value.values[7] =  a.values[7] > b.values[7] ? b.values[7] : a.values[7];
+	value.values[8] =  a.values[8] > b.values[8] ? b.values[8] : a.values[8];
+	value.values[9] =  a.values[9] > b.values[9] ? b.values[9] : a.values[9];
+	value.values[10] = a.values[10] > b.values[10] ? b.values[10] : a.values[10];
+	value.values[11] = a.values[11] > b.values[11] ? b.values[11] : a.values[11];
+	value.values[12] = a.values[12] > b.values[12] ? b.values[12] : a.values[12];
+	value.values[13] = a.values[13] > b.values[13] ? b.values[13] : a.values[13];
+	value.values[14] = a.values[14] > b.values[14] ? b.values[14] : a.values[14];
+	value.values[15] = a.values[15] > b.values[15] ? b.values[15] : a.values[15];
 	return value;
 }
 
