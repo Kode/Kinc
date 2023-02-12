@@ -45,36 +45,6 @@ static inline kinc_uint32x4_t kinc_uint32x4_sub(kinc_uint32x4_t a, kinc_uint32x4
 	return _mm_sub_epi32(a, b);
 }
 
-static inline kinc_uint32x4_t kinc_uint32x4_max(kinc_uint32x4_t a, kinc_uint32x4_t b) {
-	//No obvious intrinsic here; use a subpar fallback method
-	uint32_t values[4];
-
-	for(int i = 0; i < 4; ++i) {
-
-		uint32_t a_single = kinc_uint32x4_get(a, i);
-		uint32_t b_single = kinc_uint32x4_get(b, i);
-
-		values[i] = a_single > b_single ? a_single : b_single;
-	}
-
-	return kinc_uint32x4_load(values);
-}
-
-static inline kinc_uint32x4_t kinc_uint32x4_min(kinc_uint32x4_t a, kinc_uint32x4_t b) {
-	//No obvious intrinsic here; use a subpar fallback method
-	uint32_t values[4];
-
-	for(int i = 0; i < 4; ++i) {
-
-		uint32_t a_single = kinc_uint32x4_get(a, i);
-		uint32_t b_single = kinc_uint32x4_get(b, i);
-
-		values[i] = a_single > b_single ? b_single : a_single;
-	}
-
-	return kinc_uint32x4_load(values);
-}
-
 static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpeq(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	return _mm_cmpeq_epi32(a, b);
 }
@@ -109,6 +79,14 @@ static inline kinc_uint32x4_mask_t kinc_uint32x4_cmplt(kinc_uint32x4_t a, kinc_u
 
 static inline kinc_uint32x4_t kinc_uint32x4_sel(kinc_uint32x4_t a, kinc_uint32x4_t b, kinc_uint32x4_mask_t mask) {
 	return _mm_xor_si128(b, _mm_and_si128(mask, _mm_xor_si128(a, b)));
+}
+
+static inline kinc_uint32x4_t kinc_uint32x4_max(kinc_uint32x4_t a, kinc_uint32x4_t b) {
+	return kinc_uint32x4_sel(a, b, kinc_uint32x4_cmpgt(a, b));
+}
+
+static inline kinc_uint32x4_t kinc_uint32x4_min(kinc_uint32x4_t a, kinc_uint32x4_t b) {
+	return kinc_uint32x4_sel(a, b, kinc_uint32x4_cmplt(a, b));
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_or(kinc_uint32x4_t a, kinc_uint32x4_t b) {
