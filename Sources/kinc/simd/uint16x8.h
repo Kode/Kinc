@@ -83,6 +83,26 @@ static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpneq(kinc_uint16x8_t a, kinc_
 	return _mm_andnot_si128(_mm_cmpeq_epi16(a, b), _mm_set1_epi32(0xffffffff));
 }
 
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpge(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	__m128i bias_by = _mm_set1_epi16((uint16_t)0x8000);
+	return _mm_or_si128(_mm_cmpgt_epi16(_mm_sub_epi16(a, bias_by), _mm_sub_epi16(b, bias_by)), _mm_cmpeq_epi16(a, b));
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpgt(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	__m128i bias_by = _mm_set1_epi16((uint16_t)0x8000);
+	return _mm_cmpgt_epi16(_mm_sub_epi16(a, bias_by), _mm_sub_epi16(b, bias_by));
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmple(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	__m128i bias_by = _mm_set1_epi16((uint16_t)0x8000);
+	return _mm_or_si128(_mm_cmplt_epi16(_mm_sub_epi16(a, bias_by), _mm_sub_epi16(b, bias_by)), _mm_cmpeq_epi16(a, b));
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmplt(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	__m128i bias_by = _mm_set1_epi16((uint16_t)0x8000);
+	return _mm_cmplt_epi16(_mm_sub_epi16(a, bias_by), _mm_sub_epi16(b, bias_by));
+}
+
 static inline kinc_uint16x8_t kinc_uint16x8_sel(kinc_uint16x8_t a, kinc_uint16x8_t b, kinc_uint16x8_mask_t mask) {
 	return _mm_xor_si128(b, _mm_and_si128(mask, _mm_xor_si128(a, b)));
 }
@@ -147,6 +167,22 @@ static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpeq(kinc_uint16x8_t a, kinc_u
 
 static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpneq(kinc_uint16x8_t a, kinc_uint16x8_t b) {
 	return vmvnq_u16(vceqq_u16(a, b));
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpge(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	return vcgeq_u16(a, b);
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpgt(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	return vcgtq_u16(a, b);
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmple(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	return vcleq_u16(a, b);
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmplt(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	return vcltq_u16(a, b);
 }
 
 static inline kinc_uint16x8_t kinc_uint16x8_sel(kinc_uint16x8_t a, kinc_uint16x8_t b, kinc_uint16x8_mask_t mask) {
@@ -300,6 +336,58 @@ static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpneq(kinc_uint16x8_t a, kinc_
 	mask.values[5] = a.values[5] != b.values[5] ? 0xffff : 0;
 	mask.values[6] = a.values[6] != b.values[6] ? 0xffff : 0;
 	mask.values[7] = a.values[7] != b.values[7] ? 0xffff : 0;
+	return mask;
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpge(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	kinc_uint16x8_mask_t mask;
+	mask.values[0] = a.values[0] >= b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] >= b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] >= b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] >= b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] >= b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] >= b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] >= b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] >= b.values[7] ? 0xffff : 0;
+	return mask;
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmpgt(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	kinc_uint16x8_mask_t mask;
+	mask.values[0] = a.values[0] > b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] > b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] > b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] > b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] > b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] > b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] > b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] > b.values[7] ? 0xffff : 0;
+	return mask;
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmple(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	kinc_uint16x8_mask_t mask;
+	mask.values[0] = a.values[0] <= b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] <= b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] <= b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] <= b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] <= b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] <= b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] <= b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] <= b.values[7] ? 0xffff : 0;
+	return mask;
+}
+
+static inline kinc_uint16x8_mask_t kinc_uint16x8_cmplt(kinc_uint16x8_t a, kinc_uint16x8_t b) {
+	kinc_uint16x8_mask_t mask;
+	mask.values[0] = a.values[0] < b.values[0] ? 0xffff : 0;
+	mask.values[1] = a.values[1] < b.values[1] ? 0xffff : 0;
+	mask.values[2] = a.values[2] < b.values[2] ? 0xffff : 0;
+	mask.values[3] = a.values[3] < b.values[3] ? 0xffff : 0;
+	mask.values[4] = a.values[4] < b.values[4] ? 0xffff : 0;
+	mask.values[5] = a.values[5] < b.values[5] ? 0xffff : 0;
+	mask.values[6] = a.values[6] < b.values[6] ? 0xffff : 0;
+	mask.values[7] = a.values[7] < b.values[7] ? 0xffff : 0;
 	return mask;
 }
 
