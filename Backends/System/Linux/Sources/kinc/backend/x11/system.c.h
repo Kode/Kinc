@@ -780,7 +780,8 @@ bool kinc_x11_handle_messages() {
 				unsigned char *data = 0;
 				xlib.XGetWindowProperty(x11_ctx.display, event.xselection.requestor, event.xselection.property, 0, LONG_MAX, False, event.xselection.target,
 				                        &type, &format, &numItems, &bytesAfter, &data);
-				size_t len = numItems * format / 8 - 1; // Strip new line at the end
+				size_t len = numItems;
+				while(data[len-1] == '\n' || data[len-1] == '\r'){ data[--len] =0;} // Strip new line at the end
 				wchar_t filePath[len + 1];
 				mbstowcs(filePath, (char *)data, len);
 				xlib.XFree(data);
