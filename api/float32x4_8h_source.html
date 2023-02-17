@@ -80,7 +80,7 @@ $(function() {
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#if defined(KINC_SSE)</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> <a class="code" href="structkinc__float32x4.html">kinc_float32x4_t</a> kinc_float32x4_intrin_load(<span class="keyword">const</span> <span class="keywordtype">float</span> *values) {</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="comment">//Parameter doesn&#39;t behave like SIMD int types</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="comment">// Parameter doesn&#39;t behave like SIMD int types</span></div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keywordflow">return</span> _mm_load_ps(values);</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;}</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
@@ -493,8 +493,8 @@ $(function() {
 <div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
 <div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;}</div>
 <div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="astructkinc__float32x4__mask_html"><div class="ttname"><a href="structkinc__float32x4__mask.html">kinc_float32x4_mask</a></div><div class="ttdef"><b>Definition:</b> types.h:147</div></div>
-<div class="ttc" id="astructkinc__float32x4_html"><div class="ttname"><a href="structkinc__float32x4.html">kinc_float32x4</a></div><div class="ttdef"><b>Definition:</b> types.h:140</div></div>
+<div class="ttc" id="astructkinc__float32x4__mask_html"><div class="ttname"><a href="structkinc__float32x4__mask.html">kinc_float32x4_mask</a></div><div class="ttdef"><b>Definition:</b> types.h:143</div></div>
+<div class="ttc" id="astructkinc__float32x4_html"><div class="ttname"><a href="structkinc__float32x4.html">kinc_float32x4</a></div><div class="ttdef"><b>Definition:</b> types.h:136</div></div>
 <div class="ttc" id="atypes_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div><div class="ttdoc">Provides 128bit SIMD types which are mapped to equivalent SSE or Neon types.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
