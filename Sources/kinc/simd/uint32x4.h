@@ -53,26 +53,22 @@ static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpneq(kinc_uint32x4_t a, kinc_
 	return _mm_andnot_si128(_mm_cmpeq_epi32(a, b), _mm_set1_epi32(0xffffffff));
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpge(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpge(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	__m128i bias_by = _mm_set1_epi32((uint32_t)0x80000000);
 	return _mm_or_si128(_mm_cmpgt_epi32(_mm_sub_epi32(a, bias_by), _mm_sub_epi32(b, bias_by)), _mm_cmpeq_epi32(a, b));
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpgt(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpgt(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	__m128i bias_by = _mm_set1_epi32((uint32_t)0x80000000);
 	return _mm_cmpgt_epi32(_mm_sub_epi32(a, bias_by), _mm_sub_epi32(b, bias_by));
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmple(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmple(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	__m128i bias_by = _mm_set1_epi32((uint32_t)0x80000000);
 	return _mm_or_si128(_mm_cmplt_epi32(_mm_sub_epi32(a, bias_by), _mm_sub_epi32(b, bias_by)), _mm_cmpeq_epi32(a, b));
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmplt(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmplt(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	__m128i bias_by = _mm_set1_epi32((uint32_t)0x80000000);
 	return _mm_cmplt_epi32(_mm_sub_epi32(a, bias_by), _mm_sub_epi32(b, bias_by));
 }
@@ -151,23 +147,19 @@ static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpneq(kinc_uint32x4_t a, kinc_
 	return vmvnq_u32(vceqq_u32(a, b));
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpge(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpge(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	return vcgeq_u32(a, b);
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpgt(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpgt(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	return vcgtq_u32(a, b);
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmple(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmple(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	return vcleq_u32(a, b);
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmplt(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmplt(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	return vcltq_u32(a, b);
 }
 
@@ -252,18 +244,18 @@ static inline kinc_uint32x4_t kinc_uint32x4_sub(kinc_uint32x4_t a, kinc_uint32x4
 static inline kinc_uint32x4_t kinc_uint32x4_max(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_t value;
 	value.values[0] = a.values[0] > b.values[0] ? a.values[0] : b.values[0];
-	value.values[1] = a.values[1] > b.values[1] ? a.values[1] : b.values[1]; 
-	value.values[2] = a.values[2] > b.values[2] ? a.values[2] : b.values[2]; 
-	value.values[3] = a.values[3] > b.values[3] ? a.values[3] : b.values[3]; 
+	value.values[1] = a.values[1] > b.values[1] ? a.values[1] : b.values[1];
+	value.values[2] = a.values[2] > b.values[2] ? a.values[2] : b.values[2];
+	value.values[3] = a.values[3] > b.values[3] ? a.values[3] : b.values[3];
 	return value;
 }
 
 static inline kinc_uint32x4_t kinc_uint32x4_min(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_t value;
 	value.values[0] = a.values[0] > b.values[0] ? b.values[0] : a.values[0];
-	value.values[1] = a.values[1] > b.values[1] ? b.values[1] : a.values[1]; 
-	value.values[2] = a.values[2] > b.values[2] ? b.values[2] : a.values[2]; 
-	value.values[3] = a.values[3] > b.values[3] ? b.values[3] : a.values[3]; 
+	value.values[1] = a.values[1] > b.values[1] ? b.values[1] : a.values[1];
+	value.values[2] = a.values[2] > b.values[2] ? b.values[2] : a.values[2];
+	value.values[3] = a.values[3] > b.values[3] ? b.values[3] : a.values[3];
 	return value;
 }
 
@@ -285,8 +277,7 @@ static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpneq(kinc_uint32x4_t a, kinc_
 	return mask;
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpge(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpge(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_mask_t mask;
 	mask.values[0] = a.values[0] >= b.values[0] ? 0xffffffff : 0;
 	mask.values[1] = a.values[1] >= b.values[1] ? 0xffffffff : 0;
@@ -295,8 +286,7 @@ static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpge(kinc_uint32x4_t a, kinc_u
 	return mask;
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpgt(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpgt(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_mask_t mask;
 	mask.values[0] = a.values[0] > b.values[0] ? 0xffffffff : 0;
 	mask.values[1] = a.values[1] > b.values[1] ? 0xffffffff : 0;
@@ -305,8 +295,7 @@ static inline kinc_uint32x4_mask_t kinc_uint32x4_cmpgt(kinc_uint32x4_t a, kinc_u
 	return mask;
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmple(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmple(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_mask_t mask;
 	mask.values[0] = a.values[0] <= b.values[0] ? 0xffffffff : 0;
 	mask.values[1] = a.values[1] <= b.values[1] ? 0xffffffff : 0;
@@ -315,8 +304,7 @@ static inline kinc_uint32x4_mask_t kinc_uint32x4_cmple(kinc_uint32x4_t a, kinc_u
 	return mask;
 }
 
-static inline kinc_uint32x4_mask_t kinc_uint32x4_cmplt(kinc_uint32x4_t a, kinc_uint32x4_t b)
-{
+static inline kinc_uint32x4_mask_t kinc_uint32x4_cmplt(kinc_uint32x4_t a, kinc_uint32x4_t b) {
 	kinc_uint32x4_mask_t mask;
 	mask.values[0] = a.values[0] < b.values[0] ? 0xffffffff : 0;
 	mask.values[1] = a.values[1] < b.values[1] ? 0xffffffff : 0;

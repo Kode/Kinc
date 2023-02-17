@@ -13,7 +13,7 @@ extern "C" {
 #if defined(KINC_SSE)
 
 static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
-	//Parameter doesn't behave like SIMD int types
+	// Parameter doesn't behave like SIMD int types
 	return _mm_load_ps(values);
 }
 
