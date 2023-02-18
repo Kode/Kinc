@@ -40,6 +40,8 @@ KINC_FUNC int kinc_random_get_in(int min, int max);
 
 #ifdef KINC_IMPLEMENTATION
 
+#include <math.h>
+
 // xoshiro256** 1.0
 
 static inline uint64_t rotl(const uint64_t x, int k) {
@@ -82,7 +84,7 @@ int kinc_random_get_max(int max) {
 }
 
 int kinc_random_get_in(int min, int max) {
-	return kinc_random_get() % (max + 1 - min) + min;
+	return abs(kinc_random_get()) % (max + 1 - min) + min;
 }
 
 #endif
