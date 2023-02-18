@@ -1019,7 +1019,7 @@ void kinc_g5_end(int window) {
 	present.pImageIndices = &vk_ctx.windows[vk_ctx.current_window].current_image;
 
 	VkResult err = vk.fpQueuePresentKHR(vk_ctx.queue, &present);
-	assert(err == VK_SUCCESS);
+	assert(err == VK_SUCCESS || err == VK_ERROR_OUT_OF_DATE_KHR);
 
 	reuse_descriptor_sets();
 	began = false;
