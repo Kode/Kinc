@@ -40,7 +40,7 @@ KINC_FUNC int kinc_random_get_in(int min, int max);
 
 #ifdef KINC_IMPLEMENTATION
 
-#include <math.h>
+#include <stdlib.h>
 
 // xoshiro256** 1.0
 
