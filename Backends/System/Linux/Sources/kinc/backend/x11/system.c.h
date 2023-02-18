@@ -5,12 +5,12 @@
 #include <kinc/input/mouse.h>
 
 #include <assert.h>
+#include <ctype.h>
 #include <dlfcn.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #define Button6 6
 #define Button7 7
@@ -780,12 +780,23 @@ bool kinc_x11_handle_messages() {
 				unsigned char *data = 0;
 				xlib.XGetWindowProperty(x11_ctx.display, event.xselection.requestor, event.xselection.property, 0, LONG_MAX, False, event.xselection.target,
 				                        &type, &format, &numItems, &bytesAfter, &data);
-				size_t len = numItems * format / 8 - 1; // Strip new line at the end
-				wchar_t filePath[len + 1];
-				mbstowcs(filePath, (char *)data, len);
+				size_t len = numItems;
+				size_t pos = 0;
+				char file[260] = {0};
+				size_t f_len = 0;
+				while (pos < len) {
+					if (data[pos] == '\r') { // Found a file
+						wchar_t filePath[f_len + 1];
+						mbstowcs(filePath, file, f_len);
+						memset(file, 0, f_len);
+						f_len = 0;
+						pos += 2; // Avoid \n
+						filePath[f_len] = 0;
+						kinc_internal_drop_files_callback(filePath + 7); // Strip file://
+					}
+					file[f_len++] = data[pos++];
+				}
 				xlib.XFree(data);
-				filePath[len] = 0;
-				kinc_internal_drop_files_callback(filePath + 7); // Strip file://
 			}
 			break;
 		}
