@@ -198,10 +198,21 @@ static int format_byte_size(kinc_image_format_t format) {
 	}
 }
 
+static void update_stride(kinc_g5_texture_t *texture) {
+	VkImageSubresource subres = {0};
+	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	subres.mipLevel = 0;
+	subres.arrayLayer = 0;
+
+	VkSubresourceLayout layout;
+	vkGetImageSubresourceLayout(vk_ctx.device, texture->impl.texture.image, &subres, &layout);
+
+	texture->impl.stride = (int)layout.rowPitch;
+}
+
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *image) {
 	texture->texWidth = image->width;
 	texture->texHeight = image->height;
-	texture->impl.stride = format_byte_size(image->format) * texture->texWidth;
 
 	const VkFormat tex_format = convert_image_format(image->format);
 	VkFormatProperties props;
@@ -257,6 +268,8 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 		assert(!"No support for B8G8R8A8_UNORM as texture image format");
 	}
 
+	update_stride(texture);
+
 	VkImageViewCreateInfo view = {0};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	view.pNext = NULL;
@@ -282,7 +295,6 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {
 	texture->texWidth = width;
 	texture->texHeight = height;
-	texture->impl.stride = format_byte_size(format) * texture->texWidth;
 
 	const VkFormat tex_format = convert_image_format(format);
 	VkFormatProperties props;
@@ -295,6 +307,8 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &texture->impl.deviceSize, tex_format);
 
 	flush_init_cmd();
+
+	update_stride(texture);
 
 	VkImageViewCreateInfo view = {0};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -323,7 +337,6 @@ void kinc_g5_texture_init3d(kinc_g5_texture_t *texture, int width, int height, i
 void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {
 	texture->texWidth = width;
 	texture->texHeight = height;
-	texture->impl.stride = format_byte_size(format) * texture->texWidth;
 
 	const VkFormat tex_format = convert_image_format(format);
 	VkFormatProperties props;
@@ -337,6 +350,8 @@ void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int wid
 	                      tex_format);
 
 	flush_init_cmd();
+
+	update_stride(texture);
 
 	VkImageViewCreateInfo view = {0};
 	view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -369,15 +384,7 @@ int kinc_g5_texture_stride(kinc_g5_texture_t *texture) {
 }
 
 uint8_t *kinc_g5_texture_lock(kinc_g5_texture_t *texture) {
-	VkImageSubresource subres = {0};
-	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	subres.mipLevel = 0;
-	subres.arrayLayer = 0;
-
-	VkSubresourceLayout layout;
 	void *data;
-
-	vkGetImageSubresourceLayout(vk_ctx.device, texture->impl.texture.image, &subres, &layout);
 
 	VkResult err = vkMapMemory(vk_ctx.device, texture->impl.texture.mem, 0, texture->impl.deviceSize, 0, &data);
 	assert(!err);
