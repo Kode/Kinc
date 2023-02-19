@@ -170,7 +170,7 @@ static VkFormat convert_image_format(kinc_image_format_t format) {
 	case KINC_IMAGE_FORMAT_BGRA32:
 		return VK_FORMAT_B8G8R8A8_UNORM;
 	case KINC_IMAGE_FORMAT_RGBA32:
-		return VK_FORMAT_B8G8R8A8_UNORM;
+		return VK_FORMAT_R8G8B8A8_UNORM;
 	default:
 		return VK_FORMAT_B8G8R8A8_UNORM;
 	}
