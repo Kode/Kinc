@@ -121,13 +121,25 @@ static void prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint3
 				}
 			}
 		}
-		else {
+		else if (tex_format == VK_FORMAT_B8G8R8A8_UNORM) {
 			for (uint32_t y = 0; y < tex_height; y++) {
 				// uint32_t *row = (uint32_t *)((char *)data + layout.rowPitch * y);
 				for (uint32_t x = 0; x < tex_width; x++) {
 					data[y * layout.rowPitch + x * 4 + 0] = tex_colors[y * tex_width * 4 + x * 4 + 2];
 					data[y * layout.rowPitch + x * 4 + 1] = tex_colors[y * tex_width * 4 + x * 4 + 1];
 					data[y * layout.rowPitch + x * 4 + 2] = tex_colors[y * tex_width * 4 + x * 4 + 0];
+					data[y * layout.rowPitch + x * 4 + 3] = tex_colors[y * tex_width * 4 + x * 4 + 3];
+					// row[x] = tex_colors[(x & 1) ^ (y & 1)];
+				}
+			}
+		}
+		else {
+			for (uint32_t y = 0; y < tex_height; y++) {
+				// uint32_t *row = (uint32_t *)((char *)data + layout.rowPitch * y);
+				for (uint32_t x = 0; x < tex_width; x++) {
+					data[y * layout.rowPitch + x * 4 + 0] = tex_colors[y * tex_width * 4 + x * 4 + 0];
+					data[y * layout.rowPitch + x * 4 + 1] = tex_colors[y * tex_width * 4 + x * 4 + 1];
+					data[y * layout.rowPitch + x * 4 + 2] = tex_colors[y * tex_width * 4 + x * 4 + 2];
 					data[y * layout.rowPitch + x * 4 + 3] = tex_colors[y * tex_width * 4 + x * 4 + 3];
 					// row[x] = tex_colors[(x & 1) ^ (y & 1)];
 				}
