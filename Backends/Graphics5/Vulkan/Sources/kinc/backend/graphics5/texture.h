@@ -12,8 +12,6 @@ struct texture_object {
 };
 
 typedef struct {
-	uint8_t pixfmt;
-
 	struct texture_object texture;
 	VkDeviceSize deviceSize;
 
