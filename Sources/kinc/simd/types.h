@@ -137,12 +137,13 @@ typedef struct kinc_float32x4 {
 	float values[4];
 } kinc_float32x4_t;
 
-// Note: Float mask operates a bit differently than int masks
-// Int/UInt masks are intended to mixed with SIMD base type functions like and/or/xor etc.
-// so they're basically just the underlying type in the first place
-typedef struct kinc_float32x4_mask {
-	int values[4];
-} kinc_float32x4_mask_t;
+typedef kinc_float32x4_t kinc_float32x4_mask_t;
+
+typedef struct kinc_internal_float32x4_converter {
+	int as_ints[4];
+} kinc_internal_float32x4_converter_t;
+
+
 
 typedef struct kinc_int8x16 {
 	int8_t values[16];

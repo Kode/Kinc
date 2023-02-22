@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include <string.h>
 
 /*! \file float32x4.h
     \brief Provides 128bit four-element floating point SIMD operations which are mapped to equivalent SSE or Neon operations.
@@ -13,7 +14,7 @@ extern "C" {
 #if defined(KINC_SSE)
 
 static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
-	// Parameter doesn't behave like SIMD int types
+	//Parameter doesn't behave like SIMD int types
 	return _mm_load_ps(values);
 }
 
@@ -359,65 +360,89 @@ static inline kinc_float32x4_t kinc_float32x4_min(kinc_float32x4_t a, kinc_float
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmpeq(kinc_float32x4_t a, kinc_float32x4_t b) {
+	kinc_internal_float32x4_converter_t mask_cvt;
+	mask_cvt.as_ints[0] = a.values[0] == b.values[0] ? 0xffffffff : 0;
+	mask_cvt.as_ints[1] = a.values[1] == b.values[1] ? 0xffffffff : 0;
+	mask_cvt.as_ints[2] = a.values[2] == b.values[2] ? 0xffffffff : 0;
+	mask_cvt.as_ints[3] = a.values[3] == b.values[3] ? 0xffffffff : 0;
+
 	kinc_float32x4_mask_t mask;
-	mask.values[0] = a.values[0] == b.values[0] ? 0xffffffff : 0;
-	mask.values[1] = a.values[1] == b.values[1] ? 0xffffffff : 0;
-	mask.values[2] = a.values[2] == b.values[2] ? 0xffffffff : 0;
-	mask.values[3] = a.values[3] == b.values[3] ? 0xffffffff : 0;
+	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+
 	return mask;
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmpge(kinc_float32x4_t a, kinc_float32x4_t b) {
+	kinc_internal_float32x4_converter_t mask_cvt;
+	mask_cvt.as_ints[0] = a.values[0] >= b.values[0] ? 0xffffffff : 0;
+	mask_cvt.as_ints[1] = a.values[1] >= b.values[1] ? 0xffffffff : 0;
+	mask_cvt.as_ints[2] = a.values[2] >= b.values[2] ? 0xffffffff : 0;
+	mask_cvt.as_ints[3] = a.values[3] >= b.values[3] ? 0xffffffff : 0;
+
 	kinc_float32x4_mask_t mask;
-	mask.values[0] = a.values[0] >= b.values[0] ? 0xffffffff : 0;
-	mask.values[1] = a.values[1] >= b.values[1] ? 0xffffffff : 0;
-	mask.values[2] = a.values[2] >= b.values[2] ? 0xffffffff : 0;
-	mask.values[3] = a.values[3] >= b.values[3] ? 0xffffffff : 0;
+	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+
 	return mask;
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmpgt(kinc_float32x4_t a, kinc_float32x4_t b) {
+	kinc_internal_float32x4_converter_t mask_cvt;
+	mask_cvt.as_ints[0] = a.values[0] > b.values[0] ? 0xffffffff : 0;
+	mask_cvt.as_ints[1] = a.values[1] > b.values[1] ? 0xffffffff : 0;
+	mask_cvt.as_ints[2] = a.values[2] > b.values[2] ? 0xffffffff : 0;
+	mask_cvt.as_ints[3] = a.values[3] > b.values[3] ? 0xffffffff : 0;
+
 	kinc_float32x4_mask_t mask;
-	mask.values[0] = a.values[0] > b.values[0] ? 0xffffffff : 0;
-	mask.values[1] = a.values[1] > b.values[1] ? 0xffffffff : 0;
-	mask.values[2] = a.values[2] > b.values[2] ? 0xffffffff : 0;
-	mask.values[3] = a.values[3] > b.values[3] ? 0xffffffff : 0;
+	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+
 	return mask;
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmple(kinc_float32x4_t a, kinc_float32x4_t b) {
+	kinc_internal_float32x4_converter_t mask_cvt;
+	mask_cvt.as_ints[0] = a.values[0] <= b.values[0] ? 0xffffffff : 0;
+	mask_cvt.as_ints[1] = a.values[1] <= b.values[1] ? 0xffffffff : 0;
+	mask_cvt.as_ints[2] = a.values[2] <= b.values[2] ? 0xffffffff : 0;
+	mask_cvt.as_ints[3] = a.values[3] <= b.values[3] ? 0xffffffff : 0;
+
 	kinc_float32x4_mask_t mask;
-	mask.values[0] = a.values[0] <= b.values[0] ? 0xffffffff : 0;
-	mask.values[1] = a.values[1] <= b.values[1] ? 0xffffffff : 0;
-	mask.values[2] = a.values[2] <= b.values[2] ? 0xffffffff : 0;
-	mask.values[3] = a.values[3] <= b.values[3] ? 0xffffffff : 0;
+	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+
 	return mask;
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmplt(kinc_float32x4_t a, kinc_float32x4_t b) {
+	kinc_internal_float32x4_converter_t mask_cvt;
+	mask_cvt.as_ints[0] = a.values[0] < b.values[0] ? 0xffffffff : 0;
+	mask_cvt.as_ints[1] = a.values[1] < b.values[1] ? 0xffffffff : 0;
+	mask_cvt.as_ints[2] = a.values[2] < b.values[2] ? 0xffffffff : 0;
+	mask_cvt.as_ints[3] = a.values[3] < b.values[3] ? 0xffffffff : 0;
+
 	kinc_float32x4_mask_t mask;
-	mask.values[0] = a.values[0] < b.values[0] ? 0xffffffff : 0;
-	mask.values[1] = a.values[1] < b.values[1] ? 0xffffffff : 0;
-	mask.values[2] = a.values[2] < b.values[2] ? 0xffffffff : 0;
-	mask.values[3] = a.values[3] < b.values[3] ? 0xffffffff : 0;
+	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+
 	return mask;
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmpneq(kinc_float32x4_t a, kinc_float32x4_t b) {
+	kinc_internal_float32x4_converter_t mask_cvt;
+	mask_cvt.as_ints[0] = a.values[0] != b.values[0] ? 0xffffffff : 0;
+	mask_cvt.as_ints[1] = a.values[1] != b.values[1] ? 0xffffffff : 0;
+	mask_cvt.as_ints[2] = a.values[2] != b.values[2] ? 0xffffffff : 0;
+	mask_cvt.as_ints[3] = a.values[3] != b.values[3] ? 0xffffffff : 0;
+
 	kinc_float32x4_mask_t mask;
-	mask.values[0] = a.values[0] != b.values[0] ? 0xffffffff : 0;
-	mask.values[1] = a.values[1] != b.values[1] ? 0xffffffff : 0;
-	mask.values[2] = a.values[2] != b.values[2] ? 0xffffffff : 0;
-	mask.values[3] = a.values[3] != b.values[3] ? 0xffffffff : 0;
+	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+
 	return mask;
 }
 
 static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float32x4_t b, kinc_float32x4_mask_t mask) {
 	kinc_float32x4_t value;
-	value.values[0] = mask.values[0] != 0 ? a.values[0] : b.values[0];
-	value.values[1] = mask.values[1] != 0 ? a.values[1] : b.values[1];
-	value.values[2] = mask.values[2] != 0 ? a.values[2] : b.values[2];
-	value.values[3] = mask.values[3] != 0 ? a.values[3] : b.values[3];
+	value.values[0] = mask.values[0] != 0.0f ? a.values[0] : b.values[0];
+	value.values[1] = mask.values[1] != 0.0f ? a.values[1] : b.values[1];
+	value.values[2] = mask.values[2] != 0.0f ? a.values[2] : b.values[2];
+	value.values[3] = mask.values[3] != 0.0f ? a.values[3] : b.values[3];
 	return value;
 }
 
