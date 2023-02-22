@@ -140,7 +140,7 @@ typedef struct kinc_float32x4 {
 typedef kinc_float32x4_t kinc_float32x4_mask_t;
 
 typedef struct kinc_internal_float32x4_converter {
-	int as_ints[4];
+	uint32_t as_ints[4];
 } kinc_internal_float32x4_converter_t;
 
 
