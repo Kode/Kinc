@@ -780,21 +780,18 @@ bool kinc_x11_handle_messages() {
 				unsigned char *data = 0;
 				xlib.XGetWindowProperty(x11_ctx.display, event.xselection.requestor, event.xselection.property, 0, LONG_MAX, False, event.xselection.target,
 				                        &type, &format, &numItems, &bytesAfter, &data);
-				size_t len = numItems;
 				size_t pos = 0;
-				char file[260] = {0};
-				size_t f_len = 0;
-				while (pos < len) {
+				size_t len = 0;
+				while (pos < numItems) {
 					if (data[pos] == '\r') { // Found a file
-						wchar_t filePath[f_len + 1];
-						mbstowcs(filePath, file, f_len);
-						memset(file, 0, f_len);
-						f_len = 0;
-						pos += 2; // Avoid \n
-						filePath[f_len] = 0;
+						wchar_t filePath[len + 1];
+						mbstowcs(filePath, buffer, len);
+						filePath[len] = 0;
 						kinc_internal_drop_files_callback(filePath + 7); // Strip file://
+						pos += 2; // Avoid \n
+						len = 0;
 					}
-					file[f_len++] = data[pos++];
+					buffer[len++] = data[pos++];
 				}
 				xlib.XFree(data);
 			}
