@@ -113,6 +113,24 @@ static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float
 	return _mm_xor_ps(b, _mm_and_ps(mask, _mm_xor_ps(a, b)));
 }
 
+static inline kinc_float32x4_t kinc_float32x4_or(kinc_float32x4_t a, kinc_float32x4_t b) {
+	return _mm_or_ps(a, b);
+}
+
+static inline kinc_float32x4_t kinc_float32x4_and(kinc_float32x4_t a, kinc_float32x4_t b) {
+	return _mm_and_ps(a, b);
+}
+
+static inline kinc_float32x4_t kinc_float32x4_xor(kinc_float32x4_t a, kinc_float32x4_t b) {
+	return _mm_xor_ps(a, b);
+}
+
+static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
+	__m128 zeroes = _mm_setzero_ps();
+	return _mm_xor_ps(t, _mm_cmpeq_ps(zeroes, zeroes));
+}
+
+
 #elif defined(KINC_NEON)
 
 static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
@@ -217,6 +235,34 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmpneq(kinc_float32x4_t a, ki
 static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float32x4_t b, kinc_float32x4_mask_t mask) {
 	return vbslq_f32(mask, a, b);
 }
+
+static inline kinc_float32x4_t kinc_float32x4_or(kinc_float32x4_t a, kinc_float32x4_t b) {
+	uint32x4_t acvt = vreinterpretq_u32_f32(a);
+	uint32x4_t bcvt = vreinterpretq_u32_f32(b);
+
+	return vreinterpretq_f32_u32(vorrq_u32(acvt, bcvt));
+}
+
+static inline kinc_float32x4_t kinc_float32x4_and(kinc_float32x4_t a, kinc_float32x4_t b) {
+	uint32x4_t acvt = vreinterpretq_u32_f32(a);
+	uint32x4_t bcvt = vreinterpretq_u32_f32(b);
+
+	return vreinterpretq_f32_u32(vandq_u32(acvt, bcvt));
+}
+
+static inline kinc_float32x4_t kinc_float32x4_xor(kinc_float32x4_t a, kinc_float32x4_t b) {
+	uint32x4_t acvt = vreinterpretq_u32_f32(a);
+	uint32x4_t bcvt = vreinterpretq_u32_f32(b);
+
+	return vreinterpretq_f32_u32(veorq_u32(acvt, bcvt));
+}
+
+static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
+	uint32x4_t tcvt = vreinterpretq_u32_f32(t);
+
+	return vreinterpretq_f32_u32(vmvnq_u32(tcvt));
+}
+
 
 #else
 
@@ -445,6 +491,73 @@ static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float
 	value.values[3] = mask.values[3] != 0.0f ? a.values[3] : b.values[3];
 	return value;
 }
+
+static inline kinc_float32x4_t kinc_float32x4_or(kinc_float32x4_t a, kinc_float32x4_t b) {
+	kinc_float32x4_t value; 
+	kinc_internal_float32x4_converter_t acvt;
+	kinc_internal_float32x4_converter_t bcvt;
+	memcpy(&acvt, &a, sizeof(a));
+	memcpy(&bcvt, &b, sizeof(b));
+
+	acvt.as_ints[0] |= bcvt.as_ints[0];
+	acvt.as_ints[1] |= bcvt.as_ints[1];
+	acvt.as_ints[2] |= bcvt.as_ints[2];
+	acvt.as_ints[3] |= bcvt.as_ints[3];
+
+	memcpy(&value, &acvt, sizeof(acvt));
+
+	return value;
+}
+
+static inline kinc_float32x4_t kinc_float32x4_and(kinc_float32x4_t a, kinc_float32x4_t b) {
+	kinc_float32x4_t value; 
+	kinc_internal_float32x4_converter_t acvt;
+	kinc_internal_float32x4_converter_t bcvt;
+	memcpy(&acvt, &a, sizeof(a));
+	memcpy(&bcvt, &b, sizeof(b));
+
+	acvt.as_ints[0] &= bcvt.as_ints[0];
+	acvt.as_ints[1] &= bcvt.as_ints[1];
+	acvt.as_ints[2] &= bcvt.as_ints[2];
+	acvt.as_ints[3] &= bcvt.as_ints[3];
+
+	memcpy(&value, &acvt, sizeof(acvt));
+
+	return value;
+}
+
+static inline kinc_float32x4_t kinc_float32x4_xor(kinc_float32x4_t a, kinc_float32x4_t b) {
+	kinc_float32x4_t value; 
+	kinc_internal_float32x4_converter_t acvt;
+	kinc_internal_float32x4_converter_t bcvt;
+	memcpy(&acvt, &a, sizeof(a));
+	memcpy(&bcvt, &b, sizeof(b));
+
+	acvt.as_ints[0] ^= bcvt.as_ints[0];
+	acvt.as_ints[1] ^= bcvt.as_ints[1];
+	acvt.as_ints[2] ^= bcvt.as_ints[2];
+	acvt.as_ints[3] ^= bcvt.as_ints[3];
+
+	memcpy(&value, &acvt, sizeof(acvt));
+
+	return value;
+}
+
+static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
+	kinc_float32x4_t value; 
+	kinc_internal_float32x4_converter_t tcvt;
+	memcpy(&tcvt, &t, sizeof(t));
+
+	tcvt.as_ints[0] = ~tcvt.as_ints[0];
+	tcvt.as_ints[1] = ~tcvt.as_ints[1];
+	tcvt.as_ints[2] = ~tcvt.as_ints[2];
+	tcvt.as_ints[3] = ~tcvt.as_ints[3];
+
+	memcpy(&value, &tcvt, sizeof(tcvt));
+
+	return value;
+}
+
 
 #endif
 
