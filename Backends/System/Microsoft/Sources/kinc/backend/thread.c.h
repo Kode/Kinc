@@ -56,10 +56,22 @@ bool kinc_thread_try_to_destroy(kinc_thread_t *thread) {
 	return false;
 }
 
+typedef HRESULT(WINAPI *SetThreadDescriptionType)(HANDLE hThread, PCWSTR lpThreadDescription);
+static SetThreadDescriptionType MySetThreadDescription = NULL;
+static bool set_thread_description_loaded = false;
+
 void kinc_thread_set_name(const char *name) {
-	wchar_t wide_name[256];
-	MultiByteToWideChar(CP_ACP, 0, name, -1, wide_name, 256);
-	SetThreadDescription(GetCurrentThread(), wide_name);
+	if (!set_thread_description_loaded) {
+		HMODULE kernel32 = LoadLibraryA("kernel32.dll");
+		MySetThreadDescription = (SetThreadDescriptionType)GetProcAddress(kernel32, "SetThreadDescription");
+		set_thread_description_loaded = true;
+	}
+
+	if (MySetThreadDescription != NULL) {
+		wchar_t wide_name[256];
+		MultiByteToWideChar(CP_ACP, 0, name, -1, wide_name, 256);
+		MySetThreadDescription(GetCurrentThread(), wide_name);
+	}
 
 #ifdef KINC_VTUNE
 	__itt_thread_set_name(name);
