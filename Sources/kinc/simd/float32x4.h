@@ -412,7 +412,7 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmpeq(kinc_float32x4_t a, kin
 	mask_cvt[3] = a.values[3] == b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
-	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+	memcpy(&mask.values[0], &mask_cvt[0], sizeof(mask_cvt));
 
 	return mask;
 }
@@ -425,7 +425,7 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmpge(kinc_float32x4_t a, kin
 	mask_cvt[3] = a.values[3] >= b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
-	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+	memcpy(&mask.values[0], &mask_cvt[0], sizeof(mask_cvt));
 
 	return mask;
 }
@@ -438,7 +438,7 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmpgt(kinc_float32x4_t a, kin
 	mask_cvt[3] = a.values[3] > b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
-	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+	memcpy(&mask.values[0], &mask_cvt[0], sizeof(mask_cvt));
 
 	return mask;
 }
@@ -451,7 +451,7 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmple(kinc_float32x4_t a, kin
 	mask_cvt[3] = a.values[3] <= b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
-	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+	memcpy(&mask.values[0], &mask_cvt[0], sizeof(mask_cvt));
 
 	return mask;
 }
@@ -464,7 +464,7 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmplt(kinc_float32x4_t a, kin
 	mask_cvt[3] = a.values[3] < b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
-	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+	memcpy(&mask.values[0], &mask_cvt[0], sizeof(mask_cvt));
 
 	return mask;
 }
@@ -477,7 +477,7 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmpneq(kinc_float32x4_t a, ki
 	mask_cvt[3] = a.values[3] != b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
-	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
+	memcpy(&mask.values[0], &mask_cvt[0], sizeof(mask_cvt));
 
 	return mask;
 }
@@ -494,8 +494,8 @@ static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float
 static inline kinc_float32x4_t kinc_float32x4_or(kinc_float32x4_t a, kinc_float32x4_t b) {
 	uint32_t acvt[4];
 	uint32_t bcvt[4];
-	memcpy(&acvt, &a, sizeof(a));
-	memcpy(&bcvt, &b, sizeof(b));
+	memcpy(&acvt[0], &a.values[0], sizeof(a));
+	memcpy(&bcvt[0], &b.values[0], sizeof(b));
 
 	acvt[0] |= bcvt[0];
 	acvt[1] |= bcvt[1];
@@ -503,7 +503,7 @@ static inline kinc_float32x4_t kinc_float32x4_or(kinc_float32x4_t a, kinc_float3
 	acvt[3] |= bcvt[3];
 
 	kinc_float32x4_t value; 
-	memcpy(&value, &acvt, sizeof(acvt));
+	memcpy(&value.values[0], &acvt[0], sizeof(acvt));
 
 	return value;
 }
@@ -511,8 +511,8 @@ static inline kinc_float32x4_t kinc_float32x4_or(kinc_float32x4_t a, kinc_float3
 static inline kinc_float32x4_t kinc_float32x4_and(kinc_float32x4_t a, kinc_float32x4_t b) {
 	uint32_t acvt[4];
 	uint32_t bcvt[4];
-	memcpy(&acvt, &a, sizeof(a));
-	memcpy(&bcvt, &b, sizeof(b));
+	memcpy(&acvt[0], &a.values[0], sizeof(a));
+	memcpy(&bcvt[0], &b.values[0], sizeof(b));
 
 	acvt[0] &= bcvt[0];
 	acvt[1] &= bcvt[1];
@@ -520,7 +520,7 @@ static inline kinc_float32x4_t kinc_float32x4_and(kinc_float32x4_t a, kinc_float
 	acvt[3] &= bcvt[3];
 
 	kinc_float32x4_t value; 
-	memcpy(&value, &acvt, sizeof(acvt));
+	memcpy(&value.values[0], &acvt[0], sizeof(acvt));
 
 	return value;
 }
@@ -528,8 +528,8 @@ static inline kinc_float32x4_t kinc_float32x4_and(kinc_float32x4_t a, kinc_float
 static inline kinc_float32x4_t kinc_float32x4_xor(kinc_float32x4_t a, kinc_float32x4_t b) {
 	uint32_t acvt[4];
 	uint32_t bcvt[4];
-	memcpy(&acvt, &a, sizeof(a));
-	memcpy(&bcvt, &b, sizeof(b));
+	memcpy(&acvt[0], &a.values[0], sizeof(a));
+	memcpy(&bcvt[0], &b.values[0], sizeof(b));
 
 	acvt[0] ^= bcvt[0];
 	acvt[1] ^= bcvt[1];
@@ -537,14 +537,14 @@ static inline kinc_float32x4_t kinc_float32x4_xor(kinc_float32x4_t a, kinc_float
 	acvt[3] ^= bcvt[3];
 
 	kinc_float32x4_t value; 
-	memcpy(&value, &acvt, sizeof(acvt));
+	memcpy(&value.values[0], &acvt[0], sizeof(acvt));
 
 	return value;
 }
 
 static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
 	uint32_t tcvt[4];
-	memcpy(&tcvt, &t, sizeof(t));
+	memcpy(&tcvt[0], &t.values[0], sizeof(t));
 
 	tcvt[0] = ~tcvt[0];
 	tcvt[1] = ~tcvt[1];
@@ -552,7 +552,7 @@ static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
 	tcvt[3] = ~tcvt[3];
 
 	kinc_float32x4_t value; 
-	memcpy(&value, &tcvt, sizeof(tcvt));
+	memcpy(&value.values[0], &tcvt[0], sizeof(tcvt));
 
 	return value;
 }
