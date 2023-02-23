@@ -405,11 +405,11 @@ static inline kinc_float32x4_t kinc_float32x4_min(kinc_float32x4_t a, kinc_float
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmpeq(kinc_float32x4_t a, kinc_float32x4_t b) {
-	kinc_internal_float32x4_converter_t mask_cvt;
-	mask_cvt.as_ints[0] = a.values[0] == b.values[0] ? 0xffffffff : 0;
-	mask_cvt.as_ints[1] = a.values[1] == b.values[1] ? 0xffffffff : 0;
-	mask_cvt.as_ints[2] = a.values[2] == b.values[2] ? 0xffffffff : 0;
-	mask_cvt.as_ints[3] = a.values[3] == b.values[3] ? 0xffffffff : 0;
+	uint32_t mask_cvt[4];
+	mask_cvt[0] = a.values[0] == b.values[0] ? 0xffffffff : 0;
+	mask_cvt[1] = a.values[1] == b.values[1] ? 0xffffffff : 0;
+	mask_cvt[2] = a.values[2] == b.values[2] ? 0xffffffff : 0;
+	mask_cvt[3] = a.values[3] == b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
 	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
@@ -418,11 +418,11 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmpeq(kinc_float32x4_t a, kin
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmpge(kinc_float32x4_t a, kinc_float32x4_t b) {
-	kinc_internal_float32x4_converter_t mask_cvt;
-	mask_cvt.as_ints[0] = a.values[0] >= b.values[0] ? 0xffffffff : 0;
-	mask_cvt.as_ints[1] = a.values[1] >= b.values[1] ? 0xffffffff : 0;
-	mask_cvt.as_ints[2] = a.values[2] >= b.values[2] ? 0xffffffff : 0;
-	mask_cvt.as_ints[3] = a.values[3] >= b.values[3] ? 0xffffffff : 0;
+	uint32_t mask_cvt[4];
+	mask_cvt[0] = a.values[0] >= b.values[0] ? 0xffffffff : 0;
+	mask_cvt[1] = a.values[1] >= b.values[1] ? 0xffffffff : 0;
+	mask_cvt[2] = a.values[2] >= b.values[2] ? 0xffffffff : 0;
+	mask_cvt[3] = a.values[3] >= b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
 	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
@@ -431,11 +431,11 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmpge(kinc_float32x4_t a, kin
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmpgt(kinc_float32x4_t a, kinc_float32x4_t b) {
-	kinc_internal_float32x4_converter_t mask_cvt;
-	mask_cvt.as_ints[0] = a.values[0] > b.values[0] ? 0xffffffff : 0;
-	mask_cvt.as_ints[1] = a.values[1] > b.values[1] ? 0xffffffff : 0;
-	mask_cvt.as_ints[2] = a.values[2] > b.values[2] ? 0xffffffff : 0;
-	mask_cvt.as_ints[3] = a.values[3] > b.values[3] ? 0xffffffff : 0;
+	uint32_t mask_cvt[4];
+	mask_cvt[0] = a.values[0] > b.values[0] ? 0xffffffff : 0;
+	mask_cvt[1] = a.values[1] > b.values[1] ? 0xffffffff : 0;
+	mask_cvt[2] = a.values[2] > b.values[2] ? 0xffffffff : 0;
+	mask_cvt[3] = a.values[3] > b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
 	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
@@ -444,11 +444,11 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmpgt(kinc_float32x4_t a, kin
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmple(kinc_float32x4_t a, kinc_float32x4_t b) {
-	kinc_internal_float32x4_converter_t mask_cvt;
-	mask_cvt.as_ints[0] = a.values[0] <= b.values[0] ? 0xffffffff : 0;
-	mask_cvt.as_ints[1] = a.values[1] <= b.values[1] ? 0xffffffff : 0;
-	mask_cvt.as_ints[2] = a.values[2] <= b.values[2] ? 0xffffffff : 0;
-	mask_cvt.as_ints[3] = a.values[3] <= b.values[3] ? 0xffffffff : 0;
+	uint32_t mask_cvt[4];
+	mask_cvt[0] = a.values[0] <= b.values[0] ? 0xffffffff : 0;
+	mask_cvt[1] = a.values[1] <= b.values[1] ? 0xffffffff : 0;
+	mask_cvt[2] = a.values[2] <= b.values[2] ? 0xffffffff : 0;
+	mask_cvt[3] = a.values[3] <= b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
 	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
@@ -457,11 +457,11 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmple(kinc_float32x4_t a, kin
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmplt(kinc_float32x4_t a, kinc_float32x4_t b) {
-	kinc_internal_float32x4_converter_t mask_cvt;
-	mask_cvt.as_ints[0] = a.values[0] < b.values[0] ? 0xffffffff : 0;
-	mask_cvt.as_ints[1] = a.values[1] < b.values[1] ? 0xffffffff : 0;
-	mask_cvt.as_ints[2] = a.values[2] < b.values[2] ? 0xffffffff : 0;
-	mask_cvt.as_ints[3] = a.values[3] < b.values[3] ? 0xffffffff : 0;
+	uint32_t mask_cvt[4];
+	mask_cvt[0] = a.values[0] < b.values[0] ? 0xffffffff : 0;
+	mask_cvt[1] = a.values[1] < b.values[1] ? 0xffffffff : 0;
+	mask_cvt[2] = a.values[2] < b.values[2] ? 0xffffffff : 0;
+	mask_cvt[3] = a.values[3] < b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
 	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
@@ -470,11 +470,11 @@ static inline kinc_float32x4_mask_t kinc_float32x4_cmplt(kinc_float32x4_t a, kin
 }
 
 static inline kinc_float32x4_mask_t kinc_float32x4_cmpneq(kinc_float32x4_t a, kinc_float32x4_t b) {
-	kinc_internal_float32x4_converter_t mask_cvt;
-	mask_cvt.as_ints[0] = a.values[0] != b.values[0] ? 0xffffffff : 0;
-	mask_cvt.as_ints[1] = a.values[1] != b.values[1] ? 0xffffffff : 0;
-	mask_cvt.as_ints[2] = a.values[2] != b.values[2] ? 0xffffffff : 0;
-	mask_cvt.as_ints[3] = a.values[3] != b.values[3] ? 0xffffffff : 0;
+	uint32_t mask_cvt[4];
+	mask_cvt[0] = a.values[0] != b.values[0] ? 0xffffffff : 0;
+	mask_cvt[1] = a.values[1] != b.values[1] ? 0xffffffff : 0;
+	mask_cvt[2] = a.values[2] != b.values[2] ? 0xffffffff : 0;
+	mask_cvt[3] = a.values[3] != b.values[3] ? 0xffffffff : 0;
 
 	kinc_float32x4_mask_t mask;
 	memcpy(&mask, &mask_cvt, sizeof(mask_cvt));
@@ -492,66 +492,66 @@ static inline kinc_float32x4_t kinc_float32x4_sel(kinc_float32x4_t a, kinc_float
 }
 
 static inline kinc_float32x4_t kinc_float32x4_or(kinc_float32x4_t a, kinc_float32x4_t b) {
-	kinc_float32x4_t value; 
-	kinc_internal_float32x4_converter_t acvt;
-	kinc_internal_float32x4_converter_t bcvt;
+	uint32_t acvt[4];
+	uint32_t bcvt[4];
 	memcpy(&acvt, &a, sizeof(a));
 	memcpy(&bcvt, &b, sizeof(b));
 
-	acvt.as_ints[0] |= bcvt.as_ints[0];
-	acvt.as_ints[1] |= bcvt.as_ints[1];
-	acvt.as_ints[2] |= bcvt.as_ints[2];
-	acvt.as_ints[3] |= bcvt.as_ints[3];
+	acvt[0] |= bcvt[0];
+	acvt[1] |= bcvt[1];
+	acvt[2] |= bcvt[2];
+	acvt[3] |= bcvt[3];
 
+	kinc_float32x4_t value; 
 	memcpy(&value, &acvt, sizeof(acvt));
 
 	return value;
 }
 
 static inline kinc_float32x4_t kinc_float32x4_and(kinc_float32x4_t a, kinc_float32x4_t b) {
-	kinc_float32x4_t value; 
-	kinc_internal_float32x4_converter_t acvt;
-	kinc_internal_float32x4_converter_t bcvt;
+	uint32_t acvt[4];
+	uint32_t bcvt[4];
 	memcpy(&acvt, &a, sizeof(a));
 	memcpy(&bcvt, &b, sizeof(b));
 
-	acvt.as_ints[0] &= bcvt.as_ints[0];
-	acvt.as_ints[1] &= bcvt.as_ints[1];
-	acvt.as_ints[2] &= bcvt.as_ints[2];
-	acvt.as_ints[3] &= bcvt.as_ints[3];
+	acvt[0] &= bcvt[0];
+	acvt[1] &= bcvt[1];
+	acvt[2] &= bcvt[2];
+	acvt[3] &= bcvt[3];
 
+	kinc_float32x4_t value; 
 	memcpy(&value, &acvt, sizeof(acvt));
 
 	return value;
 }
 
 static inline kinc_float32x4_t kinc_float32x4_xor(kinc_float32x4_t a, kinc_float32x4_t b) {
-	kinc_float32x4_t value; 
-	kinc_internal_float32x4_converter_t acvt;
-	kinc_internal_float32x4_converter_t bcvt;
+	uint32_t acvt[4];
+	uint32_t bcvt[4];
 	memcpy(&acvt, &a, sizeof(a));
 	memcpy(&bcvt, &b, sizeof(b));
 
-	acvt.as_ints[0] ^= bcvt.as_ints[0];
-	acvt.as_ints[1] ^= bcvt.as_ints[1];
-	acvt.as_ints[2] ^= bcvt.as_ints[2];
-	acvt.as_ints[3] ^= bcvt.as_ints[3];
+	acvt[0] ^= bcvt[0];
+	acvt[1] ^= bcvt[1];
+	acvt[2] ^= bcvt[2];
+	acvt[3] ^= bcvt[3];
 
+	kinc_float32x4_t value; 
 	memcpy(&value, &acvt, sizeof(acvt));
 
 	return value;
 }
 
 static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
-	kinc_float32x4_t value; 
-	kinc_internal_float32x4_converter_t tcvt;
+	uint32_t tcvt[4];
 	memcpy(&tcvt, &t, sizeof(t));
 
-	tcvt.as_ints[0] = ~tcvt.as_ints[0];
-	tcvt.as_ints[1] = ~tcvt.as_ints[1];
-	tcvt.as_ints[2] = ~tcvt.as_ints[2];
-	tcvt.as_ints[3] = ~tcvt.as_ints[3];
+	tcvt[0] = ~tcvt[0];
+	tcvt[1] = ~tcvt[1];
+	tcvt[2] = ~tcvt[2];
+	tcvt[3] = ~tcvt[3];
 
+	kinc_float32x4_t value; 
 	memcpy(&value, &tcvt, sizeof(tcvt));
 
 	return value;
