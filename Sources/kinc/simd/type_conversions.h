@@ -548,7 +548,7 @@ static inline kinc_float32x4_t kinc_uint8x16_cast_to_float32x4(kinc_uint8x16_t t
 
 
 //Shared signed and unsigned integer vectors for SSE and SIMD-fallback
-#if defined(KINC_SSE) || defined(KINC_NOSIMD)
+#if !defined(KINC_SSE2) && (defined(KINC_SSE) || defined(KINC_NOSIMD)) 
 
 //Int32x4 ----> Other
 static inline kinc_uint32x4_t kinc_int32x4_cast_to_uint32x4(kinc_int32x4_t t) {
