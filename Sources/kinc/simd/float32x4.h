@@ -129,6 +129,29 @@ static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
 	return _mm_xor_ps(t, _mm_cmpeq_ps(zeroes, zeroes));
 }
 
+#define kinc_float32x4_shuffle_custom(abcd, efgh, left_1, left_2, right_1, right_2)\
+	_mm_shuffle_ps(abcd, efgh, KINC_SHUFFLE_TABLE((left_1), (left_2), (right_1), (right_2)))
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_aebf(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	//aka unpacklo aka zip1 aka interleave low
+	return _mm_unpacklo_ps(abcd, efgh);
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_cgdh(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	//aka unpackhi aka zip2 aka interleave high
+	return _mm_unpackhi_ps(abcd, efgh);
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_abef(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	//aka movelh
+	return _mm_movelh_ps(abcd, efgh);
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_ghcd(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	//aka movehl
+	return _mm_movehl_ps(abcd, efgh);
+}
+
 
 #elif defined(KINC_NEON)
 
@@ -260,6 +283,56 @@ static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
 	uint32x4_t tcvt = vreinterpretq_u32_f32(t);
 
 	return vreinterpretq_f32_u32(vmvnq_u32(tcvt));
+}
+
+#define kinc_float32x4_shuffle_custom(abcd, efgh, left_1, left_2, right_1, right_2)\
+	(kinc_float32x4_t){\
+		vgetq_lane_f32(abcd, (left_1 & 0x3)),\
+		vgetq_lane_f32(abcd, (left_2 & 0x3)),\
+		vgetq_lane_f32(efgh, (right_1 & 0x3)),\
+		vgetq_lane_f32(efgh, (right_2 & 0x3))\
+	}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_aebf(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	// #if defined(__aarch64__)
+	// return vzip1q_f32(abcd, efgh);
+	// #endif
+
+	float a = vgetq_lane_f32(abcd, 0);
+	float b = vgetq_lane_f32(abcd, 1);
+	float e = vgetq_lane_f32(efgh, 0);
+	float f = vgetq_lane_f32(efgh, 1);
+
+	return (kinc_float32x4_t){a, e, b, f};
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_cgdh(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	// #if defined(__aarch64__)
+	// return vzip2q_f32(abcd, efgh);
+	// #endif
+
+	float c = vgetq_lane_f32(abcd, 2);
+	float d = vgetq_lane_f32(abcd, 3);
+	float g = vgetq_lane_f32(efgh, 2);
+	float h = vgetq_lane_f32(efgh, 3);
+
+	return (kinc_float32x4_t){c, g, d, h};
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_abef(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	//aka movelh
+	float32x2_t ab = vget_low_f32(abcd);
+	float32x2_t ef = vget_low_f32(efgh);
+
+	return vcombine_f32(ab, ef);
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_ghcd(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	//aka movehl
+	float32x2_t cd = vget_high_f32(abcd);
+	float32x2_t gh = vget_high_f32(efgh);
+
+	return vcombine_f32(gh, cd);
 }
 
 
@@ -556,6 +629,64 @@ static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
 
 	return value;
 }
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_custom(kinc_float32x4_t abcd, kinc_float32x4_t efgh, 
+	const uint32_t left_1, const uint32_t left_2, const uint32_t right_1, const uint32_t right_2) {
+	kinc_float32x4_t value;
+
+	value.values[0] = abcd.values[left_1 & 0x3];
+	value.values[1] = abcd.values[left_2 & 0x3];
+	value.values[2] = efgh.values[right_1 & 0x3];
+	value.values[3] = efgh.values[right_2 & 0x3];
+
+	return value;
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_aebf(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	//aka unpacklo aka zip1 aka interleave low
+	kinc_float32x4_t value;
+
+	value.values[0] = abcd.values[0];
+	value.values[1] = efgh.values[0];
+	value.values[2] = abcd.values[1];
+	value.values[3] = efgh.values[1];
+
+	return value;
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_cgdh(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	kinc_float32x4_t value;
+
+	value.values[0] = abcd.values[2];
+	value.values[1] = efgh.values[2];
+	value.values[2] = abcd.values[3];
+	value.values[3] = efgh.values[3];
+
+	return value;
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_abef(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	kinc_float32x4_t value;
+
+	value.values[0] = abcd.values[0];
+	value.values[1] = abcd.values[1];
+	value.values[2] = efgh.values[0];
+	value.values[3] = efgh.values[1];
+
+	return value;
+}
+
+static inline kinc_float32x4_t kinc_float32x4_shuffle_ghcd(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
+	kinc_float32x4_t value;
+
+	value.values[0] = efgh.values[2];
+	value.values[1] = efgh.values[3];
+	value.values[2] = abcd.values[2];
+	value.values[3] = abcd.values[3];
+
+	return value;
+}
+
 
 
 #endif

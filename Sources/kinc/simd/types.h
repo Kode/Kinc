@@ -49,6 +49,9 @@ extern "C" {
 #define KINC_NOSIMD
 #endif
 
+#define KINC_SHUFFLE_TABLE(LANE_A1, LANE_A2, LANE_B1, LANE_B2)\
+	 ((((LANE_B2) & 0x3) << 6) | (((LANE_B1) & 0x3) << 4) | (((LANE_A2) & 0x3) << 2) | (((LANE_A1) & 0x3) << 0))
+
 #if defined(KINC_SSE2)
 
 // SSE_## related headers include earlier revisions, IE
