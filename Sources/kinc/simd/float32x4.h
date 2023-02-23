@@ -294,9 +294,11 @@ static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
 	}
 
 static inline kinc_float32x4_t kinc_float32x4_shuffle_aebf(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
-	// #if defined(__aarch64__)
-	// return vzip1q_f32(abcd, efgh);
-	// #endif
+	#if defined(__aarch64__)
+
+	return vzip1q_f32(abcd, efgh);
+
+	#else
 
 	float a = vgetq_lane_f32(abcd, 0);
 	float b = vgetq_lane_f32(abcd, 1);
@@ -304,12 +306,16 @@ static inline kinc_float32x4_t kinc_float32x4_shuffle_aebf(kinc_float32x4_t abcd
 	float f = vgetq_lane_f32(efgh, 1);
 
 	return (kinc_float32x4_t){a, e, b, f};
+
+	#endif
 }
 
 static inline kinc_float32x4_t kinc_float32x4_shuffle_cgdh(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
-	// #if defined(__aarch64__)
-	// return vzip2q_f32(abcd, efgh);
-	// #endif
+	#if defined(__aarch64__)
+
+	return vzip2q_f32(abcd, efgh);
+
+	#else
 
 	float c = vgetq_lane_f32(abcd, 2);
 	float d = vgetq_lane_f32(abcd, 3);
@@ -317,6 +323,8 @@ static inline kinc_float32x4_t kinc_float32x4_shuffle_cgdh(kinc_float32x4_t abcd
 	float h = vgetq_lane_f32(efgh, 3);
 
 	return (kinc_float32x4_t){c, g, d, h};
+
+	#endif
 }
 
 static inline kinc_float32x4_t kinc_float32x4_shuffle_abef(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
