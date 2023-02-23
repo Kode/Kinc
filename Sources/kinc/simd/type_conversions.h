@@ -176,55 +176,55 @@ static inline kinc_int8x16_t kinc_uint8x16_cast_to_int8x16(kinc_uint8x16_t t) {
 //Float32x4 ----> Other
 static inline kinc_int32x4_t kinc_float32x4_cast_to_int32x4(kinc_float32x4_t t) {
 	float extracted[4];
-	_mm_storeu_ps(&extracted, t);
+	_mm_storeu_ps(&extracted[0], t);
 
 	kinc_int32x4_t cvt;
-	memcpy(&cvt, &extracted, sizeof(extracted));
+	memcpy(&cvt.values[0], &extracted[0], sizeof(extracted));
 
 	return cvt;
 }
 static inline kinc_uint32x4_t kinc_float32x4_cast_to_uint32x4(kinc_float32x4_t t) {
 	float extracted[4];
-	_mm_storeu_ps(&extracted, t);
+	_mm_storeu_ps(&extracted[0], t);
 
 	kinc_uint32x4_t cvt;
-	memcpy(&cvt, &extracted, sizeof(extracted));
+	memcpy(&cvt.values[0], &extracted[0], sizeof(extracted));
 
 	return cvt;
 }
 static inline kinc_int16x8_t kinc_float32x4_cast_to_int16x8(kinc_float32x4_t t) {
 	float extracted[4];
-	_mm_storeu_ps(&extracted, t);
+	_mm_storeu_ps(&extracted[0], t);
 
 	kinc_int16x8_t cvt;
-	memcpy(&cvt, &extracted, sizeof(extracted));
+	memcpy(&cvt.values[0], &extracted[0], sizeof(extracted));
 
 	return cvt;
 }
 static inline kinc_uint16x8_t kinc_float32x4_cast_to_uint16x8(kinc_float32x4_t t) {
 	float extracted[4];
-	_mm_storeu_ps(&extracted, t);
+	_mm_storeu_ps(&extracted[0], t);
 
 	kinc_uint16x8_t cvt;
-	memcpy(&cvt, &extracted, sizeof(extracted));
+	memcpy(&cvt.values[0], &extracted[0], sizeof(extracted));
 
 	return cvt;
 }
 static inline kinc_int8x16_t kinc_float32x4_cast_to_int8x16(kinc_float32x4_t t) {
 	float extracted[4];
-	_mm_storeu_ps(&extracted, t);
+	_mm_storeu_ps(&extracted[0], t);
 
 	kinc_int8x16_t cvt;
-	memcpy(&cvt, &extracted, sizeof(extracted));
+	memcpy(&cvt.values[0], &extracted[0], sizeof(extracted));
 
 	return cvt;
 }
 static inline kinc_uint8x16_t kinc_float32x4_cast_to_uint8x16(kinc_float32x4_t t) {
 	float extracted[4];
-	_mm_storeu_ps(&extracted, t);
+	_mm_storeu_ps(&extracted[0], t);
 
 	kinc_uint8x16_t cvt;
-	memcpy(&cvt, &extracted, sizeof(extracted));
+	memcpy(&cvt.values[0], &extracted[0], sizeof(extracted));
 
 	return cvt;
 }
@@ -234,18 +234,18 @@ static inline kinc_uint8x16_t kinc_float32x4_cast_to_uint8x16(kinc_float32x4_t t
 //Int32x4 ----> Other
 static inline kinc_float32x4_t kinc_int32x4_cast_to_float32x4(kinc_int32x4_t t) {
 	float cvt[4];
-	memcpy(&cvt, &t.values[0], sizeof(t));
+	memcpy(&cvt[0], &t.values[0], sizeof(t));
 
-	return _mm_loadu_ps(cvt);
+	return _mm_loadu_ps(&cvt[0]);
 }
 
 
 //Unsigned Int32x4 ----> Other
 static inline kinc_float32x4_t kinc_uint32x4_cast_to_float32x4(kinc_uint32x4_t t) {
 	float cvt[4];
-	memcpy(&cvt, &t.values[0], sizeof(t));
+	memcpy(&cvt[0], &t.values[0], sizeof(t));
 
-	return _mm_loadu_ps(cvt);
+	return _mm_loadu_ps(&cvt[0]);
 }
 
 
@@ -253,9 +253,9 @@ static inline kinc_float32x4_t kinc_uint32x4_cast_to_float32x4(kinc_uint32x4_t t
 //Int16x8 ----> Other
 static inline kinc_float32x4_t kinc_int16x8_cast_to_float32x4(kinc_int16x8_t t) {
 	float cvt[4];
-	memcpy(&cvt, &t.values[0], sizeof(t));
+	memcpy(&cvt[0], &t.values[0], sizeof(t));
 
-	return _mm_loadu_ps(cvt);
+	return _mm_loadu_ps(&cvt[0]);
 }
 
 
@@ -263,9 +263,9 @@ static inline kinc_float32x4_t kinc_int16x8_cast_to_float32x4(kinc_int16x8_t t) 
 //Unsigned Int16x8 ----> Other
 static inline kinc_float32x4_t kinc_uint16x8_cast_to_float32x4(kinc_uint16x8_t t) {
 	float cvt[4];
-	memcpy(&cvt, &t.values[0], sizeof(t));
+	memcpy(&cvt[0], &t.values[0], sizeof(t));
 
-	return _mm_loadu_ps(cvt);
+	return _mm_loadu_ps(&cvt[0]);
 }
 
 
@@ -273,9 +273,9 @@ static inline kinc_float32x4_t kinc_uint16x8_cast_to_float32x4(kinc_uint16x8_t t
 //Int8x16 ----> Other
 static inline kinc_float32x4_t kinc_int8x16_cast_to_float32x4(kinc_int8x16_t t) {
 	float cvt[4];
-	memcpy(&cvt, &t.values[0], sizeof(t));
+	memcpy(&cvt[0], &t.values[0], sizeof(t));
 
-	return _mm_loadu_ps(cvt);
+	return _mm_loadu_ps(&cvt[0]);
 }
 
 
@@ -283,9 +283,9 @@ static inline kinc_float32x4_t kinc_int8x16_cast_to_float32x4(kinc_int8x16_t t) 
 //Unsigned Int8x16 ----> Other
 static inline kinc_float32x4_t kinc_uint8x16_cast_to_float32x4(kinc_uint8x16_t t) {
 	float cvt[4];
-	memcpy(&cvt, &t.values[0], sizeof(t));
+	memcpy(&cvt[0], &t.values[0], sizeof(t));
 
-	return _mm_loadu_ps(cvt);
+	return _mm_loadu_ps(&cvt[0]);
 }
 
 
