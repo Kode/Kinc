@@ -24,7 +24,7 @@ void kinc_thread_init(kinc_thread_t *t, void (*thread)(void *param), void *param
 	t->impl.thread = thread;
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
-	pthread_attr_setstacksize(&attr, 1024 * 64);
+	// pthread_attr_setstacksize(&attr, 1024 * 64);
 	struct sched_param sp;
 	memset(&sp, 0, sizeof(sp));
 	sp.sched_priority = 0;
