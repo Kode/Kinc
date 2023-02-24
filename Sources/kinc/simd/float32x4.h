@@ -130,7 +130,7 @@ static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
 }
 
 #define kinc_float32x4_shuffle_custom(abcd, efgh, left_1, left_2, right_1, right_2)\
-	_mm_shuffle_ps(abcd, efgh, KINC_SHUFFLE_TABLE((left_1), (left_2), (right_1), (right_2)))
+	_mm_shuffle_ps((abcd), (efgh), KINC_SHUFFLE_TABLE((left_1), (left_2), (right_1), (right_2)))
 
 static inline kinc_float32x4_t kinc_float32x4_shuffle_aebf(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
 	//aka unpacklo aka zip1 aka interleave low
@@ -287,10 +287,10 @@ static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
 
 #define kinc_float32x4_shuffle_custom(abcd, efgh, left_1, left_2, right_1, right_2)\
 	(kinc_float32x4_t){\
-		vgetq_lane_f32(abcd, (left_1 & 0x3)),\
-		vgetq_lane_f32(abcd, (left_2 & 0x3)),\
-		vgetq_lane_f32(efgh, (right_1 & 0x3)),\
-		vgetq_lane_f32(efgh, (right_2 & 0x3))\
+		vgetq_lane_f32((abcd), ((left_1) & 0x3)),\
+		vgetq_lane_f32((abcd), ((left_2) & 0x3)),\
+		vgetq_lane_f32((efgh), ((right_1) & 0x3)),\
+		vgetq_lane_f32((efgh), ((right_2) & 0x3))\
 	}
 
 static inline kinc_float32x4_t kinc_float32x4_shuffle_aebf(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
@@ -328,7 +328,6 @@ static inline kinc_float32x4_t kinc_float32x4_shuffle_cgdh(kinc_float32x4_t abcd
 }
 
 static inline kinc_float32x4_t kinc_float32x4_shuffle_abef(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
-	//aka movelh
 	float32x2_t ab = vget_low_f32(abcd);
 	float32x2_t ef = vget_low_f32(efgh);
 
@@ -336,7 +335,6 @@ static inline kinc_float32x4_t kinc_float32x4_shuffle_abef(kinc_float32x4_t abcd
 }
 
 static inline kinc_float32x4_t kinc_float32x4_shuffle_ghcd(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
-	//aka movehl
 	float32x2_t cd = vget_high_f32(abcd);
 	float32x2_t gh = vget_high_f32(efgh);
 
@@ -651,7 +649,6 @@ static inline kinc_float32x4_t kinc_float32x4_shuffle_custom(kinc_float32x4_t ab
 }
 
 static inline kinc_float32x4_t kinc_float32x4_shuffle_aebf(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {
-	//aka unpacklo aka zip1 aka interleave low
 	kinc_float32x4_t value;
 
 	value.values[0] = abcd.values[0];
