@@ -49,6 +49,9 @@ extern "C" {
 #define KINC_NOSIMD
 #endif
 
+#define KINC_SHUFFLE_TABLE(LANE_A1, LANE_A2, LANE_B1, LANE_B2)\
+	 ((((LANE_B2) & 0x3) << 6) | (((LANE_B1) & 0x3) << 4) | (((LANE_A2) & 0x3) << 2) | (((LANE_A1) & 0x3) << 0))
+
 #if defined(KINC_SSE2)
 
 // SSE_## related headers include earlier revisions, IE
@@ -137,12 +140,10 @@ typedef struct kinc_float32x4 {
 	float values[4];
 } kinc_float32x4_t;
 
-// Note: Float mask operates a bit differently than int masks
-// Int/UInt masks are intended to mixed with SIMD base type functions like and/or/xor etc.
-// so they're basically just the underlying type in the first place
-typedef struct kinc_float32x4_mask {
-	int values[4];
-} kinc_float32x4_mask_t;
+typedef kinc_float32x4_t kinc_float32x4_mask_t;
+
+
+
 
 typedef struct kinc_int8x16 {
 	int8_t values[16];
