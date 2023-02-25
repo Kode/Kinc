@@ -75,6 +75,7 @@ $(function() {
 <p>Provides 128bit four-element floating point SIMD operations which are mapped to equivalent SSE or Neon operations.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="types_8h_source.html">types.h</a>&quot;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
 <code>#include &lt;math.h&gt;</code><br />
 </div>
 <p><a href="float32x4_8h_source.html">Go to the source code of this file.</a></p>
@@ -130,26 +131,53 @@ static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160
 static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_min</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
 <tr class="separator:a71feff0b7cdf28813eae11ea2c238073"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ebb347a2f322757cf71131fa4c1990c"><td class="memItemLeft" align="right" valign="top"><a id="a1ebb347a2f322757cf71131fa4c1990c"></a>
-static <a class="el" href="structkinc__float32x4__mask.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmpeq</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmpeq</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
 <tr class="separator:a1ebb347a2f322757cf71131fa4c1990c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6196dfd2f1a50838b3d4147339be09b9"><td class="memItemLeft" align="right" valign="top"><a id="a6196dfd2f1a50838b3d4147339be09b9"></a>
-static <a class="el" href="structkinc__float32x4__mask.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmpge</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmpge</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
 <tr class="separator:a6196dfd2f1a50838b3d4147339be09b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a164700a431fb334d8e046230c3e1f63d"><td class="memItemLeft" align="right" valign="top"><a id="a164700a431fb334d8e046230c3e1f63d"></a>
-static <a class="el" href="structkinc__float32x4__mask.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmpgt</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmpgt</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
 <tr class="separator:a164700a431fb334d8e046230c3e1f63d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab218afc1e1ebb2bd9b08fec8fb4e7be8"><td class="memItemLeft" align="right" valign="top"><a id="ab218afc1e1ebb2bd9b08fec8fb4e7be8"></a>
-static <a class="el" href="structkinc__float32x4__mask.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmple</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmple</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
 <tr class="separator:ab218afc1e1ebb2bd9b08fec8fb4e7be8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad46e0533cac8ecdb350bcaa241a5cdd6"><td class="memItemLeft" align="right" valign="top"><a id="ad46e0533cac8ecdb350bcaa241a5cdd6"></a>
-static <a class="el" href="structkinc__float32x4__mask.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmplt</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmplt</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
 <tr class="separator:ad46e0533cac8ecdb350bcaa241a5cdd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae62e3a5f81a6364b14540fe492226121"><td class="memItemLeft" align="right" valign="top"><a id="ae62e3a5f81a6364b14540fe492226121"></a>
-static <a class="el" href="structkinc__float32x4__mask.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmpneq</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_mask_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_cmpneq</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
 <tr class="separator:ae62e3a5f81a6364b14540fe492226121"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31c14cf768f7b61f541bc77517a8fd8e"><td class="memItemLeft" align="right" valign="top"><a id="a31c14cf768f7b61f541bc77517a8fd8e"></a>
-static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_sel</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b, <a class="el" href="structkinc__float32x4__mask.html">kinc_float32x4_mask_t</a> mask)</td></tr>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_sel</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_mask_t</a> mask)</td></tr>
 <tr class="separator:a31c14cf768f7b61f541bc77517a8fd8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac355dffc9602601763ba0a5f5cb72d92"><td class="memItemLeft" align="right" valign="top"><a id="ac355dffc9602601763ba0a5f5cb72d92"></a>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_or</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
+<tr class="separator:ac355dffc9602601763ba0a5f5cb72d92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75a1ed72c4b6c93117c8bc33b2c094df"><td class="memItemLeft" align="right" valign="top"><a id="a75a1ed72c4b6c93117c8bc33b2c094df"></a>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_and</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
+<tr class="separator:a75a1ed72c4b6c93117c8bc33b2c094df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b11903f1065dc4fe217fb47394c0389"><td class="memItemLeft" align="right" valign="top"><a id="a5b11903f1065dc4fe217fb47394c0389"></a>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_xor</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> a, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> b)</td></tr>
+<tr class="separator:a5b11903f1065dc4fe217fb47394c0389"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0794f87b83c746e1a9b3fb522a566cb6"><td class="memItemLeft" align="right" valign="top"><a id="a0794f87b83c746e1a9b3fb522a566cb6"></a>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_not</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> t)</td></tr>
+<tr class="separator:a0794f87b83c746e1a9b3fb522a566cb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15940f59d8cadf7eccbb4e362a71a354"><td class="memItemLeft" align="right" valign="top"><a id="a15940f59d8cadf7eccbb4e362a71a354"></a>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_shuffle_custom</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> abcd, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> efgh, const uint32_t left_1, const uint32_t left_2, const uint32_t right_1, const uint32_t right_2)</td></tr>
+<tr class="separator:a15940f59d8cadf7eccbb4e362a71a354"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5d7800807f62594df81262452bc6dba"><td class="memItemLeft" align="right" valign="top"><a id="ae5d7800807f62594df81262452bc6dba"></a>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_shuffle_aebf</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> abcd, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> efgh)</td></tr>
+<tr class="separator:ae5d7800807f62594df81262452bc6dba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ab88cae9c5af52b58147aa35bf6fe15"><td class="memItemLeft" align="right" valign="top"><a id="a5ab88cae9c5af52b58147aa35bf6fe15"></a>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_shuffle_cgdh</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> abcd, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> efgh)</td></tr>
+<tr class="separator:a5ab88cae9c5af52b58147aa35bf6fe15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9a9fbb1a7091bc63d7e417fa87caa89"><td class="memItemLeft" align="right" valign="top"><a id="aa9a9fbb1a7091bc63d7e417fa87caa89"></a>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_shuffle_abef</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> abcd, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> efgh)</td></tr>
+<tr class="separator:aa9a9fbb1a7091bc63d7e417fa87caa89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cc0f6f2f11f7d3797b012f56a45150a"><td class="memItemLeft" align="right" valign="top"><a id="a4cc0f6f2f11f7d3797b012f56a45150a"></a>
+static <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_shuffle_ghcd</b> (<a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> abcd, <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a> efgh)</td></tr>
+<tr class="separator:a4cc0f6f2f11f7d3797b012f56a45150a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides 128bit four-element floating point SIMD operations which are mapped to equivalent SSE or Neon operations. </p>

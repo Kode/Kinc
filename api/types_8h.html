@@ -85,8 +85,6 @@ $(function() {
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__float32x4.html">kinc_float32x4</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__float32x4__mask.html">kinc_float32x4_mask</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__int8x16.html">kinc_int8x16</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__uint8x16.html">kinc_uint8x16</a></td></tr>
@@ -100,14 +98,23 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkinc__uint32x4.html">kinc_uint32x4</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ad54a371ca05b8b50b445632cdcffe691"><td class="memItemLeft" align="right" valign="top"><a id="ad54a371ca05b8b50b445632cdcffe691"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_NOSIMD</b></td></tr>
+<tr class="separator:ad54a371ca05b8b50b445632cdcffe691"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9dd50eae5bdd7f63c7a0cafcdefae68a"><td class="memItemLeft" align="right" valign="top"><a id="a9dd50eae5bdd7f63c7a0cafcdefae68a"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_SHUFFLE_TABLE</b>(LANE_A1,  LANE_A2,  LANE_B1,  LANE_B2)&#160;&#160;&#160;	 ((((LANE_B2) &amp; 0x3) &lt;&lt; 6) | (((LANE_B1) &amp; 0x3) &lt;&lt; 4) | (((LANE_A2) &amp; 0x3) &lt;&lt; 2) | (((LANE_A1) &amp; 0x3) &lt;&lt; 0))</td></tr>
+<tr class="separator:a9dd50eae5bdd7f63c7a0cafcdefae68a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:a34fe90f00265a7abb216d727cca57620"><td class="memItemLeft" align="right" valign="top"><a id="a34fe90f00265a7abb216d727cca57620"></a>
 typedef struct <a class="el" href="structkinc__float32x4.html">kinc_float32x4</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_t</b></td></tr>
 <tr class="separator:a34fe90f00265a7abb216d727cca57620"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e852833136ff06303e0d71b631e6150"><td class="memItemLeft" align="right" valign="top"><a id="a3e852833136ff06303e0d71b631e6150"></a>
-typedef struct <a class="el" href="structkinc__float32x4__mask.html">kinc_float32x4_mask</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_mask_t</b></td></tr>
-<tr class="separator:a3e852833136ff06303e0d71b631e6150"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d3783413d6b4662a7e01c136071a926"><td class="memItemLeft" align="right" valign="top"><a id="a3d3783413d6b4662a7e01c136071a926"></a>
+typedef <a class="el" href="structkinc__float32x4.html">kinc_float32x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_float32x4_mask_t</b></td></tr>
+<tr class="separator:a3d3783413d6b4662a7e01c136071a926"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51caf5d592e77c0c7e1609adedd488a5"><td class="memItemLeft" align="right" valign="top"><a id="a51caf5d592e77c0c7e1609adedd488a5"></a>
 typedef struct <a class="el" href="structkinc__int8x16.html">kinc_int8x16</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_int8x16_t</b></td></tr>
 <tr class="separator:a51caf5d592e77c0c7e1609adedd488a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
