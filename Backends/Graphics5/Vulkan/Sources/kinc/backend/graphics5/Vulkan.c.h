@@ -960,7 +960,18 @@ void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int ste
 	}
 	else {
 		assert(formatCount >= 1);
-		window->format = surfFormats[0];
+		bool found = false;
+		for (uint32_t i = 0; i < formatCount; ++i) {
+			// VK_FORMAT_B8G8R8A8_SRGB causes gamma-correction, making things bright
+			if (surfFormats[i].format != VK_FORMAT_B8G8R8A8_SRGB) {
+				window->format = surfFormats[i];
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			window->format = surfFormats[0];
+		}
 	}
 	window->width = window->new_width = kinc_window_width(window_index);
 	window->height = window->new_height = kinc_window_height(window_index);
