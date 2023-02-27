@@ -110,10 +110,10 @@ static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 }
 
 #define kinc_uint32x4_shift_left(t, shift)\
-	return _mm_slli_epi32((t), (shift))
+	_mm_slli_epi32((t), (shift))
 
 #define kinc_uint32x4_shift_right(t, shift)\
-	return _mm_srli_epi32((t), (shift))
+	_mm_srli_epi32((t), (shift))
 
 
 #elif defined(KINC_NEON)
@@ -207,10 +207,10 @@ static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 }
 
 #define kinc_uint32x4_shift_left(t, shift)\
-	return vshlq_n_u32((t), (shift))
+	vshlq_n_u32((t), (shift))
 
 #define kinc_uint32x4_shift_right(t, shift)\
-	return vshrq_n_u32((t), (shift))
+	vshrq_n_u32((t), (shift))
 
 
 #else

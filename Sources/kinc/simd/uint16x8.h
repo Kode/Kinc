@@ -110,10 +110,10 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 }
 
 #define kinc_uint16x8_shift_left(t, shift)\
-	return _mm_slli_epi16((t), (shift))
+	_mm_slli_epi16((t), (shift))
 
 #define kinc_uint16x8_shift_right(t, shift)\
-	return _mm_srli_epi16((t), (shift))
+	_mm_srli_epi16((t), (shift))
 
 
 #elif defined(KINC_NEON)
@@ -207,10 +207,10 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 }
 
 #define kinc_uint16x8_shift_left(t, shift)\
-	return vshlq_n_u16((t), (shift))
+	vshlq_n_u16((t), (shift))
 
 #define kinc_uint16x8_shift_right(t, shift)\
-	return vshrq_n_u16((t), (shift))
+	vshrq_n_u16((t), (shift))
 
 
 #else
