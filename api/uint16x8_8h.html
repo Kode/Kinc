@@ -83,6 +83,9 @@ Functions</h2></td></tr>
 <tr class="memitem:aab1bffbeede914a2c3f393dd93b2be8a"><td class="memItemLeft" align="right" valign="top"><a id="aab1bffbeede914a2c3f393dd93b2be8a"></a>
 static <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_uint16x8_intrin_load</b> (const uint16_t *values)</td></tr>
 <tr class="separator:aab1bffbeede914a2c3f393dd93b2be8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a994e74c56166ee45fe3a36732de2804a"><td class="memItemLeft" align="right" valign="top"><a id="a994e74c56166ee45fe3a36732de2804a"></a>
+static <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_uint16x8_intrin_load_unaligned</b> (const uint16_t *values)</td></tr>
+<tr class="separator:a994e74c56166ee45fe3a36732de2804a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaea6bde3009f8ff088ff977e5105417b"><td class="memItemLeft" align="right" valign="top"><a id="aaea6bde3009f8ff088ff977e5105417b"></a>
 static <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_uint16x8_load</b> (const uint16_t values[8])</td></tr>
 <tr class="separator:aaea6bde3009f8ff088ff977e5105417b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -92,6 +95,9 @@ static <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a>&#160;<
 <tr class="memitem:a4203e4b9640e53817cad2effec5baaa9"><td class="memItemLeft" align="right" valign="top"><a id="a4203e4b9640e53817cad2effec5baaa9"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_uint16x8_store</b> (uint16_t *destination, <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a> value)</td></tr>
 <tr class="separator:a4203e4b9640e53817cad2effec5baaa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66f190c121daff8772fbd69dd7aeda58"><td class="memItemLeft" align="right" valign="top"><a id="a66f190c121daff8772fbd69dd7aeda58"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_uint16x8_store_unaligned</b> (uint16_t *destination, <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a> value)</td></tr>
+<tr class="separator:a66f190c121daff8772fbd69dd7aeda58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca6506c0cb297f4a58e4c07c4733f5e1"><td class="memItemLeft" align="right" valign="top"><a id="aca6506c0cb297f4a58e4c07c4733f5e1"></a>
 static uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_uint16x8_get</b> (<a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a> t, int index)</td></tr>
 <tr class="separator:aca6506c0cb297f4a58e4c07c4733f5e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,6 +146,12 @@ static <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a>&#160;<
 <tr class="memitem:ad47da15e197afca5995c0c2ea28f6c37"><td class="memItemLeft" align="right" valign="top"><a id="ad47da15e197afca5995c0c2ea28f6c37"></a>
 static <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_uint16x8_not</b> (<a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a> t)</td></tr>
 <tr class="separator:ad47da15e197afca5995c0c2ea28f6c37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a919636b18dfdf4ed8bb539ecec57f03e"><td class="memItemLeft" align="right" valign="top"><a id="a919636b18dfdf4ed8bb539ecec57f03e"></a>
+static <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_uint16x8_shift_left</b> (<a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a> t, const int shift)</td></tr>
+<tr class="separator:a919636b18dfdf4ed8bb539ecec57f03e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24aa6c272f48e75882e09466023edbec"><td class="memItemLeft" align="right" valign="top"><a id="a24aa6c272f48e75882e09466023edbec"></a>
+static <a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_uint16x8_shift_right</b> (<a class="el" href="structkinc__uint16x8.html">kinc_uint16x8_t</a> t, const int shift)</td></tr>
+<tr class="separator:a24aa6c272f48e75882e09466023edbec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides 128bit eight-element unsigned 16-bit integer SIMD operations which are mapped to equivalent SSE2 or Neon operations. </p>
