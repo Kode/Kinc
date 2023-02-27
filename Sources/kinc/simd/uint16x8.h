@@ -101,6 +101,13 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 	return _mm_xor_si128(t, _mm_set1_epi32(0xffffffff));
 }
 
+#define kinc_uint16x8_shift_left(t, shift)\
+	return _mm_slli_epi16((t), (shift))
+
+#define kinc_uint16x8_shift_right(t, shift)\
+	return _mm_srli_epi16((t), (shift))
+
+
 #elif defined(KINC_NEON)
 
 static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(const uint16_t *values) {
@@ -182,6 +189,13 @@ static inline kinc_uint16x8_t kinc_uint16x8_xor(kinc_uint16x8_t a, kinc_uint16x8
 static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 	return vmvnq_u16(t);
 }
+
+#define kinc_uint16x8_shift_left(t, shift)\
+	return vshlq_n_u16((t), (shift))
+
+#define kinc_uint16x8_shift_right(t, shift)\
+	return vshrq_n_u16((t), (shift))
+
 
 #else
 
@@ -433,6 +447,35 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 	value.values[7] = ~t.values[7];
 	return value;
 }
+
+static inline kinc_uint16x8_t kinc_uint16x8_shift_left(kinc_uint16x8_t t, const int shift) {
+	kinc_uint16x8_t value;
+	value.values[0] = t.values[0] << shift;
+	value.values[1] = t.values[1] << shift;
+	value.values[2] = t.values[2] << shift;
+	value.values[3] = t.values[3] << shift;
+	value.values[4] = t.values[4] << shift;
+	value.values[5] = t.values[5] << shift;
+	value.values[6] = t.values[6] << shift;
+	value.values[7] = t.values[7] << shift;
+
+	return value;
+}
+
+static inline kinc_uint16x8_t kinc_uint16x8_shift_right(kinc_uint16x8_t t, const int shift) {
+	kinc_uint16x8_t value;
+	value.values[0] = t.values[0] >> shift;
+	value.values[1] = t.values[1] >> shift;
+	value.values[2] = t.values[2] >> shift;
+	value.values[3] = t.values[3] >> shift;
+	value.values[4] = t.values[4] >> shift;
+	value.values[5] = t.values[5] >> shift;
+	value.values[6] = t.values[6] >> shift;
+	value.values[7] = t.values[7] >> shift;
+
+	return value;
+}
+
 
 #endif
 

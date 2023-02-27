@@ -101,6 +101,13 @@ static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 	return _mm_xor_si128(t, _mm_set1_epi32(0xffffffff));
 }
 
+#define kinc_uint32x4_shift_left(t, shift)\
+	return _mm_slli_epi32((t), (shift))
+
+#define kinc_uint32x4_shift_right(t, shift)\
+	return _mm_srli_epi32((t), (shift))
+
+
 #elif defined(KINC_NEON)
 
 static inline kinc_uint32x4_t kinc_uint32x4_intrin_load(const uint32_t *values) {
@@ -182,6 +189,13 @@ static inline kinc_uint32x4_t kinc_uint32x4_xor(kinc_uint32x4_t a, kinc_uint32x4
 static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 	return vmvnq_u32(t);
 }
+
+#define kinc_uint32x4_shift_left(t, shift)\
+	return vshlq_n_u32((t), (shift))
+
+#define kinc_uint32x4_shift_right(t, shift)\
+	return vshrq_n_u32((t), (shift))
+
 
 #else
 
@@ -355,6 +369,26 @@ static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 	value.values[1] = ~t.values[1];
 	value.values[2] = ~t.values[2];
 	value.values[3] = ~t.values[3];
+	return value;
+}
+
+static inline kinc_uint32x4_t kinc_uint32x4_shift_left(kinc_uint32x4_t t, const int shift) {
+	kinc_uint32x4_t value;
+	value.values[0] = t.values[0] << shift;
+	value.values[1] = t.values[1] << shift;
+	value.values[2] = t.values[2] << shift;
+	value.values[3] = t.values[3] << shift;
+
+	return value;
+}
+
+static inline kinc_uint32x4_t kinc_uint32x4_shift_right(kinc_uint32x4_t t, const int shift) {
+	kinc_uint32x4_t value;
+	value.values[0] = t.values[0] >> shift;
+	value.values[1] = t.values[1] >> shift;
+	value.values[2] = t.values[2] >> shift;
+	value.values[3] = t.values[3] >> shift;
+
 	return value;
 }
 
