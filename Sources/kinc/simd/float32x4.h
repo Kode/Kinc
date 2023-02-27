@@ -17,6 +17,10 @@ static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
 	return _mm_load_ps(values);
 }
 
+static inline kinc_float32x4_t kinc_float32x4_intrin_load_unaligned(const float *values) {
+	return _mm_loadu_ps(values);
+}
+
 static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, float d) {
 	return _mm_set_ps(d, c, b, a);
 }
@@ -27,6 +31,10 @@ static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
 
 static inline void kinc_float32x4_store(float *destination, kinc_float32x4_t value) {
 	_mm_store_ps(destination, value);
+}
+
+static inline void kinc_float32x4_store_unaligned(float *destination, kinc_float32x4_t value) {
+	_mm_storeu_ps(destination, value);
 }
 
 static inline float kinc_float32x4_get(kinc_float32x4_t t, int index) {
@@ -159,6 +167,10 @@ static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
 	return vld1q_f32(values);
 }
 
+static inline kinc_float32x4_t kinc_float32x4_intrin_load_unaligned(const float *values) {
+	return kinc_float32x4_intrin_load(values);
+}
+
 static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, float d) {
 	return (kinc_float32x4_t){a, b, c, d};
 }
@@ -169,6 +181,10 @@ static inline kinc_float32x4_t kinc_float32x4_load_all(float t) {
 
 static inline void kinc_float32x4_store(float *destination, kinc_float32x4_t value) {
 	vst1q_f32(destination, value);
+}
+
+static inline void kinc_float32x4_store_unaligned(float *destination, kinc_float32x4_t value) {
+	kinc_float32x4_store(destination, value);
 }
 
 static inline float kinc_float32x4_get(kinc_float32x4_t t, int index) {
@@ -355,6 +371,10 @@ static inline kinc_float32x4_t kinc_float32x4_intrin_load(const float *values) {
 	return value;
 }
 
+static inline kinc_float32x4_t kinc_float32x4_intrin_load_unaligned(const float *values) {
+	return kinc_float32x4_intrin_load(values);
+}
+
 static inline kinc_float32x4_t kinc_float32x4_load(float a, float b, float c, float d) {
 	kinc_float32x4_t value;
 	value.values[0] = a;
@@ -378,6 +398,10 @@ static inline void kinc_float32x4_store(float *destination, kinc_float32x4_t val
 	destination[1] = value.values[1];
 	destination[2] = value.values[2];
 	destination[3] = value.values[3];
+}
+
+static inline void kinc_float32x4_store_unaligned(float *destination, kinc_float32x4_t value) {
+	kinc_float32x4_store(destination, value);
 }
 
 static inline float kinc_float32x4_get(kinc_float32x4_t t, int index) {

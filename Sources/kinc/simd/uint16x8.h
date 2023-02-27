@@ -16,6 +16,10 @@ static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(const uint16_t *values) 
 	return _mm_load_si128((const kinc_uint16x8_t *)values);
 }
 
+static inline kinc_uint16x8_t kinc_uint16x8_intrin_load_unaligned(const uint16_t *values) {
+	return _mm_loadu_si128((const kinc_uint16x8_t *)values);
+}
+
 static inline kinc_uint16x8_t kinc_uint16x8_load(const uint16_t values[8]) {
 	return _mm_set_epi16(values[7], values[6], values[5], values[4], values[3], values[2], values[1], values[0]);
 }
@@ -26,6 +30,10 @@ static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {
 
 static inline void kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value) {
 	_mm_store_si128((kinc_uint16x8_t *)destination, value);
+}
+
+static inline void kinc_uint16x8_store_unaligned(uint16_t *destination, kinc_uint16x8_t value) {
+	_mm_storeu_si128((kinc_uint16x8_t *)destination, value);
 }
 
 static inline uint16_t kinc_uint16x8_get(kinc_uint16x8_t t, int index) {
@@ -114,6 +122,10 @@ static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(const uint16_t *values) 
 	return vld1q_u16(values);
 }
 
+static inline kinc_uint16x8_t kinc_uint16x8_intrin_load_unaligned(const uint16_t *values) {
+	return kinc_uint16x8_intrin_load(values);
+}
+
 static inline kinc_uint16x8_t kinc_uint16x8_load(const uint16_t values[8]) {
 	return (kinc_uint16x8_t){values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]};
 }
@@ -124,6 +136,10 @@ static inline kinc_uint16x8_t kinc_uint16x8_load_all(uint16_t t) {
 
 static inline void kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t value) {
 	vst1q_u16(destination, value);
+}
+
+static inline void kinc_uint16x8_store_unaligned(uint16_t *destination, kinc_uint16x8_t value) {
+	kinc_uint16x8_store(destination, value);
 }
 
 static inline uint16_t kinc_uint16x8_get(kinc_uint16x8_t t, int index) {
@@ -212,6 +228,10 @@ static inline kinc_uint16x8_t kinc_uint16x8_intrin_load(const uint16_t *values) 
 	return value;
 }
 
+static inline kinc_uint16x8_t kinc_uint16x8_intrin_load_unaligned(const uint16_t *values) {
+	return kinc_uint16x8_intrin_load(values);
+}
+
 static inline kinc_uint16x8_t kinc_uint16x8_load(const uint16_t values[8]) {
 	kinc_uint16x8_t value;
 	value.values[0] = values[0];
@@ -247,6 +267,10 @@ static inline void kinc_uint16x8_store(uint16_t *destination, kinc_uint16x8_t va
 	destination[5] = value.values[5];
 	destination[6] = value.values[6];
 	destination[7] = value.values[7];
+}
+
+static inline void kinc_uint16x8_store_unaligned(uint16_t *destination, kinc_uint16x8_t value) {
+	kinc_uint16x8_store(destination, value);
 }
 
 static inline uint16_t kinc_uint16x8_get(kinc_uint16x8_t t, int index) {
