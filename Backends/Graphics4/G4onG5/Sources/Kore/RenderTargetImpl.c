@@ -9,15 +9,16 @@
 extern kinc_g5_command_list_t commandList;
 
 void kinc_g4_render_target_init(kinc_g4_render_target_t *render_target, int width, int height, int depthBufferBits, bool antialiasing,
-                                kinc_g4_render_target_format_t format, int stencilBufferBits,
-                                      int contextId) {
+                                kinc_g4_render_target_format_t format, int stencilBufferBits, int contextId) {
 	kinc_g5_render_target_init(&render_target->impl._renderTarget, width, height, depthBufferBits, antialiasing, (kinc_g5_render_target_format_t)format,
 	                           stencilBufferBits, contextId);
 	render_target->texWidth = render_target->width = width;
 	render_target->texHeight = render_target->height = height;
 	if (contextId >= 0) {
 		kinc_g5_command_list_texture_to_render_target_barrier(&commandList, &render_target->impl._renderTarget);
-		//kinc_g5_command_list_clear(&commandList, &render_target->impl._renderTarget, KINC_G5_CLEAR_COLOR, 0, 0.0f, 0);
+#ifndef KORE_VULKAN
+		kinc_g5_command_list_clear(&commandList, &render_target->impl._renderTarget, KINC_G5_CLEAR_COLOR, 0, 0.0f, 0);
+#endif
 	}
 }
 
