@@ -2,12 +2,6 @@
 
 #ifdef KORE_DIRECT3D12
 
-#include <mfapi.h>
-#include <mfd3d12.h>
-#include <mferror.h>
-#include <mfidl.h>
-#include <mfreadwrite.h>
-
 void kinc_video_init(kinc_video_t *video, const char *filename) {}
 
 void kinc_video_destroy(kinc_video_t *video) {}
