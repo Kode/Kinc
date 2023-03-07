@@ -295,7 +295,7 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 		}
 		internaloffset += kinc_g4_vertex_data_size(element.data);
 	}
-	int count = 16 - offset;
+	int count = kinc_internal_opengl_max_vertex_attribute_arrays - offset;
 	for (int index = actualIndex; index < count; ++index) {
 		glDisableVertexAttribArray(offset + index);
 		glCheckErrors();

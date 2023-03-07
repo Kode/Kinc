@@ -223,6 +223,8 @@ void kinc_g4_internal_init() {
 		texModesU[i] = GL_CLAMP_TO_EDGE;
 		texModesV[i] = GL_CLAMP_TO_EDGE;
 	}
+
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &kinc_internal_opengl_max_vertex_attribute_arrays);
 }
 
 #ifdef KINC_EGL
