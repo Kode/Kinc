@@ -124,8 +124,18 @@ void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, in
 	MTLScissorRect scissor;
 	scissor.x = x;
 	scissor.y = y;
-	scissor.width = width;
-	scissor.height = height;
+	int target_w = -1;
+	int target_h = -1;
+	if (lastRenderTargets[0] != NULL) {
+		target_w = lastRenderTargets[0]->texWidth;
+		target_h = lastRenderTargets[0]->texHeight;
+	}
+	else {
+		target_w = kinc_window_width(0);
+		target_h = kinc_window_height(0);
+	}
+	scissor.width = (x + width <= target_w) ? width : target_w - x;
+	scissor.height = (y + height <= target_h) ? height : target_h - y;
 	[encoder setScissorRect:scissor];
 }
 
