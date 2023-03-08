@@ -265,7 +265,6 @@ void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
 	if (render_target->impl.framebuffer_index >= 0) {
 		framebuffer_count -= 1;
-		return;
 	}
 
 	if (currentRenderTargets[render_target->impl.stage] == render_target) {

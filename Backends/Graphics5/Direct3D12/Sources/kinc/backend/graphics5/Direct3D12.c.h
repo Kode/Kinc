@@ -517,7 +517,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 
 	if (window->new_width != window->width || window->new_height != window->height) {
 #ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-		kinc_microsoft_affirm(window->swapChain->ResizeBuffers(2, window->new_width, window->new_height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+		kinc_microsoft_affirm(window->swapChain->ResizeBuffers(QUEUE_SLOT_COUNT, window->new_width, window->new_height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 #endif
 		setupSwapChain(window);
 		window->width = window->new_width;
