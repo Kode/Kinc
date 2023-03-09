@@ -573,7 +573,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		for (int i = 0; i < count; ++i) {
 			attachments[i].format = targets[i]->impl.format;
 			attachments[i].samples = VK_SAMPLE_COUNT_1_BIT;
-			attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachments[i].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			attachments[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			attachments[i].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			attachments[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -585,11 +585,11 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 		if (targets[0]->impl.depthBufferBits > 0) {
 			attachments[count].format = VK_FORMAT_D16_UNORM;
 			attachments[count].samples = VK_SAMPLE_COUNT_1_BIT;
-			attachments[count].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachments[count].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			attachments[count].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			attachments[count].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			attachments[count].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			attachments[count].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			attachments[count].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			attachments[count].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			attachments[count].flags = 0;
 		}
