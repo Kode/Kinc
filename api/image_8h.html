@@ -164,8 +164,11 @@ Functions</h2></td></tr>
 <tr class="memdesc:a60afaaa76cc50bcbee7d534dc690daa0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys an image. This does not free the user-provided memory.  <a href="image_8h.html#a60afaaa76cc50bcbee7d534dc690daa0">More...</a><br /></td></tr>
 <tr class="separator:a60afaaa76cc50bcbee7d534dc690daa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61044b575ef8d4477b40493469ddc3d3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a61044b575ef8d4477b40493469ddc3d3">kinc_image_at</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, int x, int y)</td></tr>
-<tr class="memdesc:a61044b575ef8d4477b40493469ddc3d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the color value of a pixel.  <a href="image_8h.html#a61044b575ef8d4477b40493469ddc3d3">More...</a><br /></td></tr>
+<tr class="memdesc:a61044b575ef8d4477b40493469ddc3d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the color value of a 32 bit pixel. If this doesn't fit the format of the image please use kinc_image_at_raw instead.  <a href="image_8h.html#a61044b575ef8d4477b40493469ddc3d3">More...</a><br /></td></tr>
 <tr class="separator:a61044b575ef8d4477b40493469ddc3d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa17825e14ea14abc801db5cb9bd723b3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#aa17825e14ea14abc801db5cb9bd723b3">kinc_image_at_raw</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, int x, int y)</td></tr>
+<tr class="memdesc:aa17825e14ea14abc801db5cb9bd723b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a pointer to the color-data of one pixel.  <a href="image_8h.html#aa17825e14ea14abc801db5cb9bd723b3">More...</a><br /></td></tr>
+<tr class="separator:aa17825e14ea14abc801db5cb9bd723b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ab6671f45ec4d9390715e389c2069c1"><td class="memItemLeft" align="right" valign="top">KINC_FUNC uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a7ab6671f45ec4d9390715e389c2069c1">kinc_image_get_pixels</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image)</td></tr>
 <tr class="memdesc:a7ab6671f45ec4d9390715e389c2069c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides access to the image data.  <a href="image_8h.html#a7ab6671f45ec4d9390715e389c2069c1">More...</a><br /></td></tr>
 <tr class="separator:a7ab6671f45ec4d9390715e389c2069c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -208,8 +211,45 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Gets the color value of a pixel. </p>
-<dl class="section return"><dt>Returns</dt><dd>One color value in 32 bit ARGB format</dd></dl>
+<p>Gets the color value of a 32 bit pixel. If this doesn't fit the format of the image please use kinc_image_at_raw instead. </p>
+<dl class="section return"><dt>Returns</dt><dd>One 32 bit color value</dd></dl>
+
+</div>
+</div>
+<a id="aa17825e14ea14abc801db5cb9bd723b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa17825e14ea14abc801db5cb9bd723b3">&#9670;&nbsp;</a></span>kinc_image_at_raw()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void* kinc_image_at_raw </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__image.html">kinc_image_t</a> *&#160;</td>
+          <td class="paramname"><em>image</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>y</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets a pointer to the color-data of one pixel. </p>
+<dl class="section return"><dt>Returns</dt><dd>A pointer to the color-data of the pixel pointed to by x and y</dd></dl>
 
 </div>
 </div>
