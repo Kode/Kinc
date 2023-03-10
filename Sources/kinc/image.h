@@ -116,10 +116,16 @@ KINC_FUNC void kinc_image_init_from_bytes3d(kinc_image_t *image, void *data, int
 KINC_FUNC void kinc_image_destroy(kinc_image_t *image);
 
 /// <summary>
-/// Gets the color value of a pixel.
+/// Gets the color value of a 32 bit pixel. If this doesn't fit the format of the image please use kinc_image_at_raw instead.
 /// </summary>
-/// <returns>One color value in 32 bit ARGB format</returns>
+/// <returns>One 32 bit color value</returns>
 KINC_FUNC uint32_t kinc_image_at(kinc_image_t *image, int x, int y);
+
+/// <summary>
+/// Gets a pointer to the color-data of one pixel.
+/// </summary>
+/// <returns>A pointer to the color-data of the pixel pointed to by x and y</returns>
+KINC_FUNC void *kinc_image_at_raw(kinc_image_t *image, int x, int y);
 
 /// <summary>
 /// Provides access to the image data.
@@ -720,10 +726,21 @@ void kinc_image_destroy(kinc_image_t *image) {
 }
 
 uint32_t kinc_image_at(kinc_image_t *image, int x, int y) {
-	if (image->data == NULL)
+	if (image->data == NULL) {
 		return 0;
-	else
+	}
+	else {
 		return *(uint32_t *)&((uint8_t *)image->data)[image->width * kinc_image_format_sizeof(image->format) * y + x * kinc_image_format_sizeof(image->format)];
+	}
+}
+
+void *kinc_image_at_raw(kinc_image_t *image, int x, int y) {
+	if (image->data == NULL) {
+		return NULL;
+	}
+	else {
+		return &((uint8_t *)image->data)[image->width * kinc_image_format_sizeof(image->format) * y + x * kinc_image_format_sizeof(image->format)];
+	}
 }
 
 uint8_t *kinc_image_get_pixels(kinc_image_t *image) {
