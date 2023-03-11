@@ -17,7 +17,7 @@ void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 
 }
 
-static kinc_g5_internal_index_buffer_stride(kinc_g5_index_buffer_t *buffer) {
+static int kinc_g5_internal_index_buffer_stride(kinc_g5_index_buffer_t *buffer) {
 	return buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? 2 : 4;
 }
 
