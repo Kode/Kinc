@@ -106,9 +106,9 @@ int kickstart(int argc, char** argv) {
 	kinc_g5_command_list_upload_vertex_buffer(&command_list, &vertices);
 
 	kinc_g5_index_buffer_init(&indices, 3, KINC_G5_INDEX_BUFFER_FORMAT_32BIT, true);
-	int *i = kinc_g5_index_buffer_lock(&indices);
+	int *i = kinc_g5_index_buffer_lock_all(&indices);
 	i[0] = 0; i[1] = 1; i[2] = 2;
-	kinc_g5_index_buffer_unlock(&indices);
+	kinc_g5_index_buffer_unlock_all(&indices);
 	kinc_g5_command_list_upload_index_buffer(&command_list, &indices);
 
 	kinc_start();
