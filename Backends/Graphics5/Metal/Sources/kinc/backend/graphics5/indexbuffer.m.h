@@ -47,7 +47,7 @@ void *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer, int start, int c
 	buffer->impl.last_start = start;
 	buffer->impl.last_count = count;
 
-	id<MTLBuffer> metal_buffer = (__bridge id<MTLBuffer>)buf->impl.metal_buffer;
+	id<MTLBuffer> metal_buffer = (__bridge id<MTLBuffer>)buffer->impl.metal_buffer;
 	uint8_t *data = (uint8_t *)[metal_buffer contents];
 	return &data[start * kinc_g5_internal_index_buffer_stride(buffer)];
 }
@@ -58,8 +58,8 @@ void kinc_g5_index_buffer_unlock_all(kinc_g5_index_buffer_t *buffer) {
 
 void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer, int count) {
 #ifndef KINC_APPLE_SOC
-	if (buf->impl.gpu_memory) {
-		id<MTLBuffer> metal_buffer = (__bridge id<MTLBuffer>)buf->impl.metal_buffer;
+	if (buffer->impl.gpu_memory) {
+		id<MTLBuffer> metal_buffer = (__bridge id<MTLBuffer>)buffer->impl.metal_buffer;
 		NSRange range;
 		range.location = buffer->impl.last_start * kinc_g5_internal_index_buffer_stride(buffer);
 		range.length = count * kinc_g5_internal_index_buffer_stride(buffer);
