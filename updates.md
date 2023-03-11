@@ -1,3 +1,4 @@
+* 2023-03-11: The index-buffer-API was revised. It can now lock partially (like the vertex-buffers) and the return-value of locks was changed to void\*. To fix your code, simply append "\_all" to your lock/unlock-calls and maybe add a cast to int\* - or better yet cast to the proper types which will be uint16_t\* or uint32_t\* depending on the format-parameter of your index-buffer.
 * 2023-02-11: The randomizer now uses xoshiro256** instead of a mermeme-twister.
 * 2023-02-09: The keyboard-callbacks now take an additional data-parameter as well but it's again Dave's fault.
 * 2022-12-19: The mouse-callbacks now take an additional data-parameter as well but it's Dave's fault.

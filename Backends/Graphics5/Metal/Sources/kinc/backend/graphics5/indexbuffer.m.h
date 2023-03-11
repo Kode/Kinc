@@ -9,6 +9,8 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, k
 	buffer->impl.count = indexCount;
 	buffer->impl.gpu_memory = gpuMemory;
 	buffer->impl.format = format;
+	buffer->impl.last_start = 0;
+	buffer->impl.last_count = indexCount;
 
 	id<MTLDevice> device = getMetalDevice();
 	MTLResourceOptions options = MTLResourceCPUCacheModeWriteCombined;
@@ -33,22 +35,37 @@ void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 	buffer->impl.metal_buffer = NULL;
 }
 
-int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buf) {
-	id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.metal_buffer;
-	return (int *)[buffer contents];
+static int kinc_g5_internal_index_buffer_stride(kinc_g5_index_buffer_t *buffer) {
+	return buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? 2 : 4;
 }
 
-void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buf) {
+void *kinc_g5_index_buffer_lock_all(kinc_g5_index_buffer_t *buffer) {
+	return kinc_g5_index_buffer_lock(buffer, 0, kinc_g5_index_buffer_count(buffer));
+}
+
+void *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer, int start, int count) {
+	buffer->impl.last_start = start;
+	buffer->impl.last_count = count;
+
+	id<MTLBuffer> metal_buffer = (__bridge id<MTLBuffer>)buf->impl.metal_buffer;
+	uint8_t *data = (uint8_t *)[metal_buffer contents];
+	return &data[start * kinc_g5_internal_index_buffer_stride(buffer)];
+}
+
+void kinc_g5_index_buffer_unlock_all(kinc_g5_index_buffer_t *buffer) {
+	kinc_g5_index_buffer_unlock(buffer, buffer->impl.last_count);
+}
+
+void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer, int count) {
 #ifndef KINC_APPLE_SOC
 	if (buf->impl.gpu_memory) {
-		id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)buf->impl.metal_buffer;
+		id<MTLBuffer> metal_buffer = (__bridge id<MTLBuffer>)buf->impl.metal_buffer;
 		NSRange range;
-		range.location = 0;
-		range.length = buf->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? sizeof(uint16_t) * kinc_g5_index_buffer_count(buf)
-		                                                                     : sizeof(uint32_t) * kinc_g5_index_buffer_count(buf);
-		[buffer didModifyRange:range];
+		range.location = buffer->impl.last_start * kinc_g5_internal_index_buffer_stride(buffer);
+		range.length = count * kinc_g5_internal_index_buffer_stride(buffer);
+		[metal_buffer didModifyRange:range];
 	}
-#endif
+#endif	
 }
 
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {

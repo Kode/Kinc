@@ -3,6 +3,8 @@
 void kinc_g4_index_buffer_init(kinc_g4_index_buffer_t *buffer, int count, kinc_g4_index_buffer_format_t format, kinc_g4_usage_t usage) {
 	buffer->impl.count = count;
 	buffer->impl.sixteen = format == KINC_G4_INDEX_BUFFER_FORMAT_16BIT;
+	buffer->impl.last_start = 0;
+	buffer->impl.last_count = count;
 
 	uint32_t byte_size = buffer->impl.sixteen ? sizeof(uint16_t) * count : sizeof(uint32_t) * count;
 
@@ -44,19 +46,36 @@ void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 	buffer->impl.indices = NULL;
 }
 
-int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
+static int kinc_g4_internal_index_buffer_stride(kinc_g4_index_buffer_t *buffer) {
+	return buffer->impl.sixteen ? 2 : 4;
+}
+
+void *kinc_g4_index_buffer_lock_all(kinc_g4_index_buffer_t *buffer) {
+	return kinc_g4_index_buffer_lock(buffer, 0, kinc_g4_index_buffer_count(buffer));
+}
+
+void *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer, int start, int count) {
+	buffer->impl.last_start = start;
+	buffer->impl.last_count = count;
+
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		memset(&mappedResource, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
 		dx_ctx.context->lpVtbl->Map(dx_ctx.context, (ID3D11Resource *)buffer->impl.ib, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		return (int *)mappedResource.pData;
+		uint8_t *data = (uint8_t *)mappedResource.pData;
+		return &data[start * kinc_g4_internal_index_buffer_stride(buffer)];
 	}
 	else {
-		return buffer->impl.indices;
+		uint8_t *data = (uint8_t *)buffer->impl.indices;
+		return &data[start * kinc_g4_internal_index_buffer_stride(buffer)];
 	}
 }
 
-void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
+void kinc_g4_index_buffer_unlock_all(kinc_g4_index_buffer_t *buffer) {
+	kinc_g4_index_buffer_unlock(buffer, buffer->impl.last_count);
+}
+
+void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer, int count) {
 	if (buffer->impl.usage == KINC_G4_USAGE_DYNAMIC) {
 		dx_ctx.context->lpVtbl->Unmap(dx_ctx.context, (ID3D11Resource *)buffer->impl.ib, 0);
 	}

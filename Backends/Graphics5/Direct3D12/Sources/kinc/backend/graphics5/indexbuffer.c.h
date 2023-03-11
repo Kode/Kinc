@@ -52,6 +52,9 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, kinc_g
 	}
 	buffer->impl.index_buffer_view.SizeInBytes = uploadBufferSize;
 	buffer->impl.index_buffer_view.Format = format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
+
+	buffer->impl.last_start = 0;
+	buffer->impl.last_count = kinc_g5_index_buffer_count(buffer);
 }
 
 void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
@@ -59,14 +62,43 @@ void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 	buffer->impl.upload_buffer->Release();
 }
 
-int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
-	void *p;
-	buffer->impl.upload_buffer->Map(0, NULL, &p);
-	return (int *)p;
+static int kinc_g5_internal_index_buffer_stride(kinc_g5_index_buffer_t *buffer) {
+	return buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_32BIT ? 4 : 2;
 }
 
-void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
-	buffer->impl.upload_buffer->Unmap(0, NULL);
+void *kinc_g5_index_buffer_lock_all(kinc_g5_index_buffer_t *buffer) {
+	return kinc_g5_index_buffer_lock(buffer, 0, kinc_g5_index_buffer_count(buffer));
+}
+
+void *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer, int start, int count) {
+	buffer->impl.last_start = start;
+	buffer->impl.last_count = count;
+
+	D3D12_RANGE range;
+	range.Begin = start * kinc_g5_internal_index_buffer_stride(buffer);
+	range.End = (start + count) * kinc_g5_internal_index_buffer_stride(buffer);
+
+	void *p;
+	buffer->impl.upload_buffer->Map(0, &range, &p);
+	byte *bytes = (byte *)p;
+	bytes += start * kinc_g5_internal_index_buffer_stride(buffer);
+	return bytes;
+}
+
+void kinc_g5_index_buffer_unlock_all(kinc_g5_index_buffer_t *buffer) {
+	D3D12_RANGE range;
+	range.Begin = buffer->impl.last_start * kinc_g5_internal_index_buffer_stride(buffer);
+	range.End = (buffer->impl.last_start + buffer->impl.last_count) * kinc_g5_internal_index_buffer_stride(buffer);
+
+	buffer->impl.upload_buffer->Unmap(0, &range);
+}
+
+void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer, int count) {
+	D3D12_RANGE range;
+	range.Begin = buffer->impl.last_start * kinc_g5_internal_index_buffer_stride(buffer);
+	range.End = (buffer->impl.last_start + count) * kinc_g5_internal_index_buffer_stride(buffer);
+
+	buffer->impl.upload_buffer->Unmap(0, &range);
 }
 
 void kinc_g5_internal_index_buffer_upload(kinc_g5_index_buffer_t *buffer, ID3D12GraphicsCommandList *commandList) {

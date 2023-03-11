@@ -3,7 +3,6 @@
 #include "MiniVulkan.h"
 
 typedef struct {
-	int *data;
 	int count;
 	int format;
 

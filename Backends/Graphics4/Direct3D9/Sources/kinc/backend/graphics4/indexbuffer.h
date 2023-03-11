@@ -8,7 +8,8 @@ struct IDirect3DIndexBuffer9;
 
 typedef struct {
 	struct IDirect3DIndexBuffer9 *ib;
-	int myCount;
+	int count;
+	int format;
 } kinc_g4_index_buffer_impl_t;
 
 struct kinc_g4_index_buffer;

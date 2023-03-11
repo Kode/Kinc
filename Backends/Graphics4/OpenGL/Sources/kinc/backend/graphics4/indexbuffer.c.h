@@ -54,11 +54,20 @@ void kinc_g4_index_buffer_destroy(kinc_g4_index_buffer_t *buffer) {
 	buffer->impl.converted_data = NULL;
 }
 
-int *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer) {
-	return (int *)buffer->impl.data;
+static int kinc_g4_internal_index_buffer_stride(kinc_g4_index_buffer_t *buffer) {
+	return buffer->impl.format == KINC_G4_INDEX_BUFFER_FORMAT_32BIT ? 4 : 2;
 }
 
-void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
+void *kinc_g4_index_buffer_lock_all(kinc_g4_index_buffer_t *buffer) {
+	return kinc_g4_index_buffer_lock(buffer, 0, kinc_g4_index_buffer_count(buffer));
+}
+
+void *kinc_g4_index_buffer_lock(kinc_g4_index_buffer_t *buffer, int start, int count) {
+	uint8_t *data = (uint8_t *)buffer->impl.data;
+	return &data[start * kinc_g4_internal_index_buffer_stride(buffer)];
+}
+
+void kinc_g4_index_buffer_unlock_all(kinc_g4_index_buffer_t *buffer) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->impl.buffer_id);
 	glCheckErrors();
 
@@ -79,6 +88,10 @@ void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer) {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glCheckErrors();
+}
+
+void kinc_g4_index_buffer_unlock(kinc_g4_index_buffer_t *buffer, int count) {
+	kinc_g4_index_buffer_unlock_all(buffer);
 }
 
 void kinc_internal_g4_index_buffer_set(kinc_g4_index_buffer_t *buffer) {

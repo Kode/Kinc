@@ -125,14 +125,14 @@ void Kinc_Internal_initWindowsGLContext(int window, int depthBufferBits, int ste
 			kinc_g4_vertex_buffer_unlock_all(&windowVertexBuffer);
 
 			kinc_g4_index_buffer_init(&windowIndexBuffer, 6, KINC_G4_INDEX_BUFFER_FORMAT_32BIT, KINC_G4_USAGE_STATIC);
-			int *indices = kinc_g4_index_buffer_lock(&windowIndexBuffer);
+			int *indices = kinc_g4_index_buffer_lock_all(&windowIndexBuffer);
 			indices[0] = 0;
 			indices[1] = 1;
 			indices[2] = 2;
 			indices[3] = 0;
 			indices[4] = 2;
 			indices[5] = 3;
-			kinc_g4_index_buffer_unlock(&windowIndexBuffer);
+			kinc_g4_index_buffer_unlock_all(&windowIndexBuffer);
 
 			char *vertex_shader = "#version 450\n"
 			                      "in vec2 pos;\n"

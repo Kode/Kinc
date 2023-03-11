@@ -121,7 +121,7 @@ void kinc_g1_init(int width, int height) {
 	kinc_g4_vertex_buffer_unlock_all(&vb);
 
 	kinc_g4_index_buffer_init(&ib, 6, KINC_G4_INDEX_BUFFER_FORMAT_32BIT, KINC_G4_USAGE_STATIC);
-	int *ii = kinc_g4_index_buffer_lock(&ib);
+	uint32_t *ii = (uint32_t *)kinc_g4_index_buffer_lock_all(&ib);
 	{
 		int i = 0;
 		ii[i++] = 0;
@@ -131,13 +131,14 @@ void kinc_g1_init(int width, int height) {
 		ii[i++] = 2;
 		ii[i++] = 3;
 	}
-	kinc_g4_index_buffer_unlock(&ib);
+	kinc_g4_index_buffer_unlock_all(&ib);
 }
 
 #if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC)
 
 void kinc_g1_set_pixel(int x, int y, float red, float green, float blue) {
-	if (x < 0 || x >= kinc_internal_g1_w || y < 0 || y >= kinc_internal_g1_h) return;
+	if (x < 0 || x >= kinc_internal_g1_w || y < 0 || y >= kinc_internal_g1_h)
+		return;
 	int r = (int)(red * 255);
 	int g = (int)(green * 255);
 	int b = (int)(blue * 255);

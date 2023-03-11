@@ -36,14 +36,30 @@ KINC_FUNC void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer);
 /// Locks an index-buffer so its contents can be modified.
 /// </summary>
 /// <param name="buffer">The buffer to lock</param>
-/// <returns>The contents of the index-buffer</returns>
-KINC_FUNC int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer);
+/// <returns>The contents of the index-buffer in uint32s or uint16s depending on the format provided when initializing</returns>
+KINC_FUNC void *kinc_g5_index_buffer_lock_all(kinc_g5_index_buffer_t *buffer);
+
+/// <summary>
+/// Locks part of a vertex-buffer to modify its contents.
+/// </summary>
+/// <param name="buffer">The buffer to lock</param>
+/// <param name="start">The index of the first index to lock</param>
+/// <param name="count">The number of indices to lock</param>
+/// <returns>The contents of the index-buffer, starting at start, in uint32s or uint16s depending on the format provided when initializing</returns>
+KINC_FUNC void *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer, int start, int count);
 
 /// <summary>
 /// Unlocks an index-buffer after locking it so the changed buffer-contents can be used.
 /// </summary>
 /// <param name="buffer">The buffer to unlock</param>
-KINC_FUNC void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer);
+KINC_FUNC void kinc_g5_index_buffer_unlock_all(kinc_g5_index_buffer_t *buffer);
+
+/// <summary>
+/// Unlocks part of an index-buffer after locking so the changed buffer-contents can be used.
+/// </summary>
+/// <param name="buffer">The buffer to unlock</param>
+/// <param name="count">The number of indices to unlock, starting from the start-index from the previous lock-call</param>
+KINC_FUNC void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer, int count);
 
 /// <summary>
 /// Returns the number of indices in the buffer.

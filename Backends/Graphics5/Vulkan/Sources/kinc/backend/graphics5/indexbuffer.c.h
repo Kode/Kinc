@@ -63,14 +63,27 @@ void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 	unset(buffer);
 }
 
-int *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer) {
-	VkResult err = vkMapMemory(vk_ctx.device, buffer->impl.mem, 0, buffer->impl.mem_alloc.allocationSize, 0, (void **)&buffer->impl.data);
-	assert(!err);
-	return buffer->impl.data;
+static int kinc_g5_internal_index_buffer_stride(kinc_g5_index_buffer_t *buffer) {
+	return buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? 2 : 4;
 }
 
-void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer) {
+void *kinc_g5_index_buffer_lock_all(kinc_g5_index_buffer_t *buffer) {
+	return kinc_g5_index_buffer_lock(buffer, 0, kinc_g5_index_buffer_count(buffer));
+}
+
+void *kinc_g5_index_buffer_lock(kinc_g5_index_buffer_t *buffer, int start, int count) {
+	uint8_t *data;
+	VkResult err = vkMapMemory(vk_ctx.device, buffer->impl.mem, 0, buffer->impl.mem_alloc.allocationSize, 0, (void **)&data);
+	assert(!err);
+	return &data[start * kinc_g5_internal_index_buffer_stride(buffer)];
+}
+
+void kinc_g5_index_buffer_unlock_all(kinc_g5_index_buffer_t *buffer) {
 	vkUnmapMemory(vk_ctx.device, buffer->impl.mem);
+}
+
+void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer, int count) {
+	kinc_g5_index_buffer_unlock_all(buffer);
 }
 
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
