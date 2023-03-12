@@ -210,6 +210,9 @@ static void updateImage(kinc_video_t *video) {
 #ifdef KORE_OPENGL
 			kinc_g4_texture_upload(&video->impl.image, (uint8_t *)CVPixelBufferGetBaseAddress(pixelBuffer),
 			                       (int)(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
+#else
+			kinc_g4_texture_upload(&video->impl.image, (uint8_t *)CVPixelBufferGetBaseAddress(pixelBuffer),
+								   (int)(CVPixelBufferGetBytesPerRow(pixelBuffer)));
 #endif
 			CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 		}
