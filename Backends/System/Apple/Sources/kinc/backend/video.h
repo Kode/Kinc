@@ -15,10 +15,13 @@ typedef struct {
 	// double audioTime;
 	unsigned long long audioTime;
 	bool playing;
+	bool loop;
 	void *sound;
 	bool image_initialized;
 	kinc_g4_texture_t image;
 	double lastTime;
+	float duration;
+	bool finished;
 	int myWidth;
 	int myHeight;
 

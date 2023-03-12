@@ -58,12 +58,15 @@ static void load(kinc_video_t *video, double startTime) {
 	video->impl.videoStart = startTime;
 	AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:video->impl.url options:nil];
 	video->impl.videoAsset = asset;
+	
+	video->impl.duration = [asset duration].value / [asset duration].timescale;
 
 	AVAssetTrack *videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
 	NSDictionary *videoOutputSettings =
 	    [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA], kCVPixelBufferPixelFormatTypeKey, nil];
 	AVAssetReaderTrackOutput *videoOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoOutputSettings];
-
+	[videoOutput setSupportsRandomAccess:YES];
+	
 	bool hasAudio = [[asset tracksWithMediaType:AVMediaTypeAudio] count] > 0;
 	AVAssetReaderAudioMixOutput *audioOutput = NULL;
 	if (hasAudio) {
@@ -73,6 +76,7 @@ static void load(kinc_video_t *video, double startTime) {
 		                                 [NSNumber numberWithInt:32], AVLinearPCMBitDepthKey, [NSNumber numberWithBool:NO], AVLinearPCMIsNonInterleaved,
 		                                 [NSNumber numberWithBool:YES], AVLinearPCMIsFloatKey, [NSNumber numberWithBool:NO], AVLinearPCMIsBigEndianKey, nil];
 		audioOutput = [AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[ audioTrack ] audioSettings:audioOutputSettings];
+		[audioOutput setSupportsRandomAccess:YES];
 	}
 
 	AVAssetReader *reader = [AVAssetReader assetReaderWithAsset:asset error:nil];
@@ -123,6 +127,8 @@ void kinc_video_init(kinc_video_t *video, const char *filename) {
 	video->impl.url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];
 	video->impl.myWidth = -1;
 	video->impl.myHeight = -1;
+	video->impl.finished = false;
+	video->impl.duration = 0;
 	load(video, 0);
 }
 
@@ -145,7 +151,6 @@ void kinc_video_play(kinc_video_t *video, bool loop) {
 	kinc_internal_video_sound_stream_t *stream = (kinc_internal_video_sound_stream_t *)malloc(sizeof(kinc_internal_video_sound_stream_t));
 	kinc_internal_video_sound_stream_init(stream, 2, 44100);
 	video->impl.sound = stream;
-// Mixer::play(sound);
 #ifdef KORE_IOS
 	iosPlayVideoSoundStream((kinc_internal_video_sound_stream_t *)video->impl.sound);
 #else
@@ -154,6 +159,7 @@ void kinc_video_play(kinc_video_t *video, bool loop) {
 
 	video->impl.playing = true;
 	video->impl.start = kinc_time() - video->impl.videoStart;
+	video->impl.loop = loop;
 }
 
 void kinc_video_pause(kinc_video_t *video) {
@@ -173,25 +179,36 @@ void kinc_video_pause(kinc_video_t *video) {
 
 void kinc_video_stop(kinc_video_t *video) {
 	kinc_video_pause(video);
+	video->impl.finished = true;
 }
 
 static void updateImage(kinc_video_t *video) {
 	if (!video->impl.playing)
 		return;
+	
 	{
 		AVAssetReaderTrackOutput *videoOutput = video->impl.videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
 		if (!buffer) {
-			AVAssetReader *reader = video->impl.assetReader;
-			if ([reader status] == AVAssetReaderStatusCompleted) {
-				kinc_video_stop(video);
+			if (video->impl.loop) {
+				CMTimeRange timeRange = CMTimeRangeMake(CMTimeMake(0, 1000), kCMTimePositiveInfinity);
+				[videoOutput resetForReadingTimeRanges:[NSArray arrayWithObject:[NSValue valueWithCMTimeRange:timeRange]]];
+				
+				AVAssetReaderAudioMixOutput *audioOutput = video->impl.audioTrackOutput;
+				CMSampleBufferRef audio_buffer = [audioOutput copyNextSampleBuffer];
+				while (audio_buffer) {
+					audio_buffer = [audioOutput copyNextSampleBuffer];
+				}
+				[audioOutput resetForReadingTimeRanges:[NSArray arrayWithObject:[NSValue valueWithCMTimeRange:timeRange]]];
+				
+				buffer = [videoOutput copyNextSampleBuffer];
+				
+				video->impl.start = kinc_time() - video->impl.videoStart;
 			}
 			else {
-				kinc_video_pause(video);
-				load(video, video->impl.next);
-				kinc_video_play(video, false);
+				kinc_video_stop(video);
+				return;
 			}
-			return;
 		}
 		video->impl.next = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(buffer));
 
@@ -268,11 +285,11 @@ kinc_g4_texture_t *kinc_video_current_image(kinc_video_t *video) {
 }
 
 double kinc_video_duration(kinc_video_t *video) {
-	return 0.0;
+	return video->impl.duration;
 }
 
 bool kinc_video_finished(kinc_video_t *video) {
-	return false;
+	return video->impl.finished;
 }
 
 bool kinc_video_paused(kinc_video_t *video) {
@@ -280,5 +297,5 @@ bool kinc_video_paused(kinc_video_t *video) {
 }
 
 double kinc_video_position(kinc_video_t *video) {
-	return 0.0;
+	return video->impl.next - video->impl.start;
 }
