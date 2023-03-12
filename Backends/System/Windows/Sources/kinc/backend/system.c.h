@@ -289,13 +289,19 @@ static wchar_t toUnicode(WPARAM wParam, LPARAM lParam) {
 	return buffer[0];
 }
 
+#if !defined(KORE_DIRECT3D9) && !defined(KORE_DIRECT3D11) && !defined(KORE_DIRECT3D12)
+#define HANDLE_ALT_ENTER
+#endif
+
 LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowId;
 	DWORD pointerId;
 	POINTER_INFO pointerInfo = {0};
 	POINTER_PEN_INFO penInfo = {0};
 	static bool controlDown = false;
+#ifdef HANDLE_ALT_ENTER
 	static bool altDown = false;
+#endif
 	static int last_window_width = -1;
 	static int last_window_height = -1;
 	static int last_window_x = INT_MIN;
@@ -349,7 +355,9 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		else {
 			kinc_internal_mouse_window_deactivated(kinc_windows_window_index_from_hwnd(hWnd));
 			kinc_internal_background_callback();
+#ifdef HANDLE_ALT_ENTER
 			altDown = false;
+#endif
 		}
 		RegisterTouchWindow(hWnd, 0);
 		break;
@@ -562,9 +570,11 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 			if (keyTranslated[wParam] == KINC_KEY_CONTROL) {
 				controlDown = true;
 			}
+#ifdef HANDLE_ALT_ENTER
 			else if (keyTranslated[wParam] == KINC_KEY_ALT) {
 				altDown = true;
 			}
+#endif
 			else {
 				if (controlDown && keyTranslated[wParam] == KINC_KEY_X) {
 					char *text = kinc_internal_cut_callback();
@@ -617,6 +627,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 					}
 				}
 
+#ifdef HANDLE_ALT_ENTER
 				if (altDown && keyTranslated[wParam] == KINC_KEY_RETURN) {
 					if (kinc_window_get_mode(0) == KINC_WINDOW_MODE_WINDOW) {
 						last_window_width = kinc_window_width(0);
@@ -635,6 +646,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 						}
 					}
 				}
+#endif
 			}
 
 			kinc_internal_keyboard_trigger_key_down(keyTranslated[wParam]);
@@ -647,9 +659,11 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		if (keyTranslated[wParam] == KINC_KEY_CONTROL) {
 			controlDown = false;
 		}
+#ifdef HANDLE_ALT_ENTER
 		if (keyTranslated[wParam] == KINC_KEY_ALT) {
 			altDown = false;
 		}
+#endif
 
 		kinc_internal_keyboard_trigger_key_up(keyTranslated[wParam]);
 		break;
