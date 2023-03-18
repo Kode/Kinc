@@ -24,7 +24,7 @@ typedef struct kinc_g5_vertex_buffer {
 /// <param name="buffer">The buffer to initialize</param>
 /// <param name="count">The number of vertices in the buffer</param>
 /// <param name="structure">The structure of the buffer</param>
-/// <param name="gpu_memory">If true the vertex-buffer will reside in gpu-memory which will make it slower to update but faster to use</param>
+/// <param name="gpu_memory">If true, the vertex-buffer will reside in gpu-memory which will make it slower to update but faster to use</param>
 /// <param name="instance_data_step_rate">The step-rate for instanced-rendering - use 0 if instanced-rendering will not be used with this buffer</param>
 KINC_FUNC void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc_g5_vertex_structure_t *structure, bool gpu_memory,
                                           int instance_data_step_rate);

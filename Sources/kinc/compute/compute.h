@@ -42,7 +42,7 @@ typedef struct kinc_compute_shader {
 KINC_FUNC void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *source, int length);
 
 /// <summary>
-/// Desotry a shader-object
+/// Destroy a shader-object
 /// </summary>
 /// <param name="shader">The shader-object to destroy</param>
 KINC_FUNC void kinc_compute_shader_destroy(kinc_compute_shader_t *shader);

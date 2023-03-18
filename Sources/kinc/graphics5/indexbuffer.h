@@ -23,7 +23,7 @@ typedef struct kinc_g5_index_buffer {
 /// </summary>
 /// <param name="buffer">The buffer to initialize</param>
 /// <param name="count">The number of indices to allocate for the buffer</param>
-/// <param name="gpu_memory">When true the buffer will be uploaded to gpu-memory which will make it faster to use but slower to change</param>
+/// <param name="gpu_memory">When true, the buffer will be uploaded to gpu-memory which will make it faster to use but slower to change</param>
 KINC_FUNC void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, kinc_g5_index_buffer_format_t format, bool gpu_memory);
 
 /// <summary>

@@ -30,7 +30,7 @@ typedef struct kinc_g5_shader {
 } kinc_g5_shader_t;
 
 /// <summary>
-/// Initializes a shader based on system-specific shader-data. The system-specific shader-data is usually created per system by the krafix-shader-compiled which
+/// Initializes a shader based on system-specific shader-data. The system-specific shader-data is usually created per system by the krafix-shader-compiler which
 /// is automatically called by kincmake.
 /// </summary>
 /// <param name="shader">The shader to initialize</param>

@@ -78,7 +78,7 @@ KINC_FUNC int kinc_g5_antialiasing_samples(void);
 
 /// <summary>
 /// Sets the number of samples used for hardware-antialiasing. This typically uses multisampling and typically only works with a few specific numbers of
-/// sample-counts - 2 and 4 are pretty save bets. It also might do nothing at all.
+/// sample-counts - 2 and 4 are pretty safe bets. It also might do nothing at all.
 /// </summary>
 /// <param name="samples">The number of samples</param>
 KINC_FUNC void kinc_g5_set_antialiasing_samples(int samples);

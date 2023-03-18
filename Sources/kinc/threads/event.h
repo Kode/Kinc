@@ -22,7 +22,7 @@ typedef struct kinc_event {
 /// Initializes an event-object.
 /// </summary>
 /// <param name="event">The event to initialize</param>
-/// <param name="auto_clear">When auto-clear is true the event is automatically reset to an unsignaled state after a successful wait-operation</param>
+/// <param name="auto_clear">When auto-clear is true, the event is automatically reset to an unsignaled state after a successful wait-operation</param>
 KINC_FUNC void kinc_event_init(kinc_event_t *event, bool auto_clear);
 
 /// <summary>
