@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 /*! \file mutex.h
-    \brief Provides mutexes which are used to synchronize threads and uber-mutexes which are used to synchronized processes.
+    \brief Provides mutexes which are used to synchronize threads and uber-mutexes which are used to synchronize processes.
 */
 
 #ifdef __cplusplus
@@ -31,7 +31,7 @@ KINC_FUNC void kinc_mutex_init(kinc_mutex_t *mutex);
 KINC_FUNC void kinc_mutex_destroy(kinc_mutex_t *mutex);
 
 /// <summary>
-/// Locks a mutex. A mutex can only be locked from one thread - when other thread attempt to lock the mutex the function will only return once the mutex has
+/// Locks a mutex. A mutex can only be locked from one thread - when other threads attempt to lock the mutex the function will only return once the mutex has
 /// been unlocked.
 /// </summary>
 /// <param name="mutex">The mutex to lock</param>

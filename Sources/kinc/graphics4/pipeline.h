@@ -130,8 +130,7 @@ KINC_FUNC void kinc_g4_pipeline_init(kinc_g4_pipeline_t *pipeline);
 KINC_FUNC void kinc_g4_pipeline_destroy(kinc_g4_pipeline_t *pipeline);
 
 /// <summary>
-/// Compiles a pipeline. After a pipeline was compiled it is finalized. It can not be compiled again and changes to the pipeline are ignored after it was
-/// compiled.
+/// Compiles a pipeline. After a pipeline has been compiled it is finalized. It cannot be compiled again and further changes to the pipeline are ignored.
 /// </summary>
 /// <param name="pipeline">The pipeline to compile</param>
 KINC_FUNC void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *pipeline);

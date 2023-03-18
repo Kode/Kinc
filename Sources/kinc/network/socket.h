@@ -76,7 +76,7 @@ KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, unsigned char *data, in
 KINC_FUNC int kinc_socket_receive_connected(kinc_socket_t *socket, unsigned char *data, int max_size);
 
 /// <summary>
-/// Resolves a DNS-entry to an IP and returns its integer represenation.
+/// Resolves a DNS-entry to an IP and returns its integer representation.
 /// </summary>
 /// <param name="url"></param>
 /// <param name="port"></param>

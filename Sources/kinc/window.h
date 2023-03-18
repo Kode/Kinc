@@ -84,7 +84,7 @@ KINC_FUNC void kinc_window_move(int window, int x, int y);
 KINC_FUNC void kinc_window_change_mode(int window, kinc_window_mode_t mode);
 
 /// <summary>
-/// Applies an ored combination of KINC_WINDOW_FEATURE values.
+/// Applies an or-ed combination of KINC_WINDOW_FEATURE values.
 /// </summary>
 KINC_FUNC void kinc_window_change_features(int window, int features);
 
@@ -150,18 +150,18 @@ KINC_FUNC void kinc_window_set_title(int window, const char *title);
 KINC_FUNC void kinc_window_set_resize_callback(int window, void (*callback)(int x, int y, void *data), void *data);
 
 /// <summary>
-/// Sets a ppi callback that's called whenever the window moves to a display that uses a different ppi-setting.
+/// Sets a PPI callback that's called whenever the window moves to a display that uses a different PPI-setting.
 /// </summary>
 KINC_FUNC void kinc_window_set_ppi_changed_callback(int window, void (*callback)(int ppi, void *data), void *data);
 
 /// <summary>
 /// Sets a close callback that's called when the window is about to close.
-/// Returning false from the callback tries stops the window from closing.
+/// Returning false from the callback tries to stop the window from closing.
 /// </summary>
 KINC_FUNC void kinc_window_set_close_callback(int window, bool (*callback)(void *data), void *data);
 
 /// <summary>
-/// Returns Whether the window is vsynced or not.
+/// Returns whether the window is vsynced or not.
 /// </summary>
 /// <returns>Whether the window is vsynced or not</returns>
 KINC_FUNC bool kinc_window_vsynced(int window);

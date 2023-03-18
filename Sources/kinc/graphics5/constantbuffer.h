@@ -24,7 +24,7 @@ typedef struct kinc_g5_constant_buffer {
 /// Initializes a constant-buffer.
 /// </summary>
 /// <param name="buffer">The buffer to initialize</param>
-/// <param name="size">THe size of the constant-data in the buffer in bytes</param>
+/// <param name="size">The size of the constant-data in the buffer in bytes</param>
 KINC_FUNC void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size);
 
 /// <summary>

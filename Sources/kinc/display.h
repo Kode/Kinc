@@ -23,7 +23,7 @@ typedef struct kinc_display_mode {
 } kinc_display_mode_t;
 
 /// <summary>
-/// Allows to retrieve display values prior to the kinc_init call.
+/// Allows retrieval of display values prior to the kinc_init call.
 /// </summary>
 KINC_FUNC void kinc_display_init(void);
 

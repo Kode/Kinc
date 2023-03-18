@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 /*! \file filewriter.h
-    \brief Provides an API very similar to fwrite and friends but uses a directory that can actually used for persistant file storage. This can later be read
+    \brief Provides an API very similar to fwrite and friends but uses a directory that can actually used for persistent file storage. This can later be read
    using the kinc_file_reader-functions and KINC_FILE_TYPE_SAVE.
 */
 

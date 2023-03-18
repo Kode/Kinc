@@ -39,7 +39,7 @@ KINC_FUNC void kinc_a1_init(void);
 /// <param name="loop">Whether or not to automatically loop the sound</param>
 /// <param name="pitch">Changes the pitch by providing a value that's not 1.0f</param>
 /// <param name="unique">Makes sure that a sound is not played more than once at the same time</param>
-/// <returns>A channel object that can be used to control the playing sound. Please be a ware that NULL is returned when the maximum number of simultaneously
+/// <returns>A channel object that can be used to control the playing sound. Please be aware that NULL is returned when the maximum number of simultaneously
 /// played channels was reached.</returns>
 KINC_FUNC kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float pitch, bool unique);
 
@@ -78,7 +78,7 @@ KINC_FUNC void kinc_a1_channel_set_volume(kinc_a1_channel_t *channel, float volu
 
 /// <summary>
 /// Mixes audio into the provided buffer. kinc_a1_init sets this as the callback for a2
-/// but you can also call it manually to mix a1-audio with your own audio. To do that
+/// but you can also call it manually to mix a1-audio with your own audio. To do that,
 /// first call kinc_a1_init, then call kinc_a2_set_callback to set it to your own callback
 /// and call kinc_a1_mix from within that callback. Please be aware that the callback
 /// will run in a separate audio-thread.

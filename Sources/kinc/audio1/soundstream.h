@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 /*! \file soundstream.h
-    \brief Sound-Streams are decoded while playing and as such are useful for large audio-files like music or speach.
+    \brief Sound-Streams are decoded while playing and as such are useful for large audio-files like music or speech.
 */
 
 #ifdef __cplusplus

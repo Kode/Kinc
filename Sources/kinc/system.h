@@ -19,7 +19,7 @@ struct kinc_framebuffer_options;
 
 /// <summary>
 /// Initializes a Kinc application and creates an initial window for systems which support windows (systems which do not support windows are treated as if the
-/// would provide a single window which can not change). This has to be called before any other Kinc-function with the exception of the Display-API which can
+/// would provide a single window which cannot change). This has to be called before any other Kinc-function with the exception of the Display-API which can
 /// optionally be initialized beforehand using kinc_display_init.
 /// </summary>
 /// <returns>The id of the initial window</returns>
@@ -161,7 +161,7 @@ KINC_FUNC void kinc_disallow_user_change(void);
 KINC_FUNC void kinc_allow_user_change(void);
 
 /// <summary>
-/// Instructs the system whether it is allowed to turn of the screen while the application is running.
+/// Instructs the system whether it is allowed to turn off the screen while the application is running.
 /// </summary>
 /// <param name="on">Whether turning off the screen is allowed</param>
 KINC_FUNC void kinc_set_keep_screen_on(bool on);
@@ -323,7 +323,7 @@ static inline void kinc_marker_end(const char *name) {
 
 /// <summary>
 /// Currently only supported on Windows.
-/// Starts up Live++ (see https://liveplusplus.tech), tyipcally called right before kinc_start().
+/// Starts up Live++ (see https://liveplusplus.tech), typically called right before kinc_start().
 /// After calling this you can hit Ctrl+Alt+F11 to hot-reload.
 /// Call Project.addLivePP(path) in your kfile to make this do something.
 /// The path-parameter for addLivePP is the path to the unpacked Live++-archive that has to contain a LivePP-subdirectory.

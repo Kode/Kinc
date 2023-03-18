@@ -44,7 +44,7 @@ KINC_FUNC const char *kinc_gamepad_product_name(int gamepad);
 KINC_FUNC bool kinc_gamepad_connected(int gamepad);
 
 /// <summary>
-/// Rumbles a gamepad. Careful here because it might just fall of your table.
+/// Rumbles a gamepad. Careful here because it might just fall off your table.
 /// </summary>
 /// <param name="gamepad">The index of the gamepad to rumble</param>
 /// <param name="left">Rumble-strength for the left motor between 0 and 1</param>

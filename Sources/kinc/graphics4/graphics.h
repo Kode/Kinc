@@ -75,7 +75,7 @@ KINC_FUNC bool kinc_g4_render_targets_inverted_y(void);
 KINC_FUNC int kinc_g4_max_bound_textures(void);
 
 /// <summary>
-/// Kicks of lingering work - may or may not actually do anything depending on the underlying graphics-API.
+/// Kicks off lingering work - may or may not actually do anything depending on the underlying graphics-API.
 /// </summary>
 KINC_FUNC void kinc_g4_flush(void);
 
@@ -312,7 +312,7 @@ KINC_FUNC void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t un
 KINC_FUNC void kinc_g4_set_texture3d_minification_filter(kinc_g4_texture_unit_t texunit, kinc_g4_texture_filter_t filter);
 
 /// <summary>
-/// Sets the mipmap-sampling-mode which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly interoplated.
+/// Sets the mipmap-sampling-mode which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly interpolated.
 /// </summary>
 /// <param name="unit">The texture-unit to set the mipmap-sampling-mode for</param>
 /// <param name="filter">The mode to set</param>
@@ -320,7 +320,7 @@ KINC_FUNC void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, ki
 
 /// <summary>
 /// Sets the mipmap-sampling-mode for a 3D-texture which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly
-/// interoplated.
+/// interpolated.
 /// </summary>
 /// <param name="unit">The texture-unit to set the mipmap-sampling-mode for</param>
 /// <param name="filter">The mode to set</param>
@@ -397,7 +397,7 @@ KINC_FUNC int kinc_g4_antialiasing_samples(void);
 
 /// <summary>
 /// Sets the number of samples used for hardware-antialiasing. This typically uses multisampling and typically only works with a few specific numbers of
-/// sample-counts - 2 and 4 are pretty save bets. It also might do nothing at all.
+/// sample-counts - 2 and 4 are pretty safe bets. It also might do nothing at all.
 /// </summary>
 /// <param name="samples">The number of samples</param>
 KINC_FUNC void kinc_g4_set_antialiasing_samples(int samples);
