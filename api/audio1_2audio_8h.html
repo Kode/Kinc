@@ -115,7 +115,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:a1d3f0f1e4b889ca930505757933a7f72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the current volume of a channel. Only works correctly if the channel is still playing.  <a href="audio1_2audio_8h.html#a1d3f0f1e4b889ca930505757933a7f72">More...</a><br /></td></tr>
 <tr class="separator:a1d3f0f1e4b889ca930505757933a7f72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac07d8098b06eb795c48d16c060040401"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio1_2audio_8h.html#ac07d8098b06eb795c48d16c060040401">kinc_a1_mix</a> (<a class="el" href="structkinc__a2__buffer.html">kinc_a2_buffer_t</a> *buffer, int samples)</td></tr>
-<tr class="memdesc:ac07d8098b06eb795c48d16c060040401"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mixes audio into the provided buffer. kinc_a1_init sets this as the callback for a2 but you can also call it manually to mix a1-audio with your own audio. To do that first call kinc_a1_init, then call kinc_a2_set_callback to set it to your own callback and call kinc_a1_mix from within that callback. Please be aware that the callback will run in a separate audio-thread.  <a href="audio1_2audio_8h.html#ac07d8098b06eb795c48d16c060040401">More...</a><br /></td></tr>
+<tr class="memdesc:ac07d8098b06eb795c48d16c060040401"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mixes audio into the provided buffer. kinc_a1_init sets this as the callback for a2 but you can also call it manually to mix a1-audio with your own audio. To do that, first call kinc_a1_init, then call kinc_a2_set_callback to set it to your own callback and call kinc_a1_mix from within that callback. Please be aware that the callback will run in a separate audio-thread.  <a href="audio1_2audio_8h.html#ac07d8098b06eb795c48d16c060040401">More...</a><br /></td></tr>
 <tr class="separator:ac07d8098b06eb795c48d16c060040401"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -232,7 +232,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Mixes audio into the provided buffer. kinc_a1_init sets this as the callback for a2 but you can also call it manually to mix a1-audio with your own audio. To do that first call kinc_a1_init, then call kinc_a2_set_callback to set it to your own callback and call kinc_a1_mix from within that callback. Please be aware that the callback will run in a separate audio-thread. </p>
+<p>Mixes audio into the provided buffer. kinc_a1_init sets this as the callback for a2 but you can also call it manually to mix a1-audio with your own audio. To do that, first call kinc_a1_init, then call kinc_a2_set_callback to set it to your own callback and call kinc_a1_mix from within that callback. Please be aware that the callback will run in a separate audio-thread. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">buffer</td><td>The audio-buffer to be filled</td></tr>
@@ -291,7 +291,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A channel object that can be used to control the playing sound. Please be a ware that NULL is returned when the maximum number of simultaneously played channels was reached.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A channel object that can be used to control the playing sound. Please be aware that NULL is returned when the maximum number of simultaneously played channels was reached.</dd></dl>
 
 </div>
 </div>

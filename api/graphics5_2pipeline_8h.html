@@ -184,7 +184,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_internal_pipe
 <tr class="memdesc:acdc51f19814c065656409db845feb606"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys a pipeline.  <a href="graphics5_2pipeline_8h.html#acdc51f19814c065656409db845feb606">More...</a><br /></td></tr>
 <tr class="separator:acdc51f19814c065656409db845feb606"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afce27d88d81b1818cf2556b5e9601b38"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2pipeline_8h.html#afce27d88d81b1818cf2556b5e9601b38">kinc_g5_pipeline_compile</a> (<a class="el" href="structkinc__g5__pipeline.html">kinc_g5_pipeline_t</a> *pipeline)</td></tr>
-<tr class="memdesc:afce27d88d81b1818cf2556b5e9601b38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compiles a pipeline. After a pipeline was compiled it is finalized. It can not be compiled again and changes to the pipeline are ignored after it was compiled.  <a href="graphics5_2pipeline_8h.html#afce27d88d81b1818cf2556b5e9601b38">More...</a><br /></td></tr>
+<tr class="memdesc:afce27d88d81b1818cf2556b5e9601b38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compiles a pipeline. After a pipeline has been compiled it is finalized. It cannot be compiled again and further changes to the pipeline are ignored.  <a href="graphics5_2pipeline_8h.html#afce27d88d81b1818cf2556b5e9601b38">More...</a><br /></td></tr>
 <tr class="separator:afce27d88d81b1818cf2556b5e9601b38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3df97a31de05f8215318a9de76cbcaae"><td class="memItemLeft" align="right" valign="top">KINC_FUNC <a class="el" href="structkinc__g5__constant__location.html">kinc_g5_constant_location_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2pipeline_8h.html#a3df97a31de05f8215318a9de76cbcaae">kinc_g5_pipeline_get_constant_location</a> (<a class="el" href="structkinc__g5__pipeline.html">kinc_g5_pipeline_t</a> *pipeline, const char *name)</td></tr>
 <tr class="memdesc:a3df97a31de05f8215318a9de76cbcaae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches for a constant/uniform and returns a constant-location which can be used to change the constant/uniform.  <a href="graphics5_2pipeline_8h.html#a3df97a31de05f8215318a9de76cbcaae">More...</a><br /></td></tr>
@@ -202,7 +202,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_internal_comp
 <tr class="memdesc:a697ffe4cab4532c53f44e70de9958883"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys a compute-pipeline.  <a href="graphics5_2pipeline_8h.html#a697ffe4cab4532c53f44e70de9958883">More...</a><br /></td></tr>
 <tr class="separator:a697ffe4cab4532c53f44e70de9958883"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b4df79138ef3b9d12e9493fdc67abc6"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2pipeline_8h.html#a6b4df79138ef3b9d12e9493fdc67abc6">kinc_g5_compute_pipeline_compile</a> (<a class="el" href="structkinc__g5__compute__pipeline.html">kinc_g5_compute_pipeline_t</a> *pipeline)</td></tr>
-<tr class="memdesc:a6b4df79138ef3b9d12e9493fdc67abc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compiles a compute-pipeline. After a pipeline was compiled it is finalized. It can not be compiled again and changes to the pipeline are ignored after it was compiled.  <a href="graphics5_2pipeline_8h.html#a6b4df79138ef3b9d12e9493fdc67abc6">More...</a><br /></td></tr>
+<tr class="memdesc:a6b4df79138ef3b9d12e9493fdc67abc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compiles a compute-pipeline. After a pipeline has been compiled it is finalized. It cannot be compiled again and further changes to the pipeline are ignored.  <a href="graphics5_2pipeline_8h.html#a6b4df79138ef3b9d12e9493fdc67abc6">More...</a><br /></td></tr>
 <tr class="separator:a6b4df79138ef3b9d12e9493fdc67abc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2534af950cd7f298f95e5f471a9b7266"><td class="memItemLeft" align="right" valign="top">KINC_FUNC <a class="el" href="structkinc__g5__constant__location.html">kinc_g5_constant_location_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics5_2pipeline_8h.html#a2534af950cd7f298f95e5f471a9b7266">kinc_g5_compute_pipeline_get_constant_location</a> (<a class="el" href="structkinc__g5__compute__pipeline.html">kinc_g5_compute_pipeline_t</a> *pipeline, const char *name)</td></tr>
 <tr class="memdesc:a2534af950cd7f298f95e5f471a9b7266"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches for a constant/uniform and returns a constant-location which can be used to change the constant/uniform.  <a href="graphics5_2pipeline_8h.html#a2534af950cd7f298f95e5f471a9b7266">More...</a><br /></td></tr>
@@ -230,7 +230,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_internal_comp
       </table>
 </div><div class="memdoc">
 
-<p>Compiles a compute-pipeline. After a pipeline was compiled it is finalized. It can not be compiled again and changes to the pipeline are ignored after it was compiled. </p>
+<p>Compiles a compute-pipeline. After a pipeline has been compiled it is finalized. It cannot be compiled again and further changes to the pipeline are ignored. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pipeline</td><td>The pipeline to compile</td></tr>
@@ -384,7 +384,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_internal_comp
       </table>
 </div><div class="memdoc">
 
-<p>Compiles a pipeline. After a pipeline was compiled it is finalized. It can not be compiled again and changes to the pipeline are ignored after it was compiled. </p>
+<p>Compiles a pipeline. After a pipeline has been compiled it is finalized. It cannot be compiled again and further changes to the pipeline are ignored. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pipeline</td><td>The pipeline to compile</td></tr>

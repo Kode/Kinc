@@ -114,7 +114,7 @@ Enumerations</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:abf33873fdcde118a06f839cf7a72b608"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2shader_8h.html#abf33873fdcde118a06f839cf7a72b608">kinc_g4_shader_init</a> (<a class="el" href="structkinc__g4__shader.html">kinc_g4_shader_t</a> *shader, void *data, size_t length, kinc_g4_shader_type_t type)</td></tr>
-<tr class="memdesc:abf33873fdcde118a06f839cf7a72b608"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a shader based on system-specific shader-data. The system-specific shader-data is usually created per system by the krafix-shader-compiled which is automatically called by kincmake.  <a href="graphics4_2shader_8h.html#abf33873fdcde118a06f839cf7a72b608">More...</a><br /></td></tr>
+<tr class="memdesc:abf33873fdcde118a06f839cf7a72b608"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a shader based on system-specific shader-data. The system-specific shader-data is usually created per system by the krafix-shader-compiler which is automatically called by kincmake.  <a href="graphics4_2shader_8h.html#abf33873fdcde118a06f839cf7a72b608">More...</a><br /></td></tr>
 <tr class="separator:abf33873fdcde118a06f839cf7a72b608"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ca403bd0b69d856804b1236c7e051e4"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2shader_8h.html#a8ca403bd0b69d856804b1236c7e051e4">kinc_g4_shader_init_from_source</a> (<a class="el" href="structkinc__g4__shader.html">kinc_g4_shader_t</a> *shader, const char *source, kinc_g4_shader_type_t type)</td></tr>
 <tr class="memdesc:a8ca403bd0b69d856804b1236c7e051e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a shader from GLSL-source-code. This only works on some platforms and only if KRAFIX_LIBRARY define has been set and the krafix-shader-compiler was compiled in library-mode and linked into the application.  <a href="graphics4_2shader_8h.html#a8ca403bd0b69d856804b1236c7e051e4">More...</a><br /></td></tr>
@@ -190,7 +190,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Initializes a shader based on system-specific shader-data. The system-specific shader-data is usually created per system by the krafix-shader-compiled which is automatically called by kincmake. </p>
+<p>Initializes a shader based on system-specific shader-data. The system-specific shader-data is usually created per system by the krafix-shader-compiler which is automatically called by kincmake. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">shader</td><td>The shader to initialize</td></tr>

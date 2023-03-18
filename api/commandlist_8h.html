@@ -194,7 +194,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <tr class="memdesc:a0a5f905b11a8176588e2536184998639"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a command that sets a constant-buffer for the fragment-shader-stage.  <a href="commandlist_8h.html#a0a5f905b11a8176588e2536184998639">More...</a><br /></td></tr>
 <tr class="separator:a0a5f905b11a8176588e2536184998639"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a15ca6e1e3764a23e40f4ee5df44f6fb8">kinc_g5_command_list_execute</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list)</td></tr>
-<tr class="memdesc:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kicks of execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand.  <a href="commandlist_8h.html#a15ca6e1e3764a23e40f4ee5df44f6fb8">More...</a><br /></td></tr>
+<tr class="memdesc:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kicks off execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand.  <a href="commandlist_8h.html#a15ca6e1e3764a23e40f4ee5df44f6fb8">More...</a><br /></td></tr>
 <tr class="separator:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c0107b4aa127704c99c5d7c640bb6c3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a6c0107b4aa127704c99c5d7c640bb6c3">kinc_g5_command_list_wait_for_execution_to_finish</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list)</td></tr>
 <tr class="memdesc:a6c0107b4aa127704c99c5d7c640bb6c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits for execution of the command_list to finish. Make sure the command-list is executing before you wait for it. Also take note that waiting for a command-list to finish executing completely is a very expensive operation.  <a href="commandlist_8h.html#a6c0107b4aa127704c99c5d7c640bb6c3">More...</a><br /></td></tr>
@@ -600,7 +600,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
       </table>
 </div><div class="memdoc">
 
-<p>Kicks of execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand. </p>
+<p>Kicks off execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">list</td><td>The command-list to execute</td></tr>

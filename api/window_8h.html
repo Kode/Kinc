@@ -152,7 +152,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_frameb
 <tr class="memdesc:a548336551baa5a80dec0e13bf0091760"><td class="mdescLeft">&#160;</td><td class="mdescRight">Switches between window and fullscreen-modes.  <a href="window_8h.html#a548336551baa5a80dec0e13bf0091760">More...</a><br /></td></tr>
 <tr class="separator:a548336551baa5a80dec0e13bf0091760"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aead9ec549f368ac6f5eb456600563090"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="window_8h.html#aead9ec549f368ac6f5eb456600563090">kinc_window_change_features</a> (int window, int features)</td></tr>
-<tr class="memdesc:aead9ec549f368ac6f5eb456600563090"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies an ored combination of KINC_WINDOW_FEATURE values.  <a href="window_8h.html#aead9ec549f368ac6f5eb456600563090">More...</a><br /></td></tr>
+<tr class="memdesc:aead9ec549f368ac6f5eb456600563090"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies an or-ed combination of KINC_WINDOW_FEATURE values.  <a href="window_8h.html#aead9ec549f368ac6f5eb456600563090">More...</a><br /></td></tr>
 <tr class="separator:aead9ec549f368ac6f5eb456600563090"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a01e5f3a516aa54270711ad39c45126a1"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="window_8h.html#a01e5f3a516aa54270711ad39c45126a1">kinc_window_change_framebuffer</a> (int window, <a class="el" href="structkinc__framebuffer__options.html">kinc_framebuffer_options_t</a> *frame)</td></tr>
 <tr class="memdesc:a01e5f3a516aa54270711ad39c45126a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Changes the framebuffer-options of a window.  <a href="window_8h.html#a01e5f3a516aa54270711ad39c45126a1">More...</a><br /></td></tr>
@@ -188,13 +188,13 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_frameb
 <tr class="memdesc:ae7e4ceb77a31ef4cbb6f00c2c823a220"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a resize callback that's called whenever the window is resized.  <a href="window_8h.html#ae7e4ceb77a31ef4cbb6f00c2c823a220">More...</a><br /></td></tr>
 <tr class="separator:ae7e4ceb77a31ef4cbb6f00c2c823a220"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68f92844e49c3a2f1a44e351ee7873b6"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="window_8h.html#a68f92844e49c3a2f1a44e351ee7873b6">kinc_window_set_ppi_changed_callback</a> (int window, void(*callback)(int ppi, void *data), void *data)</td></tr>
-<tr class="memdesc:a68f92844e49c3a2f1a44e351ee7873b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a ppi callback that's called whenever the window moves to a display that uses a different ppi-setting.  <a href="window_8h.html#a68f92844e49c3a2f1a44e351ee7873b6">More...</a><br /></td></tr>
+<tr class="memdesc:a68f92844e49c3a2f1a44e351ee7873b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a PPI callback that's called whenever the window moves to a display that uses a different PPI-setting.  <a href="window_8h.html#a68f92844e49c3a2f1a44e351ee7873b6">More...</a><br /></td></tr>
 <tr class="separator:a68f92844e49c3a2f1a44e351ee7873b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa6a4857ec50ffe931809d96c00060676"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="window_8h.html#aa6a4857ec50ffe931809d96c00060676">kinc_window_set_close_callback</a> (int window, bool(*callback)(void *data), void *data)</td></tr>
-<tr class="memdesc:aa6a4857ec50ffe931809d96c00060676"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a close callback that's called when the window is about to close. Returning false from the callback tries stops the window from closing.  <a href="window_8h.html#aa6a4857ec50ffe931809d96c00060676">More...</a><br /></td></tr>
+<tr class="memdesc:aa6a4857ec50ffe931809d96c00060676"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a close callback that's called when the window is about to close. Returning false from the callback tries to stop the window from closing.  <a href="window_8h.html#aa6a4857ec50ffe931809d96c00060676">More...</a><br /></td></tr>
 <tr class="separator:aa6a4857ec50ffe931809d96c00060676"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a886363fd9543a5b121222132c1575772"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="window_8h.html#a886363fd9543a5b121222132c1575772">kinc_window_vsynced</a> (int window)</td></tr>
-<tr class="memdesc:a886363fd9543a5b121222132c1575772"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns Whether the window is vsynced or not.  <a href="window_8h.html#a886363fd9543a5b121222132c1575772">More...</a><br /></td></tr>
+<tr class="memdesc:a886363fd9543a5b121222132c1575772"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns whether the window is vsynced or not.  <a href="window_8h.html#a886363fd9543a5b121222132c1575772">More...</a><br /></td></tr>
 <tr class="separator:a886363fd9543a5b121222132c1575772"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -247,7 +247,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_frameb
       </table>
 </div><div class="memdoc">
 
-<p>Applies an ored combination of KINC_WINDOW_FEATURE values. </p>
+<p>Applies an or-ed combination of KINC_WINDOW_FEATURE values. </p>
 
 </div>
 </div>
@@ -549,7 +549,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_frameb
       </table>
 </div><div class="memdoc">
 
-<p>Sets a close callback that's called when the window is about to close. Returning false from the callback tries stops the window from closing. </p>
+<p>Sets a close callback that's called when the window is about to close. Returning false from the callback tries to stop the window from closing. </p>
 
 </div>
 </div>
@@ -585,7 +585,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_frameb
       </table>
 </div><div class="memdoc">
 
-<p>Sets a ppi callback that's called whenever the window moves to a display that uses a different ppi-setting. </p>
+<p>Sets a PPI callback that's called whenever the window moves to a display that uses a different PPI-setting. </p>
 
 </div>
 </div>
@@ -691,7 +691,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_frameb
       </table>
 </div><div class="memdoc">
 
-<p>Returns Whether the window is vsynced or not. </p>
+<p>Returns whether the window is vsynced or not. </p>
 <dl class="section return"><dt>Returns</dt><dd>Whether the window is vsynced or not</dd></dl>
 
 </div>

@@ -74,7 +74,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Provides mutexes which are used to synchronize threads and uber-mutexes which are used to synchronized processes.  
+<p>Provides mutexes which are used to synchronize threads and uber-mutexes which are used to synchronize processes.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;<a class="el" href="global_8h_source.html">kinc/global.h</a>&gt;</code><br />
 <code>#include &lt;kinc/backend/mutex.h&gt;</code><br />
@@ -107,7 +107,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:a26cadd3de96b4816a36d938021cb8a20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys a mutex-object.  <a href="mutex_8h.html#a26cadd3de96b4816a36d938021cb8a20">More...</a><br /></td></tr>
 <tr class="separator:a26cadd3de96b4816a36d938021cb8a20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87d149adc906ed402d9296d445f25173"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mutex_8h.html#a87d149adc906ed402d9296d445f25173">kinc_mutex_lock</a> (<a class="el" href="structkinc__mutex.html">kinc_mutex_t</a> *mutex)</td></tr>
-<tr class="memdesc:a87d149adc906ed402d9296d445f25173"><td class="mdescLeft">&#160;</td><td class="mdescRight">Locks a mutex. A mutex can only be locked from one thread - when other thread attempt to lock the mutex the function will only return once the mutex has been unlocked.  <a href="mutex_8h.html#a87d149adc906ed402d9296d445f25173">More...</a><br /></td></tr>
+<tr class="memdesc:a87d149adc906ed402d9296d445f25173"><td class="mdescLeft">&#160;</td><td class="mdescRight">Locks a mutex. A mutex can only be locked from one thread - when other threads attempt to lock the mutex the function will only return once the mutex has been unlocked.  <a href="mutex_8h.html#a87d149adc906ed402d9296d445f25173">More...</a><br /></td></tr>
 <tr class="separator:a87d149adc906ed402d9296d445f25173"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f17be5a192c2c9e4fbf03a5c7eb332c"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mutex_8h.html#a0f17be5a192c2c9e4fbf03a5c7eb332c">kinc_mutex_try_to_lock</a> (<a class="el" href="structkinc__mutex.html">kinc_mutex_t</a> *mutex)</td></tr>
 <tr class="memdesc:a0f17be5a192c2c9e4fbf03a5c7eb332c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to lock the mutex which will only succeed if no other thread currently holds the lock.  <a href="mutex_8h.html#a0f17be5a192c2c9e4fbf03a5c7eb332c">More...</a><br /></td></tr>
@@ -129,7 +129,7 @@ Functions</h2></td></tr>
 <tr class="separator:a37f8629418745122cbb2a94c5187ec57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Provides mutexes which are used to synchronize threads and uber-mutexes which are used to synchronized processes. </p>
+<div class="textblock"><p>Provides mutexes which are used to synchronize threads and uber-mutexes which are used to synchronize processes. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
 <a id="a26cadd3de96b4816a36d938021cb8a20"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a26cadd3de96b4816a36d938021cb8a20">&#9670;&nbsp;</a></span>kinc_mutex_destroy()</h2>
@@ -199,7 +199,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Locks a mutex. A mutex can only be locked from one thread - when other thread attempt to lock the mutex the function will only return once the mutex has been unlocked. </p>
+<p>Locks a mutex. A mutex can only be locked from one thread - when other threads attempt to lock the mutex the function will only return once the mutex has been unlocked. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">mutex</td><td>The mutex to lock</td></tr>
