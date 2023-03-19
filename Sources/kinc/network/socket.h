@@ -5,8 +5,10 @@
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
-#elif defined(KORE_POSIX)
+#elif defined(KORE_POSIX) && !defined(KORE_EMSCRIPTEN)
 #include <sys/socket.h>
+#elif defined(KORE_EMSCRIPTEN)
+#include <emscripten/posix_socket.h>
 #endif
 
 /*! \file socket.h
@@ -186,7 +188,13 @@ KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
-#if !defined(KORE_EMSCRIPTEN)
+#if defined(KORE_EMSCRIPTEN)
+#include <emscripten.h>
+#include <emscripten/websocket.h>
+#include <emscripten/threading.h>
+
+static EMSCRIPTEN_WEBSOCKET_T bridgeSocket = NULL;
+#else
 #include <sys/select.h>
 #endif
 #endif
@@ -240,6 +248,17 @@ void kinc_socket_init(kinc_socket_t *sock) {
 		WSADATA WsaData;
 		WSAStartup(MAKEWORD(2, 2), &WsaData);
 	}
+#if defined(KORE_EMSCRIPTEN)
+	if(bridgeSocket){
+		bridgeSocket = emscripten_init_websocket_to_posix_socket_bridge("ws://localhost:8080");
+		// Synchronously wait until connection has been established.
+		uint16_t readyState = 0;
+		do {
+		emscripten_websocket_get_ready_state(bridgeSocket, &readyState);
+		emscripten_thread_sleep(100);
+		} while (readyState == 0);
+	}
+#endif
 #endif
 	++counter;
 }
