@@ -170,7 +170,8 @@ void kinc_g5_internal_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipeline
 KINC_FUNC void kinc_g5_compute_pipeline_destroy(kinc_g5_compute_pipeline_t *pipeline);
 
 /// <summary>
-/// Compiles a compute-pipeline. After a pipeline has been compiled it is finalized. It cannot be compiled again and further changes to the pipeline are ignored.
+/// Compiles a compute-pipeline. After a pipeline has been compiled it is finalized. It cannot be compiled again and further changes to the pipeline are
+/// ignored.
 /// </summary>
 /// <param name="pipeline">The pipeline to compile</param>
 KINC_FUNC void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline);

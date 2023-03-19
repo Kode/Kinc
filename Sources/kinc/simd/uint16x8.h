@@ -109,12 +109,9 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 	return _mm_xor_si128(t, _mm_set1_epi32(0xffffffff));
 }
 
-#define kinc_uint16x8_shift_left(t, shift)\
-	_mm_slli_epi16((t), (shift))
+#define kinc_uint16x8_shift_left(t, shift) _mm_slli_epi16((t), (shift))
 
-#define kinc_uint16x8_shift_right(t, shift)\
-	_mm_srli_epi16((t), (shift))
-
+#define kinc_uint16x8_shift_right(t, shift) _mm_srli_epi16((t), (shift))
 
 #elif defined(KINC_NEON)
 
@@ -206,12 +203,9 @@ static inline kinc_uint16x8_t kinc_uint16x8_not(kinc_uint16x8_t t) {
 	return vmvnq_u16(t);
 }
 
-#define kinc_uint16x8_shift_left(t, shift)\
-	vshlq_n_u16((t), (shift))
+#define kinc_uint16x8_shift_left(t, shift) vshlq_n_u16((t), (shift))
 
-#define kinc_uint16x8_shift_right(t, shift)\
-	vshrq_n_u16((t), (shift))
-
+#define kinc_uint16x8_shift_right(t, shift) vshrq_n_u16((t), (shift))
 
 #else
 
@@ -499,7 +493,6 @@ static inline kinc_uint16x8_t kinc_uint16x8_shift_right(kinc_uint16x8_t t, const
 
 	return value;
 }
-
 
 #endif
 

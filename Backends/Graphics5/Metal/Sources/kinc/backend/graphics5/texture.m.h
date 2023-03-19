@@ -276,10 +276,10 @@ void kinc_g4_texture_upload(kinc_g4_texture_t *texture_g4, uint8_t *data, int st
 	kinc_g5_texture_t *tex = &texture_g4->impl._texture;
 	id<MTLTexture> texture = (__bridge id<MTLTexture>)tex->impl._tex;
 	[texture replaceRegion:MTLRegionMake2D(0, 0, tex->texWidth, tex->texHeight)
-			   mipmapLevel:0
-					 slice:0
-				 withBytes:data
-			   bytesPerRow:stride
-			 bytesPerImage:stride * tex->texHeight];
+	           mipmapLevel:0
+	                 slice:0
+	             withBytes:data
+	           bytesPerRow:stride
+	         bytesPerImage:stride * tex->texHeight];
 }
 #endif

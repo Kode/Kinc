@@ -49,8 +49,8 @@ extern "C" {
 #define KINC_NOSIMD
 #endif
 
-#define KINC_SHUFFLE_TABLE(LANE_A1, LANE_A2, LANE_B1, LANE_B2)\
-	 ((((LANE_B2) & 0x3) << 6) | (((LANE_B1) & 0x3) << 4) | (((LANE_A2) & 0x3) << 2) | (((LANE_A1) & 0x3) << 0))
+#define KINC_SHUFFLE_TABLE(LANE_A1, LANE_A2, LANE_B1, LANE_B2)                                                                                                 \
+	((((LANE_B2)&0x3) << 6) | (((LANE_B1)&0x3) << 4) | (((LANE_A2)&0x3) << 2) | (((LANE_A1)&0x3) << 0))
 
 #if defined(KINC_SSE2)
 
@@ -141,9 +141,6 @@ typedef struct kinc_float32x4 {
 } kinc_float32x4_t;
 
 typedef kinc_float32x4_t kinc_float32x4_mask_t;
-
-
-
 
 typedef struct kinc_int8x16 {
 	int8_t values[16];

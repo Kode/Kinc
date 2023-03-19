@@ -65,7 +65,7 @@ void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer, int count) {
 		range.length = count * kinc_g5_internal_index_buffer_stride(buffer);
 		[metal_buffer didModifyRange:range];
 	}
-#endif	
+#endif
 }
 
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {

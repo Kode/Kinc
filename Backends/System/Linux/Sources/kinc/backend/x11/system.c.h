@@ -788,7 +788,7 @@ bool kinc_x11_handle_messages() {
 						mbstowcs(filePath, buffer, len);
 						filePath[len] = 0;
 						kinc_internal_drop_files_callback(filePath + 7); // Strip file://
-						pos += 2; // Avoid \n
+						pos += 2;                                        // Avoid \n
 						len = 0;
 					}
 					buffer[len++] = data[pos++];

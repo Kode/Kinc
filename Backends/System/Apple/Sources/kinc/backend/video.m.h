@@ -58,7 +58,7 @@ static void load(kinc_video_t *video, double startTime) {
 	video->impl.videoStart = startTime;
 	AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:video->impl.url options:nil];
 	video->impl.videoAsset = asset;
-	
+
 	video->impl.duration = [asset duration].value / [asset duration].timescale;
 
 	AVAssetTrack *videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
@@ -66,7 +66,7 @@ static void load(kinc_video_t *video, double startTime) {
 	    [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA], kCVPixelBufferPixelFormatTypeKey, nil];
 	AVAssetReaderTrackOutput *videoOutput = [AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoOutputSettings];
 	[videoOutput setSupportsRandomAccess:YES];
-	
+
 	bool hasAudio = [[asset tracksWithMediaType:AVMediaTypeAudio] count] > 0;
 	AVAssetReaderAudioMixOutput *audioOutput = NULL;
 	if (hasAudio) {
@@ -185,7 +185,7 @@ void kinc_video_stop(kinc_video_t *video) {
 static void updateImage(kinc_video_t *video) {
 	if (!video->impl.playing)
 		return;
-	
+
 	{
 		AVAssetReaderTrackOutput *videoOutput = video->impl.videoTrackOutput;
 		CMSampleBufferRef buffer = [videoOutput copyNextSampleBuffer];
@@ -193,16 +193,16 @@ static void updateImage(kinc_video_t *video) {
 			if (video->impl.loop) {
 				CMTimeRange timeRange = CMTimeRangeMake(CMTimeMake(0, 1000), kCMTimePositiveInfinity);
 				[videoOutput resetForReadingTimeRanges:[NSArray arrayWithObject:[NSValue valueWithCMTimeRange:timeRange]]];
-				
+
 				AVAssetReaderAudioMixOutput *audioOutput = video->impl.audioTrackOutput;
 				CMSampleBufferRef audio_buffer = [audioOutput copyNextSampleBuffer];
 				while (audio_buffer) {
 					audio_buffer = [audioOutput copyNextSampleBuffer];
 				}
 				[audioOutput resetForReadingTimeRanges:[NSArray arrayWithObject:[NSValue valueWithCMTimeRange:timeRange]]];
-				
+
 				buffer = [videoOutput copyNextSampleBuffer];
-				
+
 				video->impl.start = kinc_time() - video->impl.videoStart;
 			}
 			else {
@@ -228,8 +228,7 @@ static void updateImage(kinc_video_t *video) {
 			kinc_g4_texture_upload(&video->impl.image, (uint8_t *)CVPixelBufferGetBaseAddress(pixelBuffer),
 			                       (int)(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
 #else
-			kinc_g4_texture_upload(&video->impl.image, (uint8_t *)CVPixelBufferGetBaseAddress(pixelBuffer),
-								   (int)(CVPixelBufferGetBytesPerRow(pixelBuffer)));
+			kinc_g4_texture_upload(&video->impl.image, (uint8_t *)CVPixelBufferGetBaseAddress(pixelBuffer), (int)(CVPixelBufferGetBytesPerRow(pixelBuffer)));
 #endif
 			CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 		}

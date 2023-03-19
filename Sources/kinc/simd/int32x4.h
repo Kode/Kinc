@@ -107,9 +107,7 @@ static inline kinc_int32x4_t kinc_int32x4_not(kinc_int32x4_t t) {
 	return _mm_xor_si128(t, _mm_set1_epi32(0xffffffff));
 }
 
-
 #elif defined(KINC_NEON)
-
 
 static inline kinc_int32x4_t kinc_int32x4_intrin_load(const int32_t *values) {
 	return vld1q_s32(values);
@@ -198,7 +196,6 @@ static inline kinc_int32x4_t kinc_int32x4_xor(kinc_int32x4_t a, kinc_int32x4_t b
 static inline kinc_int32x4_t kinc_int32x4_not(kinc_int32x4_t t) {
 	return vmvnq_s32(t);
 }
-
 
 #else
 
@@ -382,7 +379,6 @@ static inline kinc_int32x4_t kinc_int32x4_not(kinc_int32x4_t t) {
 	value.values[3] = ~t.values[3];
 	return value;
 }
-
 
 #endif
 

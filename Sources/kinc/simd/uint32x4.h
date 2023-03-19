@@ -109,12 +109,9 @@ static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 	return _mm_xor_si128(t, _mm_set1_epi32(0xffffffff));
 }
 
-#define kinc_uint32x4_shift_left(t, shift)\
-	_mm_slli_epi32((t), (shift))
+#define kinc_uint32x4_shift_left(t, shift) _mm_slli_epi32((t), (shift))
 
-#define kinc_uint32x4_shift_right(t, shift)\
-	_mm_srli_epi32((t), (shift))
-
+#define kinc_uint32x4_shift_right(t, shift) _mm_srli_epi32((t), (shift))
 
 #elif defined(KINC_NEON)
 
@@ -206,12 +203,9 @@ static inline kinc_uint32x4_t kinc_uint32x4_not(kinc_uint32x4_t t) {
 	return vmvnq_u32(t);
 }
 
-#define kinc_uint32x4_shift_left(t, shift)\
-	vshlq_n_u32((t), (shift))
+#define kinc_uint32x4_shift_left(t, shift) vshlq_n_u32((t), (shift))
 
-#define kinc_uint32x4_shift_right(t, shift)\
-	vshrq_n_u32((t), (shift))
-
+#define kinc_uint32x4_shift_right(t, shift) vshrq_n_u32((t), (shift))
 
 #else
 

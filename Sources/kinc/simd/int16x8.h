@@ -107,7 +107,6 @@ static inline kinc_int16x8_t kinc_int16x8_not(kinc_int16x8_t t) {
 	return _mm_xor_si128(t, _mm_set1_epi32(0xffffffff));
 }
 
-
 #elif defined(KINC_NEON)
 
 static inline kinc_int16x8_t kinc_int16x8_intrin_load(const int16_t *values) {
@@ -456,7 +455,6 @@ static inline kinc_int16x8_t kinc_int16x8_not(kinc_int16x8_t t) {
 	value.values[7] = ~t.values[7];
 	return value;
 }
-
 
 #endif
 
