@@ -5,10 +5,8 @@
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
-#elif defined(KORE_POSIX) && !defined(KORE_EMSCRIPTEN)
+#elif defined(KORE_POSIX)
 #include <sys/socket.h>
-#elif defined(KORE_EMSCRIPTEN)
-#include <emscripten/posix_socket.h>
 #endif
 
 /*! \file socket.h
