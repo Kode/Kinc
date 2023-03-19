@@ -186,15 +186,16 @@ KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#endif
+
 #if defined(KORE_EMSCRIPTEN)
 #include <emscripten.h>
 #include <emscripten/websocket.h>
 #include <emscripten/threading.h>
 
 static EMSCRIPTEN_WEBSOCKET_T bridgeSocket = NULL;
-#else
+#elif defined(KORE_POSIX)
 #include <sys/select.h>
-#endif
 #endif
 
 static int counter = 0;
@@ -329,7 +330,7 @@ bool kinc_socket_open(kinc_socket_t *sock, struct kinc_socket_options *options) 
 		default:
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Unknown error.");
 		}
-#else
+#elif defined(KORE_POSIX) && !defined(KORE_EMSCRIPTEN)
 	kinc_log(KINC_LOG_LEVEL_ERROR, "%s",strerror(errno));
 #endif
 		return false;
