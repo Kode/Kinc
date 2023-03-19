@@ -76,7 +76,7 @@ KINC_FUNC void kinc_socket_init(kinc_socket_t *socket);
 /// <param name="port">The port to use</param>
 /// <param name="family">The IP family to use</param>
 /// <param name="protocol">The protocol to use</param>
-/// <returns>Whether the socket host could be detected.</returns>
+/// <returns>Whether the socket was set correctly.</returns>
 KINC_FUNC bool kinc_socket_set(kinc_socket_t *socket,const char* host, int port, kinc_socket_family_t family,kinc_socket_protocol_t protocol);
 
 /// <summary>
@@ -94,11 +94,24 @@ KINC_FUNC void kinc_socket_destroy(kinc_socket_t *socket);
 /// <param name="options">The options to use</param>
 /// <returns>Whether the socket-connection could be opened</returns>
 KINC_FUNC bool kinc_socket_open(kinc_socket_t *socket, kinc_socket_options_t *options);
+/// <summary>
+/// For use with non-blocking sockets to try to see if we are connected.
+/// </summary>
+/// <param name="socket">The socket-object to use</param>
+/// <param name="waittime">The amount of time in seconds the select function will timeout.</param>
+/// <param name="read">Check if the socket is ready to be read from.</param>
+/// <param name="write">Check if the socket is ready to be written to.</param>
+/// <returns>Whether the socket-connection can read or write or checks both.</returns>
+KINC_FUNC bool kinc_socket_select(kinc_socket_t *socket,size_t waittime,bool read, bool write);
 
+/*Typically these are server actions.*/
 KINC_FUNC bool kinc_socket_bind(kinc_socket_t *socket);
 KINC_FUNC bool kinc_socket_listen(kinc_socket_t *socket, int backlog);
 KINC_FUNC bool kinc_socket_accept(kinc_socket_t *socket, kinc_socket_t *new_socket, unsigned *remote_address, unsigned *remote_port);
+
+/*Typically this is a client action.*/
 KINC_FUNC bool kinc_socket_connect(kinc_socket_t *socket);
+
 KINC_FUNC int kinc_socket_send(kinc_socket_t *socket, const char *data, int size);
 KINC_FUNC int kinc_socket_send_url(kinc_socket_t *socket, const char *url, int port, const char *data, int size);
 KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize, unsigned *from_address, unsigned *from_port);
@@ -116,6 +129,7 @@ KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <errno.h>
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 
@@ -172,6 +186,9 @@ KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#if !defined(KORE_EMSCRIPTEN)
+#include <sys/select.h>
+#endif
 #endif
 
 static int counter = 0;
@@ -197,7 +214,7 @@ KINC_FUNC bool kinc_socket_bind(kinc_socket_t *sock){
 	address.sin_addr.s_addr = sock->host;
 	address.sin_port = sock->port;
 	if (bind(sock->handle, (const struct sockaddr *)&address, sizeof(struct sockaddr_in)) < 0) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not bind socket.");
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not bind socket: ",strerror(errno));
 		return false;
 	}
 	return true;
@@ -295,6 +312,8 @@ bool kinc_socket_open(kinc_socket_t *sock, struct kinc_socket_options *options) 
 		default:
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Unknown error.");
 		}
+#else
+	kinc_log(KINC_LOG_LEVEL_ERROR, "%s",strerror(errno));
 #endif
 		return false;
 	}
@@ -355,6 +374,43 @@ void kinc_socket_destroy(kinc_socket_t *sock) {
 	if (counter == 0) {
 		WSACleanup();
 	}
+#endif
+}
+
+bool kinc_socket_select(kinc_socket_t *sock,size_t waittime,bool read, bool write){
+#if !defined(KORE_EMSCRIPTEN) && (defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX))
+	fd_set r_fds, w_fds;
+    struct timeval timeout;
+
+	FD_ZERO(&r_fds);
+    FD_ZERO(&w_fds);
+
+	FD_SET(sock->handle,&r_fds);
+	FD_SET(sock->handle,&w_fds);
+
+	timeout.tv_sec = waittime;
+    timeout.tv_usec = 0;
+
+	if (select(0, &r_fds,&w_fds, NULL, &timeout) < 0) {
+        kinc_log(KINC_LOG_LEVEL_ERROR, "kinc_socket_select didn't work: %s",strerror(errno));
+		return false;
+    }
+
+	if(read && write){
+		return FD_ISSET(sock->handle, &w_fds) && FD_ISSET(sock->handle, &r_fds);
+	}	
+	else if(read){
+		return FD_ISSET(sock->handle, &r_fds);
+	}
+	else if(write){
+		return FD_ISSET(sock->handle, &w_fds);
+	}
+	else {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Calling kinc_socket_select with both read and write set to false is useless.");
+		return false;
+	}
+#else
+	return false;
 #endif
 }
 
