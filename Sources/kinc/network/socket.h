@@ -5,7 +5,7 @@
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
-#elif defined(KORE_POSIX)
+#elif defined(KORE_POSIX) || defined(KORE_EMSCRIPTEN)
 #include <sys/socket.h>
 #endif
 
@@ -102,7 +102,7 @@ KINC_FUNC bool kinc_socket_open(kinc_socket_t *socket, kinc_socket_options_t *op
 /// <param name="read">Check if the socket is ready to be read from.</param>
 /// <param name="write">Check if the socket is ready to be written to.</param>
 /// <returns>Whether the socket-connection can read or write or checks both.</returns>
-KINC_FUNC bool kinc_socket_select(kinc_socket_t *socket,size_t waittime,bool read, bool write);
+KINC_FUNC bool kinc_socket_select(kinc_socket_t *socket,uint32_t waittime,bool read, bool write);
 
 /*Typically these are server actions.*/
 KINC_FUNC bool kinc_socket_bind(kinc_socket_t *socket);
@@ -177,7 +177,7 @@ KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize
 #define WIN32_LEAN_AND_MEAN
 
 #include <Ws2tcpip.h>
-#elif defined(KORE_POSIX)
+#elif defined(KORE_POSIX) || defined(KORE_EMSCRIPTEN)
 #include <arpa/inet.h> // for inet_addr()
 #include <fcntl.h>
 #include <netdb.h>
@@ -192,8 +192,9 @@ KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize
 #include <emscripten.h>
 #include <emscripten/websocket.h>
 #include <emscripten/threading.h>
+#include <emscripten/posix_socket.h>
 
-static EMSCRIPTEN_WEBSOCKET_T bridgeSocket = NULL;
+static EMSCRIPTEN_WEBSOCKET_T bridgeSocket = 0;
 #elif defined(KORE_POSIX)
 #include <sys/select.h>
 #endif
@@ -248,7 +249,7 @@ void kinc_socket_init(kinc_socket_t *sock) {
 		WSAStartup(MAKEWORD(2, 2), &WsaData);
 	}
 #if defined(KORE_EMSCRIPTEN)
-	if(bridgeSocket){
+	if(!bridgeSocket){
 		bridgeSocket = emscripten_init_websocket_to_posix_socket_bridge("ws://localhost:8080");
 		// Synchronously wait until connection has been established.
 		uint16_t readyState = 0;
@@ -395,7 +396,7 @@ void kinc_socket_destroy(kinc_socket_t *sock) {
 #endif
 }
 
-bool kinc_socket_select(kinc_socket_t *sock,size_t waittime,bool read, bool write){
+bool kinc_socket_select(kinc_socket_t *sock,uint32_t waittime,bool read, bool write){
 #if !defined(KORE_EMSCRIPTEN) && (defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX))
 	fd_set r_fds, w_fds;
     struct timeval timeout;
