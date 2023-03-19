@@ -93,6 +93,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a91e67a2db7fa5b84d0fa3e76a1cf39bc"><td class="memItemLeft" align="right" valign="top"><a id="a91e67a2db7fa5b84d0fa3e76a1cf39bc"></a>
 typedef enum kinc_socket_protocol&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_protocol_t</b></td></tr>
 <tr class="separator:a91e67a2db7fa5b84d0fa3e76a1cf39bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afeae1b8cf76a7a78166d9c5feb154164"><td class="memItemLeft" align="right" valign="top"><a id="afeae1b8cf76a7a78166d9c5feb154164"></a>
+typedef enum kinc_socket_family&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_family_t</b></td></tr>
+<tr class="separator:afeae1b8cf76a7a78166d9c5feb154164"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afaae2df7682b1b722c956fb2bfb2c0eb"><td class="memItemLeft" align="right" valign="top"><a id="afaae2df7682b1b722c956fb2bfb2c0eb"></a>
 typedef struct <a class="el" href="structkinc__socket.html">kinc_socket</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_t</b></td></tr>
 <tr class="separator:afaae2df7682b1b722c956fb2bfb2c0eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -106,6 +109,10 @@ Enumerations</h2></td></tr>
 , <b>KINC_SOCKET_PROTOCOL_TCP</b>
  }</td></tr>
 <tr class="separator:a788fae8115b54bc6a5b937d417edb458"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac661e57af178c385ea054025e39d4de2"><td class="memItemLeft" align="right" valign="top"><a id="ac661e57af178c385ea054025e39d4de2"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_family</b> { <b>KINC_SOCKET_FAMILY_IP4</b> = AF_INET
+, <b>KINC_SOCKET_FAMILY_IP6</b> = AF_INET6
+ }</td></tr>
+<tr class="separator:ac661e57af178c385ea054025e39d4de2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -113,41 +120,41 @@ Functions</h2></td></tr>
 <tr class="memdesc:a2629b091db6348f829f465565d719e36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a socket-options-object to the default options  <a href="socket_8h.html#a2629b091db6348f829f465565d719e36">More...</a><br /></td></tr>
 <tr class="separator:a2629b091db6348f829f465565d719e36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acc2b42b5e51c9bb61432c77cb9e57846"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#acc2b42b5e51c9bb61432c77cb9e57846">kinc_socket_init</a> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket)</td></tr>
-<tr class="memdesc:acc2b42b5e51c9bb61432c77cb9e57846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a socket-object.  <a href="socket_8h.html#acc2b42b5e51c9bb61432c77cb9e57846">More...</a><br /></td></tr>
+<tr class="memdesc:acc2b42b5e51c9bb61432c77cb9e57846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a socket-object. To set the host and port use kinc_socket_set. Host will be localhost Port will be 8080 Family will be IPv4 Protocol will be TCP  <a href="socket_8h.html#acc2b42b5e51c9bb61432c77cb9e57846">More...</a><br /></td></tr>
 <tr class="separator:acc2b42b5e51c9bb61432c77cb9e57846"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2334a61813205067ab268fdd208d0cb7"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a2334a61813205067ab268fdd208d0cb7">kinc_socket_set</a> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, const char *host, int port, kinc_socket_family_t family, kinc_socket_protocol_t protocol)</td></tr>
+<tr class="memdesc:a2334a61813205067ab268fdd208d0cb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the sockets properties.  <a href="socket_8h.html#a2334a61813205067ab268fdd208d0cb7">More...</a><br /></td></tr>
+<tr class="separator:a2334a61813205067ab268fdd208d0cb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb682a2aa622a9b12b907edd75d4333b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#adb682a2aa622a9b12b907edd75d4333b">kinc_socket_destroy</a> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket)</td></tr>
 <tr class="memdesc:adb682a2aa622a9b12b907edd75d4333b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys a socket-object.  <a href="socket_8h.html#adb682a2aa622a9b12b907edd75d4333b">More...</a><br /></td></tr>
 <tr class="separator:adb682a2aa622a9b12b907edd75d4333b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af16bf7233dcb966efcbd9a08aaf1d685"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#af16bf7233dcb966efcbd9a08aaf1d685">kinc_socket_open</a> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, kinc_socket_protocol_t protocol, int port, struct <a class="el" href="structkinc__socket__options.html">kinc_socket_options</a> *options)</td></tr>
-<tr class="memdesc:af16bf7233dcb966efcbd9a08aaf1d685"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens a socket-connection.  <a href="socket_8h.html#af16bf7233dcb966efcbd9a08aaf1d685">More...</a><br /></td></tr>
-<tr class="separator:af16bf7233dcb966efcbd9a08aaf1d685"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25ab2e7bc37fb9c210c8434d1b8b1127"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a25ab2e7bc37fb9c210c8434d1b8b1127">kinc_socket_open</a> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, <a class="el" href="structkinc__socket__options.html">kinc_socket_options_t</a> *options)</td></tr>
+<tr class="memdesc:a25ab2e7bc37fb9c210c8434d1b8b1127"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens a socket-connection.  <a href="socket_8h.html#a25ab2e7bc37fb9c210c8434d1b8b1127">More...</a><br /></td></tr>
+<tr class="separator:a25ab2e7bc37fb9c210c8434d1b8b1127"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ed29ddca20f6dba14d94f2f22924e6e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a6ed29ddca20f6dba14d94f2f22924e6e">kinc_socket_select</a> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, uint32_t waittime, bool read, bool write)</td></tr>
+<tr class="memdesc:a6ed29ddca20f6dba14d94f2f22924e6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">For use with non-blocking sockets to try to see if we are connected.  <a href="socket_8h.html#a6ed29ddca20f6dba14d94f2f22924e6e">More...</a><br /></td></tr>
+<tr class="separator:a6ed29ddca20f6dba14d94f2f22924e6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cc7d19e1d64b5bae2f763abf754e29b"><td class="memItemLeft" align="right" valign="top"><a id="a4cc7d19e1d64b5bae2f763abf754e29b"></a>
+KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_bind</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket)</td></tr>
+<tr class="separator:a4cc7d19e1d64b5bae2f763abf754e29b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd1cf85d02cc023acf23bc0f833fc9d9"><td class="memItemLeft" align="right" valign="top"><a id="acd1cf85d02cc023acf23bc0f833fc9d9"></a>
 KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_listen</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, int backlog)</td></tr>
 <tr class="separator:acd1cf85d02cc023acf23bc0f833fc9d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8fdf5b0ed86ecb33df1746fe977b86a"><td class="memItemLeft" align="right" valign="top"><a id="ac8fdf5b0ed86ecb33df1746fe977b86a"></a>
 KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_accept</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, <a class="el" href="structkinc__socket.html">kinc_socket_t</a> *new_socket, unsigned *remote_address, unsigned *remote_port)</td></tr>
 <tr class="separator:ac8fdf5b0ed86ecb33df1746fe977b86a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a624f7f7b63b5e1ab4f22f976db8817bb"><td class="memItemLeft" align="right" valign="top"><a id="a624f7f7b63b5e1ab4f22f976db8817bb"></a>
-KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_connect</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, unsigned address, int port)</td></tr>
-<tr class="separator:a624f7f7b63b5e1ab4f22f976db8817bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adeb70276c821f78aa8de7be582f927ab"><td class="memItemLeft" align="right" valign="top"><a id="adeb70276c821f78aa8de7be582f927ab"></a>
-KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, unsigned address, int port, const unsigned char *data, int size)</td></tr>
-<tr class="separator:adeb70276c821f78aa8de7be582f927ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4b406d18356fbd46afacb163d57fb16"><td class="memItemLeft" align="right" valign="top"><a id="ac4b406d18356fbd46afacb163d57fb16"></a>
-KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send_url</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, const char *url, int port, const unsigned char *data, int size)</td></tr>
-<tr class="separator:ac4b406d18356fbd46afacb163d57fb16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e4c15492ee991173e05c4b4412c7766"><td class="memItemLeft" align="right" valign="top"><a id="a6e4c15492ee991173e05c4b4412c7766"></a>
-KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send_connected</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, const unsigned char *data, int size)</td></tr>
-<tr class="separator:a6e4c15492ee991173e05c4b4412c7766"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08d070615659579376b1842a5c64102c"><td class="memItemLeft" align="right" valign="top"><a id="a08d070615659579376b1842a5c64102c"></a>
-KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_receive</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, unsigned char *data, int maxSize, unsigned *from_address, unsigned *from_port)</td></tr>
-<tr class="separator:a08d070615659579376b1842a5c64102c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af98eb07353a20750ea64b9b89b6c5ed0"><td class="memItemLeft" align="right" valign="top"><a id="af98eb07353a20750ea64b9b89b6c5ed0"></a>
-KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_receive_connected</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, unsigned char *data, int max_size)</td></tr>
-<tr class="separator:af98eb07353a20750ea64b9b89b6c5ed0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5866d0807dd137f6812d0228d9fdc725"><td class="memItemLeft" align="right" valign="top">KINC_FUNC unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a5866d0807dd137f6812d0228d9fdc725">kinc_url_to_int</a> (const char *url, int port)</td></tr>
-<tr class="memdesc:a5866d0807dd137f6812d0228d9fdc725"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolves a DNS-entry to an IP and returns its integer representation.  <a href="socket_8h.html#a5866d0807dd137f6812d0228d9fdc725">More...</a><br /></td></tr>
-<tr class="separator:a5866d0807dd137f6812d0228d9fdc725"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd78b66063959664d86791e1dbb12887"><td class="memItemLeft" align="right" valign="top"><a id="afd78b66063959664d86791e1dbb12887"></a>
+KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_connect</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket)</td></tr>
+<tr class="separator:afd78b66063959664d86791e1dbb12887"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52fdc74cbe6dcaaeb3d141bfb7d07a8b"><td class="memItemLeft" align="right" valign="top"><a id="a52fdc74cbe6dcaaeb3d141bfb7d07a8b"></a>
+KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, const char *data, int size)</td></tr>
+<tr class="separator:a52fdc74cbe6dcaaeb3d141bfb7d07a8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15a6f0835819278670a0765caed1699a"><td class="memItemLeft" align="right" valign="top"><a id="a15a6f0835819278670a0765caed1699a"></a>
+KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send_url</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, const char *url, int port, const char *data, int size)</td></tr>
+<tr class="separator:a15a6f0835819278670a0765caed1699a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a458535cc422f441271c14c9a8eecfe30"><td class="memItemLeft" align="right" valign="top"><a id="a458535cc422f441271c14c9a8eecfe30"></a>
+KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_receive</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, char *data, int maxSize, unsigned *from_address, unsigned *from_port)</td></tr>
+<tr class="separator:a458535cc422f441271c14c9a8eecfe30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides low-level network-communication via UDP or TCP-sockets. </p>
@@ -194,7 +201,7 @@ KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_
       </table>
 </div><div class="memdoc">
 
-<p>Initializes a socket-object. </p>
+<p>Initializes a socket-object. To set the host and port use kinc_socket_set. Host will be localhost Port will be 8080 Family will be IPv4 Protocol will be TCP </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">socket</td><td>The socket to initialize</td></tr>
@@ -204,8 +211,8 @@ KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_
 
 </div>
 </div>
-<a id="af16bf7233dcb966efcbd9a08aaf1d685"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af16bf7233dcb966efcbd9a08aaf1d685">&#9670;&nbsp;</a></span>kinc_socket_open()</h2>
+<a id="a25ab2e7bc37fb9c210c8434d1b8b1127"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25ab2e7bc37fb9c210c8434d1b8b1127">&#9670;&nbsp;</a></span>kinc_socket_open()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -219,19 +226,7 @@ KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">kinc_socket_protocol_t&#160;</td>
-          <td class="paramname"><em>protocol</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>port</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">struct <a class="el" href="structkinc__socket__options.html">kinc_socket_options</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="structkinc__socket__options.html">kinc_socket_options_t</a> *&#160;</td>
           <td class="paramname"><em>options</em>&#160;</td>
         </tr>
         <tr>
@@ -282,23 +277,35 @@ KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_
 
 </div>
 </div>
-<a id="a5866d0807dd137f6812d0228d9fdc725"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5866d0807dd137f6812d0228d9fdc725">&#9670;&nbsp;</a></span>kinc_url_to_int()</h2>
+<a id="a6ed29ddca20f6dba14d94f2f22924e6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ed29ddca20f6dba14d94f2f22924e6e">&#9670;&nbsp;</a></span>kinc_socket_select()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC unsigned kinc_url_to_int </td>
+          <td class="memname">KINC_FUNC bool kinc_socket_select </td>
           <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>url</em>, </td>
+          <td class="paramtype"><a class="el" href="structkinc__socket.html">kinc_socket_t</a> *&#160;</td>
+          <td class="paramname"><em>socket</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>port</em>&#160;</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>waittime</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>read</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>write</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -308,15 +315,76 @@ KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_
       </table>
 </div><div class="memdoc">
 
-<p>Resolves a DNS-entry to an IP and returns its integer representation. </p>
+<p>For use with non-blocking sockets to try to see if we are connected. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">url</td><td></td></tr>
-    <tr><td class="paramname">port</td><td></td></tr>
+    <tr><td class="paramname">socket</td><td>The socket-object to use</td></tr>
+    <tr><td class="paramname">waittime</td><td>The amount of time in seconds the select function will timeout.</td></tr>
+    <tr><td class="paramname">read</td><td>Check if the socket is ready to be read from.</td></tr>
+    <tr><td class="paramname">write</td><td>Check if the socket is ready to be written to.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether the socket-connection can read or write or checks both.</dd></dl>
+
+</div>
+</div>
+<a id="a2334a61813205067ab268fdd208d0cb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2334a61813205067ab268fdd208d0cb7">&#9670;&nbsp;</a></span>kinc_socket_set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC bool kinc_socket_set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__socket.html">kinc_socket_t</a> *&#160;</td>
+          <td class="paramname"><em>socket</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>host</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>port</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">kinc_socket_family_t&#160;</td>
+          <td class="paramname"><em>family</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">kinc_socket_protocol_t&#160;</td>
+          <td class="paramname"><em>protocol</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the sockets properties. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">socket</td><td>The socket-object to use</td></tr>
+    <tr><td class="paramname">host</td><td>The host to use. Either in IP form or a url.</td></tr>
+    <tr><td class="paramname">port</td><td>The port to use</td></tr>
+    <tr><td class="paramname">family</td><td>The IP family to use</td></tr>
+    <tr><td class="paramname">protocol</td><td>The protocol to use</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether the socket was set correctly.</dd></dl>
 
 </div>
 </div>
