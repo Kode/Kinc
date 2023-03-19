@@ -2,13 +2,6 @@
 
 #include <kinc/global.h>
 
-#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#elif defined(KORE_POSIX) || defined(KORE_EMSCRIPTEN)
-#include <sys/socket.h>
-#endif
-
 /*! \file socket.h
     \brief Provides low-level network-communication via UDP or TCP-sockets.
 */
@@ -19,7 +12,7 @@ extern "C" {
 
 typedef enum kinc_socket_protocol { KINC_SOCKET_PROTOCOL_UDP, KINC_SOCKET_PROTOCOL_TCP } kinc_socket_protocol_t;
 
-typedef enum kinc_socket_family { KINC_SOCKET_FAMILY_IP4 = AF_INET, KINC_SOCKET_FAMILY_IP6 = AF_INET6 } kinc_socket_family_t;
+typedef enum kinc_socket_family { KINC_SOCKET_FAMILY_IP4, KINC_SOCKET_FAMILY_IP6 } kinc_socket_family_t;
 
 #ifdef KORE_MICROSOFT
 #if defined(_WIN64)
@@ -41,8 +34,8 @@ typedef struct kinc_socket {
 #endif
 	uint32_t host;
 	uint32_t port;
-	kinc_socket_protocol_t prot;
-	kinc_socket_family_t fam;
+	kinc_socket_protocol_t protocol;
+	kinc_socket_family_t family;
 	bool connected;
 } kinc_socket_t;
 
@@ -177,6 +170,7 @@ KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize
 #define WIN32_LEAN_AND_MEAN
 
 #include <Ws2tcpip.h>
+#include <winsock2.h>
 #elif defined(KORE_POSIX) || defined(KORE_EMSCRIPTEN)
 #include <arpa/inet.h> // for inet_addr()
 #include <ctype.h>
@@ -185,6 +179,7 @@ KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
 #endif
 
@@ -218,7 +213,7 @@ static int resolveAddress(const char *url, int port, struct addrinfo **result) {
 KINC_FUNC bool kinc_socket_bind(kinc_socket_t *sock) {
 
 	struct sockaddr_in address;
-	address.sin_family = sock->fam;
+	address.sin_family = sock->family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6;
 	address.sin_addr.s_addr = sock->host;
 	address.sin_port = sock->port;
 	if (bind(sock->handle, (const struct sockaddr *)&address, sizeof(struct sockaddr_in)) < 0) {
@@ -239,8 +234,8 @@ void kinc_socket_init(kinc_socket_t *sock) {
 
 	sock->host = INADDR_ANY;
 	sock->port = htons((unsigned short)8080);
-	sock->prot = KINC_SOCKET_PROTOCOL_TCP;
-	sock->fam = KINC_SOCKET_FAMILY_IP4;
+	sock->protocol = KINC_SOCKET_PROTOCOL_TCP;
+	sock->family = KINC_SOCKET_FAMILY_IP4;
 	sock->connected = false;
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
@@ -265,12 +260,12 @@ void kinc_socket_init(kinc_socket_t *sock) {
 
 bool kinc_socket_open(kinc_socket_t *sock, struct kinc_socket_options *options) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
-	switch (sock->prot) {
+	switch (sock->protocol) {
 	case KINC_SOCKET_PROTOCOL_UDP:
-		sock->handle = socket(sock->fam, SOCK_DGRAM, IPPROTO_UDP);
+		sock->handle = socket(sock->family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
 		break;
 	case KINC_SOCKET_PROTOCOL_TCP:
-		sock->handle = socket(sock->fam, SOCK_STREAM, IPPROTO_TCP);
+		sock->handle = socket(sock->family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 		break;
 	default:
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Unsupported socket protocol.");
@@ -436,19 +431,18 @@ bool kinc_socket_select(kinc_socket_t *sock, uint32_t waittime, bool read, bool 
 bool kinc_socket_set(kinc_socket_t *sock, const char *host, int port, kinc_socket_family_t family, kinc_socket_protocol_t protocol) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 
-	sock->fam = family;
-	sock->prot = protocol;
+	sock->family = family;
+	sock->protocol = protocol;
 	sock->port = htons((unsigned short)port);
 
 	if (host == NULL)
 		return true;
 
 	if (isdigit(host[0]) || (family == KINC_SOCKET_FAMILY_IP6 && host[4] == ':')) { // Is IPv4 or IPv6 string
-
 		struct in_addr addr;
 
-		if (inet_pton(sock->fam, host, &addr) == 0) {
-			kinc_log(KINC_LOG_LEVEL_ERROR, "Invalid %s address: %s\n", sock->fam == KINC_SOCKET_FAMILY_IP4 ? "IPv4" : "IPv6", host);
+		if (inet_pton(sock->family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6, host, &addr) == 0) {
+			kinc_log(KINC_LOG_LEVEL_ERROR, "Invalid %s address: %s\n", sock->family == KINC_SOCKET_FAMILY_IP4 ? "IPv4" : "IPv6", host);
 			return false;
 		}
 		sock->host = addr.s_addr;
@@ -499,8 +493,8 @@ bool kinc_socket_accept(kinc_socket_t *sock, kinc_socket_t *newSocket, unsigned 
 	newSocket->connected = sock->connected = true;
 	newSocket->host = addr.sin_addr.s_addr;
 	newSocket->port = addr.sin_port;
-	newSocket->fam = sock->fam;
-	newSocket->prot = sock->prot;
+	newSocket->family = sock->family;
+	newSocket->protocol = sock->protocol;
 	*remoteAddress = ntohl(addr.sin_addr.s_addr);
 	*remotePort = ntohs(addr.sin_port);
 	return true;
@@ -512,7 +506,7 @@ bool kinc_socket_accept(kinc_socket_t *sock, kinc_socket_t *newSocket, unsigned 
 bool kinc_socket_connect(kinc_socket_t *sock) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	struct sockaddr_in addr;
-	addr.sin_family = sock->fam;
+	addr.sin_family = sock->family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6;
 	addr.sin_addr.s_addr = sock->host;
 	addr.sin_port = sock->port;
 
@@ -528,9 +522,9 @@ int kinc_socket_send(kinc_socket_t *sock, const char *data, int size) {
 	typedef int socklen_t;
 #endif
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
-	if (sock->prot == KINC_SOCKET_PROTOCOL_UDP) {
+	if (sock->protocol == KINC_SOCKET_PROTOCOL_UDP) {
 		struct sockaddr_in addr;
-		addr.sin_family = sock->fam;
+		addr.sin_family = sock->family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6;
 		addr.sin_addr.s_addr = sock->host;
 		addr.sin_port = sock->port;
 
@@ -585,7 +579,7 @@ int kinc_socket_receive(kinc_socket_t *sock, char *data, int maxSize, unsigned *
 #endif
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 
-	if (sock->prot == KINC_SOCKET_PROTOCOL_UDP) {
+	if (sock->protocol == KINC_SOCKET_PROTOCOL_UDP) {
 		struct sockaddr_in from;
 		socklen_t fromLength = sizeof(from);
 		ssize_t bytes = recvfrom(sock->handle, (char *)data, maxSize, 0, (struct sockaddr *)&from, &fromLength);
