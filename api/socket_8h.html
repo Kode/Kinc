@@ -146,15 +146,21 @@ KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket
 <tr class="memitem:afd78b66063959664d86791e1dbb12887"><td class="memItemLeft" align="right" valign="top"><a id="afd78b66063959664d86791e1dbb12887"></a>
 KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_connect</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket)</td></tr>
 <tr class="separator:afd78b66063959664d86791e1dbb12887"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52fdc74cbe6dcaaeb3d141bfb7d07a8b"><td class="memItemLeft" align="right" valign="top"><a id="a52fdc74cbe6dcaaeb3d141bfb7d07a8b"></a>
-KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, const char *data, int size)</td></tr>
-<tr class="separator:a52fdc74cbe6dcaaeb3d141bfb7d07a8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15a6f0835819278670a0765caed1699a"><td class="memItemLeft" align="right" valign="top"><a id="a15a6f0835819278670a0765caed1699a"></a>
-KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send_url</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, const char *url, int port, const char *data, int size)</td></tr>
-<tr class="separator:a15a6f0835819278670a0765caed1699a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a458535cc422f441271c14c9a8eecfe30"><td class="memItemLeft" align="right" valign="top"><a id="a458535cc422f441271c14c9a8eecfe30"></a>
-KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_receive</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, char *data, int maxSize, unsigned *from_address, unsigned *from_port)</td></tr>
-<tr class="separator:a458535cc422f441271c14c9a8eecfe30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ee580d766443568f6e16714b82126d7"><td class="memItemLeft" align="right" valign="top"><a id="a5ee580d766443568f6e16714b82126d7"></a>
+KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, const uint8_t *data, int size)</td></tr>
+<tr class="separator:a5ee580d766443568f6e16714b82126d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabd50c0b0b07feef48e10b07e383e120"><td class="memItemLeft" align="right" valign="top"><a id="aabd50c0b0b07feef48e10b07e383e120"></a>
+KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send_address</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, unsigned address, int port, const uint8_t *data, int size)</td></tr>
+<tr class="separator:aabd50c0b0b07feef48e10b07e383e120"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b23ef13a1c8c9facd5190b6bb9d5f0b"><td class="memItemLeft" align="right" valign="top"><a id="a1b23ef13a1c8c9facd5190b6bb9d5f0b"></a>
+KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_send_url</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, const char *url, int port, const uint8_t *data, int size)</td></tr>
+<tr class="separator:a1b23ef13a1c8c9facd5190b6bb9d5f0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0317c708c0e8c8d9988c42f3374a77f1"><td class="memItemLeft" align="right" valign="top"><a id="a0317c708c0e8c8d9988c42f3374a77f1"></a>
+KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_receive</b> (<a class="el" href="structkinc__socket.html">kinc_socket_t</a> *socket, uint8_t *data, int maxSize, unsigned *from_address, unsigned *from_port)</td></tr>
+<tr class="separator:a0317c708c0e8c8d9988c42f3374a77f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5866d0807dd137f6812d0228d9fdc725"><td class="memItemLeft" align="right" valign="top">KINC_FUNC unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a5866d0807dd137f6812d0228d9fdc725">kinc_url_to_int</a> (const char *url, int port)</td></tr>
+<tr class="memdesc:a5866d0807dd137f6812d0228d9fdc725"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolves a DNS-entry to an IP and returns its integer representation.  <a href="socket_8h.html#a5866d0807dd137f6812d0228d9fdc725">More...</a><br /></td></tr>
+<tr class="separator:a5866d0807dd137f6812d0228d9fdc725"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides low-level network-communication via UDP or TCP-sockets. </p>
@@ -377,14 +383,52 @@ KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_socket_
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">socket</td><td>The socket-object to use</td></tr>
-    <tr><td class="paramname">host</td><td>The host to use. Either in IP form or a url.</td></tr>
+    <tr><td class="paramname">host</td><td>The host to use as IP or URL</td></tr>
     <tr><td class="paramname">port</td><td>The port to use</td></tr>
-    <tr><td class="paramname">family</td><td>The IP family to use</td></tr>
+    <tr><td class="paramname">family</td><td>The IP-family to use</td></tr>
     <tr><td class="paramname">protocol</td><td>The protocol to use</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Whether the socket was set correctly.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether the socket was set correctly</dd></dl>
+
+</div>
+</div>
+<a id="a5866d0807dd137f6812d0228d9fdc725"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5866d0807dd137f6812d0228d9fdc725">&#9670;&nbsp;</a></span>kinc_url_to_int()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC unsigned kinc_url_to_int </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>url</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>port</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resolves a DNS-entry to an IP and returns its integer representation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">url</td><td></td></tr>
+    <tr><td class="paramname">port</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
