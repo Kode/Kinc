@@ -65,11 +65,11 @@ KINC_FUNC void kinc_socket_init(kinc_socket_t *socket);
 /// Sets the sockets properties.
 /// </summary>
 /// <param name="socket">The socket-object to use</param>
-/// <param name="host">The host to use. Either in IP form or a url.</param>
+/// <param name="host">The host to use as IP or URL</param>
 /// <param name="port">The port to use</param>
-/// <param name="family">The IP family to use</param>
+/// <param name="family">The IP-family to use</param>
 /// <param name="protocol">The protocol to use</param>
-/// <returns>Whether the socket was set correctly.</returns>
+/// <returns>Whether the socket was set correctly</returns>
 KINC_FUNC bool kinc_socket_set(kinc_socket_t *socket, const char *host, int port, kinc_socket_family_t family, kinc_socket_protocol_t protocol);
 
 /// <summary>
@@ -87,6 +87,7 @@ KINC_FUNC void kinc_socket_destroy(kinc_socket_t *socket);
 /// <param name="options">The options to use</param>
 /// <returns>Whether the socket-connection could be opened</returns>
 KINC_FUNC bool kinc_socket_open(kinc_socket_t *socket, kinc_socket_options_t *options);
+
 /// <summary>
 /// For use with non-blocking sockets to try to see if we are connected.
 /// </summary>
@@ -105,9 +106,18 @@ KINC_FUNC bool kinc_socket_accept(kinc_socket_t *socket, kinc_socket_t *new_sock
 /*Typically this is a client action.*/
 KINC_FUNC bool kinc_socket_connect(kinc_socket_t *socket);
 
-KINC_FUNC int kinc_socket_send(kinc_socket_t *socket, const char *data, int size);
-KINC_FUNC int kinc_socket_send_url(kinc_socket_t *socket, const char *url, int port, const char *data, int size);
-KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, char *data, int maxSize, unsigned *from_address, unsigned *from_port);
+KINC_FUNC int kinc_socket_send(kinc_socket_t *socket, const uint8_t *data, int size);
+KINC_FUNC int kinc_socket_send_address(kinc_socket_t *socket, unsigned address, int port, const uint8_t *data, int size);
+KINC_FUNC int kinc_socket_send_url(kinc_socket_t *socket, const char *url, int port, const uint8_t *data, int size);
+KINC_FUNC int kinc_socket_receive(kinc_socket_t *socket, uint8_t *data, int maxSize, unsigned *from_address, unsigned *from_port);
+
+/// <summary>
+/// Resolves a DNS-entry to an IP and returns its integer representation.
+/// </summary>
+/// <param name="url"></param>
+/// <param name="port"></param>
+/// <returns></returns>
+KINC_FUNC unsigned kinc_url_to_int(const char *url, int port);
 
 #ifdef KINC_IMPLEMENTATION_NETWORK
 #define KINC_IMPLEMENTATION
@@ -210,6 +220,7 @@ static int resolveAddress(const char *url, int port, struct addrinfo **result) {
 	return getaddrinfo(url, serv, &hints, result);
 }
 #endif
+
 KINC_FUNC bool kinc_socket_bind(kinc_socket_t *sock) {
 
 	struct sockaddr_in address;
@@ -517,7 +528,7 @@ bool kinc_socket_connect(kinc_socket_t *sock) {
 #endif
 }
 
-int kinc_socket_send(kinc_socket_t *sock, const char *data, int size) {
+int kinc_socket_send(kinc_socket_t *sock, const uint8_t *data, int size) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	typedef int socklen_t;
 #endif
@@ -552,7 +563,24 @@ int kinc_socket_send(kinc_socket_t *sock, const char *data, int size) {
 #endif
 }
 
-int kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const char *data, int size) {
+int kinc_socket_send_address(kinc_socket_t *sock, unsigned address, int port, const uint8_t *data, int size) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(address);
+	addr.sin_port = htons(port);
+
+	size_t sent = sendto(sock->handle, (const char *)data, size, 0, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+	if (sent != size) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
+	}
+	return (int)sent;
+#else
+	return 0;
+#endif
+}
+
+int kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const uint8_t *data, int size) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	struct addrinfo *address = NULL;
 	int res = resolveAddress(url, port, &address);
@@ -572,7 +600,7 @@ int kinc_socket_send_url(kinc_socket_t *sock, const char *url, int port, const c
 #endif
 }
 
-int kinc_socket_receive(kinc_socket_t *sock, char *data, int maxSize, unsigned *fromAddress, unsigned *fromPort) {
+int kinc_socket_receive(kinc_socket_t *sock, uint8_t *data, int maxSize, unsigned *fromAddress, unsigned *fromPort) {
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 	typedef int socklen_t;
 	typedef int ssize_t;
@@ -601,6 +629,24 @@ int kinc_socket_receive(kinc_socket_t *sock, char *data, int maxSize, unsigned *
 		*fromPort = ntohs(sock->port);
 		return (int)bytes;
 	}
+#else
+	return 0;
+#endif
+}
+
+unsigned kinc_url_to_int(const char *url, int port) {
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
+	struct addrinfo *address = NULL;
+	int res = resolveAddress(url, port, &address);
+	if (res != 0) {
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not resolve address.");
+		return -1;
+	}
+
+	unsigned fromAddress = ntohl(((struct sockaddr_in *)address->ai_addr)->sin_addr.S_un.S_addr);
+	freeaddrinfo(address);
+
+	return fromAddress;
 #else
 	return 0;
 #endif
