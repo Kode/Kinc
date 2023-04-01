@@ -8,16 +8,7 @@
 
 #include <math.h>
 
-// static const int textureCount = 16;
-
-kinc_g5_render_target_t *currentRenderTargets[textureCount] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-struct kinc_g5_texture *currentTextures[textureCount] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-static kinc_g5_sampler_t *current_samplers[textureCount] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-
 static const int heapSize = 1024;
-static int heapIndex = 0;
-static ID3D12DescriptorHeap *srvHeap;
-static ID3D12DescriptorHeap *samplerHeap;
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 /*static int d3d12_textureAlignment() {
@@ -27,11 +18,11 @@ static ID3D12DescriptorHeap *samplerHeap;
 int d3d12_textureAlignment();
 #endif
 
-void kinc_g5_internal_reset_textures(void) {
-	for (int i = 0; i < textureCount; ++i) {
-		currentRenderTargets[i] = NULL;
-		currentTextures[i] = NULL;
-		current_samplers[i] = NULL;
+void kinc_g5_internal_reset_textures(struct kinc_g5_command_list *list) {
+	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
+		list->impl.currentRenderTargets[i] = NULL;
+		list->impl.currentTextures[i] = NULL;
+		list->impl.current_samplers[i] = NULL;
 	}
 }
 
@@ -88,41 +79,41 @@ static int formatByteSize(kinc_image_format_t format) {
 	}
 }
 
-void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
-	if (currentRenderTargets[0] != NULL || currentTextures[0] != NULL) {
+void kinc_g5_internal_set_textures(kinc_g5_command_list_t *list) {
+	if (list->impl.currentRenderTargets[0] != NULL || list->impl.currentTextures[0] != NULL) {
 		int srvStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		int samplerStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 
-		if (heapIndex + textureCount >= heapSize) {
-			heapIndex = 0;
+		if (list->impl.heapIndex + KINC_INTERNAL_G5_TEXTURE_COUNT >= heapSize) {
+			list->impl.heapIndex = 0;
 		}
 
-		D3D12_GPU_DESCRIPTOR_HANDLE srvGpu = srvHeap->GetGPUDescriptorHandleForHeapStart();
-		D3D12_GPU_DESCRIPTOR_HANDLE samplerGpu = samplerHeap->GetGPUDescriptorHandleForHeapStart();
-		srvGpu.ptr += heapIndex * srvStep;
-		samplerGpu.ptr += heapIndex * samplerStep;
+		D3D12_GPU_DESCRIPTOR_HANDLE srvGpu = list->impl.srvHeap->GetGPUDescriptorHandleForHeapStart();
+		D3D12_GPU_DESCRIPTOR_HANDLE samplerGpu = list->impl.samplerHeap->GetGPUDescriptorHandleForHeapStart();
+		srvGpu.ptr += list->impl.heapIndex * srvStep;
+		samplerGpu.ptr += list->impl.heapIndex * samplerStep;
 
-		for (int i = 0; i < textureCount; ++i) {
-			if ((currentRenderTargets[i] != NULL || currentTextures[i] != NULL) && current_samplers[i] != NULL) {
-				ID3D12DescriptorHeap *samplerDescriptorHeap = current_samplers[i]->impl.sampler_heap;
+		for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
+			if ((list->impl.currentRenderTargets[i] != NULL || list->impl.currentTextures[i] != NULL) && list->impl.current_samplers[i] != NULL) {
+				ID3D12DescriptorHeap *samplerDescriptorHeap = list->impl.current_samplers[i]->impl.sampler_heap;
 
-				D3D12_CPU_DESCRIPTOR_HANDLE srvCpu = srvHeap->GetCPUDescriptorHandleForHeapStart();
-				D3D12_CPU_DESCRIPTOR_HANDLE samplerCpu = samplerHeap->GetCPUDescriptorHandleForHeapStart();
-				srvCpu.ptr += heapIndex * srvStep;
-				samplerCpu.ptr += heapIndex * samplerStep;
-				++heapIndex;
+				D3D12_CPU_DESCRIPTOR_HANDLE srvCpu = list->impl.srvHeap->GetCPUDescriptorHandleForHeapStart();
+				D3D12_CPU_DESCRIPTOR_HANDLE samplerCpu = list->impl.samplerHeap->GetCPUDescriptorHandleForHeapStart();
+				srvCpu.ptr += list->impl.heapIndex * srvStep;
+				samplerCpu.ptr += list->impl.heapIndex * samplerStep;
+				++list->impl.heapIndex;
 
-				if (currentRenderTargets[i] != NULL) {
-					bool is_depth = currentRenderTargets[i]->impl.stage_depth == i;
-					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = is_depth
-					                                            ? currentRenderTargets[i]->impl.srvDepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
-					                                            : currentRenderTargets[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+				if (list->impl.currentRenderTargets[i] != NULL) {
+					bool is_depth = list->impl.currentRenderTargets[i]->impl.stage_depth == i;
+					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu =
+					    is_depth ? list->impl.currentRenderTargets[i]->impl.srvDepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
+					             : list->impl.currentRenderTargets[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 					device->CopyDescriptorsSimple(1, srvCpu, sourceCpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 					                              D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 				}
 				else {
-					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = currentTextures[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+					D3D12_CPU_DESCRIPTOR_HANDLE sourceCpu = list->impl.currentTextures[i]->impl.srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 					device->CopyDescriptorsSimple(1, srvCpu, sourceCpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 					                              D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
@@ -130,25 +121,25 @@ void kinc_g5_internal_set_textures(ID3D12GraphicsCommandList *commandList) {
 			}
 		}
 
-		ID3D12DescriptorHeap *heaps[2] = {srvHeap, samplerHeap};
-		commandList->SetDescriptorHeaps(2, heaps);
-		commandList->SetGraphicsRootDescriptorTable(0, srvGpu);
-		commandList->SetGraphicsRootDescriptorTable(1, samplerGpu);
+		ID3D12DescriptorHeap *heaps[2] = {list->impl.srvHeap, list->impl.samplerHeap};
+		list->impl._commandList->SetDescriptorHeaps(2, heaps);
+		list->impl._commandList->SetGraphicsRootDescriptorTable(0, srvGpu);
+		list->impl._commandList->SetGraphicsRootDescriptorTable(1, samplerGpu);
 	}
 }
 
-void createHeaps() {
+void createHeaps(kinc_g5_command_list_t *list) {
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.NumDescriptors = heapSize;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&srvHeap));
+	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&list->impl.srvHeap));
 
 	D3D12_DESCRIPTOR_HEAP_DESC samplerHeapDesc = {};
 	samplerHeapDesc.NumDescriptors = heapSize;
 	samplerHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
 	samplerHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	device->CreateDescriptorHeap(&samplerHeapDesc, IID_GRAPHICS_PPV_ARGS(&samplerHeap));
+	device->CreateDescriptorHeap(&samplerHeapDesc, IID_GRAPHICS_PPV_ARGS(&list->impl.samplerHeap));
 }
 
 extern "C" void kinc_memory_emergency();
@@ -371,10 +362,7 @@ void kinc_g5_texture_init_non_sampled_access(struct kinc_g5_texture *texture, in
 	create_texture(texture, width, height, format, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }
 
-void kinc_g5_internal_texture_unset(struct kinc_g5_texture *texture);
-
 void kinc_g5_texture_destroy(struct kinc_g5_texture *texture) {
-	kinc_g5_internal_texture_unset(texture);
 	texture->impl.image->Release();
 	texture->impl.uploadImage->Release();
 	texture->impl.srvDescriptorHeap->Release();
@@ -384,26 +372,20 @@ void kinc_g5_internal_texture_unmipmap(struct kinc_g5_texture *texture) {
 	texture->impl.mipmap = false;
 }
 
-void kinc_g5_internal_texture_set(struct kinc_g5_texture *texture, int unit) {
+void kinc_g5_internal_texture_set(kinc_g5_command_list_t *list, struct kinc_g5_texture *texture, int unit) {
 	if (unit < 0)
 		return;
 	// context->PSSetShaderResources(unit.unit, 1, &view);
 	texture->impl.stage = unit;
-	currentTextures[texture->impl.stage] = texture;
-	currentRenderTargets[texture->impl.stage] = NULL;
+	list->impl.currentTextures[texture->impl.stage] = texture;
+	list->impl.currentRenderTargets[texture->impl.stage] = NULL;
 }
 
-void kinc_g5_internal_sampler_set(kinc_g5_sampler_t *sampler, int unit) {
+void kinc_g5_internal_sampler_set(kinc_g5_command_list_t *list, kinc_g5_sampler_t *sampler, int unit) {
 	if (unit < 0)
 		return;
 
-	current_samplers[unit] = sampler;
-}
-
-void kinc_g5_internal_texture_unset(struct kinc_g5_texture *texture) {
-	if (currentTextures[texture->impl.stage] == texture) {
-		currentTextures[texture->impl.stage] = NULL;
-	}
+	list->impl.current_samplers[unit] = sampler;
 }
 
 uint8_t *kinc_g5_texture_lock(struct kinc_g5_texture *texture) {

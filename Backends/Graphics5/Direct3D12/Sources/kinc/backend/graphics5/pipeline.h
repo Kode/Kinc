@@ -69,7 +69,7 @@ typedef struct {
 
 struct kinc_g5_pipeline;
 
-void kinc_g5_internal_setConstants(struct ID3D12GraphicsCommandList *commandList, struct kinc_g5_pipeline *pipeline);
+void kinc_g5_internal_setConstants(struct kinc_g5_command_list *commandList, struct kinc_g5_pipeline *pipeline);
 
 #ifdef __cplusplus
 }

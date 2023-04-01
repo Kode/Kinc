@@ -5,8 +5,7 @@
 #include <kinc/graphics5/vertexbuffer.h>
 #include <kinc/window.h>
 
-extern kinc_g5_texture_t *currentTextures[textureCount];
-extern kinc_g5_render_target_t *currentRenderTargets[textureCount];
+void createHeaps(kinc_g5_command_list_t *list);
 
 static int formatSize(DXGI_FORMAT format) {
 	switch (format) {
@@ -38,11 +37,19 @@ void kinc_g5_command_list_init(struct kinc_g5_command_list *list) {
 	list->impl._indexCount = 0;
 
 	list->impl.current_full_scissor.left = -1;
+
+	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
+		list->impl.currentRenderTargets[i] = NULL;
+		list->impl.currentTextures[i] = NULL;
+		list->impl.current_samplers[i] = NULL;
+	}
+	list->impl.heapIndex = 0;
+	createHeaps(list);
 }
 
 void kinc_g5_command_list_destroy(struct kinc_g5_command_list *list) {}
 
-void kinc_g5_internal_reset_textures(void);
+void kinc_g5_internal_reset_textures(struct kinc_g5_command_list *list);
 
 void kinc_g5_command_list_begin(struct kinc_g5_command_list *list) {
 	assert(!list->impl.open);
@@ -53,7 +60,7 @@ void kinc_g5_command_list_begin(struct kinc_g5_command_list *list) {
 		list->impl._commandList->Reset(list->impl._commandAllocator, NULL);
 	}
 
-	kinc_g5_internal_reset_textures();
+	kinc_g5_internal_reset_textures(list);
 
 #ifndef NDEBUG
 	list->impl.open = true;
@@ -290,11 +297,11 @@ void kinc_g5_command_list_set_pipeline(struct kinc_g5_command_list *list, kinc_g
 
 	list->impl._currentPipeline = pipeline;
 	list->impl._commandList->SetPipelineState(pipeline->impl.pso);
-	for (int i = 0; i < textureCount; ++i) {
-		currentRenderTargets[i] = NULL;
-		currentTextures[i] = NULL;
+	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
+		list->impl.currentRenderTargets[i] = NULL;
+		list->impl.currentTextures[i] = NULL;
 	}
-	kinc_g5_internal_setConstants(list->impl._commandList, list->impl._currentPipeline);
+	kinc_g5_internal_setConstants(list, list->impl._currentPipeline);
 }
 
 void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
@@ -509,24 +516,24 @@ void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, k
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
 	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
-		kinc_g5_internal_texture_set(texture, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
+		kinc_g5_internal_texture_set(list, texture, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
 	}
 	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
-		kinc_g5_internal_texture_set(texture, unit.stages[KINC_G5_SHADER_TYPE_VERTEX]);
+		kinc_g5_internal_texture_set(list, texture, unit.stages[KINC_G5_SHADER_TYPE_VERTEX]);
 	}
-	kinc_g5_internal_set_textures(list->impl._commandList);
+	kinc_g5_internal_set_textures(list);
 }
 
-void kinc_g5_internal_sampler_set(kinc_g5_sampler_t *sampler, int unit);
+void kinc_g5_internal_sampler_set(kinc_g5_command_list_t *list, kinc_g5_sampler_t *sampler, int unit);
 
 void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
 	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
-		kinc_g5_internal_sampler_set(sampler, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
+		kinc_g5_internal_sampler_set(list, sampler, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
 	}
 	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
-		kinc_g5_internal_sampler_set(sampler, unit.stages[KINC_G5_SHADER_TYPE_VERTEX]);
+		kinc_g5_internal_sampler_set(list, sampler, unit.stages[KINC_G5_SHADER_TYPE_VERTEX]);
 	}
-	kinc_g5_internal_set_textures(list->impl._commandList);
+	kinc_g5_internal_set_textures(list);
 }
 
 bool kinc_g5_command_list_init_occlusion_query(kinc_g5_command_list_t *list, unsigned *occlusionQuery) {
@@ -548,27 +555,27 @@ void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigne
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
 	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
 		target->impl.stage = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
-		currentRenderTargets[target->impl.stage] = target;
+		list->impl.currentRenderTargets[target->impl.stage] = target;
 	}
 	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
 		target->impl.stage = unit.stages[KINC_G5_SHADER_TYPE_VERTEX];
-		currentRenderTargets[target->impl.stage] = target;
+		list->impl.currentRenderTargets[target->impl.stage] = target;
 	}
-	currentTextures[target->impl.stage] = NULL;
+	list->impl.currentTextures[target->impl.stage] = NULL;
 
-	kinc_g5_internal_set_textures(list->impl._commandList);
+	kinc_g5_internal_set_textures(list);
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
 	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
 		target->impl.stage_depth = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
-		currentRenderTargets[target->impl.stage_depth] = target;
+		list->impl.currentRenderTargets[target->impl.stage_depth] = target;
 	}
 	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
 		target->impl.stage_depth = unit.stages[KINC_G5_SHADER_TYPE_VERTEX];
-		currentRenderTargets[target->impl.stage_depth] = target;
+		list->impl.currentRenderTargets[target->impl.stage_depth] = target;
 	}
-	currentTextures[target->impl.stage_depth] = NULL;
+	list->impl.currentTextures[target->impl.stage_depth] = NULL;
 
-	kinc_g5_internal_set_textures(list->impl._commandList);
+	kinc_g5_internal_set_textures(list);
 }

@@ -93,9 +93,6 @@ KINC_FUNC void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_image
 /// <returns>The stride of the first mipmap-layer in bytes</returns>
 KINC_FUNC int kinc_g5_texture_stride(kinc_g5_texture_t *texture);
 
-void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit);
-void kinc_g5_internal_texture_set_image(kinc_g5_texture_t *texture, int unit);
-
 #ifdef __cplusplus
 }
 #endif

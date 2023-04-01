@@ -1,6 +1,8 @@
+#include "commandlist.h"
 #include "indexbuffer.h"
 #include "pipeline.h"
 #include "vertexbuffer.h"
+
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/math/core.h>
@@ -75,7 +77,6 @@ extern "C" void createSwapChain(struct RenderEnvironment *env, const DXGI_SWAP_C
 #endif
 #endif
 
-void createHeaps();
 extern bool bilinearFiltering;
 
 // ID3D12Resource* renderTarget;
@@ -208,7 +209,7 @@ static void createRootSignature() {
 
 	D3D12_DESCRIPTOR_RANGE range;
 	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	range.NumDescriptors = (UINT)textureCount;
+	range.NumDescriptors = (UINT)KINC_INTERNAL_G5_TEXTURE_COUNT;
 	range.BaseShaderRegister = 0;
 	range.RegisterSpace = 0;
 	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -219,7 +220,7 @@ static void createRootSignature() {
 
 	D3D12_DESCRIPTOR_RANGE range2;
 	range2.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-	range2.NumDescriptors = (UINT)textureCount;
+	range2.NumDescriptors = (UINT)KINC_INTERNAL_G5_TEXTURE_COUNT;
 	range2.BaseShaderRegister = 0;
 	range2.RegisterSpace = 0;
 	range2.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -238,8 +239,8 @@ static void createRootSignature() {
 	parameters[3].Descriptor.ShaderRegister = 0;
 	parameters[3].Descriptor.RegisterSpace = 0;
 
-	D3D12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
-	for (int i = 0; i < textureCount; ++i) {
+	D3D12_STATIC_SAMPLER_DESC samplers[KINC_INTERNAL_G5_TEXTURE_COUNT * 2];
+	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
 		samplers[i].ShaderRegister = i;
 		samplers[i].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 		samplers[i].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -254,7 +255,7 @@ static void createRootSignature() {
 		samplers[i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		samplers[i].RegisterSpace = 0;
 	}
-	for (int i = textureCount; i < textureCount * 2; ++i) {
+	for (int i = KINC_INTERNAL_G5_TEXTURE_COUNT; i < KINC_INTERNAL_G5_TEXTURE_COUNT * 2; ++i) {
 		samplers[i].ShaderRegister = i;
 		samplers[i].Filter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 		samplers[i].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -279,8 +280,6 @@ static void createRootSignature() {
 
 	kinc_microsoft_affirm(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &rootBlob, &errorBlob));
 	device->CreateRootSignature(0, rootBlob->GetBufferPointer(), rootBlob->GetBufferSize(), IID_GRAPHICS_PPV_ARGS(&globalRootSignature));
-
-	createHeaps();
 }
 
 static void createComputeRootSignature() {
@@ -291,7 +290,7 @@ static void createComputeRootSignature() {
 
 	D3D12_DESCRIPTOR_RANGE range;
 	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	range.NumDescriptors = (UINT)textureCount;
+	range.NumDescriptors = (UINT)KINC_INTERNAL_G5_TEXTURE_COUNT;
 	range.BaseShaderRegister = 0;
 	range.RegisterSpace = 0;
 	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -302,7 +301,7 @@ static void createComputeRootSignature() {
 
 	D3D12_DESCRIPTOR_RANGE range2;
 	range2.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-	range2.NumDescriptors = (UINT)textureCount;
+	range2.NumDescriptors = (UINT)KINC_INTERNAL_G5_TEXTURE_COUNT;
 	range2.BaseShaderRegister = 0;
 	range2.RegisterSpace = 0;
 	range2.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -316,8 +315,8 @@ static void createComputeRootSignature() {
 	parameters[2].Descriptor.ShaderRegister = 0;
 	parameters[2].Descriptor.RegisterSpace = 0;
 
-	D3D12_STATIC_SAMPLER_DESC samplers[textureCount * 2];
-	for (int i = 0; i < textureCount; ++i) {
+	D3D12_STATIC_SAMPLER_DESC samplers[KINC_INTERNAL_G5_TEXTURE_COUNT * 2];
+	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
 		samplers[i].ShaderRegister = i;
 		samplers[i].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 		samplers[i].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -332,7 +331,7 @@ static void createComputeRootSignature() {
 		samplers[i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		samplers[i].RegisterSpace = 0;
 	}
-	for (int i = textureCount; i < textureCount * 2; ++i) {
+	for (int i = KINC_INTERNAL_G5_TEXTURE_COUNT; i < KINC_INTERNAL_G5_TEXTURE_COUNT * 2; ++i) {
 		samplers[i].ShaderRegister = i;
 		samplers[i].Filter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 		samplers[i].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;

@@ -9,6 +9,11 @@ extern "C" {
 #endif
 
 struct kinc_g5_pipeline;
+struct kinc_g5_render_target;
+struct kinc_g5_texture;
+struct kinc_g5_sampler;
+
+#define KINC_INTERNAL_G5_TEXTURE_COUNT 16
 
 typedef struct {
 	struct ID3D12CommandAllocator *_commandAllocator;
@@ -26,6 +31,14 @@ typedef struct {
 	uint64_t fence_value;
 	struct ID3D12Fence *fence;
 	HANDLE fence_event;
+
+	struct kinc_g5_render_target *currentRenderTargets[KINC_INTERNAL_G5_TEXTURE_COUNT];
+	struct kinc_g5_texture *currentTextures[KINC_INTERNAL_G5_TEXTURE_COUNT];
+	struct kinc_g5_sampler *current_samplers[KINC_INTERNAL_G5_TEXTURE_COUNT];
+
+	int heapIndex;
+	struct ID3D12DescriptorHeap *srvHeap;
+	struct ID3D12DescriptorHeap *samplerHeap;
 } CommandList5Impl;
 
 #ifdef __cplusplus
