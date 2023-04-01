@@ -17,6 +17,7 @@ void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags a
 
 VkRenderPassBeginInfo currentRenderPassBeginInfo;
 VkPipeline currentVulkanPipeline;
+kinc_g5_render_target_t *currentRenderTargets[8] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 static bool onBackBuffer = false;
 static uint32_t lastVertexConstantBufferOffset = 0;
