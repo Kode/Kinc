@@ -8,9 +8,6 @@
 #include <dxgi1_4.h>
 #endif
 
-// static const int textureCount = 16;
-extern kinc_g5_texture_t *currentTextures[textureCount];
-extern kinc_g5_render_target_t *currentRenderTargets[textureCount];
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 extern ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
 #endif
@@ -267,9 +264,6 @@ void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
 		framebuffer_count -= 1;
 	}
 
-	if (currentRenderTargets[render_target->impl.stage] == render_target) {
-		currentRenderTargets[render_target->impl.stage] = NULL;
-	}
 	render_target->impl.renderTarget->Release();
 	render_target->impl.renderTargetDescriptorHeap->Release();
 	render_target->impl.srvDescriptorHeap->Release();

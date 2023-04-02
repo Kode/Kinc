@@ -7,7 +7,7 @@
 
 #include <kinc/backend/SystemMicrosoft.h>
 
-void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_g5_pipeline_t *pipeline) {
+void kinc_g5_internal_setConstants(kinc_g5_command_list_t *commandList, kinc_g5_pipeline_t *pipeline) {
 	/*if (currentProgram->vertexShader->constantsSize > 0) {
 	    context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
 	    context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
@@ -30,12 +30,12 @@ void kinc_g5_internal_setConstants(ID3D12GraphicsCommandList *commandList, kinc_
 	}
 	*/
 
-	commandList->SetPipelineState(pipeline->impl.pso);
+	commandList->impl._commandList->SetPipelineState(pipeline->impl.pso);
 #ifdef KORE_DXC
 	// commandList->SetGraphicsRootSignature(pipeline->impl.rootSignature);
-	commandList->SetGraphicsRootSignature(globalRootSignature);
+	commandList->impl._commandList->SetGraphicsRootSignature(globalRootSignature);
 #else
-	commandList->SetGraphicsRootSignature(globalRootSignature);
+	commandList->impl._commandList->SetGraphicsRootSignature(globalRootSignature);
 #endif
 
 	if (pipeline->impl.textures > 0) {

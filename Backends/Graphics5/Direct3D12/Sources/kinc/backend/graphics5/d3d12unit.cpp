@@ -60,8 +60,6 @@ struct DXGI_SWAP_CHAIN_DESC1;
 #define IID_GRAPHICS_PPV_ARGS(x) IID_PPV_ARGS(x)
 #endif
 
-#define textureCount 16
-
 extern "C" {
 ID3D12Device *device = NULL;
 }
