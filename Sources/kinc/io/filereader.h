@@ -234,7 +234,7 @@ void kinc_internal_set_files_location(char *dir) {
 	fileslocation = dir;
 }
 
-char *kinc_internal_get_files_location() {
+char *kinc_internal_get_files_location(void) {
 	return fileslocation;
 }
 

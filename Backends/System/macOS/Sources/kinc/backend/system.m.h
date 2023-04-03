@@ -74,7 +74,7 @@ id getMetalQueue(void) {
 }
 #endif
 
-bool kinc_internal_handle_messages() {
+bool kinc_internal_handle_messages(void) {
 	NSEvent *event = [myapp nextEventMatchingMask:NSAnyEventMask
 	                                    untilDate:[NSDate distantPast]
 	                                       inMode:NSDefaultRunLoopMode
@@ -131,7 +131,7 @@ static int createWindow(kinc_window_options_t *options) {
 	return windowCounter++;
 }
 
-int kinc_count_windows() {
+int kinc_count_windows(void) {
 	return windowCounter;
 }
 
@@ -158,7 +158,7 @@ void kinc_window_set_close_callback(int window, bool (*callback)(void *), void *
 	windows[window].closeCallbackData = data;
 }
 
-static void addMenubar() {
+static void addMenubar(void) {
 	NSString *appName = [[NSProcessInfo processInfo] processName];
 
 	NSMenu *appMenu = [NSMenu new];
@@ -233,7 +233,7 @@ void kinc_load_url(const char *url) {
 
 static char language[3];
 
-const char *kinc_language() {
+const char *kinc_language(void) {
 	NSString *nsstr = [[NSLocale preferredLanguages] objectAtIndex:0];
 	const char *lang = [nsstr UTF8String];
 	language[0] = lang[0];
@@ -242,7 +242,7 @@ const char *kinc_language() {
 	return language;
 }
 
-void kinc_internal_shutdown() {}
+void kinc_internal_shutdown(void) {}
 
 static const char *getSavePath(void) {
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
@@ -259,7 +259,7 @@ static const char *getSavePath(void) {
 	return [resolvedPath cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
-const char *kinc_internal_save_path() {
+const char *kinc_internal_save_path(void) {
 	return getSavePath();
 }
 

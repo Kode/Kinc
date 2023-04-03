@@ -4,7 +4,7 @@
 
 static int samples = 1;
 
-int kinc_g5_antialiasing_samples() {
+int kinc_g5_antialiasing_samples(void) {
 	return samples;
 }
 

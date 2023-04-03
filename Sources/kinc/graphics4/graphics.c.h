@@ -2,7 +2,7 @@
 
 static int antialiasing_samples;
 
-int kinc_g4_antialiasing_samples() {
+int kinc_g4_antialiasing_samples(void) {
 	return antialiasing_samples;
 }
 

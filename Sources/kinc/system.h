@@ -624,7 +624,7 @@ float kinc_safe_zone(void) {
 #endif
 }
 
-bool kinc_automatic_safe_zone() {
+bool kinc_automatic_safe_zone(void) {
 #ifdef KORE_ANDROID
 	return true;
 #else

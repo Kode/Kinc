@@ -16,11 +16,11 @@ bool kinc_mouse_can_lock(void) {
 	return true;
 }
 
-void kinc_mouse_show() {
+void kinc_mouse_show(void) {
 	CGDisplayShowCursor(kCGDirectMainDisplay);
 }
 
-void kinc_mouse_hide() {
+void kinc_mouse_hide(void) {
 	CGDisplayHideCursor(kCGDirectMainDisplay);
 }
 

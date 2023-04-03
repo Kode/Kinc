@@ -45,6 +45,6 @@ bool kinc_thread_try_to_destroy(kinc_thread_t *thread) {
 	return pthread_join(thread->impl.pthread, NULL) == 0;
 }
 
-void kinc_threads_init() {}
+void kinc_threads_init(void) {}
 
-void kinc_threads_quit() {}
+void kinc_threads_quit(void) {}

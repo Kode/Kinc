@@ -71,11 +71,11 @@ static inline void kinc_g1_set_pixel(int x, int y, float red, float green, float
 	kinc_internal_g1_image[y * kinc_internal_g1_tex_width + x] = 0xff << 24 | b << 16 | g << 8 | r;
 }
 
-static inline int kinc_g1_width() {
+static inline int kinc_g1_width(void) {
 	return kinc_internal_g1_w;
 }
 
-static inline int kinc_g1_height() {
+static inline int kinc_g1_height(void) {
 	return kinc_internal_g1_h;
 }
 

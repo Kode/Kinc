@@ -19,12 +19,12 @@ static kinc_g4_texture_t texture;
 uint32_t *kinc_internal_g1_image;
 int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
 
-void kinc_g1_begin() {
+void kinc_g1_begin(void) {
 	kinc_g4_begin(0);
 	kinc_internal_g1_image = (uint32_t *)kinc_g4_texture_lock(&texture);
 }
 
-void kinc_g1_end() {
+void kinc_g1_end(void) {
 	kinc_internal_g1_image = NULL;
 	kinc_g4_texture_unlock(&texture);
 

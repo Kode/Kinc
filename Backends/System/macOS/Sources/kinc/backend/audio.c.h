@@ -68,7 +68,7 @@ static OSStatus appIOProc(AudioDeviceID inDevice, const AudioTimeStamp *inNow, c
 
 static bool initialized = false;
 
-void kinc_a2_init() {
+void kinc_a2_init(void) {
 	if (initialized) {
 		return;
 	}
@@ -137,9 +137,9 @@ void kinc_a2_init() {
 	soundPlaying = true;
 }
 
-void kinc_a2_update() {}
+void kinc_a2_update(void) {}
 
-void kinc_a2_shutdown() {
+void kinc_a2_shutdown(void) {
 	if (!initialized)
 		return;
 	if (!soundPlaying)
