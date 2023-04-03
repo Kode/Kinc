@@ -9,7 +9,6 @@
 #include <string.h>
 
 id getMetalDevice(void);
-id getMetalEncoder(void);
 
 static MTLBlendFactor convert_blending_factor(kinc_g5_blending_factor_t factor) {
 	switch (factor) {
@@ -345,8 +344,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 
 bool kinc_internal_current_render_target_has_depth(void);
 
-void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+void kinc_g5_internal_pipeline_set(kinc_g5_command_list_t *list, kinc_g5_pipeline_t *pipeline) {
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	if (kinc_internal_current_render_target_has_depth()) {
 		id<MTLRenderPipelineState> pipe = (__bridge id<MTLRenderPipelineState>)pipeline->impl._pipelineDepth;
 		[encoder setRenderPipelineState:pipe];

@@ -15,20 +15,20 @@
 
 id getMetalDevice(void);
 id getMetalQueue(void);
-id getMetalEncoder(void);
 
-void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, int count, bool wait, unsigned clear_flags, unsigned color, float depth,
+void kinc_g5_internal_new_render_pass(kinc_g5_command_list_t *list, kinc_g5_render_target_t **renderTargets, int count, bool wait, unsigned clear_flags, unsigned color, float depth,
                                       int stencil);
-void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline);
+void kinc_g5_internal_pipeline_set(kinc_g5_command_list_t *list, kinc_g5_pipeline_t *pipeline);
 
 void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 	list->impl.current_index_buffer = NULL;
+	list->impl.lastPipeline = NULL;
+	for (int i = 0; i < 8; ++i) {
+		list->impl.lastRenderTargets[i] = NULL;
+	}
 }
 
 void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
-
-static kinc_g5_render_target_t *lastRenderTargets[8] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-static kinc_g5_pipeline_t *lastPipeline = NULL;
 
 static int formatSize(MTLPixelFormat format) {
 	switch (format) {
@@ -47,18 +47,32 @@ static int formatSize(MTLPixelFormat format) {
 
 void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	list->impl.current_index_buffer = NULL;
-	lastRenderTargets[0] = NULL;
+	list->impl.lastRenderTargets[0] = NULL;
+	
+	id<MTLCommandQueue> commandQueue = getMetalQueue();
+	id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+	list->impl.commandBuffer = (__bridge_retained void *)commandBuffer;
+	list->impl.commandEncoder = (__bridge_retained void *)[commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
 
-void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {}
+void kinc_g5_command_list_end(kinc_g5_command_list_t *list) {
+	id<MTLCommandBuffer> commandBuffer = (__bridge_transfer id<MTLCommandBuffer>)list->impl.commandBuffer;
+	id<MTLRenderCommandEncoder> encoder = (__bridge_transfer id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
+	if (commandBuffer != nil && encoder != nil) {
+		[encoder endEncoding];
+		[commandBuffer commit];
+	}
+	list->impl.commandBuffer = NULL;
+	list->impl.commandEncoder = NULL;
+}
 
 void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget, unsigned flags, unsigned color, float depth,
                                 int stencil) {
 	if (renderTarget->framebuffer_index >= 0) {
-		kinc_g5_internal_new_render_pass(NULL, 1, false, flags, color, depth, stencil);
+		kinc_g5_internal_new_render_pass(list, NULL, 1, false, flags, color, depth, stencil);
 	}
 	else {
-		kinc_g5_internal_new_render_pass(&renderTarget, 1, false, flags, color, depth, stencil);
+		kinc_g5_internal_new_render_pass(list, &renderTarget, 1, false, flags, color, depth, stencil);
 	}
 }
 
@@ -72,7 +86,7 @@ void kinc_g5_command_list_draw_indexed_vertices(kinc_g5_command_list_t *list) {
 
 void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *list, int start, int count) {
 	id<MTLBuffer> indexBuffer = (__bridge id<MTLBuffer>)list->impl.current_index_buffer->impl.metal_buffer;
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 	                    indexCount:count
 	                     indexType:(list->impl.current_index_buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? MTLIndexTypeUInt16 : MTLIndexTypeUInt32)
@@ -82,7 +96,7 @@ void kinc_g5_command_list_draw_indexed_vertices_from_to(kinc_g5_command_list_t *
 
 void kinc_g5_command_list_draw_indexed_vertices_from_to_from(kinc_g5_command_list_t *list, int start, int count, int vertex_offset) {
 	id<MTLBuffer> indexBuffer = (__bridge id<MTLBuffer>)list->impl.current_index_buffer->impl.metal_buffer;
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 	                    indexCount:count
 	                     indexType:(list->impl.current_index_buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? MTLIndexTypeUInt16 : MTLIndexTypeUInt32)
@@ -99,7 +113,7 @@ void kinc_g5_command_list_draw_indexed_vertices_instanced(kinc_g5_command_list_t
 
 void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_command_list_t *list, int instanceCount, int start, int count) {
 	id<MTLBuffer> indexBuffer = (__bridge id<MTLBuffer>)list->impl.current_index_buffer->impl.metal_buffer;
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	[encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
 	                    indexCount:count
 	                     indexType:(list->impl.current_index_buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? MTLIndexTypeUInt16 : MTLIndexTypeUInt32)
@@ -110,7 +124,7 @@ void kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(kinc_g5_comman
 	                  baseInstance:0];
 }
 void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	MTLViewport viewport;
 	viewport.originX = x;
 	viewport.originY = y;
@@ -120,15 +134,15 @@ void kinc_g5_command_list_viewport(kinc_g5_command_list_t *list, int x, int y, i
 }
 
 void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, int width, int height) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	MTLScissorRect scissor;
 	scissor.x = x;
 	scissor.y = y;
 	int target_w = -1;
 	int target_h = -1;
-	if (lastRenderTargets[0] != NULL) {
-		target_w = lastRenderTargets[0]->texWidth;
-		target_h = lastRenderTargets[0]->texHeight;
+	if (list->impl.lastRenderTargets[0] != NULL) {
+		target_w = list->impl.lastRenderTargets[0]->texWidth;
+		target_h = list->impl.lastRenderTargets[0]->texHeight;
 	}
 	else {
 		target_w = kinc_window_width(0);
@@ -140,13 +154,13 @@ void kinc_g5_command_list_scissor(kinc_g5_command_list_t *list, int x, int y, in
 }
 
 void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	MTLScissorRect scissor;
 	scissor.x = 0;
 	scissor.y = 0;
-	if (lastRenderTargets[0] != NULL) {
-		scissor.width = lastRenderTargets[0]->texWidth;
-		scissor.height = lastRenderTargets[0]->texHeight;
+	if (list->impl.lastRenderTargets[0] != NULL) {
+		scissor.width = list->impl.lastRenderTargets[0]->texWidth;
+		scissor.height = list->impl.lastRenderTargets[0]->texHeight;
 	}
 	else {
 		scissor.width = kinc_window_width(0);
@@ -156,12 +170,12 @@ void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list) {
 }
 
 void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc_g5_pipeline *pipeline) {
-	kinc_g5_internal_pipeline_set(pipeline);
-	lastPipeline = pipeline;
+	kinc_g5_internal_pipeline_set(list, pipeline);
+	list->impl.lastPipeline = pipeline;
 }
 
 void kinc_g5_command_list_set_blend_constant(kinc_g5_command_list_t *list, float r, float g, float b, float a) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	[encoder setBlendColorRed:r green:g blue:b alpha:a];
 }
 
@@ -177,16 +191,19 @@ extern bool kinc_internal_metal_has_depth;
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
 	if (targets[0]->framebuffer_index >= 0) {
-		for (int i = 0; i < 8; ++i)
-			lastRenderTargets[i] = NULL;
-		kinc_g5_internal_new_render_pass(NULL, 1, false, 0, 0, 0.0f, 0);
+		for (int i = 0; i < 8; ++i) {
+			list->impl.lastRenderTargets[i] = NULL;
+		}
+		kinc_g5_internal_new_render_pass(list, NULL, 1, false, 0, 0, 0.0f, 0);
 	}
 	else {
-		for (int i = 0; i < count; ++i)
-			lastRenderTargets[i] = targets[i];
-		for (int i = count; i < 8; ++i)
-			lastRenderTargets[i] = NULL;
-		kinc_g5_internal_new_render_pass(targets, count, false, 0, 0, 0.0f, 0);
+		for (int i = 0; i < count; ++i) {
+			list->impl.lastRenderTargets[i] = targets[i];
+		}
+		for (int i = count; i < 8; ++i) {
+			list->impl.lastRenderTargets[i] = NULL;
+		}
+		kinc_g5_internal_new_render_pass(list, targets, count, false, 0, 0, 0.0f, 0);
 	}
 }
 
@@ -245,17 +262,19 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 }
 
 void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
-	if (lastRenderTargets[0] == NULL) {
-		kinc_g5_internal_new_render_pass(NULL, 1, false, 0, 0, 0.0f, 0);
+	if (list->impl.lastRenderTargets[0] == NULL) {
+		kinc_g5_internal_new_render_pass(list, NULL, 1, false, 0, 0, 0.0f, 0);
 	}
 	else {
 		int count = 1;
-		while (lastRenderTargets[count] != NULL)
+		while (list->impl.lastRenderTargets[count] != NULL) {
 			count++;
-		kinc_g5_internal_new_render_pass(lastRenderTargets, count, false, 0, 0, 0.0f, 0);
+		}
+		kinc_g5_internal_new_render_pass(list, list->impl.lastRenderTargets, count, false, 0, 0, 0.0f, 0);
 	}
-	if (lastPipeline != NULL)
-		kinc_g5_internal_pipeline_set(lastPipeline);
+	if (list->impl.lastPipeline != NULL) {
+		kinc_g5_internal_pipeline_set(list, list->impl.lastPipeline);
+	}
 }
 
 void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *list) {
@@ -267,13 +286,13 @@ void kinc_g5_command_list_wait_for_execution_to_finish(kinc_g5_command_list_t *l
 
 void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	id<MTLBuffer> buf = (__bridge id<MTLBuffer>)buffer->impl._buffer;
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	[encoder setVertexBuffer:buf offset:offset atIndex:1];
 }
 
 void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	id<MTLBuffer> buf = (__bridge id<MTLBuffer>)buffer->impl._buffer;
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	[encoder setFragmentBuffer:buf offset:offset atIndex:0];
 }
 
@@ -287,7 +306,7 @@ void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_
 void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	id<MTLTexture> tex = (__bridge id<MTLTexture>)texture->impl._tex;
 	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
 		[encoder setVertexTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
@@ -316,7 +335,7 @@ void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigne
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
 
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	id<MTLTexture> tex = (__bridge id<MTLTexture>)target->impl._tex;
 	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
 		[encoder setVertexTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
@@ -327,7 +346,7 @@ void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t 
 }
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *target) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	id<MTLTexture> depth_tex = (__bridge id<MTLTexture>)target->impl._depthTex;
 	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
 		[encoder setVertexTexture:depth_tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
@@ -338,7 +357,7 @@ void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_l
 }
 
 void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
 	id<MTLSamplerState> mtl_sampler = (__bridge id<MTLSamplerState>)sampler->impl.sampler;
 
 	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {

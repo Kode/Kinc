@@ -20,21 +20,15 @@ int newRenderTargetWidth;
 int newRenderTargetHeight;
 
 id<CAMetalDrawable> drawable;
-id<MTLCommandBuffer> commandBuffer;
-id<MTLRenderCommandEncoder> commandEncoder;
 id<MTLTexture> depthTexture;
 int depthBits;
 int stencilBits;
 
 static kinc_g5_render_target_t fallback_render_target;
 
-id getMetalEncoder(void) {
-	return commandEncoder;
-}
-
 void kinc_g5_internal_destroy_window(int window) {}
 
-void kinc_g5_internal_destroy() {}
+void kinc_g5_internal_destroy(void) {}
 
 extern void kinc_g4_on_g5_internal_resize(int, int, int);
 
@@ -42,7 +36,7 @@ void kinc_internal_resize(int window, int width, int height) {
 	kinc_g4_on_g5_internal_resize(window, width, height);
 }
 
-void kinc_g5_internal_init() {}
+void kinc_g5_internal_init(void) {}
 
 void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	depthBits = depthBufferBits;
@@ -50,7 +44,7 @@ void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBu
 	kinc_g5_render_target_init(&fallback_render_target, 32, 32, KINC_G5_RENDER_TARGET_FORMAT_32BIT, 0, 0);
 }
 
-void kinc_g5_flush() {}
+void kinc_g5_flush(void) {}
 
 void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
 
@@ -99,28 +93,16 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
 	renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
 	renderPassDescriptor.stencilAttachment.texture = depthTexture;
-
-	if (commandBuffer != nil && commandEncoder != nil) {
-		[commandEncoder endEncoding];
-		[commandBuffer commit];
-	}
-
-	id<MTLCommandQueue> commandQueue = getMetalQueue();
-	commandBuffer = [commandQueue commandBuffer];
-	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
 
 void kinc_g5_end(int window) {}
 
-bool kinc_g5_swap_buffers() {
-	if (commandBuffer != nil && commandEncoder != nil) {
-		[commandEncoder endEncoding];
+bool kinc_g5_swap_buffers(void) {
+	if (commandBuffer != nil) {
 		[commandBuffer presentDrawable:drawable];
 		[commandBuffer commit];
 	}
 	drawable = nil;
-	commandBuffer = nil;
-	commandEncoder = nil;
 
 	return true;
 }
@@ -129,10 +111,12 @@ bool kinc_window_vsynced(int window) {
 	return true;
 }
 
-void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, int count, bool wait, unsigned clear_flags, unsigned color, float depth,
+void kinc_g5_internal_new_render_pass(kinc_g5_command_list_t *list, kinc_g5_render_target_t **renderTargets, int count, bool wait, unsigned clear_flags, unsigned color, float depth,
                                       int stencil) {
-	if (commandBuffer != nil && commandEncoder != nil) {
-		[commandEncoder endEncoding];
+	id<MTLRenderCommandEncoder> encoder = (__bridge id<MTLRenderCommandEncoder>)list->impl.commandEncoder;
+	id<MTLCommandBuffer> commandBuffer = (__bridge id<MTLCommandBuffer>)list->impl.commandBuffer;
+	if (commandBuffer != nil && encoder != nil) {
+		[encoder endEncoding];
 		[commandBuffer commit];
 		if (wait) {
 			[commandBuffer waitUntilCompleted];
@@ -198,31 +182,31 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 	}
 
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
-	commandBuffer = [commandQueue commandBuffer];
-	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+	list->impl.commandBuffer = (__bridge_retained void *)[commandQueue commandBuffer];
+	list->impl.commandEncoder = (__bridge_retained void *)[commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
 
-bool kinc_g5_supports_raytracing() {
+bool kinc_g5_supports_raytracing(void) {
 	return false;
 }
 
-bool kinc_g5_supports_instanced_rendering() {
+bool kinc_g5_supports_instanced_rendering(void) {
 	return true;
 }
 
-bool kinc_g5_supports_compute_shaders() {
+bool kinc_g5_supports_compute_shaders(void) {
 	return true;
 }
 
-bool kinc_g5_supports_blend_constants() {
+bool kinc_g5_supports_blend_constants(void) {
 	return true;
 }
 
-bool kinc_g5_supports_non_pow2_textures() {
+bool kinc_g5_supports_non_pow2_textures(void) {
 	return true;
 }
 
-bool kinc_g5_render_targets_inverted_y() {
+bool kinc_g5_render_targets_inverted_y(void) {
 	return false;
 }
 
