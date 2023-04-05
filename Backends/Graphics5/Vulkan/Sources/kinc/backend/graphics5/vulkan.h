@@ -12,6 +12,7 @@ struct vk_funs {
 	PFN_vkCreateSwapchainKHR fpCreateSwapchainKHR;
 	PFN_vkDestroySwapchainKHR fpDestroySwapchainKHR;
 	PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR;
+	PFN_vkDestroySurfaceKHR fpDestroySurfaceKHR;
 
 	PFN_vkCreateDebugUtilsMessengerEXT fpCreateDebugUtilsMessengerEXT;
 	PFN_vkDestroyDebugUtilsMessengerEXT fpDestroyDebugUtilsMessengerEXT;
@@ -30,8 +31,8 @@ struct vk_window {
 	int width;
 	int height;
 
-	int new_width;
-	int new_height;
+	bool resized;
+	bool surface_destroyed;
 
 	int depth_bits;
 	int stencil_bits;

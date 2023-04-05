@@ -138,16 +138,64 @@ extern void kinc_g4_on_g5_internal_resize(int, int, int);
 
 void kinc_internal_resize(int window_index, int width, int height) {
 	struct vk_window *window = &vk_ctx.windows[window_index];
-	window->new_width = width;
-	window->new_height = height;
+	if (window->width != width || window->height != height) {
+		window->resized = true;
+		window->width = width;
+		window->height = height;
+	}
 
 	kinc_g4_on_g5_internal_resize(window_index, width, height);
 }
 
 void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
 
-void create_swapchain(struct vk_window *window) {
-	VkSwapchainKHR oldSwapchain = window->swapchain;
+void create_swapchain(int window_index) {
+	struct vk_window *window = &vk_ctx.windows[window_index];
+
+	if (window->framebuffer_render_pass != VK_NULL_HANDLE) {
+		vkDestroyRenderPass(vk_ctx.device, window->framebuffer_render_pass, NULL);
+	}
+
+	if (window->framebuffers) {
+		for (uint32_t i = 0; i < window->image_count; i++) {
+			vkDestroyFramebuffer(vk_ctx.device, window->framebuffers[i], NULL);
+		}
+		free(window->framebuffers);
+		window->framebuffers = NULL;
+	}
+
+	if (window->depth.image != VK_NULL_HANDLE) {
+		vkDestroyImageView(vk_ctx.device, window->depth.view, NULL);
+		vkDestroyImage(vk_ctx.device, window->depth.image, NULL);
+		vkFreeMemory(vk_ctx.device, window->depth.memory, NULL);
+		window->depth.image = VK_NULL_HANDLE;
+		window->depth.memory = VK_NULL_HANDLE;
+		window->depth.view = VK_NULL_HANDLE;
+	}
+
+	if (window->images) {
+		for (uint32_t i = 0; i < window->image_count; i++) {
+			vkDestroyImageView(vk_ctx.device, window->views[i], NULL);
+		}
+		free(window->images);
+		free(window->views);
+		window->images = NULL;
+		window->views = NULL;
+	}
+
+	VkSwapchainKHR oldSwapchain = VK_NULL_HANDLE;
+	if (window->surface_destroyed) {
+		vk.fpDestroySwapchainKHR(vk_ctx.device, window->swapchain, NULL);
+		vk.fpDestroySurfaceKHR(vk_ctx.instance, window->surface, NULL);
+		VkResult err = kinc_vulkan_create_surface(vk_ctx.instance, window_index, &window->surface);
+		assert(!err);
+		window->width = kinc_window_width(window_index);
+		window->height = kinc_window_height(window_index);
+		window->surface_destroyed = false;
+	}
+	else {
+		oldSwapchain = window->swapchain;
+	}
 
 	// Check the surface capabilities and formats
 	VkSurfaceCapabilitiesKHR surfCapabilities = {0};
@@ -246,16 +294,6 @@ void create_swapchain(struct vk_window *window) {
 
 	err = vk.fpGetSwapchainImagesKHR(vk_ctx.device, window->swapchain, &window->image_count, NULL);
 	assert(!err);
-
-	if (window->images) {
-		free(window->images);
-		window->images = NULL;
-	}
-
-	if (window->views) {
-		free(window->views);
-		window->views = NULL;
-	}
 
 	window->images = (VkImage *)malloc(window->image_count * sizeof(VkImage));
 	assert(window->images);
@@ -461,11 +499,6 @@ void create_swapchain(struct vk_window *window) {
 	fb_info.height = window->height;
 	fb_info.layers = 1;
 
-	if (window->framebuffers) {
-		free(window->framebuffers);
-		window->framebuffers = NULL;
-	}
-
 	window->framebuffers = (VkFramebuffer *)malloc(window->image_count * sizeof(VkFramebuffer));
 	assert(window->framebuffers);
 
@@ -623,9 +656,6 @@ void kinc_g5_internal_init() {
 
 	uint32_t instance_extension_count = 0;
 
-#ifdef VALIDATE
-	wanted_instance_extensions[wanted_instance_extension_count++] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
-#endif
 	wanted_instance_extensions[wanted_instance_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
 	kinc_vulkan_get_instance_extensions(wanted_instance_extensions, &wanted_instance_extension_count, ARRAY_SIZE(wanted_instance_extensions));
 
@@ -640,6 +670,13 @@ void kinc_g5_internal_init() {
 	if (missing_instance_extensions) {
 		exit(1);
 	}
+
+#ifdef VALIDATE
+	// this extension should be provided by the validation layers
+	if (vk_ctx.validation_found) {
+		wanted_instance_extensions[wanted_instance_extension_count++] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+	}
+#endif
 
 	VkApplicationInfo app = {0};
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -776,18 +813,20 @@ void kinc_g5_internal_init() {
 	}
 
 #ifdef VALIDATE
-	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, CreateDebugUtilsMessengerEXT);
+	if (vk_ctx.validation_found) {
+		GET_INSTANCE_PROC_ADDR(vk_ctx.instance, CreateDebugUtilsMessengerEXT);
 
-	VkDebugUtilsMessengerCreateInfoEXT dbgCreateInfo = {0};
-	dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-	dbgCreateInfo.flags = 0;
-	dbgCreateInfo.pfnUserCallback = vkDebugUtilsMessengerCallbackEXT;
-	dbgCreateInfo.pUserData = NULL;
-	dbgCreateInfo.pNext = NULL;
-	dbgCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
-	dbgCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
-	err = vk.fpCreateDebugUtilsMessengerEXT(vk_ctx.instance, &dbgCreateInfo, NULL, &vk_ctx.debug_messenger);
-	assert(!err);
+		VkDebugUtilsMessengerCreateInfoEXT dbgCreateInfo = {0};
+		dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		dbgCreateInfo.flags = 0;
+		dbgCreateInfo.pfnUserCallback = vkDebugUtilsMessengerCallbackEXT;
+		dbgCreateInfo.pUserData = NULL;
+		dbgCreateInfo.pNext = NULL;
+		dbgCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+		dbgCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+		err = vk.fpCreateDebugUtilsMessengerEXT(vk_ctx.instance, &dbgCreateInfo, NULL, &vk_ctx.debug_messenger);
+		assert(!err);
+	}
 #endif
 
 	// Having these GIPA queries of vk_ctx.device extension entry points both
@@ -798,6 +837,7 @@ void kinc_g5_internal_init() {
 	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, GetPhysicalDeviceSurfaceSupportKHR);
 	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, CreateSwapchainKHR);
 	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, DestroySwapchainKHR);
+	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, DestroySurfaceKHR);
 	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, GetSwapchainImagesKHR);
 	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, AcquireNextImageKHR);
 	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, QueuePresentKHR);
@@ -935,6 +975,18 @@ void kinc_g5_internal_init() {
 	assert(!err);
 }
 
+// this function is used in the android backend
+
+void kinc_vulkan_init_window(int window_index) {
+	assert(window_index < MAXIMUM_WINDOWS);
+	struct vk_window *window = &vk_ctx.windows[window_index];
+
+	// delay swapchain/surface recreation
+	// otherwise trouble ensues due to G4onG5 backend ending the command list in kinc_g4_begin
+	window->resized = true;
+	window->surface_destroyed = true;
+}
+
 void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	assert(window_index < MAXIMUM_WINDOWS);
 	struct vk_window *window = &vk_ctx.windows[window_index];
@@ -973,9 +1025,9 @@ void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int ste
 			window->format = surfFormats[0];
 		}
 	}
-	window->width = window->new_width = kinc_window_width(window_index);
-	window->height = window->new_height = kinc_window_height(window_index);
-	create_swapchain(window);
+	window->width = kinc_window_width(window_index);
+	window->height = kinc_window_height(window_index);
+	create_swapchain(window_index);
 	create_render_target_render_pass(window);
 
 	began = false;
@@ -992,33 +1044,34 @@ bool kinc_g5_swap_buffers() {
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window_index) {
 	struct vk_window *window = &vk_ctx.windows[window_index];
-	if (renderTarget != NULL) {
-		renderTarget->impl.framebuffer = window->framebuffers[window->current_image];
-	}
 
 	if (began)
 		return;
 
-	if (window->new_width != window->width || window->new_height != window->height) {
-		window->width = window->new_width;
-		window->height = window->new_height;
+	if (window->resized) {
 		vkDeviceWaitIdle(vk_ctx.device);
-		create_swapchain(window);
+		create_swapchain(window_index);
 	}
 
 	// Get the index of the next available swapchain image:
 	command_list_should_wait_for_framebuffer();
-	VkResult err = vk.fpAcquireNextImageKHR(vk_ctx.device, window->swapchain, UINT64_MAX, framebuffer_available, VK_NULL_HANDLE, &window->current_image);
-	// TODO: handle this somehow, currently this will just crash on Android
-	if (err == VK_ERROR_SURFACE_LOST_KHR) {
-		kinc_g5_internal_destroy_window(window_index);
-		kinc_g5_internal_init_window(window_index, window->depth_bits, window->stencil_bits, window->vsynced);
-	}
-	else {
-		assert(!err);
-		began = true;
-		vk_ctx.current_window = window_index;
-	}
+	VkResult err = -1;
+	do {
+		err = vk.fpAcquireNextImageKHR(vk_ctx.device, window->swapchain, UINT64_MAX, framebuffer_available, VK_NULL_HANDLE, &window->current_image);
+		if (err == VK_ERROR_SURFACE_LOST_KHR || err == VK_ERROR_OUT_OF_DATE_KHR) {
+			window->surface_destroyed = (err == VK_ERROR_SURFACE_LOST_KHR);
+			create_swapchain(window_index);
+		}
+		else {
+			assert(err == VK_SUCCESS || err == VK_SUBOPTIMAL_KHR);
+			began = true;
+			vk_ctx.current_window = window_index;
+			if (renderTarget != NULL) {
+				renderTarget->impl.framebuffer = window->framebuffers[window->current_image];
+			}
+			return;
+		}
+	} while (err != VK_SUCCESS && err != VK_SUBOPTIMAL_KHR);
 }
 
 void kinc_g5_end(int window) {
@@ -1030,9 +1083,14 @@ void kinc_g5_end(int window) {
 	present.pImageIndices = &vk_ctx.windows[vk_ctx.current_window].current_image;
 
 	VkResult err = vk.fpQueuePresentKHR(vk_ctx.queue, &present);
-	if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
+	if (err == VK_ERROR_SURFACE_LOST_KHR) {
 		vkDeviceWaitIdle(vk_ctx.device);
-		create_swapchain(&vk_ctx.windows[window]);
+		vk_ctx.windows[window].surface_destroyed = true;
+		create_swapchain(window);
+	}
+	else if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
+		vkDeviceWaitIdle(vk_ctx.device);
+		create_swapchain(window);
 	}
 	else {
 		assert(err == VK_SUCCESS);
