@@ -623,9 +623,6 @@ void kinc_g5_internal_init() {
 
 	uint32_t instance_extension_count = 0;
 
-#ifdef VALIDATE
-	wanted_instance_extensions[wanted_instance_extension_count++] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
-#endif
 	wanted_instance_extensions[wanted_instance_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
 	kinc_vulkan_get_instance_extensions(wanted_instance_extensions, &wanted_instance_extension_count, ARRAY_SIZE(wanted_instance_extensions));
 
@@ -640,6 +637,13 @@ void kinc_g5_internal_init() {
 	if (missing_instance_extensions) {
 		exit(1);
 	}
+
+#ifdef VALIDATE
+	// this extension should be provided by the validation layers
+	if (vk_ctx.validation_found) {
+		wanted_instance_extensions[wanted_instance_extension_count++] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+	}
+#endif
 
 	VkApplicationInfo app = {0};
 	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -776,18 +780,20 @@ void kinc_g5_internal_init() {
 	}
 
 #ifdef VALIDATE
-	GET_INSTANCE_PROC_ADDR(vk_ctx.instance, CreateDebugUtilsMessengerEXT);
+	if (vk_ctx.validation_found) {
+		GET_INSTANCE_PROC_ADDR(vk_ctx.instance, CreateDebugUtilsMessengerEXT);
 
-	VkDebugUtilsMessengerCreateInfoEXT dbgCreateInfo = {0};
-	dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-	dbgCreateInfo.flags = 0;
-	dbgCreateInfo.pfnUserCallback = vkDebugUtilsMessengerCallbackEXT;
-	dbgCreateInfo.pUserData = NULL;
-	dbgCreateInfo.pNext = NULL;
-	dbgCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
-	dbgCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
-	err = vk.fpCreateDebugUtilsMessengerEXT(vk_ctx.instance, &dbgCreateInfo, NULL, &vk_ctx.debug_messenger);
-	assert(!err);
+		VkDebugUtilsMessengerCreateInfoEXT dbgCreateInfo = {0};
+		dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		dbgCreateInfo.flags = 0;
+		dbgCreateInfo.pfnUserCallback = vkDebugUtilsMessengerCallbackEXT;
+		dbgCreateInfo.pUserData = NULL;
+		dbgCreateInfo.pNext = NULL;
+		dbgCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+		dbgCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+		err = vk.fpCreateDebugUtilsMessengerEXT(vk_ctx.instance, &dbgCreateInfo, NULL, &vk_ctx.debug_messenger);
+		assert(!err);
+	}
 #endif
 
 	// Having these GIPA queries of vk_ctx.device extension entry points both
