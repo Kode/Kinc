@@ -88,12 +88,20 @@ VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice p
 }
 #endif
 
+#ifndef KORE_VULKAN
 void kinc_egl_init_window(int window);
 void kinc_egl_destroy_window(int window);
+#endif
+#ifdef KORE_VULKAN
+void kinc_vulkan_init_window(int window);
+#endif
 
 static void initDisplay() {
 #ifndef KORE_VULKAN
 	kinc_egl_init_window(0);
+#endif
+#ifdef KORE_VULKAN
+	kinc_vulkan_init_window(0);
 #endif
 }
 
