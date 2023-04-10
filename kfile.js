@@ -289,7 +289,7 @@ else if (platform === Platform.Android) {
 }
 else if (platform === Platform.Emscripten) {
 	project.addDefine('KORE_EMSCRIPTEN');
-	project.addLib('websocket.js -sPROXY_POSIX_SOCKETS -sUSE_PTHREADS -sPROXY_TO_PTHREAD')
+	//project.addLib('websocket.js -sPROXY_POSIX_SOCKETS -sUSE_PTHREADS -sPROXY_TO_PTHREAD');
 	addBackend('System/Emscripten');
 	if (graphics === GraphicsApi.WebGPU) {
 		g4 = true;
