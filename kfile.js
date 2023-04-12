@@ -555,7 +555,7 @@ if (plugin) {
 	else if (platform === Platform.PS5) {
 		backend = 'PlayStation5'
 	}
-	const pluginPath = path.join(Project.root, 'Backends', backend);
+	const pluginPath = path.join(__dirname, '..', 'Backends', backend);
 	if (!fs.existsSync(pluginPath)) {
 		log.error('Was looking for a backend in ' + pluginPath + ' but it wasn\'t there.');
 		throw 'backend not found';
