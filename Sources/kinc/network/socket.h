@@ -222,7 +222,7 @@ static int resolveAddress(const char *url, int port, struct addrinfo **result) {
 #endif
 
 KINC_FUNC bool kinc_socket_bind(kinc_socket_t *sock) {
-
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	struct sockaddr_in address;
 	address.sin_family = sock->family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6;
 	address.sin_addr.s_addr = sock->host;
@@ -232,6 +232,9 @@ KINC_FUNC bool kinc_socket_bind(kinc_socket_t *sock) {
 		return false;
 	}
 	return true;
+#else
+	return false;
+#endif
 }
 
 KINC_FUNC void kinc_socket_options_set_defaults(kinc_socket_options_t *options) {
@@ -243,10 +246,12 @@ KINC_FUNC void kinc_socket_options_set_defaults(kinc_socket_options_t *options) 
 void kinc_socket_init(kinc_socket_t *sock) {
 	sock->handle = 0;
 
+#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)
 	sock->host = INADDR_ANY;
 	sock->port = htons((unsigned short)8080);
 	sock->protocol = KINC_SOCKET_PROTOCOL_TCP;
 	sock->family = KINC_SOCKET_FAMILY_IP4;
+#endif
 	sock->connected = false;
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
