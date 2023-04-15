@@ -64,7 +64,6 @@ static struct touchpoint touchPoints[MAX_TOUCH_POINTS];
 static int mouseX, mouseY;
 static bool keyPressed[256];
 static int keyTranslated[256]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
-static int cursor = 0;
 
 static int GetTouchIndex(int dwID) {
 	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
@@ -293,6 +292,18 @@ static wchar_t toUnicode(WPARAM wParam, LPARAM lParam) {
 #define HANDLE_ALT_ENTER
 #endif
 
+static bool cursors_initialized = false;
+static int cursor = 0;
+#define NUM_CURSORS 14
+static HCURSOR cursors[NUM_CURSORS];
+
+void kinc_mouse_set_cursor(int set_cursor) {
+	cursor = set_cursor >= NUM_CURSORS ? 0 : set_cursor;
+	if (cursors_initialized) {
+		SetCursor(cursors[cursor]);
+	}
+}
+
 LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	int windowId;
 	DWORD pointerId;
@@ -380,55 +391,29 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		mouseY = GET_Y_LPARAM(lParam);
 		kinc_internal_mouse_trigger_move(windowId, mouseX, mouseY);
 		break;
+	case WM_CREATE:
+		cursors[0] = LoadCursor(0, IDC_ARROW);
+		cursors[1] = LoadCursor(0, IDC_HAND);
+		cursors[2] = LoadCursor(0, IDC_IBEAM);
+		cursors[3] = LoadCursor(0, IDC_SIZEWE);
+		cursors[4] = LoadCursor(0, IDC_SIZENS);
+		cursors[5] = LoadCursor(0, IDC_SIZENESW);
+		cursors[6] = LoadCursor(0, IDC_SIZENWSE);
+		cursors[7] = LoadCursor(0, IDC_SIZENWSE);
+		cursors[8] = LoadCursor(0, IDC_SIZENESW);
+		cursors[9] = LoadCursor(0, IDC_SIZEALL);
+		cursors[10] = LoadCursor(0, IDC_SIZEALL);
+		cursors[11] = LoadCursor(0, IDC_NO);
+		cursors[12] = LoadCursor(0, IDC_WAIT);
+		cursors[13] = LoadCursor(0, IDC_CROSS);
+		cursors_initialized = true;
+		if (cursor != 0) {
+			SetCursor(cursors[cursor]);
+		}
+		return TRUE;
 	case WM_SETCURSOR:
 		if (LOWORD(lParam) == HTCLIENT) {
-			switch (cursor) {
-			case 0:
-				SetCursor(LoadCursor(0, IDC_ARROW));
-				break;
-			case 1:
-				SetCursor(LoadCursor(0, IDC_HAND));
-				break;
-			case 2:
-				SetCursor(LoadCursor(0, IDC_IBEAM));
-				break;
-			case 3:
-				SetCursor(LoadCursor(0, IDC_SIZEWE));
-				break;
-			case 4:
-				SetCursor(LoadCursor(0, IDC_SIZENS));
-				break;
-			case 5:
-				SetCursor(LoadCursor(0, IDC_SIZENESW));
-				break;
-			case 6:
-				SetCursor(LoadCursor(0, IDC_SIZENWSE));
-				break;
-			case 7:
-				SetCursor(LoadCursor(0, IDC_SIZENWSE));
-				break;
-			case 8:
-				SetCursor(LoadCursor(0, IDC_SIZENESW));
-				break;
-			case 9:
-				SetCursor(LoadCursor(0, IDC_SIZEALL));
-				break;
-			case 10:
-				SetCursor(LoadCursor(0, IDC_SIZEALL));
-				break;
-			case 11:
-				SetCursor(LoadCursor(0, IDC_NO));
-				break;
-			case 12:
-				SetCursor(LoadCursor(0, IDC_WAIT));
-				break;
-			case 13:
-				SetCursor(LoadCursor(0, IDC_CROSS));
-				break;
-			default:
-				SetCursor(LoadCursor(0, IDC_ARROW));
-				break;
-			}
+			SetCursor(cursors[cursor]);
 			return TRUE;
 		}
 		break;
@@ -1208,10 +1193,6 @@ void kinc_keyboard_show() {
 
 void kinc_keyboard_hide() {
 	keyboardshown = false;
-}
-
-void kinc_mouse_set_cursor(int set_cursor) {
-	cursor = set_cursor;
 }
 
 bool kinc_keyboard_active() {
