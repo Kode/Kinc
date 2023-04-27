@@ -266,7 +266,11 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipeline) {
 	kinc_g5_internal_pipeline_init(pipeline);
 }
 
-void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline) {}
+void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline) {
+	vkDestroyPipeline(vk_ctx.device, pipeline->impl.framebuffer_pipeline, NULL);
+	vkDestroyPipeline(vk_ctx.device, pipeline->impl.rendertarget_pipeline, NULL);
+	vkDestroyPipelineLayout(vk_ctx.device, pipeline->impl.pipeline_layout, NULL);
+}
 
 kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipeline, const char *name) {
 	kinc_g5_constant_location_t location;

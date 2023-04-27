@@ -76,6 +76,8 @@ static void unset_vertex_buffer(kinc_g5_vertex_buffer_t *buffer) {
 
 void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer) {
 	unset_vertex_buffer(buffer);
+	vkFreeMemory(vk_ctx.device, buffer->impl.vertices.mem, NULL);
+	vkDestroyBuffer(vk_ctx.device, buffer->impl.vertices.buf, NULL);
 }
 
 float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {

@@ -238,7 +238,10 @@ void kinc_g5_command_list_init(kinc_g5_command_list_t *list) {
 	list->impl._indexCount = 0;
 }
 
-void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {}
+void kinc_g5_command_list_destroy(kinc_g5_command_list_t *list) {
+	vkFreeCommandBuffers(vk_ctx.device, vk_ctx.cmd_pool, 1, &list->impl._buffer);
+	vkDestroyFence(vk_ctx.device, list->impl.fence, NULL);
+}
 
 void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 	VkResult err = vkWaitForFences(vk_ctx.device, 1, &list->impl.fence, VK_TRUE, UINT64_MAX);

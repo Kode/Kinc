@@ -62,7 +62,10 @@ void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	vkUnmapMemory(vk_ctx.device, buffer->impl.mem);
 }
 
-void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {}
+void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {
+	vkFreeMemory(vk_ctx.device, buffer->impl.mem, NULL);
+	vkDestroyBuffer(vk_ctx.device, buffer->impl.buf, NULL);
+}
 
 void kinc_g5_constant_buffer_lock_all(kinc_g5_constant_buffer_t *buffer) {
 	kinc_g5_constant_buffer_lock(buffer, 0, kinc_g5_constant_buffer_size(buffer));
