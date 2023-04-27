@@ -248,7 +248,7 @@ $(function() {
 <div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    address.sin_addr.s_addr = sock-&gt;host;</div>
 <div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    address.sin_port = sock-&gt;port;</div>
 <div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="keywordflow">if</span> (bind(sock-&gt;handle, (<span class="keyword">const</span> <span class="keyword">struct</span> sockaddr *)&amp;address, <span class="keyword">sizeof</span>(<span class="keyword">struct</span> sockaddr_in)) &lt; 0) {</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;        <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Could not bind socket: &quot;</span>, strerror(errno));</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;        <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Could not bind socket: %s&quot;</span>, strerror(errno));</div>
 <div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    }</div>
 <div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
