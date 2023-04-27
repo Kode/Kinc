@@ -61,6 +61,8 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int indexCount, k
 
 void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
 	unset(buffer);
+	vkFreeMemory(vk_ctx.device, buffer->impl.mem, NULL);
+	vkDestroyBuffer(vk_ctx.device, buffer->impl.buf, NULL);
 }
 
 static int kinc_g5_internal_index_buffer_stride(kinc_g5_index_buffer_t *buffer) {

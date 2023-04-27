@@ -387,7 +387,10 @@ void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int wid
 	assert(!err);
 }
 
-void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {}
+void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
+	vkDestroyImageView(vk_ctx.device, texture->impl.texture.view, NULL);
+	destroy_texture_image(&texture->impl.texture);
+}
 
 void kinc_g5_internal_texture_set(kinc_g5_texture_t *texture, int unit) {}
 

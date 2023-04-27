@@ -130,10 +130,6 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 	return false;
 }
 
-void kinc_g5_internal_destroy_window(int window) {}
-
-void kinc_g5_internal_destroy() {}
-
 extern void kinc_g4_on_g5_internal_resize(int, int, int);
 
 void kinc_internal_resize(int window_index, int width, int height) {
@@ -149,7 +145,7 @@ void kinc_internal_resize(int window_index, int width, int height) {
 
 void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
 
-void create_swapchain(int window_index) {
+VkSwapchainKHR cleanup_swapchain(int window_index) {
 	struct vk_window *window = &vk_ctx.windows[window_index];
 
 	if (window->framebuffer_render_pass != VK_NULL_HANDLE) {
@@ -182,10 +178,15 @@ void create_swapchain(int window_index) {
 		window->images = NULL;
 		window->views = NULL;
 	}
+}
 
-	VkSwapchainKHR oldSwapchain = VK_NULL_HANDLE;
+void create_swapchain(int window_index) {
+	struct vk_window *window = &vk_ctx.windows[window_index];
+
+	VkSwapchainKHR oldSwapchain = cleanup_swapchain(window_index);
 	if (window->surface_destroyed) {
-		vk.fpDestroySwapchainKHR(vk_ctx.device, window->swapchain, NULL);
+		vk.fpDestroySwapchainKHR(vk_ctx.device, oldSwapchain, NULL);
+		oldSwapchain = VK_NULL_HANDLE;
 		vk.fpDestroySurfaceKHR(vk_ctx.instance, window->surface, NULL);
 		VkResult err = kinc_vulkan_create_surface(vk_ctx.instance, window_index, &window->surface);
 		assert(!err);
@@ -590,6 +591,10 @@ void create_render_target_render_pass(struct vk_window *window) {
 	assert(!err);
 }
 
+void destroy_render_target_pass(struct vk_window *window) {
+	vkDestroyRenderPass(vk_ctx.device, window->rendertarget_render_pass, NULL);
+}
+
 static bool check_extensions(const char **wanted_extensions, int wanted_extension_count, VkExtensionProperties *extensions, int extension_count) {
 	bool *found_extensions = malloc(wanted_extension_count);
 
@@ -975,6 +980,8 @@ void kinc_g5_internal_init() {
 	assert(!err);
 }
 
+void kinc_g5_internal_destroy() {}
+
 // this function is used in the android backend
 
 void kinc_vulkan_init_window(int window_index) {
@@ -1025,6 +1032,7 @@ void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int ste
 			window->format = surfFormats[0];
 		}
 	}
+	free(surfFormats);
 	window->width = kinc_window_width(window_index);
 	window->height = kinc_window_height(window_index);
 	create_swapchain(window_index);
@@ -1032,6 +1040,14 @@ void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int ste
 
 	began = false;
 	kinc_g5_begin(NULL, 0);
+}
+
+void kinc_g5_internal_destroy_window(int window_index) {
+	struct vk_window *window = &vk_ctx.windows[window_index];
+	VkSwapchainKHR swapchain = cleanup_swapchain(window_index);
+	destroy_render_target_pass(window);
+	vk.fpDestroySwapchainKHR(vk_ctx.device, swapchain, NULL);
+	vk.fpDestroySurfaceKHR(vk_ctx.instance, window->surface, NULL);
 }
 
 bool kinc_window_vsynced(int window) {
@@ -1100,7 +1116,9 @@ void kinc_g5_end(int window) {
 	began = false;
 }
 
-void kinc_g5_flush() {}
+void kinc_g5_flush() {
+	vkDeviceWaitIdle(vk_ctx.device);
+}
 
 // this is exclusively used by the Android backend at the moment
 bool kinc_vulkan_internal_get_size(int *width, int *height) {
