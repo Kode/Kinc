@@ -228,7 +228,7 @@ KINC_FUNC bool kinc_socket_bind(kinc_socket_t *sock) {
 	address.sin_addr.s_addr = sock->host;
 	address.sin_port = sock->port;
 	if (bind(sock->handle, (const struct sockaddr *)&address, sizeof(struct sockaddr_in)) < 0) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not bind socket: ", strerror(errno));
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Could not bind socket: %s", strerror(errno));
 		return false;
 	}
 	return true;
