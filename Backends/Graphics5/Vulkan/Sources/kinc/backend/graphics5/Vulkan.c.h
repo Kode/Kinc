@@ -1005,6 +1005,11 @@ void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int ste
 	VkResult err = kinc_vulkan_create_surface(vk_ctx.instance, window_index, &window->surface);
 	assert(!err);
 
+	VkBool32 surface_supported;
+	err = vkGetPhysicalDeviceSurfaceSupportKHR(vk_ctx.gpu, graphics_queue_node_index, window->surface, &surface_supported);
+	assert(!err);
+	assert(surface_supported);
+
 	uint32_t formatCount;
 	err = vk.fpGetPhysicalDeviceSurfaceFormatsKHR(vk_ctx.gpu, window->surface, &formatCount, NULL);
 	assert(!err);
