@@ -178,6 +178,10 @@ VkSwapchainKHR cleanup_swapchain(int window_index) {
 		window->images = NULL;
 		window->views = NULL;
 	}
+
+	VkSwapchainKHR chain = window->swapchain;
+	window->swapchain = VK_NULL_HANDLE;
+	return chain;
 }
 
 void create_swapchain(int window_index) {
@@ -193,9 +197,6 @@ void create_swapchain(int window_index) {
 		window->width = kinc_window_width(window_index);
 		window->height = kinc_window_height(window_index);
 		window->surface_destroyed = false;
-	}
-	else {
-		oldSwapchain = window->swapchain;
 	}
 
 	// Check the surface capabilities and formats
