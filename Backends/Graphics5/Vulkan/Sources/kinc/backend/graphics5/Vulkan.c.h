@@ -597,7 +597,7 @@ void destroy_render_target_pass(struct vk_window *window) {
 }
 
 static bool check_extensions(const char **wanted_extensions, int wanted_extension_count, VkExtensionProperties *extensions, int extension_count) {
-	bool *found_extensions = malloc(wanted_extension_count);
+	bool *found_extensions = calloc(wanted_extension_count, 1);
 
 	for (int i = 0; i < extension_count; i++) {
 		for (int i2 = 0; i2 < wanted_extension_count; i2++) {
@@ -801,7 +801,7 @@ void kinc_g5_internal_init() {
 	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME;
 #endif
 
-	uint32_t device_extension_count;
+	uint32_t device_extension_count = 0;
 
 	err = vkEnumerateDeviceExtensionProperties(vk_ctx.gpu, NULL, &device_extension_count, NULL);
 	assert(!err);
