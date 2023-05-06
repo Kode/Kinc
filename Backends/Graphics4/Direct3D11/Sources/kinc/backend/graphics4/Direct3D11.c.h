@@ -209,8 +209,13 @@ void kinc_g4_internal_init() {
 #ifdef KORE_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
-	kinc_microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
-	                                        &dx_ctx.device, &featureLevel, &dx_ctx.context));
+	HRESULT result = D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+	                                   &dx_ctx.device, &featureLevel, &dx_ctx.context);
+	if (result != S_OK) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "%s", "Falling back to the WARP driver, things will be slow.");
+		kinc_microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_WARP, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+		                                        &dx_ctx.device, &featureLevel, &dx_ctx.context));
+	}
 	kinc_microsoft_affirm(dx_ctx.device->lpVtbl->QueryInterface(dx_ctx.device, &IID_IDXGIDevice, (void **)&dx_ctx.dxgiDevice));
 	kinc_microsoft_affirm(dx_ctx.dxgiDevice->lpVtbl->GetAdapter(dx_ctx.dxgiDevice, &dx_ctx.dxgiAdapter));
 	kinc_microsoft_affirm(dx_ctx.dxgiAdapter->lpVtbl->GetParent(dx_ctx.dxgiAdapter, &IID_IDXGIFactory, (void **)&dx_ctx.dxgiFactory));
