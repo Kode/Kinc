@@ -69,6 +69,9 @@ uint64_t next(void) {
 
 void kinc_random_init(int seed) {
 	s[0] = seed;
+	s[1] = 2;
+	s[2] = 3;
+	s[3] = 4;
 	s[1] = next();
 	s[2] = next();
 	s[3] = next();
