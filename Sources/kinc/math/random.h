@@ -14,25 +14,25 @@ extern "C" {
 /// Initializes the randomizer with a seed. This is optional but helpful.
 /// </summary>
 /// <param name="seed">A value which should ideally be pretty random</param>
-KINC_FUNC void kinc_random_init(int seed);
+KINC_FUNC void kinc_random_init(int64_t seed);
 
 /// <summary>
 /// Returns a random value.
 /// </summary>
 /// <returns>A random value</returns>
-KINC_FUNC int kinc_random_get(void);
+KINC_FUNC int64_t kinc_random_get(void);
 
 /// <summary>
 /// Returns a value between 0 and max (both inclusive).
 /// </summary>
 /// <returns>A random value</returns>
-KINC_FUNC int kinc_random_get_max(int max);
+KINC_FUNC int64_t kinc_random_get_max(int64_t max);
 
 /// <summary>
 /// Returns a value between min and max (both inclusive).
 /// </summary>
 /// <returns>A random value</returns>
-KINC_FUNC int kinc_random_get_in(int min, int max);
+KINC_FUNC int64_t kinc_random_get_in(int64_t min, int64_t max);
 
 #ifdef KINC_IMPLEMENTATION_MATH
 #define KINC_IMPLEMENTATION
@@ -41,6 +41,7 @@ KINC_FUNC int kinc_random_get_in(int min, int max);
 #ifdef KINC_IMPLEMENTATION
 
 #include <stdlib.h>
+#include <limits.h>
 
 // xoshiro256** 1.0
 
@@ -67,8 +68,8 @@ uint64_t next(void) {
 	return result;
 }
 
-void kinc_random_init(int seed) {
-	s[0] = seed;
+void kinc_random_init(int64_t seed) {
+	s[0] = (uint64_t)seed;
 	s[1] = 2;
 	s[2] = 3;
 	s[3] = 4;
@@ -77,17 +78,17 @@ void kinc_random_init(int seed) {
 	s[3] = next();
 }
 
-int kinc_random_get(void) {
-	uint64_t value = next();
-	return *(int *)&value;
+int64_t kinc_random_get(void) {
+	return (int64_t)next();
 }
 
-int kinc_random_get_max(int max) {
+int64_t kinc_random_get_max(int64_t max) {
 	return kinc_random_get() % (max + 1);
 }
 
-int kinc_random_get_in(int min, int max) {
-	return abs(kinc_random_get()) % (max + 1 - min) + min;
+int64_t kinc_random_get_in(int64_t min, int64_t max) {
+	int64_t value = kinc_random_get();
+	return  (value < -LLONG_MAX ? LLONG_MAX : llabs(value)) % (max + 1 - min) + min;
 }
 
 #endif
