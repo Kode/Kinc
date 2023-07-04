@@ -111,7 +111,13 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, struct kinc_ima
 	     bytesPerImage:kinc_g5_texture_stride(texture) * texture->texHeight];
 }
 
-void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {}
+void kinc_g5_texture_init_non_sampled_access(kinc_g5_texture_t *texture, int width, int height, kinc_image_format_t format) {
+	texture->texWidth = width;
+	texture->texHeight = height;
+	texture->format = format;
+	texture->impl.data = malloc(width * height * (format == KINC_IMAGE_FORMAT_GREY8 ? 1 : 4));
+	create(texture, width, height, format, true);
+}
 
 void kinc_g5_texture_destroy(kinc_g5_texture_t *texture) {
 	id<MTLTexture> tex = (__bridge_transfer id<MTLTexture>)texture->impl._tex;
