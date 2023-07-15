@@ -557,7 +557,7 @@ int kinc_socket_send(kinc_socket_t *sock, const uint8_t *data, int size) {
 			return -1;
 		}
 
-		size_t sent = send(sock->handle, (const char *)data, size, MSG_WAITALL);
+		size_t sent = send(sock->handle, (const char *)data, size, 0);
 		if (sent != size) {
 			kinc_log(KINC_LOG_LEVEL_ERROR, "Could not send packet.");
 		}
