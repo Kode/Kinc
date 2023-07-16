@@ -577,7 +577,7 @@ $(function() {
 <div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;            <span class="keywordflow">return</span> -1;</div>
 <div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160;        }</div>
 <div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160; </div>
-<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;        <span class="keywordtype">size_t</span> sent = send(sock-&gt;handle, (<span class="keyword">const</span> <span class="keywordtype">char</span> *)data, size, MSG_WAITALL);</div>
+<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;        <span class="keywordtype">size_t</span> sent = send(sock-&gt;handle, (<span class="keyword">const</span> <span class="keywordtype">char</span> *)data, size, 0);</div>
 <div class="line"><a name="l00561"></a><span class="lineno">  561</span>&#160;        <span class="keywordflow">if</span> (sent != size) {</div>
 <div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;            <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Could not send packet.&quot;</span>);</div>
 <div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;        }</div>
