@@ -272,6 +272,9 @@ void kinc_g5_render_target_destroy(kinc_g5_render_target_t *render_target) {
 		render_target->impl.depthStencilDescriptorHeap->Release();
 		render_target->impl.srvDepthDescriptorHeap->Release();
 	}
+	if (render_target->impl.renderTargetReadback != NULL) {
+		render_target->impl.renderTargetReadback->Release();
+	}
 }
 
 void kinc_g5_render_target_set_depth_stencil_from(kinc_g5_render_target_t *render_target, kinc_g5_render_target_t *source) {
