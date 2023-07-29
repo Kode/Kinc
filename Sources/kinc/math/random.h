@@ -40,8 +40,8 @@ KINC_FUNC int64_t kinc_random_get_in(int64_t min, int64_t max);
 
 #ifdef KINC_IMPLEMENTATION
 
-#include <stdlib.h>
 #include <limits.h>
+#include <stdlib.h>
 
 // xoshiro256** 1.0
 
@@ -88,7 +88,7 @@ int64_t kinc_random_get_max(int64_t max) {
 
 int64_t kinc_random_get_in(int64_t min, int64_t max) {
 	int64_t value = kinc_random_get();
-	return  (value < -LLONG_MAX ? LLONG_MAX : llabs(value)) % (max + 1 - min) + min;
+	return (value < -LLONG_MAX ? LLONG_MAX : llabs(value)) % (max + 1 - min) + min;
 }
 
 #endif
