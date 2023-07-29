@@ -100,12 +100,12 @@ void swapBuffersMac(int windowId) {
 static int createWindow(kinc_window_options_t *options) {
 	int width = options->width;
 	int height = options->height;
-	int styleMask = NSTitledWindowMask | NSClosableWindowMask;
+	int styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable;
 	if ((options->window_features & KINC_WINDOW_FEATURE_RESIZEABLE) || (options->window_features & KINC_WINDOW_FEATURE_MAXIMIZABLE)) {
-		styleMask |= NSResizableWindowMask;
+		styleMask |= NSWindowStyleMaskResizable;
 	}
 	if (options->window_features & KINC_WINDOW_FEATURE_MINIMIZABLE) {
-		styleMask |= NSMiniaturizableWindowMask;
+		styleMask |= NSWindowStyleMaskMiniaturizable;
 	}
 
 	view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
