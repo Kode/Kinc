@@ -98,14 +98,14 @@ void swapBuffersMac(int windowId) {
 }
 
 static int createWindow(kinc_window_options_t *options) {
-	int width = options->width / [[NSScreen mainScreen] backingScaleFactor];
-	int height = options->height / [[NSScreen mainScreen] backingScaleFactor];
-	int styleMask = NSTitledWindowMask | NSClosableWindowMask;
+	int width = options->width;
+	int height = options->height;
+	int styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable;
 	if ((options->window_features & KINC_WINDOW_FEATURE_RESIZEABLE) || (options->window_features & KINC_WINDOW_FEATURE_MAXIMIZABLE)) {
-		styleMask |= NSResizableWindowMask;
+		styleMask |= NSWindowStyleMaskResizable;
 	}
 	if (options->window_features & KINC_WINDOW_FEATURE_MINIMIZABLE) {
-		styleMask |= NSMiniaturizableWindowMask;
+		styleMask |= NSWindowStyleMaskMiniaturizable;
 	}
 
 	view = [[BasicOpenGLView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
@@ -213,14 +213,12 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 
 int kinc_window_width(int window_index) {
 	NSWindow *window = windows[window_index].handle;
-	float scale = [window backingScaleFactor];
-	return [[window contentView] frame].size.width * scale;
+	return [[window contentView] frame].size.width;
 }
 
 int kinc_window_height(int window_index) {
 	NSWindow *window = windows[window_index].handle;
-	float scale = [window backingScaleFactor];
-	return [[window contentView] frame].size.height * scale;
+	return [[window contentView] frame].size.height;
 }
 
 NSWindow *kinc_get_mac_window_handle(int window_index) {
