@@ -8,6 +8,7 @@ class KincMoviePlayer(var path: String) {
 	companion object {
 		var players = ArrayList<KincMoviePlayer?>()
 
+		@JvmStatic
 		fun updateAll() {
 			for (player in KincMoviePlayer.players) {
 				player!!.update()
@@ -44,10 +45,6 @@ class KincMoviePlayer(var path: String) {
 	fun getTextureId(): Int {
 		return movieTexture!!.textureId
 	}
-	
-	fun getId(): Int {
-		return id
-	}
-	
+
 	private external fun nativeCreate(path: String, surface: Surface, id: Int)
 }

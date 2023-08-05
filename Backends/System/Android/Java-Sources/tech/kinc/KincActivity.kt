@@ -22,30 +22,31 @@ class KincActivity: NativeActivity(), KeyEvent.Callback {
 	companion object {
 		var instance: KincActivity? = null
 
-		private fun getInstance(): KincActivity {
-			return instance!!
-		}
-
+		@JvmStatic
 		fun showKeyboard() {
-			getInstance().inputManager!!.showSoftInput(getInstance().window.decorView, 0)
+			instance!!.inputManager!!.showSoftInput(instance!!.window.decorView, 0)
 		}
 
+		@JvmStatic
 		fun hideKeyboard() {
-			getInstance().inputManager!!.hideSoftInputFromWindow(getInstance().window.decorView.windowToken, 0)
-			getInstance().delayedHideSystemUI()
+			instance!!.inputManager!!.hideSoftInputFromWindow(instance!!.window.decorView.windowToken, 0)
+			instance!!.delayedHideSystemUI()
 		}
 
+		@JvmStatic
 		fun loadURL(url: String) {
 			val i = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-			getInstance().startActivity(i)
+			instance!!.startActivity(i)
 		}
 
+		@JvmStatic
 		fun getLanguage(): String {
 			return java.util.Locale.getDefault().language
 		}
 
+		@JvmStatic
 		fun vibrate(ms: Int) {
-			val v: Vibrator = getInstance().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+			val v: Vibrator = instance!!.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 				v.vibrate(VibrationEffect.createOneShot(ms.toLong(), VibrationEffect.DEFAULT_AMPLITUDE))
 			}
@@ -55,14 +56,15 @@ class KincActivity: NativeActivity(), KeyEvent.Callback {
 			}
 		}
 
+		@JvmStatic
 		fun getRotation(): Int {
-			val context: Context = getInstance().applicationContext
+			val context: Context = instance!!.applicationContext
 			val manager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 			return manager.defaultDisplay.rotation
 		}
 
 		fun getScreenDpi(): Int {
-			val context: Context = getInstance().applicationContext
+			val context: Context = instance!!.applicationContext
 			val manager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 			val metrics: android.util.DisplayMetrics = android.util.DisplayMetrics()
 			manager.defaultDisplay.getMetrics(metrics)
@@ -70,13 +72,13 @@ class KincActivity: NativeActivity(), KeyEvent.Callback {
 		}
 
 		fun getRefreshRate(): Int {
-			val context: Context = getInstance().applicationContext
+			val context: Context = instance!!.applicationContext
 			val manager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 			return manager.defaultDisplay.refreshRate.toInt()
 		}
 
 		fun getDisplayWidth(): Int {
-			val context: Context = getInstance().applicationContext
+			val context: Context = instance!!.applicationContext
 			val manager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 			val size: android.graphics.Point = android.graphics.Point()
 			manager.defaultDisplay.getRealSize(size)
@@ -84,17 +86,18 @@ class KincActivity: NativeActivity(), KeyEvent.Callback {
 		}
 
 		fun getDisplayHeight(): Int {
-			val context: Context = getInstance().applicationContext
+			val context: Context = instance!!.applicationContext
 			val manager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 			val size: android.graphics.Point = android.graphics.Point()
 			manager.defaultDisplay.getRealSize(size)
 			return size.y
 		}
 
+		@JvmStatic
 		fun stop() {
-			getInstance().runOnUiThread {
+			instance!!.runOnUiThread {
 				fun run() {
-					getInstance().finish()
+					instance!!.finish()
 					exitProcess(0)
 				}
 			}
