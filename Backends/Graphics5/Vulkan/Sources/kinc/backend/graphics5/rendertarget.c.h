@@ -273,9 +273,10 @@ void kinc_g5_render_target_init_cube_with_multisampling(kinc_g5_render_target_t 
 void kinc_g5_render_target_destroy(kinc_g5_render_target_t *target) {
 	if (target->framebuffer_index >= 0) {
 		framebuffer_count -= 1;
-	} else {
+	}
+	else {
 		vkDestroyFramebuffer(vk_ctx.device, target->impl.framebuffer, NULL);
-		if(target->impl.depthBufferBits > 0) {
+		if (target->impl.depthBufferBits > 0) {
 			vkDestroyImageView(vk_ctx.device, target->impl.depthView, NULL);
 			vkDestroyImage(vk_ctx.device, target->impl.depthImage, NULL);
 			vkFreeMemory(vk_ctx.device, target->impl.depthMemory, NULL);

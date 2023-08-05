@@ -55,8 +55,8 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 }
 
 void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer) {
-	// vb->Release();
-	// delete[] vertices;
+	// buffer->impl.vertexBuffer->Release();
+	buffer->impl.uploadBuffer->Release();
 }
 
 float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {

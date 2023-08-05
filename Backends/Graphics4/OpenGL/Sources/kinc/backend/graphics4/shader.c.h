@@ -15,7 +15,7 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *data, size_t length, ki
 }
 
 #ifdef KRAFIX_LIBRARY
-extern int krafix_compile(const char *source, char *output, int *length, const char *targetlang, const char *system, const char *shadertype);
+extern int krafix_compile(const char *source, char *output, int *length, const char *targetlang, const char *system, const char *shadertype, int version);
 #endif
 
 int kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {
@@ -33,7 +33,7 @@ int kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source
 #elif defined(KINC_IOS)
 	const char *system = "ios";
 #endif
-	int errors = krafix_compile(source, output, &length, "glsl", system, type == KINC_G4_SHADER_TYPE_FRAGMENT ? "frag" : "vert");
+	int errors = krafix_compile(source, output, &length, "glsl", system, type == KINC_G4_SHADER_TYPE_FRAGMENT ? "frag" : "vert", -1);
 	if (errors > 0) {
 		return errors;
 	}

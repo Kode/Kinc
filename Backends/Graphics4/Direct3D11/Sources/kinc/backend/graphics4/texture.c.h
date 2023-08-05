@@ -275,7 +275,7 @@ void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int 
 }
 
 int kinc_g4_texture_stride(kinc_g4_texture_t *texture) {
-	assert(texture->impl.rowPitch != 0); // stride is not yet said, lock and unlock the texture first (or find a good fix for this and send a PR)
+	assert(texture->impl.rowPitch != 0); // stride is not yet set, lock and unlock the texture first (or find a good fix for this and send a PR)
 	return texture->impl.rowPitch;
 }
 

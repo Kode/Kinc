@@ -93,14 +93,14 @@ void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, k
 }
 
 #ifdef KRAFIX_LIBRARY
-extern int krafix_compile(const char *source, char *output, int *length, const char *targetlang, const char *system, const char *shadertype);
+extern int krafix_compile(const char *source, char *output, int *length, const char *targetlang, const char *system, const char *shadertype, int version);
 #endif
 
 int kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source, kinc_g4_shader_type_t type) {
 #ifdef KRAFIX_LIBRARY
 	char *output = malloc(1024 * 1024);
 	int length;
-	int errors = krafix_compile(source, output, &length, "d3d11", "windows", type == KINC_G4_SHADER_TYPE_FRAGMENT ? "frag" : "vert");
+	int errors = krafix_compile(source, output, &length, "d3d11", "windows", type == KINC_G4_SHADER_TYPE_FRAGMENT ? "frag" : "vert", -1);
 	if (errors > 0) {
 		return errors;
 	}

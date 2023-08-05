@@ -60,6 +60,14 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	dm.height = screenRect.size.height;
 	dm.frequency = 60;
 	dm.bits_per_pixel = 32;
+
+	NSDictionary *description = [screen deviceDescription];
+	NSSize displayPixelSize = [[description objectForKey:NSDeviceSize] sizeValue];
+	NSNumber *screenNumber = [description objectForKey:@"NSScreenNumber"];
+	CGSize displayPhysicalSize = CGDisplayScreenSize([screenNumber unsignedIntValue]); // in millimeters
+	double ppi = displayPixelSize.width / (displayPhysicalSize.width * 0.039370);      // Convert MM to INCH
+	dm.pixels_per_inch = round(ppi);
+
 	return dm;
 }
 
