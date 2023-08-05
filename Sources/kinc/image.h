@@ -415,7 +415,7 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 			*compression = KINC_IMAGE_COMPRESSION_DXT5;
 			*outputSize = *width * *height;
 			callbacks.read(user_data, buffer, compressedSize);
-			*outputSize = LZ4_decompress_safe((char *)(data + 12), (char *)output, compressedSize, *outputSize);
+			*outputSize = LZ4_decompress_safe((char *)buffer, (char *)output, compressedSize, *outputSize);
 			*internalFormat = 0;
 			return true;
 		}
