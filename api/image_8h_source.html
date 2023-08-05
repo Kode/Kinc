@@ -421,7 +421,7 @@ $(function() {
 <div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;            *compression = KINC_IMAGE_COMPRESSION_DXT5;</div>
 <div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;            *outputSize = *width * *height;</div>
 <div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;            callbacks.read(user_data, buffer, compressedSize);</div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;            *outputSize = LZ4_decompress_safe((<span class="keywordtype">char</span> *)(data + 12), (<span class="keywordtype">char</span> *)output, compressedSize, *outputSize);</div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;            *outputSize = LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, *outputSize);</div>
 <div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;            *internalFormat = 0;</div>
 <div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;        }</div>
