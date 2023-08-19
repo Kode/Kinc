@@ -10,6 +10,7 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *_data, size_t length, k
 	unsigned index = 0;
 	uint8_t *data = (uint8_t *)_data;
 
+#ifndef KINC_KONG
 	int attributesCount = data[index++];
 	for (int i = 0; i < attributesCount; ++i) {
 		char name[64];
@@ -56,6 +57,7 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *_data, size_t length, k
 		shader->impl.constants[i] = constant;
 		shader->impl.constantsSize = constant.offset + constant.size;
 	}
+#endif
 
 	shader->impl.length = (int)length - index;
 	shader->impl.data = (uint8_t *)malloc(shader->impl.length);

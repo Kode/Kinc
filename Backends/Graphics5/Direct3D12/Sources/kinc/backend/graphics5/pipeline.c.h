@@ -302,7 +302,11 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	for (int stream = 0; pipe->inputLayout[stream] != NULL; ++stream) {
 		for (int i = 0; i < pipe->inputLayout[stream]->size; ++i) {
 			vertexDesc[curAttr].SemanticName = "TEXCOORD";
+#ifdef KINC_KONG
+			vertexDesc[curAttr].SemanticIndex = i;
+#else
 			vertexDesc[curAttr].SemanticIndex = findAttribute(pipe->vertexShader, pipe->inputLayout[stream]->elements[i].name).attribute;
+#endif
 			vertexDesc[curAttr].InputSlot = stream;
 			vertexDesc[curAttr].AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
 			vertexDesc[curAttr].InputSlotClass =
