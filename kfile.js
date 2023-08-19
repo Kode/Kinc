@@ -25,14 +25,10 @@ project.addDefine('KORE_A2');
 let a3 = false;
 
 // Setting lz4x to false adds a BSD 2-Clause licensed component,
-// which is a little more restrictive than Kore's zlib license.
+// which is a little more restrictive than Kinc's zlib license.
 const lz4x = true;
 
 project.addFile('Sources/**');
-
-if (!cpp) {
-	project.addExclude('Sources/Kore/**');
-}
 
 if (lz4x) {
 	project.addDefine('KORE_LZ4X');
