@@ -26,7 +26,7 @@ var kinc_g1_sampler: sampler;
 
 #[fragment]
 fun kinc_g1_fragment(input: kinc_g1_vertex_out): float4 {
-    return kinc_g1_sampler.sample(kinc_g1_texture, input.texCoord);
+    return sample(kinc_g1_sampler, kinc_g1_texture, input.texCoord);
 }
 
 #[pipe]
