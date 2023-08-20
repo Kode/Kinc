@@ -1,0 +1,36 @@
+struct kinc_g1_vertex_in {
+    pos: float3;
+    tex: float2;
+}
+
+struct kinc_g1_vertex_out {
+	position: float4;
+	texCoord: float2;
+}
+
+#[vertex]
+fun kinc_g1_vertex(input: kinc_g1_vertex_in): kinc_g1_vertex_out {
+    var output: kinc_g1_vertex_out;
+
+    output.position.xy = input.pos.xy;
+    output.position.z = 0.5;
+    output.position.w = 1.0;
+
+    output.texCoord = input.tex;
+
+    return output;
+}
+
+var kinc_g1_texture: tex2d;
+var kinc_g1_sampler: sampler;
+
+#[fragment]
+fun kinc_g1_fragment(input: kinc_g1_vertex_out): float4 {
+    return kinc_g1_sampler.sample(kinc_g1_texture, input.texCoord);
+}
+
+#[pipe]
+struct kinc_g1_pipeline {
+    vertex_shader = kinc_g1_vertex;
+    fragment_shader = kinc_g1_fragment;
+}

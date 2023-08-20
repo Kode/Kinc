@@ -30,6 +30,13 @@ const lz4x = true;
 
 project.addFile('Sources/**');
 
+if (Options.kong) {
+	project.addKongDir('KongShaders');
+}
+else {
+	project.addFile('GLSLShaders/**');
+}
+
 if (lz4x) {
 	project.addDefine('KORE_LZ4X');
 	project.addExclude('Sources/kinc/io/lz4/**');
