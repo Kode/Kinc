@@ -285,10 +285,10 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_set
 KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_set_render_target_face</b> (struct <a class="el" href="structkinc__g4__render__target.html">kinc_g4_render_target</a> *texture, int face)</td></tr>
 <tr class="separator:a9bf492289c04ed4a2922bde54af790cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae5e0a2befc4b28f5baccff86b9cd95c3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#ae5e0a2befc4b28f5baccff86b9cd95c3">kinc_g4_set_texture</a> (<a class="el" href="structkinc__g4__texture__unit.html">kinc_g4_texture_unit_t</a> unit, struct <a class="el" href="structkinc__g4__texture.html">kinc_g4_texture</a> *texture)</td></tr>
-<tr class="memdesc:ae5e0a2befc4b28f5baccff86b9cd95c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a texture to a texture-unit for sampled access.  <a href="graphics4_2graphics_8h.html#ae5e0a2befc4b28f5baccff86b9cd95c3">More...</a><br /></td></tr>
+<tr class="memdesc:ae5e0a2befc4b28f5baccff86b9cd95c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a texture to a texture-unit for sampled access via GLSL's texture.  <a href="graphics4_2graphics_8h.html#ae5e0a2befc4b28f5baccff86b9cd95c3">More...</a><br /></td></tr>
 <tr class="separator:ae5e0a2befc4b28f5baccff86b9cd95c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab3f717ca737c33200933e4efad26d8db"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#ab3f717ca737c33200933e4efad26d8db">kinc_g4_set_image_texture</a> (<a class="el" href="structkinc__g4__texture__unit.html">kinc_g4_texture_unit_t</a> unit, struct <a class="el" href="structkinc__g4__texture.html">kinc_g4_texture</a> *texture)</td></tr>
-<tr class="memdesc:ab3f717ca737c33200933e4efad26d8db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a texture to a texture-unit for direct access.  <a href="graphics4_2graphics_8h.html#ab3f717ca737c33200933e4efad26d8db">More...</a><br /></td></tr>
+<tr class="memdesc:ab3f717ca737c33200933e4efad26d8db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a texture to a texture-unit for direct access via GLSL's texelFetch (as opposed to GLSL's texture). The name of this functions is unfortunately based on OpenGL's confusing terminology.  <a href="graphics4_2graphics_8h.html#ab3f717ca737c33200933e4efad26d8db">More...</a><br /></td></tr>
 <tr class="separator:ab3f717ca737c33200933e4efad26d8db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab66f91c3e40c204d3b62f11d0071d90a"><td class="memItemLeft" align="right" valign="top"><a id="ab66f91c3e40c204d3b62f11d0071d90a"></a>
 KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_init_occlusion_query</b> (unsigned *occlusionQuery)</td></tr>
@@ -1065,7 +1065,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
       </table>
 </div><div class="memdoc">
 
-<p>Assigns a texture to a texture-unit for direct access. </p>
+<p>Assigns a texture to a texture-unit for direct access via GLSL's texelFetch (as opposed to GLSL's texture). The name of this functions is unfortunately based on OpenGL's confusing terminology. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">unit</td><td>The unit to assign this texture to</td></tr>
@@ -1473,7 +1473,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
       </table>
 </div><div class="memdoc">
 
-<p>Assigns a texture to a texture-unit for sampled access. </p>
+<p>Assigns a texture to a texture-unit for sampled access via GLSL's texture. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">unit</td><td>The unit to assign this texture to</td></tr>

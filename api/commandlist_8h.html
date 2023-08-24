@@ -206,10 +206,10 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <tr class="memdesc:af5c86bc4d8570bac49c7ee3ca0da0049"><td class="mdescLeft">&#160;</td><td class="mdescRight">Records a command that fires off a compute-run on x * y * z elements.  <a href="commandlist_8h.html#af5c86bc4d8570bac49c7ee3ca0da0049">More...</a><br /></td></tr>
 <tr class="separator:af5c86bc4d8570bac49c7ee3ca0da0049"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91c4c743064ebff09814b94d56b0d1cd"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a91c4c743064ebff09814b94d56b0d1cd">kinc_g5_command_list_set_texture</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit, <a class="el" href="structkinc__g5__texture.html">kinc_g5_texture_t</a> *texture)</td></tr>
-<tr class="memdesc:a91c4c743064ebff09814b94d56b0d1cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a texture to a texture-unit for sampled access.  <a href="commandlist_8h.html#a91c4c743064ebff09814b94d56b0d1cd">More...</a><br /></td></tr>
+<tr class="memdesc:a91c4c743064ebff09814b94d56b0d1cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a texture to a texture-unit for sampled access via GLSL's texture.  <a href="commandlist_8h.html#a91c4c743064ebff09814b94d56b0d1cd">More...</a><br /></td></tr>
 <tr class="separator:a91c4c743064ebff09814b94d56b0d1cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a696b0ef20dc5bc98c009d75ef199bee2"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a696b0ef20dc5bc98c009d75ef199bee2">kinc_g5_command_list_set_image_texture</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit, <a class="el" href="structkinc__g5__texture.html">kinc_g5_texture_t</a> *texture)</td></tr>
-<tr class="memdesc:a696b0ef20dc5bc98c009d75ef199bee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a texture to a texture-unit for direct access.  <a href="commandlist_8h.html#a696b0ef20dc5bc98c009d75ef199bee2">More...</a><br /></td></tr>
+<tr class="memdesc:a696b0ef20dc5bc98c009d75ef199bee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns a texture to a texture-unit for direct access via GLSL's texelFetch (as opposed to GLSL's texture). The name of this functions is unfortunately based on OpenGL's confusing terminology.  <a href="commandlist_8h.html#a696b0ef20dc5bc98c009d75ef199bee2">More...</a><br /></td></tr>
 <tr class="separator:a696b0ef20dc5bc98c009d75ef199bee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a90f1c2dd99304137ed62904d37c7e6"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a1a90f1c2dd99304137ed62904d37c7e6">kinc_g5_command_list_set_texture_from_render_target</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, <a class="el" href="structkinc__g5__texture__unit.html">kinc_g5_texture_unit_t</a> unit, <a class="el" href="structkinc__g5__render__target.html">kinc_g5_render_target_t</a> *target)</td></tr>
 <tr class="memdesc:a1a90f1c2dd99304137ed62904d37c7e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uses the color-component of a render-target as a texture.  <a href="commandlist_8h.html#a1a90f1c2dd99304137ed62904d37c7e6">More...</a><br /></td></tr>
@@ -980,7 +980,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
       </table>
 </div><div class="memdoc">
 
-<p>Assigns a texture to a texture-unit for direct access. </p>
+<p>Assigns a texture to a texture-unit for direct access via GLSL's texelFetch (as opposed to GLSL's texture). The name of this functions is unfortunately based on OpenGL's confusing terminology. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
@@ -1142,7 +1142,7 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
       </table>
 </div><div class="memdoc">
 
-<p>Assigns a texture to a texture-unit for sampled access. </p>
+<p>Assigns a texture to a texture-unit for sampled access via GLSL's texture. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
