@@ -273,7 +273,7 @@ KINC_FUNC void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_lis
 KINC_FUNC void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z);
 
 /// <summary>
-/// Assigns a texture to a texture-unit for sampled access.
+/// Assigns a texture to a texture-unit for sampled access via GLSL's texture.
 /// </summary>
 /// <param name="list">The list to write the command to</param>
 /// <param name="unit">The unit to assign this texture to</param>
@@ -281,7 +281,9 @@ KINC_FUNC void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x,
 KINC_FUNC void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture);
 
 /// <summary>
-/// Assigns a texture to a texture-unit for direct access.
+/// Assigns a texture to a texture-unit for direct access via GLSL's texelFetch (as
+/// opposed to GLSL's texture). The name of this functions is unfortunately based
+/// on OpenGL's confusing terminology.
 /// </summary>
 /// <param name="list">The list to write the command to</param>
 /// <param name="unit">The unit to assign this texture to</param>
