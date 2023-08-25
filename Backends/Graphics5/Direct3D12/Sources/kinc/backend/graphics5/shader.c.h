@@ -82,4 +82,6 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *_data, size_t length, k
 	}
 }
 
-void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {}
+void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {
+	free(shader->impl.data);
+}
