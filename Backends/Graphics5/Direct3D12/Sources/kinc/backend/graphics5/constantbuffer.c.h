@@ -38,7 +38,9 @@ void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	buffer->impl.constant_buffer->Unmap(0, NULL);
 }
 
-void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {}
+void kinc_g5_constant_buffer_destroy(kinc_g5_constant_buffer_t *buffer) {
+	buffer->impl.constant_buffer->Release();
+}
 
 void kinc_g5_constant_buffer_lock_all(kinc_g5_constant_buffer_t *buffer) {
 	kinc_g5_constant_buffer_lock(buffer, 0, kinc_g5_constant_buffer_size(buffer));
