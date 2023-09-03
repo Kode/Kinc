@@ -31,6 +31,6 @@ fun kinc_g1_fragment(input: kinc_g1_vertex_out): float4 {
 
 #[pipe]
 struct kinc_g1_pipeline {
-	vertex_shader = kinc_g1_vertex;
-	fragment_shader = kinc_g1_fragment;
+	vertex = kinc_g1_vertex;
+	fragment = kinc_g1_fragment;
 }

@@ -1362,6 +1362,10 @@ static void init_crash_handler() {
 	}
 }
 
+#ifdef KINC_KONG
+void kong_init(void);
+#endif
+
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	init_crash_handler();
 
@@ -1375,8 +1379,9 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	MyGetPointerPenInfo = (GetPointerPenInfoType)GetProcAddress(user32, "GetPointerPenInfo");
 	MyEnableNonClientDpiScaling = (EnableNonClientDpiScalingType)GetProcAddress(user32, "EnableNonClientDpiScaling");
 	initKeyTranslation();
-	for (int i = 0; i < 256; ++i)
+	for (int i = 0; i < 256; ++i) {
 		keyPressed[i] = false;
+	}
 
 	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
 		touchPoints[i].sysID = -1;
@@ -1389,8 +1394,9 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&frequency);
 
-	for (int i = 0; i < 256; ++i)
+	for (int i = 0; i < 256; ++i) {
 		keyPressed[i] = false;
+	}
 
 	// Kore::System::_init(name, width, height, &win, &frame);
 	kinc_set_application_name(name);
@@ -1410,6 +1416,11 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	int window = kinc_window_create(win, frame);
 	loadXInput();
 	initializeDirectInput();
+
+#ifdef KINC_KONG
+	kong_init();
+#endif
+
 	return window;
 }
 
