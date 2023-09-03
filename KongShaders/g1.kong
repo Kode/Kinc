@@ -8,7 +8,6 @@ struct kinc_g1_vertex_out {
 	tex: float2;
 }
 
-#[vertex]
 fun kinc_g1_vertex(input: kinc_g1_vertex_in): kinc_g1_vertex_out {
 	var output: kinc_g1_vertex_out;
 
@@ -24,7 +23,6 @@ fun kinc_g1_vertex(input: kinc_g1_vertex_in): kinc_g1_vertex_out {
 const kinc_g1_texture: tex2d;
 const kinc_g1_sampler: sampler;
 
-#[fragment]
 fun kinc_g1_fragment(input: kinc_g1_vertex_out): float4 {
 	return sample(kinc_g1_texture, kinc_g1_sampler, input.tex);
 }
