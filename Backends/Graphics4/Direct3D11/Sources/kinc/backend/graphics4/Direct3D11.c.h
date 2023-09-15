@@ -24,7 +24,7 @@
 #ifdef KORE_WINDOWS
 #include <kinc/backend/Windows.h>
 #else
-int antialiasingSamples() {
+int antialiasingSamples(void) {
 	return 1;
 }
 #endif
@@ -81,7 +81,7 @@ static ID3D11SamplerState *getSamplerState(D3D11_SAMPLER_DESC *desc) {
 	return s.state;
 }
 
-static void initSamplers() {
+static void initSamplers(void) {
 	D3D11_SAMPLER_DESC samplerDesc;
 	memset(&samplerDesc, 0, sizeof(samplerDesc));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -109,7 +109,7 @@ static ID3D11DepthStencilView *currentDepthStencilView;
 
 void kinc_g4_internal_destroy_window(int window) {}
 
-void kinc_g4_internal_destroy() {}
+void kinc_g4_internal_destroy(void) {}
 
 static void createBackbuffer(struct dx_window *window, int antialiasingSamples) {
 	if (window->depthStencil) {
@@ -182,16 +182,16 @@ static bool isWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WO
 #define _WIN32_WINNT_WIN10 0x0A00
 #endif
 
-static bool isWindows8OrGreater() {
+static bool isWindows8OrGreater(void) {
 	return isWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN8), LOBYTE(_WIN32_WINNT_WIN8), 0);
 }
 
-static bool isWindows10OrGreater() {
+static bool isWindows10OrGreater(void) {
 	return isWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 0);
 }
 #endif
 
-void kinc_g4_internal_init() {
+void kinc_g4_internal_init(void) {
 	D3D_FEATURE_LEVEL featureLevels[] = {
 #ifdef KORE_WINDOWSAPP
 	    D3D_FEATURE_LEVEL_11_1,
@@ -520,7 +520,7 @@ void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
 
 void kinc_g4_end(int windowId) {}
 
-bool kinc_g4_swap_buffers() {
+bool kinc_g4_swap_buffers(void) {
 	bool success = true;
 	for (int i = 0; i < MAXIMUM_WINDOWS; i++) {
 		if (dx_ctx.windows[i].swapChain) {
@@ -1086,7 +1086,7 @@ void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, f
 	kinc_g4_set_texture_lod(unit, lod_min_clamp, lod_max_clamp);
 }
 
-void kinc_g4_restore_render_target() {
+void kinc_g4_restore_render_target(void) {
 	struct dx_window *window = &dx_ctx.windows[dx_ctx.current_window];
 	currentRenderTargetViews[0] = window->renderTargetView;
 	currentDepthStencilView = window->depthStencilView;
@@ -1266,19 +1266,19 @@ bool kinc_window_vsynced(int window_index) {
 	return window->vsync;
 }
 
-bool kinc_g4_supports_instanced_rendering() {
+bool kinc_g4_supports_instanced_rendering(void) {
 	return true;
 }
 
-bool kinc_g4_supports_compute_shaders() {
+bool kinc_g4_supports_compute_shaders(void) {
 	return true;
 }
 
-bool kinc_g4_supports_blend_constants() {
+bool kinc_g4_supports_blend_constants(void) {
 	return true;
 }
 
-bool kinc_g4_supports_non_pow2_textures() {
+bool kinc_g4_supports_non_pow2_textures(void) {
 	return true; // we always request feature level >= 10
 }
 
