@@ -20,6 +20,9 @@ struct kinc_g4_pipeline;
 struct kinc_g4_render_target;
 struct kinc_g4_texture;
 struct kinc_g4_texture_array;
+#ifdef KINC_KONG
+struct kinc_g4_constant_buffer;
+#endif
 
 typedef enum {
 	KINC_G4_TEXTURE_ADDRESSING_REPEAT,
@@ -177,6 +180,10 @@ KINC_FUNC void kinc_g4_set_stencil_reference_value(int value);
 /// Sets the blend constant used for `KINC_G4_BLEND_CONSTANT` or `KINC_G4_INV_BLEND_CONSTANT`
 /// </summary>
 KINC_FUNC void kinc_g4_set_blend_constant(float r, float g, float b, float a);
+
+#ifdef KINC_KONG
+KINC_FUNC void kinc_g4_set_constant_buffer(uint32_t id, struct kinc_g4_constant_buffer *buffer);
+#endif
 
 /// <summary>
 /// Assigns an integer to a constant/uniform in the currently set pipeline.

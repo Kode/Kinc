@@ -12,6 +12,7 @@
 #include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics4/vertexbuffer.h>
+#include <kinc/graphics4/constantbuffer.h>
 
 #undef CreateWindow
 
@@ -1284,3 +1285,10 @@ bool kinc_g4_supports_non_pow2_textures() {
 bool kinc_g4_render_targets_inverted_y(void) {
 	return false;
 }
+
+#ifdef KINC_KONG
+void kinc_g4_set_constant_buffer(uint32_t id, struct kinc_g4_constant_buffer* buffer) {
+	dx_ctx.context->lpVtbl->VSSetConstantBuffers(dx_ctx.context, id, 1, &buffer->impl.buffer);
+	dx_ctx.context->lpVtbl->PSSetConstantBuffers(dx_ctx.context, id, 1, &buffer->impl.buffer);
+}
+#endif

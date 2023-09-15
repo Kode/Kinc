@@ -372,13 +372,6 @@ kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(struct kinc_g4_pipeline
 static char stringCache[1024];
 static int stringCacheIndex = 0;
 
-static int getMultipleOf16(int value) {
-	int ret = 16;
-	while (ret < value)
-		ret += 16;
-	return ret;
-}
-
 static void setVertexDesc(D3D11_INPUT_ELEMENT_DESC *vertexDesc, int attributeIndex, int index, int stream, bool instanced, int subindex) {
 	if (subindex < 0) {
 		vertexDesc->SemanticName = "TEXCOORD";
@@ -441,7 +434,7 @@ static void createRenderTargetBlendDesc(struct kinc_g4_pipeline *pipe, D3D11_REN
 void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 	if (state->vertex_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
-		desc.ByteWidth = getMultipleOf16(state->vertex_shader->impl.constantsSize);
+		desc.ByteWidth = (UINT)get_multiple_of_16(state->vertex_shader->impl.constantsSize);
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;
@@ -451,7 +444,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 	}
 	if (state->fragment_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
-		desc.ByteWidth = getMultipleOf16(state->fragment_shader->impl.constantsSize);
+		desc.ByteWidth = (UINT)get_multiple_of_16(state->fragment_shader->impl.constantsSize);
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;
@@ -461,7 +454,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 	}
 	if (state->geometry_shader != NULL && state->geometry_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
-		desc.ByteWidth = getMultipleOf16(state->geometry_shader->impl.constantsSize);
+		desc.ByteWidth = (UINT)get_multiple_of_16(state->geometry_shader->impl.constantsSize);
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;
@@ -471,7 +464,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 	}
 	if (state->tessellation_control_shader != NULL && state->tessellation_control_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
-		desc.ByteWidth = getMultipleOf16(state->tessellation_control_shader->impl.constantsSize);
+		desc.ByteWidth = (UINT)get_multiple_of_16(state->tessellation_control_shader->impl.constantsSize);
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;
@@ -481,7 +474,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 	}
 	if (state->tessellation_evaluation_shader != NULL && state->tessellation_evaluation_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
-		desc.ByteWidth = getMultipleOf16(state->tessellation_evaluation_shader->impl.constantsSize);
+		desc.ByteWidth = (UINT)get_multiple_of_16(state->tessellation_evaluation_shader->impl.constantsSize);
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;

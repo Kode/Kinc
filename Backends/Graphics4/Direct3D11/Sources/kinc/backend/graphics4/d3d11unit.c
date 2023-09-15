@@ -88,8 +88,17 @@ static D3D11_COMPARISON_FUNC get_comparison(kinc_g4_compare_mode_t compare) {
 	}
 }
 
+static size_t get_multiple_of_16(size_t value) {
+	size_t ret = 16;
+	while (ret < value) {
+		ret += 16;
+	}
+	return ret;
+}
+
 #include "Direct3D11.c.h"
 #include "ShaderHash.c.h"
+#include "constantbuffer.c.h"
 #include "indexbuffer.c.h"
 #include "pipeline.c.h"
 #include "rendertarget.c.h"
