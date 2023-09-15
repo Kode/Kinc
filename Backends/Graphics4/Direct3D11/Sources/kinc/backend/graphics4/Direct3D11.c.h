@@ -8,11 +8,11 @@
 #include <kinc/graphics4/shader.h>
 #include <kinc/graphics4/texturearray.h>
 
+#include <kinc/graphics4/constantbuffer.h>
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/rendertarget.h>
 #include <kinc/graphics4/vertexbuffer.h>
-#include <kinc/graphics4/constantbuffer.h>
 
 #undef CreateWindow
 
@@ -1287,7 +1287,7 @@ bool kinc_g4_render_targets_inverted_y(void) {
 }
 
 #ifdef KINC_KONG
-void kinc_g4_set_constant_buffer(uint32_t id, struct kinc_g4_constant_buffer* buffer) {
+void kinc_g4_set_constant_buffer(uint32_t id, struct kinc_g4_constant_buffer *buffer) {
 	dx_ctx.context->lpVtbl->VSSetConstantBuffers(dx_ctx.context, id, 1, &buffer->impl.buffer);
 	dx_ctx.context->lpVtbl->PSSetConstantBuffers(dx_ctx.context, id, 1, &buffer->impl.buffer);
 }

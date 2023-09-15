@@ -10,7 +10,8 @@ void kinc_g4_constant_buffer_init(kinc_g4_constant_buffer *buffer, size_t size) 
 	D3D11_BUFFER_DESC desc;
 	desc.ByteWidth = (UINT)get_multiple_of_16(size);
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 	desc.StructureByteStride = 0;
@@ -38,7 +39,6 @@ uint8_t *kinc_g4_constant_buffer_lock(kinc_g4_constant_buffer *buffer, size_t st
 
 void kinc_g4_constant_buffer_unlock_all(kinc_g4_constant_buffer *buffer) {
 	kinc_g4_constant_buffer_unlock(buffer, buffer->impl.last_size);
-
 }
 
 void kinc_g4_constant_buffer_unlock(kinc_g4_constant_buffer *buffer, size_t count) {
