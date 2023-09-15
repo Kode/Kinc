@@ -277,13 +277,15 @@ static bool cmd = false;
 static int getMouseX(NSEvent *event) {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	NSWindow *window = [[NSApplication sharedApplication] mainWindow];
-	return (int)([event locationInWindow].x);
+	float scale = [window backingScaleFactor];
+	return (int)([event locationInWindow].x * scale);
 }
 
 static int getMouseY(NSEvent *event) {
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	NSWindow *window = [[NSApplication sharedApplication] mainWindow];
-	return (int)(kinc_height() - [event locationInWindow].y);
+	float scale = [window backingScaleFactor];
+	return (int)(kinc_height() - [event locationInWindow].y * scale);
 }
 
 static bool controlKeyMouseButton = false;
