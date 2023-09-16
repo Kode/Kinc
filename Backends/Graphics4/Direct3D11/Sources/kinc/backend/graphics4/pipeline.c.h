@@ -91,6 +91,7 @@ static D3D11_STENCIL_OP get_stencil_action(kinc_g4_stencil_action_t action) {
 }
 
 void kinc_internal_set_constants(void) {
+#ifndef KINC_KONG
 	if (currentPipeline->vertex_shader->impl.constantsSize > 0) {
 		dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)currentPipeline->impl.vertexConstantBuffer, 0, NULL, vertexConstants, 0, 0);
 		dx_ctx.context->lpVtbl->VSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.vertexConstantBuffer);
@@ -115,6 +116,7 @@ void kinc_internal_set_constants(void) {
 		                                          0);
 		dx_ctx.context->lpVtbl->DSSetConstantBuffers(dx_ctx.context, 0, 1, &currentPipeline->impl.tessEvalConstantBuffer);
 	}
+#endif
 }
 
 void kinc_g4_pipeline_init(struct kinc_g4_pipeline *state) {
@@ -209,6 +211,7 @@ void kinc_internal_pipeline_rebind() {
 	}
 }
 
+#ifndef KINC_KONG
 static kinc_internal_shader_constant_t *findConstant(kinc_internal_shader_constant_t *constants, uint32_t hash) {
 	for (int i = 0; i < 64; ++i) {
 		if (constants[i].hash == hash) {
@@ -368,6 +371,7 @@ kinc_g4_texture_unit_t kinc_g4_pipeline_get_texture_unit(struct kinc_g4_pipeline
 
 	return unit;
 }
+#endif
 
 static char stringCache[1024];
 static int stringCacheIndex = 0;
@@ -432,6 +436,7 @@ static void createRenderTargetBlendDesc(struct kinc_g4_pipeline *pipe, D3D11_REN
 }
 
 void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
+#ifndef KINC_KONG
 	if (state->vertex_shader->impl.constantsSize > 0) {
 		D3D11_BUFFER_DESC desc;
 		desc.ByteWidth = (UINT)get_multiple_of_16(state->vertex_shader->impl.constantsSize);
@@ -482,6 +487,7 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		desc.StructureByteStride = 0;
 		kinc_microsoft_affirm(dx_ctx.device->lpVtbl->CreateBuffer(dx_ctx.device, &desc, NULL, &state->impl.tessEvalConstantBuffer));
 	}
+#endif
 
 	int all = 0;
 	for (int stream = 0; state->input_layout[stream] != NULL; ++stream) {
@@ -495,14 +501,21 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 		}
 	}
 
+#ifndef KINC_KONG
 	bool used[usedCount];
 	for (int i = 0; i < usedCount; ++i)
 		used[i] = false;
 	for (int i = 0; i < 64; ++i) {
 		used[state->vertex_shader->impl.attributes[i].index] = true;
 	}
+#endif
 	stringCacheIndex = 0;
 	D3D11_INPUT_ELEMENT_DESC *vertexDesc = (D3D11_INPUT_ELEMENT_DESC *)alloca(sizeof(D3D11_INPUT_ELEMENT_DESC) * all);
+
+#ifdef KINC_KONG
+#define getAttributeLocation(a, b, c) index
+#endif
+
 	int i = 0;
 	for (int stream = 0; state->input_layout[stream] != NULL; ++stream) {
 		for (int index = 0; index < state->input_layout[stream]->size; ++index) {

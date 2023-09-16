@@ -47,6 +47,7 @@ KINC_FUNC void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *sou
 /// <param name="shader">The shader-object to destroy</param>
 KINC_FUNC void kinc_compute_shader_destroy(kinc_compute_shader_t *shader);
 
+#ifndef KINC_KONG
 /// <summary>
 /// Finds the location of a constant/uniform inside of a shader.
 /// </summary>
@@ -62,6 +63,7 @@ KINC_FUNC kinc_compute_constant_location_t kinc_compute_shader_get_constant_loca
 /// <param name="name">The texture-name to look for</param>
 /// <returns>The found texture-unit</returns>
 KINC_FUNC kinc_compute_texture_unit_t kinc_compute_shader_get_texture_unit(kinc_compute_shader_t *shader, const char *name);
+#endif
 
 #ifdef KORE_OPENGL
 typedef struct kinc_shader_storage_buffer {

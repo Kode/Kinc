@@ -139,6 +139,7 @@ KINC_FUNC void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipeline);
 /// <param name="pipeline">The pipeline to compile</param>
 KINC_FUNC void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline);
 
+#ifndef KINC_KONG
 /// <summary>
 /// Searches for a constant/uniform and returns a constant-location which can be used to change the constant/uniform.
 /// </summary>
@@ -154,6 +155,7 @@ KINC_FUNC kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kin
 /// <param name="name">The name of the texture-declaration to search for</param>
 /// <returns>The texture-unit of the texture-declaration</returns>
 KINC_FUNC kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipeline, const char *name);
+#endif
 
 /// <summary>
 /// Initializes a compute-pipeline.

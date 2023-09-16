@@ -37,6 +37,7 @@ void kinc_g5_pipeline_destroy(kinc_g5_pipeline_t *pipe) {
 	kinc_g4_pipeline_destroy(&pipe->impl.pipe);
 }
 
+#ifndef KINC_KONG
 kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipe, const char *name) {
 	kinc_g5_constant_location_t location;
 	location.impl.location = kinc_g4_pipeline_get_constant_location(&pipe->impl.pipe, name);
@@ -52,6 +53,7 @@ kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pip
 
 	return g5_unit;
 }
+#endif
 
 void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	for (int i = 0; i < 16; ++i) {

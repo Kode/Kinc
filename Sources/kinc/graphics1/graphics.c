@@ -8,10 +8,16 @@
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/io/filereader.h>
 
+#ifdef KINC_KONG
+#include <kong.h>
+#endif
+
+#ifndef KINC_KONG
 static kinc_g4_shader_t vertexShader;
 static kinc_g4_shader_t fragmentShader;
 static kinc_g4_pipeline_t pipeline;
 static kinc_g4_texture_unit_t tex;
+#endif
 static kinc_g4_vertex_buffer_t vb;
 static kinc_g4_index_buffer_t ib;
 static kinc_g4_texture_t texture;
@@ -30,8 +36,15 @@ void kinc_g1_end(void) {
 
 	kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xff000000, 0.0f, 0);
 
+#ifdef KINC_KONG
+	kinc_g4_set_pipeline(&kinc_g1_pipeline);
+#else
 	kinc_g4_set_pipeline(&pipeline);
+#endif
+
+#ifndef KINC_KONG
 	kinc_g4_set_texture(tex, &texture);
+#endif
 	kinc_g4_set_vertex_buffer(&vb);
 	kinc_g4_set_index_buffer(&ib);
 	kinc_g4_draw_indexed_vertices();
@@ -44,6 +57,7 @@ void kinc_g1_init(int width, int height) {
 	kinc_internal_g1_w = width;
 	kinc_internal_g1_h = height;
 
+#ifndef KINC_KONG
 	{
 		kinc_file_reader_t file;
 		kinc_file_reader_open(&file, "g1.vert", KINC_FILE_TYPE_ASSET);
@@ -76,6 +90,7 @@ void kinc_g1_init(int width, int height) {
 	kinc_g4_pipeline_compile(&pipeline);
 
 	tex = kinc_g4_pipeline_get_texture_unit(&pipeline, "texy");
+#endif
 
 	kinc_g4_texture_init(&texture, width, height, KINC_IMAGE_FORMAT_RGBA32);
 	kinc_internal_g1_tex_width = texture.tex_width;
@@ -93,7 +108,11 @@ void kinc_g1_init(int width, int height) {
 	float xAspect = (float)width / texture.tex_width;
 	float yAspect = (float)height / texture.tex_height;
 
+#ifdef KINC_KONG
+	kinc_g4_vertex_buffer_init(&vb, 4, &kinc_g1_vertex_in_structure, KINC_G4_USAGE_STATIC, 0);
+#else
 	kinc_g4_vertex_buffer_init(&vb, 4, &structure, KINC_G4_USAGE_STATIC, 0);
+#endif
 	float *v = kinc_g4_vertex_buffer_lock_all(&vb);
 	{
 		int i = 0;
