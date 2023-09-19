@@ -279,7 +279,11 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 			assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
 			kinc_g4_texture_unit_t g4_unit;
 			memcpy(&g4_unit.stages[0], &unit.stages[0], KINC_G4_SHADER_TYPE_COUNT * sizeof(int));
+#ifdef KINC_KONG
+			kinc_g4_set_texture(g4_unit.stages[0], &texture->impl.texture);
+#else
 			kinc_g4_set_texture(g4_unit, &texture->impl.texture);
+#endif
 			break;
 		}
 		case SetImageTexture: {

@@ -207,6 +207,14 @@ void kinc_internal_texture_unmipmap(kinc_g4_texture_t *texture) {
 	texture->impl.hasMipmaps = false;
 }
 
+#ifdef KINC_KONG
+void kinc_internal_texture_set(kinc_g4_texture_t *texture, uint32_t unit) {
+	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit, 1, &texture->impl.view);
+
+	texture->impl.stage = unit;
+	setTextures[unit] = texture;
+}
+#else
 void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0 && unit.stages[KINC_G4_SHADER_TYPE_VERTEX] < 0)
 		return;
@@ -222,6 +230,7 @@ void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_
 	texture->impl.stage = unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] >= 0 ? unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] : unit.stages[KINC_G4_SHADER_TYPE_VERTEX];
 	setTextures[texture->impl.stage] = texture;
 }
+#endif
 
 void kinc_internal_texture_set_image(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0)

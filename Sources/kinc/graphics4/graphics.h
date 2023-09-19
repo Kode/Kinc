@@ -363,12 +363,21 @@ KINC_FUNC void kinc_g4_set_render_targets(struct kinc_g4_render_target **targets
 
 KINC_FUNC void kinc_g4_set_render_target_face(struct kinc_g4_render_target *texture, int face);
 
+#ifdef KINC_KONG
+/// <summary>
+/// Assigns a texture to a texture-unit for sampled access via GLSL's texture.
+/// </summary>
+/// <param name="unit">The unit to assign this texture to</param>
+/// <param name="texture">The texture to assign to the unit</param>
+KINC_FUNC void kinc_g4_set_texture(uint32_t unit, struct kinc_g4_texture *texture);
+#else
 /// <summary>
 /// Assigns a texture to a texture-unit for sampled access via GLSL's texture.
 /// </summary>
 /// <param name="unit">The unit to assign this texture to</param>
 /// <param name="texture">The texture to assign to the unit</param>
 KINC_FUNC void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, struct kinc_g4_texture *texture);
+#endif
 
 /// <summary>
 /// Assigns a texture to a texture-unit for direct access via GLSL's texelFetch (as
