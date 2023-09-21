@@ -23,6 +23,8 @@ long int strtol(const char *str, char **endptr, int base);
 
 int abs(int n);
 
+long long int llabs(long long int n);
+
 void qsort(void *base, size_t num, size_t size, int (*compar)(const void *, const void *));
 
 #ifdef __cplusplus
