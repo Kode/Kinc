@@ -133,6 +133,7 @@ KINC_FUNC unsigned kinc_url_to_int(const char *url, int port);
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 #if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)
 

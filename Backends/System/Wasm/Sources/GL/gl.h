@@ -130,6 +130,7 @@ typedef char GLchar;
 #define GL_INT 0x1404
 #define GL_CONSTANT_COLOR 0x8001
 #define GL_ONE_MINUS_CONSTANT_COLOR 0x8002
+#define GL_MAX_VERTEX_ATTRIBS 0x8869
 
 __attribute__((import_module("imports"), import_name("glUniform1i"))) void glUniform1i(GLint location, GLint v0);
 __attribute__((import_module("imports"), import_name("glUniform2i"))) void glUniform2i(GLint location, GLint v0, GLint v1);
