@@ -157,7 +157,7 @@ static void compileShader(unsigned *id, const char *source, size_t length, kinc_
 void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 	compileShader(&state->vertex_shader->impl._glid, state->vertex_shader->impl.source, state->vertex_shader->impl.length, KINC_G4_SHADER_TYPE_VERTEX);
 	compileShader(&state->fragment_shader->impl._glid, state->fragment_shader->impl.source, state->fragment_shader->impl.length, KINC_G4_SHADER_TYPE_FRAGMENT);
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 	if (state->geometry_shader != NULL) {
 		compileShader(&state->geometry_shader->impl._glid, state->geometry_shader->impl.source, state->geometry_shader->impl.length,
 		              KINC_G4_SHADER_TYPE_GEOMETRY);
@@ -173,7 +173,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 #endif
 	glAttachShader(state->impl.programId, state->vertex_shader->impl._glid);
 	glAttachShader(state->impl.programId, state->fragment_shader->impl._glid);
-#ifndef OPENGLES
+#ifndef KORE_OPENGL_ES
 	if (state->geometry_shader != NULL) {
 		glAttachShader(state->impl.programId, state->geometry_shader->impl._glid);
 	}
