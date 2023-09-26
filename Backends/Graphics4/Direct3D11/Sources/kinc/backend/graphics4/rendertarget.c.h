@@ -373,6 +373,17 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 		renderTarget->impl.textureSample->lpVtbl->Release(renderTarget->impl.textureSample);
 }
 
+#ifdef KINC_KONG
+void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, uint32_t unit) {
+	if (renderTarget->impl.textureSample != renderTarget->impl.textureRender) {
+		dx_ctx.context->lpVtbl->ResolveSubresource(dx_ctx.context, (ID3D11Resource *)renderTarget->impl.textureSample, 0,
+		                                           (ID3D11Resource *)renderTarget->impl.textureRender, 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+	}
+
+	dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit, 1,
+	                                             renderTarget->isDepthAttachment ? &renderTarget->impl.depthStencilSRV : &renderTarget->impl.renderTargetSRV);
+}
+#else
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0 && unit.stages[KINC_G4_SHADER_TYPE_VERTEX] < 0)
 		return;
@@ -394,6 +405,7 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderT
 		                                                                             : &renderTarget->impl.renderTargetSRV);
 	}
 }
+#endif
 
 void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	if (unit.stages[KINC_G4_SHADER_TYPE_VERTEX] >= 0) {

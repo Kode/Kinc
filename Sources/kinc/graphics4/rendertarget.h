@@ -92,12 +92,21 @@ KINC_FUNC void kinc_g4_render_target_init_cube_with_multisampling(kinc_g4_render
 /// <param name="renderTarget">The render-target to destroy</param>
 KINC_FUNC void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget);
 
+#ifdef KINC_KONG
+/// <summary>
+/// Uses the color-component of a render-target as a texture.
+/// </summary>
+/// <param name="renderTarget">The render-target to use</param>
+/// <param name="unit">The texture-unit to assign the render-target to</param>
+KINC_FUNC void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, uint32_t unit);
+#else
 /// <summary>
 /// Uses the color-component of a render-target as a texture.
 /// </summary>
 /// <param name="renderTarget">The render-target to use</param>
 /// <param name="unit">The texture-unit to assign the render-target to</param>
 KINC_FUNC void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit);
+#endif
 
 /// <summary>
 /// Uses the depth-component of a render-target as a texture.
