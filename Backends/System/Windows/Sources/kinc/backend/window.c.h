@@ -316,6 +316,10 @@ void kinc_window_change_features(int window_index, int features) {
 	win->features = features;
 	SetWindowLong(win->handle, GWL_STYLE, getStyle(features));
 	SetWindowLong(win->handle, GWL_EXSTYLE, getExStyle(features));
+
+	HWND on_top = (features & KINC_WINDOW_FEATURE_ON_TOP) ? HWND_TOPMOST : HWND_NOTOPMOST;
+	SetWindowPos(win->handle, on_top, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+
 	kinc_window_show(window_index);
 }
 
