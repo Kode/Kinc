@@ -83,9 +83,9 @@ static void RegisterWindowClass(HINSTANCE hInstance, const wchar_t *className) {
 }
 
 static DWORD getStyle(int features) {
-	DWORD style = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	DWORD style = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP;
 
-	if (features & KINC_WINDOW_FEATURE_RESIZEABLE) {
+	if ((features & KINC_WINDOW_FEATURE_RESIZEABLE) && ((features & KINC_WINDOW_FEATURE_BORDERLESS) == 0)) {
 		style |= WS_SIZEBOX;
 	}
 
@@ -101,10 +101,6 @@ static DWORD getStyle(int features) {
 		style |= WS_CAPTION | WS_SYSMENU;
 	}
 
-	if (features & KINC_WINDOW_FEATURE_ON_TOP) {
-		style |= WS_POPUP;
-	}
-
 	return style;
 }
 
@@ -113,6 +109,10 @@ static DWORD getExStyle(int features) {
 
 	if ((features & KINC_WINDOW_FEATURE_BORDERLESS) == 0) {
 		exStyle |= WS_EX_WINDOWEDGE;
+	}
+
+	if (features & KINC_WINDOW_FEATURE_ON_TOP) {
+		exStyle |= WS_EX_TOPMOST;
 	}
 
 	return exStyle;
