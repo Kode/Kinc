@@ -2,6 +2,8 @@
 
 #ifdef KINC_KONG
 
+#include <stddef.h>
+
 typedef struct kinc_g4_constant_buffer_impl {
 	unsigned buffer;
 	void *data;
