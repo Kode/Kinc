@@ -502,6 +502,28 @@ void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
 	glFlush();
 }
 
+#ifdef KINC_KONG
+void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, uint32_t unit) {
+	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glCheckErrors();
+#ifdef KORE_ANDROID
+	if (texture->impl.external_oes) {
+		glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture->impl.texture);
+		glCheckErrors();
+	}
+	else {
+		glBindTexture(target, texture->impl.texture);
+		glCheckErrors();
+	}
+#else
+	glBindTexture(target, texture->impl.texture);
+	glCheckErrors();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, Kinc_G4_Internal_TextureAddressingU(unit));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, Kinc_G4_Internal_TextureAddressingV(unit));
+#endif
+}
+#else
 void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glActiveTexture(GL_TEXTURE0 + unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]);
@@ -522,6 +544,7 @@ void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_uni
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, Kinc_G4_Internal_TextureAddressingV(unit));
 #endif
 }
+#endif
 
 void Kinc_G4_Internal_TextureImageSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 #if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_4))

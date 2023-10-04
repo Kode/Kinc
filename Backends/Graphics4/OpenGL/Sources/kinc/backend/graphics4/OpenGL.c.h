@@ -789,12 +789,21 @@ void kinc_g4_set_index_buffer(kinc_g4_index_buffer_t *indexBuffer) {
 	kinc_internal_g4_index_buffer_set(indexBuffer);
 }
 
-void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
 void Kinc_G4_Internal_TextureImageSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
+
+#ifdef KINC_KONG
+void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, uint32_t unit);
+
+void kinc_g4_set_texture(uint32_t unit, kinc_g4_texture_t *texture) {
+	Kinc_G4_Internal_TextureSet(texture, unit);
+}
+#else
+void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit);
 
 void kinc_g4_set_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {
 	Kinc_G4_Internal_TextureSet(texture, unit);
 }
+#endif
 
 void kinc_g4_set_image_texture(kinc_g4_texture_unit_t unit, kinc_g4_texture_t *texture) {
 	Kinc_G4_Internal_TextureImageSet(texture, unit);
@@ -865,6 +874,15 @@ static void setTextureAddressingInternal(GLenum target, kinc_g4_texture_unit_t u
 	glCheckErrors();
 }
 
+#ifdef KINC_KONG
+int Kinc_G4_Internal_TextureAddressingU(uint32_t unit) {
+	return texModesU[unit];
+}
+
+int Kinc_G4_Internal_TextureAddressingV(uint32_t unit) {
+	return texModesV[unit];
+}
+#else
 int Kinc_G4_Internal_TextureAddressingU(kinc_g4_texture_unit_t unit) {
 	return texModesU[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]];
 }
@@ -872,6 +890,7 @@ int Kinc_G4_Internal_TextureAddressingU(kinc_g4_texture_unit_t unit) {
 int Kinc_G4_Internal_TextureAddressingV(kinc_g4_texture_unit_t unit) {
 	return texModesV[unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT]];
 }
+#endif
 
 void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
 	setTextureAddressingInternal(GL_TEXTURE_2D, unit, dir, addressing);
