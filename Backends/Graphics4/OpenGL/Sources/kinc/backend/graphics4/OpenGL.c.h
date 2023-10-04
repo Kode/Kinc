@@ -7,6 +7,7 @@
 
 #include <kinc/backend/graphics4/vertexbuffer.h>
 
+#include <kinc/graphics4/constantbuffer.h>
 #include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/rendertarget.h>
@@ -1244,3 +1245,9 @@ bool kinc_g4_supports_non_pow2_textures() {
 bool kinc_g4_render_targets_inverted_y(void) {
 	return true;
 }
+
+#ifdef KINC_KONG
+void kinc_g4_set_constant_buffer(uint32_t id, struct kinc_g4_constant_buffer *buffer) {
+	glBindBufferBase(GL_UNIFORM_BUFFER, id, buffer->impl.buffer);
+}
+#endif
