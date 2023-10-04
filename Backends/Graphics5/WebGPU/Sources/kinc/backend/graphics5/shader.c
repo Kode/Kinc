@@ -4,7 +4,7 @@
 
 extern WGPUDevice device;
 
-void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, kinc_g5_shader_type_t type) {
+void kinc_g5_shader_init(kinc_g5_shader_t *shader, const void *source, size_t length, kinc_g5_shader_type_t type) {
 	WGPUShaderModuleSPIRVDescriptor smSpirvDesc;
 	memset(&smSpirvDesc, 0, sizeof(smSpirvDesc));
 	smSpirvDesc.chain.sType = WGPUSType_ShaderModuleSPIRVDescriptor;

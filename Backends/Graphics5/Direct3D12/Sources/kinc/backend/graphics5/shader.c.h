@@ -2,7 +2,7 @@
 #include <kinc/graphics5/shader.h>
 #include <kinc/math/core.h>
 
-void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *_data, size_t length, kinc_g5_shader_type_t type) {
+void kinc_g5_shader_init(kinc_g5_shader_t *shader, const void *_data, size_t length, kinc_g5_shader_type_t type) {
 	memset(shader->impl.constants, 0, sizeof(shader->impl.constants));
 	memset(shader->impl.attributes, 0, sizeof(shader->impl.attributes));
 	memset(shader->impl.textures, 0, sizeof(shader->impl.textures));

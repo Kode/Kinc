@@ -35,7 +35,7 @@ typedef struct kinc_g4_shader {
 /// <param name="data">The system-specific shader-data</param>
 /// <param name="length">The length of the system-specific shader-data in bytes</param>
 /// <param name="type">The type of the shader</param>
-KINC_FUNC void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *data, size_t length, kinc_g4_shader_type_t type);
+KINC_FUNC void kinc_g4_shader_init(kinc_g4_shader_t *shader, const void *data, size_t length, kinc_g4_shader_type_t type);
 
 /// <summary>
 /// Initializes a shader from GLSL-source-code. This only works on some platforms and only if KRAFIX_LIBRARY define has been set and the krafix-shader-compiler

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *data, size_t length, kinc_g4_shader_type_t type) {
+void kinc_g4_shader_init(kinc_g4_shader_t *shader, const void *data, size_t length, kinc_g4_shader_type_t type) {
 	shader->impl.length = length;
 	shader->impl._glid = 0;
 	char *source = (char *)malloc(length + 1);

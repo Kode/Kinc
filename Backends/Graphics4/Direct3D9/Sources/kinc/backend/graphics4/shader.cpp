@@ -7,7 +7,7 @@
 
 #include <cstdio>
 
-void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *void_data, size_t length, kinc_g4_shader_type_t type) {
+void kinc_g4_shader_init(kinc_g4_shader_t *shader, const void *void_data, size_t length, kinc_g4_shader_type_t type) {
 	unsigned index = 0;
 
 	uint8_t *data = (uint8_t *)void_data;

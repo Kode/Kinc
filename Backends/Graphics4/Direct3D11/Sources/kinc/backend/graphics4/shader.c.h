@@ -7,7 +7,7 @@ void kinc_g4_shader_destroy(kinc_g4_shader_t *shader) {
 	}
 }
 
-void kinc_g4_shader_init(kinc_g4_shader_t *shader, void *_data, size_t length, kinc_g4_shader_type_t type) {
+void kinc_g4_shader_init(kinc_g4_shader_t *shader, const void *_data, size_t length, kinc_g4_shader_type_t type) {
 	unsigned index = 0;
 	uint8_t *data = (uint8_t *)_data;
 	shader->impl.type = (int)type;

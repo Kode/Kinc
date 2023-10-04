@@ -37,7 +37,7 @@ typedef struct kinc_g5_shader {
 /// <param name="data">The system-specific shader-data</param>
 /// <param name="length">The length of the system-specific shader-data in bytes</param>
 /// <param name="type">The type of the shader</param>
-KINC_FUNC void kinc_g5_shader_init(kinc_g5_shader_t *shader, void *source, size_t length, kinc_g5_shader_type_t type);
+KINC_FUNC void kinc_g5_shader_init(kinc_g5_shader_t *shader, const void *source, size_t length, kinc_g5_shader_type_t type);
 
 /// <summary>
 /// Destroys a shader.
