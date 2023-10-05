@@ -7,6 +7,7 @@
 #include <kinc/backend/graphics4/vertexbuffer.h>
 #include <kinc/color.h>
 #include <kinc/compute/compute.h>
+#include <kinc/graphics4/constantbuffer.h>
 #include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/pipeline.h>
 #include <kinc/graphics4/rendertarget.h>
@@ -832,3 +833,9 @@ void kinc_g4_render_target_use_depth_as_texture(kinc_g4_render_target_t *render_
 
 	kinc_g5_command_list_set_texture_from_render_target_depth(&commandList, g5_unit, &render_target->impl._renderTarget);
 }
+
+#ifdef KINC_KONG
+void kinc_g4_set_constant_buffer(uint32_t id, struct kinc_g4_constant_buffer *buffer) {
+	kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &buffer->impl.buffer, 0, kinc_g5_constant_buffer_size(&buffer->impl.buffer));
+}
+#endif
