@@ -5,7 +5,7 @@
 extern WGPUDevice device;
 
 #ifdef KINC_KONG
-static WGPUShaderModule shader_module;
+WGPUShaderModule kinc_g5_internal_webgpu_shader_module;
 
 void kinc_g5_internal_webgpu_create_shader_module(const void *source, size_t length) {
 	WGPUShaderModuleWGSLDescriptor wgsl_desc = {0};
@@ -15,7 +15,7 @@ void kinc_g5_internal_webgpu_create_shader_module(const void *source, size_t len
 	WGPUShaderModuleDescriptor desc = {0};
 	desc.nextInChain = (WGPUChainedStruct *)(&wgsl_desc);
 
-	shader_module = wgpuDeviceCreateShaderModule(device, &desc);
+	kinc_g5_internal_webgpu_shader_module = wgpuDeviceCreateShaderModule(device, &desc);
 }
 
 void kinc_g5_shader_init(kinc_g5_shader_t *shader, const void *source, size_t length, kinc_g5_shader_type_t type) {
