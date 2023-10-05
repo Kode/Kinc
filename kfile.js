@@ -286,7 +286,12 @@ else if (platform === Platform.Android) {
 	project.addLib('log');
 	project.addLib('android');
 	project.addLib('EGL');
-	project.addLib('GLESv2');
+	if (Options.kong) {
+		project.addLib('GLESv3');
+	}
+	else {
+		project.addLib('GLESv2');
+	}
 	project.addLib('OpenSLES');
 	project.addLib('OpenMAXAL');
 }
