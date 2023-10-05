@@ -90,6 +90,17 @@ void kinc_g4_render_target_destroy(kinc_g4_render_target_t *renderTarget) {
 	}
 }
 
+#ifdef KINC_KONG
+void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, uint32_t unit) {
+	if (renderTarget->impl.antialiasing) {
+		IDirect3DSurface9 *surface;
+		renderTarget->impl.colorTexture->GetSurfaceLevel(0, &surface);
+		kinc_microsoft_affirm(device->StretchRect(renderTarget->impl.colorSurface, nullptr, surface, nullptr, D3DTEXF_NONE));
+		surface->Release();
+	}
+	device->SetTexture(unit, renderTarget->isDepthAttachment ? renderTarget->impl.depthTexture : renderTarget->impl.colorTexture);
+}
+#else
 void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderTarget, kinc_g4_texture_unit_t unit) {
 	if (renderTarget->impl.antialiasing) {
 		IDirect3DSurface9 *surface;
@@ -100,6 +111,7 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *renderT
 	device->SetTexture(unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT],
 	                   renderTarget->isDepthAttachment ? renderTarget->impl.depthTexture : renderTarget->impl.colorTexture);
 }
+#endif
 
 void kinc_g4_render_target_set_depth_stencil_from(kinc_g4_render_target_t *renderTarget, kinc_g4_render_target_t *source) {
 	renderTarget->impl.depthTexture = source->impl.depthTexture;
