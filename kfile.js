@@ -299,6 +299,7 @@ else if (platform === Platform.Emscripten) {
 	project.addDefine('KORE_EMSCRIPTEN');
 	//project.addLib('websocket.js -sPROXY_POSIX_SOCKETS -sUSE_PTHREADS -sPROXY_TO_PTHREAD');
 	addBackend('System/Emscripten');
+	project.addLib('USE_GLFW=2');
 	if (graphics === GraphicsApi.WebGPU) {
 		g4 = true;
 		g5 = true;
@@ -311,6 +312,9 @@ else if (platform === Platform.Emscripten) {
 		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
 		project.addDefine('KORE_OPENGL');
 		project.addDefine('KORE_OPENGL_ES');
+		if (Options.kong) {
+			project.addLib('USE_WEBGL2=1');
+		}
 	}
 	else {
 		throw new Error('Graphics API ' + graphics + ' is not available for Emscripten.');
