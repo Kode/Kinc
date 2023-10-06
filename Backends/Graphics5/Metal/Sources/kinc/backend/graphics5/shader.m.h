@@ -15,6 +15,11 @@ void kinc_g5_shader_destroy(kinc_g5_shader_t *shader) {
 }
 
 void kinc_g5_shader_init(kinc_g5_shader_t *shader, const void *source, size_t length, kinc_g5_shader_type_t type) {
+#ifdef KINC_KONG
+	strcpy(shader->impl.name, (const char *)source);
+	shader->impl.mtlFunction = (__bridge_retained void *)[getMetalLibrary() newFunctionWithName:[NSString stringWithCString:shader->impl.name
+																										 encoding:NSUTF8StringEncoding]];
+#else
 	shader->impl.name[0] = 0;
 
 	{
@@ -51,5 +56,6 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, const void *source, size_t le
 	}
 	shader->impl.mtlFunction = (__bridge_retained void *)[library newFunctionWithName:[NSString stringWithCString:shader->impl.name
 	                                                                                                     encoding:NSUTF8StringEncoding]];
+#endif
 	assert(shader->impl.mtlFunction);
 }
