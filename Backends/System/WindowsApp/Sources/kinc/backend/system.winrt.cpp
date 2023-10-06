@@ -161,7 +161,7 @@ bool kinc_internal_handle_messages(void) {
 //}
 
 #ifdef KINC_KONG
-void kong_init(void);
+extern "C" void kong_init(void);
 #endif
 
 #undef CreateWindow
