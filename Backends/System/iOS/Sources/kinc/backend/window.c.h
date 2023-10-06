@@ -13,7 +13,7 @@ int kinc_window_y(int window) {
 	return 0;
 }
 
-int kinc_count_windows() {
+int kinc_count_windows(void) {
 	return 1;
 }
 

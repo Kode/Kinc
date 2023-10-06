@@ -12,7 +12,7 @@ static GLView *glView;
 
 static bool visible;
 
-void beginGL() {
+void beginGL(void) {
 #ifdef KORE_METAL
 	if (!visible) {
 		return;
@@ -21,7 +21,7 @@ void beginGL() {
 	[glView begin];
 }
 
-void endGL() {
+void endGL(void) {
 #ifdef KORE_METAL
 	if (!visible) {
 		return;
@@ -30,29 +30,29 @@ void endGL() {
 	[glView end];
 }
 
-void showKeyboard() {
+void showKeyboard(void) {
 	[glView showKeyboard];
 }
 
-void hideKeyboard() {
+void hideKeyboard(void) {
 	[glView hideKeyboard];
 }
 
 #ifdef KORE_METAL
 
-CAMetalLayer *getMetalLayer() {
+CAMetalLayer *getMetalLayer(void) {
 	return [glView metalLayer];
 }
 
-id getMetalDevice() {
+id getMetalDevice(void) {
 	return [glView metalDevice];
 }
 
-id getMetalLibrary() {
+id getMetalLibrary(void) {
 	return [glView metalLibrary];
 }
 
-id getMetalQueue() {
+id getMetalQueue(void) {
 	return [glView metalQueue];
 }
 

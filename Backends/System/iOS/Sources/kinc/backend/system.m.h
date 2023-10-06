@@ -35,17 +35,17 @@ void kinc_set_keep_screen_on(bool on) {}
 void showKeyboard(void);
 void hideKeyboard(void);
 
-void kinc_keyboard_show() {
+void kinc_keyboard_show(void) {
 	keyboardshown = true;
 	showKeyboard();
 }
 
-void kinc_keyboard_hide() {
+void kinc_keyboard_hide(void) {
 	keyboardshown = false;
 	hideKeyboard();
 }
 
-bool kinc_keyboard_active() {
+bool kinc_keyboard_active(void) {
 	return keyboardshown;
 }
 
@@ -62,7 +62,7 @@ void kinc_vibrate(int ms) {
 
 static char language[3];
 
-const char *kinc_language() {
+const char *kinc_language(void) {
 	NSString *nsstr = [[NSLocale preferredLanguages] objectAtIndex:0];
 	const char *lang = [nsstr UTF8String];
 	language[0] = lang[0];
@@ -72,7 +72,7 @@ const char *kinc_language() {
 }
 
 // called on rotation event
-void KoreUpdateKeyboard() {
+void KoreUpdateKeyboard(void) {
 	if (keyboardshown) {
 		hideKeyboard();
 		showKeyboard();
@@ -82,7 +82,11 @@ void KoreUpdateKeyboard() {
 	}
 }
 
-void kinc_internal_shutdown() {}
+#ifdef KINC_KONG
+void kong_init(void);
+#endif
+
+void kinc_internal_shutdown(void) {}
 
 int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
 	kinc_window_options_t defaultWin;
@@ -97,6 +101,10 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 	}
 	kinc_g4_internal_init();
 	kinc_g4_internal_init_window(0, frame->depth_bits, frame->stencil_bits, true);
+	
+#ifdef KINC_KONG
+	kong_init();
+#endif
 	return 0;
 }
 
@@ -108,7 +116,7 @@ void swapBuffersiOS(void) {
 
 static char sysid[512];
 
-const char *kinc_system_id() {
+const char *kinc_system_id(void) {
 	const char *name = [[[UIDevice currentDevice] name] UTF8String];
 	const char *vendorId = [[[[UIDevice currentDevice] identifierForVendor] UUIDString] UTF8String];
 	strcpy(sysid, name);
@@ -132,30 +140,30 @@ static const char *getSavePath(void) {
 	return [resolvedPath cStringUsingEncoding:1];
 }
 
-const char *kinc_internal_save_path() {
+const char *kinc_internal_save_path(void) {
 	return getSavePath();
 }
 
 static const char *videoFormats[] = {"mp4", NULL};
 
-const char **kinc_video_formats() {
+const char **kinc_video_formats(void) {
 	return videoFormats;
 }
 
 #include <mach/mach_time.h>
 
-double kinc_frequency() {
+double kinc_frequency(void) {
 	mach_timebase_info_data_t info;
 	mach_timebase_info(&info);
 	return (double)info.denom / (double)info.numer / 1e-9;
 }
 
-kinc_ticks_t kinc_timestamp() {
+kinc_ticks_t kinc_timestamp(void) {
 	kinc_ticks_t time = mach_absolute_time();
 	return time;
 }
 
-void kinc_login() {}
+void kinc_login(void) {}
 
 void kinc_unlock_achievement(int id) {}
 
