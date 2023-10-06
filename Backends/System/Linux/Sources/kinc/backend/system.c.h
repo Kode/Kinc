@@ -152,6 +152,10 @@ void kinc_unlock_achievement(int id) {}
 
 void kinc_linux_init_procs();
 
+#ifdef KINC_KONG
+void kong_init(void);
+#endif
+
 int kinc_init(const char *name, int width, int height, kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 #ifndef __FreeBSD__
 	kinc_linux_initHIDGamepads();
@@ -181,7 +185,11 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 		win->title = name;
 	}
 
-	return kinc_window_create(win, frame);
+	int window = kinc_window_create(win, frame);
+#ifdef KINC_KONG
+	kong_init();
+#endif
+	return window;
 }
 
 void kinc_internal_shutdown() {

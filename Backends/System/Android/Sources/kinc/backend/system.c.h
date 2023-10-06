@@ -1175,6 +1175,10 @@ void android_main(struct android_app *application) {
 	(*activity->vm)->DetachCurrentThread(activity->vm);
 }
 
+#ifdef KINC_KONG
+void kong_init(void);
+#endif
+
 int kinc_init(const char *name, int width, int height, struct kinc_window_options *win, struct kinc_framebuffer_options *frame) {
 	kinc_mutex_init(&unicode_mutex);
 
@@ -1194,6 +1198,11 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 
 	kinc_g4_internal_init();
 	kinc_g4_internal_init_window(0, frame->depth_bits, frame->stencil_bits, true);
+
+#ifdef KINC_KONG
+	kong_init();
+#endif
+
 	return 0;
 }
 
