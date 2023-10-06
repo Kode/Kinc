@@ -118,7 +118,7 @@ void kinc_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
 	}
 }
 
-void kinc_a1_init() {
+void kinc_a1_init(void) {
 	for (int i = 0; i < CHANNEL_COUNT; ++i) {
 		channels[i].sound = NULL;
 		channels[i].position = 0;

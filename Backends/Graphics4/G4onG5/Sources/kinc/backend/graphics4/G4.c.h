@@ -38,11 +38,11 @@ static kinc_g5_constant_buffer_t fragmentConstantBuffer;
 #define constantBufferMultiply 100
 static int constantBufferIndex = 0;
 
-void kinc_g4_internal_init() {
+void kinc_g4_internal_init(void) {
 	kinc_g5_internal_init();
 }
 
-void kinc_g4_internal_destroy() {
+void kinc_g4_internal_destroy(void) {
 	kinc_g5_internal_destroy();
 }
 
@@ -117,7 +117,7 @@ void kinc_g4_on_g5_internal_resize(int window, int width, int height) {
 	windows[window].resized = true;
 }
 
-void kinc_g4_on_g5_internal_restore_render_target() {
+void kinc_g4_on_g5_internal_restore_render_target(void) {
 	windows[current_window].current_render_targets[0] = NULL;
 	kinc_g5_render_target_t *render_target = &windows[current_window].framebuffers[windows[current_window].currentBuffer];
 	kinc_g5_command_list_set_render_targets(&commandList, &render_target, 1);
@@ -156,7 +156,7 @@ void kinc_g4_on_g5_internal_set_samplers(int count, kinc_g5_texture_unit_t *text
 	}
 }
 
-static void startDraw() {
+static void startDraw(void) {
 	if ((constantBufferIndex + 1) >= constantBufferMultiply || waitAfterNextDraw) {
 		memcpy(current_state.vertex_constant_data, vertexConstantBuffer.data, constantBufferSize);
 		memcpy(current_state.fragment_constant_data, fragmentConstantBuffer.data, constantBufferSize);
@@ -172,7 +172,7 @@ static void startDraw() {
 	kinc_g5_command_list_set_fragment_constant_buffer(&commandList, &fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 }
 
-static void endDraw() {
+static void endDraw(void) {
 	++constantBufferIndex;
 	if (constantBufferIndex >= constantBufferMultiply || waitAfterNextDraw) {
 		kinc_g5_command_list_end(&commandList);
@@ -238,7 +238,7 @@ static void endDraw() {
 	}
 }
 
-void kinc_g4_draw_indexed_vertices() {
+void kinc_g4_draw_indexed_vertices(void) {
 	startDraw();
 	kinc_g5_command_list_draw_indexed_vertices(&commandList);
 	endDraw();
@@ -365,7 +365,7 @@ void kinc_g4_scissor(int x, int y, int width, int height) {
 	kinc_g5_command_list_scissor(&commandList, x, y, width, height);
 }
 
-void kinc_g4_disable_scissor() {
+void kinc_g4_disable_scissor(void) {
 	current_state.scissor_set = false;
 	kinc_g5_command_list_disable_scissor(&commandList);
 }
@@ -390,11 +390,11 @@ void kinc_g4_end(int window) {
 
 }*/
 
-bool kinc_g4_swap_buffers() {
+bool kinc_g4_swap_buffers(void) {
 	return kinc_g5_swap_buffers();
 }
 
-void kinc_g4_flush() {
+void kinc_g4_flush(void) {
 	kinc_g5_flush();
 }
 
@@ -567,7 +567,7 @@ void kinc_g4_set_texture_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, f
 
 void kinc_g4_set_cubemap_lod(kinc_g4_texture_unit_t unit, float lod_min_clamp, float lod_max_clamp) {}
 
-void kinc_g4_restore_render_target() {
+void kinc_g4_restore_render_target(void) {
 	kinc_g4_on_g5_internal_restore_render_target();
 	current_state.viewport_set = false;
 	current_state.scissor_set = false;
@@ -630,7 +630,7 @@ void kinc_g4_set_texture(uint32_t unit, kinc_g4_texture_t *texture) {
 	}
 
 	assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
-	kinc_g5_texture_unit_t g5_unit;
+	kinc_g5_texture_unit_t g5_unit = {0};
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
 		g5_unit.stages[i] = unit;
 	}
@@ -723,19 +723,19 @@ void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
 
 void kinc_g4_set_texture_array(kinc_g4_texture_unit_t unit, struct kinc_g4_texture_array *array) {}
 
-bool kinc_g4_supports_instanced_rendering() {
+bool kinc_g4_supports_instanced_rendering(void) {
 	return kinc_g5_supports_instanced_rendering();
 }
 
-bool kinc_g4_supports_compute_shaders() {
+bool kinc_g4_supports_compute_shaders(void) {
 	return kinc_g5_supports_compute_shaders();
 }
 
-bool kinc_g4_supports_blend_constants() {
+bool kinc_g4_supports_blend_constants(void) {
 	return kinc_g5_supports_blend_constants();
 }
 
-bool kinc_g4_supports_non_pow2_textures() {
+bool kinc_g4_supports_non_pow2_textures(void) {
 	return kinc_g5_supports_non_pow2_textures();
 }
 
@@ -751,7 +751,7 @@ void kinc_g4_render_target_use_color_as_texture(kinc_g4_render_target_t *render_
 	}
 
 	assert(KINC_G4_SHADER_TYPE_COUNT == KINC_G5_SHADER_TYPE_COUNT);
-	kinc_g5_texture_unit_t g5_unit;
+	kinc_g5_texture_unit_t g5_unit = {0};
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
 		g5_unit.stages[i] = unit;
 	}
