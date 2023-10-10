@@ -437,10 +437,11 @@ void kinc_g5_internal_init() {
 #ifdef KORE_WINDOWS
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
-	D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
-	debugController->EnableDebugLayer();
+	if (D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)) == S_OK) {
+		debugController->EnableDebugLayer();
+	}
 #endif
-	D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
+	kinc_microsoft_affirm(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device)));
 
 	createRootSignature();
 	createComputeRootSignature();
