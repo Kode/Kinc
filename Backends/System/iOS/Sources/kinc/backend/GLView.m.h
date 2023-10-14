@@ -17,7 +17,7 @@
 static const int touchmaxcount = 20;
 static void *touches[touchmaxcount];
 
-static void initTouches() {
+static void initTouches(void) {
 	for (int i = 0; i < touchmaxcount; ++i) {
 		touches[i] = NULL;
 	}

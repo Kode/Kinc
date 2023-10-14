@@ -1269,4 +1269,9 @@ bool kinc_g4_render_targets_inverted_y(void) {
 void kinc_g4_set_constant_buffer(uint32_t id, struct kinc_g4_constant_buffer *buffer) {
 	glBindBufferBase(GL_UNIFORM_BUFFER, id, buffer->impl.buffer);
 }
+
+void kinc_g4_internal_opengl_setup_uniform_block(unsigned program, const char *name, unsigned binding) {
+	unsigned index = glGetUniformBlockIndex(program, name);
+	glUniformBlockBinding(program, index, binding);
+}
 #endif

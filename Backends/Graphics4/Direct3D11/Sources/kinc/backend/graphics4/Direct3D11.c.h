@@ -212,6 +212,16 @@ void kinc_g4_internal_init(void) {
 #endif
 	HRESULT result = D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
 	                                   &dx_ctx.device, &featureLevel, &dx_ctx.context);
+
+#ifdef _DEBUG
+	if (result == E_FAIL || result == DXGI_ERROR_SDK_COMPONENT_MISSING) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "%s", "Failed to create device with D3D11_CREATE_DEVICE_DEBUG, trying without");
+		flags &= ~D3D11_CREATE_DEVICE_DEBUG;
+		result = D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
+	                               &dx_ctx.device, &featureLevel, &dx_ctx.context);
+	}
+#endif
+
 	if (result != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "%s", "Falling back to the WARP driver, things will be slow.");
 		kinc_microsoft_affirm(D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_WARP, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,

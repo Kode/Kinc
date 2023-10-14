@@ -8,9 +8,9 @@ bool kinc_mouse_can_lock(void) {
 	return false;
 }
 
-void kinc_mouse_show() {}
+void kinc_mouse_show(void) {}
 
-void kinc_mouse_hide() {}
+void kinc_mouse_hide(void) {}
 
 void kinc_mouse_set_position(int window, int x, int y) {}
 

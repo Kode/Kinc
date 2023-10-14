@@ -3,7 +3,7 @@
 #include <kinc/display.h>
 #include <kinc/log.h>
 
-void kinc_display_init() {}
+void kinc_display_init(void) {}
 
 kinc_display_mode_t kinc_display_available_mode(int display, int mode) {
 	kinc_display_mode_t dm;
@@ -35,10 +35,10 @@ kinc_display_mode_t kinc_display_current_mode(int display) {
 	return dm;
 }
 
-int kinc_count_displays() {
+int kinc_count_displays(void) {
 	return 1;
 }
 
-int kinc_primary_display() {
+int kinc_primary_display(void) {
 	return 0;
 }

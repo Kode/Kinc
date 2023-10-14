@@ -67,11 +67,19 @@ void kinc_g4_texture_destroy(kinc_g4_texture_t *texture) {
 	texture->impl.texture->Release();
 }
 
+#ifdef KINC_KONG
+void kinc_internal_texture_set(kinc_g4_texture_t *texture, uint32_t unit) {
+	kinc_microsoft_affirm(device->SetTexture(unit, texture->impl.texture));
+	texture->impl.stage = unit;
+	setTextures[texture->impl.stage] = texture;
+}
+#else
 void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
 	kinc_microsoft_affirm(device->SetTexture(unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], texture->impl.texture));
 	texture->impl.stage = unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT];
 	setTextures[texture->impl.stage] = texture;
 }
+#endif
 
 void kinc_internal_texture_unset(struct kinc_g4_texture *texture) {
 	if (setTextures[texture->impl.stage] == texture) {

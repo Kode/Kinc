@@ -34,7 +34,7 @@ id getMetalEncoder(void) {
 
 void kinc_g5_internal_destroy_window(int window) {}
 
-void kinc_g5_internal_destroy() {}
+void kinc_g5_internal_destroy(void) {}
 
 extern void kinc_g4_on_g5_internal_resize(int, int, int);
 
@@ -42,7 +42,7 @@ void kinc_internal_resize(int window, int width, int height) {
 	kinc_g4_on_g5_internal_resize(window, width, height);
 }
 
-void kinc_g5_internal_init() {}
+void kinc_g5_internal_init(void) {}
 
 void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBufferBits, bool vsync) {
 	depthBits = depthBufferBits;
@@ -50,7 +50,7 @@ void kinc_g5_internal_init_window(int window, int depthBufferBits, int stencilBu
 	kinc_g5_render_target_init(&fallback_render_target, 32, 32, KINC_G5_RENDER_TARGET_FORMAT_32BIT, 0, 0);
 }
 
-void kinc_g5_flush() {}
+void kinc_g5_flush(void) {}
 
 void kinc_g5_draw_indexed_vertices_instanced(int instanceCount) {}
 
@@ -112,7 +112,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 
 void kinc_g5_end(int window) {}
 
-bool kinc_g5_swap_buffers() {
+bool kinc_g5_swap_buffers(void) {
 	if (commandBuffer != nil && commandEncoder != nil) {
 		[commandEncoder endEncoding];
 		[commandBuffer presentDrawable:drawable];
@@ -202,27 +202,27 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
 
-bool kinc_g5_supports_raytracing() {
+bool kinc_g5_supports_raytracing(void) {
 	return false;
 }
 
-bool kinc_g5_supports_instanced_rendering() {
+bool kinc_g5_supports_instanced_rendering(void) {
 	return true;
 }
 
-bool kinc_g5_supports_compute_shaders() {
+bool kinc_g5_supports_compute_shaders(void) {
 	return true;
 }
 
-bool kinc_g5_supports_blend_constants() {
+bool kinc_g5_supports_blend_constants(void) {
 	return true;
 }
 
-bool kinc_g5_supports_non_pow2_textures() {
+bool kinc_g5_supports_non_pow2_textures(void) {
 	return true;
 }
 
-bool kinc_g5_render_targets_inverted_y() {
+bool kinc_g5_render_targets_inverted_y(void) {
 	return false;
 }
 

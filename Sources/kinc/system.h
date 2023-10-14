@@ -2,6 +2,8 @@
 
 #include <kinc/global.h>
 
+#include <kinc/log.h>
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
