@@ -766,8 +766,11 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	setImageLayout(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 	               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	kinc_g5_command_list_end(list);
 	kinc_g5_command_list_execute(list);
 	kinc_g5_command_list_wait_for_execution_to_finish(list);
+	kinc_g5_command_list_begin(list);
 
 	// Read buffer
 	void *p;
