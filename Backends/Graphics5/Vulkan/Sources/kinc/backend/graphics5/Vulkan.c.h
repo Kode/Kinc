@@ -525,26 +525,9 @@ void create_render_target_render_pass(struct vk_window *window) {
 	attachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	attachments[0].flags = 0;
 
-	// TODO
-	/*if (depthBufferBits > 0) {
-	    attachments[1].format = VK_FORMAT_D16_UNORM;
-	    attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-	    attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	    attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	    attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	    attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	    attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	    attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	    attachments[1].flags = 0;
-	}*/
-
 	VkAttachmentReference color_reference = {0};
 	color_reference.attachment = 0;
 	color_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkAttachmentReference depth_reference = {0};
-	depth_reference.attachment = 1;
-	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	VkSubpassDescription subpass = {0};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -554,7 +537,7 @@ void create_render_target_render_pass(struct vk_window *window) {
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &color_reference;
 	subpass.pResolveAttachments = NULL;
-	subpass.pDepthStencilAttachment = /*depthBufferBits > 0 ? &depth_reference :*/ NULL; // TODO
+	subpass.pDepthStencilAttachment = NULL;
 	subpass.preserveAttachmentCount = 0;
 	subpass.pPreserveAttachments = NULL;
 
@@ -581,7 +564,7 @@ void create_render_target_render_pass(struct vk_window *window) {
 	VkRenderPassCreateInfo rp_info = {0};
 	rp_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	rp_info.pNext = NULL;
-	rp_info.attachmentCount = /*depthBufferBits > 0 ? 2 :*/ 1; // TODO
+	rp_info.attachmentCount = 1;
 	rp_info.pAttachments = attachments;
 	rp_info.subpassCount = 1;
 	rp_info.pSubpasses = &subpass;
@@ -589,6 +572,27 @@ void create_render_target_render_pass(struct vk_window *window) {
 	rp_info.pDependencies = dependencies;
 
 	VkResult err = vkCreateRenderPass(vk_ctx.device, &rp_info, NULL, &window->rendertarget_render_pass);
+	assert(!err);
+
+	// depthBufferBits > 0
+	attachments[1].format = VK_FORMAT_D16_UNORM;
+	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].flags = 0;
+
+	VkAttachmentReference depth_reference = {0};
+	depth_reference.attachment = 1;
+	depth_reference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	subpass.pDepthStencilAttachment = &depth_reference;
+
+	rp_info.attachmentCount = 2;
+
+	err = vkCreateRenderPass(vk_ctx.device, &rp_info, NULL, &window->rendertarget_render_pass_with_depth);
 	assert(!err);
 }
 

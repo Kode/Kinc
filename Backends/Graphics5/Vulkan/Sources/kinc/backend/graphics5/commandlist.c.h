@@ -568,7 +568,12 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 	rp_begin.pClearValues = clear_values;
 
 	if (count == 1) {
-		rp_begin.renderPass = vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass;
+		if (targets[0]->impl.depthBufferBits > 0) {
+			rp_begin.renderPass = vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass_with_depth;
+		}
+		else {
+			rp_begin.renderPass = vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass;
+		}
 		rp_begin.framebuffer = targets[0]->impl.framebuffer;
 	}
 	else {
