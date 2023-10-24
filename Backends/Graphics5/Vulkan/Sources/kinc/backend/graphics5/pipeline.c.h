@@ -672,7 +672,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	err = vkCreateGraphicsPipelines(vk_ctx.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &pipeline->impl.framebuffer_pipeline);
 	assert(!err);
 
-	pipeline_info.renderPass = vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass;
+	if (pipeline->depthAttachmentBits > 0) {
+		pipeline_info.renderPass = vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass_with_depth;
+	}
+	else {
+		pipeline_info.renderPass = vk_ctx.windows[vk_ctx.current_window].rendertarget_render_pass;
+	}
 
 	err = vkCreateGraphicsPipelines(vk_ctx.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &pipeline->impl.rendertarget_pipeline);
 	assert(!err);

@@ -52,6 +52,7 @@ struct vk_window {
 
 	VkRenderPass framebuffer_render_pass;
 	VkRenderPass rendertarget_render_pass;
+	VkRenderPass rendertarget_render_pass_with_depth;
 
 	struct vk_depth depth;
 };
