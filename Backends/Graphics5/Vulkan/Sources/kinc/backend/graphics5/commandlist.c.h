@@ -827,14 +827,14 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 		wait_for_framebuffer = false;
 	}
 	else {
-		submit_info.waitSemaphoreCount = 0;
-		submit_info.pWaitSemaphores = NULL;
+		submit_info.waitSemaphoreCount = 1;
+		submit_info.pWaitSemaphores = &relay_semaphore;
 	}
 	submit_info.pWaitDstStageMask = &pipe_stage_flags;
 	submit_info.commandBufferCount = 1;
 	submit_info.pCommandBuffers = &list->impl._buffer;
-	submit_info.signalSemaphoreCount = 0;
-	submit_info.pSignalSemaphores = NULL;
+	submit_info.signalSemaphoreCount = 1;
+	submit_info.pSignalSemaphores = &relay_semaphore;
 
 	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, list->impl.fence);
 	assert(!err);
