@@ -976,12 +976,15 @@ void kinc_g5_internal_init() {
 		assert(!err);
 	}
 
-	VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {0};
-	presentCompleteSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	presentCompleteSemaphoreCreateInfo.pNext = NULL;
-	presentCompleteSemaphoreCreateInfo.flags = 0;
+	VkSemaphoreCreateInfo semInfo = {0};
+	semInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	semInfo.pNext = NULL;
+	semInfo.flags = 0;
 
-	err = vkCreateSemaphore(vk_ctx.device, &presentCompleteSemaphoreCreateInfo, NULL, &framebuffer_available);
+	err = vkCreateSemaphore(vk_ctx.device, &semInfo, NULL, &framebuffer_available);
+	assert(!err);
+
+	err = vkCreateSemaphore(vk_ctx.device, &semInfo, NULL, &relay_semaphore);
 	assert(!err);
 }
 
@@ -1101,16 +1104,14 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window_index) {
 }
 
 void kinc_g5_end(int window) {
-#ifdef KORE_ANDROID
-	vkDeviceWaitIdle(vk_ctx.device);
-#endif
-
 	VkPresentInfoKHR present = {0};
 	present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	present.pNext = NULL;
 	present.swapchainCount = 1;
 	present.pSwapchains = &vk_ctx.windows[vk_ctx.current_window].swapchain;
 	present.pImageIndices = &vk_ctx.windows[vk_ctx.current_window].current_image;
+	present.pWaitSemaphores = &relay_semaphore;
+	present.waitSemaphoreCount = 1;
 
 	VkResult err = vk.fpQueuePresentKHR(vk_ctx.queue, &present);
 	if (err == VK_ERROR_SURFACE_LOST_KHR) {

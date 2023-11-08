@@ -69,6 +69,7 @@
 #include "vulkan.h"
 
 static VkSemaphore framebuffer_available;
+static VkSemaphore relay_semaphore;
 static void command_list_should_wait_for_framebuffer(void);
 
 #include "Vulkan.c.h"
