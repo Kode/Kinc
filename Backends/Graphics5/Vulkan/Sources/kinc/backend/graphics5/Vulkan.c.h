@@ -1101,6 +1101,10 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window_index) {
 }
 
 void kinc_g5_end(int window) {
+#ifdef KORE_ANDROID
+	vkDeviceWaitIdle(vk_ctx.device);
+#endif
+
 	VkPresentInfoKHR present = {0};
 	present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	present.pNext = NULL;
