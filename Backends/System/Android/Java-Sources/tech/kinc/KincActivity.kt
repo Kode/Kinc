@@ -63,6 +63,7 @@ class KincActivity: NativeActivity(), KeyEvent.Callback {
 			return manager.defaultDisplay.rotation
 		}
 
+		@JvmStatic
 		fun getScreenDpi(): Int {
 			val context: Context = instance!!.applicationContext
 			val manager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -71,12 +72,14 @@ class KincActivity: NativeActivity(), KeyEvent.Callback {
 			return metrics.xdpi.toInt()
 		}
 
+		@JvmStatic
 		fun getRefreshRate(): Int {
 			val context: Context = instance!!.applicationContext
 			val manager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 			return manager.defaultDisplay.refreshRate.toInt()
 		}
 
+		@JvmStatic
 		fun getDisplayWidth(): Int {
 			val context: Context = instance!!.applicationContext
 			val manager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -85,6 +88,7 @@ class KincActivity: NativeActivity(), KeyEvent.Callback {
 			return size.x
 		}
 
+		@JvmStatic
 		fun getDisplayHeight(): Int {
 			val context: Context = instance!!.applicationContext
 			val manager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
