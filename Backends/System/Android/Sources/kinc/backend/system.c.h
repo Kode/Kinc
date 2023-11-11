@@ -896,7 +896,10 @@ void KincAndroidKeyboardInit() {
 
 	int methodTableSize = sizeof(methodTable) / sizeof(methodTable[0]);
 
-	(*env)->RegisterNatives(env, clazz, methodTable, methodTableSize);
+	int failure = (*env)->RegisterNatives(env, clazz, methodTable, methodTableSize);
+    if (failure != 0) {
+        kinc_log(KINC_LOG_LEVEL_WARNING, "Failed to register KincActivity.nativeKincKeyPress");
+    }
 
 	(*activity->vm)->DetachCurrentThread(activity->vm);
 }
