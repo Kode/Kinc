@@ -821,20 +821,32 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	VkSubmitInfo submit_info = {0};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submit_info.pNext = NULL;
+
+	VkSemaphore semaphores[2] = {
+		framebuffer_available,
+		relay_semaphore
+	};
+	VkPipelineStageFlags dst_stage_flags[2] = {
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
+	};
 	if (wait_for_framebuffer) {
-		submit_info.waitSemaphoreCount = 1;
-		submit_info.pWaitSemaphores = &framebuffer_available;
+		submit_info.pWaitSemaphores = semaphores;
+		submit_info.pWaitDstStageMask = dst_stage_flags;
+		submit_info.waitSemaphoreCount = wait_for_relay ? 2 : 1;
 		wait_for_framebuffer = false;
 	}
-	else {
+	else if(wait_for_relay) {
 		submit_info.waitSemaphoreCount = 1;
-		submit_info.pWaitSemaphores = &relay_semaphore;
+		submit_info.pWaitSemaphores = &semaphores[1];
+		submit_info.pWaitDstStageMask = &dst_stage_flags[1];
 	}
-	submit_info.pWaitDstStageMask = &pipe_stage_flags;
+
 	submit_info.commandBufferCount = 1;
 	submit_info.pCommandBuffers = &list->impl._buffer;
 	submit_info.signalSemaphoreCount = 1;
 	submit_info.pSignalSemaphores = &relay_semaphore;
+	wait_for_relay = true;
 
 	err = vkQueueSubmit(vk_ctx.queue, 1, &submit_info, list->impl.fence);
 	assert(!err);

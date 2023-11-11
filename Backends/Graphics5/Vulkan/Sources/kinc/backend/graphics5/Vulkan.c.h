@@ -1112,6 +1112,7 @@ void kinc_g5_end(int window) {
 	present.pImageIndices = &vk_ctx.windows[vk_ctx.current_window].current_image;
 	present.pWaitSemaphores = &relay_semaphore;
 	present.waitSemaphoreCount = 1;
+	wait_for_relay = false;
 
 	VkResult err = vk.fpQueuePresentKHR(vk_ctx.queue, &present);
 	if (err == VK_ERROR_SURFACE_LOST_KHR) {
