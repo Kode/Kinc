@@ -93,34 +93,48 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 	texResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	texResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
-	HRESULT result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
-	                                                 IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
-	if (result != S_OK) {
-		for (int i = 0; i < 10; ++i) {
-			kinc_memory_emergency();
-			result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue,
-			                                         IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
-			if (result == S_OK) {
-				break;
-			}
-		}
-	}
-
-	D3D12_RENDER_TARGET_VIEW_DESC view;
-	// const D3D12_RESOURCE_DESC resourceDesc = render_target->impl.renderTarget->lpVtbl->GetDesc(render_target->impl.renderTarget);
-	view.Format = dxgiFormat;
-	view.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	view.Texture2D.MipSlice = 0;
-	view.Texture2D.PlaneSlice = 0;
-
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetDescriptorHeap));
 
-	device->CreateRenderTargetView(render_target->impl.renderTarget, &view,
-	                               render_target->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	if (framebuffer_index >= 0) {
+#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+		render_target->impl.renderTarget = swapChainRenderTargets[framebuffer_index];
+#else
+		IDXGISwapChain *swapChain = kinc_dx_current_window()->swapChain;
+		swapChain->GetBuffer(framebuffer_index, IID_PPV_ARGS(&render_target->impl.renderTarget));
+		wchar_t buffer[128];
+		wsprintf(buffer, L"Backbuffer (index %i)", framebuffer_index);
+		render_target->impl.renderTarget->SetName(buffer);
+#endif
+		createRenderTargetView(render_target->impl.renderTarget, render_target->impl.renderTargetDescriptorHeap, dxgiFormat);
+	}
+	else {
+		HRESULT result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET,
+		                                                 &clearValue, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
+		if (result != S_OK) {
+			for (int i = 0; i < 10; ++i) {
+				kinc_memory_emergency();
+				result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &texResourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET,
+				                                         &clearValue, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTarget));
+				if (result == S_OK) {
+					break;
+				}
+			}
+		}
+
+		D3D12_RENDER_TARGET_VIEW_DESC view;
+		// const D3D12_RESOURCE_DESC resourceDesc = render_target->impl.renderTarget->lpVtbl->GetDesc(render_target->impl.renderTarget);
+		view.Format = dxgiFormat;
+		view.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+		view.Texture2D.MipSlice = 0;
+		view.Texture2D.PlaneSlice = 0;
+
+		device->CreateRenderTargetView(render_target->impl.renderTarget, &view,
+		                               render_target->impl.renderTargetDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	}
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
 	descriptorHeapDesc.NumDescriptors = 1;
@@ -225,19 +239,6 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 	render_target->impl.viewport.Height = (float)height;
 	render_target->impl.viewport.MinDepth = 0.0f;
 	render_target->impl.viewport.MaxDepth = 1.0f;
-
-	if (framebuffer_index >= 0) {
-#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
-		render_target->impl.renderTarget = swapChainRenderTargets[framebuffer_index];
-#else
-		IDXGISwapChain *swapChain = kinc_dx_current_window()->swapChain;
-		swapChain->GetBuffer(framebuffer_index, IID_PPV_ARGS(&render_target->impl.renderTarget));
-		wchar_t buffer[128];
-		wsprintf(buffer, L"Backbuffer (index %i)", framebuffer_index);
-		render_target->impl.renderTarget->SetName(buffer);
-#endif
-		createRenderTargetView(render_target->impl.renderTarget, render_target->impl.renderTargetDescriptorHeap, dxgiFormat);
-	}
 }
 
 void kinc_g5_render_target_init_with_multisampling(kinc_g5_render_target_t *target, int width, int height, kinc_g5_render_target_format_t format,
