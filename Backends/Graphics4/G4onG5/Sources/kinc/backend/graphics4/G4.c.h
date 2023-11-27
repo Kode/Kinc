@@ -300,7 +300,6 @@ void kinc_g4_begin(int window) {
 		for (int i = 0; i < bufferCount; ++i) {
 			kinc_g5_render_target_destroy(&windows[current_window].framebuffers[i]);
 		}
-		windows[current_window].currentBuffer = 0;
 	}
 
 	kinc_g5_begin(&windows[current_window].framebuffers[windows[current_window].currentBuffer], window);
