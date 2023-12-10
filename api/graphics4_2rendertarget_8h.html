@@ -116,16 +116,16 @@ Enumerations</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a0ca9607e28309f59f09ed0f4800b0776"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2rendertarget_8h.html#a0ca9607e28309f59f09ed0f4800b0776">kinc_g4_render_target_init</a> (<a class="el" href="structkinc__g4__render__target.html">kinc_g4_render_target_t</a> *renderTarget, int width, int height, kinc_g4_render_target_format_t format, int depthBufferBits, int stencilBufferBits)</td></tr>
-<tr class="memdesc:a0ca9607e28309f59f09ed0f4800b0776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a regular render-target.  <a href="graphics4_2rendertarget_8h.html#a0ca9607e28309f59f09ed0f4800b0776">More...</a><br /></td></tr>
+<tr class="memdesc:a0ca9607e28309f59f09ed0f4800b0776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a regular render-target. The contents of the render-target are undefined.  <a href="graphics4_2rendertarget_8h.html#a0ca9607e28309f59f09ed0f4800b0776">More...</a><br /></td></tr>
 <tr class="separator:a0ca9607e28309f59f09ed0f4800b0776"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe6585c9359c4379002c5b311790de12"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2rendertarget_8h.html#abe6585c9359c4379002c5b311790de12">kinc_g4_render_target_init_with_multisampling</a> (<a class="el" href="structkinc__g4__render__target.html">kinc_g4_render_target_t</a> *renderTarget, int width, int height, kinc_g4_render_target_format_t format, int depthBufferBits, int stencilBufferBits, int samples_per_pixel)</td></tr>
-<tr class="memdesc:abe6585c9359c4379002c5b311790de12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a multi-sampled render-target if possible - otherwise it falls back to a regular render-target.  <a href="graphics4_2rendertarget_8h.html#abe6585c9359c4379002c5b311790de12">More...</a><br /></td></tr>
+<tr class="memdesc:abe6585c9359c4379002c5b311790de12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a multi-sampled render-target if possible - otherwise it falls back to a regular render-target. The contents of the render-target are undefined.  <a href="graphics4_2rendertarget_8h.html#abe6585c9359c4379002c5b311790de12">More...</a><br /></td></tr>
 <tr class="separator:abe6585c9359c4379002c5b311790de12"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad90147f408ce0e469ea0015c1cf3c84b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2rendertarget_8h.html#ad90147f408ce0e469ea0015c1cf3c84b">kinc_g4_render_target_init_cube</a> (<a class="el" href="structkinc__g4__render__target.html">kinc_g4_render_target_t</a> *renderTarget, int cubeMapSize, kinc_g4_render_target_format_t format, int depthBufferBits, int stencilBufferBits)</td></tr>
-<tr class="memdesc:ad90147f408ce0e469ea0015c1cf3c84b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a render-target-cube-map.  <a href="graphics4_2rendertarget_8h.html#ad90147f408ce0e469ea0015c1cf3c84b">More...</a><br /></td></tr>
+<tr class="memdesc:ad90147f408ce0e469ea0015c1cf3c84b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a render-target-cube-map. The contents of the render-target are undefined.  <a href="graphics4_2rendertarget_8h.html#ad90147f408ce0e469ea0015c1cf3c84b">More...</a><br /></td></tr>
 <tr class="separator:ad90147f408ce0e469ea0015c1cf3c84b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a848a444692d9bc0a7c2164e4980e7277"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2rendertarget_8h.html#a848a444692d9bc0a7c2164e4980e7277">kinc_g4_render_target_init_cube_with_multisampling</a> (<a class="el" href="structkinc__g4__render__target.html">kinc_g4_render_target_t</a> *renderTarget, int cubeMapSize, kinc_g4_render_target_format_t format, int depthBufferBits, int stencilBufferBits, int samples_per_pixel)</td></tr>
-<tr class="memdesc:a848a444692d9bc0a7c2164e4980e7277"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a multi-sampled render-target-cube-map. Can fall back to a non-multi-sampled cube-map.  <a href="graphics4_2rendertarget_8h.html#a848a444692d9bc0a7c2164e4980e7277">More...</a><br /></td></tr>
+<tr class="memdesc:a848a444692d9bc0a7c2164e4980e7277"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates and initializes a multi-sampled render-target-cube-map. Can fall back to a non-multi-sampled cube-map. The contents of the render-target are undefined.  <a href="graphics4_2rendertarget_8h.html#a848a444692d9bc0a7c2164e4980e7277">More...</a><br /></td></tr>
 <tr class="separator:a848a444692d9bc0a7c2164e4980e7277"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55f30f0227cdb02c3b3e4a5eeb71a1f6"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2rendertarget_8h.html#a55f30f0227cdb02c3b3e4a5eeb71a1f6">kinc_g4_render_target_destroy</a> (<a class="el" href="structkinc__g4__render__target.html">kinc_g4_render_target_t</a> *renderTarget)</td></tr>
 <tr class="memdesc:a55f30f0227cdb02c3b3e4a5eeb71a1f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocates and destroys a render-target.  <a href="graphics4_2rendertarget_8h.html#a55f30f0227cdb02c3b3e4a5eeb71a1f6">More...</a><br /></td></tr>
@@ -299,7 +299,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Allocates and initializes a regular render-target. </p>
+<p>Allocates and initializes a regular render-target. The contents of the render-target are undefined. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">renderTarget</td><td></td></tr>
@@ -358,7 +358,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Allocates and initializes a render-target-cube-map. </p>
+<p>Allocates and initializes a render-target-cube-map. The contents of the render-target are undefined. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">renderTarget</td><td></td></tr>
@@ -422,7 +422,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Allocates and initializes a multi-sampled render-target-cube-map. Can fall back to a non-multi-sampled cube-map. </p>
+<p>Allocates and initializes a multi-sampled render-target-cube-map. Can fall back to a non-multi-sampled cube-map. The contents of the render-target are undefined. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">renderTarget</td><td></td></tr>
@@ -493,7 +493,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Allocates and initializes a multi-sampled render-target if possible - otherwise it falls back to a regular render-target. </p>
+<p>Allocates and initializes a multi-sampled render-target if possible - otherwise it falls back to a regular render-target. The contents of the render-target are undefined. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">renderTarget</td><td></td></tr>
