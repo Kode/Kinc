@@ -14,13 +14,15 @@ extern "C" {
 /// Sets the gamepad-axis-callback which is called with data about changing gamepad-sticks.
 /// </summary>
 /// <param name="value">The callback</param>
-KINC_FUNC void kinc_gamepad_set_axis_callback(void (*value)(int /*gamepad*/, int /*axis*/, float /*value*/));
+/// <param name="userdata">Userdata you will receive back as the 4th callback parameter</param>
+KINC_FUNC void kinc_gamepad_set_axis_callback(void (*value)(int /*gamepad*/, int /*axis*/, float /*value*/, void * /*userdata*/), void *userdata);
 
 /// <summary>
 /// Sets the gamepad-button-callback which is called with data about changing gamepad-buttons.
 /// </summary>
 /// <param name="value">The callback</param>
-KINC_FUNC void kinc_gamepad_set_button_callback(void (*value)(int /*gamepad*/, int /*button*/, float /*value*/));
+/// <param name="userdata">Userdata you will receive back as the 4th callback parameter</param>
+KINC_FUNC void kinc_gamepad_set_button_callback(void (*value)(int /*gamepad*/, int /*button*/, float /*value*/, void * /*userdata*/), void *userdata);
 
 /// <summary>
 /// Returns a vendor-name for a gamepad.
@@ -62,26 +64,30 @@ void kinc_internal_gamepad_trigger_button(int gamepad, int button, float value);
 
 #include <memory.h>
 
-static void (*gamepad_axis_callback)(int /*gamepad*/, int /*axis*/, float /*value*/) = NULL;
-static void (*gamepad_button_callback)(int /*gamepad*/, int /*button*/, float /*value*/) = NULL;
+static void (*gamepad_axis_callback)(int /*gamepad*/, int /*axis*/, float /*value*/, void * /*userdata*/) = NULL;
+static void *gamepad_axis_callback_userdata = NULL;
+static void (*gamepad_button_callback)(int /*gamepad*/, int /*button*/, float /*value*/, void * /*userdata*/) = NULL;
+static void *gamepad_button_callback_userdata = NULL;
 
-void kinc_gamepad_set_axis_callback(void (*value)(int /*gamepad*/, int /*axis*/, float /*value*/)) {
+void kinc_gamepad_set_axis_callback(void (*value)(int /*gamepad*/, int /*axis*/, float /*value*/, void * /*userdata*/), void *userdata) {
 	gamepad_axis_callback = value;
+	gamepad_axis_callback_userdata = userdata;
 }
 
-void kinc_gamepad_set_button_callback(void (*value)(int /*gamepad*/, int /*button*/, float /*value*/)) {
+void kinc_gamepad_set_button_callback(void (*value)(int /*gamepad*/, int /*button*/, float /*value*/, void * /*userdata*/), void *userdata) {
 	gamepad_button_callback = value;
+	gamepad_button_callback_userdata = userdata;
 }
 
 void kinc_internal_gamepad_trigger_axis(int gamepad, int axis, float value) {
 	if (gamepad_axis_callback != NULL) {
-		gamepad_axis_callback(gamepad, axis, value);
+		gamepad_axis_callback(gamepad, axis, value, gamepad_axis_callback_userdata);
 	}
 }
 
 void kinc_internal_gamepad_trigger_button(int gamepad, int button, float value) {
 	if (gamepad_button_callback != NULL) {
-		gamepad_button_callback(gamepad, button, value);
+		gamepad_button_callback(gamepad, button, value, gamepad_button_callback_userdata);
 	}
 }
 
