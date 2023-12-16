@@ -80,12 +80,12 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a24d11ffd124890556eba0deabc4b09ac"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#a24d11ffd124890556eba0deabc4b09ac">kinc_gamepad_set_axis_callback</a> (void(*value)(int, int, float))</td></tr>
-<tr class="memdesc:a24d11ffd124890556eba0deabc4b09ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-axis-callback which is called with data about changing gamepad-sticks.  <a href="gamepad_8h.html#a24d11ffd124890556eba0deabc4b09ac">More...</a><br /></td></tr>
-<tr class="separator:a24d11ffd124890556eba0deabc4b09ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeca7c9ce8223db5c3bab1f75720239a3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#aeca7c9ce8223db5c3bab1f75720239a3">kinc_gamepad_set_button_callback</a> (void(*value)(int, int, float))</td></tr>
-<tr class="memdesc:aeca7c9ce8223db5c3bab1f75720239a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-button-callback which is called with data about changing gamepad-buttons.  <a href="gamepad_8h.html#aeca7c9ce8223db5c3bab1f75720239a3">More...</a><br /></td></tr>
-<tr class="separator:aeca7c9ce8223db5c3bab1f75720239a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0c06939bd14509082fff0b454288b53"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#aa0c06939bd14509082fff0b454288b53">kinc_gamepad_set_axis_callback</a> (void(*value)(int, int, float, void *), void *userdata)</td></tr>
+<tr class="memdesc:aa0c06939bd14509082fff0b454288b53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-axis-callback which is called with data about changing gamepad-sticks.  <a href="gamepad_8h.html#aa0c06939bd14509082fff0b454288b53">More...</a><br /></td></tr>
+<tr class="separator:aa0c06939bd14509082fff0b454288b53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa86b6233e65f1803dfccdcf5fe8e46c7"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#aa86b6233e65f1803dfccdcf5fe8e46c7">kinc_gamepad_set_button_callback</a> (void(*value)(int, int, float, void *), void *userdata)</td></tr>
+<tr class="memdesc:aa86b6233e65f1803dfccdcf5fe8e46c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-button-callback which is called with data about changing gamepad-buttons.  <a href="gamepad_8h.html#aa86b6233e65f1803dfccdcf5fe8e46c7">More...</a><br /></td></tr>
+<tr class="separator:aa86b6233e65f1803dfccdcf5fe8e46c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab3d54bb815423a36fea4abfc3e79b394"><td class="memItemLeft" align="right" valign="top">KINC_FUNC const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#ab3d54bb815423a36fea4abfc3e79b394">kinc_gamepad_vendor</a> (int gamepad)</td></tr>
 <tr class="memdesc:ab3d54bb815423a36fea4abfc3e79b394"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a vendor-name for a gamepad.  <a href="gamepad_8h.html#ab3d54bb815423a36fea4abfc3e79b394">More...</a><br /></td></tr>
 <tr class="separator:ab3d54bb815423a36fea4abfc3e79b394"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -200,8 +200,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a24d11ffd124890556eba0deabc4b09ac"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a24d11ffd124890556eba0deabc4b09ac">&#9670;&nbsp;</a></span>kinc_gamepad_set_axis_callback()</h2>
+<a id="aa0c06939bd14509082fff0b454288b53"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0c06939bd14509082fff0b454288b53">&#9670;&nbsp;</a></span>kinc_gamepad_set_axis_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -209,9 +209,19 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_gamepad_set_axis_callback </td>
           <td>(</td>
-          <td class="paramtype">void(*)(int, int, float)&#160;</td>
-          <td class="paramname"><em>value</em></td><td>)</td>
+          <td class="paramtype">void(*)(int, int, float, void *)&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>userdata</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -220,14 +230,15 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">value</td><td>The callback</td></tr>
+    <tr><td class="paramname">userdata</td><td>Userdata you will receive back as the 4th callback parameter</td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="aeca7c9ce8223db5c3bab1f75720239a3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeca7c9ce8223db5c3bab1f75720239a3">&#9670;&nbsp;</a></span>kinc_gamepad_set_button_callback()</h2>
+<a id="aa86b6233e65f1803dfccdcf5fe8e46c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa86b6233e65f1803dfccdcf5fe8e46c7">&#9670;&nbsp;</a></span>kinc_gamepad_set_button_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -235,9 +246,19 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_gamepad_set_button_callback </td>
           <td>(</td>
-          <td class="paramtype">void(*)(int, int, float)&#160;</td>
-          <td class="paramname"><em>value</em></td><td>)</td>
+          <td class="paramtype">void(*)(int, int, float, void *)&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>userdata</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -246,6 +267,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">value</td><td>The callback</td></tr>
+    <tr><td class="paramname">userdata</td><td>Userdata you will receive back as the 4th callback parameter</td></tr>
   </table>
   </dd>
 </dl>
