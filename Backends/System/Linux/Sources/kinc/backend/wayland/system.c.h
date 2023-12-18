@@ -432,8 +432,12 @@ void wl_keyboard_handle_keymap(void *data, struct wl_keyboard *wl_keyboard, uint
 	case WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1: {
 		char *mapStr = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
 		if (mapStr == MAP_FAILED) {
-			close(fd);
-			return;
+			mapStr = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+			if (mapStr == MAP_FAILED) {
+				kinc_log(KINC_LOG_LEVEL_ERROR, "Failed to map wayland keymap.");
+				close(fd);
+				return;
+			}
 		}
 		keyboard->keymap = wl_xkb.xkb_keymap_new_from_string(wl_ctx.xkb_context, mapStr, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
 		munmap(mapStr, size);
