@@ -364,6 +364,10 @@ void kinc_g5_internal_pipeline_set(kinc_g5_pipeline_t *pipeline) {
 }
 
 kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipeline, const char *name) {
+	if (strcmp(name, "bias") == 0) {
+		name = "bias0";
+	}
+
 	kinc_g5_constant_location_t location;
 	location.impl.vertexOffset = -1;
 	location.impl.fragmentOffset = -1;
