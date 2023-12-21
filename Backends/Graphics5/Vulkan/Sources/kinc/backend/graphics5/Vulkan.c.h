@@ -24,7 +24,7 @@ VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSur
 	{                                                                                                                                                          \
 		vk.fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(instance, "vk" #entrypoint);                                                             \
 		if (vk.fp##entrypoint == NULL) {                                                                                                                       \
-			kinc_error("vkGetInstanceProcAddr failed to find vk" #entrypoint, "vkGetInstanceProcAddr Failure");                                                \
+			kinc_error_message("vkGetInstanceProcAddr failed to find vk" #entrypoint, "vkGetInstanceProcAddr Failure");                                        \
 		}                                                                                                                                                      \
 	}
 
@@ -717,13 +717,13 @@ void kinc_g5_internal_init() {
 	err = vkCreateInstance(&info, NULL, &vk_ctx.instance);
 #endif
 	if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
-		kinc_error("Vulkan driver is incompatible");
+		kinc_error_message("Vulkan driver is incompatible");
 	}
 	else if (err == VK_ERROR_EXTENSION_NOT_PRESENT) {
-		kinc_error("Vulkan extension not found");
+		kinc_error_message("Vulkan extension not found");
 	}
 	else if (err) {
-		kinc_error("Can not create Vulkan instance");
+		kinc_error_message("Can not create Vulkan instance");
 	}
 
 	uint32_t gpu_count;
@@ -740,7 +740,7 @@ void kinc_g5_internal_init() {
 		free(physical_devices);
 	}
 	else {
-		kinc_error("No Vulkan device found");
+		kinc_error_message("No Vulkan device found");
 	}
 
 	static const char *wanted_device_layers[64];
@@ -879,7 +879,7 @@ void kinc_g5_internal_init() {
 
 		// Generate error if could not find both a graphics and a present queue
 		if (graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX) {
-			kinc_error("Graphics or present queue not found");
+			kinc_error_message("Graphics or present queue not found");
 		}
 
 		// TODO: Add support for separate queues, including presentation,
@@ -888,7 +888,7 @@ void kinc_g5_internal_init() {
 		//       and a present queues, this demo program assumes it is only using
 		//       one:
 		if (graphicsQueueNodeIndex != presentQueueNodeIndex) {
-			kinc_error("Graphics and present queue do not match");
+			kinc_error_message("Graphics and present queue do not match");
 		}
 
 		graphics_queue_node_index = graphicsQueueNodeIndex;
