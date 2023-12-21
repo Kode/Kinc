@@ -1,4 +1,5 @@
 #include "kinc/graphics4/graphics.h"
+
 #include "vulkan.h"
 
 #include <kinc/error.h>
@@ -7,25 +8,13 @@
 #include <kinc/log.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
+
 #include <stdlib.h>
+
 #include <vulkan/vulkan_core.h>
 
 struct vk_funs vk = {0};
 struct vk_context vk_ctx = {0};
-
-#ifdef KORE_WINDOWS
-#define ERR_EXIT(err_msg, err_class)                                                                                                                           \
-	do {                                                                                                                                                       \
-		MessageBoxA(NULL, err_msg, err_class, MB_OK);                                                                                                          \
-		exit(1);                                                                                                                                               \
-	} while (0)
-#else
-#define ERR_EXIT(err_msg, err_class)                                                                                                                           \
-	do {                                                                                                                                                       \
-		kinc_log(KINC_LOG_LEVEL_ERROR, "%s", err_msg);                                                                                                         \
-		exit(1);                                                                                                                                               \
-	} while (0)
-#endif
 
 void kinc_vulkan_get_instance_extensions(const char **extensions, int *index, int max);
 VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
@@ -35,7 +24,7 @@ VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSur
 	{                                                                                                                                                          \
 		vk.fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(instance, "vk" #entrypoint);                                                             \
 		if (vk.fp##entrypoint == NULL) {                                                                                                                       \
-			ERR_EXIT("vkGetInstanceProcAddr failed to find vk" #entrypoint, "vkGetInstanceProcAddr Failure");                                                  \
+			kinc_error("vkGetInstanceProcAddr failed to find vk" #entrypoint, "vkGetInstanceProcAddr Failure");                                                \
 		}                                                                                                                                                      \
 	}
 
@@ -728,21 +717,13 @@ void kinc_g5_internal_init() {
 	err = vkCreateInstance(&info, NULL, &vk_ctx.instance);
 #endif
 	if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
-		ERR_EXIT("Cannot find a compatible Vulkan installable client driver "
-		         "(ICD).\n\nPlease look at the Getting Started guide for "
-		         "additional information.\n",
-		         "vkCreateInstance Failure");
+		kinc_error("Vulkan driver is incompatible");
 	}
 	else if (err == VK_ERROR_EXTENSION_NOT_PRESENT) {
-		ERR_EXIT("Cannot find a specified extension library"
-		         ".\nMake sure your layers path is set appropriately\n",
-		         "vkCreateInstance Failure");
+		kinc_error("Vulkan extension not found");
 	}
 	else if (err) {
-		ERR_EXIT("vkCreateInstance failed.\n\nDo you have a compatible Vulkan "
-		         "installable client driver (ICD) installed?\nPlease look at "
-		         "the Getting Started guide for additional information.\n",
-		         "vkCreateInstance Failure");
+		kinc_error("Can not create Vulkan instance");
 	}
 
 	uint32_t gpu_count;
@@ -759,11 +740,7 @@ void kinc_g5_internal_init() {
 		free(physical_devices);
 	}
 	else {
-		ERR_EXIT("vkEnumeratePhysicalDevices reported zero accessible devices."
-		         "\n\nDo you have a compatible Vulkan installable client"
-		         " driver (ICD) installed?\nPlease look at the Getting Started"
-		         " guide for additional information.\n",
-		         "vkEnumeratePhysicalDevices Failure");
+		kinc_error("No Vulkan device found");
 	}
 
 	static const char *wanted_device_layers[64];
@@ -902,7 +879,7 @@ void kinc_g5_internal_init() {
 
 		// Generate error if could not find both a graphics and a present queue
 		if (graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX) {
-			ERR_EXIT("Could not find a graphics and a present queue\n", "Swapchain Initialization Failure");
+			kinc_error("Graphics or present queue not found");
 		}
 
 		// TODO: Add support for separate queues, including presentation,
@@ -911,7 +888,7 @@ void kinc_g5_internal_init() {
 		//       and a present queues, this demo program assumes it is only using
 		//       one:
 		if (graphicsQueueNodeIndex != presentQueueNodeIndex) {
-			ERR_EXIT("Could not find a common graphics and a present queue\n", "Swapchain Initialization Failure");
+			kinc_error("Graphics and present queue do not match");
 		}
 
 		graphics_queue_node_index = graphicsQueueNodeIndex;
