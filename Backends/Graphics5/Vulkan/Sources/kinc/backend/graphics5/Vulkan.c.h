@@ -24,13 +24,11 @@ VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSur
 	{                                                                                                                                                          \
 		vk.fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(instance, "vk" #entrypoint);                                                             \
 		if (vk.fp##entrypoint == NULL) {                                                                                                                       \
-			kinc_error_message("vkGetInstanceProcAddr failed to find vk" #entrypoint, "vkGetInstanceProcAddr Failure");                                        \
+			kinc_error_message("vkGetInstanceProcAddr failed to find vk" #entrypoint);                                                                         \
 		}                                                                                                                                                      \
 	}
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-
-#define APP_NAME_STR_LEN 80
 
 void createDescriptorLayout(void);
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
@@ -104,10 +102,8 @@ static VKAPI_ATTR void VKAPI_CALL myfree(void *pUserData, void *pMemory) {
 #endif
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
-	// Search memtypes to find first index with those properties
 	for (uint32_t i = 0; i < 32; i++) {
 		if ((typeBits & 1) == 1) {
-			// Type is available, does it match user properties?
 			if ((memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
 				*typeIndex = i;
 				return true;
@@ -115,7 +111,6 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 		}
 		typeBits >>= 1;
 	}
-	// No memory types matched, return failure
 	return false;
 }
 
@@ -370,29 +365,23 @@ void create_swapchain(int window_index) {
 		VkMemoryRequirements mem_reqs = {0};
 		bool pass;
 
-		/* create image */
 		err = vkCreateImage(vk_ctx.device, &image, NULL, &window->depth.image);
 		assert(!err);
 
-		/* get memory requirements for this object */
 		vkGetImageMemoryRequirements(vk_ctx.device, window->depth.image, &mem_reqs);
 
-		/* select memory size and type */
 		mem_alloc.allocationSize = mem_reqs.size;
-		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, 0, /* No requirements */ &mem_alloc.memoryTypeIndex);
+		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, 0, &mem_alloc.memoryTypeIndex);
 		assert(pass);
 
-		/* allocate memory */
 		err = vkAllocateMemory(vk_ctx.device, &mem_alloc, NULL, &window->depth.memory);
 		assert(!err);
 
-		/* bind memory */
 		err = vkBindImageMemory(vk_ctx.device, window->depth.image, window->depth.memory, 0);
 		assert(!err);
 
 		set_image_layout(window->depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		/* create image view */
 		view.image = window->depth.image;
 		err = vkCreateImageView(vk_ctx.device, &view, NULL, &window->depth.view);
 		assert(!err);
@@ -667,7 +656,7 @@ void kinc_g5_internal_init() {
 	    check_extensions(wanted_instance_extensions, wanted_instance_extension_count, instance_extensions, instance_extension_count);
 
 	if (missing_instance_extensions) {
-		exit(1);
+		kinc_error();
 	}
 
 #ifdef VALIDATE
