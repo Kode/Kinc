@@ -1,4 +1,5 @@
 #include "kinc/graphics4/graphics.h"
+
 #include "vulkan.h"
 
 #include <kinc/error.h>
@@ -7,25 +8,13 @@
 #include <kinc/log.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
+
 #include <stdlib.h>
+
 #include <vulkan/vulkan_core.h>
 
 struct vk_funs vk = {0};
 struct vk_context vk_ctx = {0};
-
-#ifdef KORE_WINDOWS
-#define ERR_EXIT(err_msg, err_class)                                                                                                                           \
-	do {                                                                                                                                                       \
-		MessageBoxA(NULL, err_msg, err_class, MB_OK);                                                                                                          \
-		exit(1);                                                                                                                                               \
-	} while (0)
-#else
-#define ERR_EXIT(err_msg, err_class)                                                                                                                           \
-	do {                                                                                                                                                       \
-		kinc_log(KINC_LOG_LEVEL_ERROR, "%s", err_msg);                                                                                                         \
-		exit(1);                                                                                                                                               \
-	} while (0)
-#endif
 
 void kinc_vulkan_get_instance_extensions(const char **extensions, int *index, int max);
 VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
@@ -35,13 +24,11 @@ VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSur
 	{                                                                                                                                                          \
 		vk.fp##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(instance, "vk" #entrypoint);                                                             \
 		if (vk.fp##entrypoint == NULL) {                                                                                                                       \
-			ERR_EXIT("vkGetInstanceProcAddr failed to find vk" #entrypoint, "vkGetInstanceProcAddr Failure");                                                  \
+			kinc_error_message("vkGetInstanceProcAddr failed to find vk" #entrypoint);                                                                         \
 		}                                                                                                                                                      \
 	}
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-
-#define APP_NAME_STR_LEN 80
 
 void createDescriptorLayout(void);
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
@@ -115,10 +102,8 @@ static VKAPI_ATTR void VKAPI_CALL myfree(void *pUserData, void *pMemory) {
 #endif
 
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex) {
-	// Search memtypes to find first index with those properties
 	for (uint32_t i = 0; i < 32; i++) {
 		if ((typeBits & 1) == 1) {
-			// Type is available, does it match user properties?
 			if ((memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
 				*typeIndex = i;
 				return true;
@@ -126,7 +111,6 @@ bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, u
 		}
 		typeBits >>= 1;
 	}
-	// No memory types matched, return failure
 	return false;
 }
 
@@ -381,29 +365,23 @@ void create_swapchain(int window_index) {
 		VkMemoryRequirements mem_reqs = {0};
 		bool pass;
 
-		/* create image */
 		err = vkCreateImage(vk_ctx.device, &image, NULL, &window->depth.image);
 		assert(!err);
 
-		/* get memory requirements for this object */
 		vkGetImageMemoryRequirements(vk_ctx.device, window->depth.image, &mem_reqs);
 
-		/* select memory size and type */
 		mem_alloc.allocationSize = mem_reqs.size;
-		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, 0, /* No requirements */ &mem_alloc.memoryTypeIndex);
+		pass = memory_type_from_properties(mem_reqs.memoryTypeBits, 0, &mem_alloc.memoryTypeIndex);
 		assert(pass);
 
-		/* allocate memory */
 		err = vkAllocateMemory(vk_ctx.device, &mem_alloc, NULL, &window->depth.memory);
 		assert(!err);
 
-		/* bind memory */
 		err = vkBindImageMemory(vk_ctx.device, window->depth.image, window->depth.memory, 0);
 		assert(!err);
 
 		set_image_layout(window->depth.image, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		/* create image view */
 		view.image = window->depth.image;
 		err = vkCreateImageView(vk_ctx.device, &view, NULL, &window->depth.view);
 		assert(!err);
@@ -678,7 +656,7 @@ void kinc_g5_internal_init() {
 	    check_extensions(wanted_instance_extensions, wanted_instance_extension_count, instance_extensions, instance_extension_count);
 
 	if (missing_instance_extensions) {
-		exit(1);
+		kinc_error();
 	}
 
 #ifdef VALIDATE
@@ -728,21 +706,13 @@ void kinc_g5_internal_init() {
 	err = vkCreateInstance(&info, NULL, &vk_ctx.instance);
 #endif
 	if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
-		ERR_EXIT("Cannot find a compatible Vulkan installable client driver "
-		         "(ICD).\n\nPlease look at the Getting Started guide for "
-		         "additional information.\n",
-		         "vkCreateInstance Failure");
+		kinc_error_message("Vulkan driver is incompatible");
 	}
 	else if (err == VK_ERROR_EXTENSION_NOT_PRESENT) {
-		ERR_EXIT("Cannot find a specified extension library"
-		         ".\nMake sure your layers path is set appropriately\n",
-		         "vkCreateInstance Failure");
+		kinc_error_message("Vulkan extension not found");
 	}
 	else if (err) {
-		ERR_EXIT("vkCreateInstance failed.\n\nDo you have a compatible Vulkan "
-		         "installable client driver (ICD) installed?\nPlease look at "
-		         "the Getting Started guide for additional information.\n",
-		         "vkCreateInstance Failure");
+		kinc_error_message("Can not create Vulkan instance");
 	}
 
 	uint32_t gpu_count;
@@ -759,11 +729,7 @@ void kinc_g5_internal_init() {
 		free(physical_devices);
 	}
 	else {
-		ERR_EXIT("vkEnumeratePhysicalDevices reported zero accessible devices."
-		         "\n\nDo you have a compatible Vulkan installable client"
-		         " driver (ICD) installed?\nPlease look at the Getting Started"
-		         " guide for additional information.\n",
-		         "vkEnumeratePhysicalDevices Failure");
+		kinc_error_message("No Vulkan device found");
 	}
 
 	static const char *wanted_device_layers[64];
@@ -902,7 +868,7 @@ void kinc_g5_internal_init() {
 
 		// Generate error if could not find both a graphics and a present queue
 		if (graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX) {
-			ERR_EXIT("Could not find a graphics and a present queue\n", "Swapchain Initialization Failure");
+			kinc_error_message("Graphics or present queue not found");
 		}
 
 		// TODO: Add support for separate queues, including presentation,
@@ -911,7 +877,7 @@ void kinc_g5_internal_init() {
 		//       and a present queues, this demo program assumes it is only using
 		//       one:
 		if (graphicsQueueNodeIndex != presentQueueNodeIndex) {
-			ERR_EXIT("Could not find a common graphics and a present queue\n", "Swapchain Initialization Failure");
+			kinc_error_message("Graphics and present queue do not match");
 		}
 
 		graphics_queue_node_index = graphicsQueueNodeIndex;
