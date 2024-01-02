@@ -168,6 +168,9 @@ VkSwapchainKHR cleanup_swapchain(int window_index) {
 	return chain;
 }
 
+#define MAX_PRESENT_MODES 256
+static VkPresentModeKHR present_modes[MAX_PRESENT_MODES];
+
 void create_swapchain(int window_index) {
 	struct vk_window *window = &vk_ctx.windows[window_index];
 
@@ -188,12 +191,11 @@ void create_swapchain(int window_index) {
 	VkResult err = vk.fpGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_ctx.gpu, window->surface, &surfCapabilities);
 	assert(!err);
 
-	uint32_t presentModeCount;
-	err = vk.fpGetPhysicalDeviceSurfacePresentModesKHR(vk_ctx.gpu, window->surface, &presentModeCount, NULL);
+	uint32_t present_mode_count;
+	err = vk.fpGetPhysicalDeviceSurfacePresentModesKHR(vk_ctx.gpu, window->surface, &present_mode_count, NULL);
+	present_mode_count = present_mode_count > MAX_PRESENT_MODES ? MAX_PRESENT_MODES : present_mode_count;
 	assert(!err);
-	VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
-	assert(presentModes);
-	err = vk.fpGetPhysicalDeviceSurfacePresentModesKHR(vk_ctx.gpu, window->surface, &presentModeCount, presentModes);
+	err = vk.fpGetPhysicalDeviceSurfacePresentModesKHR(vk_ctx.gpu, window->surface, &present_mode_count, present_modes);
 	assert(!err);
 
 	VkExtent2D swapchainExtent;
@@ -320,10 +322,6 @@ void create_swapchain(int window_index) {
 	}
 
 	window->current_image = 0;
-
-	if (NULL != presentModes) {
-		free(presentModes);
-	}
 
 	const VkFormat depth_format = VK_FORMAT_D16_UNORM;
 
