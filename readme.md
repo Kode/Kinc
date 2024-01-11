@@ -1,5 +1,11 @@
 ## Kinc
 
+Kinc (short for [Kore](https://github.com/Kode/Kore) in C) is a low level toolkit
+for cross-platform game engine development and similar endeavors. It is comparable
+to SDL but bigger in scope as it also takes care of cross-platform GPU programming
+with multiple portable APIs to choose from and its own shader language
+[Kongruent](https://github.com/Kode/Kongruent).
+
 Kinc projects are built using kmake, a meta-build-tool that resides in
 a git-submodule of Kinc. In your project's directory call `path/to/Kinc/make`,
 this will create a project file for your IDE in a subdirectory called build.
