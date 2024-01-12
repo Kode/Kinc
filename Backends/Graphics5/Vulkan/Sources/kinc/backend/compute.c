@@ -5,8 +5,6 @@
 #include <kinc/log.h>
 #include <kinc/math/core.h>
 
-#include <kinc/backend/SystemMicrosoft.h>
-
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
