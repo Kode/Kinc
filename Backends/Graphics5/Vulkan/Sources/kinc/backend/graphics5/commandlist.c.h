@@ -822,21 +822,15 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submit_info.pNext = NULL;
 
-	VkSemaphore semaphores[2] = {
-		framebuffer_available,
-		relay_semaphore
-	};
-	VkPipelineStageFlags dst_stage_flags[2] = {
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
-	};
+	VkSemaphore semaphores[2] = {framebuffer_available, relay_semaphore};
+	VkPipelineStageFlags dst_stage_flags[2] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT};
 	if (wait_for_framebuffer) {
 		submit_info.pWaitSemaphores = semaphores;
 		submit_info.pWaitDstStageMask = dst_stage_flags;
 		submit_info.waitSemaphoreCount = wait_for_relay ? 2 : 1;
 		wait_for_framebuffer = false;
 	}
-	else if(wait_for_relay) {
+	else if (wait_for_relay) {
 		submit_info.waitSemaphoreCount = 1;
 		submit_info.pWaitSemaphores = &semaphores[1];
 		submit_info.pWaitDstStageMask = &dst_stage_flags[1];

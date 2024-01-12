@@ -18,7 +18,7 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, const void *source, size_t le
 #ifdef KINC_KONG
 	strcpy(shader->impl.name, (const char *)source);
 	shader->impl.mtlFunction = (__bridge_retained void *)[getMetalLibrary() newFunctionWithName:[NSString stringWithCString:shader->impl.name
-																										 encoding:NSUTF8StringEncoding]];
+	                                                                                                               encoding:NSUTF8StringEncoding]];
 #else
 	shader->impl.name[0] = 0;
 

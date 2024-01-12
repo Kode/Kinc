@@ -452,8 +452,7 @@ void KoreAndroidVideoInit() {
 	jclass clazz = kinc_android_find_class(env, "tech.kinc.KincMoviePlayer");
 
 	// String path, Surface surface, int id
-	JNINativeMethod methodTable[] = {
-	    {"nativeCreate", "(Ljava/lang/String;Landroid/view/Surface;I)V", (void *)Java_tech_kinc_KincMoviePlayer_nativeCreate}};
+	JNINativeMethod methodTable[] = {{"nativeCreate", "(Ljava/lang/String;Landroid/view/Surface;I)V", (void *)Java_tech_kinc_KincMoviePlayer_nativeCreate}};
 
 	int methodTableSize = sizeof(methodTable) / sizeof(methodTable[0]);
 
