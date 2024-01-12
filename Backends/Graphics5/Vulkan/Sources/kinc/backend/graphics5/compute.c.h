@@ -234,8 +234,7 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	pipeline_layout_info.setLayoutCount = 1;
 	pipeline_layout_info.pSetLayouts = &descriptor_set_layout;
 
-	VkPipelineLayout compute_pipeline_layout;
-	if (vkCreatePipelineLayout(vk_ctx.device, &pipeline_layout_info, NULL, &compute_pipeline_layout) != VK_SUCCESS) {
+	if (vkCreatePipelineLayout(vk_ctx.device, &pipeline_layout_info, NULL, &shader->impl.pipeline_layout) != VK_SUCCESS) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
 		return;
 	}
@@ -243,11 +242,10 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	VkComputePipelineCreateInfo pipeline_info = {0};
 	memset(&pipeline_info, 0, sizeof(pipeline_info));
 	pipeline_info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-	pipeline_info.layout = compute_pipeline_layout;
+	pipeline_info.layout = shader->impl.pipeline_layout;
 	pipeline_info.stage = compute_shader_stage_info;
 
-	VkPipeline compute_pipeline = {0};
-	if (vkCreateComputePipelines(vk_ctx.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &compute_pipeline) != VK_SUCCESS) {
+	if (vkCreateComputePipelines(vk_ctx.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &shader->impl.pipeline) != VK_SUCCESS) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
 		return;
 	}
@@ -403,10 +401,12 @@ void kinc_compute_set_texture3d_minification_filter(kinc_compute_texture_unit_t 
 void kinc_compute_set_texture3d_mipmap_filter(kinc_compute_texture_unit_t unit, kinc_g4_mipmap_filter_t filter) {}
 
 void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
-	/*ID3D12GraphicsCommandList *command_list = NULL;
-	command_list->SetPipelineState(shader->impl.pso);*/
+	VkCommandBuffer command_buffer = {0};
+	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, shader->impl.pipeline);
+	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, shader->impl.pipeline_layout, 0, 1, &shader->impl.descriptor_set, 0, 0);
 }
 
 void kinc_compute(int x, int y, int z) {
-	// ID3D12GraphicsCommandList *command_list = NULL;
+	VkCommandBuffer command_buffer = {0};
+	vkCmdDispatch(command_buffer, x, y, z);
 }

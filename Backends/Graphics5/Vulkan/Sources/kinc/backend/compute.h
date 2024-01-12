@@ -2,12 +2,11 @@
 
 #include <kinc/backend/graphics5/ShaderHash.h>
 
+#include "graphics5/MiniVulkan.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-struct ID3D12Buffer;
-struct ID3D12PipelineState;
 
 typedef struct {
 	uint32_t offset;
@@ -35,8 +34,10 @@ typedef struct {
 	kinc_internal_hash_index_t textures[64];
 	uint8_t *data;
 	int length;
-	struct ID3D12Buffer *constantBuffer;
-	struct ID3D12PipelineState *pso;
+
+	VkDescriptorSet descriptor_set;
+	VkPipelineLayout pipeline_layout;
+	VkPipeline pipeline;
 } kinc_compute_shader_impl_t;
 
 #ifdef __cplusplus
