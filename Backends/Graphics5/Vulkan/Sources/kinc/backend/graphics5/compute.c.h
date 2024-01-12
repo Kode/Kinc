@@ -5,10 +5,6 @@
 #include <kinc/log.h>
 #include <kinc/math/core.h>
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-
 static uint8_t constantsMemory[1024 * 4];
 
 static int getMultipleOf16(int value) {
@@ -186,15 +182,75 @@ void kinc_compute_shader_init(kinc_compute_shader_t *shader, void *_data, int le
 	assert(shader->impl.data != NULL);
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
 
-	/*D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {0};
-	desc.CS.BytecodeLength = shader->impl.length;
-	desc.CS.pShaderBytecode = shader->impl.data;
-	HRESULT hr = device->CreateComputePipelineState(&desc, IID_GRAPHICS_PPV_ARGS(&shader->impl.pso));
+	VkShaderModuleCreateInfo module_create_info;
+	module_create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	module_create_info.pNext = NULL;
+	module_create_info.codeSize = shader->impl.length;
+	module_create_info.pCode = (const uint32_t *)shader->impl.data;
+	module_create_info.flags = 0;
 
-	if (hr != S_OK) {
-	    kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
-	    return;
-	}*/
+	VkShaderModule module;
+	VkResult err = vkCreateShaderModule(vk_ctx.device, &module_create_info, NULL, &module);
+	assert(!err);
+
+	VkPipelineShaderStageCreateInfo compute_shader_stage_info = {0};
+	compute_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	compute_shader_stage_info.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+	compute_shader_stage_info.module = module;
+	compute_shader_stage_info.pName = "main";
+
+	VkDescriptorSetLayoutBinding layout_bindings[1] = {0};
+	layout_bindings[0].binding = 0;
+	layout_bindings[0].descriptorCount = 1;
+	layout_bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	layout_bindings[0].pImmutableSamplers = NULL;
+	layout_bindings[0].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+
+	/*layout_bindings[1].binding = 1;
+	layout_bindings[1].descriptorCount = 1;
+	layout_bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	layout_bindings[1].pImmutableSamplers = NULL;
+	layout_bindings[1].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+
+	layout_bindings[2].binding = 2;
+	layout_bindings[2].descriptorCount = 1;
+	layout_bindings[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	layout_bindings[2].pImmutableSamplers = NULL;
+	layout_bindings[2].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;*/
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = 1;
+	layoutInfo.pBindings = layout_bindings;
+
+	VkDescriptorSetLayout descriptor_set_layout;
+	if (vkCreateDescriptorSetLayout(vk_ctx.device, &layoutInfo, NULL, &descriptor_set_layout) != VK_SUCCESS) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
+		return;
+	}
+
+	VkPipelineLayoutCreateInfo pipeline_layout_info = {0};
+	pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipeline_layout_info.setLayoutCount = 1;
+	pipeline_layout_info.pSetLayouts = &descriptor_set_layout;
+
+	VkPipelineLayout compute_pipeline_layout;
+	if (vkCreatePipelineLayout(vk_ctx.device, &pipeline_layout_info, NULL, &compute_pipeline_layout) != VK_SUCCESS) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
+		return;
+	}
+
+	VkComputePipelineCreateInfo pipeline_info = {0};
+	memset(&pipeline_info, 0, sizeof(pipeline_info));
+	pipeline_info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+	pipeline_info.layout = compute_pipeline_layout;
+	pipeline_info.stage = compute_shader_stage_info;
+
+	VkPipeline compute_pipeline = {0};
+	if (vkCreateComputePipelines(vk_ctx.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &compute_pipeline) != VK_SUCCESS) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
+		return;
+	}
 }
 
 void kinc_compute_shader_destroy(kinc_compute_shader_t *shader) {}

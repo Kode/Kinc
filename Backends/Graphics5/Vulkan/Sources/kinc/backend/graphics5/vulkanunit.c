@@ -76,6 +76,7 @@ static void command_list_should_wait_for_framebuffer(void);
 #include "ShaderHash.c.h"
 #include "Vulkan.c.h"
 #include "commandlist.c.h"
+#include "compute.c.h"
 #include "constantbuffer.c.h"
 #include "indexbuffer.c.h"
 #include "pipeline.c.h"

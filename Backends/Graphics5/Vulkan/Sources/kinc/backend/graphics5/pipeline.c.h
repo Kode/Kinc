@@ -219,16 +219,14 @@ static void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *lo
 
 static VkShaderModule prepare_shader_module(const void *code, size_t size) {
 	VkShaderModuleCreateInfo moduleCreateInfo;
-	VkShaderModule module;
-	VkResult err;
-
 	moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	moduleCreateInfo.pNext = NULL;
-
 	moduleCreateInfo.codeSize = size;
 	moduleCreateInfo.pCode = (const uint32_t *)code;
 	moduleCreateInfo.flags = 0;
-	err = vkCreateShaderModule(vk_ctx.device, &moduleCreateInfo, NULL, &module);
+
+	VkShaderModule module;
+	VkResult err = vkCreateShaderModule(vk_ctx.device, &moduleCreateInfo, NULL, &module);
 	assert(!err);
 
 	return module;
