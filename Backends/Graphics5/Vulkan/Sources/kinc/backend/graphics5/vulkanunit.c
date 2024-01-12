@@ -17,7 +17,7 @@
 #define NOICONS
 #define NOKANJI
 #define NOKEYSTATES
-//#define NOMB
+// #define NOMB
 #define NOMCX
 #define NOMEMMGR
 #define NOMENUS
@@ -35,7 +35,7 @@
 #define NOSYSCOMMANDS
 #define NOSYSMETRICS
 #define NOTEXTMETRIC
-//#define NOUSER
+// #define NOUSER
 #define NOVIRTUALKEYCODES
 #define NOWH
 #define NOWINMESSAGES
@@ -73,14 +73,15 @@ static VkSemaphore relay_semaphore;
 static bool wait_for_relay = false;
 static void command_list_should_wait_for_framebuffer(void);
 
+#include "ShaderHash.c.h"
 #include "Vulkan.c.h"
-#include "sampler.c.h"
 #include "commandlist.c.h"
 #include "constantbuffer.c.h"
 #include "indexbuffer.c.h"
 #include "pipeline.c.h"
 #include "raytrace.c.h"
 #include "rendertarget.c.h"
+#include "sampler.c.h"
 #include "shader.c.h"
 #include "texture.c.h"
 #include "vertexbuffer.c.h"
