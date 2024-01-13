@@ -258,7 +258,7 @@ void kinc_g4_pipeline_get_constant_locations(kinc_g4_pipeline_t *state, kinc_g4_
 }
 
 kinc_g4_constant_location_t kinc_g4_pipeline_get_constant_location(struct kinc_g4_pipeline *state, const char *name) {
-	kinc_g4_constant_location_t location;
+	kinc_g4_constant_location_t location = {0};
 
 	uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
 

@@ -731,6 +731,7 @@ void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
 	setInt(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
 	setInt(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
 	setInt(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setInt(computeConstants, location.impl.computeOffset, location.impl.computeSize, value);
 }
 
 void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {
@@ -739,6 +740,7 @@ void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int valu
 	setInt2(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2);
 	setInt2(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2);
 	setInt2(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2);
+	setInt2(computeConstants, location.impl.computeOffset, location.impl.computeSize, value1, value2);
 }
 
 void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3) {
@@ -747,6 +749,7 @@ void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int valu
 	setInt3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3);
 	setInt3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3);
 	setInt3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3);
+	setInt3(computeConstants, location.impl.computeOffset, location.impl.computeSize, value1, value2, value3);
 }
 
 void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4) {
@@ -755,6 +758,7 @@ void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int valu
 	setInt4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3, value4);
 	setInt4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3, value4);
 	setInt4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3, value4);
+	setInt4(computeConstants, location.impl.computeOffset, location.impl.computeSize, value1, value2, value3, value4);
 }
 
 void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
@@ -767,6 +771,7 @@ void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int cou
 	        count);
 	setInts(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
 	        location.impl.tessControlRows, values, count);
+	setInts(computeConstants, location.impl.computeOffset, location.impl.computeSize, location.impl.computeColumns, location.impl.computeRows, values, count);
 }
 
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
@@ -775,6 +780,7 @@ void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
 	setFloat(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
 	setFloat(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
 	setFloat(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setFloat(computeConstants, location.impl.computeOffset, location.impl.computeSize, value);
 }
 
 void kinc_g4_set_float2(kinc_g4_constant_location_t location, float value1, float value2) {
@@ -783,6 +789,7 @@ void kinc_g4_set_float2(kinc_g4_constant_location_t location, float value1, floa
 	setFloat2(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2);
 	setFloat2(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2);
 	setFloat2(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2);
+	setFloat2(computeConstants, location.impl.computeOffset, location.impl.computeSize, value1, value2);
 }
 
 void kinc_g4_set_float3(kinc_g4_constant_location_t location, float value1, float value2, float value3) {
@@ -791,6 +798,7 @@ void kinc_g4_set_float3(kinc_g4_constant_location_t location, float value1, floa
 	setFloat3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3);
 	setFloat3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3);
 	setFloat3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3);
+	setFloat3(computeConstants, location.impl.computeOffset, location.impl.computeSize, value1, value2, value3);
 }
 
 void kinc_g4_set_float4(kinc_g4_constant_location_t location, float value1, float value2, float value3, float value4) {
@@ -799,6 +807,7 @@ void kinc_g4_set_float4(kinc_g4_constant_location_t location, float value1, floa
 	setFloat4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value1, value2, value3, value4);
 	setFloat4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value1, value2, value3, value4);
 	setFloat4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value1, value2, value3, value4);
+	setFloat4(computeConstants, location.impl.computeOffset, location.impl.computeSize, value1, value2, value3, value4);
 }
 
 void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int count) {
@@ -811,6 +820,7 @@ void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int
 	          count);
 	setFloats(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, location.impl.tessControlColumns,
 	          location.impl.tessControlRows, values, count);
+	setFloats(computeConstants, location.impl.computeOffset, location.impl.computeSize, location.impl.computeColumns, location.impl.computeRows, values, count);
 }
 
 void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value) {
@@ -819,6 +829,7 @@ void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value) {
 	setBool(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
 	setBool(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
 	setBool(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setBool(computeConstants, location.impl.computeOffset, location.impl.computeSize, value);
 }
 
 void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value) {
@@ -827,6 +838,7 @@ void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t 
 	setMatrix4(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
 	setMatrix4(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
 	setMatrix4(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setMatrix4(computeConstants, location.impl.computeOffset, location.impl.computeSize, value);
 }
 
 void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value) {
@@ -835,6 +847,7 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 	setMatrix3(geometryConstants, location.impl.geometryOffset, location.impl.geometrySize, value);
 	setMatrix3(tessEvalConstants, location.impl.tessEvalOffset, location.impl.tessEvalSize, value);
 	setMatrix3(tessControlConstants, location.impl.tessControlOffset, location.impl.tessControlSize, value);
+	setMatrix3(computeConstants, location.impl.computeOffset, location.impl.computeSize, value);
 }
 
 void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_g4_texture_filter_t filter) {

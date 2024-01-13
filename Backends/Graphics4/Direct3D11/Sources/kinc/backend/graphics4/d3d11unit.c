@@ -65,6 +65,7 @@ static uint8_t fragmentConstants[1024 * 4];
 static uint8_t geometryConstants[1024 * 4];
 static uint8_t tessControlConstants[1024 * 4];
 static uint8_t tessEvalConstants[1024 * 4];
+static uint8_t computeConstants[1024 * 4];
 
 static D3D11_COMPARISON_FUNC get_comparison(kinc_g4_compare_mode_t compare) {
 	switch (compare) {

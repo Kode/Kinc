@@ -216,7 +216,7 @@ void kinc_internal_texture_set(kinc_g4_texture_t *texture, uint32_t unit) {
 }
 #else
 void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
-	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0 && unit.stages[KINC_G4_SHADER_TYPE_VERTEX] < 0)
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] < 0 && unit.stages[KINC_G4_SHADER_TYPE_VERTEX] < 0 && unit.stages[KINC_G4_SHADER_TYPE_COMPUTE] < 0)
 		return;
 
 	if (unit.stages[KINC_G4_SHADER_TYPE_VERTEX] >= 0) {
@@ -227,8 +227,18 @@ void kinc_internal_texture_set(kinc_g4_texture_t *texture, kinc_g4_texture_unit_
 		dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT], 1, &texture->impl.view);
 	}
 
-	texture->impl.stage = unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] >= 0 ? unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] : unit.stages[KINC_G4_SHADER_TYPE_VERTEX];
-	setTextures[texture->impl.stage] = texture;
+	if (unit.stages[KINC_G4_SHADER_TYPE_COMPUTE] >= 0) {
+		ID3D11ShaderResourceView *nullView = NULL;
+		dx_ctx.context->lpVtbl->PSSetShaderResources(dx_ctx.context, 0, 1, &nullView);
+
+		dx_ctx.context->lpVtbl->CSSetUnorderedAccessViews(dx_ctx.context, unit.stages[KINC_G4_SHADER_TYPE_COMPUTE], 1, &texture->impl.computeView, NULL);
+	}
+
+	if (unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] >= 0 || unit.stages[KINC_G4_SHADER_TYPE_VERTEX] >= 0) {
+		texture->impl.stage =
+		    unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] >= 0 ? unit.stages[KINC_G4_SHADER_TYPE_FRAGMENT] : unit.stages[KINC_G4_SHADER_TYPE_VERTEX];
+		setTextures[texture->impl.stage] = texture;
+	}
 }
 #endif
 

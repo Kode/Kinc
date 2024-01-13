@@ -41,6 +41,8 @@ typedef struct {
 	uint32_t tessEvalSize;
 	uint32_t tessControlOffset;
 	uint32_t tessControlSize;
+	uint32_t computeOffset;
+	uint32_t computeSize;
 	uint8_t vertexColumns;
 	uint8_t vertexRows;
 	uint8_t fragmentColumns;
@@ -51,6 +53,8 @@ typedef struct {
 	uint8_t tessEvalRows;
 	uint8_t tessControlColumns;
 	uint8_t tessControlRows;
+	uint8_t computeColumns;
+	uint8_t computeRows;
 } kinc_g4_constant_location_impl_t;
 
 #ifdef __cplusplus
