@@ -21,7 +21,7 @@
 #define NOMENUS
 #define NOMETAFILE
 #define NOMINMAX
-//#define NOMSG
+// #define NOMSG
 #define NONLS
 #define NOOPENFILE
 #define NOPROFILER
@@ -33,7 +33,7 @@
 #define NOSYSCOMMANDS
 #define NOSYSMETRICS
 #define NOTEXTMETRIC
-//#define NOUSER
+// #define NOUSER
 #define NOVIRTUALKEYCODES
 #define NOWH
 #define NOWINMESSAGES
@@ -98,6 +98,7 @@ static size_t get_multiple_of_16(size_t value) {
 
 #include "Direct3D11.c.h"
 #include "ShaderHash.c.h"
+#include "compute.c.h"
 #include "constantbuffer.c.h"
 #include "indexbuffer.c.h"
 #include "pipeline.c.h"
