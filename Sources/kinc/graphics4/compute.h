@@ -5,6 +5,7 @@
 #include <kinc/backend/graphics4/compute.h>
 #ifdef KORE_OPENGL
 #include <kinc/backend/graphics4/ShaderStorageBufferImpl.h>
+#include <kinc/graphics4/vertexbuffer.h>
 #endif
 #include <kinc/graphics4/graphics.h>
 

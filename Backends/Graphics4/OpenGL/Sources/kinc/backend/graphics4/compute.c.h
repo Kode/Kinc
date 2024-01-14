@@ -56,79 +56,6 @@ static int convertInternalRTFormat(kinc_g4_render_target_format_t format) {
 		return GL_RGBA;
 	}
 }
-
-static void compute_setTextureAddressingInternal(GLenum target, kinc_g4_compute_texture_unit unit, kinc_g4_texture_direction_t dir,
-                                                 kinc_g4_texture_addressing_t addressing) {
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-	GLenum texDir = dir == KINC_G4_TEXTURE_DIRECTION_U ? GL_TEXTURE_WRAP_S : (KINC_G4_TEXTURE_DIRECTION_V ? GL_TEXTURE_WRAP_T : GL_TEXTURE_WRAP_R);
-	switch (addressing) {
-	case KINC_G4_TEXTURE_ADDRESSING_CLAMP:
-		glTexParameteri(target, texDir, GL_CLAMP_TO_EDGE);
-		break;
-	case KINC_G4_TEXTURE_ADDRESSING_REPEAT:
-	default:
-		glTexParameteri(target, texDir, GL_REPEAT);
-		break;
-	}
-	glCheckErrors();
-}
-
-static void compute_setTextureMagnificationFilterInternal(GLenum target, kinc_g4_compute_texture_unit unit, kinc_g4_texture_filter_t filter) {
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-	switch (filter) {
-	case KINC_G4_TEXTURE_FILTER_POINT:
-		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		break;
-	case KINC_G4_TEXTURE_FILTER_LINEAR:
-	case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
-	default:
-		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		break;
-	}
-	glCheckErrors();
-}
-
-static kinc_g4_texture_filter_t minFilters[32] = {KINC_G4_TEXTURE_FILTER_POINT};
-static kinc_g4_mipmap_filter_t mipFilters[32] = {KINC_G4_MIPMAP_FILTER_NONE};
-
-static void compute_setMinMipFilters(GLenum target, int unit) {
-	glActiveTexture(GL_TEXTURE0 + unit);
-	switch (minFilters[unit]) {
-	case KINC_G4_TEXTURE_FILTER_POINT:
-		switch (mipFilters[unit]) {
-		case KINC_G4_MIPMAP_FILTER_NONE:
-			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			break;
-		case KINC_G4_MIPMAP_FILTER_POINT:
-			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-			break;
-		case KINC_G4_MIPMAP_FILTER_LINEAR:
-			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-			break;
-		}
-		break;
-	case KINC_G4_TEXTURE_FILTER_LINEAR:
-	case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
-		switch (mipFilters[unit]) {
-		case KINC_G4_MIPMAP_FILTER_NONE:
-			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			break;
-		case KINC_G4_MIPMAP_FILTER_POINT:
-			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-			break;
-		case KINC_G4_MIPMAP_FILTER_LINEAR:
-			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			break;
-		}
-		if (minFilters[unit] == KINC_G4_TEXTURE_FILTER_ANISOTROPIC) {
-			float maxAniso = 0.0f;
-			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
-			glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
-		}
-		break;
-	}
-	glCheckErrors();
-}
 #endif
 
 void kinc_g4_compute_shader_init(kinc_g4_compute_shader *shader, void *source, int length) {
@@ -189,8 +116,8 @@ void kinc_g4_compute_shader_destroy(kinc_g4_compute_shader *shader) {
 	glDeleteShader(shader->impl._id);
 #endif
 }
-kinc_g4_compute_constant_location kinc_g4_compute_shader_get_constant_location(kinc_g4_compute_shader *shader, const char *name) {
-	kinc_g4_compute_constant_location location;
+kinc_g4_constant_location_t kinc_g4_compute_shader_get_constant_location(kinc_g4_compute_shader *shader, const char *name) {
+	kinc_g4_constant_location_t location;
 #ifdef HAS_COMPUTE
 	location.impl.location = glGetUniformLocation(shader->impl._programid, name);
 	location.impl.type = GL_FLOAT;
@@ -226,7 +153,7 @@ static int compute_findTexture(kinc_g4_compute_shader *shader, const char *name)
 	return -1;
 }
 
-kinc_g4_compute_texture_unit kinc_g4_compute_shader_get_texture_unit(kinc_g4_compute_shader *shader, const char *name) {
+kinc_g4_texture_unit_t kinc_g4_compute_shader_get_texture_unit(kinc_g4_compute_shader *shader, const char *name) {
 	int index = compute_findTexture(shader, name);
 	if (index < 0) {
 		int location = glGetUniformLocation(shader->impl._programid, name);
@@ -236,195 +163,18 @@ kinc_g4_compute_texture_unit kinc_g4_compute_shader_get_texture_unit(kinc_g4_com
 		strcpy(shader->impl.textures[index], name);
 		++shader->impl.textureCount;
 	}
-	kinc_g4_compute_texture_unit unit;
-	unit.impl.unit = index;
-	return unit;
-}
-
-void kinc_g4_compute_set_bool(kinc_g4_compute_constant_location location, bool value) {
-#ifdef HAS_COMPUTE
-	glUniform1i(location.impl.location, value ? 1 : 0);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_int(kinc_g4_compute_constant_location location, int value) {
-#ifdef HAS_COMPUTE
-	glUniform1i(location.impl.location, value);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_float(kinc_g4_compute_constant_location location, float value) {
-#ifdef HAS_COMPUTE
-	glUniform1f(location.impl.location, value);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_float2(kinc_g4_compute_constant_location location, float value1, float value2) {
-#ifdef HAS_COMPUTE
-	glUniform2f(location.impl.location, value1, value2);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_float3(kinc_g4_compute_constant_location location, float value1, float value2, float value3) {
-#ifdef HAS_COMPUTE
-	glUniform3f(location.impl.location, value1, value2, value3);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_float4(kinc_g4_compute_constant_location location, float value1, float value2, float value3, float value4) {
-#ifdef HAS_COMPUTE
-	glUniform4f(location.impl.location, value1, value2, value3, value4);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_floats(kinc_g4_compute_constant_location location, float *values, int count) {
-#ifdef HAS_COMPUTE
-	switch (location.impl.type) {
-	case GL_FLOAT_VEC2:
-		glUniform2fv(location.impl.location, count / 2, values);
-		break;
-	case GL_FLOAT_VEC3:
-		glUniform3fv(location.impl.location, count / 3, values);
-		break;
-	case GL_FLOAT_VEC4:
-		glUniform4fv(location.impl.location, count / 4, values);
-		break;
-	case GL_FLOAT_MAT4:
-		glUniformMatrix4fv(location.impl.location, count / 16, false, values);
-		break;
-	default:
-		glUniform1fv(location.impl.location, count, values);
-		break;
+	kinc_g4_texture_unit_t unit;
+	for (int i = 0; i < KINC_G4_SHADER_TYPE_COUNT; ++i) {
+		unit.stages[i] = -1;
 	}
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_matrix4(kinc_g4_compute_constant_location location, kinc_matrix4x4_t *value) {
-#ifdef HAS_COMPUTE
-	glUniformMatrix4fv(location.impl.location, 1, GL_FALSE, &value->m[0]);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_matrix3(kinc_g4_compute_constant_location location, kinc_matrix3x3_t *value) {
-#ifdef HAS_COMPUTE
-	glUniformMatrix3fv(location.impl.location, 1, GL_FALSE, &value->m[0]);
-	glCheckErrors();
-#endif
+	unit.stages[KINC_G4_SHADER_TYPE_COMPUTE] = index;
+	return unit;
 }
 
 void kinc_g4_compute_set_buffer(kinc_shader_storage_buffer_t *buffer, int index) {
 #ifdef HAS_COMPUTE
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer->impl.bufferId);
 	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_texture(kinc_g4_compute_texture_unit unit, kinc_g4_texture_t *texture, kinc_g4_compute_access access) {
-#ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-	glCheckErrors();
-	GLenum glaccess = access == KINC_G4_COMPUTE_ACCESS_READ ? GL_READ_ONLY : (access == KINC_G4_COMPUTE_ACCESS_WRITE ? GL_WRITE_ONLY : GL_READ_WRITE);
-	glBindImageTexture(unit.impl.unit, texture->impl.texture, 0, GL_FALSE, 0, glaccess, convertInternalImageFormat(texture->format));
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_render_target(kinc_g4_compute_texture_unit unit, kinc_g4_render_target_t *texture, kinc_g4_compute_access access) {
-#ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-	glCheckErrors();
-	GLenum glaccess = access == KINC_G4_COMPUTE_ACCESS_READ ? GL_READ_ONLY : (access == KINC_G4_COMPUTE_ACCESS_WRITE ? GL_WRITE_ONLY : GL_READ_WRITE);
-	glBindImageTexture(unit.impl.unit, texture->impl._texture, 0, GL_FALSE, 0, glaccess,
-	                   convertInternalRTFormat((kinc_g4_render_target_format_t)texture->impl.format));
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_sampled_texture(kinc_g4_compute_texture_unit unit, kinc_g4_texture_t *texture) {
-#ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-	glCheckErrors();
-	GLenum gltarget = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
-	glBindTexture(gltarget, texture->impl.texture);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_sampled_render_target(kinc_g4_compute_texture_unit unit, kinc_g4_render_target_t *target) {
-#ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-	glCheckErrors();
-	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->impl._texture);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_sampled_depth_from_render_target(kinc_g4_compute_texture_unit unit, kinc_g4_render_target_t *target) {
-#ifdef HAS_COMPUTE
-	glActiveTexture(GL_TEXTURE0 + unit.impl.unit);
-	glCheckErrors();
-	glBindTexture(target->isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, target->impl._depthTexture);
-	glCheckErrors();
-#endif
-}
-
-void kinc_g4_compute_set_texture_addressing(kinc_g4_compute_texture_unit unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
-#ifdef HAS_COMPUTE
-	compute_setTextureAddressingInternal(GL_TEXTURE_2D, unit, dir, addressing);
-#endif
-}
-
-void kinc_g4_compute_set_texture3d_addressing(kinc_g4_compute_texture_unit unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
-#ifdef HAS_COMPUTE
-	compute_setTextureAddressingInternal(GL_TEXTURE_3D, unit, dir, addressing);
-#endif
-}
-
-void kinc_g4_compute_set_texture_magnification_filter(kinc_g4_compute_texture_unit unit, kinc_g4_texture_filter_t filter) {
-#ifdef HAS_COMPUTE
-	compute_setTextureMagnificationFilterInternal(GL_TEXTURE_2D, unit, filter);
-#endif
-}
-
-void kinc_g4_compute_set_texture3d_magnification_filter(kinc_g4_compute_texture_unit unit, kinc_g4_texture_filter_t filter) {
-#ifdef HAS_COMPUTE
-	compute_setTextureMagnificationFilterInternal(GL_TEXTURE_3D, unit, filter);
-#endif
-}
-
-void kinc_g4_compute_set_texture_minification_filter(kinc_g4_compute_texture_unit unit, kinc_g4_texture_filter_t filter) {
-#ifdef HAS_COMPUTE
-	minFilters[unit.impl.unit] = filter;
-	compute_setMinMipFilters(GL_TEXTURE_2D, unit.impl.unit);
-#endif
-}
-
-void kinc_g4_compute_set_texture3d_minification_filter(kinc_g4_compute_texture_unit unit, kinc_g4_texture_filter_t filter) {
-#ifdef HAS_COMPUTE
-	minFilters[unit.impl.unit] = filter;
-	compute_setMinMipFilters(GL_TEXTURE_3D, unit.impl.unit);
-#endif
-}
-
-void kinc_g4_compute_set_texture_mipmap_filter(kinc_g4_compute_texture_unit unit, kinc_g4_mipmap_filter_t filter) {
-#ifdef HAS_COMPUTE
-	mipFilters[unit.impl.unit] = filter;
-	compute_setMinMipFilters(GL_TEXTURE_2D, unit.impl.unit);
-#endif
-}
-
-void kinc_g4_compute_set_texture3d_mipmap_filter(kinc_g4_compute_texture_unit unit, kinc_g4_mipmap_filter_t filter) {
-#ifdef HAS_COMPUTE
-	mipFilters[unit.impl.unit] = filter;
-	compute_setMinMipFilters(GL_TEXTURE_3D, unit.impl.unit);
 #endif
 }
 
