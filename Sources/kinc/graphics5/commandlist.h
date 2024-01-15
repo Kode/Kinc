@@ -23,6 +23,7 @@ extern "C" {
 #define KINC_G5_CLEAR_DEPTH 2
 #define KINC_G5_CLEAR_STENCIL 4
 
+struct kinc_g5_compute_shader;
 struct kinc_g5_constant_buffer;
 struct kinc_g5_index_buffer;
 struct kinc_g5_pipeline;
@@ -173,6 +174,13 @@ KINC_FUNC void kinc_g5_command_list_disable_scissor(kinc_g5_command_list_t *list
 /// <param name="list">The list to write the command to</param>
 /// <param name="pipeline">The pipeline to set</param>
 KINC_FUNC void kinc_g5_command_list_set_pipeline(kinc_g5_command_list_t *list, struct kinc_g5_pipeline *pipeline);
+
+/// <summary>
+/// Writes a command to set the compute shader for the next compute-call.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="pipeline">The compute shader to set</param>
+KINC_FUNC void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, struct kinc_g5_compute_shader *shader);
 
 /// <summary>
 /// Sets the blend constant used for `KINC_G5_BLEND_CONSTANT` or `KINC_G5_INV_BLEND_CONSTANT`

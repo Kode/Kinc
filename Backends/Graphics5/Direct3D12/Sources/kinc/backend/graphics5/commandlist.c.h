@@ -1,4 +1,5 @@
 #include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/compute.h>
 #include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
@@ -505,6 +506,10 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	render_target->impl.renderTargetReadback->Map(0, NULL, &p);
 	memcpy(data, p, render_target->texWidth * render_target->texHeight * formatByteSize);
 	render_target->impl.renderTargetReadback->Unmap(0, NULL);
+}
+
+void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_g5_compute_shader *shader) {
+	list->impl._commandList->SetPipelineState(shader->impl.pso);
 }
 
 void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {

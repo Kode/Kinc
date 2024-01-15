@@ -77,7 +77,7 @@ KINC_FUNC void kinc_g4_compute_set_buffer(kinc_shader_storage_buffer_t *buffer, 
 /// Sets a shader for the next compute-run.
 /// </summary>
 /// <param name="shader">The shader to use</param>
-KINC_FUNC void kinc_g4_compute_set_shader(kinc_g4_compute_shader *shader);
+KINC_FUNC void kinc_g4_set_compute_shader(kinc_g4_compute_shader *shader);
 
 /// <summary>
 /// Fire off a compute-run on x * y * z elements.

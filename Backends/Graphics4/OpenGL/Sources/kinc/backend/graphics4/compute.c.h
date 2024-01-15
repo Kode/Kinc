@@ -178,7 +178,7 @@ void kinc_g4_compute_set_buffer(kinc_shader_storage_buffer_t *buffer, int index)
 #endif
 }
 
-void kinc_g4_compute_set_shader(kinc_g4_compute_shader *shader) {
+void kinc_g4_set_compute_shader(kinc_g4_compute_shader *shader) {
 #ifdef HAS_COMPUTE
 	glUseProgram(shader->impl._programid);
 	glCheckErrors();
