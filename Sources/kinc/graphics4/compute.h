@@ -69,8 +69,6 @@ KINC_FUNC int kinc_shader_storage_buffer_count(kinc_shader_storage_buffer_t *buf
 KINC_FUNC void kinc_shader_storage_buffer_internal_set(kinc_shader_storage_buffer_t *buffer);
 #endif
 
-typedef enum kinc_g4_compute_access { KINC_G4_COMPUTE_ACCESS_READ, KINC_G4_COMPUTE_ACCESS_WRITE, KINC_G4_COMPUTE_ACCESS_READ_WRITE } kinc_g4_compute_access;
-
 #ifdef KORE_OPENGL
 KINC_FUNC void kinc_g4_compute_set_buffer(kinc_shader_storage_buffer_t *buffer, int index);
 #endif
