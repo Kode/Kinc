@@ -251,6 +251,15 @@ KINC_FUNC void kinc_g5_command_list_set_vertex_constant_buffer(kinc_g5_command_l
 KINC_FUNC void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size);
 
 /// <summary>
+/// Writes a command that sets a constant-buffer for the compute-shader-stage.
+/// </summary>
+/// <param name="list">The list to write the command to</param>
+/// <param name="buffer">The buffer to set</param>
+/// <param name="offset">The offset into the buffer in bytes to use as the start</param>
+/// <param name="size">The size of the buffer to use in bytes starting at the offset</param>
+KINC_FUNC void kinc_g5_command_list_set_compute_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size);
+
+/// <summary>
 /// Kicks off execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand.
 /// </summary>
 /// <param name="list">The command-list to execute</param>

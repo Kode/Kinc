@@ -35,9 +35,13 @@ kinc_g4_texture_unit_t kinc_g4_compute_shader_get_texture_unit(kinc_g4_compute_s
 }
 
 void kinc_g4_set_compute_shader(kinc_g4_compute_shader *shader) {
-	kinc_g5_command_list_set_compute_shader(&commandList, &shader->impl.shader);
+	kinc_g5_compute_shader *g5_shader = &shader->impl.shader;
+	current_state.compute_shader = g5_shader;
+	kinc_g5_command_list_set_compute_shader(&commandList, g5_shader);
 }
 
 void kinc_g4_compute(int x, int y, int z) {
+	startDraw(true);
 	kinc_g5_command_list_compute(&commandList, x, y, z);
+	endDraw(true);
 }

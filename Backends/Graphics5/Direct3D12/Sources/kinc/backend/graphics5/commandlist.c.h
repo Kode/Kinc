@@ -185,6 +185,18 @@ void kinc_g5_command_list_set_fragment_constant_buffer(struct kinc_g5_command_li
 #endif
 }
 
+void kinc_g5_command_list_set_compute_constant_buffer(struct kinc_g5_command_list *list, kinc_g5_constant_buffer_t *buffer, int offset, size_t size) {
+	assert(list->impl.open);
+
+#ifdef KORE_DXC
+	if (list->impl._currentPipeline->impl.fragmentConstantsSize > 0) {
+		list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+	}
+#else
+	list->impl._commandList->SetComputeRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+#endif
+}
+
 void kinc_g5_command_list_draw_indexed_vertices(struct kinc_g5_command_list *list) {
 	kinc_g5_command_list_draw_indexed_vertices_from_to(list, 0, list->impl._indexCount);
 }

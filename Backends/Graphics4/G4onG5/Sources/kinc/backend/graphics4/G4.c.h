@@ -15,6 +15,7 @@
 #include <kinc/graphics4/texturearray.h>
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/compute.h>
 #include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/sampler.h>
@@ -33,6 +34,7 @@ bool waitAfterNextDraw = false;
 
 static kinc_g5_constant_buffer_t vertexConstantBuffer;
 static kinc_g5_constant_buffer_t fragmentConstantBuffer;
+static kinc_g5_constant_buffer_t computeConstantBuffer;
 #define constantBufferSize 4096
 #define constantBufferMultiply 100
 static int constantBufferIndex = 0;
@@ -69,6 +71,7 @@ static int current_window;
 
 typedef struct render_state {
 	kinc_g5_pipeline_t *pipeline;
+	kinc_g5_compute_shader *compute_shader;
 
 	kinc_g5_index_buffer_t *index_buffer;
 
@@ -108,6 +111,7 @@ typedef struct render_state {
 
 	uint8_t vertex_constant_data[constantBufferSize];
 	uint8_t fragment_constant_data[constantBufferSize];
+	uint8_t compute_constant_data[constantBufferSize];
 } render_state;
 
 static render_state current_state;
@@ -134,6 +138,7 @@ void kinc_g4_internal_init_window(int window, int depthBufferBits, int stencilBu
 	}
 	kinc_g5_constant_buffer_init(&vertexConstantBuffer, constantBufferSize * constantBufferMultiply);
 	kinc_g5_constant_buffer_init(&fragmentConstantBuffer, constantBufferSize * constantBufferMultiply);
+	kinc_g5_constant_buffer_init(&computeConstantBuffer, constantBufferSize * constantBufferMultiply);
 
 	// to support doing work after kinc_g4_end and before kinc_g4_begin
 	kinc_g5_command_list_begin(&commandList);
@@ -155,23 +160,30 @@ void kinc_g4_on_g5_internal_set_samplers(int count, kinc_g5_texture_unit_t *text
 	}
 }
 
-static void startDraw(void) {
+static void startDraw(bool compute) {
 	if ((constantBufferIndex + 1) >= constantBufferMultiply || waitAfterNextDraw) {
 		memcpy(current_state.vertex_constant_data, vertexConstantBuffer.data, constantBufferSize);
 		memcpy(current_state.fragment_constant_data, fragmentConstantBuffer.data, constantBufferSize);
+		memcpy(current_state.compute_constant_data, computeConstantBuffer.data, constantBufferSize);
 	}
 	kinc_g5_constant_buffer_unlock(&vertexConstantBuffer);
 	kinc_g5_constant_buffer_unlock(&fragmentConstantBuffer);
+	kinc_g5_constant_buffer_unlock(&computeConstantBuffer);
 
 	kinc_g4_on_g5_internal_set_samplers(current_state.texture_count, current_state.texture_units);
 	kinc_g4_on_g5_internal_set_samplers(current_state.render_target_count, current_state.render_target_units);
 	kinc_g4_on_g5_internal_set_samplers(current_state.depth_render_target_count, current_state.depth_render_target_units);
 
-	kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
-	kinc_g5_command_list_set_fragment_constant_buffer(&commandList, &fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+	if (compute) {
+		kinc_g5_command_list_set_compute_constant_buffer(&commandList, &computeConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+	}
+	else {
+		kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+		kinc_g5_command_list_set_fragment_constant_buffer(&commandList, &fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+	}
 }
 
-static void endDraw(void) {
+static void endDraw(bool compute) {
 	++constantBufferIndex;
 	if (constantBufferIndex >= constantBufferMultiply || waitAfterNextDraw) {
 		kinc_g5_command_list_end(&commandList);
@@ -192,6 +204,9 @@ static void endDraw(void) {
 
 		if (current_state.pipeline != NULL) {
 			kinc_g5_command_list_set_pipeline(&commandList, current_state.pipeline);
+		}
+		if (current_state.compute_shader != NULL) {
+			kinc_g5_command_list_set_compute_shader(&commandList, current_state.compute_shader);
 		}
 		if (current_state.index_buffer != NULL) {
 			kinc_g5_command_list_set_index_buffer(&commandList, current_state.index_buffer);
@@ -227,44 +242,47 @@ static void endDraw(void) {
 
 		kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
 		kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, 0, constantBufferSize);
+		kinc_g5_constant_buffer_lock(&computeConstantBuffer, 0, constantBufferSize);
 
 		memcpy(vertexConstantBuffer.data, current_state.vertex_constant_data, constantBufferSize);
 		memcpy(fragmentConstantBuffer.data, current_state.fragment_constant_data, constantBufferSize);
+		memcpy(computeConstantBuffer.data, current_state.compute_constant_data, constantBufferSize);
 	}
 	else {
 		kinc_g5_constant_buffer_lock(&vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 		kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
+		kinc_g5_constant_buffer_lock(&computeConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 	}
 }
 
 void kinc_g4_draw_indexed_vertices(void) {
-	startDraw();
+	startDraw(false);
 	kinc_g5_command_list_draw_indexed_vertices(&commandList);
-	endDraw();
+	endDraw(false);
 }
 
 void kinc_g4_draw_indexed_vertices_from_to(int start, int count) {
-	startDraw();
+	startDraw(false);
 	kinc_g5_command_list_draw_indexed_vertices_from_to(&commandList, start, count);
-	endDraw();
+	endDraw(false);
 }
 
 void kinc_g4_draw_indexed_vertices_from_to_from(int start, int count, int vertex_offset) {
-	startDraw();
+	startDraw(false);
 	kinc_g5_command_list_draw_indexed_vertices_from_to_from(&commandList, start, count, vertex_offset);
-	endDraw();
+	endDraw(false);
 }
 
 void kinc_g4_draw_indexed_vertices_instanced(int instanceCount) {
-	startDraw();
+	startDraw(false);
 	kinc_g5_command_list_draw_indexed_vertices_instanced(&commandList, instanceCount);
-	endDraw();
+	endDraw(false);
 }
 
 void kinc_g4_draw_indexed_vertices_instanced_from_to(int instanceCount, int start, int count) {
-	startDraw();
+	startDraw(false);
 	kinc_g5_command_list_draw_indexed_vertices_instanced_from_to(&commandList, instanceCount, start, count);
-	endDraw();
+	endDraw(false);
 }
 
 void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil) {
@@ -316,6 +334,7 @@ void kinc_g4_begin(int window) {
 	windows[current_window].current_render_target_count = 1;
 
 	current_state.pipeline = NULL;
+	current_state.compute_shader = NULL;
 	current_state.index_buffer = NULL;
 	for (int i = 0; i < MAX_VERTEX_BUFFERS; ++i) {
 		current_state.vertex_buffers[i] = NULL;
@@ -338,7 +357,7 @@ void kinc_g4_begin(int window) {
 	// constantBufferIndex = 0;
 	// kinc_g5_constant_buffer_lock(&vertexConstantBuffer, 0, constantBufferSize);
 	// kinc_g5_constant_buffer_lock(&fragmentConstantBuffer, 0, constantBufferSize);
-	endDraw();
+	endDraw(false);
 
 	kinc_g5_command_list_framebuffer_to_render_target_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
 	kinc_g4_restore_render_target();
@@ -372,6 +391,7 @@ void kinc_g4_disable_scissor(void) {
 void kinc_g4_end(int window) {
 	kinc_g5_constant_buffer_unlock(&vertexConstantBuffer);
 	kinc_g5_constant_buffer_unlock(&fragmentConstantBuffer);
+	kinc_g5_constant_buffer_unlock(&computeConstantBuffer);
 
 	kinc_g5_command_list_render_target_to_framebuffer_barrier(&commandList, &windows[current_window].framebuffers[windows[current_window].currentBuffer]);
 	kinc_g5_command_list_end(&commandList);
@@ -404,6 +424,8 @@ void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
 		kinc_g5_constant_buffer_set_int(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_int(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_int(&computeConstantBuffer, location.impl._location.impl.computeOffset, value);
 }
 
 void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {}
@@ -419,6 +441,8 @@ void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
 		kinc_g5_constant_buffer_set_float(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_float(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_float(&computeConstantBuffer, location.impl._location.impl.computeOffset, value);
 }
 
 void kinc_g4_set_float2(kinc_g4_constant_location_t location, float value1, float value2) {
@@ -426,6 +450,8 @@ void kinc_g4_set_float2(kinc_g4_constant_location_t location, float value1, floa
 		kinc_g5_constant_buffer_set_float2(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_float2(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_float2(&computeConstantBuffer, location.impl._location.impl.computeOffset, value1, value2);
 }
 
 void kinc_g4_set_float3(kinc_g4_constant_location_t location, float value1, float value2, float value3) {
@@ -433,6 +459,8 @@ void kinc_g4_set_float3(kinc_g4_constant_location_t location, float value1, floa
 		kinc_g5_constant_buffer_set_float3(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2, value3);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_float3(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2, value3);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_float3(&computeConstantBuffer, location.impl._location.impl.computeOffset, value1, value2, value3);
 }
 
 void kinc_g4_set_float4(kinc_g4_constant_location_t location, float value1, float value2, float value3, float value4) {
@@ -440,6 +468,8 @@ void kinc_g4_set_float4(kinc_g4_constant_location_t location, float value1, floa
 		kinc_g5_constant_buffer_set_float4(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2, value3, value4);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_float4(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2, value3, value4);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_float4(&computeConstantBuffer, location.impl._location.impl.computeOffset, value1, value2, value3, value4);
 }
 
 void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int count) {
@@ -447,6 +477,8 @@ void kinc_g4_set_floats(kinc_g4_constant_location_t location, float *values, int
 		kinc_g5_constant_buffer_set_floats(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, values, count);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_floats(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, values, count);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_floats(&computeConstantBuffer, location.impl._location.impl.computeOffset, values, count);
 }
 
 void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value) {
@@ -454,6 +486,8 @@ void kinc_g4_set_bool(kinc_g4_constant_location_t location, bool value) {
 		kinc_g5_constant_buffer_set_bool(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_bool(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_bool(&computeConstantBuffer, location.impl._location.impl.computeOffset, value);
 }
 
 void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value) {
@@ -461,6 +495,8 @@ void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t 
 		kinc_g5_constant_buffer_set_matrix4(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_matrix4(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_matrix4(&computeConstantBuffer, location.impl._location.impl.computeOffset, value);
 }
 
 void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t *value) {
@@ -468,6 +504,8 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 		kinc_g5_constant_buffer_set_matrix3(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value);
 	if (location.impl._location.impl.fragmentOffset >= 0)
 		kinc_g5_constant_buffer_set_matrix3(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_matrix3(&computeConstantBuffer, location.impl._location.impl.computeOffset, value);
 }
 
 void kinc_g4_set_texture_addressing(kinc_g4_texture_unit_t unit, kinc_g4_texture_direction_t dir, kinc_g4_texture_addressing_t addressing) {
