@@ -157,43 +157,6 @@ KINC_FUNC kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kin
 KINC_FUNC kinc_g5_texture_unit_t kinc_g5_pipeline_get_texture_unit(kinc_g5_pipeline_t *pipeline, const char *name);
 #endif
 
-/// <summary>
-/// Initializes a compute-pipeline.
-/// </summary>
-/// <param name="state">The pipeline to initialize</param>
-KINC_FUNC void kinc_g5_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipeline);
-
-void kinc_g5_internal_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipeline);
-
-/// <summary>
-/// Destroys a compute-pipeline.
-/// </summary>
-/// <param name="pipeline">The pipeline to destroy</param>
-KINC_FUNC void kinc_g5_compute_pipeline_destroy(kinc_g5_compute_pipeline_t *pipeline);
-
-/// <summary>
-/// Compiles a compute-pipeline. After a pipeline has been compiled it is finalized. It cannot be compiled again and further changes to the pipeline are
-/// ignored.
-/// </summary>
-/// <param name="pipeline">The pipeline to compile</param>
-KINC_FUNC void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline);
-
-/// <summary>
-/// Searches for a constant/uniform and returns a constant-location which can be used to change the constant/uniform.
-/// </summary>
-/// <param name="pipeline">The pipeline to search in</param>
-/// <param name="name">The name of the constant/uniform to find</param>
-/// <returns>The constant-location of the constant/uniform</returns>
-KINC_FUNC kinc_g5_constant_location_t kinc_g5_compute_pipeline_get_constant_location(kinc_g5_compute_pipeline_t *pipeline, const char *name);
-
-/// <summary>
-/// Searches for a texture-declaration and returns a texture-unit which can be used to assign a texture.
-/// </summary>
-/// <param name="pipeline">The pipeline to search in</param>
-/// <param name="name">The name of the texture-declaration to search for</param>
-/// <returns>The texture-unit of the texture-declaration</returns>
-KINC_FUNC kinc_g5_texture_unit_t kinc_g5_compute_pipeline_get_texture_unit(kinc_g5_compute_pipeline_t *pipeline, const char *name);
-
 #ifdef __cplusplus
 }
 #endif

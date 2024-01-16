@@ -30,7 +30,6 @@ void kinc_g5_internal_setConstants(kinc_g5_command_list_t *commandList, kinc_g5_
 	}
 	*/
 
-	commandList->impl._commandList->SetPipelineState(pipeline->impl.pso);
 #ifdef KORE_DXC
 	// commandList->SetGraphicsRootSignature(pipeline->impl.rootSignature);
 	commandList->impl._commandList->SetGraphicsRootSignature(globalRootSignature);
@@ -41,6 +40,36 @@ void kinc_g5_internal_setConstants(kinc_g5_command_list_t *commandList, kinc_g5_
 	if (pipeline->impl.textures > 0) {
 		kinc_g5_internal_set_textures(commandList);
 	}
+}
+
+void kinc_g5_internal_set_compute_constants(kinc_g5_command_list_t *commandList) {
+	/*if (currentProgram->vertexShader->constantsSize > 0) {
+	    context->UpdateSubresource(currentProgram->vertexConstantBuffer, 0, nullptr, vertexConstants, 0, 0);
+	    context->VSSetConstantBuffers(0, 1, &currentProgram->vertexConstantBuffer);
+	}
+	if (currentProgram->fragmentShader->constantsSize > 0) {
+	    context->UpdateSubresource(currentProgram->fragmentConstantBuffer, 0, nullptr, fragmentConstants, 0, 0);
+	    context->PSSetConstantBuffers(0, 1, &currentProgram->fragmentConstantBuffer);
+	}
+	if (currentProgram->geometryShader != nullptr && currentProgram->geometryShader->constantsSize > 0) {
+	    context->UpdateSubresource(currentProgram->geometryConstantBuffer, 0, nullptr, geometryConstants, 0, 0);
+	    context->GSSetConstantBuffers(0, 1, &currentProgram->geometryConstantBuffer);
+	}
+	if (currentProgram->tessControlShader != nullptr && currentProgram->tessControlShader->constantsSize > 0) {
+	    context->UpdateSubresource(currentProgram->tessControlConstantBuffer, 0, nullptr, tessControlConstants, 0, 0);
+	    context->HSSetConstantBuffers(0, 1, &currentProgram->tessControlConstantBuffer);
+	}
+	if (currentProgram->tessEvalShader != nullptr && currentProgram->tessEvalShader->constantsSize > 0) {
+	    context->UpdateSubresource(currentProgram->tessEvalConstantBuffer, 0, nullptr, tessEvalConstants, 0, 0);
+	    context->DSSetConstantBuffers(0, 1, &currentProgram->tessEvalConstantBuffer);
+	}
+	*/
+
+	commandList->impl._commandList->SetComputeRootSignature(globalComputeRootSignature);
+
+	//if (pipeline->impl.textures > 0) {
+		kinc_g5_internal_set_textures(commandList);
+	//}
 }
 
 void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
@@ -529,63 +558,4 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 	if (hr != S_OK) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
 	}
-}
-
-void kinc_g5_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipeline) {
-	kinc_g5_internal_compute_pipeline_init(pipeline);
-	pipeline->impl.pso = NULL;
-}
-
-void kinc_g5_compute_pipeline_destroy(kinc_g5_compute_pipeline_t *pipeline) {
-	if (pipeline->impl.pso != NULL) {
-		pipeline->impl.pso->Release();
-		pipeline->impl.pso = NULL;
-	}
-}
-
-void kinc_g5_compute_pipeline_compile(kinc_g5_compute_pipeline_t *pipeline) {
-	HRESULT hr;
-#ifdef KORE_DXC
-	/*hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length, IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature));
-	if (hr != S_OK) {
-	    kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
-	}
-	pipe->impl.vertexConstantsSize = pipe->vertexShader->impl.constantsSize;
-	pipe->impl.fragmentConstantsSize = pipe->fragmentShader->impl.constantsSize;*/
-#endif
-
-	D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {0};
-	psoDesc.CS.BytecodeLength = pipeline->compute_shader->impl.length;
-	psoDesc.CS.pShaderBytecode = pipeline->compute_shader->impl.data;
-#ifdef KORE_DXC
-	// psoDesc.pRootSignature = pipe->impl.rootSignature;
-#else
-	psoDesc.pRootSignature = globalComputeRootSignature;
-#endif
-
-	hr = device->CreateComputePipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipeline->impl.pso));
-	if (hr != S_OK) {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
-	}
-}
-
-kinc_g5_constant_location_t kinc_g5_compute_pipeline_get_constant_location(kinc_g5_compute_pipeline_t *pipeline, const char *name) {
-	kinc_g5_constant_location_t location = {0};
-
-	{
-		ShaderConstant constant = findConstant(pipeline->compute_shader, name);
-		location.impl.computeOffset = constant.offset;
-		location.impl.computeSize = constant.size;
-	}
-
-	return location;
-}
-
-kinc_g5_texture_unit_t kinc_g5_compute_pipeline_get_texture_unit(kinc_g5_compute_pipeline_t *pipeline, const char *name) {
-	kinc_g5_texture_unit_t unit;
-	ShaderTexture texture = findTexture(pipeline->compute_shader, name);
-	if (texture.texture != -1) {
-		unit.stages[KINC_G5_SHADER_TYPE_COMPUTE] = texture.texture;
-	}
-	return unit;
 }

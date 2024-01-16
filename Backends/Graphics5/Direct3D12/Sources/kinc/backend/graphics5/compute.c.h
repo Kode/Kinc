@@ -69,6 +69,7 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 	D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {0};
 	desc.CS.BytecodeLength = shader->impl.length;
 	desc.CS.pShaderBytecode = shader->impl.data;
+	desc.pRootSignature = globalComputeRootSignature;
 	HRESULT hr = device->CreateComputePipelineState(&desc, IID_GRAPHICS_PPV_ARGS(&shader->impl.pso));
 
 	if (hr != S_OK) {
@@ -80,7 +81,12 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 	// &shader->impl.constantBuffer));
 }
 
-void kinc_g5_compute_shader_destroy(kinc_g5_compute_shader *shader) {}
+void kinc_g5_compute_shader_destroy(kinc_g5_compute_shader *shader) {
+	if (shader->impl.pso != NULL) {
+		shader->impl.pso->Release();
+		shader->impl.pso = NULL;
+	}
+}
 
 static kinc_compute_internal_shader_constant_t *findComputeConstant(kinc_compute_internal_shader_constant_t *constants, uint32_t hash) {
 	for (int i = 0; i < 64; ++i) {

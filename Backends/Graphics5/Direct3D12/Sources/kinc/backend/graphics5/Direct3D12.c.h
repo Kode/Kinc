@@ -286,7 +286,7 @@ static void createComputeRootSignature() {
 	ID3DBlob *rootBlob;
 	ID3DBlob *errorBlob;
 
-	D3D12_ROOT_PARAMETER parameters[3] = {};
+	D3D12_ROOT_PARAMETER parameters[4] = {};
 
 	D3D12_DESCRIPTOR_RANGE range;
 	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -299,21 +299,32 @@ static void createComputeRootSignature() {
 	parameters[0].DescriptorTable.NumDescriptorRanges = 1;
 	parameters[0].DescriptorTable.pDescriptorRanges = &range;
 
+	D3D12_DESCRIPTOR_RANGE uav_range;
+	uav_range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+	uav_range.NumDescriptors = (UINT)KINC_INTERNAL_G5_TEXTURE_COUNT;
+	uav_range.BaseShaderRegister = 0;
+	uav_range.RegisterSpace = 0;
+	uav_range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	parameters[1].DescriptorTable.NumDescriptorRanges = 1;
+	parameters[1].DescriptorTable.pDescriptorRanges = &uav_range;
+
 	D3D12_DESCRIPTOR_RANGE range2;
 	range2.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
 	range2.NumDescriptors = (UINT)KINC_INTERNAL_G5_TEXTURE_COUNT;
 	range2.BaseShaderRegister = 0;
 	range2.RegisterSpace = 0;
 	range2.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	parameters[1].DescriptorTable.NumDescriptorRanges = 1;
-	parameters[1].DescriptorTable.pDescriptorRanges = &range2;
-
-	parameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	parameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	parameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	parameters[2].Descriptor.ShaderRegister = 0;
-	parameters[2].Descriptor.RegisterSpace = 0;
+	parameters[2].DescriptorTable.NumDescriptorRanges = 1;
+	parameters[2].DescriptorTable.pDescriptorRanges = &range2;
+
+	parameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	parameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	parameters[3].Descriptor.ShaderRegister = 0;
+	parameters[3].Descriptor.RegisterSpace = 0;
 
 	D3D12_STATIC_SAMPLER_DESC samplers[KINC_INTERNAL_G5_TEXTURE_COUNT * 2];
 	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
@@ -348,7 +359,7 @@ static void createComputeRootSignature() {
 	}
 
 	D3D12_ROOT_SIGNATURE_DESC descRootSignature;
-	descRootSignature.NumParameters = 3;
+	descRootSignature.NumParameters = 4;
 	descRootSignature.pParameters = parameters;
 	descRootSignature.NumStaticSamplers = 0;
 	descRootSignature.pStaticSamplers = NULL;

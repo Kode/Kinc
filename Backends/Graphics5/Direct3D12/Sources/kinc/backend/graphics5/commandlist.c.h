@@ -508,8 +508,16 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	render_target->impl.renderTargetReadback->Unmap(0, NULL);
 }
 
+void kinc_g5_internal_set_compute_constants(kinc_g5_command_list_t *commandList);
+
 void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_g5_compute_shader *shader) {
 	list->impl._commandList->SetPipelineState(shader->impl.pso);
+
+	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
+		list->impl.currentRenderTargets[i] = NULL;
+		list->impl.currentTextures[i] = NULL;
+	}
+	kinc_g5_internal_set_compute_constants(list);
 }
 
 void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {

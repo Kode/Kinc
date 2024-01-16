@@ -45,7 +45,3 @@ void kinc_g5_internal_pipeline_init(kinc_g5_pipeline_t *pipe) {
 	pipe->depthAttachmentBits = 0;
 	pipe->stencilAttachmentBits = 0;
 }
-
-void kinc_g5_internal_compute_pipeline_init(kinc_g5_compute_pipeline_t *pipe) {
-	pipe->compute_shader = NULL;
-}
