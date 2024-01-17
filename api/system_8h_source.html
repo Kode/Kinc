@@ -438,166 +438,158 @@ $(function() {
 <div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;    strcpy(application_name, name);</div>
 <div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;}</div>
 <div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160; </div>
-<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;<span class="preprocessor">#ifdef KORE_METAL</span></div>
-<div class="line"><a name="l00566"></a><span class="lineno">  566</span>&#160;<span class="keywordtype">void</span> shutdownMetalCompute(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00567"></a><span class="lineno">  567</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00568"></a><span class="lineno">  568</span>&#160; </div>
-<div class="line"><a name="l00569"></a><span class="lineno">  569</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a9fc16f004fa12306b3f74e166a2f9658">kinc_stop</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;    running = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160; </div>
-<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;    <span class="comment">// TODO (DK) destroy graphics + windows, but afaik Application::~Application() was never called, so it&#39;s the same behavior now as well</span></div>
-<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160; </div>
-<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;    <span class="comment">// for (int windowIndex = 0; windowIndex &lt; sizeof(windowIds) / sizeof(int); ++windowIndex) {</span></div>
-<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;    <span class="comment">//  Graphics::destroy(windowIndex);</span></div>
-<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    <span class="comment">//}</span></div>
-<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160; </div>
-<div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;<span class="preprocessor">#ifdef KORE_METAL</span></div>
-<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;    shutdownMetalCompute();</div>
-<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;}</div>
-<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160; </div>
-<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;<span class="keywordtype">bool</span> kinc_internal_frame(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;    kinc_internal_update_callback();</div>
-<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;    kinc_internal_handle_messages();</div>
-<div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;    <span class="keywordflow">return</span> running;</div>
-<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;}</div>
-<div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160; </div>
-<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733">kinc_start</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;    running = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160; </div>
-<div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;<span class="preprocessor">#if !defined(KORE_WASM) &amp;&amp; !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_TIZEN)</span></div>
-<div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;    <span class="comment">// if (Graphics::hasWindow()) Graphics::swapBuffers();</span></div>
-<div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160; </div>
-<div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
-<div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;    <span class="keywordflow">while</span> (withAutoreleasepool(kinc_internal_frame)) {</div>
-<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;    }</div>
-<div class="line"><a name="l00598"></a><span class="lineno">  598</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160;    <span class="keywordflow">while</span> (kinc_internal_frame()) {</div>
-<div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;    }</div>
-<div class="line"><a name="l00601"></a><span class="lineno">  601</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00602"></a><span class="lineno">  602</span>&#160;    kinc_internal_shutdown();</div>
-<div class="line"><a name="l00603"></a><span class="lineno">  603</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a9fc16f004fa12306b3f74e166a2f9658">kinc_stop</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00566"></a><span class="lineno">  566</span>&#160;    running = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00567"></a><span class="lineno">  567</span>&#160; </div>
+<div class="line"><a name="l00568"></a><span class="lineno">  568</span>&#160;    <span class="comment">// TODO (DK) destroy graphics + windows, but afaik Application::~Application() was never called, so it&#39;s the same behavior now as well</span></div>
+<div class="line"><a name="l00569"></a><span class="lineno">  569</span>&#160; </div>
+<div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;    <span class="comment">// for (int windowIndex = 0; windowIndex &lt; sizeof(windowIds) / sizeof(int); ++windowIndex) {</span></div>
+<div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160;    <span class="comment">//  Graphics::destroy(windowIndex);</span></div>
+<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;    <span class="comment">//}</span></div>
+<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;}</div>
+<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160; </div>
+<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;<span class="keywordtype">bool</span> kinc_internal_frame(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    kinc_internal_update_callback();</div>
+<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;    kinc_internal_handle_messages();</div>
+<div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;    <span class="keywordflow">return</span> running;</div>
+<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;}</div>
+<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160; </div>
+<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733">kinc_start</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;    running = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160; </div>
+<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;<span class="preprocessor">#if !defined(KORE_WASM) &amp;&amp; !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_TIZEN)</span></div>
+<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;    <span class="comment">// if (Graphics::hasWindow()) Graphics::swapBuffers();</span></div>
+<div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160; </div>
+<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
+<div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;    <span class="keywordflow">while</span> (withAutoreleasepool(kinc_internal_frame)) {</div>
+<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;    }</div>
+<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;    <span class="keywordflow">while</span> (kinc_internal_frame()) {</div>
+<div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;    }</div>
+<div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;    kinc_internal_shutdown();</div>
+<div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;}</div>
+<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160; </div>
+<div class="line"><a name="l00598"></a><span class="lineno">  598</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a9991cf9f37620352edea038bcd871f69">kinc_width</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="window_8h.html#a19fc41eac1a4ddcbfa820fc78ede0fc6">kinc_window_width</a>(0);</div>
+<div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;}</div>
+<div class="line"><a name="l00601"></a><span class="lineno">  601</span>&#160; </div>
+<div class="line"><a name="l00602"></a><span class="lineno">  602</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a25a65f97575a9e4d3eabd9d6d9f15f8b">kinc_height</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00603"></a><span class="lineno">  603</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="window_8h.html#a5a0af1050adf8298b406b2b60e6be5e6">kinc_window_height</a>(0);</div>
 <div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160;}</div>
 <div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160; </div>
-<div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a9991cf9f37620352edea038bcd871f69">kinc_width</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="window_8h.html#a19fc41eac1a4ddcbfa820fc78ede0fc6">kinc_window_width</a>(0);</div>
-<div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;}</div>
+<div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;<span class="preprocessor">#ifndef KHA</span></div>
+<div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;<span class="keywordtype">void</span> kinc_memory_emergency(<span class="keywordtype">void</span>) {}</div>
+<div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160; </div>
-<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;<span class="keywordtype">int</span> <a class="code" href="system_8h.html#a25a65f97575a9e4d3eabd9d6d9f15f8b">kinc_height</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="window_8h.html#a5a0af1050adf8298b406b2b60e6be5e6">kinc_window_height</a>(0);</div>
-<div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;}</div>
-<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160; </div>
-<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;<span class="preprocessor">#ifndef KHA</span></div>
-<div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;<span class="keywordtype">void</span> kinc_memory_emergency(<span class="keywordtype">void</span>) {}</div>
-<div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160; </div>
-<div class="line"><a name="l00618"></a><span class="lineno">  618</span>&#160;<span class="preprocessor">#if !defined(KORE_SONY) &amp;&amp; !defined(KORE_SWITCH)</span></div>
-<div class="line"><a name="l00619"></a><span class="lineno">  619</span>&#160;<span class="keyword">static</span> <span class="keywordtype">float</span> safe_zone = 0.9f;</div>
+<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;<span class="preprocessor">#if !defined(KORE_SONY) &amp;&amp; !defined(KORE_SWITCH)</span></div>
+<div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;<span class="keyword">static</span> <span class="keywordtype">float</span> safe_zone = 0.9f;</div>
+<div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160; </div>
+<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;<span class="keywordtype">float</span> <a class="code" href="system_8h.html#ae83f2e418622946b63582185b854ba7f">kinc_safe_zone</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;    <span class="keywordflow">return</span> 1.0f;</div>
+<div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160;    <span class="keywordflow">return</span> safe_zone;</div>
+<div class="line"><a name="l00618"></a><span class="lineno">  618</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00619"></a><span class="lineno">  619</span>&#160;}</div>
 <div class="line"><a name="l00620"></a><span class="lineno">  620</span>&#160; </div>
-<div class="line"><a name="l00621"></a><span class="lineno">  621</span>&#160;<span class="keywordtype">float</span> <a class="code" href="system_8h.html#ae83f2e418622946b63582185b854ba7f">kinc_safe_zone</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00621"></a><span class="lineno">  621</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="system_8h.html#a4124d1a8a0b3d6175c9dcb0ee8fe2dcb">kinc_automatic_safe_zone</a>(<span class="keywordtype">void</span>) {</div>
 <div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
-<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;    <span class="keywordflow">return</span> 1.0f;</div>
+<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00624"></a><span class="lineno">  624</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160;    <span class="keywordflow">return</span> safe_zone;</div>
+<div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00627"></a><span class="lineno">  627</span>&#160;}</div>
 <div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160; </div>
-<div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="system_8h.html#a4124d1a8a0b3d6175c9dcb0ee8fe2dcb">kinc_automatic_safe_zone</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
-<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00635"></a><span class="lineno">  635</span>&#160;}</div>
-<div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160; </div>
-<div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a43652a8703e0070b96bb5bcd3bb7c54f">kinc_set_safe_zone</a>(<span class="keywordtype">float</span> value) {</div>
-<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160;    safe_zone = value;</div>
-<div class="line"><a name="l00639"></a><span class="lineno">  639</span>&#160;}</div>
-<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160; </div>
-<div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160;<span class="preprocessor">#if !defined(KORE_SONY)</span></div>
-<div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;<span class="keywordtype">bool</span> is_save_load_initialized(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a43652a8703e0070b96bb5bcd3bb7c54f">kinc_set_safe_zone</a>(<span class="keywordtype">float</span> value) {</div>
+<div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;    safe_zone = value;</div>
+<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;}</div>
+<div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160; </div>
+<div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;<span class="preprocessor">#if !defined(KORE_SONY)</span></div>
+<div class="line"><a name="l00635"></a><span class="lineno">  635</span>&#160;<span class="keywordtype">bool</span> is_save_load_initialized(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;}</div>
+<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160; </div>
+<div class="line"><a name="l00639"></a><span class="lineno">  639</span>&#160;<span class="keywordtype">bool</span> is_ps4_japanese_button_style(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;}</div>
+<div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160; </div>
+<div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;<span class="keywordtype">bool</span> is_save_load_broken(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;}</div>
-<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160; </div>
-<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;<span class="keywordtype">bool</span> is_ps4_japanese_button_style(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;}</div>
-<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160; </div>
-<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;<span class="keywordtype">bool</span> is_save_load_broken(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;}</div>
-<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160; </div>
-<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;<span class="preprocessor">#if !defined(KORE_CONSOLE)</span></div>
-<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160; </div>
-<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;<span class="preprocessor">#define SAVE_RESULT_NONE 0</span></div>
-<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;<span class="preprocessor">#define SAVE_RESULT_SUCCESS 1</span></div>
-<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;<span class="preprocessor">#define SAVE_RESULT_FAILURE 2</span></div>
-<div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160;<span class="keyword">volatile</span> <span class="keywordtype">int</span> save_result = SAVE_RESULT_SUCCESS;</div>
-<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160; </div>
-<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#ae3cff890e0fb4d106b8a41eee62740da">kinc_disallow_user_change</a>(<span class="keywordtype">void</span>) {}</div>
-<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160; </div>
-<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a55ee4bb3957f21012ae1327f4ce8ad11">kinc_allow_user_change</a>(<span class="keywordtype">void</span>) {}</div>
-<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160; </div>
-<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;<span class="keyword">static</span> uint8_t *current_file = NULL;</div>
-<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;<span class="keyword">static</span> <span class="keywordtype">size_t</span> current_file_size = 0;</div>
+<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160; </div>
+<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;<span class="preprocessor">#if !defined(KORE_CONSOLE)</span></div>
+<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160; </div>
+<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;<span class="preprocessor">#define SAVE_RESULT_NONE 0</span></div>
+<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;<span class="preprocessor">#define SAVE_RESULT_SUCCESS 1</span></div>
+<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;<span class="preprocessor">#define SAVE_RESULT_FAILURE 2</span></div>
+<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;<span class="keyword">volatile</span> <span class="keywordtype">int</span> save_result = SAVE_RESULT_SUCCESS;</div>
+<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160; </div>
+<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#ae3cff890e0fb4d106b8a41eee62740da">kinc_disallow_user_change</a>(<span class="keywordtype">void</span>) {}</div>
+<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160; </div>
+<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a55ee4bb3957f21012ae1327f4ce8ad11">kinc_allow_user_change</a>(<span class="keywordtype">void</span>) {}</div>
+<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160; </div>
+<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;<span class="keyword">static</span> uint8_t *current_file = NULL;</div>
+<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;<span class="keyword">static</span> <span class="keywordtype">size_t</span> current_file_size = 0;</div>
+<div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160; </div>
+<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;<span class="keywordtype">bool</span> kinc_save_file_loaded(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;}</div>
+<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160; </div>
+<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;uint8_t *kinc_get_save_file(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;    <span class="keywordflow">return</span> current_file;</div>
+<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;}</div>
 <div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160; </div>
-<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;<span class="keywordtype">bool</span> kinc_save_file_loaded(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;<span class="keywordtype">size_t</span> kinc_get_save_file_size(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;    <span class="keywordflow">return</span> current_file_size;</div>
 <div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;}</div>
 <div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160; </div>
-<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;uint8_t *kinc_get_save_file(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;    <span class="keywordflow">return</span> current_file;</div>
-<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;}</div>
-<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160; </div>
-<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;<span class="keywordtype">size_t</span> kinc_get_save_file_size(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;    <span class="keywordflow">return</span> current_file_size;</div>
-<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;}</div>
-<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160; </div>
-<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;<span class="keywordtype">void</span> kinc_load_save_file(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
-<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;    free(current_file);</div>
-<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;    current_file = NULL;</div>
-<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;    current_file_size = 0;</div>
-<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160; </div>
-<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;    <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> reader;</div>
-<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(&amp;reader, filename, KINC_FILE_TYPE_SAVE)) {</div>
-<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;        current_file_size = <a class="code" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;reader);</div>
-<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;        current_file = (uint8_t *)malloc(current_file_size);</div>
-<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;        <a class="code" href="filereader_8h.html#a8bd239fe960ab538e08af9f56077c196">kinc_file_reader_read</a>(&amp;reader, current_file, current_file_size);</div>
-<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;        <a class="code" href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a>(&amp;reader);</div>
+<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;<span class="keywordtype">void</span> kinc_load_save_file(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
+<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;    free(current_file);</div>
+<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;    current_file = NULL;</div>
+<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;    current_file_size = 0;</div>
+<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160; </div>
+<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;    <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> reader;</div>
+<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(&amp;reader, filename, KINC_FILE_TYPE_SAVE)) {</div>
+<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;        current_file_size = <a class="code" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;reader);</div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;        current_file = (uint8_t *)malloc(current_file_size);</div>
+<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;        <a class="code" href="filereader_8h.html#a8bd239fe960ab538e08af9f56077c196">kinc_file_reader_read</a>(&amp;reader, current_file, current_file_size);</div>
+<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;        <a class="code" href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a>(&amp;reader);</div>
+<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;    }</div>
+<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;}</div>
+<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160; </div>
+<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;<span class="keywordtype">void</span> kinc_save_save_file(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename, uint8_t *data, <span class="keywordtype">size_t</span> size) {</div>
+<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;    <a class="code" href="structkinc__file__writer.html">kinc_file_writer_t</a> writer;</div>
+<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="filewriter_8h.html#a799e118e90115583a2066644b059d44e">kinc_file_writer_open</a>(&amp;writer, filename)) {</div>
+<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;        <a class="code" href="filewriter_8h.html#a7be488fcba6ea39422d5b280c05f8baa">kinc_file_writer_write</a>(&amp;writer, data, (<span class="keywordtype">int</span>)size);</div>
+<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;        <a class="code" href="filewriter_8h.html#abb2246ce01383b0f4c34751a9103b6b7">kinc_file_writer_close</a>(&amp;writer);</div>
 <div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;    }</div>
 <div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;}</div>
 <div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160; </div>
-<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;<span class="keywordtype">void</span> kinc_save_save_file(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename, uint8_t *data, <span class="keywordtype">size_t</span> size) {</div>
-<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;    <a class="code" href="structkinc__file__writer.html">kinc_file_writer_t</a> writer;</div>
-<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="filewriter_8h.html#a799e118e90115583a2066644b059d44e">kinc_file_writer_open</a>(&amp;writer, filename)) {</div>
-<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;        <a class="code" href="filewriter_8h.html#a7be488fcba6ea39422d5b280c05f8baa">kinc_file_writer_write</a>(&amp;writer, data, (<span class="keywordtype">int</span>)size);</div>
-<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;        <a class="code" href="filewriter_8h.html#abb2246ce01383b0f4c34751a9103b6b7">kinc_file_writer_close</a>(&amp;writer);</div>
-<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;    }</div>
+<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;<span class="keywordtype">bool</span> kinc_save_is_saving(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;}</div>
+<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160; </div>
+<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="system_8h.html#a05526547baa3d2be1055e664a023dde1">kinc_waiting_for_login</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;}</div>
 <div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160; </div>
-<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;<span class="keywordtype">bool</span> kinc_save_is_saving(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;}</div>
-<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160; </div>
-<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="system_8h.html#a05526547baa3d2be1055e664a023dde1">kinc_waiting_for_login</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;}</div>
+<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;<span class="preprocessor">#if !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_LINUX) &amp;&amp; !defined(KORE_MACOS)</span></div>
+<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#ac28b5ac7548d6daf2aa7a5fb20dc98cd">kinc_copy_to_clipboard</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *text) {</div>
+<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;    <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_WARNING, <span class="stringliteral">&quot;Oh no, kinc_copy_to_clipboard is not implemented for this system.&quot;</span>);</div>
+<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;}</div>
+<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160; </div>
+<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160; </div>
-<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;<span class="preprocessor">#if !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_LINUX) &amp;&amp; !defined(KORE_MACOS)</span></div>
-<div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#ac28b5ac7548d6daf2aa7a5fb20dc98cd">kinc_copy_to_clipboard</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *text) {</div>
-<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;    <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_WARNING, <span class="stringliteral">&quot;Oh no, kinc_copy_to_clipboard is not implemented for this system.&quot;</span>);</div>
+<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160; </div>
+<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
 <div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;}</div>
 <div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160; </div>
-<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160; </div>
-<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160; </div>
-<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;}</div>
-<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="afilereader_8h_html"><div class="ttname"><a href="filereader_8h.html">filereader.h</a></div><div class="ttdoc">Provides an API very similar to fread and friends but handles the intricacies of where files are actu...</div></div>
 <div class="ttc" id="afilereader_8h_html_a4e30e4610f0e57dc244b8fb7a0271681"><div class="ttname"><a href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a></div><div class="ttdeci">KINC_FUNC bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filepath, int type)</div><div class="ttdoc">Opens a file for reading.</div></div>
 <div class="ttc" id="afilereader_8h_html_a72da9b6963f48433a7e89cf73e1c6f45"><div class="ttname"><a href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a></div><div class="ttdeci">KINC_FUNC size_t kinc_file_reader_size(kinc_file_reader_t *reader)</div><div class="ttdoc">Figures out the size of a file.</div></div>
