@@ -78,8 +78,6 @@ extern int kinc_ios_gl_framebuffer;
 #endif
 
 #ifdef KORE_METAL
-void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
-
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
@@ -92,7 +90,6 @@ void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> commandQueue);
 	device = MTLCreateSystemDefaultDevice();
 	commandQueue = [device newCommandQueue];
 	library = [device newDefaultLibrary];
-	initMetalCompute(device, commandQueue);
 
 	CAMetalLayer *metalLayer = (CAMetalLayer *)self.layer;
 
