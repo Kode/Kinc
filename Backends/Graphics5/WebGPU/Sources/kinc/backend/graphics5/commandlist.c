@@ -1,5 +1,6 @@
 #include <string.h>
 #include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/compute.h>
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/vertexbuffer.h>
@@ -124,6 +125,9 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 
 }
 
+void kinc_g5_command_list_set_compute_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
+
+}
 
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
 
@@ -152,3 +156,7 @@ void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigne
 void kinc_g5_command_list_set_texture_from_render_target(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *renderTarget) {}
 
 void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_render_target_t *renderTarget) {}
+
+void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_g5_compute_shader *shader) {}
+
+void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {}
