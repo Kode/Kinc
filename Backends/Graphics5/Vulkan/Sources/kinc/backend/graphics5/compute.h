@@ -2,22 +2,11 @@
 
 #include <kinc/backend/graphics5/ShaderHash.h>
 
-#include "graphics5/MiniVulkan.h"
+#include "MiniVulkan.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef struct {
-	uint32_t offset;
-	uint32_t size;
-	uint8_t columns;
-	uint8_t rows;
-} kinc_compute_constant_location_impl_t;
-
-typedef struct {
-	int unit;
-} kinc_compute_texture_unit_impl_t;
 
 typedef struct {
 	uint32_t hash;
@@ -27,7 +16,7 @@ typedef struct {
 	uint8_t rows;
 } kinc_compute_internal_shader_constant_t;
 
-typedef struct {
+typedef struct kinc_g5_compute_shader_impl {
 	kinc_compute_internal_shader_constant_t constants[64];
 	int constantsSize;
 	kinc_internal_hash_index_t attributes[64];
@@ -38,7 +27,7 @@ typedef struct {
 	VkDescriptorSet descriptor_set;
 	VkPipelineLayout pipeline_layout;
 	VkPipeline pipeline;
-} kinc_compute_shader_impl_t;
+} kinc_g5_compute_shader_impl;
 
 #ifdef __cplusplus
 }

@@ -2,6 +2,7 @@
 #include "vulkan.h"
 
 #include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/compute.h>
 #include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/vertexbuffer.h>
@@ -22,6 +23,7 @@ kinc_g5_render_target_t *currentRenderTargets[8] = {NULL, NULL, NULL, NULL, NULL
 static bool onBackBuffer = false;
 static uint32_t lastVertexConstantBufferOffset = 0;
 static uint32_t lastFragmentConstantBufferOffset = 0;
+static uint32_t lastComputeConstantBufferOffset = 0;
 static kinc_g5_pipeline_t *currentPipeline = NULL;
 static int mrtIndex = 0;
 static VkFramebuffer mrtFramebuffer[16];
@@ -804,6 +806,14 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->impl.pipeline_layout, 0, 1, &descriptor_set, 2, offsets);
 }
 
+void kinc_g5_command_list_set_compute_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
+	lastComputeConstantBufferOffset = offset;
+
+	VkDescriptorSet descriptor_set = getDescriptorSet();
+	uint32_t offsets[1] = {lastComputeConstantBufferOffset};
+	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, currentPipeline->impl.pipeline_layout, 0, 1, &descriptor_set, 1, offsets);
+}
+
 static bool wait_for_framebuffer = false;
 
 static void command_list_should_wait_for_framebuffer(void) {
@@ -888,4 +898,13 @@ void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_l
 	target->impl.stage_depth = unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT];
 	vulkanRenderTargets[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = target;
 	vulkanTextures[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = NULL;
+}
+
+void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_g5_compute_shader *shader) {
+	vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, shader->impl.pipeline);
+	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, shader->impl.pipeline_layout, 0, 1, &shader->impl.descriptor_set, 0, 0);
+}
+
+void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {
+	vkCmdDispatch(list->impl._buffer, x, y, z);
 }

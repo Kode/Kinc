@@ -37,6 +37,7 @@ typedef struct ComputePipelineState5Impl_t {
 typedef struct {
 	int vertexOffset;
 	int fragmentOffset;
+	int computeOffset;
 } ConstantLocation5Impl;
 
 typedef struct {
