@@ -125,7 +125,8 @@ void kinc_g5_internal_set_textures(kinc_g5_command_list_t *list) {
 		list->impl._commandList->SetDescriptorHeaps(2, heaps);
 		if (compute_pipeline_set) {
 			list->impl._commandList->SetComputeRootDescriptorTable(0, srvGpu);
-			list->impl._commandList->SetComputeRootDescriptorTable(1, samplerGpu);
+			list->impl._commandList->SetComputeRootDescriptorTable(1, srvGpu);
+			list->impl._commandList->SetComputeRootDescriptorTable(2, samplerGpu);
 		}
 		else {
 			list->impl._commandList->SetGraphicsRootDescriptorTable(0, srvGpu);
