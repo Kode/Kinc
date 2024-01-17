@@ -25,4 +25,4 @@ jobs:
     - name: Compile
       run: .\make.bat -v vs2022 -g vulkan --kinc . --from Tests/Empty --compile
       env:
-        VULKAN_SDK: C:\VulkanSDK\1.2.189.2
+        VULKAN_SDK: C:\VulkanSDK\1.3.275.0
