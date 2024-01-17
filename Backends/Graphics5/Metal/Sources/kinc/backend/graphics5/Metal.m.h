@@ -81,6 +81,7 @@ static void start_render_pass(void) {
 
 static void end_render_pass(void) {
 	[render_command_encoder endEncoding];
+	render_command_encoder = nil;
 }
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {

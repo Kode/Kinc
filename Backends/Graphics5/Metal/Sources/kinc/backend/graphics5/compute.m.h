@@ -39,7 +39,7 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 		library = [device newLibraryWithSource:[[NSString alloc] initWithBytes:data length:length encoding:NSUTF8StringEncoding] options:nil error:nil];
 	}
 	id<MTLFunction> function = [library newFunctionWithName:[NSString stringWithCString:shader->impl.name encoding:NSUTF8StringEncoding]];
-	assert(shader->impl._function != nil);
+	assert(function != nil);
 	shader->impl._function = (__bridge_retained void *)function;
 
 	id<MTLDevice> device = getMetalDevice();

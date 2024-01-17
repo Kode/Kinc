@@ -281,7 +281,7 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 void kinc_g5_command_list_set_compute_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	assert(compute_command_encoder != nil);
 	id<MTLBuffer> buf = (__bridge id<MTLBuffer>)buffer->impl._buffer;
-	[compute_command_encoder setBuffer:buf offset:offset atIndex:0];
+	[compute_command_encoder setBuffer:buf offset:offset atIndex:1];
 }
 
 void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
@@ -308,7 +308,9 @@ void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_text
 	}
 }
 
-void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
+void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
+	kinc_g5_command_list_set_texture(list, unit, texture);
+}
 
 bool kinc_g5_command_list_init_occlusion_query(kinc_g5_command_list_t *list, unsigned *occlusionQuery) {
 	return false;
@@ -384,6 +386,8 @@ void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, in
 	[compute_command_encoder dispatchThreadgroups:perGrid threadsPerThreadgroup:perGroup];
 
 	[compute_command_encoder endEncoding];
+	
+	compute_command_encoder = nil;
 
 	start_render_pass();
 }

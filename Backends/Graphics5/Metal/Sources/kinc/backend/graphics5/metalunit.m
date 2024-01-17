@@ -1,9 +1,9 @@
 #import <Metal/Metal.h>
 #import <MetalKit/MTKView.h>
 
-static id<MTLCommandBuffer> command_buffer;
-static id<MTLRenderCommandEncoder> render_command_encoder;
-static id<MTLComputeCommandEncoder> compute_command_encoder;
+static id<MTLCommandBuffer> command_buffer = nil;
+static id<MTLRenderCommandEncoder> render_command_encoder = nil;
+static id<MTLComputeCommandEncoder> compute_command_encoder = nil;
 
 static void start_render_pass(void);
 static void end_render_pass(void);
