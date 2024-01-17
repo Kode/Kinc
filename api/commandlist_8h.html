@@ -166,6 +166,9 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <tr class="memitem:adf39bd8f0d489388f116e2033929e9cc"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#adf39bd8f0d489388f116e2033929e9cc">kinc_g5_command_list_set_pipeline</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, struct <a class="el" href="structkinc__g5__pipeline.html">kinc_g5_pipeline</a> *pipeline)</td></tr>
 <tr class="memdesc:adf39bd8f0d489388f116e2033929e9cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a command to set the pipeline for the next draw-call. The pipeline defines most rendering-state including the shaders to be used.  <a href="commandlist_8h.html#adf39bd8f0d489388f116e2033929e9cc">More...</a><br /></td></tr>
 <tr class="separator:adf39bd8f0d489388f116e2033929e9cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acee17838f2bd78d6de2867b0f58b114e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#acee17838f2bd78d6de2867b0f58b114e">kinc_g5_command_list_set_compute_shader</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, struct <a class="el" href="structkinc__g5__compute__shader.html">kinc_g5_compute_shader</a> *shader)</td></tr>
+<tr class="memdesc:acee17838f2bd78d6de2867b0f58b114e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a command to set the compute shader for the next compute-call.  <a href="commandlist_8h.html#acee17838f2bd78d6de2867b0f58b114e">More...</a><br /></td></tr>
+<tr class="separator:acee17838f2bd78d6de2867b0f58b114e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53e54e9d391eaf4ad9becc27e1656256"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a53e54e9d391eaf4ad9becc27e1656256">kinc_g5_command_list_set_blend_constant</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, float r, float g, float b, float a)</td></tr>
 <tr class="memdesc:a53e54e9d391eaf4ad9becc27e1656256"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the blend constant used for <code>KINC_G5_BLEND_CONSTANT</code> or <code>KINC_G5_INV_BLEND_CONSTANT</code>  <a href="commandlist_8h.html#a53e54e9d391eaf4ad9becc27e1656256">More...</a><br /></td></tr>
 <tr class="separator:a53e54e9d391eaf4ad9becc27e1656256"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -193,6 +196,9 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 <tr class="memitem:a0a5f905b11a8176588e2536184998639"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a0a5f905b11a8176588e2536184998639">kinc_g5_command_list_set_fragment_constant_buffer</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, struct <a class="el" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a> *buffer, int offset, size_t size)</td></tr>
 <tr class="memdesc:a0a5f905b11a8176588e2536184998639"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a command that sets a constant-buffer for the fragment-shader-stage.  <a href="commandlist_8h.html#a0a5f905b11a8176588e2536184998639">More...</a><br /></td></tr>
 <tr class="separator:a0a5f905b11a8176588e2536184998639"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab93525a180bb7b10955284d1f6b98823"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#ab93525a180bb7b10955284d1f6b98823">kinc_g5_command_list_set_compute_constant_buffer</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list, struct <a class="el" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a> *buffer, int offset, size_t size)</td></tr>
+<tr class="memdesc:ab93525a180bb7b10955284d1f6b98823"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a command that sets a constant-buffer for the compute-shader-stage.  <a href="commandlist_8h.html#ab93525a180bb7b10955284d1f6b98823">More...</a><br /></td></tr>
+<tr class="separator:ab93525a180bb7b10955284d1f6b98823"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="commandlist_8h.html#a15ca6e1e3764a23e40f4ee5df44f6fb8">kinc_g5_command_list_execute</a> (<a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *list)</td></tr>
 <tr class="memdesc:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kicks off execution of the commands which have been recorded in the command-list. kinc_g5_command_list_end has to be called beforehand.  <a href="commandlist_8h.html#a15ca6e1e3764a23e40f4ee5df44f6fb8">More...</a><br /></td></tr>
 <tr class="separator:a15ca6e1e3764a23e40f4ee5df44f6fb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -894,6 +900,94 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g5_com
 </div><div class="memdoc">
 
 <p>Sets the blend constant used for <code>KINC_G5_BLEND_CONSTANT</code> or <code>KINC_G5_INV_BLEND_CONSTANT</code> </p>
+
+</div>
+</div>
+<a id="ab93525a180bb7b10955284d1f6b98823"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab93525a180bb7b10955284d1f6b98823">&#9670;&nbsp;</a></span>kinc_g5_command_list_set_compute_constant_buffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_command_list_set_compute_constant_buffer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
+          <td class="paramname"><em>list</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structkinc__g5__constant__buffer.html">kinc_g5_constant_buffer</a> *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Writes a command that sets a constant-buffer for the compute-shader-stage. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
+    <tr><td class="paramname">buffer</td><td>The buffer to set</td></tr>
+    <tr><td class="paramname">offset</td><td>The offset into the buffer in bytes to use as the start</td></tr>
+    <tr><td class="paramname">size</td><td>The size of the buffer to use in bytes starting at the offset</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="acee17838f2bd78d6de2867b0f58b114e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acee17838f2bd78d6de2867b0f58b114e">&#9670;&nbsp;</a></span>kinc_g5_command_list_set_compute_shader()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g5_command_list_set_compute_shader </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__g5__command__list.html">kinc_g5_command_list_t</a> *&#160;</td>
+          <td class="paramname"><em>list</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structkinc__g5__compute__shader.html">kinc_g5_compute_shader</a> *&#160;</td>
+          <td class="paramname"><em>shader</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Writes a command to set the compute shader for the next compute-call. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">list</td><td>The list to write the command to</td></tr>
+    <tr><td class="paramname">pipeline</td><td>The compute shader to set</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
