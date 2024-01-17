@@ -7,40 +7,6 @@
 id getMetalDevice(void);
 id getMetalLibrary(void);
 
-static id<MTLCommandQueue> commandQueue;
-static id<MTLCommandBuffer> commandBuffer;
-static id<MTLComputeCommandEncoder> commandEncoder;
-static id<MTLBuffer> buffer;
-
-void initMetalCompute(id<MTLDevice> device, id<MTLCommandQueue> queue) {
-	commandQueue = queue;
-	commandBuffer = [commandQueue commandBuffer];
-	commandEncoder = [commandBuffer computeCommandEncoder];
-	buffer = [device newBufferWithLength:constantsSize options:MTLResourceOptionCPUCacheModeDefault];
-	constantsMemory = (uint8_t *)[buffer contents];
-}
-
-void shutdownMetalCompute(void) {
-	[commandEncoder endEncoding];
-	commandEncoder = nil;
-	commandBuffer = nil;
-	commandQueue = nil;
-}
-
-void kinc_g5_compute_shader_destroy(kinc_g5_compute_shader *shader) {
-	id<MTLFunction> function = (__bridge_transfer id<MTLFunction>)shader->impl._function;
-	function = nil;
-	shader->impl._function = NULL;
-
-	id<MTLComputePipelineState> pipeline = (__bridge_transfer id<MTLComputePipelineState>)shader->impl._pipeline;
-	pipeline = nil;
-	shader->impl._pipeline = NULL;
-
-	MTLComputePipelineReflection *reflection = (__bridge_transfer MTLComputePipelineReflection *)shader->impl._reflection;
-	reflection = nil;
-	shader->impl._reflection = NULL;
-}
-
 void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, int length) {
 	shader->impl.name[0] = 0;
 
@@ -89,9 +55,25 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 	shader->impl._reflection = (__bridge_retained void *)reflection;
 }
 
+void kinc_g5_compute_shader_destroy(kinc_g5_compute_shader *shader) {
+	id<MTLFunction> function = (__bridge_transfer id<MTLFunction>)shader->impl._function;
+	function = nil;
+	shader->impl._function = NULL;
+
+	id<MTLComputePipelineState> pipeline = (__bridge_transfer id<MTLComputePipelineState>)shader->impl._pipeline;
+	pipeline = nil;
+	shader->impl._pipeline = NULL;
+
+	MTLComputePipelineReflection *reflection = (__bridge_transfer MTLComputePipelineReflection *)shader->impl._reflection;
+	reflection = nil;
+	shader->impl._reflection = NULL;
+}
+
 kinc_g5_constant_location_t kinc_g5_compute_shader_get_constant_location(kinc_g5_compute_shader *shader, const char *name) {
 	kinc_g5_constant_location_t location;
-	location.impl._offset = -1;
+	location.impl.vertexOffset = -1;
+	location.impl.fragmentOffset = -1;
+	location.impl.computeOffset = -1;
 
 	MTLComputePipelineReflection *reflection = (__bridge MTLComputePipelineReflection *)shader->impl._reflection;
 
@@ -101,7 +83,7 @@ kinc_g5_constant_location_t kinc_g5_compute_shader_get_constant_location(kinc_g5
 				MTLStructType *structObj = [arg bufferStructType];
 				for (MTLStructMember *member in structObj.members) {
 					if (strcmp([[member name] UTF8String], name) == 0) {
-						location.impl._offset = (int)[member offset];
+						location.impl.computeOffset = (int)[member offset];
 						break;
 					}
 				}
@@ -115,40 +97,16 @@ kinc_g5_constant_location_t kinc_g5_compute_shader_get_constant_location(kinc_g5
 
 kinc_g5_texture_unit_t kinc_g5_compute_shader_get_texture_unit(kinc_g5_compute_shader *shader, const char *name) {
 	kinc_g5_texture_unit_t unit;
-	unit.impl._index = -1;
+	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
+		unit.stages[i] = -1;
+	}
 
 	MTLComputePipelineReflection *reflection = (__bridge MTLComputePipelineReflection *)shader->impl._reflection;
 	for (MTLArgument *arg in reflection.arguments) {
 		if ([arg type] == MTLArgumentTypeTexture && strcmp([[arg name] UTF8String], name) == 0) {
-			unit.impl._index = (int)[arg index];
+			unit.stages[KINC_G5_SHADER_TYPE_COMPUTE] = (int)[arg index];
 		}
 	}
 
 	return unit;
-}
-
-void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
-	id<MTLComputePipelineState> pipeline = (__bridge id<MTLComputePipelineState>)shader->impl._pipeline;
-	[commandEncoder setComputePipelineState:pipeline];
-}
-
-void kinc_compute(int x, int y, int z) {
-	[commandEncoder setBuffer:buffer offset:0 atIndex:0];
-
-	MTLSize perGrid;
-	perGrid.width = x;
-	perGrid.height = y;
-	perGrid.depth = z;
-	MTLSize perGroup;
-	perGroup.width = 16;
-	perGroup.height = 16;
-	perGroup.depth = 1;
-	[commandEncoder dispatchThreadgroups:perGrid threadsPerThreadgroup:perGroup];
-
-	[commandEncoder endEncoding];
-	[commandBuffer commit];
-	[commandBuffer waitUntilCompleted];
-
-	commandBuffer = [commandQueue commandBuffer];
-	commandEncoder = [commandBuffer computeCommandEncoder];
 }

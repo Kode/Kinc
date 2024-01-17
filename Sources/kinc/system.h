@@ -562,10 +562,6 @@ void kinc_set_application_name(const char *name) {
 	strcpy(application_name, name);
 }
 
-#ifdef KORE_METAL
-void shutdownMetalCompute(void);
-#endif
-
 void kinc_stop(void) {
 	running = false;
 
@@ -574,10 +570,6 @@ void kinc_stop(void) {
 	// for (int windowIndex = 0; windowIndex < sizeof(windowIds) / sizeof(int); ++windowIndex) {
 	//	Graphics::destroy(windowIndex);
 	//}
-
-#ifdef KORE_METAL
-	shutdownMetalCompute();
-#endif
 }
 
 bool kinc_internal_frame(void) {

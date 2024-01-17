@@ -20,4 +20,5 @@ typedef struct {
 typedef struct {
 	int vertexOffset;
 	int fragmentOffset;
+	int computeOffset;
 } ConstantLocation5Impl;

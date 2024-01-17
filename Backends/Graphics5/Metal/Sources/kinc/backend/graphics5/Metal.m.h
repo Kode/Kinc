@@ -20,8 +20,6 @@ int newRenderTargetWidth;
 int newRenderTargetHeight;
 
 id<CAMetalDrawable> drawable;
-id<MTLCommandBuffer> commandBuffer;
-id<MTLRenderCommandEncoder> commandEncoder;
 id<MTLTexture> depthTexture;
 int depthBits;
 int stencilBits;
@@ -29,7 +27,7 @@ int stencilBits;
 static kinc_g5_render_target_t fallback_render_target;
 
 id getMetalEncoder(void) {
-	return commandEncoder;
+	return render_command_encoder;
 }
 
 void kinc_g5_internal_destroy_window(int window) {}
@@ -60,6 +58,29 @@ bool kinc_internal_metal_has_depth = false;
 
 bool kinc_internal_current_render_target_has_depth(void) {
 	return kinc_internal_metal_has_depth;
+}
+
+static void start_render_pass(void) {
+	id<MTLTexture> texture = drawable.texture;
+	MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+	renderPassDescriptor.colorAttachments[0].texture = texture;
+	renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+	renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+	renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+	renderPassDescriptor.depthAttachment.clearDepth = 1;
+	renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+	renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+	renderPassDescriptor.depthAttachment.texture = depthTexture;
+	renderPassDescriptor.stencilAttachment.clearStencil = 0;
+	renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
+	renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
+	renderPassDescriptor.stencilAttachment.texture = depthTexture;
+	
+	render_command_encoder = [command_buffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+}
+
+static void end_render_pass(void) {
+	[render_command_encoder endEncoding];
 }
 
 void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
@@ -100,27 +121,27 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int window) {
 	renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
 	renderPassDescriptor.stencilAttachment.texture = depthTexture;
 
-	if (commandBuffer != nil && commandEncoder != nil) {
-		[commandEncoder endEncoding];
-		[commandBuffer commit];
+	if (command_buffer != nil && render_command_encoder != nil) {
+		[render_command_encoder endEncoding];
+		[command_buffer commit];
 	}
 
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
-	commandBuffer = [commandQueue commandBuffer];
-	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+	command_buffer = [commandQueue commandBuffer];
+	render_command_encoder = [command_buffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
 
 void kinc_g5_end(int window) {}
 
 bool kinc_g5_swap_buffers(void) {
-	if (commandBuffer != nil && commandEncoder != nil) {
-		[commandEncoder endEncoding];
-		[commandBuffer presentDrawable:drawable];
-		[commandBuffer commit];
+	if (command_buffer != nil && render_command_encoder != nil) {
+		[render_command_encoder endEncoding];
+		[command_buffer presentDrawable:drawable];
+		[command_buffer commit];
 	}
 	drawable = nil;
-	commandBuffer = nil;
-	commandEncoder = nil;
+	command_buffer = nil;
+	render_command_encoder = nil;
 
 	return true;
 }
@@ -131,11 +152,11 @@ bool kinc_window_vsynced(int window) {
 
 void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, int count, bool wait, unsigned clear_flags, unsigned color, float depth,
                                       int stencil) {
-	if (commandBuffer != nil && commandEncoder != nil) {
-		[commandEncoder endEncoding];
-		[commandBuffer commit];
+	if (command_buffer != nil && render_command_encoder != nil) {
+		[render_command_encoder endEncoding];
+		[command_buffer commit];
 		if (wait) {
-			[commandBuffer waitUntilCompleted];
+			[command_buffer waitUntilCompleted];
 		}
 	}
 
@@ -198,8 +219,8 @@ void kinc_g5_internal_new_render_pass(kinc_g5_render_target_t **renderTargets, i
 	}
 
 	id<MTLCommandQueue> commandQueue = getMetalQueue();
-	commandBuffer = [commandQueue commandBuffer];
-	commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+	command_buffer = [commandQueue commandBuffer];
+	render_command_encoder = [command_buffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
 
 bool kinc_g5_supports_raytracing(void) {

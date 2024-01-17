@@ -1,4 +1,5 @@
 #include <kinc/graphics5/commandlist.h>
+#include <kinc/graphics5/compute.h>
 #include <kinc/graphics5/constantbuffer.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/indexbuffer.h>
@@ -277,6 +278,12 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 	[encoder setFragmentBuffer:buf offset:offset atIndex:0];
 }
 
+void kinc_g5_command_list_set_compute_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
+	assert(compute_command_encoder != nil);
+	id<MTLBuffer> buf = (__bridge id<MTLBuffer>)buffer->impl._buffer;
+	[compute_command_encoder setBuffer:buf offset:offset atIndex:0];
+}
+
 void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {
 #ifndef KINC_APPLE_SOC
 	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
@@ -287,13 +294,17 @@ void kinc_g5_command_list_render_target_to_texture_barrier(kinc_g5_command_list_
 void kinc_g5_command_list_texture_to_render_target_barrier(kinc_g5_command_list_t *list, struct kinc_g5_render_target *renderTarget) {}
 
 void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
-	id<MTLRenderCommandEncoder> encoder = getMetalEncoder();
 	id<MTLTexture> tex = (__bridge id<MTLTexture>)texture->impl._tex;
-	if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
-		[encoder setVertexTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
+	if (compute_command_encoder != nil) {
+		[compute_command_encoder setTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_COMPUTE]];
 	}
-	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
-		[encoder setFragmentTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]];
+	else {
+		if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+			[render_command_encoder setVertexTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_VERTEX]];
+		}
+		if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+			[render_command_encoder setFragmentTexture:tex atIndex:unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]];
+		}
 	}
 }
 
@@ -347,4 +358,32 @@ void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_text
 	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
 		[encoder setFragmentSamplerState:mtl_sampler atIndex:unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]];
 	}
+}
+
+void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_g5_compute_shader *shader) {
+	if (compute_command_encoder == nil) {
+		end_render_pass();
+		compute_command_encoder = [command_buffer computeCommandEncoder];
+	}
+	
+	id<MTLComputePipelineState> pipeline = (__bridge id<MTLComputePipelineState>)shader->impl._pipeline;
+	[compute_command_encoder setComputePipelineState:pipeline];
+}
+
+void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {
+	assert(compute_command_encoder != nil);
+	
+	MTLSize perGrid;
+	perGrid.width = x;
+	perGrid.height = y;
+	perGrid.depth = z;
+	MTLSize perGroup;
+	perGroup.width = 16;
+	perGroup.height = 16;
+	perGroup.depth = 1;
+	[compute_command_encoder dispatchThreadgroups:perGrid threadsPerThreadgroup:perGroup];
+
+	[compute_command_encoder endEncoding];
+
+	start_render_pass();
 }
