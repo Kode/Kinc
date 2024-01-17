@@ -187,7 +187,7 @@ kinc_g4_texture_unit_t kinc_g4_compute_shader_get_texture_unit(kinc_g4_compute_s
 }
 #endif
 
-void kinc_g4_compute_set_shader(kinc_g4_compute_shader *shader) {
+void kinc_g4_set_compute_shader(kinc_g4_compute_shader *shader) {
 	dx_ctx.context->lpVtbl->CSSetShader(dx_ctx.context, (ID3D11ComputeShader *)shader->impl.shader, NULL, 0);
 #ifndef KINC_KONG
 	dx_ctx.context->lpVtbl->UpdateSubresource(dx_ctx.context, (ID3D11Resource *)shader->impl.constantBuffer, 0, NULL, computeConstants, 0, 0);
