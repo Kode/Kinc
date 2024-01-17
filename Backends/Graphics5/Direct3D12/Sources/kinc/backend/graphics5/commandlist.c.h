@@ -55,6 +55,8 @@ void kinc_g5_internal_reset_textures(struct kinc_g5_command_list *list);
 void kinc_g5_command_list_begin(struct kinc_g5_command_list *list) {
 	assert(!list->impl.open);
 
+	compute_pipeline_set = false;
+
 	if (list->impl.fence_value > 0) {
 		waitForFence(list->impl.fence, list->impl.fence_value, list->impl.fence_event);
 		list->impl._commandAllocator->Reset();
@@ -310,6 +312,8 @@ void kinc_g5_command_list_set_pipeline(struct kinc_g5_command_list *list, kinc_g
 
 	list->impl._currentPipeline = pipeline;
 	list->impl._commandList->SetPipelineState(pipeline->impl.pso);
+	compute_pipeline_set = false;
+
 	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
 		list->impl.currentRenderTargets[i] = NULL;
 		list->impl.currentTextures[i] = NULL;
@@ -524,6 +528,7 @@ void kinc_g5_internal_set_compute_constants(kinc_g5_command_list_t *commandList)
 
 void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_g5_compute_shader *shader) {
 	list->impl._commandList->SetPipelineState(shader->impl.pso);
+	compute_pipeline_set = true;
 
 	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
 		list->impl.currentRenderTargets[i] = NULL;
@@ -546,6 +551,9 @@ void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_text
 	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
 		kinc_g5_internal_texture_set(list, texture, unit.stages[KINC_G5_SHADER_TYPE_VERTEX]);
 	}
+	else if (unit.stages[KINC_G5_SHADER_TYPE_COMPUTE] >= 0) {
+		kinc_g5_internal_texture_set(list, texture, unit.stages[KINC_G5_SHADER_TYPE_COMPUTE]);
+	}
 	kinc_g5_internal_set_textures(list);
 }
 
@@ -565,7 +573,18 @@ bool kinc_g5_command_list_init_occlusion_query(kinc_g5_command_list_t *list, uns
 	return false;
 }
 
-void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
+void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		kinc_g5_internal_texture_set(list, texture, unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]);
+	}
+	else if (unit.stages[KINC_G5_SHADER_TYPE_VERTEX] >= 0) {
+		kinc_g5_internal_texture_set(list, texture, unit.stages[KINC_G5_SHADER_TYPE_VERTEX]);
+	}
+	else if (unit.stages[KINC_G5_SHADER_TYPE_COMPUTE] >= 0) {
+		kinc_g5_internal_texture_set(list, texture, unit.stages[KINC_G5_SHADER_TYPE_COMPUTE]);
+	}
+	kinc_g5_internal_set_textures(list);
+}
 
 void kinc_g5_command_list_delete_occlusion_query(kinc_g5_command_list_t *list, unsigned occlusionQuery) {}
 

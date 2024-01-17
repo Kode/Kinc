@@ -123,8 +123,14 @@ void kinc_g5_internal_set_textures(kinc_g5_command_list_t *list) {
 
 		ID3D12DescriptorHeap *heaps[2] = {list->impl.srvHeap, list->impl.samplerHeap};
 		list->impl._commandList->SetDescriptorHeaps(2, heaps);
-		list->impl._commandList->SetGraphicsRootDescriptorTable(0, srvGpu);
-		list->impl._commandList->SetGraphicsRootDescriptorTable(1, samplerGpu);
+		if (compute_pipeline_set) {
+			list->impl._commandList->SetComputeRootDescriptorTable(0, srvGpu);
+			list->impl._commandList->SetComputeRootDescriptorTable(1, samplerGpu);
+		}
+		else {
+			list->impl._commandList->SetGraphicsRootDescriptorTable(0, srvGpu);
+			list->impl._commandList->SetGraphicsRootDescriptorTable(1, samplerGpu);
+		}
 	}
 }
 

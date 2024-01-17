@@ -82,6 +82,8 @@ inline struct dx_window *kinc_dx_current_window() {
 	return &dx_ctx.windows[dx_ctx.current_window];
 }
 
+static bool compute_pipeline_set = false;
+
 #include <assert.h>
 #include <malloc.h>
 #include <stdbool.h>
