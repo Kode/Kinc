@@ -122,7 +122,7 @@ static void add_offset(uint32_t id, uint32_t offset) {
 	++offsets_size;
 }
 
-static void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
+static void parse_shader(uint32_t*shader_source, int shader_length, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
                         kinc_internal_named_number *uniformOffsets) {
 	names_size = 0;
 	memberNames_size = 0;
@@ -130,8 +130,8 @@ static void parseShader(kinc_g5_shader_t *shader, kinc_internal_named_number *lo
 	bindings_size = 0;
 	offsets_size = 0;
 
-	uint32_t *spirv = (uint32_t *)shader->impl.source;
-	int spirvsize = shader->impl.length / 4;
+	uint32_t *spirv = (uint32_t *)shader_source;
+	int spirvsize = shader_length / 4;
 	int index = 0;
 
 	uint32_t magicNumber = spirv[index++];
@@ -389,8 +389,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	memset(pipeline->impl.fragmentLocations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 	memset(pipeline->impl.fragmentOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 	memset(pipeline->impl.textureBindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	parseShader(pipeline->vertexShader, pipeline->impl.vertexLocations, pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
-	parseShader(pipeline->fragmentShader, pipeline->impl.fragmentLocations, pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
+	parse_shader((uint32_t*)pipeline->vertexShader->impl.source, pipeline->vertexShader->impl.length, pipeline->impl.vertexLocations, pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
+	parse_shader((uint32_t*)pipeline->fragmentShader->impl.source, pipeline->fragmentShader->impl.length, pipeline->impl.fragmentLocations, pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
 
 	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {0};
 	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

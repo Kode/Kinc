@@ -902,7 +902,7 @@ void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_l
 
 void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_g5_compute_shader *shader) {
 	vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, shader->impl.pipeline);
-	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, shader->impl.pipeline_layout, 0, 1, &shader->impl.descriptor_set, 0, 0);
+	//**vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, shader->impl.pipeline_layout, 0, 1, &shader->impl.descriptor_set, 0, 0);
 }
 
 void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {

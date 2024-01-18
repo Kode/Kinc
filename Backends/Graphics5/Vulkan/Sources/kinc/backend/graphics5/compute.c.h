@@ -4,6 +4,9 @@
 #include <kinc/log.h>
 #include <kinc/math/core.h>
 
+static void parse_shader(uint32_t *shader_source, int shader_length, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
+                        kinc_internal_named_number *uniformOffsets);
+
 static uint8_t constantsMemory[1024 * 4];
 
 static int getMultipleOf16(int value) {
@@ -14,61 +17,12 @@ static int getMultipleOf16(int value) {
 }
 
 void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, int length) {
-	unsigned index = 0;
-	uint8_t *data = (uint8_t *)_data;
+	memset(shader->impl.locations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+	memset(shader->impl.offsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+	memset(shader->impl.texture_bindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
+	parse_shader((uint32_t *)_data, length, shader->impl.locations, shader->impl.texture_bindings, shader->impl.offsets);
 
-	memset(&shader->impl.attributes, 0, sizeof(shader->impl.attributes));
-	int attributesCount = data[index++];
-	for (int i = 0; i < attributesCount; ++i) {
-		unsigned char name[256];
-		for (unsigned i2 = 0; i2 < 255; ++i2) {
-			name[i2] = data[index++];
-			if (name[i2] == 0)
-				break;
-		}
-		shader->impl.attributes[i].hash = kinc_internal_hash_name(name);
-		shader->impl.attributes[i].index = data[index++];
-	}
-
-	memset(&shader->impl.textures, 0, sizeof(shader->impl.textures));
-	uint8_t texCount = data[index++];
-	for (unsigned i = 0; i < texCount; ++i) {
-		unsigned char name[256];
-		for (unsigned i2 = 0; i2 < 255; ++i2) {
-			name[i2] = data[index++];
-			if (name[i2] == 0)
-				break;
-		}
-		shader->impl.textures[i].hash = kinc_internal_hash_name(name);
-		shader->impl.textures[i].index = data[index++];
-	}
-
-	memset(&shader->impl.constants, 0, sizeof(shader->impl.constants));
-	uint8_t constantCount = data[index++];
-	shader->impl.constantsSize = 0;
-	for (unsigned i = 0; i < constantCount; ++i) {
-		unsigned char name[256];
-		for (unsigned i2 = 0; i2 < 255; ++i2) {
-			name[i2] = data[index++];
-			if (name[i2] == 0)
-				break;
-		}
-		kinc_compute_internal_shader_constant_t constant;
-		constant.hash = kinc_internal_hash_name(name);
-		constant.offset = *(uint32_t *)&data[index];
-		index += 4;
-		constant.size = *(uint32_t *)&data[index];
-		index += 4;
-		constant.columns = data[index];
-		index += 1;
-		constant.rows = data[index];
-		index += 1;
-
-		shader->impl.constants[i] = constant;
-		shader->impl.constantsSize = constant.offset + constant.size;
-	}
-
-	shader->impl.length = (int)(length - index);
+	/*shader->impl.length = (int)(length - index);
 	shader->impl.data = (uint8_t *)malloc(shader->impl.length);
 	assert(shader->impl.data != NULL);
 	memcpy(shader->impl.data, &data[index], shader->impl.length);
@@ -109,7 +63,7 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 	layout_bindings[2].pImmutableSamplers = NULL;
 	layout_bindings[2].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;*/
 
-	VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
+	/*VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = 1;
 	layoutInfo.pBindings = layout_bindings;
@@ -139,35 +93,17 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 	if (vkCreateComputePipelines(vk_ctx.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &shader->impl.pipeline) != VK_SUCCESS) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
 		return;
-	}
+	}*/
 }
 
 void kinc_g5_compute_shader_destroy(kinc_g5_compute_shader *shader) {}
-
-static kinc_compute_internal_shader_constant_t *findComputeConstant(kinc_compute_internal_shader_constant_t *constants, uint32_t hash) {
-	for (int i = 0; i < 64; ++i) {
-		if (constants[i].hash == hash) {
-			return &constants[i];
-		}
-	}
-	return NULL;
-}
-
-static kinc_internal_hash_index_t *findComputeTextureUnit(kinc_internal_hash_index_t *units, uint32_t hash) {
-	for (int i = 0; i < 64; ++i) {
-		if (units[i].hash == hash) {
-			return &units[i];
-		}
-	}
-	return NULL;
-}
 
 kinc_g5_constant_location_t kinc_g5_compute_shader_get_constant_location(kinc_g5_compute_shader *shader, const char *name) {
 	kinc_g5_constant_location_t location = {0};
 
 	uint32_t hash = kinc_internal_hash_name((unsigned char *)name);
 
-	kinc_compute_internal_shader_constant_t *constant = findComputeConstant(shader->impl.constants, hash);
+	/*kinc_compute_internal_shader_constant_t *constant = findComputeConstant(shader->impl.constants, hash);
 	if (constant == NULL) {
 		location.impl.computeOffset = 0;
 	}
@@ -177,7 +113,7 @@ kinc_g5_constant_location_t kinc_g5_compute_shader_get_constant_location(kinc_g5
 
 	if (location.impl.computeOffset == 0) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
-	}
+	}*/
 
 	return location;
 }
@@ -200,7 +136,7 @@ kinc_g5_texture_unit_t kinc_g5_compute_shader_get_texture_unit(kinc_g5_compute_s
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
 		unit.stages[i] = -1;
 	}
-	kinc_internal_hash_index_t *compute_unit = findComputeTextureUnit(shader->impl.textures, hash);
+	/*kinc_internal_hash_index_t *compute_unit = findComputeTextureUnit(shader->impl.textures, hash);
 	if (compute_unit == NULL) {
 #ifndef NDEBUG
 		static int notFoundCount = 0;
@@ -216,6 +152,6 @@ kinc_g5_texture_unit_t kinc_g5_compute_shader_get_texture_unit(kinc_g5_compute_s
 	}
 	else {
 		unit.stages[KINC_G5_SHADER_TYPE_COMPUTE] = compute_unit->index + unitOffset;
-	}
+	}*/
 	return unit;
 }
