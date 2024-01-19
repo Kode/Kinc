@@ -33,6 +33,7 @@ KINC_FUNC void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void 
 /// <param name="shader">The shader-object to destroy</param>
 KINC_FUNC void kinc_g5_compute_shader_destroy(kinc_g5_compute_shader *shader);
 
+#ifndef KINC_KONG
 /// <summary>
 /// Finds the location of a constant/uniform inside of a shader.
 /// </summary>
@@ -48,6 +49,7 @@ KINC_FUNC kinc_g5_constant_location_t kinc_g5_compute_shader_get_constant_locati
 /// <param name="name">The texture-name to look for</param>
 /// <returns>The found texture-unit</returns>
 KINC_FUNC kinc_g5_texture_unit_t kinc_g5_compute_shader_get_texture_unit(kinc_g5_compute_shader *shader, const char *name);
+#endif
 
 #ifdef __cplusplus
 }
