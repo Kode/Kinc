@@ -69,24 +69,6 @@ KINC_FUNC int kinc_shader_storage_buffer_count(kinc_shader_storage_buffer_t *buf
 KINC_FUNC void kinc_shader_storage_buffer_internal_set(kinc_shader_storage_buffer_t *buffer);
 #endif
 
-#ifdef KORE_OPENGL
-KINC_FUNC void kinc_g4_compute_set_buffer(kinc_shader_storage_buffer_t *buffer, int index);
-#endif
-
-/// <summary>
-/// Sets a shader for the next compute-run.
-/// </summary>
-/// <param name="shader">The shader to use</param>
-KINC_FUNC void kinc_g4_set_compute_shader(kinc_g4_compute_shader *shader);
-
-/// <summary>
-/// Fire off a compute-run on x * y * z elements.
-/// </summary>
-/// <param name="x">The x-size for the compute-run</param>
-/// <param name="y">The y-size for the compute-run</param>
-/// <param name="z">The z-size for the compute-run</param>
-KINC_FUNC void kinc_g4_compute(int x, int y, int z);
-
 #ifdef __cplusplus
 }
 #endif
