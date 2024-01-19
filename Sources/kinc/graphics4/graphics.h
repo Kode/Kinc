@@ -21,6 +21,9 @@ struct kinc_g4_pipeline;
 struct kinc_g4_render_target;
 struct kinc_g4_texture;
 struct kinc_g4_texture_array;
+#ifdef KORE_OPENGL
+struct kinc_shader_storage_buffer;
+#endif
 #ifdef KINC_KONG
 struct kinc_g4_constant_buffer;
 #endif
@@ -425,7 +428,7 @@ KINC_FUNC void kinc_g4_set_antialiasing_samples(int samples);
 /// <summary>
 /// Old, hack thing, do not use.
 /// </summary>
-KINC_FUNC void kinc_g4_set_shader_storage_buffer(kinc_shader_storage_buffer_t *buffer, int index);
+KINC_FUNC void kinc_g4_set_shader_storage_buffer(struct kinc_shader_storage_buffer *buffer, int index);
 #endif
 
 /// <summary>
