@@ -19,6 +19,7 @@ void kinc_g4_compute_shader_destroy(kinc_g4_compute_shader *shader) {
 	kinc_g5_compute_shader_destroy(&shader->impl.shader);
 }
 
+#ifndef KINC_KONG
 kinc_g4_constant_location_t kinc_g4_compute_shader_get_constant_location(kinc_g4_compute_shader *shader, const char *name) {
 	kinc_g4_constant_location_t location;
 	location.impl._location = kinc_g5_compute_shader_get_constant_location(&shader->impl.shader, name);
@@ -33,3 +34,4 @@ kinc_g4_texture_unit_t kinc_g4_compute_shader_get_texture_unit(kinc_g4_compute_s
 	}
 	return g4_unit;
 }
+#endif
