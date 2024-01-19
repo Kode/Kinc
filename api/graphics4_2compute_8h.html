@@ -107,60 +107,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a9a7c24b5fe159854ef844215f3fa39ae"><td class="memItemLeft" align="right" valign="top">KINC_FUNC <a class="el" href="structkinc__g4__texture__unit.html">kinc_g4_texture_unit_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2compute_8h.html#a9a7c24b5fe159854ef844215f3fa39ae">kinc_g4_compute_shader_get_texture_unit</a> (<a class="el" href="structkinc__g4__compute__shader.html">kinc_g4_compute_shader</a> *shader, const char *name)</td></tr>
 <tr class="memdesc:a9a7c24b5fe159854ef844215f3fa39ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds a texture-unit inside of a shader.  <a href="graphics4_2compute_8h.html#a9a7c24b5fe159854ef844215f3fa39ae">More...</a><br /></td></tr>
 <tr class="separator:a9a7c24b5fe159854ef844215f3fa39ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acdf373d479ded847a9e76673105b660c"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2compute_8h.html#acdf373d479ded847a9e76673105b660c">kinc_g4_set_compute_shader</a> (<a class="el" href="structkinc__g4__compute__shader.html">kinc_g4_compute_shader</a> *shader)</td></tr>
-<tr class="memdesc:acdf373d479ded847a9e76673105b660c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a shader for the next compute-run.  <a href="graphics4_2compute_8h.html#acdf373d479ded847a9e76673105b660c">More...</a><br /></td></tr>
-<tr class="separator:acdf373d479ded847a9e76673105b660c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48cc189ab662d3130dbefff168c5701e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2compute_8h.html#a48cc189ab662d3130dbefff168c5701e">kinc_g4_compute</a> (int x, int y, int z)</td></tr>
-<tr class="memdesc:a48cc189ab662d3130dbefff168c5701e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fire off a compute-run on x * y * z elements.  <a href="graphics4_2compute_8h.html#a48cc189ab662d3130dbefff168c5701e">More...</a><br /></td></tr>
-<tr class="separator:a48cc189ab662d3130dbefff168c5701e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides support for running compute-shaders. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a48cc189ab662d3130dbefff168c5701e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a48cc189ab662d3130dbefff168c5701e">&#9670;&nbsp;</a></span>kinc_g4_compute()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g4_compute </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>z</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Fire off a compute-run on x * y * z elements. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>The x-size for the compute-run</td></tr>
-    <tr><td class="paramname">y</td><td>The y-size for the compute-run</td></tr>
-    <tr><td class="paramname">z</td><td>The z-size for the compute-run</td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="ade0afd46f46f97d253091177a2563c03"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ade0afd46f46f97d253091177a2563c03">&#9670;&nbsp;</a></span>kinc_g4_compute_shader_destroy()</h2>
 
@@ -301,32 +251,6 @@ Functions</h2></td></tr>
     <tr><td class="paramname">shader</td><td>The shader-object to initialize</td></tr>
     <tr><td class="paramname">source</td><td>A pointer to system-specific shader-data</td></tr>
     <tr><td class="paramname">length</td><td>Length of the shader-data in bytes</td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="acdf373d479ded847a9e76673105b660c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acdf373d479ded847a9e76673105b660c">&#9670;&nbsp;</a></span>kinc_g4_set_compute_shader()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">KINC_FUNC void kinc_g4_set_compute_shader </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structkinc__g4__compute__shader.html">kinc_g4_compute_shader</a> *&#160;</td>
-          <td class="paramname"><em>shader</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets a shader for the next compute-run. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">shader</td><td>The shader to use</td></tr>
   </table>
   </dd>
 </dl>

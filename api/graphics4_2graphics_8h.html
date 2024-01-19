@@ -317,6 +317,12 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
 <tr class="memitem:a1408a2b2b00d74cf5a45fc63c9d9ff7b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#a1408a2b2b00d74cf5a45fc63c9d9ff7b">kinc_g4_set_antialiasing_samples</a> (int samples)</td></tr>
 <tr class="memdesc:a1408a2b2b00d74cf5a45fc63c9d9ff7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the number of samples used for hardware-antialiasing. This typically uses multisampling and typically only works with a few specific numbers of sample-counts - 2 and 4 are pretty safe bets. It also might do nothing at all.  <a href="graphics4_2graphics_8h.html#a1408a2b2b00d74cf5a45fc63c9d9ff7b">More...</a><br /></td></tr>
 <tr class="separator:a1408a2b2b00d74cf5a45fc63c9d9ff7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3b878601339909c687013ca299fbab0"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#ad3b878601339909c687013ca299fbab0">kinc_g4_set_compute_shader</a> (struct <a class="el" href="structkinc__g4__compute__shader.html">kinc_g4_compute_shader</a> *shader)</td></tr>
+<tr class="memdesc:ad3b878601339909c687013ca299fbab0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a shader for the next compute-run.  <a href="graphics4_2graphics_8h.html#ad3b878601339909c687013ca299fbab0">More...</a><br /></td></tr>
+<tr class="separator:ad3b878601339909c687013ca299fbab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48cc189ab662d3130dbefff168c5701e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="graphics4_2graphics_8h.html#a48cc189ab662d3130dbefff168c5701e">kinc_g4_compute</a> (int x, int y, int z)</td></tr>
+<tr class="memdesc:a48cc189ab662d3130dbefff168c5701e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fire off a compute-run on x * y * z elements.  <a href="graphics4_2graphics_8h.html#a48cc189ab662d3130dbefff168c5701e">More...</a><br /></td></tr>
+<tr class="separator:a48cc189ab662d3130dbefff168c5701e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Contains the base G4-functionality. </p>
@@ -413,6 +419,50 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
     <tr><td class="paramname">color</td><td>The color-value to clear to</td></tr>
     <tr><td class="paramname">depth</td><td>The depth-value to clear to</td></tr>
     <tr><td class="paramname">stencil</td><td>The stencil-value to clear to</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a48cc189ab662d3130dbefff168c5701e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a48cc189ab662d3130dbefff168c5701e">&#9670;&nbsp;</a></span>kinc_g4_compute()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g4_compute </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fire off a compute-run on x * y * z elements. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>The x-size for the compute-run</td></tr>
+    <tr><td class="paramname">y</td><td>The y-size for the compute-run</td></tr>
+    <tr><td class="paramname">z</td><td>The z-size for the compute-run</td></tr>
   </table>
   </dd>
 </dl>
@@ -799,6 +849,32 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_g4_get
   <table class="params">
     <tr><td class="paramname">location</td><td>The location of the constant/uniform to assign the value to</td></tr>
     <tr><td class="paramname">value</td><td>The value to assign to the constant/uniform</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ad3b878601339909c687013ca299fbab0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3b878601339909c687013ca299fbab0">&#9670;&nbsp;</a></span>kinc_g4_set_compute_shader()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_g4_set_compute_shader </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structkinc__g4__compute__shader.html">kinc_g4_compute_shader</a> *&#160;</td>
+          <td class="paramname"><em>shader</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets a shader for the next compute-run. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">shader</td><td>The shader to use</td></tr>
   </table>
   </dd>
 </dl>
