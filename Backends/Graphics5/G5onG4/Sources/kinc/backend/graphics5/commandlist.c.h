@@ -396,3 +396,7 @@ bool kinc_g5_command_list_are_query_results_available(kinc_g5_command_list_t *li
 }
 
 void kinc_g5_command_list_get_query_result(kinc_g5_command_list_t *list, unsigned occlusionQuery, unsigned *pixelCount) {}
+
+void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, struct kinc_g5_compute_shader *shader) {}
+
+void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {}

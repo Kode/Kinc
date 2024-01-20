@@ -6,6 +6,7 @@
 #include <kinc/backend/graphics4/pipeline.h>
 #include <kinc/backend/graphics4/vertexbuffer.h>
 #include <kinc/color.h>
+#include <kinc/graphics4/compute.h>
 #include <kinc/graphics4/constantbuffer.h>
 #include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/pipeline.h>
@@ -901,3 +902,15 @@ void kinc_g4_set_constant_buffer(uint32_t id, struct kinc_g4_constant_buffer *bu
 	kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &buffer->impl.buffer, 0, kinc_g5_constant_buffer_size(&buffer->impl.buffer));
 }
 #endif
+
+void kinc_g4_set_compute_shader(kinc_g4_compute_shader *shader) {
+	kinc_g5_compute_shader *g5_shader = &shader->impl.shader;
+	current_state.compute_shader = g5_shader;
+	kinc_g5_command_list_set_compute_shader(&commandList, g5_shader);
+}
+
+void kinc_g4_compute(int x, int y, int z) {
+	startDraw(true);
+	kinc_g5_command_list_compute(&commandList, x, y, z);
+	endDraw(true);
+}

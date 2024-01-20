@@ -16,10 +16,14 @@
 extern "C" {
 #endif
 
+struct kinc_g4_compute_shader;
 struct kinc_g4_pipeline;
 struct kinc_g4_render_target;
 struct kinc_g4_texture;
 struct kinc_g4_texture_array;
+#ifdef KORE_OPENGL
+struct kinc_shader_storage_buffer;
+#endif
 #ifdef KINC_KONG
 struct kinc_g4_constant_buffer;
 #endif
@@ -419,6 +423,27 @@ KINC_FUNC int kinc_g4_antialiasing_samples(void);
 /// </summary>
 /// <param name="samples">The number of samples</param>
 KINC_FUNC void kinc_g4_set_antialiasing_samples(int samples);
+
+#ifdef KORE_OPENGL
+/// <summary>
+/// Old, hack thing, do not use.
+/// </summary>
+KINC_FUNC void kinc_g4_set_shader_storage_buffer(struct kinc_shader_storage_buffer *buffer, int index);
+#endif
+
+/// <summary>
+/// Sets a shader for the next compute-run.
+/// </summary>
+/// <param name="shader">The shader to use</param>
+KINC_FUNC void kinc_g4_set_compute_shader(struct kinc_g4_compute_shader *shader);
+
+/// <summary>
+/// Fire off a compute-run on x * y * z elements.
+/// </summary>
+/// <param name="x">The x-size for the compute-run</param>
+/// <param name="y">The y-size for the compute-run</param>
+/// <param name="z">The z-size for the compute-run</param>
+KINC_FUNC void kinc_g4_compute(int x, int y, int z);
 
 #ifndef KINC_DOCS
 void kinc_g4_internal_init(void);
