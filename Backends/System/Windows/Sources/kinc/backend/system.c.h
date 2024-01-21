@@ -54,6 +54,8 @@ static EnableNonClientDpiScalingType MyEnableNonClientDpiScaling = NULL;
 
 #define MAX_TOUCH_POINTS 10
 
+#define KINC_DINPUT_MAX_COUNT 8
+
 struct touchpoint {
 	int sysID;
 	int x;
@@ -737,10 +739,10 @@ void loadXInput() {
 }
 
 static IDirectInput8 *di_instance = NULL;
-static IDirectInputDevice8 *di_pads[XUSER_MAX_COUNT];
-static DIJOYSTATE2 di_padState[XUSER_MAX_COUNT];
-static DIJOYSTATE2 di_lastPadState[XUSER_MAX_COUNT];
-static DIDEVCAPS di_deviceCaps[XUSER_MAX_COUNT];
+static IDirectInputDevice8 *di_pads[KINC_DINPUT_MAX_COUNT];
+static DIJOYSTATE2 di_padState[KINC_DINPUT_MAX_COUNT];
+static DIJOYSTATE2 di_lastPadState[KINC_DINPUT_MAX_COUNT];
+static DIDEVCAPS di_deviceCaps[KINC_DINPUT_MAX_COUNT];
 static int padCount = 0;
 
 static void cleanupPad(int padIndex) {
@@ -874,7 +876,7 @@ LCleanup:
 
 // TODO (DK) this should probably be called from somewhere?
 static void cleanupDirectInput() {
-	for (int padIndex = 0; padIndex < XUSER_MAX_COUNT; ++padIndex) {
+	for (int padIndex = 0; padIndex < KINC_DINPUT_MAX_COUNT; ++padIndex) {
 		cleanupPad(padIndex);
 	}
 
@@ -965,7 +967,7 @@ static BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID
 
 		++padCount;
 
-		if (padCount >= XUSER_MAX_COUNT) {
+		if (padCount >= KINC_DINPUT_MAX_COUNT) {
 			return DIENUM_STOP;
 		}
 	}
@@ -976,10 +978,10 @@ static BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID
 static void initializeDirectInput() {
 	HINSTANCE hinstance = GetModuleHandle(NULL);
 
-	memset(&di_pads, 0, sizeof(IDirectInputDevice8) * XUSER_MAX_COUNT);
-	memset(&di_padState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
-	memset(&di_lastPadState, 0, sizeof(DIJOYSTATE2) * XUSER_MAX_COUNT);
-	memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * XUSER_MAX_COUNT);
+	memset(&di_pads, 0, sizeof(IDirectInputDevice8) * KINC_DINPUT_MAX_COUNT);
+	memset(&di_padState, 0, sizeof(DIJOYSTATE2) * KINC_DINPUT_MAX_COUNT);
+	memset(&di_lastPadState, 0, sizeof(DIJOYSTATE2) * KINC_DINPUT_MAX_COUNT);
+	memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * KINC_DINPUT_MAX_COUNT);
 
 	HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, &IID_IDirectInput8, (void **)&di_instance, NULL);
 
