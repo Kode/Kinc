@@ -912,8 +912,10 @@ static BOOL CALLBACK enumerateJoystickAxesCallback(LPCDIDEVICEOBJECTINSTANCEW dd
 }
 
 static BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID context) {
-	if (IsXInputDevice(&ddi->guidProduct))
+	if (padCount < XUSER_MAX_COUNT && IsXInputDevice(&ddi->guidProduct)) {
+		++padCount;
 		return DIENUM_CONTINUE;
+	}
 
 	HRESULT hr = di_instance->lpVtbl->CreateDevice(di_instance, &ddi->guidInstance, &di_pads[padCount], NULL);
 
@@ -1084,6 +1086,11 @@ bool handleDirectInputPad(int padIndex) {
 }
 
 static bool isXInputGamepad(int gamepad) {
+	//if gamepad is greater than XInput max, treat it as DINPUT.
+	if (gamepad >= XUSER_MAX_COUNT)
+	{
+		return false;
+	}
 	XINPUT_STATE state;
 	memset(&state, 0, sizeof(XINPUT_STATE));
 	DWORD dwResult = InputGetState(gamepad, &state);
@@ -1126,7 +1133,7 @@ bool kinc_internal_handle_messages() {
 
 	if (InputGetState != NULL && (detectGamepad || gamepadFound)) {
 		detectGamepad = false;
-		for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
+		for (DWORD i = 0; i < KINC_DINPUT_MAX_COUNT; ++i) {
 			XINPUT_STATE state;
 			memset(&state, 0, sizeof(XINPUT_STATE));
 			DWORD dwResult = InputGetState(i, &state);
@@ -1172,9 +1179,9 @@ bool kinc_internal_handle_messages() {
 				}
 			}
 			else {
-				if (handleDirectInputPad(i)) {
-					gamepadFound = true;
-				}
+					if (handleDirectInputPad(i)) {
+						gamepadFound = true;
+					}
 			}
 		}
 	}
