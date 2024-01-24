@@ -31,7 +31,7 @@ VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSur
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 void createDescriptorLayout(void);
-void create_compute_descriptor_layout(void);
+static void create_compute_descriptor_layout(void);
 void set_image_layout(VkImage image, VkImageAspectFlags aspectMask, VkImageLayout old_image_layout, VkImageLayout new_image_layout);
 
 // uint32_t current_buffer;
