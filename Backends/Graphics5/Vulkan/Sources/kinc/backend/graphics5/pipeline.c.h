@@ -122,8 +122,8 @@ static void add_offset(uint32_t id, uint32_t offset) {
 	++offsets_size;
 }
 
-static void parse_shader(uint32_t*shader_source, int shader_length, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
-                        kinc_internal_named_number *uniformOffsets) {
+static void parse_shader(uint32_t *shader_source, int shader_length, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
+                         kinc_internal_named_number *uniformOffsets) {
 	names_size = 0;
 	memberNames_size = 0;
 	locs_size = 0;
@@ -217,7 +217,7 @@ static void parse_shader(uint32_t*shader_source, int shader_length, kinc_interna
 	}
 }
 
-static VkShaderModule prepare_shader_module(const void *code, size_t size) {
+static VkShaderModule create_shader_module(const void *code, size_t size) {
 	VkShaderModuleCreateInfo moduleCreateInfo;
 	moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	moduleCreateInfo.pNext = NULL;
@@ -233,12 +233,12 @@ static VkShaderModule prepare_shader_module(const void *code, size_t size) {
 }
 
 static VkShaderModule prepare_vs(VkShaderModule *vert_shader_module, kinc_g5_shader_t *vertexShader) {
-	*vert_shader_module = prepare_shader_module(vertexShader->impl.source, vertexShader->impl.length);
+	*vert_shader_module = create_shader_module(vertexShader->impl.source, vertexShader->impl.length);
 	return *vert_shader_module;
 }
 
 static VkShaderModule prepare_fs(VkShaderModule *frag_shader_module, kinc_g5_shader_t *fragmentShader) {
-	*frag_shader_module = prepare_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
+	*frag_shader_module = create_shader_module(fragmentShader->impl.source, fragmentShader->impl.length);
 	return *frag_shader_module;
 }
 
@@ -389,8 +389,10 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	memset(pipeline->impl.fragmentLocations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 	memset(pipeline->impl.fragmentOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 	memset(pipeline->impl.textureBindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	parse_shader((uint32_t*)pipeline->vertexShader->impl.source, pipeline->vertexShader->impl.length, pipeline->impl.vertexLocations, pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
-	parse_shader((uint32_t*)pipeline->fragmentShader->impl.source, pipeline->fragmentShader->impl.length, pipeline->impl.fragmentLocations, pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
+	parse_shader((uint32_t *)pipeline->vertexShader->impl.source, pipeline->vertexShader->impl.length, pipeline->impl.vertexLocations,
+	             pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
+	parse_shader((uint32_t *)pipeline->fragmentShader->impl.source, pipeline->fragmentShader->impl.length, pipeline->impl.fragmentLocations,
+	             pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);
 
 	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {0};
 	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -684,7 +686,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 	vkDestroyShaderModule(vk_ctx.device, pipeline->impl.vert_shader_module, NULL);
 }
 
-void createDescriptorLayout() {
+void createDescriptorLayout(void) {
 	VkDescriptorSetLayoutBinding layoutBindings[18];
 	memset(layoutBindings, 0, sizeof(layoutBindings));
 

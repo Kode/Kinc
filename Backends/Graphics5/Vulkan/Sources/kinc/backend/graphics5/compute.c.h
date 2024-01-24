@@ -5,15 +5,58 @@
 #include <kinc/math/core.h>
 
 static void parse_shader(uint32_t *shader_source, int shader_length, kinc_internal_named_number *locations, kinc_internal_named_number *textureBindings,
-                        kinc_internal_named_number *uniformOffsets);
+                         kinc_internal_named_number *uniformOffsets);
 
-static uint8_t constantsMemory[1024 * 4];
+static VkShaderModule create_shader_module(const void *code, size_t size);
 
-static int getMultipleOf16(int value) {
-	int ret = 16;
-	while (ret < value)
-		ret += 16;
-	return ret;
+static VkDescriptorSetLayout compute_descriptor_layout;
+static VkDescriptorPool compute_descriptor_pool;
+
+static void create_compute_descriptor_layout(void) {
+	VkDescriptorSetLayoutBinding layoutBindings[18];
+	memset(layoutBindings, 0, sizeof(layoutBindings));
+
+	layoutBindings[0].binding = 0;
+	layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+	layoutBindings[0].descriptorCount = 1;
+	layoutBindings[0].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+	layoutBindings[0].pImmutableSamplers = NULL;
+
+	for (int i = 1; i < 18; ++i) {
+		layoutBindings[i].binding = i;
+		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		layoutBindings[i].descriptorCount = 1;
+		layoutBindings[i].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+		layoutBindings[i].pImmutableSamplers = NULL;
+	}
+
+	VkDescriptorSetLayoutCreateInfo descriptor_layout = {0};
+	descriptor_layout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	descriptor_layout.pNext = NULL;
+	descriptor_layout.bindingCount = 18;
+	descriptor_layout.pBindings = layoutBindings;
+
+	VkResult err = vkCreateDescriptorSetLayout(vk_ctx.device, &descriptor_layout, NULL, &compute_descriptor_layout);
+	assert(!err);
+
+	VkDescriptorPoolSize typeCounts[2];
+	memset(typeCounts, 0, sizeof(typeCounts));
+
+	typeCounts[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+	typeCounts[0].descriptorCount = 2 * 1024;
+
+	typeCounts[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	typeCounts[1].descriptorCount = 16 * 1024;
+
+	VkDescriptorPoolCreateInfo pool_info = {0};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.pNext = NULL;
+	pool_info.maxSets = 1024;
+	pool_info.poolSizeCount = 2;
+	pool_info.pPoolSizes = typeCounts;
+
+	err = vkCreateDescriptorPool(vk_ctx.device, &pool_info, NULL, &compute_descriptor_pool);
+	assert(!err);
 }
 
 void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, int length) {
@@ -21,6 +64,37 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 	memset(shader->impl.offsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 	memset(shader->impl.texture_bindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
 	parse_shader((uint32_t *)_data, length, shader->impl.locations, shader->impl.texture_bindings, shader->impl.offsets);
+
+	VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {0};
+	pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pPipelineLayoutCreateInfo.pNext = NULL;
+	pPipelineLayoutCreateInfo.setLayoutCount = 1;
+	pPipelineLayoutCreateInfo.pSetLayouts = &compute_descriptor_layout;
+
+	VkResult err = vkCreatePipelineLayout(vk_ctx.device, &pPipelineLayoutCreateInfo, NULL, &shader->impl.pipeline_layout);
+	assert(!err);
+
+	VkComputePipelineCreateInfo pipeline_info = {0};
+
+	memset(&pipeline_info, 0, sizeof(pipeline_info));
+	pipeline_info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+	pipeline_info.layout = shader->impl.pipeline_layout;
+
+	VkPipelineShaderStageCreateInfo shader_stage;
+	memset(&shader_stage, 0, sizeof(VkPipelineShaderStageCreateInfo));
+
+	shader_stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	shader_stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+	shader->impl.shader_module = create_shader_module(_data, (size_t)length);
+	shader_stage.module = shader->impl.shader_module;
+	shader_stage.pName = "main";
+
+	pipeline_info.stage = shader_stage;
+
+	err = vkCreateComputePipelines(vk_ctx.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &shader->impl.pipeline);
+	assert(!err);
+
+	vkDestroyShaderModule(vk_ctx.device, shader->impl.shader_module, NULL);
 
 	/*shader->impl.length = (int)(length - index);
 	shader->impl.data = (uint8_t *)malloc(shader->impl.length);
@@ -70,8 +144,8 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 
 	VkDescriptorSetLayout descriptor_set_layout;
 	if (vkCreateDescriptorSetLayout(vk_ctx.device, &layoutInfo, NULL, &descriptor_set_layout) != VK_SUCCESS) {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
-		return;
+	    kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
+	    return;
 	}
 
 	VkPipelineLayoutCreateInfo pipeline_layout_info = {0};
@@ -80,8 +154,8 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 	pipeline_layout_info.pSetLayouts = &descriptor_set_layout;
 
 	if (vkCreatePipelineLayout(vk_ctx.device, &pipeline_layout_info, NULL, &shader->impl.pipeline_layout) != VK_SUCCESS) {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
-		return;
+	    kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
+	    return;
 	}
 
 	VkComputePipelineCreateInfo pipeline_info = {0};
@@ -91,8 +165,8 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 	pipeline_info.stage = compute_shader_stage_info;
 
 	if (vkCreateComputePipelines(vk_ctx.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, &shader->impl.pipeline) != VK_SUCCESS) {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
-		return;
+	    kinc_log(KINC_LOG_LEVEL_WARNING, "Could not initialize compute shader.");
+	    return;
 	}*/
 }
 
@@ -105,14 +179,14 @@ kinc_g5_constant_location_t kinc_g5_compute_shader_get_constant_location(kinc_g5
 
 	/*kinc_compute_internal_shader_constant_t *constant = findComputeConstant(shader->impl.constants, hash);
 	if (constant == NULL) {
-		location.impl.computeOffset = 0;
+	    location.impl.computeOffset = 0;
 	}
 	else {
-		location.impl.computeOffset = constant->offset;
+	    location.impl.computeOffset = constant->offset;
 	}
 
 	if (location.impl.computeOffset == 0) {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
+	    kinc_log(KINC_LOG_LEVEL_WARNING, "Uniform %s not found.", name);
 	}*/
 
 	return location;
@@ -139,19 +213,19 @@ kinc_g5_texture_unit_t kinc_g5_compute_shader_get_texture_unit(kinc_g5_compute_s
 	/*kinc_internal_hash_index_t *compute_unit = findComputeTextureUnit(shader->impl.textures, hash);
 	if (compute_unit == NULL) {
 #ifndef NDEBUG
-		static int notFoundCount = 0;
-		if (notFoundCount < 10) {
-			kinc_log(KINC_LOG_LEVEL_WARNING, "Sampler %s not found.", unitName);
-			++notFoundCount;
-		}
-		else if (notFoundCount == 10) {
-			kinc_log(KINC_LOG_LEVEL_WARNING, "Giving up on sampler not found messages.", unitName);
-			++notFoundCount;
-		}
+	    static int notFoundCount = 0;
+	    if (notFoundCount < 10) {
+	        kinc_log(KINC_LOG_LEVEL_WARNING, "Sampler %s not found.", unitName);
+	        ++notFoundCount;
+	    }
+	    else if (notFoundCount == 10) {
+	        kinc_log(KINC_LOG_LEVEL_WARNING, "Giving up on sampler not found messages.", unitName);
+	        ++notFoundCount;
+	    }
 #endif
 	}
 	else {
-		unit.stages[KINC_G5_SHADER_TYPE_COMPUTE] = compute_unit->index + unitOffset;
+	    unit.stages[KINC_G5_SHADER_TYPE_COMPUTE] = compute_unit->index + unitOffset;
 	}*/
 	return unit;
 }
