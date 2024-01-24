@@ -58,8 +58,13 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, kinc_g
 }
 
 void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
-	buffer->impl.index_buffer->Release();
+	if (buffer->impl.index_buffer != NULL) {
+		buffer->impl.index_buffer->Release();
+		buffer->impl.index_buffer = NULL;
+	}
+
 	buffer->impl.upload_buffer->Release();
+	buffer->impl.upload_buffer = NULL;
 }
 
 static int kinc_g5_internal_index_buffer_stride(kinc_g5_index_buffer_t *buffer) {
