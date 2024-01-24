@@ -22,9 +22,15 @@ static void create_compute_descriptor_layout(void) {
 	layoutBindings[0].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 	layoutBindings[0].pImmutableSamplers = NULL;
 
-	for (int i = 1; i < 18; ++i) {
+	layoutBindings[1].binding = 1;
+	layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+	layoutBindings[1].descriptorCount = 1;
+	layoutBindings[1].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+	layoutBindings[1].pImmutableSamplers = NULL;
+
+	for (int i = 2; i < 18; ++i) {
 		layoutBindings[i].binding = i;
-		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		layoutBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 		layoutBindings[i].descriptorCount = 1;
 		layoutBindings[i].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 		layoutBindings[i].pImmutableSamplers = NULL;
@@ -45,7 +51,7 @@ static void create_compute_descriptor_layout(void) {
 	typeCounts[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 	typeCounts[0].descriptorCount = 2 * 1024;
 
-	typeCounts[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	typeCounts[1].type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 	typeCounts[1].descriptorCount = 16 * 1024;
 
 	VkDescriptorPoolCreateInfo pool_info = {0};

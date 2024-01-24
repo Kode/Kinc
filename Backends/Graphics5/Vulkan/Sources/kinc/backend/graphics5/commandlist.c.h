@@ -13,6 +13,7 @@
 extern kinc_g5_texture_t *vulkanTextures[16];
 extern kinc_g5_render_target_t *vulkanRenderTargets[16];
 VkDescriptorSet getDescriptorSet(void);
+static VkDescriptorSet get_compute_descriptor_set(void);
 bool memory_type_from_properties(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
 void setImageLayout(VkCommandBuffer _buffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 
@@ -25,6 +26,7 @@ static uint32_t lastVertexConstantBufferOffset = 0;
 static uint32_t lastFragmentConstantBufferOffset = 0;
 static uint32_t lastComputeConstantBufferOffset = 0;
 static kinc_g5_pipeline_t *currentPipeline = NULL;
+static kinc_g5_compute_shader *current_compute_shader = NULL;
 static int mrtIndex = 0;
 static VkFramebuffer mrtFramebuffer[16];
 static VkRenderPass mrtRenderPass[16];
@@ -809,9 +811,10 @@ void kinc_g5_command_list_set_fragment_constant_buffer(kinc_g5_command_list_t *l
 void kinc_g5_command_list_set_compute_constant_buffer(kinc_g5_command_list_t *list, struct kinc_g5_constant_buffer *buffer, int offset, size_t size) {
 	lastComputeConstantBufferOffset = offset;
 
-	VkDescriptorSet descriptor_set = getDescriptorSet();
+	VkDescriptorSet descriptor_set = get_compute_descriptor_set();
 	uint32_t offsets[1] = {lastComputeConstantBufferOffset};
-	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, currentPipeline->impl.pipeline_layout, 0, 1, &descriptor_set, 1, offsets);
+	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, current_compute_shader->impl.pipeline_layout, 0, 1, &descriptor_set, 1,
+	                        offsets);
 }
 
 static bool wait_for_framebuffer = false;
@@ -901,6 +904,7 @@ void kinc_g5_command_list_set_texture_from_render_target_depth(kinc_g5_command_l
 }
 
 void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_g5_compute_shader *shader) {
+	current_compute_shader = shader;
 	vkCmdBindPipeline(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, shader->impl.pipeline);
 	//**vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, shader->impl.pipeline_layout, 0, 1, &shader->impl.descriptor_set, 0, 0);
 }

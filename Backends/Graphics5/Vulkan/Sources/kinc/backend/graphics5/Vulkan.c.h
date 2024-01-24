@@ -644,6 +644,7 @@ void kinc_g5_internal_init() {
 	uint32_t instance_extension_count = 0;
 
 	wanted_instance_extensions[wanted_instance_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
+	wanted_instance_extensions[wanted_instance_extension_count++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
 	kinc_vulkan_get_instance_extensions(wanted_instance_extensions, &wanted_instance_extension_count, ARRAY_SIZE(wanted_instance_extensions));
 
 	err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, NULL);
@@ -759,6 +760,8 @@ void kinc_g5_internal_init() {
 	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 	// Allows negative viewport height to flip viewport
 	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
+
+	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME;
 
 #ifdef KORE_VKRT
 	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME;
@@ -1095,6 +1098,7 @@ void kinc_g5_end(int window) {
 	}
 
 	reuse_descriptor_sets();
+	reuse_compute_descriptor_sets();
 	began = false;
 }
 

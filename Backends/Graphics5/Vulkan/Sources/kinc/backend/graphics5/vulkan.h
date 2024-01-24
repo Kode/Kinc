@@ -74,6 +74,7 @@ struct vk_context {
 	// buffer hack
 	VkBuffer *vertex_uniform_buffer;
 	VkBuffer *fragment_uniform_buffer;
+	VkBuffer *compute_uniform_buffer;
 
 	int current_window;
 
@@ -88,5 +89,6 @@ extern struct vk_context vk_ctx;
 
 extern void flush_init_cmd(void);
 extern void reuse_descriptor_sets(void);
+extern void reuse_compute_descriptor_sets(void);
 
 #include <assert.h>

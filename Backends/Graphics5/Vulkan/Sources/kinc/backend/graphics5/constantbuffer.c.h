@@ -54,6 +54,9 @@ void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	else if (vk_ctx.fragment_uniform_buffer == NULL) {
 		vk_ctx.fragment_uniform_buffer = &buffer->impl.buf;
 	}
+	else if (vk_ctx.compute_uniform_buffer == NULL) {
+		vk_ctx.compute_uniform_buffer = &buffer->impl.buf;
+	}
 
 	void *p;
 	VkResult err = vkMapMemory(vk_ctx.device, buffer->impl.mem, 0, buffer->impl.mem_alloc.allocationSize, 0, (void **)&p);

@@ -113,12 +113,6 @@ typedef struct kinc_g5_pipeline {
 	PipelineState5Impl impl;
 } kinc_g5_pipeline_t;
 
-typedef struct kinc_g5_compute_pipeline {
-	struct kinc_g5_shader *compute_shader;
-
-	ComputePipelineState5Impl impl;
-} kinc_g5_compute_pipeline_t;
-
 /// <summary>
 /// Initializes a pipeline.
 /// </summary>
