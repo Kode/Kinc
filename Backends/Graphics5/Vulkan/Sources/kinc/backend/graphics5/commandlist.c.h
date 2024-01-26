@@ -503,7 +503,7 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	scissor.offset.y = 0;
 	vkCmdSetScissor(list->impl._buffer, 0, 1, &scissor);
 
-	if (onBackBuffer) {
+	if (onBackBuffer && in_render_pass) {
 		return;
 	}
 
@@ -542,6 +542,13 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 }
 
 void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struct kinc_g5_render_target **targets, int count) {
+	for (int i = 0; i < count; ++i) {
+		currentRenderTargets[i] = targets[i];
+	}
+	for (int i = count; i < 8; ++i) {
+		currentRenderTargets[i] = NULL;
+	}
+
 	if (targets[0]->framebuffer_index >= 0) {
 		kinc_internal_restore_render_target(list, targets[0]);
 		return;
@@ -549,12 +556,6 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 
 	endPass(list);
 
-	for (int i = 0; i < count; ++i) {
-		currentRenderTargets[i] = targets[i];
-	}
-	for (int i = count; i < 8; ++i) {
-		currentRenderTargets[i] = NULL;
-	}
 	onBackBuffer = false;
 
 	VkClearValue clear_values[9];
@@ -879,10 +880,15 @@ void kinc_g5_command_list_set_texture(kinc_g5_command_list_t *list, kinc_g5_text
 }
 
 void kinc_g5_command_list_set_sampler(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_sampler_t *sampler) {
-	vulkanSamplers[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = sampler->impl.sampler;
+	if (unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT] >= 0) {
+		vulkanSamplers[unit.stages[KINC_G5_SHADER_TYPE_FRAGMENT]] = sampler->impl.sampler;
+	}
 }
 
-void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {}
+void kinc_g5_command_list_set_image_texture(kinc_g5_command_list_t *list, kinc_g5_texture_unit_t unit, kinc_g5_texture_t *texture) {
+	vulkanTextures[unit.stages[KINC_G5_SHADER_TYPE_COMPUTE]] = texture;
+	vulkanRenderTargets[unit.stages[KINC_G5_SHADER_TYPE_COMPUTE]] = NULL;
+}
 
 void kinc_g5_command_list_set_render_target_face(kinc_g5_command_list_t *list, kinc_g5_render_target_t *texture, int face) {}
 
@@ -919,8 +925,13 @@ void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_
 }
 
 void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {
-	endPass(list);
+	if (in_render_pass) {
+		vkCmdEndRenderPass(list->impl._buffer);
+		in_render_pass = false;
+	}
+
 	vkCmdDispatch(list->impl._buffer, x, y, z);
+
 	int render_target_count = 0;
 	for (int i = 0; i < 8; ++i) {
 		if (currentRenderTargets[i] == NULL) {
@@ -928,5 +939,7 @@ void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, in
 		}
 		++render_target_count;
 	}
-	kinc_g5_command_list_set_render_targets(list, currentRenderTargets, render_target_count);
+	if (render_target_count > 0) {
+		kinc_g5_command_list_set_render_targets(list, currentRenderTargets, render_target_count);
+	}
 }

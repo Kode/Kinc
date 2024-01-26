@@ -910,7 +910,7 @@ VkDescriptorSet getDescriptorSet() {
 			}
 			texture_count++;
 		}
-		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 	}
 
 	VkWriteDescriptorSet writes[18];
@@ -1021,8 +1021,8 @@ static VkDescriptorSet get_compute_descriptor_set() {
 	int texture_count = 0;
 	for (int i = 0; i < 16; ++i) {
 		if (vulkanTextures[i] != NULL) {
-			assert(vulkanSamplers[i] != VK_NULL_HANDLE);
-			tex_desc[i].sampler = vulkanSamplers[i];
+			// assert(vulkanSamplers[i] != VK_NULL_HANDLE);
+			tex_desc[i].sampler = VK_NULL_HANDLE; // vulkanSamplers[i];
 			tex_desc[i].imageView = vulkanTextures[i]->impl.texture.view;
 			texture_count++;
 		}
@@ -1037,7 +1037,7 @@ static VkDescriptorSet get_compute_descriptor_set() {
 			}
 			texture_count++;
 		}
-		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		tex_desc[i].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 	}
 
 	VkWriteDescriptorSet writes[18];
@@ -1062,7 +1062,7 @@ static VkDescriptorSet get_compute_descriptor_set() {
 		writes[i].dstSet = descriptor_set;
 		writes[i].dstBinding = i;
 		writes[i].descriptorCount = 1;
-		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 		writes[i].pImageInfo = &tex_desc[i - 2];
 	}
 

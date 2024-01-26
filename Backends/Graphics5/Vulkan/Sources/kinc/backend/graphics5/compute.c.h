@@ -215,6 +215,7 @@ kinc_g5_texture_unit_t kinc_g5_compute_shader_get_texture_unit(kinc_g5_compute_s
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
 		unit.stages[i] = -1;
 	}
+	unit.stages[KINC_G5_SHADER_TYPE_COMPUTE] = 0;
 	/*kinc_internal_hash_index_t *compute_unit = findComputeTextureUnit(shader->impl.textures, hash);
 	if (compute_unit == NULL) {
 #ifndef NDEBUG
