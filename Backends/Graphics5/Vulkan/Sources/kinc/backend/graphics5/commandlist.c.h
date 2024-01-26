@@ -31,8 +31,13 @@ static int mrtIndex = 0;
 static VkFramebuffer mrtFramebuffer[16];
 static VkRenderPass mrtRenderPass[16];
 
+static bool in_render_pass = false;
+
 static void endPass(kinc_g5_command_list_t *list) {
-	vkCmdEndRenderPass(list->impl._buffer);
+	if (in_render_pass) {
+		vkCmdEndRenderPass(list->impl._buffer);
+		in_render_pass = false;
+	}
 
 	for (int i = 0; i < 16; ++i) {
 		vulkanTextures[i] = NULL;
@@ -306,6 +311,7 @@ void kinc_g5_command_list_begin(kinc_g5_command_list_t *list) {
 
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 	currentRenderPassBeginInfo = rp_begin;
+	in_render_pass = true;
 
 	set_viewport_and_scissor(list);
 
@@ -527,6 +533,7 @@ void kinc_internal_restore_render_target(kinc_g5_command_list_t *list, struct ki
 	rp_begin.pClearValues = clear_values;
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 	currentRenderPassBeginInfo = rp_begin;
+	in_render_pass = true;
 
 	if (currentPipeline != NULL) {
 		currentVulkanPipeline = currentPipeline->impl.framebuffer_pipeline;
@@ -689,6 +696,7 @@ void kinc_g5_command_list_set_render_targets(kinc_g5_command_list_t *list, struc
 
 	vkCmdBeginRenderPass(list->impl._buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 	currentRenderPassBeginInfo = rp_begin;
+	in_render_pass = true;
 
 	VkViewport viewport;
 	memset(&viewport, 0, sizeof(viewport));
@@ -775,6 +783,7 @@ void kinc_g5_command_list_get_render_target_pixels(kinc_g5_command_list_t *list,
 	setImageLayout(list->impl._buffer, render_target->impl.sourceImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 	               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	vkCmdBeginRenderPass(list->impl._buffer, &currentRenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	in_render_pass = true;
 
 	kinc_g5_command_list_end(list);
 	kinc_g5_command_list_execute(list);
@@ -910,5 +919,14 @@ void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_
 }
 
 void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {
+	endPass(list);
 	vkCmdDispatch(list->impl._buffer, x, y, z);
+	int render_target_count = 0;
+	for (int i = 0; i < 8; ++i) {
+		if (currentRenderTargets[i] == NULL) {
+			break;
+		}
+		++render_target_count;
+	}
+	kinc_g5_command_list_set_render_targets(list, currentRenderTargets, render_target_count);
 }
