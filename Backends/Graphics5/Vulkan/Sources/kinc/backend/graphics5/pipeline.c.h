@@ -804,7 +804,7 @@ static int write_tex_descs(VkDescriptorImageInfo *tex_descs) {
 			}
 			texture_count++;
 		}
-		tex_descs[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		tex_descs[i].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 	}
 	return texture_count;
 }
@@ -966,6 +966,62 @@ VkDescriptorSet getDescriptorSet() {
 static struct destriptor_set compute_descriptor_sets[MAX_DESCRIPTOR_SETS] = {0};
 static int compute_descriptor_sets_count = 0;
 
+static int write_compute_tex_descs(VkDescriptorImageInfo *tex_descs) {
+	memset(tex_descs, 0, sizeof(VkDescriptorImageInfo) * 16);
+
+	int texture_count = 0;
+	for (int i = 0; i < 16; ++i) {
+		if (vulkanTextures[i] != NULL) {
+			tex_descs[i].sampler = vulkanSamplers[i];
+			tex_descs[i].imageView = vulkanTextures[i]->impl.texture.view;
+			texture_count++;
+		}
+		else if (vulkanRenderTargets[i] != NULL) {
+			tex_descs[i].sampler = vulkanSamplers[i];
+			if (vulkanRenderTargets[i]->impl.stage_depth == i) {
+				tex_descs[i].imageView = vulkanRenderTargets[i]->impl.depthView;
+				vulkanRenderTargets[i]->impl.stage_depth = -1;
+			}
+			else {
+				tex_descs[i].imageView = vulkanRenderTargets[i]->impl.sourceView;
+			}
+			texture_count++;
+		}
+		tex_descs[i].imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+	}
+	return texture_count;
+}
+
+static bool compute_textures_changed(struct destriptor_set *set) {
+	VkDescriptorImageInfo tex_desc[16];
+
+	write_compute_tex_descs(tex_desc);
+
+	return memcmp(&tex_desc, &set->tex_desc, sizeof(tex_desc)) != 0;
+}
+
+static void update_compute_textures(struct destriptor_set *set) {
+	memset(&set->tex_desc, 0, sizeof(set->tex_desc));
+
+	int texture_count = write_compute_tex_descs(set->tex_desc);
+
+	VkWriteDescriptorSet writes[16];
+	memset(&writes, 0, sizeof(writes));
+
+	for (int i = 0; i < 16; ++i) {
+		writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		writes[i].dstSet = set->set;
+		writes[i].dstBinding = i + 2;
+		writes[i].descriptorCount = 1;
+		writes[i].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+		writes[i].pImageInfo = &set->tex_desc[i];
+	}
+
+	if (vulkanTextures[0] != NULL || vulkanRenderTargets[0] != NULL) {
+		vkUpdateDescriptorSets(vk_ctx.device, texture_count, writes, 0, NULL);
+	}
+}
+
 void reuse_compute_descriptor_sets(void) {
 	for (int i = 0; i < compute_descriptor_sets_count; ++i) {
 		compute_descriptor_sets[i].in_use = false;
@@ -978,11 +1034,11 @@ static VkDescriptorSet get_compute_descriptor_set() {
 		if (compute_descriptor_sets[i].id == id) {
 			if (!compute_descriptor_sets[i].in_use) {
 				compute_descriptor_sets[i].in_use = true;
-				update_textures(&compute_descriptor_sets[i]);
+				update_compute_textures(&compute_descriptor_sets[i]);
 				return compute_descriptor_sets[i].set;
 			}
 			else {
-				if (!textures_changed(&compute_descriptor_sets[i])) {
+				if (!compute_textures_changed(&compute_descriptor_sets[i])) {
 					return compute_descriptor_sets[i].set;
 				}
 			}
