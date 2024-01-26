@@ -994,7 +994,7 @@ static VkDescriptorSet get_compute_descriptor_set() {
 	alloc_info.pNext = NULL;
 	alloc_info.descriptorPool = descriptor_pool;
 	alloc_info.descriptorSetCount = 1;
-	alloc_info.pSetLayouts = &desc_layout;
+	alloc_info.pSetLayouts = &compute_descriptor_layout;
 	VkDescriptorSet descriptor_set;
 	VkResult err = vkAllocateDescriptorSets(vk_ctx.device, &alloc_info, &descriptor_set);
 	assert(!err);

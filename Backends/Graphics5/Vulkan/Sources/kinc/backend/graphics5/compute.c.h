@@ -9,7 +9,6 @@ static void parse_shader(uint32_t *shader_source, int shader_length, kinc_intern
 
 static VkShaderModule create_shader_module(const void *code, size_t size);
 
-static VkDescriptorSetLayout compute_descriptor_layout;
 static VkDescriptorPool compute_descriptor_pool;
 
 static void create_compute_descriptor_layout(void) {

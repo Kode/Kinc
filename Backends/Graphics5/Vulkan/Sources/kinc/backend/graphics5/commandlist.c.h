@@ -812,8 +812,8 @@ void kinc_g5_command_list_set_compute_constant_buffer(kinc_g5_command_list_t *li
 	lastComputeConstantBufferOffset = offset;
 
 	VkDescriptorSet descriptor_set = get_compute_descriptor_set();
-	uint32_t offsets[1] = {lastComputeConstantBufferOffset};
-	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, current_compute_shader->impl.pipeline_layout, 0, 1, &descriptor_set, 1,
+	uint32_t offsets[2] = {lastComputeConstantBufferOffset, lastComputeConstantBufferOffset};
+	vkCmdBindDescriptorSets(list->impl._buffer, VK_PIPELINE_BIND_POINT_COMPUTE, current_compute_shader->impl.pipeline_layout, 0, 1, &descriptor_set, 2,
 	                        offsets);
 }
 
