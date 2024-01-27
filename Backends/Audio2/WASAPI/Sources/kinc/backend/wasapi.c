@@ -63,7 +63,8 @@ DEFINE_GUID(IID_IMMDeviceEnumerator, 0xA95664D2, 0x9614, 0x4F35, 0xA7, 0x46, 0xD
 DEFINE_GUID(CLSID_MMDeviceEnumerator, 0xBCDE0395, 0xE52F, 0x467C, 0x8E, 0x3D, 0xC4, 0x57, 0x92, 0x91, 0x69, 0x2E);
 
 // based on the implementation in soloud and Microsoft sample code
-static volatile void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
+static volatile void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = NULL;
+static void *a2_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
 static IMMDeviceEnumerator *deviceEnumerator;
@@ -193,7 +194,7 @@ static void submitBuffer(unsigned frames) {
 	}
 
 	if (a2_callback != NULL) {
-		a2_callback(&a2_buffer, frames * 2);
+		a2_callback(&a2_buffer, frames * 2, a2_userdata);
 		memset(buffer, 0, frames * format->nBlockAlign);
 		if (format->wFormatTag == WAVE_FORMAT_PCM) {
 			for (UINT32 i = 0; i < frames; ++i) {
@@ -270,8 +271,9 @@ void kinc_a2_init() {
 	}
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
+	a2_userdata = userdata;
 }
 
 void kinc_a2_update() {}

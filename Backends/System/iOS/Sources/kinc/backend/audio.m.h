@@ -32,8 +32,10 @@ static AudioComponentInstance audioUnit;
 static bool isFloat = false;
 static bool isInterleaved = true;
 
-static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
-static void (*a2_sample_rate_callback)(void) = NULL;
+static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = NULL;
+static void *a2_userdata = NULL;
+static void (*a2_sample_rate_callback)(void *userdata) = NULL;
+static void *a2_sample_rate_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
 static void copySample(void *buffer) {
@@ -58,7 +60,7 @@ static void copySample(void *buffer) {
 
 static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber,
                             UInt32 inNumberFrames, AudioBufferList *outOutputData) {
-	a2_callback(&a2_buffer, inNumberFrames * 2);
+	a2_callback(&a2_buffer, inNumberFrames * 2, a2_userdata);
 	if (isInterleaved) {
 		if (isFloat) {
 			float *out = (float *)outOutputData->mBuffers[0].mData;
@@ -103,7 +105,7 @@ static void sampleRateListener(void *inRefCon, AudioUnit inUnit, AudioUnitProper
 
 	kinc_a2_samples_per_second = (int)sampleRate;
 	if (a2_sample_rate_callback != NULL) {
-		a2_sample_rate_callback();
+		a2_sample_rate_callback(a2_sample_rate_userdata);
 	}
 }
 
@@ -196,10 +198,12 @@ void kinc_a2_shutdown(void) {
 	soundPlaying = false;
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
+	a2_userdata = userdata;
 }
 
-void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void)) {
+void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
 	a2_sample_rate_callback = kinc_a2_sample_rate_callback;
+	a2_sample_rate_userdata = userdata;
 }
