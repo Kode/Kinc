@@ -103,12 +103,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a214d94b70bdaa8a0f0e91e7e96ab5a7e"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio2_2audio_8h.html#a214d94b70bdaa8a0f0e91e7e96ab5a7e">kinc_a2_init</a> (void)</td></tr>
 <tr class="memdesc:a214d94b70bdaa8a0f0e91e7e96ab5a7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the Audio2-API.  <a href="audio2_2audio_8h.html#a214d94b70bdaa8a0f0e91e7e96ab5a7e">More...</a><br /></td></tr>
 <tr class="separator:a214d94b70bdaa8a0f0e91e7e96ab5a7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace051f47075d4e14b303a6b56d50b8cc"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio2_2audio_8h.html#ace051f47075d4e14b303a6b56d50b8cc">kinc_a2_set_callback</a> (void(*kinc_a2_audio_callback)(<a class="el" href="structkinc__a2__buffer.html">kinc_a2_buffer_t</a> *buffer, int samples))</td></tr>
-<tr class="memdesc:ace051f47075d4e14b303a6b56d50b8cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the callback that's used to provide audio-samples. This is the primary method of operation for Audio2. The callback is expected to write the requested number of samples into the ring-buffer. The callback is typically called from the system's audio-thread to minimize audio-latency.  <a href="audio2_2audio_8h.html#ace051f47075d4e14b303a6b56d50b8cc">More...</a><br /></td></tr>
-<tr class="separator:ace051f47075d4e14b303a6b56d50b8cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac93d84a6902664c60e21f912614dced1"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio2_2audio_8h.html#ac93d84a6902664c60e21f912614dced1">kinc_a2_set_sample_rate_callback</a> (void(*kinc_a2_sample_rate_callback)(void))</td></tr>
-<tr class="memdesc:ac93d84a6902664c60e21f912614dced1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback that's called when the system's sample-rate changes.  <a href="audio2_2audio_8h.html#ac93d84a6902664c60e21f912614dced1">More...</a><br /></td></tr>
-<tr class="separator:ac93d84a6902664c60e21f912614dced1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f768210104d58ed4219abf20dee8c91"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio2_2audio_8h.html#a5f768210104d58ed4219abf20dee8c91">kinc_a2_set_callback</a> (void(*kinc_a2_audio_callback)(<a class="el" href="structkinc__a2__buffer.html">kinc_a2_buffer_t</a> *buffer, int samples, void *userdata), void *userdata)</td></tr>
+<tr class="memdesc:a5f768210104d58ed4219abf20dee8c91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the callback that's used to provide audio-samples. This is the primary method of operation for Audio2. The callback is expected to write the requested number of samples into the ring-buffer. The callback is typically called from the system's audio-thread to minimize audio-latency.  <a href="audio2_2audio_8h.html#a5f768210104d58ed4219abf20dee8c91">More...</a><br /></td></tr>
+<tr class="separator:a5f768210104d58ed4219abf20dee8c91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14b6217489adf63e8ff713e7a69b6647"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio2_2audio_8h.html#a14b6217489adf63e8ff713e7a69b6647">kinc_a2_set_sample_rate_callback</a> (void(*kinc_a2_sample_rate_callback)(void *userdata), void *userdata)</td></tr>
+<tr class="memdesc:a14b6217489adf63e8ff713e7a69b6647"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback that's called when the system's sample-rate changes.  <a href="audio2_2audio_8h.html#a14b6217489adf63e8ff713e7a69b6647">More...</a><br /></td></tr>
+<tr class="separator:a14b6217489adf63e8ff713e7a69b6647"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab0d7b9cf96f018f17c925f69bbdeab8"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio2_2audio_8h.html#aab0d7b9cf96f018f17c925f69bbdeab8">kinc_a2_update</a> (void)</td></tr>
 <tr class="memdesc:aab0d7b9cf96f018f17c925f69bbdeab8"><td class="mdescLeft">&#160;</td><td class="mdescRight">kinc_a2_update should be called every frame. It is required by some systems to pump their audio-loops but on most systems it is a no-op.  <a href="audio2_2audio_8h.html#aab0d7b9cf96f018f17c925f69bbdeab8">More...</a><br /></td></tr>
 <tr class="separator:aab0d7b9cf96f018f17c925f69bbdeab8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,8 +145,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ace051f47075d4e14b303a6b56d50b8cc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ace051f47075d4e14b303a6b56d50b8cc">&#9670;&nbsp;</a></span>kinc_a2_set_callback()</h2>
+<a id="a5f768210104d58ed4219abf20dee8c91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f768210104d58ed4219abf20dee8c91">&#9670;&nbsp;</a></span>kinc_a2_set_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -154,9 +154,19 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_a2_set_callback </td>
           <td>(</td>
-          <td class="paramtype">void(*)(<a class="el" href="structkinc__a2__buffer.html">kinc_a2_buffer_t</a> *buffer, int samples)&#160;</td>
-          <td class="paramname"><em>kinc_a2_audio_callback</em></td><td>)</td>
+          <td class="paramtype">void(*)(<a class="el" href="structkinc__a2__buffer.html">kinc_a2_buffer_t</a> *buffer, int samples, void *userdata)&#160;</td>
+          <td class="paramname"><em>kinc_a2_audio_callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>userdata</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -165,14 +175,15 @@ Variables</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">kinc_a2_audio_callback</td><td>The callback to set</td></tr>
+    <tr><td class="paramname">userdata</td><td>The user data provided to the callback</td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="ac93d84a6902664c60e21f912614dced1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac93d84a6902664c60e21f912614dced1">&#9670;&nbsp;</a></span>kinc_a2_set_sample_rate_callback()</h2>
+<a id="a14b6217489adf63e8ff713e7a69b6647"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14b6217489adf63e8ff713e7a69b6647">&#9670;&nbsp;</a></span>kinc_a2_set_sample_rate_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -180,9 +191,19 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">KINC_FUNC void kinc_a2_set_sample_rate_callback </td>
           <td>(</td>
-          <td class="paramtype">void(*)(void)&#160;</td>
-          <td class="paramname"><em>kinc_a2_sample_rate_callback</em></td><td>)</td>
+          <td class="paramtype">void(*)(void *userdata)&#160;</td>
+          <td class="paramname"><em>kinc_a2_sample_rate_callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>userdata</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -191,6 +212,7 @@ Variables</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">kinc_a2_sample_rate_callback</td><td>The callback to set</td></tr>
+    <tr><td class="paramname">userdata</td><td>The user data provided to the callback</td></tr>
   </table>
   </dd>
 </dl>
