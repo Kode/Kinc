@@ -9,7 +9,8 @@
 
 // apt-get install libasound2-dev
 
-void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
+void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = NULL;
+void *a2_userdata = NULL;
 kinc_a2_buffer_t a2_buffer;
 
 pthread_t threadid;
@@ -32,7 +33,7 @@ void copySample(void *buffer) {
 int playback_callback(snd_pcm_sframes_t nframes) {
 	int err = 0;
 	if (a2_callback != NULL) {
-		a2_callback(&a2_buffer, nframes * 2);
+		a2_callback(&a2_buffer, nframes * 2, a2_userdata);
 		int ni = 0;
 		while (ni < nframes) {
 			int i = 0;
@@ -228,6 +229,7 @@ void kinc_a2_shutdown() {
 	audioRunning = false;
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
+	a2_userdata = userdata;
 }

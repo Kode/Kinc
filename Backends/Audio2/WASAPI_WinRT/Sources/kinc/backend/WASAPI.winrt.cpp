@@ -40,7 +40,8 @@ template <class T> void SafeRelease(__deref_inout_opt T **ppT) {
 // based on the implementation in soloud and Microsoft sample code
 namespace {
 	kinc_thread_t thread;
-	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = nullptr;
+	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = nullptr;
+	void *a2_userdata = nullptr;
 	kinc_a2_buffer_t a2_buffer;
 
 	IMMDeviceEnumerator *deviceEnumerator;
@@ -191,7 +192,7 @@ namespace {
 		}
 
 		if (a2_callback != nullptr) {
-			a2_callback(&a2_buffer, frames * 2);
+			a2_callback(&a2_buffer, frames * 2, a2_userdata);
 			memset(buffer, 0, frames * format->nBlockAlign);
 			if (format->wFormatTag == WAVE_FORMAT_PCM) {
 				for (UINT32 i = 0; i < frames; ++i) {
@@ -281,8 +282,9 @@ void kinc_a2_init() {
 #endif
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
+	a2_userdata = userdata;
 }
 
 void kinc_a2_update() {}

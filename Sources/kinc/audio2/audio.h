@@ -36,14 +36,16 @@ KINC_FUNC void kinc_a2_init(void);
 /// number of samples into the ring-buffer. The callback is typically called from the system's audio-thread to minimize audio-latency.
 /// </summary>
 /// <param name="kinc_a2_audio_callback">The callback to set</param>
-KINC_FUNC void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples));
+/// <param name="userdata">The user data provided to the callback</param>
+KINC_FUNC void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata);
 
 /// <summary>
 /// Sets a callback that's called when the system's sample-rate changes.
 /// </summary>
 /// <param name="kinc_a2_sample_rate_callback">The callback to set</param>
+/// <param name="userdata">The user data provided to the callback</param>
 /// <returns></returns>
-KINC_FUNC void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void));
+KINC_FUNC void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata);
 
 /// <summary>
 /// The current sample-rate of the system.

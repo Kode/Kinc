@@ -35,8 +35,10 @@ static AudioObjectPropertyAddress address;
 
 static AudioDeviceIOProcID theIOProcID = NULL;
 
-static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
-static void (*a2_sample_rate_callback)(void) = NULL;
+static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = NULL;
+static void *a2_userdata = NULL;
+static void (*a2_sample_rate_callback)(void *userdata) = NULL;
+static void *a2_sample_rate_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
 static void copySample(void *buffer) {
@@ -53,11 +55,11 @@ static OSStatus appIOProc(AudioDeviceID inDevice, const AudioTimeStamp *inNow, c
 	if (kinc_a2_samples_per_second != (int)deviceFormat.mSampleRate) {
 		kinc_a2_samples_per_second = (int)deviceFormat.mSampleRate;
 		if (a2_sample_rate_callback != NULL) {
-			a2_sample_rate_callback();
+			a2_sample_rate_callback(a2_sample_rate_userdata);
 		}
 	}
 	int numSamples = deviceBufferSize / deviceFormat.mBytesPerFrame;
-	a2_callback(&a2_buffer, numSamples * 2);
+	a2_callback(&a2_buffer, numSamples * 2, a2_userdata);
 	float *out = (float *)outOutputData->mBuffers[0].mData;
 	for (int i = 0; i < numSamples; ++i) {
 		copySample(out++); // left
@@ -151,10 +153,12 @@ void kinc_a2_shutdown(void) {
 	soundPlaying = false;
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
+	a2_userdata = userdata;
 }
 
-void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void)) {
+void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
 	a2_sample_rate_callback = kinc_a2_sample_rate_callback;
+	a2_sample_rate_userdata = userdata;
 }

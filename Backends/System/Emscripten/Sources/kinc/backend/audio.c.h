@@ -6,7 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples) = NULL;
+static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = NULL;
+static void *a2_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
 static ALCdevice *device = NULL;
@@ -32,7 +33,7 @@ static void copySample(void *buffer) {
 
 static void streamBuffer(ALuint buffer) {
 	if (a2_callback != NULL) {
-		a2_callback(&a2_buffer, BUFSIZE);
+		a2_callback(&a2_buffer, BUFSIZE, a2_userdata);
 		for (int i = 0; i < BUFSIZE; ++i) {
 			copySample(&buf[i]);
 		}
@@ -106,6 +107,7 @@ void kinc_a2_shutdown() {
 	audioRunning = false;
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples)) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
+	a2_userdata = userdata;
 }

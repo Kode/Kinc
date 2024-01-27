@@ -26,6 +26,10 @@ static float sampleLinear(int16_t *data, float position) {
 	return sample1 * (1 - a) + sample2 * a;
 }
 
+static void kinc_a2_on_a1_mix(kinc_a2_buffer_t *buffer, int samples, void *userdata) {
+	kinc_a1_mix(buffer, samples);
+}
+
 /*float sampleHermite4pt3oX(s16* data, float position) {
     float s0 = data[(int)(position - 1)] / 32767.0f;
     float s1 = data[(int)(position + 0)] / 32767.0f;
@@ -130,7 +134,7 @@ void kinc_a1_init(void) {
 	kinc_mutex_init(&mutex);
 
 	kinc_a2_init();
-	kinc_a2_set_callback(kinc_a1_mix);
+	kinc_a2_set_callback(kinc_a2_on_a1_mix, NULL);
 }
 
 kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float pitch, bool unique) {
