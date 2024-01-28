@@ -655,18 +655,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		break;
 	case WM_CHAR:
 		switch (wParam) {
-		case 0x08: // backspace
-			break;
-		case 0x0A: // linefeed
-			kinc_internal_keyboard_trigger_key_press(L'\n');
-			break;
 		case 0x1B: // escape
-			break;
-		case 0x09: // tab
-			kinc_internal_keyboard_trigger_key_press(L'\t');
-			break;
-		case 0x0D: // carriage return
-			kinc_internal_keyboard_trigger_key_press(L'\r');
 			break;
 		default:
 			kinc_internal_keyboard_trigger_key_press((unsigned)wParam);

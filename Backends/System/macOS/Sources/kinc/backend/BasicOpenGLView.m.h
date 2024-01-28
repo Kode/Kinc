@@ -144,12 +144,15 @@ static bool cmd = false;
 		case NSNewlineCharacter:
 		case NSCarriageReturnCharacter:
 			kinc_internal_keyboard_trigger_key_down(KINC_KEY_RETURN);
+			kinc_internal_keyboard_trigger_key_press('\n');
 			break;
 		case 0x7f:
 			kinc_internal_keyboard_trigger_key_down(KINC_KEY_BACKSPACE);
+			kinc_internal_keyboard_trigger_key_press('\x08');
 			break;
 		case 9:
 			kinc_internal_keyboard_trigger_key_down(KINC_KEY_TAB);
+			kinc_internal_keyboard_trigger_key_press('\t');
 			break;
 		default:
 			if (ch == 'x' && [theEvent modifierFlags] & NSCommandKeyMask) {
