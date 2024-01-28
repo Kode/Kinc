@@ -720,15 +720,40 @@ void kinc_g5_internal_init() {
 	err = vkEnumeratePhysicalDevices(vk_ctx.instance, &gpu_count, NULL);
 	assert(!err && gpu_count > 0);
 
+	bool headless = false;
+
+	// TODO: expose gpu selection to user?
 	if (gpu_count > 0) {
 		VkPhysicalDevice *physical_devices = (VkPhysicalDevice *)malloc(sizeof(VkPhysicalDevice) * gpu_count);
 		err = vkEnumeratePhysicalDevices(vk_ctx.instance, &gpu_count, physical_devices);
 		assert(!err);
-		// TODO: expose gpu selection to user?
-		vk_ctx.gpu = physical_devices[0];
+		for (int gpu_idx = 0; gpu_idx < gpu_count; gpu_idx++) {
+			VkPhysicalDevice gpu = physical_devices[gpu_idx];
+			uint32_t queue_count = 0;
+			vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, NULL);
+			VkQueueFamilyProperties *queue_props = (VkQueueFamilyProperties *)malloc(queue_count * sizeof(VkQueueFamilyProperties));
+			vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
+			bool supportsPresent = false;
+			for (uint32_t i = 0; i < queue_count; i++) {
+				if (kinc_vulkan_get_physical_device_presentation_support(gpu, i)) {
+					supportsPresent = true;
+					break;
+				}
+			}
+			if (supportsPresent) {
+				vk_ctx.gpu = gpu;
+				break;
+			}
+		}
+		if (vk_ctx.gpu == VK_NULL_HANDLE) {
+			if (headless) {
+				vk_ctx.gpu = physical_devices[0];
+			} else {
+				kinc_error_message("No Vulkan device that supports presentation found");
+			}
+		}
 		free(physical_devices);
-	}
-	else {
+	} else {
 		kinc_error_message("No Vulkan device found");
 	}
 
@@ -836,8 +861,6 @@ void kinc_g5_internal_init() {
 	queue_props = (VkQueueFamilyProperties *)malloc(queue_count * sizeof(VkQueueFamilyProperties));
 	vkGetPhysicalDeviceQueueFamilyProperties(vk_ctx.gpu, &queue_count, queue_props);
 	assert(queue_count >= 1);
-
-	bool headless = false;
 
 	if (!headless) {
 		// Iterate over each queue to learn whether it supports presenting:
