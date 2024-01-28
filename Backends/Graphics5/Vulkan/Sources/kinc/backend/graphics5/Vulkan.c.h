@@ -727,22 +727,59 @@ void kinc_g5_internal_init() {
 		VkPhysicalDevice *physical_devices = (VkPhysicalDevice *)malloc(sizeof(VkPhysicalDevice) * gpu_count);
 		err = vkEnumeratePhysicalDevices(vk_ctx.instance, &gpu_count, physical_devices);
 		assert(!err);
+		// The device with the highest score is chosen.
+		float best_score = 0.0;
 		for (int gpu_idx = 0; gpu_idx < gpu_count; gpu_idx++) {
 			VkPhysicalDevice gpu = physical_devices[gpu_idx];
 			uint32_t queue_count = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, NULL);
 			VkQueueFamilyProperties *queue_props = (VkQueueFamilyProperties *)malloc(queue_count * sizeof(VkQueueFamilyProperties));
 			vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
-			bool supportsPresent = false;
+			bool can_present = false;
+			bool can_render = false;
+			// According to the documentation, a device that supports graphics must also support compute,
+			// Just to be 100% safe verify that it supports both anyway.
+			bool can_compute = false;
 			for (uint32_t i = 0; i < queue_count; i++) {
-				if (kinc_vulkan_get_physical_device_presentation_support(gpu, i)) {
-					supportsPresent = true;
-					break;
-				}
+				VkBool32 queue_supports_present = kinc_vulkan_get_physical_device_presentation_support(gpu, i);
+				if(queue_supports_present) can_present = true;
+				VkQueueFamilyProperties queue_properties = queue_props[i];
+				uint32_t flags = queue_properties.queueFlags;
+				if(flags & VK_QUEUE_GRAPHICS_BIT != 0) can_render = true;
+				if(flags & VK_QUEUE_COMPUTE_BIT != 0) can_compute = true;
 			}
-			if (supportsPresent) {
+			if(!can_present || !can_render || !can_compute) {
+				// This device is missing required features so move on
+				continue;
+			}
+
+			// Score the device in order to compare it to others.
+			// Higher score = better.
+			float score = 0.0;
+			VkPhysicalDeviceProperties properties;
+			vkGetPhysicalDeviceProperties(gpu, &properties);
+			switch(properties.deviceType) {
+				case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+					score += 10;
+					break;
+				case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+					score += 7;
+					break;
+				case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+					score += 5;
+					break;
+				case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+					score += 1;
+					break;
+				case VK_PHYSICAL_DEVICE_TYPE_CPU:
+					// CPU gets a score of zero
+					break;
+			}
+			// TODO: look into using more metrics than just the device type for scoring, eg: available memory, max texture sizes, etc.
+			// If this is the first usable device, skip testing against the previous best.
+			if(vk_ctx.gpu == VK_NULL_HANDLE || score > best_score) {
 				vk_ctx.gpu = gpu;
-				break;
+				best_score = score;
 			}
 		}
 		if (vk_ctx.gpu == VK_NULL_HANDLE) {
@@ -752,6 +789,9 @@ void kinc_g5_internal_init() {
 				kinc_error_message("No Vulkan device that supports presentation found");
 			}
 		}
+		VkPhysicalDeviceProperties properties;
+		vkGetPhysicalDeviceProperties(vk_ctx.gpu, &properties);
+		kinc_log(KINC_LOG_LEVEL_INFO, "Chosen Vulkan device: %s", properties.deviceName);
 		free(physical_devices);
 	} else {
 		kinc_error_message("No Vulkan device found");
