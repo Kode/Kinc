@@ -86,6 +86,7 @@ uint32_t kinc_a2_samples_per_second(void) {
 }
 
 void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
+	sample_rate_callback_userdata = userdata;
 	sample_rate_callback = kinc_a2_sample_rate_callback;
 }
 
