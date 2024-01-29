@@ -12,18 +12,14 @@
 extern "C" {
 #endif
 
-typedef struct kinc_a2_buffer_format {
-	int channels;
-	int samples_per_second;
-	int bits_per_sample;
-} kinc_a2_buffer_format_t;
+#define KINC_A2_MAX_CHANNELS 8
 
 typedef struct kinc_a2_buffer {
-	kinc_a2_buffer_format_t format;
-	uint8_t *data;
-	int data_size;
-	int read_location;
-	int write_location;
+	uint8_t channel_count;
+	float *channels[KINC_A2_MAX_CHANNELS];
+	uint32_t data_size;
+	uint32_t read_location;
+	uint32_t write_location;
 } kinc_a2_buffer_t;
 
 /// <summary>
@@ -37,7 +33,12 @@ KINC_FUNC void kinc_a2_init(void);
 /// </summary>
 /// <param name="kinc_a2_audio_callback">The callback to set</param>
 /// <param name="userdata">The user data provided to the callback</param>
-KINC_FUNC void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata);
+KINC_FUNC void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata);
+
+/// <summary>
+/// The current sample-rate of the system.
+/// </summary>
+KINC_FUNC uint32_t kinc_a2_samples_per_second(void);
 
 /// <summary>
 /// Sets a callback that's called when the system's sample-rate changes.
@@ -46,11 +47,6 @@ KINC_FUNC void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffe
 /// <param name="userdata">The user data provided to the callback</param>
 /// <returns></returns>
 KINC_FUNC void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata);
-
-/// <summary>
-/// The current sample-rate of the system.
-/// </summary>
-KINC_FUNC extern int kinc_a2_samples_per_second;
 
 /// <summary>
 /// kinc_a2_update should be called every frame. It is required by some systems to pump their audio-loops but on most systems it is a no-op.
@@ -67,8 +63,6 @@ KINC_FUNC void kinc_a2_shutdown(void);
 #endif
 
 #ifdef KINC_IMPLEMENTATION
-
-int kinc_a2_samples_per_second = 44100;
 
 // BACKENDS-PLACEHOLDER
 

@@ -85,7 +85,7 @@ KINC_FUNC void kinc_a1_channel_set_volume(kinc_a1_channel_t *channel, float volu
 /// </summary>
 /// <param name="buffer">The audio-buffer to be filled</param>
 /// <param name="samples">The number of samples to be filled in</param>
-KINC_FUNC void kinc_a1_mix(kinc_a2_buffer_t *buffer, int samples);
+KINC_FUNC void kinc_a1_mix(kinc_a2_buffer_t *buffer, uint32_t samples);
 
 void kinc_internal_play_video_sound_stream(struct kinc_internal_video_sound_stream *stream);
 void kinc_internal_stop_video_sound_stream(struct kinc_internal_video_sound_stream *stream);

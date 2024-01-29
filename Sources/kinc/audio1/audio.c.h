@@ -8,6 +8,7 @@
 #include <kinc/threads/mutex.h>
 #include <kinc/video.h>
 
+#include <assert.h>
 #include <stdlib.h>
 
 static kinc_mutex_t mutex;
@@ -26,7 +27,7 @@ static float sampleLinear(int16_t *data, float position) {
 	return sample1 * (1 - a) + sample2 * a;
 }
 
-static void kinc_a2_on_a1_mix(kinc_a2_buffer_t *buffer, int samples, void *userdata) {
+static void kinc_a2_on_a1_mix(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) {
 	kinc_a1_mix(buffer, samples);
 }
 
@@ -46,8 +47,8 @@ static void kinc_a2_on_a1_mix(kinc_a2_buffer_t *buffer, int samples, void *userd
     return ((c3 * x + c2) * x + c1) * x + c0;
 }*/
 
-void kinc_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
-	for (int i = 0; i < samples; ++i) {
+void kinc_a1_mix(kinc_a2_buffer_t *buffer, uint32_t samples) {
+	for (uint32_t i = 0; i < samples; ++i) {
 		bool left = (i % 2) == 0;
 		float value = 0;
 #if 0
@@ -115,10 +116,15 @@ void kinc_a1_mix(kinc_a2_buffer_t *buffer, int samples) {
 
 		kinc_mutex_unlock(&mutex);
 #endif
-		*(float *)&buffer->data[buffer->write_location] = value;
-		buffer->write_location += 4;
-		if (buffer->write_location >= buffer->data_size)
-			buffer->write_location = 0;
+		assert(buffer->channel_count >= 2);
+		buffer->channels[left ? 0 : 1][buffer->write_location] = value;
+
+		if (!left) {
+			buffer->write_location += 1;
+			if (buffer->write_location >= buffer->data_size) {
+				buffer->write_location = 0;
+			}
+		}
 	}
 }
 
