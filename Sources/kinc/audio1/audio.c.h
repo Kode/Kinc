@@ -49,8 +49,8 @@ static void kinc_a2_on_a1_mix(kinc_a2_buffer_t *buffer, uint32_t samples, void *
 
 void kinc_a1_mix(kinc_a2_buffer_t *buffer, uint32_t samples) {
 	for (uint32_t i = 0; i < samples; ++i) {
-		bool left = (i % 2) == 0;
-		float value = 0;
+		float left_value = 0.0f;
+		float right_value = 0.0f;
 #if 0
 		__m128 sseSamples[4];
 		for (int i = 0; i < channelCount; i += 4) {
@@ -77,13 +77,12 @@ void kinc_a1_mix(kinc_a2_buffer_t *buffer, uint32_t samples) {
 		for (int i = 0; i < CHANNEL_COUNT; ++i) {
 			if (channels[i].sound != NULL) {
 				// value += *(s16*)&channels[i].sound->data[(int)channels[i].position] / 32767.0f * channels[i].sound->volume();
-				if (left)
-					value += sampleLinear(channels[i].sound->left, channels[i].position) * channels[i].volume * channels[i].volume;
-				else
-					value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].volume * channels[i].volume;
-				value = kinc_max(kinc_min(value, 1.0f), -1.0f);
-				if (!left)
-					channels[i].position += channels[i].pitch / channels[i].sound->sample_rate_pos;
+				left_value += sampleLinear(channels[i].sound->left, channels[i].position) * channels[i].volume * channels[i].volume;
+				right_value = kinc_max(kinc_min(right_value, 1.0f), -1.0f);
+				right_value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].volume * channels[i].volume;
+				left_value = kinc_max(kinc_min(left_value, 1.0f), -1.0f);
+
+				channels[i].position += channels[i].pitch / channels[i].sound->sample_rate_pos;
 				// channels[i].position += 2;
 				if (channels[i].position + 1 >= channels[i].sound->size) {
 					if (channels[i].loop) {
@@ -97,17 +96,24 @@ void kinc_a1_mix(kinc_a2_buffer_t *buffer, uint32_t samples) {
 		}
 		for (int i = 0; i < CHANNEL_COUNT; ++i) {
 			if (streamchannels[i].stream != NULL) {
-				value += kinc_a1_sound_stream_next_sample(streamchannels[i].stream) * kinc_a1_sound_stream_volume(streamchannels[i].stream);
-				value = kinc_max(kinc_min(value, 1.0f), -1.0f);
-				if (kinc_a1_sound_stream_ended(streamchannels[i].stream))
+				float *samples = kinc_a1_sound_stream_next_frame(streamchannels[i].stream);
+				left_value += samples[0] * kinc_a1_sound_stream_volume(streamchannels[i].stream);
+				left_value = kinc_max(kinc_min(left_value, 1.0f), -1.0f);
+				right_value += samples[1] * kinc_a1_sound_stream_volume(streamchannels[i].stream);
+				right_value = kinc_max(kinc_min(right_value, 1.0f), -1.0f);
+				if (kinc_a1_sound_stream_ended(streamchannels[i].stream)) {
 					streamchannels[i].stream = NULL;
+				}
 			}
 		}
 
 		for (int i = 0; i < CHANNEL_COUNT; ++i) {
 			if (videos[i].stream != NULL) {
-				value += kinc_internal_video_sound_stream_next_sample(videos[i].stream);
-				value = kinc_max(kinc_min(value, 1.0f), -1.0f);
+				float *samples = kinc_internal_video_sound_stream_next_frame(videos[i].stream);
+				left_value += samples[0];
+				left_value = kinc_max(kinc_min(left_value, 1.0f), -1.0f);
+				right_value += samples[1];
+				right_value = kinc_max(kinc_min(right_value, 1.0f), -1.0f);
 				if (kinc_internal_video_sound_stream_ended(videos[i].stream)) {
 					videos[i].stream = NULL;
 				}
@@ -117,13 +123,12 @@ void kinc_a1_mix(kinc_a2_buffer_t *buffer, uint32_t samples) {
 		kinc_mutex_unlock(&mutex);
 #endif
 		assert(buffer->channel_count >= 2);
-		buffer->channels[left ? 0 : 1][buffer->write_location] = value;
+		buffer->channels[0][buffer->write_location] = left_value;
+		buffer->channels[1][buffer->write_location] = right_value;
 
-		if (!left) {
-			buffer->write_location += 1;
-			if (buffer->write_location >= buffer->data_size) {
-				buffer->write_location = 0;
-			}
+		buffer->write_location += 1;
+		if (buffer->write_location >= buffer->data_size) {
+			buffer->write_location = 0;
 		}
 	}
 }
