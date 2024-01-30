@@ -76,10 +76,9 @@ void kinc_a1_mix(kinc_a2_buffer_t *buffer, uint32_t samples) {
 		kinc_mutex_lock(&mutex);
 		for (int i = 0; i < CHANNEL_COUNT; ++i) {
 			if (channels[i].sound != NULL) {
-				// value += *(s16*)&channels[i].sound->data[(int)channels[i].position] / 32767.0f * channels[i].sound->volume();
-				left_value += sampleLinear(channels[i].sound->left, channels[i].position) * channels[i].volume * channels[i].volume;
+				left_value += sampleLinear(channels[i].sound->left, channels[i].position) * channels[i].volume * channels[i].sound->volume;
 				right_value = kinc_max(kinc_min(right_value, 1.0f), -1.0f);
-				right_value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].volume * channels[i].volume;
+				right_value += sampleLinear(channels[i].sound->right, channels[i].position) * channels[i].volume * channels[i].sound->volume;
 				left_value = kinc_max(kinc_min(left_value, 1.0f), -1.0f);
 
 				channels[i].position += channels[i].pitch / channels[i].sound->sample_rate_pos;
