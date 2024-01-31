@@ -77,6 +77,41 @@ KINC_FUNC void kinc_g5_constant_buffer_set_bool(kinc_g5_constant_buffer_t *buffe
 KINC_FUNC void kinc_g5_constant_buffer_set_int(kinc_g5_constant_buffer_t *buffer, int offset, int value);
 
 /// <summary>
+/// Assigns two integers at an offset in a constant-buffer.
+/// </summary>
+/// <param name="offset">The offset at which to write the data</param>
+/// <param name="value1">The first value to write into the buffer</param>
+/// <param name="value2">The second value to write into the buffer</param>
+KINC_FUNC void kinc_g5_constant_buffer_set_int2(kinc_g5_constant_buffer_t *buffer, int offset, int value1, int value2);
+
+/// <summary>
+/// Assigns three integers at an offset in a constant-buffer.
+/// </summary>
+/// <param name="offset">The offset at which to write the data</param>
+/// <param name="value1">The first value to write into the buffer</param>
+/// <param name="value2">The second value to write into the buffer</param>
+/// <param name="value3">The third value to write into the buffer/param>
+KINC_FUNC void kinc_g5_constant_buffer_set_int3(kinc_g5_constant_buffer_t *buffer, int offset, int value1, int value2, int value3);
+
+/// <summary>
+/// Assigns four integers at an offset in a constant-buffer.
+/// </summary>
+/// <param name="offset">The offset at which to write the data</param>
+/// <param name="value1">The first value to write into the buffer</param>
+/// <param name="value2">The second value to write into the buffer</param>
+/// <param name="value3">The third value to write into the buffer/param>
+/// <param name="value4">The fourth value to write into the buffer</param>
+KINC_FUNC void kinc_g5_constant_buffer_set_int4(kinc_g5_constant_buffer_t *buffer, int offset, int value1, int value2, int value3, int value4);
+
+/// <summary>
+/// Assigns a bunch of integers at an offset in a constant-buffer.
+/// </summary>
+/// <param name="location">The location of the constant/uniform to assign the values to</param>
+/// <param name="value">The values to write into the buffer</param>
+/// <param name="value">The number of values to write into the buffer</param>
+KINC_FUNC void kinc_g5_constant_buffer_set_ints(kinc_g5_constant_buffer_t *buffer, int offset, int *values, int count);
+
+/// <summary>
 /// Assigns a float at an offset in a constant-buffer.
 /// </summary>
 /// <param name="offset">The offset at which to write the data</param>

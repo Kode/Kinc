@@ -432,13 +432,41 @@ void kinc_g4_set_int(kinc_g4_constant_location_t location, int value) {
 		kinc_g5_constant_buffer_set_int(&computeConstantBuffer, location.impl._location.impl.computeOffset, value);
 }
 
-void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {}
+void kinc_g4_set_int2(kinc_g4_constant_location_t location, int value1, int value2) {
+	if (location.impl._location.impl.vertexOffset >= 0)
+		kinc_g5_constant_buffer_set_int2(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2);
+	if (location.impl._location.impl.fragmentOffset >= 0)
+		kinc_g5_constant_buffer_set_int2(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_int2(&computeConstantBuffer, location.impl._location.impl.computeOffset, value1, value2);
+}
 
-void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3) {}
+void kinc_g4_set_int3(kinc_g4_constant_location_t location, int value1, int value2, int value3) {
+	if (location.impl._location.impl.vertexOffset >= 0)
+		kinc_g5_constant_buffer_set_int3(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2, value3);
+	if (location.impl._location.impl.fragmentOffset >= 0)
+		kinc_g5_constant_buffer_set_int3(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2, value3);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_int3(&computeConstantBuffer, location.impl._location.impl.computeOffset, value1, value2, value3);
+}
 
-void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4) {}
+void kinc_g4_set_int4(kinc_g4_constant_location_t location, int value1, int value2, int value3, int value4) {
+	if (location.impl._location.impl.vertexOffset >= 0)
+		kinc_g5_constant_buffer_set_int4(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, value1, value2, value3, value4);
+	if (location.impl._location.impl.fragmentOffset >= 0)
+		kinc_g5_constant_buffer_set_int4(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, value1, value2, value3, value4);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_int4(&computeConstantBuffer, location.impl._location.impl.computeOffset, value1, value2, value3, value4);
+}
 
-void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {}
+void kinc_g4_set_ints(kinc_g4_constant_location_t location, int *values, int count) {
+	if (location.impl._location.impl.vertexOffset >= 0)
+		kinc_g5_constant_buffer_set_ints(&vertexConstantBuffer, location.impl._location.impl.vertexOffset, values, count);
+	if (location.impl._location.impl.fragmentOffset >= 0)
+		kinc_g5_constant_buffer_set_ints(&fragmentConstantBuffer, location.impl._location.impl.fragmentOffset, values, count);
+	if (location.impl._location.impl.computeOffset >= 0)
+		kinc_g5_constant_buffer_set_ints(&computeConstantBuffer, location.impl._location.impl.computeOffset, values, count);
+}
 
 void kinc_g4_set_float(kinc_g4_constant_location_t location, float value) {
 	if (location.impl._location.impl.vertexOffset >= 0)
