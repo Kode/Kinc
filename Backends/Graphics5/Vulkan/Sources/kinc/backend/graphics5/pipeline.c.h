@@ -274,6 +274,7 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 	kinc_g5_constant_location_t location;
 	location.impl.vertexOffset = -1;
 	location.impl.fragmentOffset = -1;
+	location.impl.computeOffset = -1;
 	if (has_number(pipeline->impl.vertexOffsets, name)) {
 		location.impl.vertexOffset = find_number(pipeline->impl.vertexOffsets, name);
 	}
