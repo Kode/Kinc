@@ -6,6 +6,8 @@
 
 #include <dsound.h>
 
+#include <assert.h>
+
 namespace {
 	IDirectSound8 *dsound = nullptr;
 	IDirectSoundBuffer *dbuffer = nullptr;
@@ -19,7 +21,7 @@ namespace {
 	const int gap = 10 * 1024;
 	DWORD writePos = gap;
 
-	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = nullptr;
+	void (*a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = nullptr;
 	void *a2_userdata = nullptr;
 	kinc_a2_buffer_t a2_buffer;
 }
@@ -36,7 +38,9 @@ void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = new uint8_t[a2_buffer.data_size];
+	a2_buffer.channel_count = 2;
+	a2_buffer.channels[0] = new float[a2_buffer.data_size];
+	a2_buffer.channels[1] = new float[a2_buffer.data_size];
 
 	kinc_microsoft_affirm(DirectSoundCreate8(nullptr, &dsound, nullptr));
 	// TODO (DK) only for the main window?
@@ -62,26 +66,34 @@ void kinc_a2_init() {
 	kinc_microsoft_affirm(dsound->CreateSoundBuffer(&bufferDesc, &dbuffer, nullptr));
 
 	DWORD size1;
-	uint8_t *buffer1;
+	uint8_t *buffer1 = NULL;
 	kinc_microsoft_affirm(dbuffer->Lock(writePos, gap, (void **)&buffer1, &size1, nullptr, nullptr, 0));
-	for (int i = 0; i < gap; ++i)
+	assert(buffer1 != NULL);
+	for (DWORD i = 0; i < size1; ++i) {
 		buffer1[i] = 0;
+	}
 	kinc_microsoft_affirm(dbuffer->Unlock(buffer1, size1, nullptr, 0));
 
 	kinc_microsoft_affirm(dbuffer->Play(0, 0, DSBPLAY_LOOPING));
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
+uint32_t kinc_a2_samples_per_second(void) {
+	return samplesPerSecond;
+}
+
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
 	a2_userdata = userdata;
 }
 
 namespace {
-	void copySample(uint8_t *buffer, DWORD &index) {
-		float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
-		a2_buffer.read_location += 4;
-		if (a2_buffer.read_location >= a2_buffer.data_size) {
-			a2_buffer.read_location = 0;
+	void copySample(uint8_t *buffer, DWORD &index, bool left) {
+		float value = *(float *)&a2_buffer.channels[left ? 0 : 1][a2_buffer.read_location];
+		if (!left) {
+			a2_buffer.read_location += 1;
+			if (a2_buffer.read_location >= a2_buffer.data_size) {
+				a2_buffer.read_location = 0;
+			}
 		}
 		*(int16_t *)&buffer[index] = static_cast<int16_t>(value * 32767);
 		index += 2;
@@ -94,47 +106,49 @@ void kinc_a2_update() {
 	kinc_microsoft_affirm(dbuffer->GetCurrentPosition(&playPosition, &writePosition));
 
 	int dif;
-	if (writePos >= writePosition)
+	if (writePos >= writePosition) {
 		dif = writePos - writePosition;
-	else
-		dif = dsize - writePosition + writePos;
-
-	if (dif < gap)
-		return;
-	if (writePos + gap >= dsize) {
-		if (playPosition >= writePos || playPosition <= gap)
-			return;
-		if (writePosition >= writePos || writePosition <= gap)
-			return;
 	}
 	else {
-		if (playPosition >= writePos && playPosition <= writePos + gap)
-			return;
-		if (writePosition >= writePos && writePosition <= writePos + gap)
-			return;
+		dif = dsize - writePosition + writePos;
 	}
 
-	a2_callback(&a2_buffer, gap / 2, a2_userdata);
+	if (dif < gap) {
+		return;
+	}
+	if (writePos + gap >= dsize) {
+		if (playPosition >= writePos || playPosition <= gap) {
+			return;
+		}
+		if (writePosition >= writePos || writePosition <= gap) {
+			return;
+		}
+	}
+	else {
+		if (playPosition >= writePos && playPosition <= writePos + gap) {
+			return;
+		}
+		if (writePosition >= writePos && writePosition <= writePos + gap) {
+			return;
+		}
+	}
 
-	DWORD size1, size2;
-	uint8_t *buffer1, *buffer2;
-	kinc_microsoft_affirm(dbuffer->Lock(writePos, gap, (void **)&buffer1, &size1, (void **)&buffer2, &size2, 0));
+	a2_callback(&a2_buffer, (uint32_t)(gap / 4), a2_userdata);
+
+	DWORD size1;
+	uint8_t *buffer1;
+	kinc_microsoft_affirm(dbuffer->Lock(writePos, gap, (void **)&buffer1, &size1, NULL, NULL, 0));
 
 	for (DWORD i = 0; i < size1 - (bitsPerSample / 8 - 1);) {
-		copySample(buffer1, i);
+		copySample(buffer1, i, ((writePos + i) / 2) % 2 == 0);
 	}
 	writePos += size1;
-	if (buffer2 != nullptr) {
-		for (DWORD i = 0; i < size2 - (bitsPerSample / 8 - 1);) {
-			copySample(buffer2, i);
-		}
-		writePos = size2;
-	}
 
-	kinc_microsoft_affirm(dbuffer->Unlock(buffer1, size1, buffer2, size2));
+	kinc_microsoft_affirm(dbuffer->Unlock(buffer1, size1, NULL, 0));
 
-	if (writePos >= dsize)
+	if (writePos >= dsize) {
 		writePos -= dsize;
+	}
 }
 
 void kinc_a2_shutdown() {
