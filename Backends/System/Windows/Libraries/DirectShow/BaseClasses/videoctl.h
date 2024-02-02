@@ -17,7 +17,7 @@
 // resource ID of a dialog box and returns the size of it in screen pixels
 
 #define STR_MAX_LENGTH 256
-LPTSTR WINAPI StringFromResource(__out_ecount(STR_MAX_LENGTH) LPTSTR pBuffer, int iResourceID);
+LPCTSTR WINAPI StringFromResource(__out_ecount(STR_MAX_LENGTH) LPTSTR pBuffer, int iResourceID);
 
 #ifdef UNICODE
 #define WideStringFromResource StringFromResource
@@ -51,7 +51,7 @@ public:
         CUnknown(pName,pUnk),
         m_pDirectDraw(NULL) { };
 
-    virtual CAggDirectDraw::~CAggDirectDraw() { };
+    virtual ~CAggDirectDraw() { };
 
     // Set the object we should be aggregating
     void SetDirectDraw(__inout LPDIRECTDRAW pDirectDraw) {
