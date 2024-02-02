@@ -545,7 +545,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		if (bHandled)
 			CloseTouchInputHandle((HTOUCHINPUT)lParam);
 		else
-			DefWindowProc(hWnd, WM_TOUCH, wParam, lParam);
+			DefWindowProcW(hWnd, WM_TOUCH, wParam, lParam);
 
 		InvalidateRect(hWnd, NULL, FALSE);
 	} break;
@@ -700,7 +700,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		DragFinish(hDrop);
 		break;
 	}
-	return DefWindowProc(hWnd, msg, wParam, lParam);
+	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
 static float axes[12 * 6];
@@ -712,12 +712,12 @@ static XInputGetStateType InputGetState = NULL;
 static XInputSetStateType InputSetState = NULL;
 
 void loadXInput() {
-	HMODULE lib = LoadLibrary(L"xinput1_4.dll");
+	HMODULE lib = LoadLibraryA("xinput1_4.dll");
 	if (lib == NULL) {
-		lib = LoadLibrary(L"xinput1_3.dll");
+		lib = LoadLibraryA("xinput1_3.dll");
 	}
 	if (lib == NULL) {
-		lib = LoadLibrary(L"xinput9_1_0.dll");
+		lib = LoadLibraryA("xinput9_1_0.dll");
 	}
 
 	if (lib != NULL) {
@@ -726,8 +726,8 @@ void loadXInput() {
 	}
 }
 
-static IDirectInput8 *di_instance = NULL;
-static IDirectInputDevice8 *di_pads[KINC_DINPUT_MAX_COUNT];
+static IDirectInput8W *di_instance = NULL;
+static IDirectInputDevice8W *di_pads[KINC_DINPUT_MAX_COUNT];
 static DIJOYSTATE2 di_padState[KINC_DINPUT_MAX_COUNT];
 static DIJOYSTATE2 di_lastPadState[KINC_DINPUT_MAX_COUNT];
 static DIDEVCAPS di_deviceCaps[KINC_DINPUT_MAX_COUNT];
@@ -966,14 +966,14 @@ static BOOL CALLBACK enumerateJoysticksCallback(LPCDIDEVICEINSTANCEW ddi, LPVOID
 }
 
 static void initializeDirectInput() {
-	HINSTANCE hinstance = GetModuleHandle(NULL);
+	HINSTANCE hinstance = GetModuleHandleW(NULL);
 
 	memset(&di_pads, 0, sizeof(IDirectInputDevice8) * KINC_DINPUT_MAX_COUNT);
 	memset(&di_padState, 0, sizeof(DIJOYSTATE2) * KINC_DINPUT_MAX_COUNT);
 	memset(&di_lastPadState, 0, sizeof(DIJOYSTATE2) * KINC_DINPUT_MAX_COUNT);
 	memset(&di_deviceCaps, 0, sizeof(DIDEVCAPS) * KINC_DINPUT_MAX_COUNT);
 
-	HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, &IID_IDirectInput8, (void **)&di_instance, NULL);
+	HRESULT hr = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, &IID_IDirectInput8W, (void **)&di_instance, NULL);
 
 	if (SUCCEEDED(hr)) {
 		hr = di_instance->lpVtbl->EnumDevices(di_instance, DI8DEVCLASS_GAMECTRL, enumerateJoysticksCallback, NULL, DIEDFL_ATTACHEDONLY);
@@ -1114,9 +1114,9 @@ const char *kinc_gamepad_product_name(int gamepad) {
 bool kinc_internal_handle_messages() {
 	MSG message;
 
-	while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
+	while (PeekMessageW(&message, 0, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&message);
-		DispatchMessage(&message);
+		DispatchMessageW(&message);
 	}
 
 	if (InputGetState != NULL && (detectGamepad || gamepadFound)) {
@@ -1260,7 +1260,7 @@ static void findSavePath() {
 	wcscat(savePathw, name);
 	wcscat(savePathw, L"\\");
 
-	SHCreateDirectoryEx(NULL, savePathw, NULL);
+	SHCreateDirectoryExW(NULL, savePathw, NULL);
 	WideCharToMultiByte(CP_UTF8, 0, savePathw, -1, savePath, 1024, NULL, NULL);
 
 	CoTaskMemFree(path);

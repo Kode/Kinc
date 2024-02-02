@@ -73,13 +73,13 @@ static void RegisterWindowClass(HINSTANCE hInstance, const wchar_t *className) {
 	                  0L,
 	                  0L,
 	                  hInstance,
-	                  LoadIcon(hInstance, MAKEINTRESOURCE(107)),
+	                  LoadIconW(hInstance, MAKEINTRESOURCEW(107)),
 	                  LoadCursor(NULL, IDC_ARROW),
 	                  0,
 	                  0,
 	                  className,
 	                  0};
-	RegisterClassEx(&wc);
+	RegisterClassExW(&wc);
 }
 
 static DWORD getStyle(int features) {
@@ -185,7 +185,7 @@ static DWORD getDwExStyle(kinc_window_mode_t mode, int features) {
 
 static int createWindow(const wchar_t *title, int x, int y, int width, int height, int bpp, int frequency, int features, kinc_window_mode_t windowMode,
                         int target_display_index) {
-	HINSTANCE inst = GetModuleHandle(NULL);
+	HINSTANCE inst = GetModuleHandleW(NULL);
 
 	if (window_counter == 0) {
 		RegisterWindowClass(inst, windowClassName);
@@ -238,11 +238,11 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 		break;
 	}
 
-	HWND hwnd = CreateWindowEx(getDwExStyle(windowMode, features), windowClassName, title, getDwStyle(windowMode, features), dstx, dsty, dstw, dsth, NULL, NULL,
-	                           inst, NULL);
+	HWND hwnd = CreateWindowExW(getDwExStyle(windowMode, features), windowClassName, title, getDwStyle(windowMode, features), dstx, dsty, dstw, dsth, NULL, NULL,
+	                            inst, NULL);
 #endif
 
-	SetCursor(LoadCursor(0, IDC_ARROW));
+	SetCursor(LoadCursor(NULL, IDC_ARROW));
 	DragAcceptFiles(hwnd, true);
 
 	windows[window_counter].handle = hwnd;
@@ -314,8 +314,8 @@ void kinc_window_change_framebuffer(int window, kinc_framebuffer_options_t *fram
 void kinc_window_change_features(int window_index, int features) {
 	WindowData *win = &windows[window_index];
 	win->features = features;
-	SetWindowLong(win->handle, GWL_STYLE, getStyle(features));
-	SetWindowLong(win->handle, GWL_EXSTYLE, getExStyle(features));
+	SetWindowLongW(win->handle, GWL_STYLE, getStyle(features));
+	SetWindowLongW(win->handle, GWL_EXSTYLE, getExStyle(features));
 
 	HWND on_top = (features & KINC_WINDOW_FEATURE_ON_TOP) ? HWND_TOPMOST : HWND_NOTOPMOST;
 	SetWindowPos(win->handle, on_top, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
@@ -335,16 +335,16 @@ void kinc_window_change_mode(int window_index, kinc_window_mode_t mode) {
 		break;
 	case KINC_WINDOW_MODE_FULLSCREEN: {
 		kinc_windows_restore_display(display_index);
-		SetWindowLong(win->handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
-		SetWindowLong(win->handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
+		SetWindowLongW(win->handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
+		SetWindowLongW(win->handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
 		SetWindowPos(win->handle, NULL, display_mode.x, display_mode.y, display_mode.width, display_mode.height, 0);
 		kinc_window_show(window_index);
 		break;
 	}
 	case KINC_WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
 		kinc_windows_set_display_mode(display_index, win->manualWidth, win->manualHeight, win->bpp, win->frequency);
-		SetWindowLong(win->handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
-		SetWindowLong(win->handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
+		SetWindowLongW(win->handle, GWL_STYLE, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP);
+		SetWindowLongW(win->handle, GWL_EXSTYLE, WS_EX_APPWINDOW);
 		SetWindowPos(win->handle, NULL, display_mode.x, display_mode.y, display_mode.width, display_mode.height, 0);
 		kinc_window_show(window_index);
 		break;
@@ -379,7 +379,7 @@ void kinc_windows_destroy_windows(void) {
 	for (int i = 0; i < MAXIMUM_WINDOWS; ++i) {
 		kinc_window_destroy(i);
 	}
-	UnregisterClass(windowClassName, GetModuleHandle(NULL));
+	UnregisterClassW(windowClassName, GetModuleHandleW(NULL));
 }
 
 void kinc_window_show(int window_index) {
