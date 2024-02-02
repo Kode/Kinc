@@ -15,7 +15,7 @@
 // buffer in the property page class and use it for all string loading. It
 // cannot be static as multiple property pages may be active simultaneously
 
-LPTSTR WINAPI StringFromResource(__out_ecount(STR_MAX_LENGTH) LPTSTR pBuffer, int iResourceID)
+LPCTSTR WINAPI StringFromResource(__out_ecount(STR_MAX_LENGTH) LPTSTR pBuffer, int iResourceID)
 {
     if (LoadString(g_hInst,iResourceID,pBuffer,STR_MAX_LENGTH) == 0) {
         return TEXT("");
