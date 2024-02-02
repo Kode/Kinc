@@ -21,7 +21,7 @@ LPCTSTR WINAPI StringFromResource(__out_ecount(STR_MAX_LENGTH) LPTSTR pBuffer, i
 
 #ifdef UNICODE
 #define WideStringFromResource StringFromResource
-LPSTR WINAPI StringFromResource(__out_ecount(STR_MAX_LENGTH) LPSTR pBuffer, int iResourceID);
+LPCSTR WINAPI StringFromResource(__out_ecount(STR_MAX_LENGTH) LPSTR pBuffer, int iResourceID);
 #else
 LPWSTR WINAPI WideStringFromResource(__out_ecount(STR_MAX_LENGTH) LPWSTR pBuffer, int iResourceID);
 #endif
