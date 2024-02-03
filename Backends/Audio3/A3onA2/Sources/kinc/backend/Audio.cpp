@@ -7,7 +7,7 @@ namespace {
 	const int channelCount = 64;
 	Audio3::Channel channels[channelCount];
 
-	void callback(int samples) {
+	void callback(uint32_t samples) {
 		for (int i = 0; i < channelCount; ++i) {
 			channels[i].callback(samples);
 		}
@@ -16,14 +16,17 @@ namespace {
 			for (int i = 0; i < channelCount; ++i) {
 				value += *(float *)&channels[i].buffer.data[Audio2::buffer.readLocation];
 				channels[i].buffer.readLocation += 4;
-				if (channels[i].buffer.readLocation >= channels[i].buffer.dataSize)
+				if (channels[i].buffer.readLocation >= channels[i].buffer.dataSize) {
 					channels[i].buffer.readLocation = 0;
+				}
 			}
 
-			*(float *)&Audio2::buffer.data[Audio2::buffer.writeLocation] = value;
-			Audio2::buffer.writeLocation += 4;
-			if (Audio2::buffer.writeLocation >= Audio2::buffer.dataSize)
+			*(float *)&Audio2::buffer.channels[0][Audio2::buffer.writeLocation] = value;
+			*(float *)&Audio2::buffer.channels[1][Audio2::buffer.writeLocation] = value;
+			Audio2::buffer.writeLocation += 1;
+			if (Audio2::buffer.writeLocation >= Audio2::buffer.dataSize) {
 				Audio2::buffer.writeLocation = 0;
+			}
 		}
 	}
 }
