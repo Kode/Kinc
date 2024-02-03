@@ -21,7 +21,6 @@ typedef struct kinc_a1_sound_stream {
 	int rate;
 	bool myLooping;
 	float myVolume;
-	bool decoded;
 	bool rateDecodedHack;
 	bool end;
 	float samples[2];
@@ -37,11 +36,11 @@ typedef struct kinc_a1_sound_stream {
 KINC_FUNC kinc_a1_sound_stream_t *kinc_a1_sound_stream_create(const char *filename, bool looping);
 
 /// <summary>
-/// Gets the next audio-sample in the stream.
+/// Gets the next audio-frame in the stream.
 /// </summary>
-/// <param name="stream">The stream to extract the sample from</param>
+/// <param name="stream">The stream to extract the frame from</param>
 /// <returns>The next sample</returns>
-KINC_FUNC float kinc_a1_sound_stream_next_sample(kinc_a1_sound_stream_t *stream);
+KINC_FUNC float *kinc_a1_sound_stream_next_frame(kinc_a1_sound_stream_t *stream);
 
 /// <summary>
 /// Gets the number of audio-channels the stream uses.

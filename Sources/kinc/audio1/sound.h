@@ -15,7 +15,9 @@ extern "C" {
 #endif
 
 typedef struct kinc_a1_sound {
-	kinc_a2_buffer_format_t format;
+	uint8_t channel_count;
+	uint8_t bits_per_sample;
+	uint32_t samples_per_second;
 	int16_t *left;
 	int16_t *right;
 	int size;

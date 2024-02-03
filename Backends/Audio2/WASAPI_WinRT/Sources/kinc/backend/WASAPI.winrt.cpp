@@ -40,7 +40,7 @@ template <class T> void SafeRelease(__deref_inout_opt T **ppT) {
 // based on the implementation in soloud and Microsoft sample code
 namespace {
 	kinc_thread_t thread;
-	void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = nullptr;
+	void (*a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = NULL;
 	void *a2_userdata = nullptr;
 	kinc_a2_buffer_t a2_buffer;
 
@@ -54,6 +54,9 @@ namespace {
 	WAVEFORMATEX requestedFormat;
 	WAVEFORMATEX *closestFormat;
 	WAVEFORMATEX *format;
+	static uint32_t samples_per_second = 44100;
+	static void (*sample_rate_callback)(void *userdata) = NULL;
+	static void *sample_rate_callback_userdata = NULL;
 
 	bool initDefaultDevice();
 	void audioThread(LPVOID);
@@ -133,8 +136,12 @@ namespace {
 				return false;
 			}
 
-			kinc_a2_samples_per_second = format->nSamplesPerSec;
-			a2_buffer.format.samples_per_second = kinc_a2_samples_per_second;
+			uint32_t old_samples_per_second = samples_per_second;
+			samples_per_second = format->nSamplesPerSec;
+			if (samples_per_second != old_samples_per_second && sample_rate_callback != NULL) {
+				sample_rate_callback(sample_rate_callback_userdata);
+			}
+			a2_buffer.channel_count = 2;
 
 			bufferFrames = 0;
 			kinc_microsoft_affirm(audioClient->GetBufferSize(&bufferFrames));
@@ -153,18 +160,26 @@ namespace {
 		}
 	}
 
-	void copyS16Sample(s16 *buffer) {
-		float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
-		a2_buffer.read_location += 4;
-		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
-		*buffer = (s16)(value * 32767);
+	void copyS16Sample(int16_t *left, int16_t *right) {
+		float left_value = *(float *)&a2_buffer.channels[0][a2_buffer.read_location];
+		float right_value = *(float *)&a2_buffer.channels[1][a2_buffer.read_location];
+		a2_buffer.read_location += 1;
+		if (a2_buffer.read_location >= a2_buffer.data_size) {
+			a2_buffer.read_location = 0;
+		}
+		*left = (int16_t)(left_value * 32767);
+		*right = (int16_t)(right_value * 32767);
 	}
 
-	void copyFloatSample(float *buffer) {
-		float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
-		a2_buffer.read_location += 4;
-		if (a2_buffer.read_location >= a2_buffer.data_size) a2_buffer.read_location = 0;
-		*buffer = value;
+	void copyFloatSample(float *left, float *right) {
+		float left_value = *(float *)&a2_buffer.channels[0][a2_buffer.read_location];
+		float right_value = *(float *)&a2_buffer.channels[1][a2_buffer.read_location];
+		a2_buffer.read_location += 1;
+		if (a2_buffer.read_location >= a2_buffer.data_size) {
+			a2_buffer.read_location = 0;
+		}
+		*left = left_value;
+		*right = right_value;
 	}
 
 	void submitEmptyBuffer(unsigned frames) {
@@ -192,18 +207,16 @@ namespace {
 		}
 
 		if (a2_callback != nullptr) {
-			a2_callback(&a2_buffer, frames * 2, a2_userdata);
+			a2_callback(&a2_buffer, frames, a2_userdata);
 			memset(buffer, 0, frames * format->nBlockAlign);
 			if (format->wFormatTag == WAVE_FORMAT_PCM) {
 				for (UINT32 i = 0; i < frames; ++i) {
-					copyS16Sample((s16 *)&buffer[i * format->nBlockAlign]);
-					copyS16Sample((s16 *)&buffer[i * format->nBlockAlign + 2]);
+					copyS16Sample((int16_t *)&buffer[i * format->nBlockAlign], (int16_t *)&buffer[i * format->nBlockAlign + 2]);
 				}
 			}
 			else {
 				for (UINT32 i = 0; i < frames; ++i) {
-					copyFloatSample((float *)&buffer[i * format->nBlockAlign]);
-					copyFloatSample((float *)&buffer[i * format->nBlockAlign + 4]);
+					copyFloatSample((float *)&buffer[i * format->nBlockAlign], (float *)&buffer[i * format->nBlockAlign + 4]);
 				}
 			}
 		}
@@ -259,7 +272,9 @@ void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = (uint8_t *)malloc(a2_buffer.data_size);
+	a2_buffer.channel_count = 2;
+	a2_buffer.channels[0] = (float *)malloc(a2_buffer.data_size * sizeof(float));
+	a2_buffer.channels[1] = (float *)malloc(a2_buffer.data_size * sizeof(float));
 
 	audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
 	kinc_affirm(audioProcessingDoneEvent != 0);
@@ -282,9 +297,17 @@ void kinc_a2_init() {
 #endif
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
 	a2_userdata = userdata;
+}
+
+uint32_t kinc_a2_samples_per_second(void) {
+	return samples_per_second;
+}
+
+void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
+	sample_rate_callback = kinc_a2_sample_rate_callback;
 }
 
 void kinc_a2_update() {}

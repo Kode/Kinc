@@ -15,7 +15,6 @@ static int bufferIndex;
 
 kinc_a1_sound_stream_t *kinc_a1_sound_stream_create(const char *filename, bool looping) {
 	kinc_a1_sound_stream_t *stream = &streams[nextStream];
-	stream->decoded = false;
 	stream->myLooping = looping;
 	stream->myVolume = 1;
 	stream->rateDecodedHack = false;
@@ -88,48 +87,42 @@ void kinc_a1_sound_stream_reset(kinc_a1_sound_stream_t *stream) {
 		stb_vorbis_seek_start(stream->vorbis);
 	stream->end = false;
 	stream->rateDecodedHack = false;
-	stream->decoded = false;
 }
 
-float kinc_a1_sound_stream_next_sample(kinc_a1_sound_stream_t *stream) {
-	if (stream->vorbis == NULL)
-		return 0;
+float *kinc_a1_sound_stream_next_frame(kinc_a1_sound_stream_t *stream) {
+	if (stream->vorbis == NULL) {
+		for (int i = 0; i < stream->chans; ++i) {
+			stream->samples[i] = 0;
+		}
+		return stream->samples;
+	}
 	if (stream->rate == 22050) {
 		if (stream->rateDecodedHack) {
-			if (stream->decoded) {
-				stream->decoded = false;
-				return stream->samples[0];
-			}
-			else {
-				stream->rateDecodedHack = false;
-				stream->decoded = true;
-				return stream->samples[1];
-			}
+			stream->rateDecodedHack = false;
+			return stream->samples;
 		}
 	}
-	if (stream->decoded) {
-		stream->decoded = false;
-		if (stream->chans == 1) {
-			return stream->samples[0];
+
+	float left, right;
+	float *samples_array[2] = {&left, &right};
+	int read = stb_vorbis_get_samples_float(stream->vorbis, stream->chans, samples_array, 1);
+	if (read == 0) {
+		if (kinc_a1_sound_stream_looping(stream)) {
+			stb_vorbis_seek_start(stream->vorbis);
+			stb_vorbis_get_samples_float(stream->vorbis, stream->chans, samples_array, 1);
 		}
 		else {
-			return stream->samples[1];
+			stream->end = true;
+			for (int i = 0; i < stream->chans; ++i) {
+				stream->samples[i] = 0;
+			}
+			return stream->samples;
 		}
 	}
-	else {
-		int read = stb_vorbis_get_samples_float_interleaved(stream->vorbis, stream->chans, &stream->samples[0], stream->chans);
-		if (read == 0) {
-			if (kinc_a1_sound_stream_looping(stream)) {
-				stb_vorbis_seek_start(stream->vorbis);
-				stb_vorbis_get_samples_float_interleaved(stream->vorbis, stream->chans, &stream->samples[0], stream->chans);
-			}
-			else {
-				stream->end = true;
-				return 0.0f;
-			}
-		}
-		stream->decoded = true;
-		stream->rateDecodedHack = true;
-		return stream->samples[0];
-	}
+
+	stream->samples[0] = samples_array[0][0];
+	stream->samples[1] = samples_array[1][0];
+
+	stream->rateDecodedHack = true;
+	return stream->samples;
 }
