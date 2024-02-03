@@ -1,6 +1,7 @@
 #include "audio.c.h"
 #include "display.c.h"
 #include "event.c.h"
+#include "gamepad.c.h"
 #include "mouse.c.h"
 #include "mutex.c.h"
 #include "semaphore.c.h"
