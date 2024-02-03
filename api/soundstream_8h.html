@@ -98,9 +98,9 @@ Functions</h2></td></tr>
 <tr class="memitem:afc2488d96142c6d6fe172a0ef7290418"><td class="memItemLeft" align="right" valign="top">KINC_FUNC <a class="el" href="structkinc__a1__sound__stream.html">kinc_a1_sound_stream_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="soundstream_8h.html#afc2488d96142c6d6fe172a0ef7290418">kinc_a1_sound_stream_create</a> (const char *filename, bool looping)</td></tr>
 <tr class="memdesc:afc2488d96142c6d6fe172a0ef7290418"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a sound-stream from a wav file.  <a href="soundstream_8h.html#afc2488d96142c6d6fe172a0ef7290418">More...</a><br /></td></tr>
 <tr class="separator:afc2488d96142c6d6fe172a0ef7290418"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab27f68613bc5ab215476eddad0ee5991"><td class="memItemLeft" align="right" valign="top">KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="soundstream_8h.html#ab27f68613bc5ab215476eddad0ee5991">kinc_a1_sound_stream_next_sample</a> (<a class="el" href="structkinc__a1__sound__stream.html">kinc_a1_sound_stream_t</a> *stream)</td></tr>
-<tr class="memdesc:ab27f68613bc5ab215476eddad0ee5991"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the next audio-sample in the stream.  <a href="soundstream_8h.html#ab27f68613bc5ab215476eddad0ee5991">More...</a><br /></td></tr>
-<tr class="separator:ab27f68613bc5ab215476eddad0ee5991"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab73be61ff7ccf4b2a56e6eb7f15c9b58"><td class="memItemLeft" align="right" valign="top">KINC_FUNC float *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="soundstream_8h.html#ab73be61ff7ccf4b2a56e6eb7f15c9b58">kinc_a1_sound_stream_next_frame</a> (<a class="el" href="structkinc__a1__sound__stream.html">kinc_a1_sound_stream_t</a> *stream)</td></tr>
+<tr class="memdesc:ab73be61ff7ccf4b2a56e6eb7f15c9b58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the next audio-frame in the stream.  <a href="soundstream_8h.html#ab73be61ff7ccf4b2a56e6eb7f15c9b58">More...</a><br /></td></tr>
+<tr class="separator:ab73be61ff7ccf4b2a56e6eb7f15c9b58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad29384184dd94d61b1d88da66adf2467"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="soundstream_8h.html#ad29384184dd94d61b1d88da66adf2467">kinc_a1_sound_stream_channels</a> (<a class="el" href="structkinc__a1__sound__stream.html">kinc_a1_sound_stream_t</a> *stream)</td></tr>
 <tr class="memdesc:ad29384184dd94d61b1d88da66adf2467"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the number of audio-channels the stream uses.  <a href="soundstream_8h.html#ad29384184dd94d61b1d88da66adf2467">More...</a><br /></td></tr>
 <tr class="separator:ad29384184dd94d61b1d88da66adf2467"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -281,14 +281,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ab27f68613bc5ab215476eddad0ee5991"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab27f68613bc5ab215476eddad0ee5991">&#9670;&nbsp;</a></span>kinc_a1_sound_stream_next_sample()</h2>
+<a id="ab73be61ff7ccf4b2a56e6eb7f15c9b58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab73be61ff7ccf4b2a56e6eb7f15c9b58">&#9670;&nbsp;</a></span>kinc_a1_sound_stream_next_frame()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC float kinc_a1_sound_stream_next_sample </td>
+          <td class="memname">KINC_FUNC float* kinc_a1_sound_stream_next_frame </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structkinc__a1__sound__stream.html">kinc_a1_sound_stream_t</a> *&#160;</td>
           <td class="paramname"><em>stream</em></td><td>)</td>
@@ -297,10 +297,10 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Gets the next audio-sample in the stream. </p>
+<p>Gets the next audio-frame in the stream. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">stream</td><td>The stream to extract the sample from</td></tr>
+    <tr><td class="paramname">stream</td><td>The stream to extract the frame from</td></tr>
   </table>
   </dd>
 </dl>

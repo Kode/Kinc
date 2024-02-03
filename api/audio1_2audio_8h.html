@@ -114,9 +114,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a1d3f0f1e4b889ca930505757933a7f72"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio1_2audio_8h.html#a1d3f0f1e4b889ca930505757933a7f72">kinc_a1_channel_set_volume</a> (kinc_a1_channel_t *channel, float volume)</td></tr>
 <tr class="memdesc:a1d3f0f1e4b889ca930505757933a7f72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the current volume of a channel. Only works correctly if the channel is still playing.  <a href="audio1_2audio_8h.html#a1d3f0f1e4b889ca930505757933a7f72">More...</a><br /></td></tr>
 <tr class="separator:a1d3f0f1e4b889ca930505757933a7f72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac07d8098b06eb795c48d16c060040401"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio1_2audio_8h.html#ac07d8098b06eb795c48d16c060040401">kinc_a1_mix</a> (<a class="el" href="structkinc__a2__buffer.html">kinc_a2_buffer_t</a> *buffer, int samples)</td></tr>
-<tr class="memdesc:ac07d8098b06eb795c48d16c060040401"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mixes audio into the provided buffer. kinc_a1_init sets this as the callback for a2 but you can also call it manually to mix a1-audio with your own audio. To do that, first call kinc_a1_init, then call kinc_a2_set_callback to set it to your own callback and call kinc_a1_mix from within that callback. Please be aware that the callback will run in a separate audio-thread.  <a href="audio1_2audio_8h.html#ac07d8098b06eb795c48d16c060040401">More...</a><br /></td></tr>
-<tr class="separator:ac07d8098b06eb795c48d16c060040401"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9dc38a2523140572e0211e9cce7c2c3b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="audio1_2audio_8h.html#a9dc38a2523140572e0211e9cce7c2c3b">kinc_a1_mix</a> (<a class="el" href="structkinc__a2__buffer.html">kinc_a2_buffer_t</a> *buffer, uint32_t samples)</td></tr>
+<tr class="memdesc:a9dc38a2523140572e0211e9cce7c2c3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mixes audio into the provided buffer. kinc_a1_init sets this as the callback for a2 but you can also call it manually to mix a1-audio with your own audio. To do that, first call kinc_a1_init, then call kinc_a2_set_callback to set it to your own callback and call kinc_a1_mix from within that callback. Please be aware that the callback will run in a separate audio-thread.  <a href="audio1_2audio_8h.html#a9dc38a2523140572e0211e9cce7c2c3b">More...</a><br /></td></tr>
+<tr class="separator:a9dc38a2523140572e0211e9cce7c2c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Audio1 is a high-level audio-API that lets you directly play audio-files. Depending on the target-system it either sits directly on a high-level system audio-API or is implemented based on Audio2. </p>
@@ -206,8 +206,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ac07d8098b06eb795c48d16c060040401"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac07d8098b06eb795c48d16c060040401">&#9670;&nbsp;</a></span>kinc_a1_mix()</h2>
+<a id="a9dc38a2523140572e0211e9cce7c2c3b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9dc38a2523140572e0211e9cce7c2c3b">&#9670;&nbsp;</a></span>kinc_a1_mix()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -221,7 +221,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
+          <td class="paramtype">uint32_t&#160;</td>
           <td class="paramname"><em>samples</em>&#160;</td>
         </tr>
         <tr>

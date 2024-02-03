@@ -4,8 +4,7 @@ var indexSectionsWithContent =
   1: "kw",
   2: "acdefghiklmpqrstuvw",
   3: "k",
-  4: "k",
-  5: "k"
+  4: "k"
 };
 
 var indexSectionNames =
@@ -14,8 +13,7 @@ var indexSectionNames =
   1: "classes",
   2: "files",
   3: "functions",
-  4: "variables",
-  5: "enums"
+  4: "enums"
 };
 
 var indexSectionLabels =
@@ -24,7 +22,6 @@ var indexSectionLabels =
   1: "Data Structures",
   2: "Files",
   3: "Functions",
-  4: "Variables",
-  5: "Enumerations"
+  4: "Enumerations"
 };
 
