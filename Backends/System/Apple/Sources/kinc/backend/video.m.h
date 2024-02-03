@@ -37,17 +37,28 @@ void kinc_internal_video_sound_stream_insert_data(kinc_internal_video_sound_stre
 	}
 }
 
-float kinc_internal_video_sound_stream_next_sample(kinc_internal_video_sound_stream_t *stream) {
+static float samples[2] = {0};
+
+float *kinc_internal_video_sound_stream_next_frame(kinc_internal_video_sound_stream_t *stream) {
 	++stream->read;
 	if (stream->written <= stream->read) {
 		kinc_log(KINC_LOG_LEVEL_WARNING, "Out of audio\n");
 		return 0;
 	}
+
 	if (stream->bufferReadPosition >= stream->bufferSize) {
 		stream->bufferReadPosition = 0;
 		kinc_log(KINC_LOG_LEVEL_INFO, "buffer read back - %i\n", (int)(stream->written - stream->read));
 	}
-	return stream->buffer[stream->bufferReadPosition++];
+	samples[0] = stream->buffer[stream->bufferReadPosition++];
+
+	if (stream->bufferReadPosition >= stream->bufferSize) {
+		stream->bufferReadPosition = 0;
+		kinc_log(KINC_LOG_LEVEL_INFO, "buffer read back - %i\n", (int)(stream->written - stream->read));
+	}
+	samples[1] = stream->buffer[stream->bufferReadPosition++];
+
+	return samples;
 }
 
 bool kinc_internal_video_sound_stream_ended(kinc_internal_video_sound_stream_t *stream) {
