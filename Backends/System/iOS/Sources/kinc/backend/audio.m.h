@@ -32,48 +32,69 @@ static AudioComponentInstance audioUnit;
 static bool isFloat = false;
 static bool isInterleaved = true;
 
-static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = NULL;
+static void (*a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = NULL;
 static void *a2_userdata = NULL;
 static void (*a2_sample_rate_callback)(void *userdata) = NULL;
 static void *a2_sample_rate_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
-static void copySample(void *buffer) {
-	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
-	a2_buffer.read_location += 4;
-	if (a2_buffer.read_location >= a2_buffer.data_size)
+static void copySample(void *buffer, void *secondary_buffer) {
+	float left_value = *(float *)&a2_buffer.channels[0][a2_buffer.read_location];
+	float right_value = *(float *)&a2_buffer.channels[1][a2_buffer.read_location];
+	a2_buffer.read_location += 1;
+	if (a2_buffer.read_location >= a2_buffer.data_size) {
 		a2_buffer.read_location = 0;
+	}
 
 	if (video != NULL) {
-		value += kinc_internal_video_sound_stream_next_sample(video);
-		value = kinc_max(kinc_min(value, 1.0f), -1.0f);
+		float *frame = kinc_internal_video_sound_stream_next_frame(video);
+		left_value += frame[0];
+		left_value = kinc_max(kinc_min(left_value, 1.0f), -1.0f);
+		right_value += frame[1];
+		right_value = kinc_max(kinc_min(right_value, 1.0f), -1.0f);
 		if (kinc_internal_video_sound_stream_ended(video)) {
 			video = NULL;
 		}
 	}
 
-	if (isFloat)
-		*(float *)buffer = value;
-	else
-		*(int16_t *)buffer = (int16_t)(value * 32767);
+	if (secondary_buffer == NULL) {
+		if (isFloat) {
+			((float *)buffer)[0] = left_value;
+			((float *)buffer)[1] = right_value;
+		}
+		else {
+			((int16_t *)buffer)[0] = (int16_t)(left_value * 32767);
+			((int16_t *)buffer)[1] = (int16_t)(right_value * 32767);
+		}
+	}
+	else {
+		if (isFloat) {
+			*(float *)buffer = left_value;
+			*(float *)secondary_buffer = right_value;
+		}
+		else {
+			*(int16_t *)buffer = (int16_t)(left_value * 32767);
+			*(int16_t *)secondary_buffer = (int16_t)(right_value * 32767);
+		}
+	}
 }
 
 static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber,
                             UInt32 inNumberFrames, AudioBufferList *outOutputData) {
-	a2_callback(&a2_buffer, inNumberFrames * 2, a2_userdata);
+	a2_callback(&a2_buffer, inNumberFrames, a2_userdata);
 	if (isInterleaved) {
 		if (isFloat) {
-			float *out = (float *)outOutputData->mBuffers[0].mData;
+			float *output = (float *)outOutputData->mBuffers[0].mData;
 			for (int i = 0; i < inNumberFrames; ++i) {
-				copySample(out++); // left
-				copySample(out++); // right
+				copySample(output, NULL);
+				output += 2;
 			}
 		}
 		else {
-			int16_t *out = (int16_t *)outOutputData->mBuffers[0].mData;
+			int16_t *output = (int16_t *)outOutputData->mBuffers[0].mData;
 			for (int i = 0; i < inNumberFrames; ++i) {
-				copySample(out++); // left
-				copySample(out++); // right
+				copySample(output, NULL);
+				output += 2;
 			}
 		}
 	}
@@ -82,30 +103,32 @@ static OSStatus renderInput(void *inRefCon, AudioUnitRenderActionFlags *ioAction
 			float *out1 = (float *)outOutputData->mBuffers[0].mData;
 			float *out2 = (float *)outOutputData->mBuffers[1].mData;
 			for (int i = 0; i < inNumberFrames; ++i) {
-				copySample(out1++); // left
-				copySample(out2++); // right
+				copySample(out1++, out2++);
 			}
 		}
 		else {
 			int16_t *out1 = (int16_t *)outOutputData->mBuffers[0].mData;
 			int16_t *out2 = (int16_t *)outOutputData->mBuffers[1].mData;
 			for (int i = 0; i < inNumberFrames; ++i) {
-				copySample(out1++); // left
-				copySample(out2++); // right
+				copySample(out1++, out2++);
 			}
 		}
 	}
 	return noErr;
 }
 
+static uint32_t samples_per_second = 44100;
+
 static void sampleRateListener(void *inRefCon, AudioUnit inUnit, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement) {
 	Float64 sampleRate;
 	UInt32 size = sizeof(sampleRate);
 	affirm(AudioUnitGetProperty(inUnit, kAudioUnitProperty_SampleRate, kAudioUnitScope_Output, 0, &sampleRate, &size));
 
-	kinc_a2_samples_per_second = (int)sampleRate;
-	if (a2_sample_rate_callback != NULL) {
-		a2_sample_rate_callback(a2_sample_rate_userdata);
+	if (samples_per_second != (uint32_t)sampleRate) {
+		samples_per_second = (uint32_t)sampleRate;
+		if (a2_sample_rate_callback != NULL) {
+			a2_sample_rate_callback(a2_sample_rate_userdata);
+		}
 	}
 }
 
@@ -121,7 +144,9 @@ void kinc_a2_init(void) {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = (uint8_t *)malloc(a2_buffer.data_size);
+	a2_buffer.channel_count = 2;
+	a2_buffer.channels[0] = (float *)malloc(a2_buffer.data_size * sizeof(float));
+	a2_buffer.channels[1] = (float *)malloc(a2_buffer.data_size * sizeof(float));
 
 	initialized = false;
 
@@ -172,10 +197,12 @@ void kinc_a2_init(void) {
 	printf("mBytesPerFrame = %d\n", (unsigned int)deviceFormat.mBytesPerFrame);
 	printf("mBitsPerChannel = %d\n", (unsigned int)deviceFormat.mBitsPerChannel);
 
-	kinc_a2_samples_per_second = deviceFormat.mSampleRate;
-	a2_buffer.format.samples_per_second = kinc_a2_samples_per_second;
-	a2_buffer.format.bits_per_sample = 32;
-	a2_buffer.format.channels = 2;
+	if (samples_per_second != (uint32_t)deviceFormat.mSampleRate) {
+		samples_per_second = (uint32_t)deviceFormat.mSampleRate;
+		if (a2_sample_rate_callback != NULL) {
+			a2_sample_rate_callback(a2_sample_rate_userdata);
+		}
+	}
 
 	AURenderCallbackStruct callbackStruct;
 	callbackStruct.inputProc = renderInput;
@@ -198,7 +225,7 @@ void kinc_a2_shutdown(void) {
 	soundPlaying = false;
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
 	a2_userdata = userdata;
 }
@@ -206,4 +233,8 @@ void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffe
 void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
 	a2_sample_rate_callback = kinc_a2_sample_rate_callback;
 	a2_sample_rate_userdata = userdata;
+}
+
+uint32_t kinc_a2_samples_per_second(void) {
+	return samples_per_second;
 }
