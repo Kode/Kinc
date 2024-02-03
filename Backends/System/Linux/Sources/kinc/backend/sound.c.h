@@ -228,6 +228,7 @@ void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
+	a2_buffer.channel_count = 2;
 	a2_buffer.channels[0] = (float *)malloc(a2_buffer.data_size * sizeof(float));
 	a2_buffer.channels[1] = (float *)malloc(a2_buffer.data_size * sizeof(float));
 
