@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = NULL;
+static void (*a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = NULL;
 static void *a2_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
@@ -22,35 +22,41 @@ static bool audioRunning = false;
 static short buf[BUFSIZE];
 #define NUM_BUFFERS 3
 
+static uint32_t samples_per_second = 44100;
+
 static void copySample(void *buffer) {
-	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
-	a2_buffer.read_location += 4;
+	float left_value = *(float *)&a2_buffer.channels[0][a2_buffer.read_location];
+	float right_value = *(float *)&a2_buffer.channels[1][a2_buffer.read_location];
+	a2_buffer.read_location += 1;
 	if (a2_buffer.read_location >= a2_buffer.data_size) {
 		a2_buffer.read_location = 0;
 	}
-	*(int16_t *)buffer = (int16_t)(value * 32767);
+	((int16_t *)buffer)[0] = (int16_t)(left_value * 32767);
+	((int16_t *)buffer)[1] = (int16_t)(right_value * 32767);
 }
 
 static void streamBuffer(ALuint buffer) {
 	if (a2_callback != NULL) {
-		a2_callback(&a2_buffer, BUFSIZE, a2_userdata);
-		for (int i = 0; i < BUFSIZE; ++i) {
+		a2_callback(&a2_buffer, BUFSIZE / 2, a2_userdata);
+		for (int i = 0; i < BUFSIZE; i += 2) {
 			copySample(&buf[i]);
 		}
 	}
 
-	alBufferData(buffer, format, buf, BUFSIZE * 2, 44100);
+	alBufferData(buffer, format, buf, BUFSIZE * 2, samples_per_second);
 }
 
 static void iter() {
-	if (!audioRunning)
+	if (!audioRunning) {
 		return;
+	}
 
 	ALint processed;
 	alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 
-	if (processed <= 0)
+	if (processed <= 0) {
 		return;
+	}
 	while (processed--) {
 		ALuint buffer;
 		alSourceUnqueueBuffers(source, 1, &buffer);
@@ -77,7 +83,9 @@ void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = malloc(a2_buffer.data_size);
+	a2_buffer.channel_count = 2;
+	a2_buffer.channels[0] = (float*)malloc(a2_buffer.data_size * sizeof(float));
+	a2_buffer.channels[1] = (float*)malloc(a2_buffer.data_size * sizeof(float));
 
 	audioRunning = true;
 
@@ -107,7 +115,19 @@ void kinc_a2_shutdown() {
 	audioRunning = false;
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
 	a2_userdata = userdata;
+}
+
+static void (*sample_rate_callback)(void *userdata) = NULL;
+static void *sample_rate_callback_userdata = NULL;
+
+uint32_t kinc_a2_samples_per_second(void) {
+	return samples_per_second;
+}
+
+void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
+	sample_rate_callback_userdata = userdata;
+	sample_rate_callback = kinc_a2_sample_rate_callback;
 }

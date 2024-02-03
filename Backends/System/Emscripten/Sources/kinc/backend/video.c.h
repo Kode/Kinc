@@ -46,8 +46,10 @@ void kinc_internal_video_sound_stream_destroy(kinc_internal_video_sound_stream_t
 
 void kinc_internal_video_sound_stream_insert_data(kinc_internal_video_sound_stream_t *stream, float *data, int sample_count) {}
 
-float kinc_internal_video_sound_stream_next_sample(kinc_internal_video_sound_stream_t *stream) {
-	return 0.0f;
+float samples[2] = {0};
+
+float *kinc_internal_video_sound_stream_next_frame(kinc_internal_video_sound_stream_t *stream) {
+	return samples;
 }
 
 bool kinc_internal_video_sound_stream_ended(kinc_internal_video_sound_stream_t *stream) {
