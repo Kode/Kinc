@@ -9,7 +9,7 @@
 
 // apt-get install libasound2-dev
 
-void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = NULL;
+void (*a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = NULL;
 void *a2_userdata = NULL;
 kinc_a2_buffer_t a2_buffer;
 
@@ -18,28 +18,40 @@ bool audioRunning = false;
 snd_pcm_t *playback_handle;
 short buf[4096 * 4];
 
+static unsigned int samples_per_second = 44100;
+
+static void (*sample_rate_callback)(void *userdata) = NULL;
+static void *sample_rate_callback_userdata = NULL;
+
+uint32_t kinc_a2_samples_per_second(void) {
+	return samples_per_second;
+}
+
+void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
+	sample_rate_callback_userdata = userdata;
+	sample_rate_callback = kinc_a2_sample_rate_callback;
+}
+
 void copySample(void *buffer) {
-	float value = *(float *)&a2_buffer.data[a2_buffer.read_location];
-	a2_buffer.read_location += 4;
-	if (a2_buffer.read_location >= a2_buffer.data_size)
+	float left_value = *(float *)&a2_buffer.channels[0][a2_buffer.read_location];
+	float right_value = *(float *)&a2_buffer.channels[1][a2_buffer.read_location];
+	a2_buffer.read_location += 1;
+	if (a2_buffer.read_location >= a2_buffer.data_size) {
 		a2_buffer.read_location = 0;
-	if (value != 0) {
-		int a = 3;
-		++a;
 	}
-	*(int16_t *)buffer = (int16_t)(value * 32767);
+	((int16_t *)buffer)[0] = (int16_t)(left_value * 32767);
+	((int16_t *)buffer)[1] = (int16_t)(right_value * 32767);
 }
 
 int playback_callback(snd_pcm_sframes_t nframes) {
 	int err = 0;
 	if (a2_callback != NULL) {
-		a2_callback(&a2_buffer, nframes * 2, a2_userdata);
+		a2_callback(&a2_buffer, nframes, a2_userdata);
 		int ni = 0;
 		while (ni < nframes) {
 			int i = 0;
 			for (; ni < nframes && i < 4096 * 2; ++i, ++ni) {
 				copySample(&buf[i * 2]);
-				copySample(&buf[i * 2 + 1]);
 			}
 			int err2;
 			if ((err2 = snd_pcm_writei(playback_handle, buf, i)) < 0) {
@@ -108,9 +120,8 @@ void *doAudio(void *arg) {
 		return NULL;
 	}
 
-	unsigned int rate = 44100;
 	int dir = 0;
-	if ((err = snd_pcm_hw_params_set_rate_near(playback_handle, hw_params, &rate, &dir)) < 0) {
+	if ((err = snd_pcm_hw_params_set_rate_near(playback_handle, hw_params, &samples_per_second, &dir)) < 0) {
 		fprintf(stderr, "cannot set sample rate (%s)\n", snd_strerror(err));
 		return NULL;
 	}
@@ -120,7 +131,7 @@ void *doAudio(void *arg) {
 		return NULL;
 	}
 
-	snd_pcm_uframes_t bufferSize = rate / 8;
+	snd_pcm_uframes_t bufferSize = samples_per_second / 8;
 	if (((err = snd_pcm_hw_params_set_buffer_size(playback_handle, hw_params, bufferSize)) < 0 &&
 	     (snd_pcm_hw_params_set_buffer_size_near(playback_handle, hw_params, &bufferSize)) < 0)) {
 		fprintf(stderr, "cannot set buffer size (%s)\n", snd_strerror(err));
@@ -217,7 +228,8 @@ void kinc_a2_init() {
 	a2_buffer.read_location = 0;
 	a2_buffer.write_location = 0;
 	a2_buffer.data_size = 128 * 1024;
-	a2_buffer.data = (uint8_t *)malloc(a2_buffer.data_size);
+	a2_buffer.channels[0] = (float *)malloc(a2_buffer.data_size * sizeof(float));
+	a2_buffer.channels[1] = (float *)malloc(a2_buffer.data_size * sizeof(float));
 
 	audioRunning = true;
 	pthread_create(&threadid, NULL, &doAudio, NULL);
@@ -229,7 +241,7 @@ void kinc_a2_shutdown() {
 	audioRunning = false;
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata), void *userdata) {
+void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
 	a2_callback = kinc_a2_audio_callback;
 	a2_userdata = userdata;
 }
