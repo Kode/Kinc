@@ -1,3 +1,4 @@
+* 2024-02-03: audio2 has been reworked to use a separate buffer for each channel. Also the buffers are typed as float-arrays now - just always write floats and increment write_location by one for each float.
 * 2024-01-28: kinc_a2_set_callback/a2_callback has a userdata-parameter now. Set to NULL and ignore if you don't need it.
 * 2024-01-17: Compute support was overhauled. It is now part of G4/G5 respectively and reuses most of those APIs. See https://github.com/Kode/Kinc-Samples/commit/c6582219615381177955b4cb8ff0dcc5004e6b97 for an example of how to update.
 * 2023-12-16: Dave is at it again and now the gamepad-callbacks also take an additional data-parameter.
