@@ -153,7 +153,7 @@ static void prepare_texture_image(uint8_t *tex_colors, uint32_t tex_width, uint3
 		tex_obj->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 	}
 	else {
-		tex_obj->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		tex_obj->imageLayout = VK_IMAGE_LAYOUT_GENERAL; // VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	}
 	set_image_layout(tex_obj->image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, tex_obj->imageLayout);
 	// setting the image layout does not reference the actual memory so no need to add a mem ref
