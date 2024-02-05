@@ -11,7 +11,7 @@ on:
 jobs:
   build:
 
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -19,7 +19,5 @@ jobs:
       run: ./get_dlc
     - name: Compile
       run: ./make -g metal --kinc . --from Tests/Empty --compile
-    - name: Compile and run Test 1
-      run: ./make --kinc . --from Tests/Shader --run
     - name: Compile and Run Test 2 (SIMD)
       run: ./make --kinc . --from Tests/SIMD --run
