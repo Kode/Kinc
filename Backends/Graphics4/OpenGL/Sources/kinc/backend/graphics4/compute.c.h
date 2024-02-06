@@ -182,6 +182,11 @@ void kinc_g4_set_compute_shader(kinc_g4_compute_shader *shader) {
 #ifdef HAS_COMPUTE
 	glUseProgram(shader->impl._programid);
 	glCheckErrors();
+
+	for (int index = 0; index < shader->impl.textureCount; ++index) {
+		glUniform1i(shader->impl.textureValues[index], index);
+		glCheckErrors();
+	}
 #endif
 }
 
