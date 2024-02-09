@@ -23,7 +23,7 @@ jobs:
             distro: ubuntu20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: uraimo/run-on-arch-action@v2.0.9
         name: Run Tests in ${{ matrix.distro }} ${{ matrix.arch }}
         id: build
