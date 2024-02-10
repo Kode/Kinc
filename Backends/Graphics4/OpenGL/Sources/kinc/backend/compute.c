@@ -69,7 +69,7 @@ static void setTextureAddressingInternal(GLenum target, kinc_compute_texture_uni
 	default:
 		glTexParameteri(target, texDir, GL_REPEAT);
 		break;
-	}
+	}f
 	glCheckErrors();
 }
 
@@ -431,6 +431,11 @@ void kinc_compute_set_shader(kinc_compute_shader_t *shader) {
 #ifdef HAS_COMPUTE
 	glUseProgram(shader->impl._programid);
 	glCheckErrors();
+
+	for (int index = 0; index < shader->impl.textureCount; ++index) {
+		glUniform1i(shader->impl.textureValues[index], index);
+		glCheckErrors();
+	}
 #endif
 }
 
