@@ -1,7 +1,7 @@
 #include "rendertarget.h"
 
-#include <Kinc/Graphics5/RenderTarget.h>
-#include <Kinc/Graphics5/Texture.h>
+#include <kinc/graphics5/rendertarget.h>
+#include <kinc/graphics5/texture.h>
 #include <kinc/backend/SystemMicrosoft.h>
 
 #ifdef KORE_WINDOWS
@@ -145,7 +145,8 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDescriptorHeap));
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {0};
+	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	shaderResourceViewDesc.Format = dxgiFormat;
@@ -212,7 +213,8 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 		srvDepthHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		device->CreateDescriptorHeap(&srvDepthHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDepthDescriptorHeap));
 
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDepthViewDesc = {0};
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDepthViewDesc;
+		ZeroMemory(&srvDepthViewDesc, sizeof(srvDepthViewDesc));
 		srvDepthViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDepthViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDepthViewDesc.Format = DXGI_FORMAT_R32_FLOAT;

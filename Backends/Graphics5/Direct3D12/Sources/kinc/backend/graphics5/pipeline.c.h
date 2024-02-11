@@ -451,6 +451,8 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 			case KINC_G4_VERTEX_DATA_U32_4X:
 				vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32A32_UINT;
 				break;
+			default:
+				break;
 			}
 			curAttr++;
 		}

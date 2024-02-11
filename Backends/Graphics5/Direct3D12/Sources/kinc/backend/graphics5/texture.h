@@ -22,6 +22,7 @@ typedef struct {
 } Texture5Impl;
 
 struct kinc_g5_texture;
+struct kinc_g5_command_list;
 
 void kinc_g5_internal_set_textures(struct kinc_g5_command_list *commandList);
 void kinc_g5_internal_texture_set(struct kinc_g5_command_list *commandList, struct kinc_g5_texture *texture, int unit);
