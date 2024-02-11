@@ -7,6 +7,9 @@
 
 // Windows 7
 #define WINVER 0x0601
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
 #define _WIN32_WINNT 0x0601
 
 #define NOATOM
@@ -53,6 +56,7 @@
 #include <AudioClient.h>
 #include <mmdeviceapi.h>
 
+#ifndef __MINGW32__
 // MIDL_INTERFACE("1CB9AD4C-DBFA-4c32-B178-C2F568A703B2")
 DEFINE_GUID(IID_IAudioClient, 0x1CB9AD4C, 0xDBFA, 0x4c32, 0xB1, 0x78, 0xC2, 0xF5, 0x68, 0xA7, 0x03, 0xB2);
 // MIDL_INTERFACE("F294ACFC-3146-4483-A7BF-ADDCA7C260E2")
@@ -61,6 +65,7 @@ DEFINE_GUID(IID_IAudioRenderClient, 0xF294ACFC, 0x3146, 0x4483, 0xA7, 0xBF, 0xAD
 DEFINE_GUID(IID_IMMDeviceEnumerator, 0xA95664D2, 0x9614, 0x4F35, 0xA7, 0x46, 0xDE, 0x8D, 0xB6, 0x36, 0x17, 0xE6);
 // DECLSPEC_UUID("BCDE0395-E52F-467C-8E3D-C4579291692E")
 DEFINE_GUID(CLSID_MMDeviceEnumerator, 0xBCDE0395, 0xE52F, 0x467C, 0x8E, 0x3D, 0xC4, 0x57, 0x92, 0x91, 0x69, 0x2E);
+#endif
 
 // based on the implementation in soloud and Microsoft sample code
 static void (*volatile a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = NULL;
