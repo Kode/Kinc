@@ -348,7 +348,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		}
 		break;
 	}
-	case WM_CLOSE:
+	case WM_CLOSE: {
 		int window_index = kinc_windows_window_index_from_hwnd(hWnd);
 		if (kinc_internal_call_close_callback(window_index)) {
 			kinc_window_destroy(window_index);
@@ -358,6 +358,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 			}
 		}
 		return 0;
+	}
 	case WM_ERASEBKGND:
 		return 1;
 	case WM_ACTIVATE:
@@ -688,7 +689,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 	case WM_DEVICECHANGE:
 		detectGamepad = true;
 		break;
-	case WM_DROPFILES:
+	case WM_DROPFILES: {
 		HDROP hDrop = (HDROP)wParam;
 		unsigned count = DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
 		for (unsigned i = 0; i < count; ++i) {
@@ -699,6 +700,7 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		}
 		DragFinish(hDrop);
 		break;
+	}
 	}
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }

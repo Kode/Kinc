@@ -79,6 +79,8 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, const void *_data, size_t len
 	case KINC_G5_SHADER_TYPE_TESSELLATION_EVALUATION:
 		// Microsoft::affirm(device->CreateDomainShader(this->data, this->length, nullptr, (ID3D11DomainShader**)&shader));
 		break;
+	default:
+		break;
 	}
 }
 

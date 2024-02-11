@@ -68,6 +68,7 @@ typedef struct {
 } AttributeLocation5Impl;
 
 struct kinc_g5_pipeline;
+struct kinc_g5_command_list;
 
 void kinc_g5_internal_setConstants(struct kinc_g5_command_list *commandList, struct kinc_g5_pipeline *pipeline);
 

@@ -247,7 +247,8 @@ void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *i
 
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&texture->impl.srvDescriptorHeap));
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {0};
+	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
 	shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	shaderResourceViewDesc.Format = d3dformat;
@@ -337,7 +338,8 @@ void create_texture(struct kinc_g5_texture *texture, int width, int height, kinc
 
 	texture->impl.stride = (int)ceilf(uploadBufferSize / (float)(height * d3d12_textureAlignment())) * d3d12_textureAlignment();
 
-	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {0};
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc;
+	ZeroMemory(&descriptorHeapDesc, sizeof(descriptorHeapDesc));
 	descriptorHeapDesc.NumDescriptors = 1;
 
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;

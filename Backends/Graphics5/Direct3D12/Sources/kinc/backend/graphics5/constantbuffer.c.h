@@ -1,4 +1,4 @@
-#include <Kinc/Graphics5/ConstantBuffer.h>
+#include <kinc/graphics5/constantbuffer.h>
 
 #include <kinc/backend/SystemMicrosoft.h>
 
