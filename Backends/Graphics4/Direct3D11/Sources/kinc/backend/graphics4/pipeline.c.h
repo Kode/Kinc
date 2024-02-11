@@ -788,6 +788,8 @@ void kinc_g4_pipeline_compile(struct kinc_g4_pipeline *state) {
 				}
 				break;
 			}
+			default:
+				break;
 			}
 		}
 	}

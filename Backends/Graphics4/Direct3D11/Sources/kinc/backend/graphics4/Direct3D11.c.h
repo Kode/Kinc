@@ -39,6 +39,15 @@ IUnknown *kinc_winapp_internal_get_window(void);
 #include <windows.graphics.directx.direct3d11.interop.h>
 #endif
 
+// MinGW workaround for missing defines
+#ifndef D3D11_MIN_DEPTH
+#define D3D11_MIN_DEPTH (0.0f)
+#endif
+
+#ifndef D3D11_MAX_DEPTH
+#define D3D11_MAX_DEPTH (1.0f)
+#endif
+
 extern kinc_g4_pipeline_t *currentPipeline;
 extern float currentBlendFactor[4];
 extern bool needPipelineRebind;
@@ -876,6 +885,8 @@ void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_
 		case D3D11_FILTER_ANISOTROPIC:
 			d3d11filter = D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
 			break;
+		default:
+			break;
 		}
 		break;
 	case KINC_G4_TEXTURE_FILTER_LINEAR:
@@ -895,6 +906,8 @@ void kinc_g4_set_texture_magnification_filter(kinc_g4_texture_unit_t unit, kinc_
 		case D3D11_FILTER_MIN_MAG_MIP_LINEAR:
 		case D3D11_FILTER_ANISOTROPIC:
 			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			break;
+		default:
 			break;
 		}
 		break;
@@ -940,6 +953,8 @@ void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g
 		case D3D11_FILTER_ANISOTROPIC:
 			d3d11filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
 			break;
+		default:
+			break;
 		}
 		break;
 	case KINC_G4_TEXTURE_FILTER_LINEAR:
@@ -961,10 +976,14 @@ void kinc_g4_set_texture_minification_filter(kinc_g4_texture_unit_t unit, kinc_g
 		case D3D11_FILTER_ANISOTROPIC:
 			d3d11filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 			break;
+		default:
+			break;
 		}
 		break;
 	case KINC_G4_TEXTURE_FILTER_ANISOTROPIC:
 		d3d11filter = D3D11_FILTER_ANISOTROPIC;
+		break;
+	default:
 		break;
 	}
 
@@ -1008,6 +1027,8 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipm
 		case D3D11_FILTER_ANISOTROPIC:
 			d3d11filter = D3D11_FILTER_ANISOTROPIC;
 			break;
+		default:
+			break;
 		}
 		break;
 	case KINC_G4_MIPMAP_FILTER_LINEAR:
@@ -1030,6 +1051,8 @@ void kinc_g4_set_texture_mipmap_filter(kinc_g4_texture_unit_t unit, kinc_g4_mipm
 			break;
 		case D3D11_FILTER_ANISOTROPIC:
 			d3d11filter = D3D11_FILTER_ANISOTROPIC;
+			break;
+		default:
 			break;
 		}
 		break;

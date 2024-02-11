@@ -2,6 +2,9 @@
 
 // Windows 7
 #define WINVER 0x0601
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
 #define _WIN32_WINNT 0x0601
 
 #define NOATOM

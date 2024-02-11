@@ -424,7 +424,7 @@ static void initWindow(struct dx_window *window, int windowIndex) {
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.Windowed = true;
 
-	IDXGIFactory4 *dxgiFactory;
+	IDXGIFactory4 *dxgiFactory = NULL;
 	kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)));
 
 	kinc_microsoft_affirm(dxgiFactory->CreateSwapChain((IUnknown *)commandQueue, &swapChainDesc, &window->swapChain));
