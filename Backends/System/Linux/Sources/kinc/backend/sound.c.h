@@ -9,8 +9,6 @@
 
 // apt-get install libasound2-dev
 
-void (*a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = NULL;
-void *a2_userdata = NULL;
 kinc_a2_buffer_t a2_buffer;
 
 pthread_t threadid;
@@ -20,16 +18,8 @@ short buf[4096 * 4];
 
 static unsigned int samples_per_second = 44100;
 
-static void (*sample_rate_callback)(void *userdata) = NULL;
-static void *sample_rate_callback_userdata = NULL;
-
 uint32_t kinc_a2_samples_per_second(void) {
 	return samples_per_second;
-}
-
-void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
-	sample_rate_callback_userdata = userdata;
-	sample_rate_callback = kinc_a2_sample_rate_callback;
 }
 
 void copySample(void *buffer) {
@@ -45,8 +35,7 @@ void copySample(void *buffer) {
 
 int playback_callback(snd_pcm_sframes_t nframes) {
 	int err = 0;
-	if (a2_callback != NULL) {
-		a2_callback(&a2_buffer, nframes, a2_userdata);
+	if (kinc_a2_internal_callback(&a2_buffer, nframes)) {
 		int ni = 0;
 		while (ni < nframes) {
 			int i = 0;
@@ -223,6 +212,7 @@ void kinc_a2_init() {
 		return;
 	}
 
+	kinc_a2_internal_init();
 	initialized = true;
 
 	a2_buffer.read_location = 0;
@@ -240,9 +230,4 @@ void kinc_a2_update() {}
 
 void kinc_a2_shutdown() {
 	audioRunning = false;
-}
-
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
-	a2_callback = kinc_a2_audio_callback;
-	a2_userdata = userdata;
 }
