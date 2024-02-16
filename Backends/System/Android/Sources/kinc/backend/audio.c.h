@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void (*a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = NULL;
-static void *a2_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
 static SLObjectItf engineObject;
@@ -31,17 +29,15 @@ static void copySample(void *buffer) {
 }
 
 static void bqPlayerCallback(SLAndroidSimpleBufferQueueItf caller, void *context) {
-	if (a2_callback != NULL) {
-		a2_callback(&a2_buffer, AUDIO_BUFFER_SIZE / 2, a2_userdata);
+	if (kinc_a2_internal_callback(&a2_buffer, AUDIO_BUFFER_SIZE / 2)) {
 		for (int i = 0; i < AUDIO_BUFFER_SIZE; i += 2) {
 			copySample(&tempBuffer[i]);
 		}
-		SLresult result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, AUDIO_BUFFER_SIZE * 2);
 	}
 	else {
 		memset(tempBuffer, 0, sizeof(tempBuffer));
-		SLresult result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, AUDIO_BUFFER_SIZE * 2);
 	}
+	SLresult result = (*bqPlayerBufferQueue)->Enqueue(bqPlayerBufferQueue, tempBuffer, AUDIO_BUFFER_SIZE * 2);
 }
 
 static bool initialized = false;
@@ -51,6 +47,7 @@ void kinc_a2_init() {
 		return;
 	}
 
+	kinc_a2_internal_init();
 	initialized = true;
 
 	a2_buffer.read_location = 0;
@@ -131,19 +128,6 @@ void kinc_a2_shutdown() {
 	}
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
-	a2_callback = kinc_a2_audio_callback;
-	a2_userdata = userdata;
-}
-
-static void (*sample_rate_callback)(void *userdata) = NULL;
-static void *sample_rate_callback_userdata = NULL;
-
 uint32_t kinc_a2_samples_per_second(void) {
 	return 44100;
-}
-
-void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
-	sample_rate_callback_userdata = userdata;
-	sample_rate_callback = kinc_a2_sample_rate_callback;
 }

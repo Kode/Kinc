@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void (*a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = NULL;
-static void *a2_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
 static ALCdevice *device = NULL;
@@ -36,8 +34,7 @@ static void copySample(void *buffer) {
 }
 
 static void streamBuffer(ALuint buffer) {
-	if (a2_callback != NULL) {
-		a2_callback(&a2_buffer, BUFSIZE / 2, a2_userdata);
+	if (kinc_a2_internal_callback(&a2_buffer, BUFSIZE / 2)) {
 		for (int i = 0; i < BUFSIZE; i += 2) {
 			copySample(&buf[i]);
 		}
@@ -78,6 +75,7 @@ void kinc_a2_init() {
 		return;
 	}
 
+	kinc_a2_internal_init();
 	a2_initialized = true;
 
 	a2_buffer.read_location = 0;
@@ -115,19 +113,6 @@ void kinc_a2_shutdown() {
 	audioRunning = false;
 }
 
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
-	a2_callback = kinc_a2_audio_callback;
-	a2_userdata = userdata;
-}
-
-static void (*sample_rate_callback)(void *userdata) = NULL;
-static void *sample_rate_callback_userdata = NULL;
-
 uint32_t kinc_a2_samples_per_second(void) {
 	return samples_per_second;
-}
-
-void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
-	sample_rate_callback_userdata = userdata;
-	sample_rate_callback = kinc_a2_sample_rate_callback;
 }

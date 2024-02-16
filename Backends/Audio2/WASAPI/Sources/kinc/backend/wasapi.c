@@ -68,8 +68,6 @@ DEFINE_GUID(CLSID_MMDeviceEnumerator, 0xBCDE0395, 0xE52F, 0x467C, 0x8E, 0x3D, 0x
 #endif
 
 // based on the implementation in soloud and Microsoft sample code
-static void (*volatile a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = NULL;
-static void *a2_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
 static IMMDeviceEnumerator *deviceEnumerator;
@@ -83,16 +81,9 @@ static WAVEFORMATEX requestedFormat;
 static WAVEFORMATEX *closestFormat;
 static WAVEFORMATEX *format;
 static uint32_t samples_per_second = 44100;
-static void (*sample_rate_callback)(void *userdata) = NULL;
-static void *sample_rate_callback_userdata = NULL;
 
 uint32_t kinc_a2_samples_per_second(void) {
 	return samples_per_second;
-}
-
-void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
-	sample_rate_callback_userdata = userdata;
-	sample_rate_callback = kinc_a2_sample_rate_callback;
 }
 
 static bool initDefaultDevice() {
@@ -150,8 +141,8 @@ static bool initDefaultDevice() {
 
 		uint32_t old_samples_per_second = samples_per_second;
 		samples_per_second = format->nSamplesPerSec;
-		if (samples_per_second != old_samples_per_second && sample_rate_callback != NULL) {
-			sample_rate_callback(sample_rate_callback_userdata);
+		if (samples_per_second != old_samples_per_second) {
+			kinc_a2_internal_sample_rate_callback();
 		}
 		a2_buffer.channel_count = 2;
 
@@ -218,9 +209,7 @@ static void submitBuffer(unsigned frames) {
 		return;
 	}
 
-	if (a2_callback != NULL) {
-		a2_callback(&a2_buffer, frames, a2_userdata);
-		memset(buffer, 0, frames * format->nBlockAlign);
+	if (kinc_a2_internal_callback(&a2_buffer, frames)) {
 		if (format->wFormatTag == WAVE_FORMAT_PCM) {
 			for (UINT32 i = 0; i < frames; ++i) {
 				copyS16Sample((int16_t *)&buffer[i * format->nBlockAlign], (int16_t *)&buffer[i * format->nBlockAlign + 2]);
@@ -276,6 +265,7 @@ void kinc_a2_init() {
 		return;
 	}
 
+	kinc_a2_internal_init();
 	initialized = true;
 
 	a2_buffer.read_location = 0;
@@ -294,11 +284,6 @@ void kinc_a2_init() {
 	if (initDefaultDevice()) {
 		CreateThread(0, 65536, audioThread, NULL, 0, 0);
 	}
-}
-
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
-	a2_callback = kinc_a2_audio_callback;
-	a2_userdata = userdata;
 }
 
 void kinc_a2_update() {}

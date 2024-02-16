@@ -21,8 +21,6 @@ namespace {
 	const int gap = 10 * 1024;
 	DWORD writePos = gap;
 
-	void (*a2_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata) = nullptr;
-	void *a2_userdata = nullptr;
 	kinc_a2_buffer_t a2_buffer;
 }
 
@@ -33,6 +31,7 @@ void kinc_a2_init() {
 		return;
 	}
 
+	kinc_a2_internal_init();
 	initialized = true;
 
 	a2_buffer.read_location = 0;
@@ -79,11 +78,6 @@ void kinc_a2_init() {
 
 uint32_t kinc_a2_samples_per_second(void) {
 	return samplesPerSecond;
-}
-
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
-	a2_callback = kinc_a2_audio_callback;
-	a2_userdata = userdata;
 }
 
 namespace {
@@ -133,7 +127,7 @@ void kinc_a2_update() {
 		}
 	}
 
-	a2_callback(&a2_buffer, (uint32_t)(gap / 4), a2_userdata);
+	kinc_a2_internal_callback(&a2_buffer, (uint32_t)(gap / 4));
 
 	DWORD size1;
 	uint8_t *buffer1;

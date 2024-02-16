@@ -33,10 +33,6 @@ static AudioObjectPropertyAddress address;
 
 static AudioDeviceIOProcID theIOProcID = NULL;
 
-static void (*a2_callback)(kinc_a2_buffer_t *buffer, int samples, void *userdata) = NULL;
-static void *a2_userdata = NULL;
-static void (*a2_sample_rate_callback)(void *userdata) = NULL;
-static void *a2_sample_rate_userdata = NULL;
 static kinc_a2_buffer_t a2_buffer;
 
 static uint32_t samples_per_second = 44100;
@@ -61,12 +57,10 @@ static OSStatus appIOProc(AudioDeviceID inDevice, const AudioTimeStamp *inNow, c
 	affirm(AudioObjectGetPropertyData(device, &address, 0, NULL, &size, &deviceFormat));
 	if (samples_per_second != (int)deviceFormat.mSampleRate) {
 		samples_per_second = (int)deviceFormat.mSampleRate;
-		if (a2_sample_rate_callback != NULL) {
-			a2_sample_rate_callback(a2_sample_rate_userdata);
-		}
+		kinc_a2_internal_sample_rate_callback();
 	}
 	int num_frames = deviceBufferSize / deviceFormat.mBytesPerFrame;
-	a2_callback(&a2_buffer, num_frames, a2_userdata);
+	kinc_a2_internal_callback(&a2_buffer, num_frames);
 	float *output = (float *)outOutputData->mBuffers[0].mData;
 	for (int i = 0; i < num_frames; ++i) {
 		copySample(output);
@@ -82,6 +76,7 @@ void kinc_a2_init(void) {
 		return;
 	}
 
+	kinc_a2_internal_init();
 	initialized = true;
 
 	a2_buffer.read_location = 0;
@@ -126,9 +121,7 @@ void kinc_a2_init(void) {
 
 	if (samples_per_second != (int)deviceFormat.mSampleRate) {
 		samples_per_second = (int)deviceFormat.mSampleRate;
-		if (a2_sample_rate_callback != NULL) {
-			a2_sample_rate_callback(a2_sample_rate_userdata);
-		}
+		kinc_a2_internal_sample_rate_callback();
 	}
 
 	initialized = true;
@@ -162,14 +155,4 @@ void kinc_a2_shutdown(void) {
 	affirm(AudioDeviceDestroyIOProcID(device, theIOProcID));
 
 	soundPlaying = false;
-}
-
-void kinc_a2_set_callback(void (*kinc_a2_audio_callback)(kinc_a2_buffer_t *buffer, uint32_t samples, void *userdata), void *userdata) {
-	a2_callback = kinc_a2_audio_callback;
-	a2_userdata = userdata;
-}
-
-void kinc_a2_set_sample_rate_callback(void (*kinc_a2_sample_rate_callback)(void *userdata), void *userdata) {
-	a2_sample_rate_callback = kinc_a2_sample_rate_callback;
-	a2_sample_rate_userdata = userdata;
 }
