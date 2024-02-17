@@ -70,6 +70,7 @@ void kinc_a2_internal_sample_rate_callback(void);
 
 #include <kinc/threads/mutex.h>
 #include <memory.h>
+#include <stddef.h>
 
 static kinc_mutex_t mutex;
 

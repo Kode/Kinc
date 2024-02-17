@@ -140,6 +140,7 @@ void kinc_internal_mouse_window_deactivated(int window);
 #define KINC_IMPLEMENTATION
 
 #include <memory.h>
+#include <stddef.h>
 
 static void (*mouse_press_callback)(int /*window*/, int /*button*/, int /*x*/, int /*y*/, void * /*data*/) = NULL;
 static void *mouse_press_callback_data = NULL;

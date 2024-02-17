@@ -63,6 +63,7 @@ void kinc_internal_gamepad_trigger_button(int gamepad, int button, float value);
 #ifdef KINC_IMPLEMENTATION
 
 #include <memory.h>
+#include <stddef.h>
 
 static void (*gamepad_axis_callback)(int /*gamepad*/, int /*axis*/, float /*value*/, void * /*userdata*/) = NULL;
 static void *gamepad_axis_callback_userdata = NULL;
