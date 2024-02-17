@@ -46,9 +46,9 @@ void kinc_g5_shader_init(kinc_g5_shader_t *shader, const void *_data, size_t len
 				break;
 		}
 		ShaderConstant constant;
-		constant.offset = *(uint32_t *)&data[index];
+		memcpy(&constant.offset, &data[index], sizeof(constant.offset));
 		index += 4;
-		constant.size = *(uint32_t *)&data[index];
+		memcpy(&constant.size, &data[index], sizeof(constant.size));
 		index += 4;
 #ifdef KORE_WINDOWS
 		index += 2; // columns and rows

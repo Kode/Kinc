@@ -181,7 +181,7 @@ static void *buffer_malloc(size_t size) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Not enough memory on image.c Buffer.");
 		return NULL;
 	}
-	*(size_t *)current = size;
+	memcpy(current, &size, sizeof(*current));
 	last_allocated_pointer = current + sizeof(size_t);
 	return current + sizeof(size_t);
 }
