@@ -97,14 +97,14 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetDescriptorHeap));
+	kinc_microsoft_affirm(device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetDescriptorHeap)));
 
 	if (framebuffer_index >= 0) {
 #ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
 		render_target->impl.renderTarget = swapChainRenderTargets[framebuffer_index];
 #else
 		IDXGISwapChain *swapChain = kinc_dx_current_window()->swapChain;
-		swapChain->GetBuffer(framebuffer_index, IID_PPV_ARGS(&render_target->impl.renderTarget));
+		kinc_microsoft_affirm(swapChain->GetBuffer(framebuffer_index, IID_PPV_ARGS(&render_target->impl.renderTarget)));
 		wchar_t buffer[128];
 		wsprintf(buffer, L"Backbuffer (index %i)", framebuffer_index);
 		render_target->impl.renderTarget->SetName(buffer);
@@ -143,7 +143,7 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 	descriptorHeapDesc.NodeMask = 0;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDescriptorHeap));
+	kinc_microsoft_affirm(device->CreateDescriptorHeap(&descriptorHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDescriptorHeap)));
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 	ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
@@ -162,7 +162,7 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 		dsvHeapDesc.NumDescriptors = 1;
 		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilDescriptorHeap));
+		kinc_microsoft_affirm(device->CreateDescriptorHeap(&dsvHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.depthStencilDescriptorHeap)));
 
 		D3D12_RESOURCE_DESC depthTexture;
 		depthTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -211,7 +211,7 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 		srvDepthHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		srvDepthHeapDesc.NodeMask = 0;
 		srvDepthHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		device->CreateDescriptorHeap(&srvDepthHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDepthDescriptorHeap));
+		kinc_microsoft_affirm(device->CreateDescriptorHeap(&srvDepthHeapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.srvDepthDescriptorHeap)));
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDepthViewDesc;
 		ZeroMemory(&srvDepthViewDesc, sizeof(srvDepthViewDesc));

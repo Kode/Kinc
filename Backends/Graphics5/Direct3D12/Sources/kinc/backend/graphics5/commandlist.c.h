@@ -395,7 +395,7 @@ void kinc_g5_command_list_upload_texture(kinc_g5_command_list_t *list, kinc_g5_t
 	}
 
 	D3D12_RESOURCE_DESC Desc = texture->impl.image->GetDesc();
-	ID3D12Device *device;
+	ID3D12Device *device = NULL;
 	texture->impl.image->GetDevice(IID_GRAPHICS_PPV_ARGS(&device));
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
 	device->GetCopyableFootprints(&Desc, 0, 1, 0, &footprint, NULL, NULL, NULL);

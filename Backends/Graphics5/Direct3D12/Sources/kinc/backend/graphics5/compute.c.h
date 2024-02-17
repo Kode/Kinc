@@ -48,9 +48,9 @@ void kinc_g5_compute_shader_init(kinc_g5_compute_shader *shader, void *_data, in
 		}
 		kinc_compute_internal_shader_constant_t constant;
 		constant.hash = kinc_internal_hash_name(name);
-		constant.offset = *(uint32_t *)&data[index];
+		memcpy(&constant.offset, &data[index], sizeof(constant.offset));
 		index += 4;
-		constant.size = *(uint32_t *)&data[index];
+		memcpy(&constant.size, &data[index], sizeof(constant.size));
 		index += 4;
 		constant.columns = data[index];
 		index += 1;
