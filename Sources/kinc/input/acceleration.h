@@ -25,6 +25,7 @@ void kinc_internal_on_acceleration(float x, float y, float z);
 #ifdef KINC_IMPLEMENTATION
 
 #include <memory.h>
+#include <stddef.h>
 
 void (*acceleration_callback)(float /*x*/, float /*y*/, float /*z*/) = NULL;
 

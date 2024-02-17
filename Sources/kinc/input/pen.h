@@ -61,6 +61,7 @@ void kinc_internal_eraser_trigger_release(int window, int x, int y, float pressu
 #ifdef KINC_IMPLEMENTATION
 
 #include <memory.h>
+#include <stddef.h>
 
 static void (*pen_press_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;
 static void (*pen_move_callback)(int /*window*/, int /*x*/, int /*y*/, float /*pressure*/) = NULL;

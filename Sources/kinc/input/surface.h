@@ -39,6 +39,7 @@ void kinc_internal_surface_trigger_touch_end(int index, int x, int y);
 #ifdef KINC_IMPLEMENTATION
 
 #include <memory.h>
+#include <stddef.h>
 
 static void (*surface_touch_start_callback)(int /*index*/, int /*x*/, int /*y*/) = NULL;
 static void (*surface_move_callback)(int /*index*/, int /*x*/, int /*y*/) = NULL;

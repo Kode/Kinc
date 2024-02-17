@@ -245,6 +245,7 @@ void kinc_internal_keyboard_trigger_key_press(unsigned character);
 #ifdef KINC_IMPLEMENTATION
 
 #include <memory.h>
+#include <stddef.h>
 
 static void (*keyboard_key_down_callback)(int /*key_code*/, void * /*data*/) = NULL;
 static void *keyboard_key_down_callback_data = NULL;
