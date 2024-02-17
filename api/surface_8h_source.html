@@ -94,46 +94,47 @@ $(function() {
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#ifdef KINC_IMPLEMENTATION</span></div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#include &lt;memory.h&gt;</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">static</span> void (*surface_touch_start_callback)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>) = NULL;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">static</span> void (*surface_move_callback)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>) = NULL;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keyword">static</span> void (*surface_touch_end_callback)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>) = NULL;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keywordtype">void</span> <a class="code" href="surface_8h.html#a2eedbc0e323b2dbc539107fef1cb973a">kinc_surface_set_touch_start_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>)) {</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    surface_touch_start_callback = value;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;}</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keywordtype">void</span> <a class="code" href="surface_8h.html#a44f59e6e12067dcb17661c60799faa97">kinc_surface_set_move_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>)) {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    surface_move_callback = value;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;}</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keywordtype">void</span> <a class="code" href="surface_8h.html#a5dafb268c26b4d5bd9fb95375d15a9f0">kinc_surface_set_touch_end_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>)) {</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    surface_touch_end_callback = value;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_touch_start(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordflow">if</span> (surface_touch_start_callback != NULL) {</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        surface_touch_start_callback(index, x, y);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    }</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;}</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_move(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordflow">if</span> (surface_move_callback != NULL) {</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        surface_move_callback(index, x, y);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    }</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;}</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_touch_end(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordflow">if</span> (surface_touch_end_callback != NULL) {</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        surface_touch_end_callback(index, x, y);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    }</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;}</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;}</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">static</span> void (*surface_touch_start_callback)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>) = NULL;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keyword">static</span> void (*surface_move_callback)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>) = NULL;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">static</span> void (*surface_touch_end_callback)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>) = NULL;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keywordtype">void</span> <a class="code" href="surface_8h.html#a2eedbc0e323b2dbc539107fef1cb973a">kinc_surface_set_touch_start_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>)) {</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    surface_touch_start_callback = value;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;}</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keywordtype">void</span> <a class="code" href="surface_8h.html#a44f59e6e12067dcb17661c60799faa97">kinc_surface_set_move_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>)) {</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    surface_move_callback = value;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keywordtype">void</span> <a class="code" href="surface_8h.html#a5dafb268c26b4d5bd9fb95375d15a9f0">kinc_surface_set_touch_end_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*index*/</span>, <span class="keywordtype">int</span> <span class="comment">/*x*/</span>, <span class="keywordtype">int</span> <span class="comment">/*y*/</span>)) {</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    surface_touch_end_callback = value;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;}</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_touch_start(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordflow">if</span> (surface_touch_start_callback != NULL) {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        surface_touch_start_callback(index, x, y);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    }</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;}</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_move(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordflow">if</span> (surface_move_callback != NULL) {</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        surface_move_callback(index, x, y);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    }</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;}</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keywordtype">void</span> kinc_internal_surface_trigger_touch_end(<span class="keywordtype">int</span> index, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordflow">if</span> (surface_touch_end_callback != NULL) {</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        surface_touch_end_callback(index, x, y);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    }</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;}</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;}</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <div class="ttc" id="asurface_8h_html_a2eedbc0e323b2dbc539107fef1cb973a"><div class="ttname"><a href="surface_8h.html#a2eedbc0e323b2dbc539107fef1cb973a">kinc_surface_set_touch_start_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_surface_set_touch_start_callback(void(*value)(int, int, int))</div><div class="ttdoc">Sets the surface-touch-start-callback which is called when a finger-touch is detected.</div></div>
 <div class="ttc" id="asurface_8h_html_a44f59e6e12067dcb17661c60799faa97"><div class="ttname"><a href="surface_8h.html#a44f59e6e12067dcb17661c60799faa97">kinc_surface_set_move_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_surface_set_move_callback(void(*value)(int, int, int))</div><div class="ttdoc">Sets the surface-move-callback which is called when a finger is moving around.</div></div>

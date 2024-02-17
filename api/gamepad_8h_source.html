@@ -99,39 +99,40 @@ $(function() {
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">#ifdef KINC_IMPLEMENTATION</span></div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">#include &lt;memory.h&gt;</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">static</span> void (*gamepad_axis_callback)(<span class="keywordtype">int</span> <span class="comment">/*gamepad*/</span>, <span class="keywordtype">int</span> <span class="comment">/*axis*/</span>, <span class="keywordtype">float</span> <span class="comment">/*value*/</span>, <span class="keywordtype">void</span> * <span class="comment">/*userdata*/</span>) = NULL;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> *gamepad_axis_callback_userdata = NULL;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keyword">static</span> void (*gamepad_button_callback)(<span class="keywordtype">int</span> <span class="comment">/*gamepad*/</span>, <span class="keywordtype">int</span> <span class="comment">/*button*/</span>, <span class="keywordtype">float</span> <span class="comment">/*value*/</span>, <span class="keywordtype">void</span> * <span class="comment">/*userdata*/</span>) = NULL;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> *gamepad_button_callback_userdata = NULL;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keywordtype">void</span> <a class="code" href="gamepad_8h.html#aa0c06939bd14509082fff0b454288b53">kinc_gamepad_set_axis_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*gamepad*/</span>, <span class="keywordtype">int</span> <span class="comment">/*axis*/</span>, <span class="keywordtype">float</span> <span class="comment">/*value*/</span>, <span class="keywordtype">void</span> * <span class="comment">/*userdata*/</span>), <span class="keywordtype">void</span> *userdata) {</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    gamepad_axis_callback = value;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    gamepad_axis_callback_userdata = userdata;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;}</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="keywordtype">void</span> <a class="code" href="gamepad_8h.html#aa86b6233e65f1803dfccdcf5fe8e46c7">kinc_gamepad_set_button_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*gamepad*/</span>, <span class="keywordtype">int</span> <span class="comment">/*button*/</span>, <span class="keywordtype">float</span> <span class="comment">/*value*/</span>, <span class="keywordtype">void</span> * <span class="comment">/*userdata*/</span>), <span class="keywordtype">void</span> *userdata) {</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    gamepad_button_callback = value;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    gamepad_button_callback_userdata = userdata;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;}</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="keywordtype">void</span> kinc_internal_gamepad_trigger_axis(<span class="keywordtype">int</span> gamepad, <span class="keywordtype">int</span> axis, <span class="keywordtype">float</span> value) {</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordflow">if</span> (gamepad_axis_callback != NULL) {</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        gamepad_axis_callback(gamepad, axis, value, gamepad_axis_callback_userdata);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    }</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;}</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="keywordtype">void</span> kinc_internal_gamepad_trigger_button(<span class="keywordtype">int</span> gamepad, <span class="keywordtype">int</span> button, <span class="keywordtype">float</span> value) {</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordflow">if</span> (gamepad_button_callback != NULL) {</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        gamepad_button_callback(gamepad, button, value, gamepad_button_callback_userdata);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    }</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;}</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;}</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keyword">static</span> void (*gamepad_axis_callback)(<span class="keywordtype">int</span> <span class="comment">/*gamepad*/</span>, <span class="keywordtype">int</span> <span class="comment">/*axis*/</span>, <span class="keywordtype">float</span> <span class="comment">/*value*/</span>, <span class="keywordtype">void</span> * <span class="comment">/*userdata*/</span>) = NULL;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> *gamepad_axis_callback_userdata = NULL;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keyword">static</span> void (*gamepad_button_callback)(<span class="keywordtype">int</span> <span class="comment">/*gamepad*/</span>, <span class="keywordtype">int</span> <span class="comment">/*button*/</span>, <span class="keywordtype">float</span> <span class="comment">/*value*/</span>, <span class="keywordtype">void</span> * <span class="comment">/*userdata*/</span>) = NULL;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> *gamepad_button_callback_userdata = NULL;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="keywordtype">void</span> <a class="code" href="gamepad_8h.html#aa0c06939bd14509082fff0b454288b53">kinc_gamepad_set_axis_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*gamepad*/</span>, <span class="keywordtype">int</span> <span class="comment">/*axis*/</span>, <span class="keywordtype">float</span> <span class="comment">/*value*/</span>, <span class="keywordtype">void</span> * <span class="comment">/*userdata*/</span>), <span class="keywordtype">void</span> *userdata) {</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    gamepad_axis_callback = value;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    gamepad_axis_callback_userdata = userdata;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;}</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keywordtype">void</span> <a class="code" href="gamepad_8h.html#aa86b6233e65f1803dfccdcf5fe8e46c7">kinc_gamepad_set_button_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">int</span> <span class="comment">/*gamepad*/</span>, <span class="keywordtype">int</span> <span class="comment">/*button*/</span>, <span class="keywordtype">float</span> <span class="comment">/*value*/</span>, <span class="keywordtype">void</span> * <span class="comment">/*userdata*/</span>), <span class="keywordtype">void</span> *userdata) {</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    gamepad_button_callback = value;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    gamepad_button_callback_userdata = userdata;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;}</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="keywordtype">void</span> kinc_internal_gamepad_trigger_axis(<span class="keywordtype">int</span> gamepad, <span class="keywordtype">int</span> axis, <span class="keywordtype">float</span> value) {</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordflow">if</span> (gamepad_axis_callback != NULL) {</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        gamepad_axis_callback(gamepad, axis, value, gamepad_axis_callback_userdata);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    }</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;}</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="keywordtype">void</span> kinc_internal_gamepad_trigger_button(<span class="keywordtype">int</span> gamepad, <span class="keywordtype">int</span> button, <span class="keywordtype">float</span> value) {</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordflow">if</span> (gamepad_button_callback != NULL) {</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        gamepad_button_callback(gamepad, button, value, gamepad_button_callback_userdata);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    }</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;}</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;}</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="agamepad_8h_html_a0ff914ae3580a1b3e00ef4410da76f24"><div class="ttname"><a href="gamepad_8h.html#a0ff914ae3580a1b3e00ef4410da76f24">kinc_gamepad_connected</a></div><div class="ttdeci">KINC_FUNC bool kinc_gamepad_connected(int gamepad)</div><div class="ttdoc">Checks whether a gamepad is connected.</div></div>
 <div class="ttc" id="agamepad_8h_html_a157bb1614179bac275eb292780ed262b"><div class="ttname"><a href="gamepad_8h.html#a157bb1614179bac275eb292780ed262b">kinc_gamepad_product_name</a></div><div class="ttdeci">KINC_FUNC const char * kinc_gamepad_product_name(int gamepad)</div><div class="ttdoc">Returns a name for a gamepad.</div></div>
 <div class="ttc" id="agamepad_8h_html_a3d52cdbcbfa52e09910f37fdb05d584a"><div class="ttname"><a href="gamepad_8h.html#a3d52cdbcbfa52e09910f37fdb05d584a">kinc_gamepad_rumble</a></div><div class="ttdeci">KINC_FUNC void kinc_gamepad_rumble(int gamepad, float left, float right)</div><div class="ttdoc">Rumbles a gamepad. Careful here because it might just fall off your table.</div></div>

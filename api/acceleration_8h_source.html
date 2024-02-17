@@ -88,24 +88,25 @@ $(function() {
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#ifdef KINC_IMPLEMENTATION</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#include &lt;memory.h&gt;</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;void (*acceleration_callback)(<span class="keywordtype">float</span> <span class="comment">/*x*/</span>, <span class="keywordtype">float</span> <span class="comment">/*y*/</span>, <span class="keywordtype">float</span> <span class="comment">/*z*/</span>) = NULL;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keywordtype">void</span> <a class="code" href="acceleration_8h.html#af1803b27c0249d3b278c7050a0e4763c">kinc_acceleration_set_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">float</span> <span class="comment">/*x*/</span>, <span class="keywordtype">float</span> <span class="comment">/*y*/</span>, <span class="keywordtype">float</span> <span class="comment">/*z*/</span>)) {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    acceleration_callback = value;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;}</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keywordtype">void</span> kinc_internal_on_acceleration(<span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y, <span class="keywordtype">float</span> z) {</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordflow">if</span> (acceleration_callback != NULL) {</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        acceleration_callback(x, y, z);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    }</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;}</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;}</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;void (*acceleration_callback)(<span class="keywordtype">float</span> <span class="comment">/*x*/</span>, <span class="keywordtype">float</span> <span class="comment">/*y*/</span>, <span class="keywordtype">float</span> <span class="comment">/*z*/</span>) = NULL;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keywordtype">void</span> <a class="code" href="acceleration_8h.html#af1803b27c0249d3b278c7050a0e4763c">kinc_acceleration_set_callback</a>(<span class="keywordtype">void</span> (*value)(<span class="keywordtype">float</span> <span class="comment">/*x*/</span>, <span class="keywordtype">float</span> <span class="comment">/*y*/</span>, <span class="keywordtype">float</span> <span class="comment">/*z*/</span>)) {</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    acceleration_callback = value;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;}</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keywordtype">void</span> kinc_internal_on_acceleration(<span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y, <span class="keywordtype">float</span> z) {</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordflow">if</span> (acceleration_callback != NULL) {</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        acceleration_callback(x, y, z);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    }</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;}</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;}</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aacceleration_8h_html_af1803b27c0249d3b278c7050a0e4763c"><div class="ttname"><a href="acceleration_8h.html#af1803b27c0249d3b278c7050a0e4763c">kinc_acceleration_set_callback</a></div><div class="ttdeci">KINC_FUNC void kinc_acceleration_set_callback(void(*value)(float, float, float))</div><div class="ttdoc">Sets the acceleration-callback which is called with measured acceleration-data in three dimensions.</div></div>
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 </div><!-- fragment --></div><!-- contents -->
