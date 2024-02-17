@@ -109,6 +109,7 @@ static int convertInternalFormat(kinc_image_format_t format) {
 	case KINC_IMAGE_FORMAT_RGBA64:
 		return GL_RGBA16F_EXT;
 	case KINC_IMAGE_FORMAT_RGBA32:
+		return GL_RGBA8;
 	default:
 #ifdef KORE_IOS
 		return GL_RGBA;
