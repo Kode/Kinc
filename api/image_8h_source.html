@@ -187,7 +187,7 @@ $(function() {
 <div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;        <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Not enough memory on image.c Buffer.&quot;</span>);</div>
 <div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    }</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    *(<span class="keywordtype">size_t</span> *)current = size;</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    memcpy(current, &amp;size, <span class="keyword">sizeof</span>(*current));</div>
 <div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    last_allocated_pointer = current + <span class="keyword">sizeof</span>(size_t);</div>
 <div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordflow">return</span> current + <span class="keyword">sizeof</span>(size_t);</div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;}</div>
