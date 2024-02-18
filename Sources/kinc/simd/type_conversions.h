@@ -2,7 +2,7 @@
 
 #include "types.h"
 #include <kinc/global.h>
-#include <string>
+#include <string.h>
 
 /*! \file type_conversions.h
     \brief Provides type casts and type conversions between all 128bit SIMD types
