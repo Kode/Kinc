@@ -780,6 +780,8 @@ void kinc_g5_internal_init() {
 			case VK_PHYSICAL_DEVICE_TYPE_CPU:
 				// CPU gets a score of zero
 				break;
+			case VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM:
+				break;
 			}
 			// TODO: look into using more metrics than just the device type for scoring, eg: available memory, max texture sizes, etc.
 			// If this is the first usable device, skip testing against the previous best.
