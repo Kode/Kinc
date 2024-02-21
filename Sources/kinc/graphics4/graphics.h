@@ -112,7 +112,7 @@ KINC_FUNC bool kinc_g4_swap_buffers(void);
 /// Clears the color, depth and/or stencil-components of the current framebuffer or render-target.
 /// </summary>
 /// <param name="flags">Defines what components to clear</param>
-/// <param name="color">The color-value to clear to</param>
+/// <param name="color">The color-value to clear to in 0xAARRGGBB</param>
 /// <param name="depth">The depth-value to clear to</param>
 /// <param name="stencil">The stencil-value to clear to</param>
 KINC_FUNC void kinc_g4_clear(unsigned flags, unsigned color, float depth, int stencil);

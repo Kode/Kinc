@@ -77,7 +77,7 @@ KINC_FUNC void kinc_g5_command_list_end(kinc_g5_command_list_t *list);
 /// <param name="list">The list to write the command to</param>
 /// <param name="render_target">The render-target to clear</param>
 /// <param name="flags">Defines what components to clear</param>
-/// <param name="color">The color-value to clear to</param>
+/// <param name="color">The color-value to clear to in 0xAARRGGBB</param>
 /// <param name="depth">The depth-value to clear to</param>
 /// <param name="stencil">The stencil-value to clear to</param>
 KINC_FUNC void kinc_g5_command_list_clear(kinc_g5_command_list_t *list, struct kinc_g5_render_target *render_target, unsigned flags, unsigned color,
