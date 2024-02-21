@@ -77,3 +77,72 @@ jobs:
       run: git push https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-Switch.git
       env:
         ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
+
+    
+    - name: Clone PS4 Samples
+      run: git clone https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-PS4.git
+      env:
+        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
+    - name: Get Kinc-Submodule
+      working-directory: Kinc-Samples-PS4
+      run: git submodule update --init --remote Kinc
+    - name: Checkout Kinc
+      working-directory: Kinc-Samples-PS4/Kinc
+      run: git checkout main
+    - name: Add Kinc
+      working-directory: Kinc-Samples-PS4
+      run: git add Kinc
+    - name: Commit
+      working-directory: Kinc-Samples-PS4
+      run: git commit -m "Update Kinc"
+    - name: Push
+      working-directory: Kinc-Samples-PS4
+      run: git push https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-PS4.git
+      env:
+        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
+
+    
+    - name: Clone PS5 Samples
+      run: git clone https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-PS5.git
+      env:
+        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
+    - name: Get Kinc-Submodule
+      working-directory: Kinc-Samples-PS5
+      run: git submodule update --init --remote Kinc
+    - name: Checkout Kinc
+      working-directory: Kinc-Samples-PS5/Kinc
+      run: git checkout main
+    - name: Add Kinc
+      working-directory: Kinc-Samples-PS5
+      run: git add Kinc
+    - name: Commit
+      working-directory: Kinc-Samples-PS5
+      run: git commit -m "Update Kinc"
+    - name: Push
+      working-directory: Kinc-Samples-PS5
+      run: git push https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-PS5.git
+      env:
+        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
+
+    
+    - name: Clone Xbox Samples
+      run: git clone https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-Xbox.git
+      env:
+        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
+    - name: Get Kinc-Submodule
+      working-directory: Kinc-Samples-Xbox
+      run: git submodule update --init --remote Kinc
+    - name: Checkout Kinc
+      working-directory: Kinc-Samples-Xbox/Kinc
+      run: git checkout main
+    - name: Add Kinc
+      working-directory: Kinc-Samples-Xbox
+      run: git add Kinc
+    - name: Commit
+      working-directory: Kinc-Samples-Xbox
+      run: git commit -m "Update Kinc"
+    - name: Push
+      working-directory: Kinc-Samples-Xbox
+      run: git push https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-Xbox.git
+      env:
+        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
