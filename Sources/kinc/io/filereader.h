@@ -32,13 +32,17 @@ typedef struct __sFILE FILE;
 #define KINC_FILE_TYPE_SAVE 1
 
 typedef struct kinc_file_reader {
-	void *file;
+	void *data; // A file handle or a more complex structure
 	size_t size;
 	int type;
 	bool mounted;
-#ifdef KORE_ANDROID
-	bool aasset;
-#elif defined(KORE_SONY) || defined(KORE_SWITCH)
+
+	void (*close)(struct kinc_file_reader *reader);
+	size_t (*read)(struct kinc_file_reader *reader, void *data, size_t size);
+	size_t (*pos)(struct kinc_file_reader *reader);
+	void (*seek)(struct kinc_file_reader *reader, size_t pos);
+
+#if defined(KORE_SONY) || defined(KORE_SWITCH)
 	kinc_file_reader_impl_t impl;
 #endif
 } kinc_file_reader_t;
@@ -322,91 +326,83 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 
 #ifdef KORE_WINDOWS
 	MultiByteToWideChar(CP_UTF8, 0, filepath, -1, wfilepath, 1000);
-	reader->file = CreateFileW(wfilepath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (reader->file == INVALID_HANDLE_VALUE) {
+	reader->data = CreateFileW(wfilepath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (reader->data == INVALID_HANDLE_VALUE) {
 		return false;
 	}
 #else
-	reader->file = fopen(filepath, "rb");
-	if (reader->file == NULL) {
+	reader->data = fopen(filepath, "rb");
+	if (reader->data == NULL) {
 		return false;
 	}
 #endif
 
 #ifdef KORE_WINDOWS
 	// TODO: make this 64-bit compliant
-	reader->size = (size_t)GetFileSize(reader->file, NULL);
+	reader->size = (size_t)GetFileSize(reader->data, NULL);
 #else
-	fseek((FILE *)reader->file, 0, SEEK_END);
-	reader->size = ftell((FILE *)reader->file);
-	fseek((FILE *)reader->file, 0, SEEK_SET);
+	fseek((FILE *)reader->data, 0, SEEK_END);
+	reader->size = ftell((FILE *)reader->data);
+	fseek((FILE *)reader->data, 0, SEEK_SET);
 #endif
 	return true;
 }
 #endif
 
 size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
-#ifdef KORE_ANDROID
-	if (reader->aasset) {
-		return AAsset_read((struct AAsset *)reader->file, data, size);
+	if (reader->read != NULL) {
+		return reader->read(reader, data, size);
 	}
-#endif
 #if defined(KORE_WINDOWS)
 	DWORD readBytes = 0;
-	if (ReadFile(reader->file, data, (DWORD)size, &readBytes, NULL)) {
+	if (ReadFile(reader->data, data, (DWORD)size, &readBytes, NULL)) {
 		return (size_t)readBytes;
 	}
 	else {
 		return 0;
 	}
 #else
-	return fread(data, 1, size, (FILE *)reader->file);
+	return fread(data, 1, size, (FILE *)reader->data);
 #endif
 }
 
 void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
-#ifdef KORE_ANDROID
-	if (reader->aasset) {
-		AAsset_seek((struct AAsset *)reader->file, pos, SEEK_SET);
+	if (reader->seek != NULL) {
+		reader->seek(reader, pos);
+		return;
 	}
-#endif
 #if defined(KORE_WINDOWS)
 	// TODO: make this 64-bit compliant
-	SetFilePointer(reader->file, (LONG)pos, NULL, FILE_BEGIN);
+	SetFilePointer(reader->data, (LONG)pos, NULL, FILE_BEGIN);
 #else
-	fseek((FILE *)reader->file, pos, SEEK_SET);
+	fseek((FILE *)reader->data, pos, SEEK_SET);
 #endif
 }
 
 void kinc_file_reader_close(kinc_file_reader_t *reader) {
-#ifdef KORE_ANDROID
-	if (reader->aasset) {
-		AAsset_close((struct AAsset *)reader->file);
-		reader->file = NULL;
-	}
-#endif
-#if defined(KORE_WINDOWS)
-	CloseHandle(reader->file);
-#else
-	if (reader->file == NULL) {
+	if (reader->close != NULL) {
+		reader->close(reader);
 		return;
 	}
-	fclose((FILE *)reader->file);
-	reader->file = NULL;
+#if defined(KORE_WINDOWS)
+	CloseHandle(reader->data);
+#else
+	if (reader->data != NULL) {
+		fclose((FILE *)reader->data);
+		reader->data = NULL;
+	}
 #endif
 }
 
 size_t kinc_file_reader_pos(kinc_file_reader_t *reader) {
-#ifdef KORE_ANDROID
-	if (reader->aasset) {
-		return (size_t)AAsset_seek((struct AAsset *)reader->file, 0, SEEK_CUR);
+	if (reader->pos != NULL) {
+		return reader->pos(reader);
 	}
-#endif
 #if defined(KORE_WINDOWS)
 	// TODO: make this 64-bit compliant
-	return (size_t)SetFilePointer(reader->file, 0, NULL, FILE_CURRENT);
+	return (size_t)SetFilePointer(reader->data, 0, NULL, FILE_CURRENT);
 #else
-	return ftell((FILE *)reader->file);
+	return ftell((FILE *)reader->data);
 #endif
 }
 
@@ -414,7 +410,7 @@ size_t kinc_file_reader_size(kinc_file_reader_t *reader) {
 	return reader->size;
 }
 
-#endif
+#endif // KORE_CONSOLE
 
 float kinc_read_f32le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN // speed optimization

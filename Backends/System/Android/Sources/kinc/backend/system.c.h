@@ -1251,22 +1251,43 @@ void initAndroidFileReader(void) {
 	(*activity->vm)->DetachCurrentThread(activity->vm);
 }
 
+static void kinc_aasset_reader_close(kinc_file_reader_t *reader)
+{
+	AAsset_close((struct AAsset *)reader->data);
+}
+
+static size_t kinc_aasset_reader_read(kinc_file_reader_t *reader, void *data, size_t size)
+{
+	return AAsset_read((struct AAsset *)reader->data, data, size);
+}
+
+static size_t kinc_aasset_reader_pos(kinc_file_reader_t *reader)
+{
+	return (size_t)AAsset_seek((struct AAsset *)reader->data, 0, SEEK_CUR);
+}
+
+static void kinc_aasset_reader_seek(kinc_file_reader_t *reader, size_t pos)
+{
+	AAsset_seek((struct AAsset *)reader->data, pos, SEEK_SET);
+}
+
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
-	reader->file = NULL;
-	reader->aasset = false;
+	memset(reader, 0, sizeof(kinc_file_reader_t));
+	reader->type = type;
+
 	if (type == KINC_FILE_TYPE_SAVE) {
 		char filepath[1001];
 
 		strcpy(filepath, kinc_internal_save_path());
 		strcat(filepath, filename);
 
-		reader->file = fopen(filepath, "rb");
-		if (reader->file == NULL) {
+		reader->data = fopen(filepath, "rb");
+		if (reader->data == NULL) {
 			return false;
 		}
-		fseek(reader->file, 0, SEEK_END);
-		reader->size = ftell(reader->file);
-		fseek(reader->file, 0, SEEK_SET);
+		fseek((FILE *)reader->data, 0, SEEK_END);
+		reader->size = ftell((FILE *)reader->data);
+		fseek((FILE *)reader->data, 0, SEEK_SET);
 		return true;
 	}
 	else {
@@ -1283,18 +1304,21 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 
 		FILE *stream = fopen(filepath, "rb");
 		if (stream != NULL) {
-			reader->file = stream;
+			reader->data = stream;
 			fseek(stream, 0, SEEK_END);
 			reader->size = ftell(stream);
 			fseek(stream, 0, SEEK_SET);
 			return true;
 		}
 		else {
-			reader->file = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
-			if (reader->file == NULL)
+			reader->data = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
+			if (reader->data == NULL)
 				return false;
-			reader->size = AAsset_getLength(reader->asset);
-			reader->aasset = true;
+			reader->size = AAsset_getLength((struct AAsset *)reader->data);
+			reader->close = kinc_aasset_reader_close;
+			reader->read = kinc_aasset_reader_read;
+			reader->pos = kinc_aasset_reader_pos;
+			reader->seek = kinc_aasset_reader_seek;
 			return true;
 		}
 	}
