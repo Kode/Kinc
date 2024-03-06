@@ -105,13 +105,13 @@ $(function() {
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">unsigned</span> internal_format;</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    kinc_image_compression_t compression;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">void</span> *data;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">int</span> data_size;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">size_t</span> data_size;</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;} <a class="code" href="structkinc__image.html">kinc_image_t</a>;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
 <div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="structkinc__image__read__callbacks.html">   45</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks</a> {</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    int (*read)(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> size);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    void (*seek)(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">int</span> pos);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    int (*pos)(<span class="keywordtype">void</span> *user_data);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    size_t (*read)(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> size);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    void (*seek)(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">size_t</span> pos);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    size_t (*pos)(<span class="keywordtype">void</span> *user_data);</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    size_t (*size)(<span class="keywordtype">void</span> *user_data);</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;} <a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a>;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
@@ -242,13 +242,13 @@ $(function() {
 <div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="comment">// fill &#39;data&#39; with &#39;size&#39; bytes.  return number of bytes actually read</span></div>
 <div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> stb_read(<span class="keywordtype">void</span> *user, <span class="keywordtype">char</span> *data, <span class="keywordtype">int</span> size) {</div>
 <div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    read_data *reader = (read_data *)user;</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keywordflow">return</span> reader-&gt;callbacks.read(reader-&gt;user_data, data, size);</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keywordflow">return</span> (<span class="keywordtype">int</span>)reader-&gt;callbacks.read(reader-&gt;user_data, data, (<span class="keywordtype">size_t</span>)size);</div>
 <div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;}</div>
 <div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160; </div>
 <div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;<span class="comment">// skip the next &#39;n&#39; bytes, or &#39;unget&#39; the last -n bytes if negative</span></div>
 <div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> stb_skip(<span class="keywordtype">void</span> *user, <span class="keywordtype">int</span> n) {</div>
 <div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    read_data *reader = (read_data *)user;</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    reader-&gt;callbacks.seek(reader-&gt;user_data, reader-&gt;callbacks.pos(reader-&gt;user_data) + n);</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    reader-&gt;callbacks.seek(reader-&gt;user_data, reader-&gt;callbacks.pos(reader-&gt;user_data) + (size_t)n);</div>
 <div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;}</div>
 <div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160; </div>
 <div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;<span class="comment">// returns nonzero if we are at end of file/data</span></div>
@@ -342,7 +342,7 @@ $(function() {
 <div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;    }</div>
 <div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;}</div>
 <div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160; </div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;<span class="keyword">static</span> <span class="keywordtype">bool</span> loadImage(<a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks, <span class="keywordtype">void</span> *user_data, <span class="keyword">const</span> <span class="keywordtype">char</span> *filename, uint8_t *output, <span class="keywordtype">int</span> *outputSize, <span class="keywordtype">int</span> *width, <span class="keywordtype">int</span> *height,</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;<span class="keyword">static</span> <span class="keywordtype">bool</span> loadImage(<a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks, <span class="keywordtype">void</span> *user_data, <span class="keyword">const</span> <span class="keywordtype">char</span> *filename, uint8_t *output, <span class="keywordtype">size_t</span> *outputSize, <span class="keywordtype">int</span> *width, <span class="keywordtype">int</span> *height,</div>
 <div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;                      kinc_image_compression_t *compression, kinc_image_format_t *format, <span class="keywordtype">unsigned</span> *internalFormat) {</div>
 <div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    *format = KINC_IMAGE_FORMAT_RGBA32;</div>
 <div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;    <span class="keywordflow">if</span> (endsWith(filename, <span class="stringliteral">&quot;k&quot;</span>)) {</div>
@@ -361,25 +361,25 @@ $(function() {
 <div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;        <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;LZ4 &quot;</span>) == 0) {</div>
 <div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;            *compression = KINC_IMAGE_COMPRESSION_NONE;</div>
 <div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;            *internalFormat = 0;</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;            *outputSize = *width * *height * 4;</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;            *outputSize = (size_t)(*width * *height * 4);</div>
 <div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;            callbacks.read(user_data, buffer, compressedSize);</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;            LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, *outputSize);</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;            LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, (<span class="keywordtype">int</span>)*outputSize);</div>
 <div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;        }</div>
 <div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;LZ4F&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;            *compression = KINC_IMAGE_COMPRESSION_NONE;</div>
 <div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;            *internalFormat = 0;</div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;            *outputSize = *width * *height * 16;</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;            *outputSize = (size_t)(*width * *height * 16);</div>
 <div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;            callbacks.read(user_data, buffer, compressedSize);</div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;            LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, *outputSize);</div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;            LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, (<span class="keywordtype">int</span>)*outputSize);</div>
 <div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;            *format = KINC_IMAGE_FORMAT_RGBA128;</div>
 <div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;        }</div>
 <div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;ASTC&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;            *compression = KINC_IMAGE_COMPRESSION_ASTC;</div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;            *outputSize = *width * *height * 4;</div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;            *outputSize = (size_t)(*width * *height * 4);</div>
 <div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;            callbacks.read(user_data, buffer, compressedSize);</div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;            *outputSize = LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, *outputSize);</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;            *outputSize = LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, (<span class="keywordtype">int</span>)*outputSize);</div>
 <div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160; </div>
 <div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;            uint8_t blockdim_x = 6;</div>
 <div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;            uint8_t blockdim_y = 6;</div>
@@ -419,9 +419,9 @@ $(function() {
 <div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;        }</div>
 <div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strcmp(fourcc, <span class="stringliteral">&quot;DXT5&quot;</span>) == 0) {</div>
 <div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;            *compression = KINC_IMAGE_COMPRESSION_DXT5;</div>
-<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;            *outputSize = *width * *height;</div>
+<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;            *outputSize = (size_t)(*width * *height);</div>
 <div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;            callbacks.read(user_data, buffer, compressedSize);</div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;            *outputSize = LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, *outputSize);</div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;            *outputSize = LZ4_decompress_safe((<span class="keywordtype">char</span> *)buffer, (<span class="keywordtype">char</span> *)output, compressedSize, (<span class="keywordtype">int</span>)*outputSize);</div>
 <div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;            *internalFormat = 0;</div>
 <div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;        }</div>
@@ -478,7 +478,7 @@ $(function() {
 <div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160;        *compression = KINC_IMAGE_COMPRESSION_PVRTC;</div>
 <div class="line"><a name="l00473"></a><span class="lineno">  473</span>&#160;        *internalFormat = 0;</div>
 <div class="line"><a name="l00474"></a><span class="lineno">  474</span>&#160; </div>
-<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;        *outputSize = ww * hh / 2;</div>
+<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;        *outputSize = (size_t)(ww * hh / 2);</div>
 <div class="line"><a name="l00476"></a><span class="lineno">  476</span>&#160;        callbacks.read(user_data, output, *outputSize);</div>
 <div class="line"><a name="l00477"></a><span class="lineno">  477</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00478"></a><span class="lineno">  478</span>&#160;    }</div>
@@ -501,7 +501,7 @@ $(function() {
 <div class="line"><a name="l00495"></a><span class="lineno">  495</span>&#160;            <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());</div>
 <div class="line"><a name="l00496"></a><span class="lineno">  496</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00497"></a><span class="lineno">  497</span>&#160;        }</div>
-<div class="line"><a name="l00498"></a><span class="lineno">  498</span>&#160;        *outputSize = *width * *height * 16;</div>
+<div class="line"><a name="l00498"></a><span class="lineno">  498</span>&#160;        *outputSize = (size_t)(*width * *height * 16);</div>
 <div class="line"><a name="l00499"></a><span class="lineno">  499</span>&#160;        memcpy(output, uncompressed, *outputSize);</div>
 <div class="line"><a name="l00500"></a><span class="lineno">  500</span>&#160;        *format = KINC_IMAGE_FORMAT_RGBA128;</div>
 <div class="line"><a name="l00501"></a><span class="lineno">  501</span>&#160;        buffer_offset = 0;</div>
@@ -541,7 +541,7 @@ $(function() {
 <div class="line"><a name="l00535"></a><span class="lineno">  535</span>&#160;                output[y * *width * 4 + x * 4 + 3] = (uint8_t)kinc_round(a * 255.0f);</div>
 <div class="line"><a name="l00536"></a><span class="lineno">  536</span>&#160;            }</div>
 <div class="line"><a name="l00537"></a><span class="lineno">  537</span>&#160;        }</div>
-<div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160;        *outputSize = *width * *height * 4;</div>
+<div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160;        *outputSize = (size_t)(*width * *height * 4);</div>
 <div class="line"><a name="l00539"></a><span class="lineno">  539</span>&#160;        buffer_offset = 0;</div>
 <div class="line"><a name="l00540"></a><span class="lineno">  540</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;    }</div>
@@ -599,20 +599,20 @@ $(function() {
 <div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;    image-&gt;data = data;</div>
 <div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;}</div>
 <div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160; </div>
-<div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> read_callback(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> size) {</div>
-<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="filereader_8h.html#a8bd239fe960ab538e08af9f56077c196">kinc_file_reader_read</a>((<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *)user_data, data, size);</div>
+<div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;<span class="keyword">static</span> <span class="keywordtype">size_t</span> read_callback(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> size) {</div>
+<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="filereader_8h.html#af9be232dc287995059ddbad5f3061321">kinc_file_reader_read</a>((<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *)user_data, data, size);</div>
 <div class="line"><a name="l00598"></a><span class="lineno">  598</span>&#160;}</div>
 <div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160; </div>
 <div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;<span class="keyword">static</span> <span class="keywordtype">size_t</span> size_callback(<span class="keywordtype">void</span> *user_data) {</div>
 <div class="line"><a name="l00601"></a><span class="lineno">  601</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>((<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *)user_data);</div>
 <div class="line"><a name="l00602"></a><span class="lineno">  602</span>&#160;}</div>
 <div class="line"><a name="l00603"></a><span class="lineno">  603</span>&#160; </div>
-<div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> pos_callback(<span class="keywordtype">void</span> *user_data) {</div>
-<div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="filereader_8h.html#aa3665a1499c3f5ab3236d0e2061b6119">kinc_file_reader_pos</a>((<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *)user_data);</div>
+<div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160;<span class="keyword">static</span> <span class="keywordtype">size_t</span> pos_callback(<span class="keywordtype">void</span> *user_data) {</div>
+<div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="filereader_8h.html#a8ac5a31b16df247f005a2b3b8c803128">kinc_file_reader_pos</a>((<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *)user_data);</div>
 <div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;}</div>
 <div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160; </div>
-<div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> seek_callback(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">int</span> pos) {</div>
-<div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;    <a class="code" href="filereader_8h.html#a2a5a04f800ea57ef64e7a6cfb58ec4aa">kinc_file_reader_seek</a>((<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *)user_data, pos);</div>
+<div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> seek_callback(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">size_t</span> pos) {</div>
+<div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;    <a class="code" href="filereader_8h.html#abf0ee90a57e9dbf9afd929991c6e13ba">kinc_file_reader_seek</a>((<a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> *)user_data, pos);</div>
 <div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;}</div>
 <div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160; </div>
 <div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;<span class="keyword">struct </span>kinc_internal_image_memory {</div>
@@ -621,12 +621,12 @@ $(function() {
 <div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;    <span class="keywordtype">size_t</span> offset;</div>
 <div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;};</div>
 <div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160; </div>
-<div class="line"><a name="l00618"></a><span class="lineno">  618</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> memory_read_callback(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> size) {</div>
+<div class="line"><a name="l00618"></a><span class="lineno">  618</span>&#160;<span class="keyword">static</span> <span class="keywordtype">size_t</span> memory_read_callback(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> size) {</div>
 <div class="line"><a name="l00619"></a><span class="lineno">  619</span>&#160;    <span class="keyword">struct </span>kinc_internal_image_memory *memory = (<span class="keyword">struct </span>kinc_internal_image_memory *)user_data;</div>
 <div class="line"><a name="l00620"></a><span class="lineno">  620</span>&#160;    <span class="keywordtype">size_t</span> read_size = memory-&gt;size - memory-&gt;offset &lt; size ? memory-&gt;size - memory-&gt;offset : size;</div>
 <div class="line"><a name="l00621"></a><span class="lineno">  621</span>&#160;    memcpy(data, &amp;memory-&gt;data[memory-&gt;offset], read_size);</div>
 <div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160;    memory-&gt;offset += read_size;</div>
-<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;    <span class="keywordflow">return</span> (<span class="keywordtype">int</span>)read_size;</div>
+<div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;    <span class="keywordflow">return</span> read_size;</div>
 <div class="line"><a name="l00624"></a><span class="lineno">  624</span>&#160;}</div>
 <div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160; </div>
 <div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;<span class="keyword">static</span> <span class="keywordtype">size_t</span> memory_size_callback(<span class="keywordtype">void</span> *user_data) {</div>
@@ -634,14 +634,14 @@ $(function() {
 <div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160;    <span class="keywordflow">return</span> memory-&gt;size;</div>
 <div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;}</div>
 <div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160; </div>
-<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> memory_pos_callback(<span class="keywordtype">void</span> *user_data) {</div>
+<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;<span class="keyword">static</span> <span class="keywordtype">size_t</span> memory_pos_callback(<span class="keywordtype">void</span> *user_data) {</div>
 <div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160;    <span class="keyword">struct </span>kinc_internal_image_memory *memory = (<span class="keyword">struct </span>kinc_internal_image_memory *)user_data;</div>
-<div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;    <span class="keywordflow">return</span> (<span class="keywordtype">int</span>)memory-&gt;offset;</div>
+<div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;    <span class="keywordflow">return</span> memory-&gt;offset;</div>
 <div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;}</div>
 <div class="line"><a name="l00635"></a><span class="lineno">  635</span>&#160; </div>
-<div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> memory_seek_callback(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">int</span> pos) {</div>
+<div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> memory_seek_callback(<span class="keywordtype">void</span> *user_data, <span class="keywordtype">size_t</span> pos) {</div>
 <div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;    <span class="keyword">struct </span>kinc_internal_image_memory *memory = (<span class="keyword">struct </span>kinc_internal_image_memory *)user_data;</div>
-<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160;    memory-&gt;offset = (size_t)pos;</div>
+<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160;    memory-&gt;offset = pos;</div>
 <div class="line"><a name="l00639"></a><span class="lineno">  639</span>&#160;}</div>
 <div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160; </div>
 <div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;<span class="keywordtype">size_t</span> <a class="code" href="image_8h.html#af57a963b6892130286921d05a672bf87">kinc_image_size_from_callbacks</a>(<a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks, <span class="keywordtype">void</span> *user_data, <span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
@@ -680,94 +680,95 @@ $(function() {
 <div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;}</div>
 <div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160; </div>
 <div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;<span class="keywordtype">size_t</span> <a class="code" href="image_8h.html#a2ccb06781e2af5b2111151e881b334ec">kinc_image_init_from_callbacks</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image, <span class="keywordtype">void</span> *memory, <a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks, <span class="keywordtype">void</span> *user_data, <span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
-<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;    <span class="keywordtype">int</span> dataSize;</div>
+<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;    <span class="keywordtype">size_t</span> dataSize = 0;</div>
 <div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;    loadImage(callbacks, user_data, filename, memory, &amp;dataSize, &amp;image-&gt;width, &amp;image-&gt;height, &amp;image-&gt;compression, &amp;image-&gt;format, &amp;image-&gt;internal_format);</div>
 <div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;    image-&gt;data = memory;</div>
-<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;    <span class="keywordflow">return</span> dataSize;</div>
-<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;}</div>
-<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160; </div>
-<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;<span class="keywordtype">size_t</span> <a class="code" href="image_8h.html#a9ef140a779e43910f07e3681300be2f0">kinc_image_init_from_file</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image, <span class="keywordtype">void</span> *memory, <span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
-<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;    <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> reader;</div>
-<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(&amp;reader, filename, KINC_FILE_TYPE_ASSET)) {</div>
-<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;        <a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks;</div>
-<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;        callbacks.read = read_callback;</div>
-<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;        callbacks.size = size_callback;</div>
-<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;        callbacks.pos = pos_callback;</div>
-<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;        callbacks.seek = seek_callback;</div>
-<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160; </div>
-<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;        <span class="keywordtype">int</span> dataSize;</div>
-<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;        loadImage(callbacks, &amp;reader, filename, memory, &amp;dataSize, &amp;image-&gt;width, &amp;image-&gt;height, &amp;image-&gt;compression, &amp;image-&gt;format, &amp;image-&gt;internal_format);</div>
-<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;        <a class="code" href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a>(&amp;reader);</div>
-<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;        image-&gt;data = memory;</div>
-<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;        image-&gt;data_size = dataSize;</div>
-<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;        image-&gt;depth = 1;</div>
-<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;        <span class="keywordflow">return</span> dataSize;</div>
-<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;    }</div>
-<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;}</div>
-<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160; </div>
-<div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160;<span class="keywordtype">size_t</span> <a class="code" href="image_8h.html#a65559fe66d30efabdded6eeb91bf4fa9">kinc_image_init_from_encoded_bytes</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image, <span class="keywordtype">void</span> *memory, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> data_size, <span class="keyword">const</span> <span class="keywordtype">char</span> *format) {</div>
-<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;    <a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks;</div>
-<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;    callbacks.read = memory_read_callback;</div>
-<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;    callbacks.size = memory_size_callback;</div>
-<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;    callbacks.pos = memory_pos_callback;</div>
-<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;    callbacks.seek = memory_seek_callback;</div>
-<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160; </div>
-<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;    <span class="keyword">struct </span>kinc_internal_image_memory image_memory;</div>
-<div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;    image_memory.data = (uint8_t *)data;</div>
-<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;    image_memory.size = data_size;</div>
-<div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;    image_memory.offset = 0;</div>
-<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160; </div>
-<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;    <span class="keywordtype">int</span> dataSize;</div>
-<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;    loadImage(callbacks, &amp;image_memory, format, memory, &amp;dataSize, &amp;image-&gt;width, &amp;image-&gt;height, &amp;image-&gt;compression, &amp;image-&gt;format, &amp;image-&gt;internal_format);</div>
-<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;    image-&gt;data = memory;</div>
-<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;    image-&gt;data_size = dataSize;</div>
-<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;    image-&gt;depth = 1;</div>
-<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;    <span class="keywordflow">return</span> dataSize;</div>
-<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;}</div>
-<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160; </div>
-<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;<span class="keywordtype">void</span> <a class="code" href="image_8h.html#a60afaaa76cc50bcbee7d534dc690daa0">kinc_image_destroy</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image) {</div>
-<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;    <span class="comment">// user has to free the data</span></div>
-<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;    image-&gt;data = NULL;</div>
-<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;}</div>
-<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160; </div>
-<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;uint32_t <a class="code" href="image_8h.html#a61044b575ef8d4477b40493469ddc3d3">kinc_image_at</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
-<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;    <span class="keywordflow">if</span> (image-&gt;data == NULL) {</div>
-<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160;        <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;    }</div>
-<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160;    <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;        <span class="keywordflow">return</span> *(uint32_t *)&amp;((uint8_t *)image-&gt;data)[image-&gt;width * <a class="code" href="image_8h.html#ae4d85b9a9d0255892e3321ac528663ca">kinc_image_format_sizeof</a>(image-&gt;format) * y + x * <a class="code" href="image_8h.html#ae4d85b9a9d0255892e3321ac528663ca">kinc_image_format_sizeof</a>(image-&gt;format)];</div>
-<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;    }</div>
-<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;}</div>
-<div class="line"><a name="l00736"></a><span class="lineno">  736</span>&#160; </div>
-<div class="line"><a name="l00737"></a><span class="lineno">  737</span>&#160;<span class="keywordtype">void</span> *<a class="code" href="image_8h.html#aa17825e14ea14abc801db5cb9bd723b3">kinc_image_at_raw</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
-<div class="line"><a name="l00738"></a><span class="lineno">  738</span>&#160;    <span class="keywordflow">if</span> (image-&gt;data == NULL) {</div>
-<div class="line"><a name="l00739"></a><span class="lineno">  739</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a name="l00740"></a><span class="lineno">  740</span>&#160;    }</div>
-<div class="line"><a name="l00741"></a><span class="lineno">  741</span>&#160;    <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00742"></a><span class="lineno">  742</span>&#160;        <span class="keywordflow">return</span> &amp;((uint8_t *)image-&gt;data)[image-&gt;width * <a class="code" href="image_8h.html#ae4d85b9a9d0255892e3321ac528663ca">kinc_image_format_sizeof</a>(image-&gt;format) * y + x * <a class="code" href="image_8h.html#ae4d85b9a9d0255892e3321ac528663ca">kinc_image_format_sizeof</a>(image-&gt;format)];</div>
-<div class="line"><a name="l00743"></a><span class="lineno">  743</span>&#160;    }</div>
-<div class="line"><a name="l00744"></a><span class="lineno">  744</span>&#160;}</div>
-<div class="line"><a name="l00745"></a><span class="lineno">  745</span>&#160; </div>
-<div class="line"><a name="l00746"></a><span class="lineno">  746</span>&#160;uint8_t *<a class="code" href="image_8h.html#a7ab6671f45ec4d9390715e389c2069c1">kinc_image_get_pixels</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image) {</div>
-<div class="line"><a name="l00747"></a><span class="lineno">  747</span>&#160;    <span class="keywordflow">return</span> (uint8_t *)image-&gt;data;</div>
-<div class="line"><a name="l00748"></a><span class="lineno">  748</span>&#160;}</div>
-<div class="line"><a name="l00749"></a><span class="lineno">  749</span>&#160; </div>
-<div class="line"><a name="l00750"></a><span class="lineno">  750</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00751"></a><span class="lineno">  751</span>&#160; </div>
-<div class="line"><a name="l00752"></a><span class="lineno">  752</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160;}</div>
-<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;    image-&gt;data_size = dataSize;</div>
+<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;    <span class="keywordflow">return</span> dataSize;</div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;}</div>
+<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160; </div>
+<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;<span class="keywordtype">size_t</span> <a class="code" href="image_8h.html#a9ef140a779e43910f07e3681300be2f0">kinc_image_init_from_file</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image, <span class="keywordtype">void</span> *memory, <span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
+<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;    <a class="code" href="structkinc__file__reader.html">kinc_file_reader_t</a> reader;</div>
+<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(&amp;reader, filename, KINC_FILE_TYPE_ASSET)) {</div>
+<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;        <a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks;</div>
+<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;        callbacks.read = read_callback;</div>
+<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;        callbacks.size = size_callback;</div>
+<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;        callbacks.pos = pos_callback;</div>
+<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;        callbacks.seek = seek_callback;</div>
+<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160; </div>
+<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160;        <span class="keywordtype">size_t</span> dataSize = 0;</div>
+<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;        loadImage(callbacks, &amp;reader, filename, memory, &amp;dataSize, &amp;image-&gt;width, &amp;image-&gt;height, &amp;image-&gt;compression, &amp;image-&gt;format, &amp;image-&gt;internal_format);</div>
+<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;        <a class="code" href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a>(&amp;reader);</div>
+<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;        image-&gt;data = memory;</div>
+<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;        image-&gt;data_size = dataSize;</div>
+<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;        image-&gt;depth = 1;</div>
+<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;        <span class="keywordflow">return</span> dataSize;</div>
+<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;    }</div>
+<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;}</div>
+<div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160; </div>
+<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;<span class="keywordtype">size_t</span> <a class="code" href="image_8h.html#a65559fe66d30efabdded6eeb91bf4fa9">kinc_image_init_from_encoded_bytes</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image, <span class="keywordtype">void</span> *memory, <span class="keywordtype">void</span> *data, <span class="keywordtype">size_t</span> data_size, <span class="keyword">const</span> <span class="keywordtype">char</span> *format) {</div>
+<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;    <a class="code" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks;</div>
+<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;    callbacks.read = memory_read_callback;</div>
+<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;    callbacks.size = memory_size_callback;</div>
+<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;    callbacks.pos = memory_pos_callback;</div>
+<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;    callbacks.seek = memory_seek_callback;</div>
+<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160; </div>
+<div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;    <span class="keyword">struct </span>kinc_internal_image_memory image_memory;</div>
+<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;    image_memory.data = (uint8_t *)data;</div>
+<div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;    image_memory.size = data_size;</div>
+<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;    image_memory.offset = 0;</div>
+<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160; </div>
+<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;    <span class="keywordtype">size_t</span> dataSize = 0;</div>
+<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;    loadImage(callbacks, &amp;image_memory, format, memory, &amp;dataSize, &amp;image-&gt;width, &amp;image-&gt;height, &amp;image-&gt;compression, &amp;image-&gt;format, &amp;image-&gt;internal_format);</div>
+<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;    image-&gt;data = memory;</div>
+<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;    image-&gt;data_size = dataSize;</div>
+<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;    image-&gt;depth = 1;</div>
+<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;    <span class="keywordflow">return</span> dataSize;</div>
+<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;}</div>
+<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160; </div>
+<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;<span class="keywordtype">void</span> <a class="code" href="image_8h.html#a60afaaa76cc50bcbee7d534dc690daa0">kinc_image_destroy</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image) {</div>
+<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;    <span class="comment">// user has to free the data</span></div>
+<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;    image-&gt;data = NULL;</div>
+<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;}</div>
+<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160; </div>
+<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;uint32_t <a class="code" href="image_8h.html#a61044b575ef8d4477b40493469ddc3d3">kinc_image_at</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
+<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160;    <span class="keywordflow">if</span> (image-&gt;data == NULL) {</div>
+<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;        <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160;    }</div>
+<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;        <span class="keywordflow">return</span> *(uint32_t *)&amp;((uint8_t *)image-&gt;data)[image-&gt;width * <a class="code" href="image_8h.html#ae4d85b9a9d0255892e3321ac528663ca">kinc_image_format_sizeof</a>(image-&gt;format) * y + x * <a class="code" href="image_8h.html#ae4d85b9a9d0255892e3321ac528663ca">kinc_image_format_sizeof</a>(image-&gt;format)];</div>
+<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;    }</div>
+<div class="line"><a name="l00736"></a><span class="lineno">  736</span>&#160;}</div>
+<div class="line"><a name="l00737"></a><span class="lineno">  737</span>&#160; </div>
+<div class="line"><a name="l00738"></a><span class="lineno">  738</span>&#160;<span class="keywordtype">void</span> *<a class="code" href="image_8h.html#aa17825e14ea14abc801db5cb9bd723b3">kinc_image_at_raw</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) {</div>
+<div class="line"><a name="l00739"></a><span class="lineno">  739</span>&#160;    <span class="keywordflow">if</span> (image-&gt;data == NULL) {</div>
+<div class="line"><a name="l00740"></a><span class="lineno">  740</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a name="l00741"></a><span class="lineno">  741</span>&#160;    }</div>
+<div class="line"><a name="l00742"></a><span class="lineno">  742</span>&#160;    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00743"></a><span class="lineno">  743</span>&#160;        <span class="keywordflow">return</span> &amp;((uint8_t *)image-&gt;data)[image-&gt;width * <a class="code" href="image_8h.html#ae4d85b9a9d0255892e3321ac528663ca">kinc_image_format_sizeof</a>(image-&gt;format) * y + x * <a class="code" href="image_8h.html#ae4d85b9a9d0255892e3321ac528663ca">kinc_image_format_sizeof</a>(image-&gt;format)];</div>
+<div class="line"><a name="l00744"></a><span class="lineno">  744</span>&#160;    }</div>
+<div class="line"><a name="l00745"></a><span class="lineno">  745</span>&#160;}</div>
+<div class="line"><a name="l00746"></a><span class="lineno">  746</span>&#160; </div>
+<div class="line"><a name="l00747"></a><span class="lineno">  747</span>&#160;uint8_t *<a class="code" href="image_8h.html#a7ab6671f45ec4d9390715e389c2069c1">kinc_image_get_pixels</a>(<a class="code" href="structkinc__image.html">kinc_image_t</a> *image) {</div>
+<div class="line"><a name="l00748"></a><span class="lineno">  748</span>&#160;    <span class="keywordflow">return</span> (uint8_t *)image-&gt;data;</div>
+<div class="line"><a name="l00749"></a><span class="lineno">  749</span>&#160;}</div>
+<div class="line"><a name="l00750"></a><span class="lineno">  750</span>&#160; </div>
+<div class="line"><a name="l00751"></a><span class="lineno">  751</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00752"></a><span class="lineno">  752</span>&#160; </div>
+<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;}</div>
+<div class="line"><a name="l00755"></a><span class="lineno">  755</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="acore_8h_html"><div class="ttname"><a href="core_8h.html">core.h</a></div><div class="ttdoc">Just a few very simple additions to math.h the C-lib.</div></div>
 <div class="ttc" id="afilereader_8h_html"><div class="ttname"><a href="filereader_8h.html">filereader.h</a></div><div class="ttdoc">Provides an API very similar to fread and friends but handles the intricacies of where files are actu...</div></div>
-<div class="ttc" id="afilereader_8h_html_a2a5a04f800ea57ef64e7a6cfb58ec4aa"><div class="ttname"><a href="filereader_8h.html#a2a5a04f800ea57ef64e7a6cfb58ec4aa">kinc_file_reader_seek</a></div><div class="ttdeci">KINC_FUNC void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos)</div><div class="ttdoc">Sets the reading-position manually.</div></div>
 <div class="ttc" id="afilereader_8h_html_a4e30e4610f0e57dc244b8fb7a0271681"><div class="ttname"><a href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a></div><div class="ttdeci">KINC_FUNC bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filepath, int type)</div><div class="ttdoc">Opens a file for reading.</div></div>
 <div class="ttc" id="afilereader_8h_html_a72da9b6963f48433a7e89cf73e1c6f45"><div class="ttname"><a href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a></div><div class="ttdeci">KINC_FUNC size_t kinc_file_reader_size(kinc_file_reader_t *reader)</div><div class="ttdoc">Figures out the size of a file.</div></div>
 <div class="ttc" id="afilereader_8h_html_a7aee8850df39f8d713e951dcee055011"><div class="ttname"><a href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a></div><div class="ttdeci">KINC_FUNC void kinc_file_reader_close(kinc_file_reader_t *reader)</div><div class="ttdoc">Closes a file.</div></div>
-<div class="ttc" id="afilereader_8h_html_a8bd239fe960ab538e08af9f56077c196"><div class="ttname"><a href="filereader_8h.html#a8bd239fe960ab538e08af9f56077c196">kinc_file_reader_read</a></div><div class="ttdeci">KINC_FUNC int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size)</div><div class="ttdoc">Reads data from a file starting from the current reading-position and increases the reading-position ...</div></div>
-<div class="ttc" id="afilereader_8h_html_aa3665a1499c3f5ab3236d0e2061b6119"><div class="ttname"><a href="filereader_8h.html#aa3665a1499c3f5ab3236d0e2061b6119">kinc_file_reader_pos</a></div><div class="ttdeci">KINC_FUNC int kinc_file_reader_pos(kinc_file_reader_t *reader)</div><div class="ttdoc">Figures out the current reading-position in the file.</div></div>
+<div class="ttc" id="afilereader_8h_html_a8ac5a31b16df247f005a2b3b8c803128"><div class="ttname"><a href="filereader_8h.html#a8ac5a31b16df247f005a2b3b8c803128">kinc_file_reader_pos</a></div><div class="ttdeci">KINC_FUNC size_t kinc_file_reader_pos(kinc_file_reader_t *reader)</div><div class="ttdoc">Figures out the current reading-position in the file.</div></div>
 <div class="ttc" id="afilereader_8h_html_aa9a6763373fb7385d3808ff17a8dda6d"><div class="ttname"><a href="filereader_8h.html#aa9a6763373fb7385d3808ff17a8dda6d">kinc_read_u32le</a></div><div class="ttdeci">KINC_FUNC uint32_t kinc_read_u32le(uint8_t *data)</div><div class="ttdoc">Interprets four bytes starting at the provided pointer as a little-endian uint32.</div></div>
 <div class="ttc" id="afilereader_8h_html_abd027f544baab4bfae17f5f19eac63d4"><div class="ttname"><a href="filereader_8h.html#abd027f544baab4bfae17f5f19eac63d4">kinc_read_s32le</a></div><div class="ttdeci">KINC_FUNC int32_t kinc_read_s32le(uint8_t *data)</div><div class="ttdoc">Interprets four bytes starting at the provided pointer as a little-endian int32.</div></div>
+<div class="ttc" id="afilereader_8h_html_abf0ee90a57e9dbf9afd929991c6e13ba"><div class="ttname"><a href="filereader_8h.html#abf0ee90a57e9dbf9afd929991c6e13ba">kinc_file_reader_seek</a></div><div class="ttdeci">KINC_FUNC void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos)</div><div class="ttdoc">Sets the reading-position manually.</div></div>
+<div class="ttc" id="afilereader_8h_html_af9be232dc287995059ddbad5f3061321"><div class="ttname"><a href="filereader_8h.html#af9be232dc287995059ddbad5f3061321">kinc_file_reader_read</a></div><div class="ttdeci">KINC_FUNC size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size)</div><div class="ttdoc">Reads data from a file starting from the current reading-position and increases the reading-position ...</div></div>
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <div class="ttc" id="agraphics4_2graphics_8h_html"><div class="ttname"><a href="graphics4_2graphics_8h.html">graphics.h</a></div><div class="ttdoc">Contains the base G4-functionality.</div></div>
 <div class="ttc" id="aimage_8h_html"><div class="ttname"><a href="image_8h.html">image.h</a></div><div class="ttdoc">Functionality for creating and loading images. Image loading supports PNG, JPEG and the custom K form...</div></div>
@@ -788,7 +789,7 @@ $(function() {
 <div class="ttc" id="aimage_8h_html_af57a963b6892130286921d05a672bf87"><div class="ttname"><a href="image_8h.html#af57a963b6892130286921d05a672bf87">kinc_image_size_from_callbacks</a></div><div class="ttdeci">KINC_FUNC size_t kinc_image_size_from_callbacks(kinc_image_read_callbacks_t callbacks, void *user_data, const char *format)</div><div class="ttdoc">Peeks into an image that is loaded via callback functions and figures out the size it will occupy in ...</div></div>
 <div class="ttc" id="alog_8h_html"><div class="ttname"><a href="log_8h.html">log.h</a></div><div class="ttdoc">Contains basic logging functionality.</div></div>
 <div class="ttc" id="alog_8h_html_a09922026b10a9497eae5d48d358bf3ac"><div class="ttname"><a href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a></div><div class="ttdeci">KINC_FUNC void kinc_log(kinc_log_level_t log_level, const char *format,...)</div><div class="ttdoc">Logging function similar to printf including some system-specific bonuses</div></div>
-<div class="ttc" id="astructkinc__file__reader_html"><div class="ttname"><a href="structkinc__file__reader.html">kinc_file_reader</a></div><div class="ttdef"><b>Definition:</b> filereader.h:43</div></div>
+<div class="ttc" id="astructkinc__file__reader_html"><div class="ttname"><a href="structkinc__file__reader.html">kinc_file_reader</a></div><div class="ttdef"><b>Definition:</b> filereader.h:34</div></div>
 <div class="ttc" id="astructkinc__image__read__callbacks_html"><div class="ttname"><a href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks</a></div><div class="ttdef"><b>Definition:</b> image.h:45</div></div>
 <div class="ttc" id="astructkinc__image_html"><div class="ttname"><a href="structkinc__image.html">kinc_image</a></div><div class="ttdef"><b>Definition:</b> image.h:36</div></div>
 </div><!-- fragment --></div><!-- contents -->

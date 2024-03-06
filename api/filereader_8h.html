@@ -112,21 +112,24 @@ Functions</h2></td></tr>
 <tr class="memitem:a4e30e4610f0e57dc244b8fb7a0271681"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, const char *filepath, int type)</td></tr>
 <tr class="memdesc:a4e30e4610f0e57dc244b8fb7a0271681"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens a file for reading.  <a href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">More...</a><br /></td></tr>
 <tr class="separator:a4e30e4610f0e57dc244b8fb7a0271681"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba31d410018c4c77f7e1dd7718656724"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#aba31d410018c4c77f7e1dd7718656724">kinc_file_reader_from_memory</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, void *data, size_t size)</td></tr>
+<tr class="memdesc:aba31d410018c4c77f7e1dd7718656724"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens a memory area for reading using the file reader API.  <a href="filereader_8h.html#aba31d410018c4c77f7e1dd7718656724">More...</a><br /></td></tr>
+<tr class="separator:aba31d410018c4c77f7e1dd7718656724"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7aee8850df39f8d713e951dcee055011"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader)</td></tr>
 <tr class="memdesc:a7aee8850df39f8d713e951dcee055011"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a file.  <a href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">More...</a><br /></td></tr>
 <tr class="separator:a7aee8850df39f8d713e951dcee055011"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8bd239fe960ab538e08af9f56077c196"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a8bd239fe960ab538e08af9f56077c196">kinc_file_reader_read</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, void *data, size_t size)</td></tr>
-<tr class="memdesc:a8bd239fe960ab538e08af9f56077c196"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads data from a file starting from the current reading-position and increases the reading-position accordingly.  <a href="filereader_8h.html#a8bd239fe960ab538e08af9f56077c196">More...</a><br /></td></tr>
-<tr class="separator:a8bd239fe960ab538e08af9f56077c196"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9be232dc287995059ddbad5f3061321"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#af9be232dc287995059ddbad5f3061321">kinc_file_reader_read</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, void *data, size_t size)</td></tr>
+<tr class="memdesc:af9be232dc287995059ddbad5f3061321"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads data from a file starting from the current reading-position and increases the reading-position accordingly.  <a href="filereader_8h.html#af9be232dc287995059ddbad5f3061321">More...</a><br /></td></tr>
+<tr class="separator:af9be232dc287995059ddbad5f3061321"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a72da9b6963f48433a7e89cf73e1c6f45"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader)</td></tr>
 <tr class="memdesc:a72da9b6963f48433a7e89cf73e1c6f45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Figures out the size of a file.  <a href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">More...</a><br /></td></tr>
 <tr class="separator:a72da9b6963f48433a7e89cf73e1c6f45"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa3665a1499c3f5ab3236d0e2061b6119"><td class="memItemLeft" align="right" valign="top">KINC_FUNC int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#aa3665a1499c3f5ab3236d0e2061b6119">kinc_file_reader_pos</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader)</td></tr>
-<tr class="memdesc:aa3665a1499c3f5ab3236d0e2061b6119"><td class="mdescLeft">&#160;</td><td class="mdescRight">Figures out the current reading-position in the file.  <a href="filereader_8h.html#aa3665a1499c3f5ab3236d0e2061b6119">More...</a><br /></td></tr>
-<tr class="separator:aa3665a1499c3f5ab3236d0e2061b6119"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a5a04f800ea57ef64e7a6cfb58ec4aa"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a2a5a04f800ea57ef64e7a6cfb58ec4aa">kinc_file_reader_seek</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, int pos)</td></tr>
-<tr class="memdesc:a2a5a04f800ea57ef64e7a6cfb58ec4aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the reading-position manually.  <a href="filereader_8h.html#a2a5a04f800ea57ef64e7a6cfb58ec4aa">More...</a><br /></td></tr>
-<tr class="separator:a2a5a04f800ea57ef64e7a6cfb58ec4aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ac5a31b16df247f005a2b3b8c803128"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a8ac5a31b16df247f005a2b3b8c803128">kinc_file_reader_pos</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader)</td></tr>
+<tr class="memdesc:a8ac5a31b16df247f005a2b3b8c803128"><td class="mdescLeft">&#160;</td><td class="mdescRight">Figures out the current reading-position in the file.  <a href="filereader_8h.html#a8ac5a31b16df247f005a2b3b8c803128">More...</a><br /></td></tr>
+<tr class="separator:a8ac5a31b16df247f005a2b3b8c803128"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf0ee90a57e9dbf9afd929991c6e13ba"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#abf0ee90a57e9dbf9afd929991c6e13ba">kinc_file_reader_seek</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, size_t pos)</td></tr>
+<tr class="memdesc:abf0ee90a57e9dbf9afd929991c6e13ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the reading-position manually.  <a href="filereader_8h.html#abf0ee90a57e9dbf9afd929991c6e13ba">More...</a><br /></td></tr>
+<tr class="separator:abf0ee90a57e9dbf9afd929991c6e13ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21a5b2e5d600132d5ac7d94a49b1e256"><td class="memItemLeft" align="right" valign="top">KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a21a5b2e5d600132d5ac7d94a49b1e256">kinc_read_f32le</a> (uint8_t *data)</td></tr>
 <tr class="memdesc:a21a5b2e5d600132d5ac7d94a49b1e256"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interprets four bytes starting at the provided pointer as a little-endian float.  <a href="filereader_8h.html#a21a5b2e5d600132d5ac7d94a49b1e256">More...</a><br /></td></tr>
 <tr class="separator:a21a5b2e5d600132d5ac7d94a49b1e256"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -205,6 +208,50 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="aba31d410018c4c77f7e1dd7718656724"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba31d410018c4c77f7e1dd7718656724">&#9670;&nbsp;</a></span>kinc_file_reader_from_memory()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_file_reader_from_memory </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *&#160;</td>
+          <td class="paramname"><em>reader</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Opens a memory area for reading using the file reader API. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">reader</td><td>The reader to initialize for reading</td></tr>
+    <tr><td class="paramname">data</td><td>A pointer to the memory area to read</td></tr>
+    <tr><td class="paramname">size</td><td>The size of the memory area</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a4e30e4610f0e57dc244b8fb7a0271681"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4e30e4610f0e57dc244b8fb7a0271681">&#9670;&nbsp;</a></span>kinc_file_reader_open()</h2>
 
@@ -250,14 +297,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa3665a1499c3f5ab3236d0e2061b6119"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa3665a1499c3f5ab3236d0e2061b6119">&#9670;&nbsp;</a></span>kinc_file_reader_pos()</h2>
+<a id="a8ac5a31b16df247f005a2b3b8c803128"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ac5a31b16df247f005a2b3b8c803128">&#9670;&nbsp;</a></span>kinc_file_reader_pos()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC int kinc_file_reader_pos </td>
+          <td class="memname">KINC_FUNC size_t kinc_file_reader_pos </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *&#160;</td>
           <td class="paramname"><em>reader</em></td><td>)</td>
@@ -277,14 +324,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a8bd239fe960ab538e08af9f56077c196"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8bd239fe960ab538e08af9f56077c196">&#9670;&nbsp;</a></span>kinc_file_reader_read()</h2>
+<a id="af9be232dc287995059ddbad5f3061321"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9be232dc287995059ddbad5f3061321">&#9670;&nbsp;</a></span>kinc_file_reader_read()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC int kinc_file_reader_read </td>
+          <td class="memname">KINC_FUNC size_t kinc_file_reader_read </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *&#160;</td>
           <td class="paramname"><em>reader</em>, </td>
@@ -322,8 +369,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a2a5a04f800ea57ef64e7a6cfb58ec4aa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2a5a04f800ea57ef64e7a6cfb58ec4aa">&#9670;&nbsp;</a></span>kinc_file_reader_seek()</h2>
+<a id="abf0ee90a57e9dbf9afd929991c6e13ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf0ee90a57e9dbf9afd929991c6e13ba">&#9670;&nbsp;</a></span>kinc_file_reader_seek()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -337,7 +384,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
           <td class="paramname"><em>pos</em>&#160;</td>
         </tr>
         <tr>
