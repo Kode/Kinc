@@ -1221,8 +1221,6 @@ const char *kinc_gamepad_product_name(int gamepad) {
 
 #include <kinc/io/filereader.h>
 
-static char *externalFilesDir = NULL;
-
 #define CLASS_NAME "android/app/NativeActivity"
 
 void initAndroidFileReader(void) {
@@ -1243,8 +1241,9 @@ void initAndroidFileReader(void) {
 	jstring jPath = (*env)->CallObjectMethod(env, file, getPath);
 
 	const char *path = (*env)->GetStringUTFChars(env, jPath, NULL);
-	externalFilesDir = malloc(strlen(path) + 1);
+	char *externalFilesDir = malloc(strlen(path) + 1);
 	strcpy(externalFilesDir, path);
+	kinc_internal_set_files_location(externalFilesDir);
 
 	(*env)->ReleaseStringUTFChars(env, jPath, path);
 	(*env)->DeleteLocalRef(env, jPath);
@@ -1297,7 +1296,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 			strcpy(filepath, filename);
 		}
 		else {
-			strcpy(filepath, externalFilesDir);
+			strcpy(filepath, kinc_internal_get_files_location());
 			strcat(filepath, "/");
 			strcat(filepath, filename);
 		}
