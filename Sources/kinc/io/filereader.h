@@ -33,8 +33,8 @@ typedef struct __sFILE FILE;
 
 #ifdef KORE_ANDROID
 typedef struct kinc_file_reader {
-	int pos;
-	int size;
+	size_t pos;
+	size_t size;
 	FILE *file;
 	struct AAsset *asset;
 	int type;
@@ -42,7 +42,7 @@ typedef struct kinc_file_reader {
 #else
 typedef struct kinc_file_reader {
 	void *file;
-	int size;
+	size_t size;
 	int type;
 	int mode;
 	bool mounted;
@@ -74,7 +74,7 @@ KINC_FUNC void kinc_file_reader_close(kinc_file_reader_t *reader);
 /// <param name="data">A pointer to write the data to</param>
 /// <param name="size">The amount of data to read in bytes</param>
 /// <returns>The number of bytes that were read - can be less than size if there is not enough data in the file</returns>
-KINC_FUNC int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size);
+KINC_FUNC size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size);
 
 /// <summary>
 /// Figures out the size of a file.
@@ -88,14 +88,14 @@ KINC_FUNC size_t kinc_file_reader_size(kinc_file_reader_t *reader);
 /// </summary>
 /// <param name="reader">The reader which's reading-position to figure out</param>
 /// <returns>The current reading-position</returns>
-KINC_FUNC int kinc_file_reader_pos(kinc_file_reader_t *reader);
+KINC_FUNC size_t kinc_file_reader_pos(kinc_file_reader_t *reader);
 
 /// <summary>
 /// Sets the reading-position manually.
 /// </summary>
 /// <param name="reader">The reader which's reading-position to set</param>
 /// <param name="pos">The reading-position to set</param>
-KINC_FUNC void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos);
+KINC_FUNC void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos);
 
 /// <summary>
 /// Interprets four bytes starting at the provided pointer as a little-endian float.
@@ -341,40 +341,41 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #endif
 
 #ifdef KORE_WINDOWS
-	reader->size = GetFileSize(reader->file, NULL);
+	// TODO: make this 64-bit compliant
+	reader->size = (size_t)GetFileSize(reader->file, NULL);
 #else
 	fseek((FILE *)reader->file, 0, SEEK_END);
-	reader->size = (int)ftell((FILE *)reader->file);
+	reader->size = ftell((FILE *)reader->file);
 	fseek((FILE *)reader->file, 0, SEEK_SET);
 #endif
 	return true;
 }
 #endif
 
-int kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
+size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 #ifdef KORE_ANDROID
 	if (reader->file != NULL) {
-		return (int)fread(data, 1, size, reader->file);
+		return fread(data, 1, size, reader->file);
 	}
 	else {
-		int read = AAsset_read(reader->asset, data, size);
+		size_t read = AAsset_read(reader->asset, data, size);
 		reader->pos += read;
 		return read;
 	}
 #elif defined(KORE_WINDOWS)
 	DWORD readBytes = 0;
 	if (ReadFile(reader->file, data, (DWORD)size, &readBytes, NULL)) {
-		return (int)readBytes;
+		return (size_t)readBytes;
 	}
 	else {
 		return 0;
 	}
 #else
-	return (int)fread(data, 1, size, (FILE *)reader->file);
+	return fread(data, 1, size, (FILE *)reader->file);
 #endif
 }
 
-void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos) {
+void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
 #ifdef KORE_ANDROID
 	if (reader->file != NULL) {
 		fseek(reader->file, pos, SEEK_SET);
@@ -384,7 +385,8 @@ void kinc_file_reader_seek(kinc_file_reader_t *reader, int pos) {
 		reader->pos = pos;
 	}
 #elif defined(KORE_WINDOWS)
-	SetFilePointer(reader->file, pos, NULL, FILE_BEGIN);
+	// TODO: make this 64-bit compliant
+	SetFilePointer(reader->file, (LONG)pos, NULL, FILE_BEGIN);
 #else
 	fseek((FILE *)reader->file, pos, SEEK_SET);
 #endif
@@ -411,21 +413,22 @@ void kinc_file_reader_close(kinc_file_reader_t *reader) {
 #endif
 }
 
-int kinc_file_reader_pos(kinc_file_reader_t *reader) {
+size_t kinc_file_reader_pos(kinc_file_reader_t *reader) {
 #ifdef KORE_ANDROID
 	if (reader->file != NULL)
-		return (int)ftell(reader->file);
+		return ftell(reader->file);
 	else
 		return reader->pos;
 #elif defined(KORE_WINDOWS)
-	return (int)SetFilePointer(reader->file, 0, NULL, FILE_CURRENT);
+	// TODO: make this 64-bit compliant
+	return (size_t)SetFilePointer(reader->file, 0, NULL, FILE_CURRENT);
 #else
-	return (int)ftell((FILE *)reader->file);
+	return ftell((FILE *)reader->file);
 #endif
 }
 
 size_t kinc_file_reader_size(kinc_file_reader_t *reader) {
-	return (size_t)reader->size;
+	return reader->size;
 }
 
 #endif
