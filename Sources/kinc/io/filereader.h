@@ -34,6 +34,7 @@ typedef struct __sFILE FILE;
 typedef struct kinc_file_reader {
 	void *data; // A file handle or a more complex structure
 	size_t size;
+	size_t offset; // Needed by some implementations
 	int type;
 	bool mounted;
 
@@ -55,6 +56,14 @@ typedef struct kinc_file_reader {
 /// <param name="type">Looks for a regular file (KINC_FILE_TYPE_ASSET) or a save-file (KINC_FILE_TYPE_SAVE)</param>
 /// <returns>Whether the file could be opened</returns>
 KINC_FUNC bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filepath, int type);
+
+/// <summary>
+/// Opens a memory area for reading using the file reader API.
+/// </summary>
+/// <param name="reader">The reader to initialize for reading</param>
+/// <param name="data">A pointer to the memory area to read</param>
+/// <param name="size">The size of the memory area</param>
+KINC_FUNC void kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size);
 
 /// <summary>
 /// Closes a file.
@@ -197,6 +206,36 @@ char *kinc_internal_get_files_location(void);
 #include <malloc.h>
 #include <memory.h>
 #endif
+
+static void memory_close_callback(kinc_file_reader_t *reader) {
+}
+
+static size_t memory_read_callback(kinc_file_reader_t *reader, void *data, size_t size) {
+	size_t read_size = reader->size - reader->offset < size ? reader->size - reader->offset : size;
+	memcpy(data, (uint8_t *)reader->data + reader->offset, read_size);
+	reader->offset += read_size;
+	return read_size;
+}
+
+static size_t memory_pos_callback(kinc_file_reader_t *reader) {
+	return reader->offset;
+}
+
+static void memory_seek_callback(kinc_file_reader_t *reader, size_t pos) {
+	reader->offset = pos;
+}
+
+void kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size)
+{
+	memset(reader, 0, sizeof(kinc_file_reader_t));
+	reader->type = KINC_FILE_TYPE_ASSET;
+	reader->data = data;
+	reader->size = size;
+	reader->read = memory_read_callback;
+	reader->pos = memory_pos_callback;
+	reader->seek = memory_seek_callback;
+	reader->close = memory_close_callback;
+}
 
 #ifndef KORE_CONSOLE
 
