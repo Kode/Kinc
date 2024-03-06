@@ -31,26 +31,17 @@ typedef struct __sFILE FILE;
 #define KINC_FILE_TYPE_ASSET 0
 #define KINC_FILE_TYPE_SAVE 1
 
-#ifdef KORE_ANDROID
-typedef struct kinc_file_reader {
-	size_t pos;
-	size_t size;
-	FILE *file;
-	struct AAsset *asset;
-	int type;
-} kinc_file_reader_t;
-#else
 typedef struct kinc_file_reader {
 	void *file;
 	size_t size;
 	int type;
-	int mode;
 	bool mounted;
-#if defined(KORE_SONY) || defined(KORE_SWITCH)
+#ifdef KORE_ANDROID
+	bool aasset;
+#elif defined(KORE_SONY) || defined(KORE_SWITCH)
 	kinc_file_reader_impl_t impl;
 #endif
 } kinc_file_reader_t;
-#endif
 
 /// <summary>
 /// Opens a file for reading.
@@ -245,6 +236,8 @@ void kinc_internal_uwp_installed_location_path(char *path);
 #ifndef KORE_ANDROID
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
 	memset(reader, 0, sizeof(kinc_file_reader_t));
+	reader->type = type;
+
 	char filepath[1001];
 #ifdef KORE_IOS
 	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());
@@ -354,15 +347,11 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 
 size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 #ifdef KORE_ANDROID
-	if (reader->file != NULL) {
-		return fread(data, 1, size, reader->file);
+	if (reader->aasset) {
+		return AAsset_read((struct AAsset *)reader->file, data, size);
 	}
-	else {
-		size_t read = AAsset_read(reader->asset, data, size);
-		reader->pos += read;
-		return read;
-	}
-#elif defined(KORE_WINDOWS)
+#endif
+#if defined(KORE_WINDOWS)
 	DWORD readBytes = 0;
 	if (ReadFile(reader->file, data, (DWORD)size, &readBytes, NULL)) {
 		return (size_t)readBytes;
@@ -377,14 +366,11 @@ size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size
 
 void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
 #ifdef KORE_ANDROID
-	if (reader->file != NULL) {
-		fseek(reader->file, pos, SEEK_SET);
+	if (reader->aasset) {
+		AAsset_seek((struct AAsset *)reader->file, pos, SEEK_SET);
 	}
-	else {
-		AAsset_seek(reader->asset, pos, SEEK_SET);
-		reader->pos = pos;
-	}
-#elif defined(KORE_WINDOWS)
+#endif
+#if defined(KORE_WINDOWS)
 	// TODO: make this 64-bit compliant
 	SetFilePointer(reader->file, (LONG)pos, NULL, FILE_BEGIN);
 #else
@@ -394,15 +380,12 @@ void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
 
 void kinc_file_reader_close(kinc_file_reader_t *reader) {
 #ifdef KORE_ANDROID
-	if (reader->file != NULL) {
-		fclose(reader->file);
+	if (reader->aasset) {
+		AAsset_close((struct AAsset *)reader->file);
 		reader->file = NULL;
 	}
-	if (reader->asset != NULL) {
-		AAsset_close(reader->asset);
-		reader->asset = NULL;
-	}
-#elif defined(KORE_WINDOWS)
+#endif
+#if defined(KORE_WINDOWS)
 	CloseHandle(reader->file);
 #else
 	if (reader->file == NULL) {
@@ -415,11 +398,11 @@ void kinc_file_reader_close(kinc_file_reader_t *reader) {
 
 size_t kinc_file_reader_pos(kinc_file_reader_t *reader) {
 #ifdef KORE_ANDROID
-	if (reader->file != NULL)
-		return ftell(reader->file);
-	else
-		return reader->pos;
-#elif defined(KORE_WINDOWS)
+	if (reader->aasset) {
+		return (size_t)AAsset_seek((struct AAsset *)reader->file, 0, SEEK_CUR);
+	}
+#endif
+#if defined(KORE_WINDOWS)
 	// TODO: make this 64-bit compliant
 	return (size_t)SetFilePointer(reader->file, 0, NULL, FILE_CURRENT);
 #else

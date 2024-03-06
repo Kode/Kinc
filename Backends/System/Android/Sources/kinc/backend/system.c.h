@@ -1252,9 +1252,8 @@ void initAndroidFileReader(void) {
 }
 
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
-	reader->pos = 0;
 	reader->file = NULL;
-	reader->asset = NULL;
+	reader->aasset = false;
 	if (type == KINC_FILE_TYPE_SAVE) {
 		char filepath[1001];
 
@@ -1282,18 +1281,20 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 			strcat(filepath, filename);
 		}
 
-		reader->file = fopen(filepath, "rb");
-		if (reader->file != NULL) {
-			fseek(reader->file, 0, SEEK_END);
-			reader->size = ftell(reader->file);
-			fseek(reader->file, 0, SEEK_SET);
+		FILE *stream = fopen(filepath, "rb");
+		if (stream != NULL) {
+			reader->file = stream;
+			fseek(stream, 0, SEEK_END);
+			reader->size = ftell(stream);
+			fseek(stream, 0, SEEK_SET);
 			return true;
 		}
 		else {
-			reader->asset = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
-			if (reader->asset == NULL)
+			reader->file = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
+			if (reader->file == NULL)
 				return false;
 			reader->size = AAsset_getLength(reader->asset);
+			reader->aasset = true;
 			return true;
 		}
 	}
