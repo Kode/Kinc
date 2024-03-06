@@ -2,10 +2,6 @@
 
 #include <kinc/global.h>
 
-#if defined(KORE_SONY) || defined(KORE_SWITCH)
-#include <kinc/backend/FileReaderImpl.h>
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -42,10 +38,6 @@ typedef struct kinc_file_reader {
 	size_t (*read)(struct kinc_file_reader *reader, void *data, size_t size);
 	size_t (*pos)(struct kinc_file_reader *reader);
 	void (*seek)(struct kinc_file_reader *reader, size_t pos);
-
-#if defined(KORE_SONY) || defined(KORE_SWITCH)
-	kinc_file_reader_impl_t impl;
-#endif
 } kinc_file_reader_t;
 
 /// <summary>
@@ -63,7 +55,8 @@ KINC_FUNC bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *fil
 /// <param name="reader">The reader to initialize for reading</param>
 /// <param name="data">A pointer to the memory area to read</param>
 /// <param name="size">The size of the memory area</param>
-KINC_FUNC void kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size);
+/// <returns>This function always returns true</returns>
+KINC_FUNC bool kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size);
 
 /// <summary>
 /// Closes a file.
@@ -183,6 +176,7 @@ KINC_FUNC int8_t kinc_read_s8(uint8_t *data);
 
 void kinc_internal_set_files_location(char *dir);
 char *kinc_internal_get_files_location(void);
+bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type);
 
 #ifdef KINC_IMPLEMENTATION_IO
 #define KINC_IMPLEMENTATION
@@ -225,7 +219,7 @@ static void memory_seek_callback(kinc_file_reader_t *reader, size_t pos) {
 	reader->offset = pos;
 }
 
-void kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size)
+bool kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size)
 {
 	memset(reader, 0, sizeof(kinc_file_reader_t));
 	reader->type = KINC_FILE_TYPE_ASSET;
@@ -235,9 +229,8 @@ void kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t
 	reader->pos = memory_pos_callback;
 	reader->seek = memory_seek_callback;
 	reader->close = memory_close_callback;
+	return true;
 }
-
-#ifndef KORE_CONSOLE
 
 #ifdef KORE_IOS
 const char *iphonegetresourcepath(void);
@@ -276,8 +269,7 @@ char *kinc_internal_get_files_location(void) {
 void kinc_internal_uwp_installed_location_path(char *path);
 #endif
 
-#ifndef KORE_ANDROID
-bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
+bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
 	memset(reader, 0, sizeof(kinc_file_reader_t));
 	reader->type = type;
 
@@ -319,7 +311,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	strcat(filepath, "\\");
 	strcat(filepath, filename);
 #endif
-#ifdef KORE_LINUX
+#if defined(KORE_LINUX) || defined(KORE_ANDROID)
 	if (type == KINC_FILE_TYPE_SAVE) {
 		strcpy(filepath, kinc_internal_save_path());
 		strcat(filepath, filename);
@@ -386,6 +378,11 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #endif
 	return true;
 }
+
+#if !defined(KORE_ANDROID) && !defined(KORE_CONSOLE)
+bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
+	return kinc_internal_file_reader_open(reader, filename, type);
+}
 #endif
 
 size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
@@ -448,8 +445,6 @@ size_t kinc_file_reader_pos(kinc_file_reader_t *reader) {
 size_t kinc_file_reader_size(kinc_file_reader_t *reader) {
 	return reader->size;
 }
-
-#endif // KORE_CONSOLE
 
 float kinc_read_f32le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN // speed optimization
