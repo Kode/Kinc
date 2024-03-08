@@ -269,6 +269,51 @@ char *kinc_internal_get_files_location(void) {
 void kinc_internal_uwp_installed_location_path(char *path);
 #endif
 
+#if defined(KORE_WINDOWS)
+static size_t kinc_libc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
+	DWORD readBytes = 0;
+	if (ReadFile(reader->data, data, (DWORD)size, &readBytes, NULL)) {
+		return (size_t)readBytes;
+	}
+	else {
+		return 0;
+	}
+}
+
+static void kinc_libc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+	// TODO: make this 64-bit compliant
+	SetFilePointer(reader->data, (LONG)pos, NULL, FILE_BEGIN);
+}
+
+static void kinc_libc_file_reader_close(kinc_file_reader_t *reader) {
+	CloseHandle(reader->data);
+}
+
+static size_t kinc_libc_file_reader_pos(kinc_file_reader_t *reader) {
+	// TODO: make this 64-bit compliant
+	return (size_t)SetFilePointer(reader->data, 0, NULL, FILE_CURRENT);
+}
+#else
+static size_t kinc_libc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
+	return fread(data, 1, size, (FILE *)reader->data);
+}
+
+static void kinc_libc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+	fseek((FILE *)reader->data, pos, SEEK_SET);
+}
+
+static void kinc_libc_file_reader_close(kinc_file_reader_t *reader) {
+	if (reader->data != NULL) {
+		fclose((FILE *)reader->data);
+		reader->data = NULL;
+	}
+}
+
+static size_t kinc_libc_file_reader_pos(kinc_file_reader_t *reader) {
+	return ftell((FILE *)reader->data);
+}
+#endif
+
 bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
 	memset(reader, 0, sizeof(kinc_file_reader_t));
 	reader->type = type;
@@ -376,6 +421,12 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 	reader->size = ftell((FILE *)reader->data);
 	fseek((FILE *)reader->data, 0, SEEK_SET);
 #endif
+
+	reader->read = kinc_libc_file_reader_read;
+	reader->seek = kinc_libc_file_reader_seek;
+	reader->close = kinc_libc_file_reader_close;
+	reader->pos = kinc_libc_file_reader_pos;
+
 	return true;
 }
 
@@ -386,60 +437,19 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 #endif
 
 size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
-	if (reader->read != NULL) {
-		return reader->read(reader, data, size);
-	}
-#if defined(KORE_WINDOWS)
-	DWORD readBytes = 0;
-	if (ReadFile(reader->data, data, (DWORD)size, &readBytes, NULL)) {
-		return (size_t)readBytes;
-	}
-	else {
-		return 0;
-	}
-#else
-	return fread(data, 1, size, (FILE *)reader->data);
-#endif
+	return reader->read(reader, data, size);
 }
 
 void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
-	if (reader->seek != NULL) {
-		reader->seek(reader, pos);
-		return;
-	}
-#if defined(KORE_WINDOWS)
-	// TODO: make this 64-bit compliant
-	SetFilePointer(reader->data, (LONG)pos, NULL, FILE_BEGIN);
-#else
-	fseek((FILE *)reader->data, pos, SEEK_SET);
-#endif
+	reader->seek(reader, pos);
 }
 
 void kinc_file_reader_close(kinc_file_reader_t *reader) {
-	if (reader->close != NULL) {
-		reader->close(reader);
-		return;
-	}
-#if defined(KORE_WINDOWS)
-	CloseHandle(reader->data);
-#else
-	if (reader->data != NULL) {
-		fclose((FILE *)reader->data);
-		reader->data = NULL;
-	}
-#endif
+	reader->close(reader);
 }
 
 size_t kinc_file_reader_pos(kinc_file_reader_t *reader) {
-	if (reader->pos != NULL) {
-		return reader->pos(reader);
-	}
-#if defined(KORE_WINDOWS)
-	// TODO: make this 64-bit compliant
-	return (size_t)SetFilePointer(reader->data, 0, NULL, FILE_CURRENT);
-#else
-	return ftell((FILE *)reader->data);
-#endif
+	return reader->pos(reader);
 }
 
 size_t kinc_file_reader_size(kinc_file_reader_t *reader) {
