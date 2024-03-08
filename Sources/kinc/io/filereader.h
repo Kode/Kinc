@@ -31,8 +31,6 @@ typedef struct kinc_file_reader {
 	void *data; // A file handle or a more complex structure
 	size_t size;
 	size_t offset; // Needed by some implementations
-	int type;
-	bool mounted;
 
 	void (*close)(struct kinc_file_reader *reader);
 	size_t (*read)(struct kinc_file_reader *reader, void *data, size_t size);
@@ -57,6 +55,12 @@ KINC_FUNC bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *fil
 /// <param name="size">The size of the memory area</param>
 /// <returns>This function always returns true</returns>
 KINC_FUNC bool kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size);
+
+/// <summary>
+/// Registers a file reader callback.
+/// </summary>
+/// <param name="callback">The function to call when opening a file</param>
+KINC_FUNC void kinc_file_reader_set_callback(bool (*callback)(kinc_file_reader_t *reader, const char *filename, int type));
 
 /// <summary>
 /// Closes a file.
@@ -176,6 +180,7 @@ KINC_FUNC int8_t kinc_read_s8(uint8_t *data);
 
 void kinc_internal_set_files_location(char *dir);
 char *kinc_internal_get_files_location(void);
+bool kinc_internal_file_reader_callback(kinc_file_reader_t *reader, const char *filename, int type);
 bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type);
 
 #ifdef KINC_IMPLEMENTATION_IO
@@ -222,7 +227,6 @@ static void memory_seek_callback(kinc_file_reader_t *reader, size_t pos) {
 bool kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size)
 {
 	memset(reader, 0, sizeof(kinc_file_reader_t));
-	reader->type = KINC_FILE_TYPE_ASSET;
 	reader->data = data;
 	reader->size = size;
 	reader->read = memory_read_callback;
@@ -253,6 +257,7 @@ const char *macgetresourcepath(void);
 #endif
 
 static char *fileslocation = NULL;
+static bool *file_reader_callback(kinc_file_reader_t *reader, const char *filename, int type) = NULL;
 #ifdef KORE_WINDOWS
 static wchar_t wfilepath[1001];
 #endif
@@ -263,6 +268,10 @@ void kinc_internal_set_files_location(char *dir) {
 
 char *kinc_internal_get_files_location(void) {
 	return fileslocation;
+}
+
+bool kinc_internal_file_reader_callback(kinc_file_reader_t *reader, const char *filename, int type) {
+	return file_reader_callback ? file_reader_callback(reader, filename, type) : false;
 }
 
 #ifdef KORE_WINDOWSAPP
@@ -315,9 +324,6 @@ static size_t kinc_libc_file_reader_pos(kinc_file_reader_t *reader) {
 #endif
 
 bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
-	memset(reader, 0, sizeof(kinc_file_reader_t));
-	reader->type = type;
-
 	char filepath[1001];
 #ifdef KORE_IOS
 	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());
@@ -432,9 +438,15 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 
 #if !defined(KORE_ANDROID) && !defined(KORE_CONSOLE)
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
-	return kinc_internal_file_reader_open(reader, filename, type);
+	memset(reader, 0, sizeof(*reader));
+	return kinc_internal_file_reader_callback(reader, filename, type) ||
+	       kinc_internal_file_reader_open(reader, filename, type);
 }
 #endif
+
+void kinc_file_reader_set_callback(bool (*callback)(kinc_file_reader_t *reader, const char *filename, int type)) {
+	file_reader_callback = callback;
+}
 
 size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 	return reader->read(reader, data, size);
