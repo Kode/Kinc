@@ -1250,8 +1250,9 @@ void initAndroidFileReader(void) {
 	(*activity->vm)->DetachCurrentThread(activity->vm);
 }
 
-static void kinc_aasset_reader_close(kinc_file_reader_t *reader) {
+static bool kinc_aasset_reader_close(kinc_file_reader_t *reader) {
 	AAsset_close((struct AAsset *)reader->data);
+	return true;
 }
 
 static size_t kinc_aasset_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
@@ -1262,8 +1263,9 @@ static size_t kinc_aasset_reader_pos(kinc_file_reader_t *reader) {
 	return (size_t)AAsset_seek((struct AAsset *)reader->data, 0, SEEK_CUR);
 }
 
-static void kinc_aasset_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+static bool kinc_aasset_reader_seek(kinc_file_reader_t *reader, size_t pos) {
 	AAsset_seek((struct AAsset *)reader->data, pos, SEEK_SET);
+	return true;
 }
 
 static bool kinc_aasset_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {

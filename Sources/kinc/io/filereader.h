@@ -32,10 +32,10 @@ typedef struct kinc_file_reader {
 	size_t size;
 	size_t offset; // Needed by some implementations
 
-	void (*close)(struct kinc_file_reader *reader);
+	bool (*close)(struct kinc_file_reader *reader);
 	size_t (*read)(struct kinc_file_reader *reader, void *data, size_t size);
 	size_t (*pos)(struct kinc_file_reader *reader);
-	void (*seek)(struct kinc_file_reader *reader, size_t pos);
+	bool (*seek)(struct kinc_file_reader *reader, size_t pos);
 } kinc_file_reader_t;
 
 /// <summary>
@@ -66,7 +66,8 @@ KINC_FUNC void kinc_file_reader_set_callback(bool (*callback)(kinc_file_reader_t
 /// Closes a file.
 /// </summary>
 /// <param name="reader">The file to close</param>
-KINC_FUNC void kinc_file_reader_close(kinc_file_reader_t *reader);
+/// <returns>Whether the file could be closed</returns>
+KINC_FUNC bool kinc_file_reader_close(kinc_file_reader_t *reader);
 
 /// <summary>
 /// Reads data from a file starting from the current reading-position and increases the reading-position accordingly.
@@ -96,7 +97,8 @@ KINC_FUNC size_t kinc_file_reader_pos(kinc_file_reader_t *reader);
 /// </summary>
 /// <param name="reader">The reader which's reading-position to set</param>
 /// <param name="pos">The reading-position to set</param>
-KINC_FUNC void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos);
+/// <returns>Whether the reading position could be set</returns>
+KINC_FUNC bool kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos);
 
 /// <summary>
 /// Interprets four bytes starting at the provided pointer as a little-endian float.
@@ -206,7 +208,8 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 #include <memory.h>
 #endif
 
-static void memory_close_callback(kinc_file_reader_t *reader) {
+static bool memory_close_callback(kinc_file_reader_t *reader) {
+	return true;
 }
 
 static size_t memory_read_callback(kinc_file_reader_t *reader, void *data, size_t size) {
@@ -220,8 +223,9 @@ static size_t memory_pos_callback(kinc_file_reader_t *reader) {
 	return reader->offset;
 }
 
-static void memory_seek_callback(kinc_file_reader_t *reader, size_t pos) {
+static bool memory_seek_callback(kinc_file_reader_t *reader, size_t pos) {
 	reader->offset = pos;
+	return true;
 }
 
 bool kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size)
@@ -257,7 +261,7 @@ const char *macgetresourcepath(void);
 #endif
 
 static char *fileslocation = NULL;
-static bool *file_reader_callback(kinc_file_reader_t *reader, const char *filename, int type) = NULL;
+static bool (*file_reader_callback)(kinc_file_reader_t *reader, const char *filename, int type) = NULL;
 #ifdef KORE_WINDOWS
 static wchar_t wfilepath[1001];
 #endif
@@ -289,13 +293,15 @@ static size_t kinc_libc_file_reader_read(kinc_file_reader_t *reader, void *data,
 	}
 }
 
-static void kinc_libc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+static bool kinc_libc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
 	// TODO: make this 64-bit compliant
 	SetFilePointer(reader->data, (LONG)pos, NULL, FILE_BEGIN);
+	return true;
 }
 
-static void kinc_libc_file_reader_close(kinc_file_reader_t *reader) {
+static bool kinc_libc_file_reader_close(kinc_file_reader_t *reader) {
 	CloseHandle(reader->data);
+	return true;
 }
 
 static size_t kinc_libc_file_reader_pos(kinc_file_reader_t *reader) {
@@ -307,15 +313,17 @@ static size_t kinc_libc_file_reader_read(kinc_file_reader_t *reader, void *data,
 	return fread(data, 1, size, (FILE *)reader->data);
 }
 
-static void kinc_libc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+static bool kinc_libc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
 	fseek((FILE *)reader->data, pos, SEEK_SET);
+	return true;
 }
 
-static void kinc_libc_file_reader_close(kinc_file_reader_t *reader) {
+static bool kinc_libc_file_reader_close(kinc_file_reader_t *reader) {
 	if (reader->data != NULL) {
 		fclose((FILE *)reader->data);
 		reader->data = NULL;
 	}
+	return true;
 }
 
 static size_t kinc_libc_file_reader_pos(kinc_file_reader_t *reader) {
@@ -452,12 +460,12 @@ size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size
 	return reader->read(reader, data, size);
 }
 
-void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
-	reader->seek(reader, pos);
+bool kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+	return reader->seek(reader, pos);
 }
 
-void kinc_file_reader_close(kinc_file_reader_t *reader) {
-	reader->close(reader);
+bool kinc_file_reader_close(kinc_file_reader_t *reader) {
+	return reader->close(reader);
 }
 
 size_t kinc_file_reader_pos(kinc_file_reader_t *reader) {
