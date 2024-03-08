@@ -1250,8 +1250,9 @@ void initAndroidFileReader(void) {
 	(*activity->vm)->DetachCurrentThread(activity->vm);
 }
 
-static void kinc_aasset_reader_close(kinc_file_reader_t *reader) {
+static bool kinc_aasset_reader_close(kinc_file_reader_t *reader) {
 	AAsset_close((struct AAsset *)reader->data);
+	return true;
 }
 
 static size_t kinc_aasset_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
@@ -1262,28 +1263,30 @@ static size_t kinc_aasset_reader_pos(kinc_file_reader_t *reader) {
 	return (size_t)AAsset_seek((struct AAsset *)reader->data, 0, SEEK_CUR);
 }
 
-static void kinc_aasset_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+static bool kinc_aasset_reader_seek(kinc_file_reader_t *reader, size_t pos) {
 	AAsset_seek((struct AAsset *)reader->data, pos, SEEK_SET);
+	return true;
+}
+
+static bool kinc_aasset_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
+	if (type != KINC_FILE_TYPE_ASSET)
+		return false;
+	reader->data = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
+	if (reader->data == NULL)
+		return false;
+	reader->size = AAsset_getLength((struct AAsset *)reader->data);
+	reader->close = kinc_aasset_reader_close;
+	reader->read = kinc_aasset_reader_read;
+	reader->pos = kinc_aasset_reader_pos;
+	reader->seek = kinc_aasset_reader_seek;
+	return true;
 }
 
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
-	if (kinc_internal_file_reader_open(reader, filename, type)) {
-		return true;
-	}
-
-	if (type == KINC_FILE_TYPE_ASSET) {
-		reader->data = AAssetManager_open(kinc_android_get_asset_manager(), filename, AASSET_MODE_RANDOM);
-		if (reader->data == NULL)
-			return false;
-		reader->size = AAsset_getLength((struct AAsset *)reader->data);
-		reader->close = kinc_aasset_reader_close;
-		reader->read = kinc_aasset_reader_read;
-		reader->pos = kinc_aasset_reader_pos;
-		reader->seek = kinc_aasset_reader_seek;
-		return true;
-	}
-
-	return false;
+	memset(reader, 0, sizeof(*reader));
+	return kinc_internal_file_reader_callback(reader, filename, type) ||
+	       kinc_internal_file_reader_open(reader, filename, type) ||
+	       kinc_aasset_reader_open(reader, filename, type);
 }
 
 int kinc_cpu_cores(void) {
