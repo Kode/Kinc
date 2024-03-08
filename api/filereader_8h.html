@@ -115,9 +115,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a1c85fddeaa98da27be8d1b8a25647c6b"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a1c85fddeaa98da27be8d1b8a25647c6b">kinc_file_reader_from_memory</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, void *data, size_t size)</td></tr>
 <tr class="memdesc:a1c85fddeaa98da27be8d1b8a25647c6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens a memory area for reading using the file reader API.  <a href="filereader_8h.html#a1c85fddeaa98da27be8d1b8a25647c6b">More...</a><br /></td></tr>
 <tr class="separator:a1c85fddeaa98da27be8d1b8a25647c6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7aee8850df39f8d713e951dcee055011"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">kinc_file_reader_close</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader)</td></tr>
-<tr class="memdesc:a7aee8850df39f8d713e951dcee055011"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a file.  <a href="filereader_8h.html#a7aee8850df39f8d713e951dcee055011">More...</a><br /></td></tr>
-<tr class="separator:a7aee8850df39f8d713e951dcee055011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc43deec6feb0fa470cfa0fde88dfd8f"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#afc43deec6feb0fa470cfa0fde88dfd8f">kinc_file_reader_set_callback</a> (bool(*callback)(<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, const char *filename, int type))</td></tr>
+<tr class="memdesc:afc43deec6feb0fa470cfa0fde88dfd8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a file reader callback.  <a href="filereader_8h.html#afc43deec6feb0fa470cfa0fde88dfd8f">More...</a><br /></td></tr>
+<tr class="separator:afc43deec6feb0fa470cfa0fde88dfd8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c505ccfa41e48e8f087ad055bab335a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a9c505ccfa41e48e8f087ad055bab335a">kinc_file_reader_close</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader)</td></tr>
+<tr class="memdesc:a9c505ccfa41e48e8f087ad055bab335a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes a file.  <a href="filereader_8h.html#a9c505ccfa41e48e8f087ad055bab335a">More...</a><br /></td></tr>
+<tr class="separator:a9c505ccfa41e48e8f087ad055bab335a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9be232dc287995059ddbad5f3061321"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#af9be232dc287995059ddbad5f3061321">kinc_file_reader_read</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, void *data, size_t size)</td></tr>
 <tr class="memdesc:af9be232dc287995059ddbad5f3061321"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads data from a file starting from the current reading-position and increases the reading-position accordingly.  <a href="filereader_8h.html#af9be232dc287995059ddbad5f3061321">More...</a><br /></td></tr>
 <tr class="separator:af9be232dc287995059ddbad5f3061321"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,9 +130,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a8ac5a31b16df247f005a2b3b8c803128"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a8ac5a31b16df247f005a2b3b8c803128">kinc_file_reader_pos</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader)</td></tr>
 <tr class="memdesc:a8ac5a31b16df247f005a2b3b8c803128"><td class="mdescLeft">&#160;</td><td class="mdescRight">Figures out the current reading-position in the file.  <a href="filereader_8h.html#a8ac5a31b16df247f005a2b3b8c803128">More...</a><br /></td></tr>
 <tr class="separator:a8ac5a31b16df247f005a2b3b8c803128"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf0ee90a57e9dbf9afd929991c6e13ba"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#abf0ee90a57e9dbf9afd929991c6e13ba">kinc_file_reader_seek</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, size_t pos)</td></tr>
-<tr class="memdesc:abf0ee90a57e9dbf9afd929991c6e13ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the reading-position manually.  <a href="filereader_8h.html#abf0ee90a57e9dbf9afd929991c6e13ba">More...</a><br /></td></tr>
-<tr class="separator:abf0ee90a57e9dbf9afd929991c6e13ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21c7416b36df661c7d5adf3506e2c711"><td class="memItemLeft" align="right" valign="top">KINC_FUNC bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a21c7416b36df661c7d5adf3506e2c711">kinc_file_reader_seek</a> (<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, size_t pos)</td></tr>
+<tr class="memdesc:a21c7416b36df661c7d5adf3506e2c711"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the reading-position manually.  <a href="filereader_8h.html#a21c7416b36df661c7d5adf3506e2c711">More...</a><br /></td></tr>
+<tr class="separator:a21c7416b36df661c7d5adf3506e2c711"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21a5b2e5d600132d5ac7d94a49b1e256"><td class="memItemLeft" align="right" valign="top">KINC_FUNC float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="filereader_8h.html#a21a5b2e5d600132d5ac7d94a49b1e256">kinc_read_f32le</a> (uint8_t *data)</td></tr>
 <tr class="memdesc:a21a5b2e5d600132d5ac7d94a49b1e256"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interprets four bytes starting at the provided pointer as a little-endian float.  <a href="filereader_8h.html#a21a5b2e5d600132d5ac7d94a49b1e256">More...</a><br /></td></tr>
 <tr class="separator:a21a5b2e5d600132d5ac7d94a49b1e256"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -182,14 +185,14 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides an API very similar to fread and friends but handles the intricacies of where files are actually hidden on each supported system. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a7aee8850df39f8d713e951dcee055011"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7aee8850df39f8d713e951dcee055011">&#9670;&nbsp;</a></span>kinc_file_reader_close()</h2>
+<a id="a9c505ccfa41e48e8f087ad055bab335a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c505ccfa41e48e8f087ad055bab335a">&#9670;&nbsp;</a></span>kinc_file_reader_close()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void kinc_file_reader_close </td>
+          <td class="memname">KINC_FUNC bool kinc_file_reader_close </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *&#160;</td>
           <td class="paramname"><em>reader</em></td><td>)</td>
@@ -205,6 +208,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether the file could be closed</dd></dl>
 
 </div>
 </div>
@@ -370,14 +374,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="abf0ee90a57e9dbf9afd929991c6e13ba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abf0ee90a57e9dbf9afd929991c6e13ba">&#9670;&nbsp;</a></span>kinc_file_reader_seek()</h2>
+<a id="a21c7416b36df661c7d5adf3506e2c711"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21c7416b36df661c7d5adf3506e2c711">&#9670;&nbsp;</a></span>kinc_file_reader_seek()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">KINC_FUNC void kinc_file_reader_seek </td>
+          <td class="memname">KINC_FUNC bool kinc_file_reader_seek </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *&#160;</td>
           <td class="paramname"><em>reader</em>, </td>
@@ -401,6 +405,33 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">reader</td><td>The reader which's reading-position to set</td></tr>
     <tr><td class="paramname">pos</td><td>The reading-position to set</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether the reading position could be set</dd></dl>
+
+</div>
+</div>
+<a id="afc43deec6feb0fa470cfa0fde88dfd8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc43deec6feb0fa470cfa0fde88dfd8f">&#9670;&nbsp;</a></span>kinc_file_reader_set_callback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_file_reader_set_callback </td>
+          <td>(</td>
+          <td class="paramtype">bool(*)(<a class="el" href="structkinc__file__reader.html">kinc_file_reader_t</a> *reader, const char *filename, int type)&#160;</td>
+          <td class="paramname"><em>callback</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Registers a file reader callback. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">callback</td><td>The function to call when opening a file</td></tr>
   </table>
   </dd>
 </dl>
