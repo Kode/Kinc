@@ -2,10 +2,6 @@
 
 #include <kinc/global.h>
 
-#if defined(KORE_SONY) || defined(KORE_SWITCH)
-#include <kinc/backend/FileReaderImpl.h>
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -35,17 +31,11 @@ typedef struct kinc_file_reader {
 	void *data; // A file handle or a more complex structure
 	size_t size;
 	size_t offset; // Needed by some implementations
-	int type;
-	bool mounted;
 
-	void (*close)(struct kinc_file_reader *reader);
+	bool (*close)(struct kinc_file_reader *reader);
 	size_t (*read)(struct kinc_file_reader *reader, void *data, size_t size);
 	size_t (*pos)(struct kinc_file_reader *reader);
-	void (*seek)(struct kinc_file_reader *reader, size_t pos);
-
-#if defined(KORE_SONY) || defined(KORE_SWITCH)
-	kinc_file_reader_impl_t impl;
-#endif
+	bool (*seek)(struct kinc_file_reader *reader, size_t pos);
 } kinc_file_reader_t;
 
 /// <summary>
@@ -63,13 +53,21 @@ KINC_FUNC bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *fil
 /// <param name="reader">The reader to initialize for reading</param>
 /// <param name="data">A pointer to the memory area to read</param>
 /// <param name="size">The size of the memory area</param>
-KINC_FUNC void kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size);
+/// <returns>This function always returns true</returns>
+KINC_FUNC bool kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size);
+
+/// <summary>
+/// Registers a file reader callback.
+/// </summary>
+/// <param name="callback">The function to call when opening a file</param>
+KINC_FUNC void kinc_file_reader_set_callback(bool (*callback)(kinc_file_reader_t *reader, const char *filename, int type));
 
 /// <summary>
 /// Closes a file.
 /// </summary>
 /// <param name="reader">The file to close</param>
-KINC_FUNC void kinc_file_reader_close(kinc_file_reader_t *reader);
+/// <returns>Whether the file could be closed</returns>
+KINC_FUNC bool kinc_file_reader_close(kinc_file_reader_t *reader);
 
 /// <summary>
 /// Reads data from a file starting from the current reading-position and increases the reading-position accordingly.
@@ -99,7 +97,8 @@ KINC_FUNC size_t kinc_file_reader_pos(kinc_file_reader_t *reader);
 /// </summary>
 /// <param name="reader">The reader which's reading-position to set</param>
 /// <param name="pos">The reading-position to set</param>
-KINC_FUNC void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos);
+/// <returns>Whether the reading position could be set</returns>
+KINC_FUNC bool kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos);
 
 /// <summary>
 /// Interprets four bytes starting at the provided pointer as a little-endian float.
@@ -183,6 +182,8 @@ KINC_FUNC int8_t kinc_read_s8(uint8_t *data);
 
 void kinc_internal_set_files_location(char *dir);
 char *kinc_internal_get_files_location(void);
+bool kinc_internal_file_reader_callback(kinc_file_reader_t *reader, const char *filename, int type);
+bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type);
 
 #ifdef KINC_IMPLEMENTATION_IO
 #define KINC_IMPLEMENTATION
@@ -207,7 +208,8 @@ char *kinc_internal_get_files_location(void);
 #include <memory.h>
 #endif
 
-static void memory_close_callback(kinc_file_reader_t *reader) {
+static bool memory_close_callback(kinc_file_reader_t *reader) {
+	return true;
 }
 
 static size_t memory_read_callback(kinc_file_reader_t *reader, void *data, size_t size) {
@@ -221,23 +223,22 @@ static size_t memory_pos_callback(kinc_file_reader_t *reader) {
 	return reader->offset;
 }
 
-static void memory_seek_callback(kinc_file_reader_t *reader, size_t pos) {
+static bool memory_seek_callback(kinc_file_reader_t *reader, size_t pos) {
 	reader->offset = pos;
+	return true;
 }
 
-void kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size)
+bool kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size)
 {
 	memset(reader, 0, sizeof(kinc_file_reader_t));
-	reader->type = KINC_FILE_TYPE_ASSET;
 	reader->data = data;
 	reader->size = size;
 	reader->read = memory_read_callback;
 	reader->pos = memory_pos_callback;
 	reader->seek = memory_seek_callback;
 	reader->close = memory_close_callback;
+	return true;
 }
-
-#ifndef KORE_CONSOLE
 
 #ifdef KORE_IOS
 const char *iphonegetresourcepath(void);
@@ -260,6 +261,7 @@ const char *macgetresourcepath(void);
 #endif
 
 static char *fileslocation = NULL;
+static bool (*file_reader_callback)(kinc_file_reader_t *reader, const char *filename, int type) = NULL;
 #ifdef KORE_WINDOWS
 static wchar_t wfilepath[1001];
 #endif
@@ -272,15 +274,64 @@ char *kinc_internal_get_files_location(void) {
 	return fileslocation;
 }
 
+bool kinc_internal_file_reader_callback(kinc_file_reader_t *reader, const char *filename, int type) {
+	return file_reader_callback ? file_reader_callback(reader, filename, type) : false;
+}
+
 #ifdef KORE_WINDOWSAPP
 void kinc_internal_uwp_installed_location_path(char *path);
 #endif
 
-#ifndef KORE_ANDROID
-bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
-	memset(reader, 0, sizeof(kinc_file_reader_t));
-	reader->type = type;
+#if defined(KORE_WINDOWS)
+static size_t kinc_libc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
+	DWORD readBytes = 0;
+	if (ReadFile(reader->data, data, (DWORD)size, &readBytes, NULL)) {
+		return (size_t)readBytes;
+	}
+	else {
+		return 0;
+	}
+}
 
+static bool kinc_libc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+	// TODO: make this 64-bit compliant
+	SetFilePointer(reader->data, (LONG)pos, NULL, FILE_BEGIN);
+	return true;
+}
+
+static bool kinc_libc_file_reader_close(kinc_file_reader_t *reader) {
+	CloseHandle(reader->data);
+	return true;
+}
+
+static size_t kinc_libc_file_reader_pos(kinc_file_reader_t *reader) {
+	// TODO: make this 64-bit compliant
+	return (size_t)SetFilePointer(reader->data, 0, NULL, FILE_CURRENT);
+}
+#else
+static size_t kinc_libc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
+	return fread(data, 1, size, (FILE *)reader->data);
+}
+
+static bool kinc_libc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+	fseek((FILE *)reader->data, pos, SEEK_SET);
+	return true;
+}
+
+static bool kinc_libc_file_reader_close(kinc_file_reader_t *reader) {
+	if (reader->data != NULL) {
+		fclose((FILE *)reader->data);
+		reader->data = NULL;
+	}
+	return true;
+}
+
+static size_t kinc_libc_file_reader_pos(kinc_file_reader_t *reader) {
+	return ftell((FILE *)reader->data);
+}
+#endif
+
+bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
 	char filepath[1001];
 #ifdef KORE_IOS
 	strcpy(filepath, type == KINC_FILE_TYPE_SAVE ? kinc_internal_save_path() : iphonegetresourcepath());
@@ -319,7 +370,7 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	strcat(filepath, "\\");
 	strcat(filepath, filename);
 #endif
-#ifdef KORE_LINUX
+#if defined(KORE_LINUX) || defined(KORE_ANDROID)
 	if (type == KINC_FILE_TYPE_SAVE) {
 		strcpy(filepath, kinc_internal_save_path());
 		strcat(filepath, filename);
@@ -384,72 +435,46 @@ bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int
 	reader->size = ftell((FILE *)reader->data);
 	fseek((FILE *)reader->data, 0, SEEK_SET);
 #endif
+
+	reader->read = kinc_libc_file_reader_read;
+	reader->seek = kinc_libc_file_reader_seek;
+	reader->close = kinc_libc_file_reader_close;
+	reader->pos = kinc_libc_file_reader_pos;
+
 	return true;
 }
+
+#if !defined(KORE_ANDROID) && !defined(KORE_CONSOLE)
+bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
+	memset(reader, 0, sizeof(*reader));
+	return kinc_internal_file_reader_callback(reader, filename, type) ||
+	       kinc_internal_file_reader_open(reader, filename, type);
+}
 #endif
+
+void kinc_file_reader_set_callback(bool (*callback)(kinc_file_reader_t *reader, const char *filename, int type)) {
+	file_reader_callback = callback;
+}
 
 size_t kinc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
-	if (reader->read != NULL) {
-		return reader->read(reader, data, size);
-	}
-#if defined(KORE_WINDOWS)
-	DWORD readBytes = 0;
-	if (ReadFile(reader->data, data, (DWORD)size, &readBytes, NULL)) {
-		return (size_t)readBytes;
-	}
-	else {
-		return 0;
-	}
-#else
-	return fread(data, 1, size, (FILE *)reader->data);
-#endif
+	return reader->read(reader, data, size);
 }
 
-void kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
-	if (reader->seek != NULL) {
-		reader->seek(reader, pos);
-		return;
-	}
-#if defined(KORE_WINDOWS)
-	// TODO: make this 64-bit compliant
-	SetFilePointer(reader->data, (LONG)pos, NULL, FILE_BEGIN);
-#else
-	fseek((FILE *)reader->data, pos, SEEK_SET);
-#endif
+bool kinc_file_reader_seek(kinc_file_reader_t *reader, size_t pos) {
+	return reader->seek(reader, pos);
 }
 
-void kinc_file_reader_close(kinc_file_reader_t *reader) {
-	if (reader->close != NULL) {
-		reader->close(reader);
-		return;
-	}
-#if defined(KORE_WINDOWS)
-	CloseHandle(reader->data);
-#else
-	if (reader->data != NULL) {
-		fclose((FILE *)reader->data);
-		reader->data = NULL;
-	}
-#endif
+bool kinc_file_reader_close(kinc_file_reader_t *reader) {
+	return reader->close(reader);
 }
 
 size_t kinc_file_reader_pos(kinc_file_reader_t *reader) {
-	if (reader->pos != NULL) {
-		return reader->pos(reader);
-	}
-#if defined(KORE_WINDOWS)
-	// TODO: make this 64-bit compliant
-	return (size_t)SetFilePointer(reader->data, 0, NULL, FILE_CURRENT);
-#else
-	return ftell((FILE *)reader->data);
-#endif
+	return reader->pos(reader);
 }
 
 size_t kinc_file_reader_size(kinc_file_reader_t *reader) {
 	return reader->size;
 }
-
-#endif // KORE_CONSOLE
 
 float kinc_read_f32le(uint8_t *data) {
 #ifdef KORE_LITTLE_ENDIAN // speed optimization
