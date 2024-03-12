@@ -1,0 +1,25 @@
+name: Web Assembly
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Apt Update
+      run: sudo apt update
+    - name: Apt Install
+      run: sudo apt install ninja-build --yes --quiet
+    - name: Get Submodules
+      run: ./get_dlc
+    - name: Compile
+      run: ./make wasm --kinc . --from Tests/Empty --compile
