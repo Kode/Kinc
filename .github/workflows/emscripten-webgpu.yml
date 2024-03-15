@@ -24,4 +24,4 @@ jobs:
     - name: Compile (kmake)
       run: ./make emscripten -g webgpu --kinc . --from Tests/Empty
     - name: Compile (emscripten)
-      run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ../build/Release && make
+      run: git clone https://github.com/emscripten-core/emsdk.git && cd emsdk && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh && cd ../build/Release && ninja
