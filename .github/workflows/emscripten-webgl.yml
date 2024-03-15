@@ -15,6 +15,10 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+    - name: Apt Update
+      run: sudo apt update
+    - name: Apt Install
+      run: sudo apt install ninja-build --yes --quiet
     - name: Get Submodules
       run: ./get_dlc
     - name: Compile (kmake)
