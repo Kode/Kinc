@@ -8,6 +8,7 @@ let heapi32 = null;
 let heapf32 = null;
 let mod = null;
 let instance = null;
+let audio_thread_started = false;
 
 function create_thread(func) {
 	console.log('Creating thread');
@@ -492,7 +493,10 @@ async function init() {
 	window.requestAnimationFrame(update);
 
 	kanvas.addEventListener('click', (event) => {
-		// start_audio_thread();
+		if (!audio_thread_started) {
+			start_audio_thread();
+			audio_thread_started = true;
+		}
 	});
 
 	kanvas.addEventListener('contextmenu', (event) => {
