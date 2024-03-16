@@ -8,6 +8,9 @@ static unsigned char heap[HEAP_SIZE];
 static size_t heap_top = 4;
 #endif
 
+#ifdef KORE_WASM
+__attribute__((export_name("malloc"))) 
+#endif
 void *malloc(size_t size) {
 #ifdef KORE_WASM
 	// Align to 4 bytes to make js typed arrays work
