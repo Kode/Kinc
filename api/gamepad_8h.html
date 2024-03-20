@@ -66,6 +66,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">gamepad.h File Reference</div>  </div>
@@ -78,8 +79,20 @@ $(function() {
 </div>
 <p><a href="gamepad_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a002556f7c5c4cf49864c597c6a7c140f"><td class="memItemLeft" align="right" valign="top"><a id="a002556f7c5c4cf49864c597c6a7c140f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>KINC_GAMEPAD_MAX_COUNT</b>&#160;&#160;&#160;12</td></tr>
+<tr class="separator:a002556f7c5c4cf49864c597c6a7c140f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a74c449b9c44df70924bad3b675f20c4a"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#a74c449b9c44df70924bad3b675f20c4a">kinc_gamepad_set_connect_callback</a> (void(*value)(int, void *), void *userdata)</td></tr>
+<tr class="memdesc:a74c449b9c44df70924bad3b675f20c4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-connect-callback which is called when a gamepad is connected.  <a href="gamepad_8h.html#a74c449b9c44df70924bad3b675f20c4a">More...</a><br /></td></tr>
+<tr class="separator:a74c449b9c44df70924bad3b675f20c4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8515f35b7c6491878780f16e17e44fb"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#aa8515f35b7c6491878780f16e17e44fb">kinc_gamepad_set_disconnect_callback</a> (void(*value)(int, void *), void *userdata)</td></tr>
+<tr class="memdesc:aa8515f35b7c6491878780f16e17e44fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-disconnect-callback which is called when a gamepad is disconnected.  <a href="gamepad_8h.html#aa8515f35b7c6491878780f16e17e44fb">More...</a><br /></td></tr>
+<tr class="separator:aa8515f35b7c6491878780f16e17e44fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0c06939bd14509082fff0b454288b53"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#aa0c06939bd14509082fff0b454288b53">kinc_gamepad_set_axis_callback</a> (void(*value)(int, int, float, void *), void *userdata)</td></tr>
 <tr class="memdesc:aa0c06939bd14509082fff0b454288b53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-axis-callback which is called with data about changing gamepad-sticks.  <a href="gamepad_8h.html#aa0c06939bd14509082fff0b454288b53">More...</a><br /></td></tr>
 <tr class="separator:aa0c06939bd14509082fff0b454288b53"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -268,6 +281,80 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">value</td><td>The callback</td></tr>
     <tr><td class="paramname">userdata</td><td>Userdata you will receive back as the 4th callback parameter</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a74c449b9c44df70924bad3b675f20c4a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74c449b9c44df70924bad3b675f20c4a">&#9670;&nbsp;</a></span>kinc_gamepad_set_connect_callback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_gamepad_set_connect_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, void *)&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>userdata</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the gamepad-connect-callback which is called when a gamepad is connected. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+    <tr><td class="paramname">userdata</td><td>Userdata you will receive back as the 2nd callback parameter</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa8515f35b7c6491878780f16e17e44fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8515f35b7c6491878780f16e17e44fb">&#9670;&nbsp;</a></span>kinc_gamepad_set_disconnect_callback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_gamepad_set_disconnect_callback </td>
+          <td>(</td>
+          <td class="paramtype">void(*)(int, void *)&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>userdata</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the gamepad-disconnect-callback which is called when a gamepad is disconnected. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The callback</td></tr>
+    <tr><td class="paramname">userdata</td><td>Userdata you will receive back as the 2nd callback parameter</td></tr>
   </table>
   </dd>
 </dl>
