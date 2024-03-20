@@ -60,11 +60,13 @@ namespace {
 			if (ioctl(file_descriptor, JSIOCGNAME(sizeof(buf)), buf) < 0)
 				strncpy(buf, "Unknown", sizeof(buf));
 			snprintf(name, sizeof(name), "%s%s%s%s", buf, " (", gamepad_dev_name, ")");
+			kinc_internal_gamepad_trigger_connect(idx);
 		}
 	}
 
 	void HIDGamepad::close() {
 		if (connected) {
+			kinc_internal_gamepad_trigger_disconnect(idx);
 			::close(file_descriptor);
 			file_descriptor = -1;
 			connected = false;
@@ -94,18 +96,17 @@ namespace {
 		}
 	}
 
-	const int gamepadCount = 12;
-	HIDGamepad gamepads[gamepadCount];
+	HIDGamepad gamepads[KINC_GAMEPAD_MAX_COUNT];
 }
 
 void Kore::initHIDGamepads() {
-	for (int i = 0; i < gamepadCount; ++i) {
+	for (int i = 0; i < KINC_GAMEPAD_MAX_COUNT; ++i) {
 		gamepads[i].init(i);
 	}
 }
 
 void Kore::updateHIDGamepads() {
-	for (int i = 0; i < gamepadCount; ++i) {
+	for (int i = 0; i < KINC_GAMEPAD_MAX_COUNT; ++i) {
 		gamepads[i].update();
 	}
 }
@@ -117,11 +118,11 @@ const char *kinc_gamepad_vendor(int gamepad) {
 }
 
 const char *kinc_gamepad_product_name(int gamepad) {
-	return gamepads[gamepad].name;
+	return gamepad >= 0 && gamepad < KINC_GAMEPAD_MAX_COUNT ? gamepads[gamepad].name : "";
 }
 
 bool kinc_gamepad_connected(int gamepad) {
-	return gamepads[gamepad].connected;
+	return gamepad >= 0 && gamepad < KINC_GAMEPAD_MAX_COUNT && gamepads[gamepad].connected;
 }
 
 void kinc_gamepad_rumble(int gamepad, float left, float right) {}

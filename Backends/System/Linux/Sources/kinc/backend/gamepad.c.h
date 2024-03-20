@@ -32,6 +32,7 @@ static void HIDGamepad_open(struct HIDGamepad *pad) {
 			strncpy(buf, "Unknown", sizeof(buf));
 		}
 		snprintf(pad->name, sizeof(pad->name), "%s(%s)", buf, pad->gamepad_dev_name);
+		kinc_internal_gamepad_trigger_connect(pad->idx);
 	}
 }
 
@@ -48,6 +49,7 @@ static void HIDGamepad_init(struct HIDGamepad *pad, int index) {
 
 static void HIDGamepad_close(struct HIDGamepad *pad) {
 	if (pad->connected) {
+		kinc_internal_gamepad_trigger_disconnect(pad->idx);
 		close(pad->file_descriptor);
 		pad->file_descriptor = -1;
 		pad->connected = false;
@@ -85,8 +87,7 @@ struct HIDGamepadUdevHelper {
 
 static struct HIDGamepadUdevHelper udev_helper;
 
-#define gamepadCount 12
-static struct HIDGamepad gamepads[gamepadCount];
+static struct HIDGamepad gamepads[KINC_GAMEPAD_MAX_COUNT];
 
 static void HIDGamepadUdevHelper_openOrCloseGamepad(struct HIDGamepadUdevHelper *helper, struct udev_device *dev) {
 	const char *action = udev_device_get_action(dev);
@@ -165,7 +166,7 @@ static void HIDGamepadUdevHelper_close(struct HIDGamepadUdevHelper *helper) {
 }
 
 void kinc_linux_initHIDGamepads() {
-	for (int i = 0; i < gamepadCount; ++i) {
+	for (int i = 0; i < KINC_GAMEPAD_MAX_COUNT; ++i) {
 		HIDGamepad_init(&gamepads[i], i);
 	}
 	HIDGamepadUdevHelper_init(&udev_helper);
@@ -173,7 +174,7 @@ void kinc_linux_initHIDGamepads() {
 
 void kinc_linux_updateHIDGamepads() {
 	HIDGamepadUdevHelper_update(&udev_helper);
-	for (int i = 0; i < gamepadCount; ++i) {
+	for (int i = 0; i < KINC_GAMEPAD_MAX_COUNT; ++i) {
 		HIDGamepad_update(&gamepads[i]);
 	}
 }
@@ -187,11 +188,11 @@ const char *kinc_gamepad_vendor(int gamepad) {
 }
 
 const char *kinc_gamepad_product_name(int gamepad) {
-	return gamepads[gamepad].name;
+	return gamepad >= 0 && gamepad < KINC_GAMEPAD_MAX_COUNT ? gamepads[gamepad].name : "";
 }
 
 bool kinc_gamepad_connected(int gamepad) {
-	return gamepads[gamepad].connected;
+	return gamepad >= 0 && gamepad < KINC_GAMEPAD_MAX_COUNT && gamepads[gamepad].connected;
 }
 
 void kinc_gamepad_rumble(int gamepad, float left, float right) {}

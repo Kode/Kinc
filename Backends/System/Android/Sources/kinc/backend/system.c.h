@@ -1127,7 +1127,7 @@ void kinc_login() {}
 void kinc_unlock_achievement(int id) {}
 
 bool kinc_gamepad_connected(int num) {
-	return true;
+	return num == 0;
 }
 
 void kinc_gamepad_rumble(int gamepad, float left, float right) {}
@@ -1206,10 +1206,14 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 	kong_init();
 #endif
 
+	kinc_internal_gamepad_trigger_connect(0);
+
 	return 0;
 }
 
-void kinc_internal_shutdown(void) {}
+void kinc_internal_shutdown(void) {
+	kinc_internal_gamepad_trigger_disconnect(0);
+}
 
 const char *kinc_gamepad_vendor(int gamepad) {
 	return "Google";
