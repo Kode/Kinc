@@ -87,8 +87,7 @@ struct HIDGamepadUdevHelper {
 
 static struct HIDGamepadUdevHelper udev_helper;
 
-#define gamepadCount 12
-static struct HIDGamepad gamepads[gamepadCount];
+static struct HIDGamepad gamepads[KINC_GAMEPAD_MAX_COUNT];
 
 static void HIDGamepadUdevHelper_openOrCloseGamepad(struct HIDGamepadUdevHelper *helper, struct udev_device *dev) {
 	const char *action = udev_device_get_action(dev);
@@ -167,7 +166,7 @@ static void HIDGamepadUdevHelper_close(struct HIDGamepadUdevHelper *helper) {
 }
 
 void kinc_linux_initHIDGamepads() {
-	for (int i = 0; i < gamepadCount; ++i) {
+	for (int i = 0; i < KINC_GAMEPAD_MAX_COUNT; ++i) {
 		HIDGamepad_init(&gamepads[i], i);
 	}
 	HIDGamepadUdevHelper_init(&udev_helper);
@@ -175,7 +174,7 @@ void kinc_linux_initHIDGamepads() {
 
 void kinc_linux_updateHIDGamepads() {
 	HIDGamepadUdevHelper_update(&udev_helper);
-	for (int i = 0; i < gamepadCount; ++i) {
+	for (int i = 0; i < KINC_GAMEPAD_MAX_COUNT; ++i) {
 		HIDGamepad_update(&gamepads[i]);
 	}
 }

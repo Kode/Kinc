@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+#define KINC_GAMEPAD_MAX_COUNT 12
+
 /// <summary>
 /// Sets the gamepad-connect-callback which is called when a gamepad is connected.
 /// </summary>

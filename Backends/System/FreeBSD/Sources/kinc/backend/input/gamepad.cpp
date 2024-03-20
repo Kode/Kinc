@@ -96,18 +96,17 @@ namespace {
 		}
 	}
 
-	const int gamepadCount = 12;
-	HIDGamepad gamepads[gamepadCount];
+	HIDGamepad gamepads[KINC_GAMEPAD_MAX_COUNT];
 }
 
 void Kore::initHIDGamepads() {
-	for (int i = 0; i < gamepadCount; ++i) {
+	for (int i = 0; i < KINC_GAMEPAD_MAX_COUNT; ++i) {
 		gamepads[i].init(i);
 	}
 }
 
 void Kore::updateHIDGamepads() {
-	for (int i = 0; i < gamepadCount; ++i) {
+	for (int i = 0; i < KINC_GAMEPAD_MAX_COUNT; ++i) {
 		gamepads[i].update();
 	}
 }
