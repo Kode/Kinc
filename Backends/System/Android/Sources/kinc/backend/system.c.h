@@ -1206,10 +1206,14 @@ int kinc_init(const char *name, int width, int height, struct kinc_window_option
 	kong_init();
 #endif
 
+	kinc_internal_gamepad_trigger_connect(0);
+
 	return 0;
 }
 
-void kinc_internal_shutdown(void) {}
+void kinc_internal_shutdown(void) {
+	kinc_internal_gamepad_trigger_disconnect(0);
+}
 
 const char *kinc_gamepad_vendor(int gamepad) {
 	return "Google";

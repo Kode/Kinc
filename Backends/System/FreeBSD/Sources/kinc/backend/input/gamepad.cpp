@@ -60,11 +60,13 @@ namespace {
 			if (ioctl(file_descriptor, JSIOCGNAME(sizeof(buf)), buf) < 0)
 				strncpy(buf, "Unknown", sizeof(buf));
 			snprintf(name, sizeof(name), "%s%s%s%s", buf, " (", gamepad_dev_name, ")");
+			kinc_internal_gamepad_trigger_connect(idx);
 		}
 	}
 
 	void HIDGamepad::close() {
 		if (connected) {
+			kinc_internal_gamepad_trigger_disconnect(idx);
 			::close(file_descriptor);
 			file_descriptor = -1;
 			connected = false;

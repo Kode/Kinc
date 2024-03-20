@@ -32,6 +32,7 @@ static void HIDGamepad_open(struct HIDGamepad *pad) {
 			strncpy(buf, "Unknown", sizeof(buf));
 		}
 		snprintf(pad->name, sizeof(pad->name), "%s(%s)", buf, pad->gamepad_dev_name);
+		kinc_internal_gamepad_trigger_connect(pad->idx);
 	}
 }
 
@@ -48,6 +49,7 @@ static void HIDGamepad_init(struct HIDGamepad *pad, int index) {
 
 static void HIDGamepad_close(struct HIDGamepad *pad) {
 	if (pad->connected) {
+		kinc_internal_gamepad_trigger_disconnect(pad->idx);
 		close(pad->file_descriptor);
 		pad->file_descriptor = -1;
 		pad->connected = false;
