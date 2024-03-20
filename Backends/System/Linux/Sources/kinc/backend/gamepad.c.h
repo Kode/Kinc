@@ -188,11 +188,11 @@ const char *kinc_gamepad_vendor(int gamepad) {
 }
 
 const char *kinc_gamepad_product_name(int gamepad) {
-	return gamepads[gamepad].name;
+	return gamepad >= 0 && gamepad < KINC_GAMEPAD_MAX_COUNT ? gamepads[gamepad].name : "";
 }
 
 bool kinc_gamepad_connected(int gamepad) {
-	return gamepads[gamepad].connected;
+	return gamepad >= 0 && gamepad < KINC_GAMEPAD_MAX_COUNT && gamepads[gamepad].connected;
 }
 
 void kinc_gamepad_rumble(int gamepad, float left, float right) {}
