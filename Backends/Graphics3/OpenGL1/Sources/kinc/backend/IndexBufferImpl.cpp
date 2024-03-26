@@ -12,7 +12,7 @@ Graphics3::IndexBuffer::IndexBuffer(int indexCount) : IndexBufferImpl(indexCount
 	glGenBuffers(1, &bufferId);
 	glCheckErrors();
 	data = new int[indexCount];
-#if defined(KINC_ANDROID) || defined(KINC_PI)
+#if defined(KINC_ANDROID) || defined(KINC_RASPBERRY_PI)
 	shortData = new u16[indexCount];
 #endif
 }
@@ -27,13 +27,13 @@ int *Graphics3::IndexBuffer::lock() {
 }
 
 void Graphics3::IndexBuffer::unlock() {
-#if defined(KINC_ANDROID) || defined(KINC_PI)
+#if defined(KINC_ANDROID) || defined(KINC_RASPBERRY_PI)
 	for (int i = 0; i < myCount; ++i)
 		shortData[i] = (u16)data[i];
 #endif
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferId);
 	glCheckErrors();
-#if defined(KINC_ANDROID) || defined(KINC_PI)
+#if defined(KINC_ANDROID) || defined(KINC_RASPBERRY_PI)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, myCount * 2, shortData, GL_STATIC_DRAW);
 	glCheckErrors();
 #else

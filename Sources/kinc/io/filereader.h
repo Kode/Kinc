@@ -256,7 +256,7 @@ const char *macgetresourcepath(void);
 #include <FApp.h>
 #endif
 
-#ifdef KINC_PI
+#ifdef KINC_RASPBERRY_PI
 #define KINC_LINUX
 #endif
 

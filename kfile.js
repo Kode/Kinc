@@ -488,7 +488,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 }
 else if (platform === Platform.Pi) {
 	g4 = true;
-	addKincDefine('PI');
+	addKincDefine('RASPBERRY_PI');
 	addBackend('System/Pi');
 	addBackend('System/POSIX');
 	addBackend('Graphics4/OpenGL');

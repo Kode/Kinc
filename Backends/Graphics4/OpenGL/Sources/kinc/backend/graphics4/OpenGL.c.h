@@ -1117,7 +1117,7 @@ void kinc_g4_restore_render_target() {
 #endif
 }
 
-#if (defined(KINC_OPENGL) && !defined(KINC_PI) && !defined(KINC_ANDROID)) || (defined(KINC_ANDROID) && KINC_ANDROID_API >= 18)
+#if (defined(KINC_OPENGL) && !defined(KINC_RASPBERRY_PI) && !defined(KINC_ANDROID)) || (defined(KINC_ANDROID) && KINC_ANDROID_API >= 18)
 bool kinc_g4_init_occlusion_query(unsigned *occlusionQuery) {
 #if defined(KINC_OPENGL_ES) && defined(KINC_ANDROID) && KINC_ANDROID_API >= 18
 	if (gles_version >= 3 && glesGenQueries) {

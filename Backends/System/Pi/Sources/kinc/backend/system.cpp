@@ -204,7 +204,7 @@ int createWindow(const char *title, int x, int y, int width, int height, Kore::W
 	else {
 		dst_rect.x = x;
 		dst_rect.y = y;
-#ifdef KINC_PI_SCALING
+#ifdef KINC_RASPBERRY_PI_SCALING
 		dst_rect.width = screen_width;
 		dst_rect.height = screen_height;
 #else
@@ -236,7 +236,7 @@ int createWindow(const char *title, int x, int y, int width, int height, Kore::W
 	else {
 		nativewindow.width = width;
 		nativewindow.height = height;
-#ifndef KINC_PI_SCALING
+#ifndef KINC_RASPBERRY_PI_SCALING
 		openXWindow(x, y, width, height);
 #endif
 	}
@@ -473,7 +473,7 @@ bool Kore::System::handleMessages() {
 		}
 	}
 
-#ifndef KINC_PI_SCALING
+#ifndef KINC_RASPBERRY_PI_SCALING
 	if (windowMode != Kore::WindowModeFullscreen) {
 		while (XPending(dpy) > 0) {
 			XEvent event;

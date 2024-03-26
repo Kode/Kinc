@@ -40,7 +40,7 @@
 #include <GL/glx.h>
 #endif
 
-#ifdef KINC_PI
+#ifdef KINC_RASPBERRY_PI
 // #define GL_GLEXT_PROTOTYPES
 #include "EGL/egl.h"
 #include "EGL/eglext.h"

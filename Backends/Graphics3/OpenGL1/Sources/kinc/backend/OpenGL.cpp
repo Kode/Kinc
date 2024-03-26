@@ -207,7 +207,7 @@ void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	glGenVertexArraysOES(1, &arrayId[windowId]);
 #elif defined(KINC_MACOS)
 	glGenVertexArraysAPPLE(1, &arrayId[windowId]);
-#elif !defined(KINC_ANDROID) && !defined(KINC_EMSCRIPTEN) && !defined(KINC_TIZEN) && !defined(KINC_PI)
+#elif !defined(KINC_ANDROID) && !defined(KINC_EMSCRIPTEN) && !defined(KINC_TIZEN) && !defined(KINC_RASPBERRY_PI)
 	glGenVertexArrays(1, &arrayId[windowId]);
 #endif
 	glCheckErrors();
@@ -314,7 +314,7 @@ void Graphics3::drawIndexedVertices() {
 
 void Graphics3::drawIndexedVertices(int start, int count) {
 #ifdef KINC_OPENGL_ES
-#if defined(KINC_ANDROID) || defined(KINC_PI)
+#if defined(KINC_ANDROID) || defined(KINC_RASPBERRY_PI)
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(start * sizeof(GL_UNSIGNED_SHORT)));
 #else
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)(start * sizeof(GL_UNSIGNED_INT)));

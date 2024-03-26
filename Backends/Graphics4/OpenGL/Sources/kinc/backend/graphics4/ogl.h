@@ -38,7 +38,7 @@
 #include <GL/glext.h>
 #endif
 
-#ifdef KINC_PI
+#ifdef KINC_RASPBERRY_PI
 // #define GL_GLEXT_PROTOTYPES
 #include "GLES2/gl2.h"
 
