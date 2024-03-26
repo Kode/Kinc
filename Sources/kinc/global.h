@@ -35,7 +35,6 @@
 #if defined(KINC_WINDOWSAPP)
 
 #define KINC_WINDOWSAPP
-#define KINC_WINRT
 
 #else
 
