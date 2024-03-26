@@ -103,7 +103,7 @@ $(function() {
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
 <div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="graphics5_2texture_8h.html#a7987456c18335e2e8a396ba2aac862bc">   61</a></span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics5_2texture_8h.html#a7987456c18335e2e8a396ba2aac862bc">kinc_g5_texture_destroy</a>(<a class="code" href="structkinc__g5__texture.html">kinc_g5_texture_t</a> *texture);</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">#ifdef KINC_ANDROID</span></div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g5_texture_init_from_id(<a class="code" href="structkinc__g5__texture.html">kinc_g5_texture_t</a> *texture, <span class="keywordtype">unsigned</span> texid);</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
@@ -113,7 +113,7 @@ $(function() {
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
 <div class="line"><a name="l00074"></a><span class="lineno"><a class="line" href="graphics5_2texture_8h.html#aacdc2ff9748aba0802791d3a8fbd6d88">   74</a></span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="graphics5_2texture_8h.html#aacdc2ff9748aba0802791d3a8fbd6d88">kinc_g5_texture_clear</a>(<a class="code" href="structkinc__g5__texture.html">kinc_g5_texture_t</a> *texture, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">int</span> z, <span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height, <span class="keywordtype">int</span> depth, <span class="keywordtype">unsigned</span> color);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="preprocessor">#if defined(KINC_IOS) || defined(KINC_MACOS)</span></div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g5_texture_upload(<a class="code" href="structkinc__g5__texture.html">kinc_g5_texture_t</a> *texture, uint8_t *data);</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>

@@ -107,7 +107,7 @@ $(function() {
 <div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160; </div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
 <div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160; </div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="preprocessor">#ifdef KINC_WINDOWS</span></div>
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160; </div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/MiniWindows.h&gt;</span></div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/SystemMicrosoft.h&gt;</span></div>
@@ -146,7 +146,7 @@ $(function() {
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;        va_end(args);</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    }</div>
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160; </div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="preprocessor">#ifdef KINC_WINDOWS</span></div>
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    {</div>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        va_list args;</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;        va_start(args, format);</div>
@@ -165,7 +165,7 @@ $(function() {
 <div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="keywordtype">void</span> <a class="code" href="error_8h.html#abcd361a1455a4042c59c4593d66b14d7">kinc_error_args</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *format, va_list args) {</div>
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <a class="code" href="log_8h.html#ab6eed7bf673f78c006b8b10513e67bbb">kinc_log_args</a>(KINC_LOG_LEVEL_ERROR, format, args);</div>
 <div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160; </div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="preprocessor">#ifdef KINC_WINDOWS</span></div>
 <div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">wchar_t</span> buffer[4096];</div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    kinc_microsoft_format(format, args, buffer);</div>
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    MessageBoxW(NULL, buffer, L<span class="stringliteral">&quot;Error&quot;</span>, 0);</div>

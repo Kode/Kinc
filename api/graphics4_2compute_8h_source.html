@@ -74,7 +74,7 @@ $(function() {
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="global_8h.html">kinc/global.h</a>&gt;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/graphics4/compute.h&gt;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#ifdef KORE_OPENGL</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#ifdef KINC_OPENGL</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/graphics4/ShaderStorageBufferImpl.h&gt;</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="graphics4_2vertexbuffer_8h.html">kinc/graphics4/vertexbuffer.h</a>&gt;</span></div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#endif</span></div>
@@ -101,7 +101,7 @@ $(function() {
 <div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="graphics4_2compute_8h.html#a9a7c24b5fe159854ef844215f3fa39ae">   56</a></span>&#160;KINC_FUNC <a class="code" href="structkinc__g4__texture__unit.html">kinc_g4_texture_unit_t</a> <a class="code" href="graphics4_2compute_8h.html#a9a7c24b5fe159854ef844215f3fa39ae">kinc_g4_compute_shader_get_texture_unit</a>(<a class="code" href="structkinc__g4__compute__shader.html">kinc_g4_compute_shader</a> *shader, <span class="keyword">const</span> <span class="keywordtype">char</span> *name);</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#ifdef KORE_OPENGL</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#ifdef KINC_OPENGL</span></div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>kinc_shader_storage_buffer {</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    kinc_compute_shader_storage_buffer_impl_t impl;</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;} kinc_shader_storage_buffer_t;</div>

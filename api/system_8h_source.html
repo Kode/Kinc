@@ -257,7 +257,7 @@ $(function() {
 <div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;<span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
 <div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;<span class="preprocessor">#include &lt;string.h&gt;</span></div>
 <div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160; </div>
-<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;<span class="preprocessor">#if !defined(KORE_WASM) &amp;&amp; !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_ANDROID) &amp;&amp; !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_CONSOLE)</span></div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;<span class="preprocessor">#if !defined(KINC_WASM) &amp;&amp; !defined(KINC_EMSCRIPTEN) &amp;&amp; !defined(KINC_ANDROID) &amp;&amp; !defined(KINC_WINDOWS) &amp;&amp; !defined(KINC_CONSOLE)</span></div>
 <div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;<span class="keywordtype">double</span> <a class="code" href="system_8h.html#a6b6e71910799ae040c522038d62e5ced">kinc_time</a>(<span class="keywordtype">void</span>) {</div>
 <div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="system_8h.html#a5df12efbc4578c32bfd95210695587a8">kinc_timestamp</a>() / <a class="code" href="system_8h.html#ae388378b997a056eba079fd34410bf53">kinc_frequency</a>();</div>
 <div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;}</div>
@@ -288,7 +288,7 @@ $(function() {
 <div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;<span class="keyword">static</span> void (*logout_callback)(<span class="keywordtype">void</span> *) = NULL;</div>
 <div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> *logout_callback_data = NULL;</div>
 <div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160; </div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;<span class="preprocessor">#if defined(KINC_IOS) || defined(KINC_MACOS)</span></div>
 <div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;<span class="keywordtype">bool</span> withAutoreleasepool(<span class="keywordtype">bool</span> (*f)(<span class="keywordtype">void</span>));</div>
 <div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160; </div>
@@ -457,10 +457,10 @@ $(function() {
 <div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#a9fac8861a8df2bf6e4348e3b07747733">kinc_start</a>(<span class="keywordtype">void</span>) {</div>
 <div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;    running = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160; </div>
-<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;<span class="preprocessor">#if !defined(KORE_WASM) &amp;&amp; !defined(KORE_EMSCRIPTEN) &amp;&amp; !defined(KORE_TIZEN)</span></div>
+<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;<span class="preprocessor">#if !defined(KINC_WASM) &amp;&amp; !defined(KINC_EMSCRIPTEN) &amp;&amp; !defined(KINC_TIZEN)</span></div>
 <div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;    <span class="comment">// if (Graphics::hasWindow()) Graphics::swapBuffers();</span></div>
 <div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160; </div>
-<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
+<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;<span class="preprocessor">#if defined(KINC_IOS) || defined(KINC_MACOS)</span></div>
 <div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;    <span class="keywordflow">while</span> (withAutoreleasepool(kinc_internal_frame)) {</div>
 <div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;    }</div>
 <div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;<span class="preprocessor">#else</span></div>
@@ -483,11 +483,11 @@ $(function() {
 <div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;<span class="keywordtype">void</span> kinc_memory_emergency(<span class="keywordtype">void</span>) {}</div>
 <div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160; </div>
-<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;<span class="preprocessor">#if !defined(KORE_SONY) &amp;&amp; !defined(KORE_SWITCH)</span></div>
+<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;<span class="preprocessor">#if !defined(KINC_SONY) &amp;&amp; !defined(KINC_SWITCH)</span></div>
 <div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;<span class="keyword">static</span> <span class="keywordtype">float</span> safe_zone = 0.9f;</div>
 <div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160; </div>
 <div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;<span class="keywordtype">float</span> <a class="code" href="system_8h.html#ae83f2e418622946b63582185b854ba7f">kinc_safe_zone</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;<span class="preprocessor">#ifdef KINC_ANDROID</span></div>
 <div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;    <span class="keywordflow">return</span> 1.0f;</div>
 <div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160;    <span class="keywordflow">return</span> safe_zone;</div>
@@ -495,7 +495,7 @@ $(function() {
 <div class="line"><a name="l00619"></a><span class="lineno">  619</span>&#160;}</div>
 <div class="line"><a name="l00620"></a><span class="lineno">  620</span>&#160; </div>
 <div class="line"><a name="l00621"></a><span class="lineno">  621</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="system_8h.html#a4124d1a8a0b3d6175c9dcb0ee8fe2dcb">kinc_automatic_safe_zone</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00622"></a><span class="lineno">  622</span>&#160;<span class="preprocessor">#ifdef KINC_ANDROID</span></div>
 <div class="line"><a name="l00623"></a><span class="lineno">  623</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00624"></a><span class="lineno">  624</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00625"></a><span class="lineno">  625</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
@@ -507,7 +507,7 @@ $(function() {
 <div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;}</div>
 <div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160; </div>
-<div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;<span class="preprocessor">#if !defined(KORE_SONY)</span></div>
+<div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;<span class="preprocessor">#if !defined(KINC_SONY)</span></div>
 <div class="line"><a name="l00635"></a><span class="lineno">  635</span>&#160;<span class="keywordtype">bool</span> is_save_load_initialized(<span class="keywordtype">void</span>) {</div>
 <div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;}</div>
@@ -521,7 +521,7 @@ $(function() {
 <div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;}</div>
 <div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160; </div>
-<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;<span class="preprocessor">#if !defined(KORE_CONSOLE)</span></div>
+<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;<span class="preprocessor">#if !defined(KINC_CONSOLE)</span></div>
 <div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160; </div>
 <div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;<span class="preprocessor">#define SAVE_RESULT_NONE 0</span></div>
 <div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;<span class="preprocessor">#define SAVE_RESULT_SUCCESS 1</span></div>
@@ -577,7 +577,7 @@ $(function() {
 <div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;}</div>
 <div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160; </div>
-<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;<span class="preprocessor">#if !defined(KORE_WINDOWS) &amp;&amp; !defined(KORE_LINUX) &amp;&amp; !defined(KORE_MACOS)</span></div>
+<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;<span class="preprocessor">#if !defined(KINC_WINDOWS) &amp;&amp; !defined(KINC_LINUX) &amp;&amp; !defined(KINC_MACOS)</span></div>
 <div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;<span class="keywordtype">void</span> <a class="code" href="system_8h.html#ac28b5ac7548d6daf2aa7a5fb20dc98cd">kinc_copy_to_clipboard</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *text) {</div>
 <div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;    <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_WARNING, <span class="stringliteral">&quot;Oh no, kinc_copy_to_clipboard is not implemented for this system.&quot;</span>);</div>
 <div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;}</div>

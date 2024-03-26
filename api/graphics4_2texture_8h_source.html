@@ -112,11 +112,11 @@ $(function() {
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
 <div class="line"><a name="l00094"></a><span class="lineno"><a class="line" href="graphics4_2texture_8h.html#a9a076c0dd1dd85c20f752bf70d22e2e7">   94</a></span>&#160;KINC_FUNC <span class="keywordtype">int</span> <a class="code" href="graphics4_2texture_8h.html#a9a076c0dd1dd85c20f752bf70d22e2e7">kinc_g4_texture_stride</a>(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture);</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#ifdef KINC_ANDROID</span></div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_init_from_id(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, <span class="keywordtype">unsigned</span> texid);</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="preprocessor">#if defined(KORE_IOS) || defined(KORE_MACOS)</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="preprocessor">#if defined(KINC_IOS) || defined(KINC_MACOS)</span></div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;KINC_FUNC <span class="keywordtype">void</span> kinc_g4_texture_upload(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *texture, uint8_t *data, <span class="keywordtype">int</span> stride);</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160; </div>

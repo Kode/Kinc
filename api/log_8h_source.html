@@ -98,12 +98,12 @@ $(function() {
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor">#undef KINC_IMPLEMENTATION</span></div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">#ifdef KORE_MICROSOFT</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">#ifdef KINC_MICROSOFT</span></div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/MiniWindows.h&gt;</span></div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor">#include &lt;kinc/backend/SystemMicrosoft.h&gt;</span></div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="preprocessor">#ifdef KINC_ANDROID</span></div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="preprocessor">#include &lt;android/log.h&gt;</span></div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
@@ -117,13 +117,13 @@ $(function() {
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="preprocessor">#define UTF8</span></div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="keywordtype">void</span> <a class="code" href="log_8h.html#ab6eed7bf673f78c006b8b10513e67bbb">kinc_log_args</a>(<a class="code" href="log_8h.html#a382e281c382c7534e7e897596083843f">kinc_log_level_t</a> level, <span class="keyword">const</span> <span class="keywordtype">char</span> *format, va_list args) {</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor">#ifdef KORE_MICROSOFT</span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor">#ifdef KINC_MICROSOFT</span></div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="preprocessor">#ifdef UTF8</span></div>
 <div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">wchar_t</span> buffer[4096];</div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    kinc_microsoft_format(format, args, buffer);</div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    wcscat(buffer, L<span class="stringliteral">&quot;\r\n&quot;</span>);</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    OutputDebugStringW(buffer);</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#ifdef KINC_WINDOWS</span></div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    DWORD written;</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    WriteConsoleW(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)wcslen(buffer), &amp;written, NULL);</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="preprocessor">#endif</span></div>
@@ -132,7 +132,7 @@ $(function() {
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    vsnprintf(buffer, 4090, format, args);</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    strcat(buffer, <span class="stringliteral">&quot;\r\n&quot;</span>);</div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    OutputDebugStringA(buffer);</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="preprocessor">#ifdef KORE_WINDOWS</span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="preprocessor">#ifdef KINC_WINDOWS</span></div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    DWORD written;</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    WriteConsoleA(GetStdHandle(level == KINC_LOG_LEVEL_INFO ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE), buffer, (DWORD)strlen(buffer), &amp;written, NULL);</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor">#endif</span></div>
@@ -144,7 +144,7 @@ $(function() {
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    fprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, <span class="stringliteral">&quot;%s&quot;</span>, buffer);</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160; </div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="preprocessor">#ifdef KORE_ANDROID</span></div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="preprocessor">#ifdef KINC_ANDROID</span></div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordflow">switch</span> (level) {</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordflow">case</span> KINC_LOG_LEVEL_INFO:</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        __android_log_vprint(ANDROID_LOG_INFO, <span class="stringliteral">&quot;Kinc&quot;</span>, format, args);</div>

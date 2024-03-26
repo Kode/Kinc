@@ -81,7 +81,7 @@ $(function() {
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">typedef</span> <span class="keyword">enum</span> kinc_socket_family { KINC_SOCKET_FAMILY_IP4, KINC_SOCKET_FAMILY_IP6 } kinc_socket_family_t;</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#ifdef KORE_MICROSOFT</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#ifdef KINC_MICROSOFT</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#if defined(_WIN64)</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> __int64 UINT_PTR, *PUINT_PTR;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#else</span></div>
@@ -94,7 +94,7 @@ $(function() {
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
 <div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="structkinc__socket.html">   29</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structkinc__socket.html">kinc_socket</a> {</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#ifdef KORE_MICROSOFT</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#ifdef KINC_MICROSOFT</span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    SOCKET handle;</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">int</span> handle;</div>
@@ -155,7 +155,7 @@ $(function() {
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="preprocessor">#include &lt;string.h&gt;</span></div>
 <div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160; </div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160; </div>
 <div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;<span class="comment">// Windows 7</span></div>
 <div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;<span class="preprocessor">#define WINVER 0x0601</span></div>
@@ -202,7 +202,7 @@ $(function() {
 <div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160; </div>
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="preprocessor">#include &lt;Ws2tcpip.h&gt;</span></div>
 <div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="preprocessor">#include &lt;winsock2.h&gt;</span></div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="preprocessor">#elif defined(KORE_POSIX) || defined(KORE_EMSCRIPTEN)</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="preprocessor">#elif defined(KINC_POSIX) || defined(KINC_EMSCRIPTEN)</span></div>
 <div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="preprocessor">#include &lt;arpa/inet.h&gt;</span> <span class="comment">// for inet_addr()</span></div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="preprocessor">#include &lt;ctype.h&gt;</span></div>
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="preprocessor">#include &lt;fcntl.h&gt;</span></div>
@@ -214,20 +214,20 @@ $(function() {
 <div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160; </div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="preprocessor">#if defined(KORE_EMSCRIPTEN)</span></div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="preprocessor">#if defined(KINC_EMSCRIPTEN)</span></div>
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="preprocessor">#include &lt;emscripten.h&gt;</span></div>
 <div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="preprocessor">#include &lt;emscripten/posix_socket.h&gt;</span></div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;<span class="preprocessor">#include &lt;emscripten/threading.h&gt;</span></div>
 <div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="preprocessor">#include &lt;emscripten/websocket.h&gt;</span></div>
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160; </div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="keyword">static</span> EMSCRIPTEN_WEBSOCKET_T bridgeSocket = 0;</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="preprocessor">#elif defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="preprocessor">#elif defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="preprocessor">#include &lt;sys/select.h&gt;</span></div>
 <div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160; </div>
 <div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> counter = 0;</div>
 <div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160; </div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;<span class="comment">// Important: Must be cleaned with freeaddrinfo(address) later if the result is 0 in order to prevent memory leaks</span></div>
 <div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> resolveAddress(<span class="keyword">const</span> <span class="keywordtype">char</span> *url, <span class="keywordtype">int</span> port, <span class="keyword">struct</span> addrinfo **result) {</div>
 <div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <span class="keyword">struct </span>addrinfo hints = {0};</div>
@@ -243,7 +243,7 @@ $(function() {
 <div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160; </div>
 <div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;KINC_FUNC <span class="keywordtype">bool</span> kinc_socket_bind(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock) {</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="keyword">struct </span>sockaddr_in address;</div>
 <div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    address.sin_family = sock-&gt;family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6;</div>
 <div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    address.sin_addr.s_addr = sock-&gt;host;</div>
@@ -267,7 +267,7 @@ $(function() {
 <div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;<span class="keywordtype">void</span> <a class="code" href="socket_8h.html#acc2b42b5e51c9bb61432c77cb9e57846">kinc_socket_init</a>(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock) {</div>
 <div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    sock-&gt;handle = 0;</div>
 <div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160; </div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    sock-&gt;host = INADDR_ANY;</div>
 <div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    sock-&gt;port = htons((<span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>)8080);</div>
 <div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    sock-&gt;protocol = KINC_SOCKET_PROTOCOL_TCP;</div>
@@ -275,12 +275,12 @@ $(function() {
 <div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    sock-&gt;connected = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160; </div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <span class="keywordflow">if</span> (counter == 0) {</div>
 <div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;        WSADATA WsaData;</div>
 <div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;        WSAStartup(MAKEWORD(2, 2), &amp;WsaData);</div>
 <div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    }</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;<span class="preprocessor">#if defined(KORE_EMSCRIPTEN)</span></div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;<span class="preprocessor">#if defined(KINC_EMSCRIPTEN)</span></div>
 <div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="keywordflow">if</span> (!bridgeSocket) {</div>
 <div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;        bridgeSocket = emscripten_init_websocket_to_posix_socket_bridge(<span class="stringliteral">&quot;ws://localhost:8080&quot;</span>);</div>
 <div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;        <span class="comment">// Synchronously wait until connection has been established.</span></div>
@@ -296,7 +296,7 @@ $(function() {
 <div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;}</div>
 <div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160; </div>
 <div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="socket_8h.html#a25ab2e7bc37fb9c210c8434d1b8b1127">kinc_socket_open</a>(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock, <span class="keyword">struct</span> <a class="code" href="structkinc__socket__options.html">kinc_socket_options</a> *options) {</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="keywordflow">switch</span> (sock-&gt;protocol) {</div>
 <div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keywordflow">case</span> KINC_SOCKET_PROTOCOL_UDP:</div>
 <div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;        sock-&gt;handle = socket(sock-&gt;family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6, SOCK_DGRAM, IPPROTO_UDP);</div>
@@ -311,7 +311,7 @@ $(function() {
 <div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160; </div>
 <div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="keywordflow">if</span> (sock-&gt;handle &lt;= 0) {</div>
 <div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;        <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Could not create socket.&quot;</span>);</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;        <span class="keywordtype">int</span> errorCode = WSAGetLastError();</div>
 <div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;        <span class="keywordflow">switch</span> (errorCode) {</div>
 <div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;        <span class="keywordflow">case</span> (WSANOTINITIALISED):</div>
@@ -363,7 +363,7 @@ $(function() {
 <div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;        <span class="keywordflow">default</span>:</div>
 <div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;            <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Unknown error.&quot;</span>);</div>
 <div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;        }</div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;<span class="preprocessor">#elif defined(KORE_POSIX) &amp;&amp; !defined(KORE_EMSCRIPTEN)</span></div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;<span class="preprocessor">#elif defined(KINC_POSIX) &amp;&amp; !defined(KINC_EMSCRIPTEN)</span></div>
 <div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;        <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;%s&quot;</span>, strerror(errno));</div>
 <div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
@@ -372,13 +372,13 @@ $(function() {
 <div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160; </div>
 <div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;    <span class="keywordflow">if</span> (options) {</div>
 <div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;        <span class="keywordflow">if</span> (options-&gt;non_blocking) {</div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;            DWORD value = 1;</div>
 <div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;            <span class="keywordflow">if</span> (ioctlsocket(sock-&gt;handle, FIONBIO, &amp;value) != 0) {</div>
 <div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;                <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Could not set non-blocking mode.&quot;</span>);</div>
 <div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;            }</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;<span class="preprocessor">#elif defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;<span class="preprocessor">#elif defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;            <span class="keywordtype">int</span> value = 1;</div>
 <div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;            <span class="keywordflow">if</span> (fcntl(sock-&gt;handle, F_SETFL, O_NONBLOCK, value) == -1) {</div>
 <div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;                <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Could not set non-blocking mode.&quot;</span>);</div>
@@ -388,7 +388,7 @@ $(function() {
 <div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;        }</div>
 <div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160; </div>
 <div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;        <span class="keywordflow">if</span> (options-&gt;broadcast) {</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;            <span class="keywordtype">int</span> value = 1;</div>
 <div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;            <span class="keywordflow">if</span> (setsockopt(sock-&gt;handle, SOL_SOCKET, SO_BROADCAST, (<span class="keyword">const</span> <span class="keywordtype">char</span> *)&amp;value, <span class="keyword">sizeof</span>(value)) &lt; 0) {</div>
 <div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;                <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Could not set broadcast mode.&quot;</span>);</div>
@@ -398,7 +398,7 @@ $(function() {
 <div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;        }</div>
 <div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160; </div>
 <div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;        <span class="keywordflow">if</span> (options-&gt;tcp_no_delay) {</div>
-<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;            <span class="keywordtype">int</span> value = 1;</div>
 <div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;            <span class="keywordflow">if</span> (setsockopt(sock-&gt;handle, IPPROTO_TCP, TCP_NODELAY, (<span class="keyword">const</span> <span class="keywordtype">char</span> *)&amp;value, <span class="keyword">sizeof</span>(value)) != 0) {</div>
 <div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;                <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Could not set no-delay mode.&quot;</span>);</div>
@@ -412,16 +412,16 @@ $(function() {
 <div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;}</div>
 <div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160; </div>
 <div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;<span class="keywordtype">void</span> <a class="code" href="socket_8h.html#adb682a2aa622a9b12b907edd75d4333b">kinc_socket_destroy</a>(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock) {</div>
-<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;    closesocket(sock-&gt;handle);</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;<span class="preprocessor">#elif defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;<span class="preprocessor">#elif defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;    close(sock-&gt;handle);</div>
 <div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160; </div>
 <div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;    memset(sock, 0, <span class="keyword">sizeof</span>(<a class="code" href="structkinc__socket.html">kinc_socket_t</a>));</div>
 <div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160; </div>
 <div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;    --counter;</div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;    <span class="keywordflow">if</span> (counter == 0) {</div>
 <div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;        WSACleanup();</div>
 <div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;    }</div>
@@ -429,7 +429,7 @@ $(function() {
 <div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;}</div>
 <div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160; </div>
 <div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="socket_8h.html#a6ed29ddca20f6dba14d94f2f22924e6e">kinc_socket_select</a>(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock, uint32_t waittime, <span class="keywordtype">bool</span> read, <span class="keywordtype">bool</span> write) {</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;<span class="preprocessor">#if !defined(KORE_EMSCRIPTEN) &amp;&amp; (defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX))</span></div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;<span class="preprocessor">#if !defined(KINC_EMSCRIPTEN) &amp;&amp; (defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX))</span></div>
 <div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;    fd_set r_fds, w_fds;</div>
 <div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;    <span class="keyword">struct </span>timeval timeout;</div>
 <div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160; </div>
@@ -466,7 +466,7 @@ $(function() {
 <div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;}</div>
 <div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160; </div>
 <div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;<span class="keywordtype">bool</span> <a class="code" href="socket_8h.html#a2334a61813205067ab268fdd208d0cb7">kinc_socket_set</a>(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock, <span class="keyword">const</span> <span class="keywordtype">char</span> *host, <span class="keywordtype">int</span> port, kinc_socket_family_t family, kinc_socket_protocol_t protocol) {</div>
-<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160; </div>
 <div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;    sock-&gt;family = family;</div>
 <div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;    sock-&gt;protocol = protocol;</div>
@@ -492,7 +492,7 @@ $(function() {
 <div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160;            <a class="code" href="log_8h.html#a09922026b10a9497eae5d48d358bf3ac">kinc_log</a>(KINC_LOG_LEVEL_ERROR, <span class="stringliteral">&quot;Could not resolve address.&quot;</span>);</div>
 <div class="line"><a name="l00473"></a><span class="lineno">  473</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00474"></a><span class="lineno">  474</span>&#160;        }</div>
-<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;<span class="preprocessor">#if defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;<span class="preprocessor">#if defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00476"></a><span class="lineno">  476</span>&#160;        sock-&gt;host = ((<span class="keyword">struct </span>sockaddr_in *)address-&gt;ai_addr)-&gt;sin_addr.s_addr;</div>
 <div class="line"><a name="l00477"></a><span class="lineno">  477</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00478"></a><span class="lineno">  478</span>&#160;        sock-&gt;host = ((<span class="keyword">struct </span>sockaddr_in *)address-&gt;ai_addr)-&gt;sin_addr.S_un.S_addr;</div>
@@ -507,7 +507,7 @@ $(function() {
 <div class="line"><a name="l00487"></a><span class="lineno">  487</span>&#160;}</div>
 <div class="line"><a name="l00488"></a><span class="lineno">  488</span>&#160; </div>
 <div class="line"><a name="l00489"></a><span class="lineno">  489</span>&#160;<span class="keywordtype">bool</span> kinc_socket_listen(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *socket, <span class="keywordtype">int</span> backlog) {</div>
-<div class="line"><a name="l00490"></a><span class="lineno">  490</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00490"></a><span class="lineno">  490</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00491"></a><span class="lineno">  491</span>&#160;    <span class="keywordtype">int</span> res = listen(socket-&gt;handle, backlog);</div>
 <div class="line"><a name="l00492"></a><span class="lineno">  492</span>&#160;    <span class="keywordflow">return</span> (res == 0);</div>
 <div class="line"><a name="l00493"></a><span class="lineno">  493</span>&#160;<span class="preprocessor">#else</span></div>
@@ -516,10 +516,10 @@ $(function() {
 <div class="line"><a name="l00496"></a><span class="lineno">  496</span>&#160;}</div>
 <div class="line"><a name="l00497"></a><span class="lineno">  497</span>&#160; </div>
 <div class="line"><a name="l00498"></a><span class="lineno">  498</span>&#160;<span class="keywordtype">bool</span> kinc_socket_accept(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock, <a class="code" href="structkinc__socket.html">kinc_socket_t</a> *newSocket, <span class="keywordtype">unsigned</span> *remoteAddress, <span class="keywordtype">unsigned</span> *remotePort) {</div>
-<div class="line"><a name="l00499"></a><span class="lineno">  499</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00499"></a><span class="lineno">  499</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00500"></a><span class="lineno">  500</span>&#160;    <span class="keyword">typedef</span> <span class="keywordtype">int</span> socklen_t;</div>
 <div class="line"><a name="l00501"></a><span class="lineno">  501</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00502"></a><span class="lineno">  502</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00502"></a><span class="lineno">  502</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00503"></a><span class="lineno">  503</span>&#160;    <span class="keyword">struct </span>sockaddr_in addr;</div>
 <div class="line"><a name="l00504"></a><span class="lineno">  504</span>&#160;    socklen_t addrLength = <span class="keyword">sizeof</span>(addr);</div>
 <div class="line"><a name="l00505"></a><span class="lineno">  505</span>&#160;    newSocket-&gt;handle = accept(sock-&gt;handle, (<span class="keyword">struct</span> sockaddr *)&amp;addr, &amp;addrLength);</div>
@@ -541,7 +541,7 @@ $(function() {
 <div class="line"><a name="l00521"></a><span class="lineno">  521</span>&#160;}</div>
 <div class="line"><a name="l00522"></a><span class="lineno">  522</span>&#160; </div>
 <div class="line"><a name="l00523"></a><span class="lineno">  523</span>&#160;<span class="keywordtype">bool</span> kinc_socket_connect(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock) {</div>
-<div class="line"><a name="l00524"></a><span class="lineno">  524</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00524"></a><span class="lineno">  524</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00525"></a><span class="lineno">  525</span>&#160;    <span class="keyword">struct </span>sockaddr_in addr;</div>
 <div class="line"><a name="l00526"></a><span class="lineno">  526</span>&#160;    addr.sin_family = sock-&gt;family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6;</div>
 <div class="line"><a name="l00527"></a><span class="lineno">  527</span>&#160;    addr.sin_addr.s_addr = sock-&gt;host;</div>
@@ -555,10 +555,10 @@ $(function() {
 <div class="line"><a name="l00535"></a><span class="lineno">  535</span>&#160;}</div>
 <div class="line"><a name="l00536"></a><span class="lineno">  536</span>&#160; </div>
 <div class="line"><a name="l00537"></a><span class="lineno">  537</span>&#160;<span class="keywordtype">int</span> kinc_socket_send(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">int</span> size) {</div>
-<div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00539"></a><span class="lineno">  539</span>&#160;    <span class="keyword">typedef</span> <span class="keywordtype">int</span> socklen_t;</div>
 <div class="line"><a name="l00540"></a><span class="lineno">  540</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00542"></a><span class="lineno">  542</span>&#160;    <span class="keywordflow">if</span> (sock-&gt;protocol == KINC_SOCKET_PROTOCOL_UDP) {</div>
 <div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160;        <span class="keyword">struct </span>sockaddr_in addr;</div>
 <div class="line"><a name="l00544"></a><span class="lineno">  544</span>&#160;        addr.sin_family = sock-&gt;family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6;</div>
@@ -590,7 +590,7 @@ $(function() {
 <div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;}</div>
 <div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160; </div>
 <div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;<span class="keywordtype">int</span> kinc_socket_send_address(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock, <span class="keywordtype">unsigned</span> address, <span class="keywordtype">int</span> port, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">int</span> size) {</div>
-<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;    <span class="keyword">struct </span>sockaddr_in addr;</div>
 <div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;    addr.sin_family = AF_INET;</div>
 <div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    addr.sin_addr.s_addr = htonl(address);</div>
@@ -607,7 +607,7 @@ $(function() {
 <div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;}</div>
 <div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160; </div>
 <div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;<span class="keywordtype">int</span> kinc_socket_send_url(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock, <span class="keyword">const</span> <span class="keywordtype">char</span> *url, <span class="keywordtype">int</span> port, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">int</span> size) {</div>
-<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;    <span class="keyword">struct </span>addrinfo *address = NULL;</div>
 <div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;    <span class="keywordtype">int</span> res = resolveAddress(url, port, &amp;address);</div>
 <div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;    <span class="keywordflow">if</span> (res != 0) {</div>
@@ -627,11 +627,11 @@ $(function() {
 <div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;}</div>
 <div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160; </div>
 <div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;<span class="keywordtype">int</span> kinc_socket_receive(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock, uint8_t *data, <span class="keywordtype">int</span> maxSize, <span class="keywordtype">unsigned</span> *fromAddress, <span class="keywordtype">unsigned</span> *fromPort) {</div>
-<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;    <span class="keyword">typedef</span> <span class="keywordtype">int</span> socklen_t;</div>
 <div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;    <span class="keyword">typedef</span> <span class="keywordtype">int</span> ssize_t;</div>
 <div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP) || defined(KORE_POSIX)</span></div>
+<div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160; </div>
 <div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;    <span class="keywordflow">if</span> (sock-&gt;protocol == KINC_SOCKET_PROTOCOL_UDP) {</div>
 <div class="line"><a name="l00617"></a><span class="lineno">  617</span>&#160;        <span class="keyword">struct </span>sockaddr_in from;</div>
@@ -661,7 +661,7 @@ $(function() {
 <div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;}</div>
 <div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160; </div>
 <div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;<span class="keywordtype">unsigned</span> <a class="code" href="socket_8h.html#a5866d0807dd137f6812d0228d9fdc725">kinc_url_to_int</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *url, <span class="keywordtype">int</span> port) {</div>
-<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;<span class="preprocessor">#if defined(KORE_WINDOWS) || defined(KORE_WINDOWSAPP)</span></div>
+<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)</span></div>
 <div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;    <span class="keyword">struct </span>addrinfo *address = NULL;</div>
 <div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;    <span class="keywordtype">int</span> res = resolveAddress(url, port, &amp;address);</div>
 <div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;    <span class="keywordflow">if</span> (res != 0) {</div>
