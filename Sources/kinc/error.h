@@ -124,7 +124,7 @@ KINC_FUNC void kinc_error_args(const char *format, va_list args);
 
 #include <stdlib.h>
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 
 #include <kinc/backend/MiniWindows.h>
 #include <kinc/backend/SystemMicrosoft.h>
@@ -163,7 +163,7 @@ void kinc_error_message(const char *format, ...) {
 		va_end(args);
 	}
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	{
 		va_list args;
 		va_start(args, format);
@@ -182,7 +182,7 @@ void kinc_error_message(const char *format, ...) {
 void kinc_error_args(const char *format, va_list args) {
 	kinc_log_args(KINC_LOG_LEVEL_ERROR, format, args);
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	wchar_t buffer[4096];
 	kinc_microsoft_format(format, args, buffer);
 	MessageBoxW(NULL, buffer, L"Error", 0);

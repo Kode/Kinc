@@ -4,11 +4,11 @@
 #include <kinc/graphics5/texture.h>
 #include <kinc/backend/SystemMicrosoft.h>
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #include <dxgi1_4.h>
 #endif
 
-#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+#ifdef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
 extern ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
 #endif
 
@@ -45,7 +45,7 @@ static DXGI_FORMAT convertFormat(kinc_g5_render_target_format_t format) {
 		return DXGI_FORMAT_R8_UNORM;
 	case KINC_G5_RENDER_TARGET_FORMAT_32BIT:
 	default:
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 		return DXGI_FORMAT_R8G8B8A8_UNORM;
 #else
 		return DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -100,7 +100,7 @@ static void render_target_init(kinc_g5_render_target_t *render_target, int width
 	kinc_microsoft_affirm(device->CreateDescriptorHeap(&heapDesc, IID_GRAPHICS_PPV_ARGS(&render_target->impl.renderTargetDescriptorHeap)));
 
 	if (framebuffer_index >= 0) {
-#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+#ifdef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
 		render_target->impl.renderTarget = swapChainRenderTargets[framebuffer_index];
 #else
 		IDXGISwapChain *swapChain = kinc_dx_current_window()->swapChain;

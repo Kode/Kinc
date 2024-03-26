@@ -4,7 +4,7 @@
 #include <Kore/Graphics3/Graphics.h>
 #include <Kore/Log.h>
 #include <Kore/System.h>
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 #include <GLContext.h>
 #endif
 using namespace Kore;
@@ -36,8 +36,8 @@ namespace {
 	}
 
 	bool nonPow2RenderTargetsSupported() {
-#ifdef KORE_OPENGL_ES
-#ifdef KORE_ANDROID
+#ifdef KINC_OPENGL_ES
+#ifdef KINC_ANDROID
 		if (ndk_helper::GLContext::GetInstance()->GetGLVersion() >= 3.0)
 			return true;
 		else
@@ -53,7 +53,7 @@ namespace {
 
 void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		GLenum internalFormat = GL_DEPTH24_STENCIL8_OES;
 #else
 		GLenum internalFormat;
@@ -69,7 +69,7 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 		// 		glCheckErrors();
 		// 		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, width, height);
 		// 		glCheckErrors();
-		// #ifdef KORE_OPENGL_ES
+		// #ifdef KINC_OPENGL_ES
 		// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
 		// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
 		// #else
@@ -90,7 +90,7 @@ void RenderTargetImpl::setupDepthStencil(int depthBufferBits, int stencilBufferB
 		glCheckErrors();
 		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 		glCheckErrors();
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthTexture, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, _depthTexture, 0);
 #else
@@ -160,23 +160,23 @@ Graphics3::RenderTarget::RenderTarget(int width, int height, int depthBufferBits
 	glCheckErrors();
 
 	switch (format) {
-#ifndef KORE_MACOS
+#ifndef KINC_MACOS
 	case Target128BitFloat:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texWidth, texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #endif
 		break;
 	case Target64BitFloat:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_EXT, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, texWidth, texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #endif
 		break;
 	case Target16BitDepth:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #endif

@@ -111,7 +111,7 @@ static int convertInternalFormat(kinc_image_format_t format) {
 	case KINC_IMAGE_FORMAT_RGBA32:
 		return GL_RGBA8;
 	default:
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 		return GL_RGBA;
 #else
 		// #ifdef GL_BGRA
@@ -127,7 +127,7 @@ static int convertInternalFormat(kinc_image_format_t format) {
 	case KINC_IMAGE_FORMAT_A16:
 		return GL_R16F_EXT;
 	case KINC_IMAGE_FORMAT_GREY8:
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 		return GL_RED;
 #else
 		return GL_R8;
@@ -256,7 +256,7 @@ static void convertImageToPow2(kinc_image_format_t format, uint8_t *from, int fw
 void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *image) {
 	texture->format = image->format;
 	bool toPow2;
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 	texture->tex_width = image->width;
 	texture->tex_height = image->height;
 	toPow2 = false;
@@ -297,7 +297,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 		break;
 	}
 
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	texture->impl.external_oes = false;
 #endif
 
@@ -313,7 +313,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 
 	switch (image->compression) {
 	case KINC_IMAGE_COMPRESSION_PVRTC:
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texture->tex_width, texture->tex_height, 0,
 		                       texture->tex_width * texture->tex_height / 2, image->data);
 #endif
@@ -325,7 +325,7 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 		break;
 	}
 	case KINC_IMAGE_COMPRESSION_DXT5:
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, texture->tex_width, texture->tex_height, 0, image->data_size, image->data);
 #endif
 		break;
@@ -371,12 +371,12 @@ void kinc_g4_texture_init_from_image(kinc_g4_texture_t *texture, kinc_image_t *i
 
 void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t *image) {
 	texture->format = image->format;
-#ifndef KORE_OPENGL_ES // Requires GLES 3.0
+#ifndef KINC_OPENGL_ES // Requires GLES 3.0
 	texture->tex_width = image->width;
 	texture->tex_height = image->height;
 	texture->tex_depth = image->depth;
 
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	external_oes = false;
 #endif
 
@@ -424,7 +424,7 @@ void kinc_g4_texture_init_from_image3d(kinc_g4_texture_t *texture, kinc_image_t 
 }
 
 void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kinc_image_format_t format) {
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 	texture->tex_width = width;
 	texture->tex_height = height;
 #else
@@ -441,7 +441,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 	texture->format = format;
 	// conversionBuffer = new u8[texWidth * texHeight * 4];
 
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	texture->impl.external_oes = false;
 #endif
 
@@ -467,7 +467,7 @@ void kinc_g4_texture_init(kinc_g4_texture_t *texture, int width, int height, kin
 }
 
 void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, int depth, kinc_image_format_t format) {
-#ifndef KORE_OPENGL_ES
+#ifndef KINC_OPENGL_ES
 	texture->tex_width = width;
 	texture->tex_height = height;
 	texture->tex_depth = depth;
@@ -488,7 +488,7 @@ void kinc_g4_texture_init3d(kinc_g4_texture_t *texture, int width, int height, i
 #endif
 }
 
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 void kinc_g4_texture_init_from_id(kinc_g4_texture_t *texture, unsigned texid) {
 	texture->impl.texture = texid;
 	texture->impl.external_oes = true;
@@ -508,7 +508,7 @@ void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, uint32_t unit) {
 	GLenum target = texture->tex_depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glCheckErrors();
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	if (texture->impl.external_oes) {
 		glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture->impl.texture);
 		glCheckErrors();
@@ -533,7 +533,7 @@ void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_uni
 		}
 	}
 	glCheckErrors();
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	if (texture->impl.external_oes) {
 		glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture->impl.texture);
 		glCheckErrors();
@@ -552,7 +552,7 @@ void Kinc_G4_Internal_TextureSet(kinc_g4_texture_t *texture, kinc_g4_texture_uni
 #endif
 
 void Kinc_G4_Internal_TextureImageSet(kinc_g4_texture_t *texture, kinc_g4_texture_unit_t unit) {
-#if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_4))
+#if defined(KINC_WINDOWS) || (defined(KINC_LINUX) && defined(GL_VERSION_4_4))
 	for (int i = 0; i < KINC_G4_SHADER_TYPE_COUNT; ++i) {
 		if (unit.stages[i] >= 0) {
 			glBindImageTexture(unit.stages[i], texture->impl.texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, convertInternalFormat(texture->format));
@@ -593,7 +593,7 @@ void kinc_g4_texture_unlock(kinc_g4_texture_t *texture) {
 	glBindTexture(target, texture->impl.texture);
 	glCheckErrors();
 	if (texture->tex_depth > 1) {
-#ifndef KORE_OPENGL_ES
+#ifndef KINC_OPENGL_ES
 		glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, texture->tex_width, texture->tex_height, texture->tex_depth, convertFormat(texture->format),
 		                convertType(texture->format), texdata);
 #endif
@@ -617,7 +617,7 @@ void kinc_g4_texture_clear(kinc_g4_texture_t *texture, int x, int y, int z, int 
 #endif
 }
 
-#if defined(KORE_IOS) || defined(KORE_MACOS)
+#if defined(KINC_IOS) || defined(KINC_MACOS)
 void kinc_g4_texture_upload(kinc_g4_texture_t *texture, uint8_t *data, int stride) {
 	glBindTexture(GL_TEXTURE_2D, texture->impl.texture);
 	glCheckErrors();

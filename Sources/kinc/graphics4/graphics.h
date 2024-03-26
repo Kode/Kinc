@@ -21,7 +21,7 @@ struct kinc_g4_pipeline;
 struct kinc_g4_render_target;
 struct kinc_g4_texture;
 struct kinc_g4_texture_array;
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 struct kinc_shader_storage_buffer;
 #endif
 #ifdef KINC_KONG
@@ -424,7 +424,7 @@ KINC_FUNC int kinc_g4_antialiasing_samples(void);
 /// <param name="samples">The number of samples</param>
 KINC_FUNC void kinc_g4_set_antialiasing_samples(int samples);
 
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 /// <summary>
 /// Old, hack thing, do not use.
 /// </summary>

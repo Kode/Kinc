@@ -43,7 +43,7 @@ VkSampler vulkanSamplers[16] = {VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE, 
 
 static bool began = false;
 
-#ifndef KORE_ANDROID
+#ifndef KINC_ANDROID
 static VkAllocationCallbacks allocator;
 #endif
 
@@ -67,7 +67,7 @@ static VkBool32 vkDebugUtilsMessengerCallbackEXT(VkDebugUtilsMessageSeverityFlag
 	return VK_FALSE;
 }
 
-#ifndef KORE_ANDROID
+#ifndef KINC_ANDROID
 static VKAPI_ATTR void *VKAPI_CALL myrealloc(void *pUserData, void *pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope) {
 #ifdef _MSC_VER
 	return _aligned_realloc(pOriginal, size, alignment);
@@ -673,7 +673,7 @@ void kinc_g5_internal_init() {
 	app.applicationVersion = 0;
 	app.pEngineName = "Kore";
 	app.engineVersion = 0;
-#ifdef KORE_VKRT
+#ifdef KINC_VKRT
 	app.apiVersion = VK_API_VERSION_1_2;
 #else
 	app.apiVersion = VK_API_VERSION_1_0;
@@ -697,7 +697,7 @@ void kinc_g5_internal_init() {
 	info.enabledExtensionCount = wanted_instance_extension_count;
 	info.ppEnabledExtensionNames = (const char *const *)wanted_instance_extensions;
 
-#ifndef KORE_ANDROID
+#ifndef KINC_ANDROID
 	allocator.pfnAllocation = myalloc;
 	allocator.pfnFree = myfree;
 	allocator.pfnReallocation = myrealloc;
@@ -836,7 +836,7 @@ void kinc_g5_internal_init() {
 	// Allows negative viewport height to flip viewport
 	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
 
-#ifdef KORE_VKRT
+#ifdef KINC_VKRT
 	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME;
 	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME;
 	wanted_device_extensions[wanted_device_extension_count++] = VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME;
@@ -986,7 +986,7 @@ void kinc_g5_internal_init() {
 			deviceinfo.enabledExtensionCount = wanted_device_extension_count;
 			deviceinfo.ppEnabledExtensionNames = (const char *const *)wanted_device_extensions;
 
-#ifdef KORE_VKRT
+#ifdef KINC_VKRT
 			VkPhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineExt = {0};
 			rayTracingPipelineExt.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
 			rayTracingPipelineExt.pNext = NULL;
@@ -1203,7 +1203,7 @@ bool kinc_vulkan_internal_get_size(int *width, int *height) {
 }
 
 bool kinc_g5_supports_raytracing() {
-#ifdef KORE_VKRT
+#ifdef KINC_VKRT
 	return true;
 #else
 	return false;

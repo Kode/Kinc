@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <wchar.h>
 
-#if !defined(KORE_IOS) && !defined(KORE_MACOS)
+#if !defined(KINC_IOS) && !defined(KINC_MACOS)
 
 struct thread_start {
 	void (*thread)(void *param);
@@ -62,7 +62,7 @@ void kinc_threads_quit() {}
 
 #endif
 
-#if !defined(KORE_IOS) && !defined(KORE_MACOS)
+#if !defined(KINC_IOS) && !defined(KINC_MACOS)
 // Alternatively _GNU_SOURCE can be defined to make
 // the headers declare it but let's not make it too
 // easy to write Linux-specific POSIX-code
@@ -70,7 +70,7 @@ int pthread_setname_np(pthread_t thread, const char *name);
 #endif
 
 void kinc_thread_set_name(const char *name) {
-#if !defined(KORE_IOS) && !defined(KORE_MACOS)
+#if !defined(KINC_IOS) && !defined(KINC_MACOS)
 	pthread_setname_np(pthread_self(), name);
 #else
 	pthread_setname_np(name);

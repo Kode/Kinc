@@ -3,7 +3,7 @@
 #include <kinc/global.h>
 
 #include <kinc/backend/graphics4/compute.h>
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 #include <kinc/backend/graphics4/ShaderStorageBufferImpl.h>
 #include <kinc/graphics4/vertexbuffer.h>
 #endif
@@ -56,7 +56,7 @@ KINC_FUNC kinc_g4_constant_location_t kinc_g4_compute_shader_get_constant_locati
 KINC_FUNC kinc_g4_texture_unit_t kinc_g4_compute_shader_get_texture_unit(kinc_g4_compute_shader *shader, const char *name);
 #endif
 
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 typedef struct kinc_shader_storage_buffer {
 	kinc_compute_shader_storage_buffer_impl_t impl;
 } kinc_shader_storage_buffer_t;

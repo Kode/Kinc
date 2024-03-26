@@ -14,7 +14,7 @@ EGLNativeWindowType kinc_egl_get_native_window(EGLDisplay display, EGLConfig con
 }
 #endif
 
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 void kinc_vulkan_get_instance_extensions(const char **extensions, int *count, int max) {
 	procs.vulkan_get_instance_extensions(extensions, count, max);
 }

@@ -51,12 +51,12 @@ static int getPower2(int i) {
 			return pow2(power);
 }
 
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 extern int gles_version;
 #endif
 
 bool kinc_opengl_internal_nonPow2RenderTargetsSupported() {
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 	return gles_version >= 3;
 #else
 	return true;
@@ -66,9 +66,9 @@ bool kinc_opengl_internal_nonPow2RenderTargetsSupported() {
 static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texType, int depthBufferBits, int stencilBufferBits, int width, int height) {
 	if (depthBufferBits > 0 && stencilBufferBits > 0) {
 		renderTarget->impl._hasDepth = true;
-#if defined(KORE_OPENGL_ES) && !defined(KORE_PI) && !defined(KORE_EMSCRIPTEN)
+#if defined(KINC_OPENGL_ES) && !defined(KINC_PI) && !defined(KINC_EMSCRIPTEN)
 		GLenum internalFormat = GL_DEPTH24_STENCIL8_OES;
-#elif defined(KORE_OPENGL_ES)
+#elif defined(KINC_OPENGL_ES)
 		GLenum internalFormat = 0x88F0; // GL_DEPTH24_STENCIL8_OES
 #else
 		GLenum internalFormat;
@@ -84,7 +84,7 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 		// 		glCheckErrors();
 		// 		glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, width, height);
 		// 		glCheckErrors();
-		// #ifdef KORE_OPENGL_ES
+		// #ifdef KINC_OPENGL_ES
 		// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
 		// 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthRenderbuffer);
 		// #else
@@ -105,7 +105,7 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 		glCheckErrors();
 		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->impl._framebuffer);
 		glCheckErrors();
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, texType, renderTarget->impl._depthTexture, 0);
 #else
@@ -132,7 +132,7 @@ static void setupDepthStencil(kinc_g4_render_target_t *renderTarget, GLenum texT
 			glCheckErrors();
 			glBindTexture(texType, renderTarget->impl._depthTexture);
 			glCheckErrors();
-#if defined(KORE_EMSCRIPTEN) || defined(KORE_WASM)
+#if defined(KINC_EMSCRIPTEN) || defined(KINC_WASM)
 			GLint format = GL_DEPTH_COMPONENT16;
 #else
 			GLint format = depthBufferBits == 16 ? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT;
@@ -188,28 +188,28 @@ void kinc_g4_render_target_init_with_multisampling(kinc_g4_render_target_t *rend
 
 	switch (format) {
 	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #endif
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #endif
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #endif
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, renderTarget->texWidth, renderTarget->texHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_8BIT_RED:
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 #else
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
@@ -236,7 +236,7 @@ void kinc_g4_render_target_init_with_multisampling(kinc_g4_render_target_t *rend
 
 	if (format == KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, renderTarget->impl._texture, 0);
-#ifndef KORE_OPENGL_ES
+#ifndef KINC_OPENGL_ES
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
 #endif
@@ -290,7 +290,7 @@ void kinc_g4_render_target_init_cube_with_multisampling(kinc_g4_render_target_t 
 
 	switch (format) {
 	case KINC_G4_RENDER_TARGET_FORMAT_128BIT_FLOAT:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		for (int i = 0; i < 6; i++)
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_FLOAT, 0);
 #else
@@ -299,7 +299,7 @@ void kinc_g4_render_target_init_cube_with_multisampling(kinc_g4_render_target_t 
 #endif
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_64BIT_FLOAT:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		for (int i = 0; i < 6; i++)
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA16F_EXT, renderTarget->texWidth, renderTarget->texHeight, 0, GL_RGBA, GL_HALF_FLOAT, 0);
 #else
@@ -308,7 +308,7 @@ void kinc_g4_render_target_init_cube_with_multisampling(kinc_g4_render_target_t 
 #endif
 		break;
 	case KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 #endif
@@ -332,7 +332,7 @@ void kinc_g4_render_target_init_cube_with_multisampling(kinc_g4_render_target_t 
 
 	if (format == KINC_G4_RENDER_TARGET_FORMAT_16BIT_DEPTH) {
 		renderTarget->isDepthAttachment = true;
-#ifndef KORE_OPENGL_ES
+#ifndef KINC_OPENGL_ES
 		glDrawBuffer(GL_NONE);
 		glCheckErrors();
 		glReadBuffer(GL_NONE);

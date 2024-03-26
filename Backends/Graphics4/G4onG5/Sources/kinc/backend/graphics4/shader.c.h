@@ -25,9 +25,9 @@ int kinc_g4_shader_init_from_source(kinc_g4_shader_t *shader, const char *source
 	const char *system = "ios";
 #endif
 
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 	const char *target = "spirv";
-#elif defined(KORE_METAL)
+#elif defined(KINC_METAL)
 	const char *target = "metal";
 #else
 	const char *target = "d3d11";

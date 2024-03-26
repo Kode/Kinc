@@ -21,7 +21,7 @@
 #include <kinc/display.h>
 #include <kinc/window.h>
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #include <kinc/backend/Windows.h>
 #else
 int antialiasingSamples(void) {
@@ -29,11 +29,11 @@ int antialiasingSamples(void) {
 }
 #endif
 
-#ifdef KORE_WINDOWSAPP
+#ifdef KINC_WINDOWSAPP
 IUnknown *kinc_winapp_internal_get_window(void);
 #endif
 
-#ifdef KORE_HOLOLENS
+#ifdef KINC_HOLOLENS
 #include "DeviceResources.winrt.h"
 #include "Hololens.winrt.h"
 #include <windows.graphics.directx.direct3d11.interop.h>
@@ -60,7 +60,7 @@ bool kinc_internal_scissoring = false;
 // static bool vsync;
 
 static D3D_FEATURE_LEVEL featureLevel;
-// #ifdef KORE_WINDOWSAPP
+// #ifdef KINC_WINDOWSAPP
 // static IDXGISwapChain1 *swapChain = NULL;
 // #else
 // static IDXGISwapChain *swapChain = NULL;
@@ -169,7 +169,7 @@ static void createBackbuffer(struct dx_window *window, int antialiasingSamples) 
 	                                                                    &window->depthStencilView));
 }
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 static bool isWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor) {
 	OSVERSIONINFOEXW osvi = {sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0};
 	DWORDLONG const dwlConditionMask =
@@ -202,7 +202,7 @@ static bool isWindows10OrGreater(void) {
 
 void kinc_g4_internal_init(void) {
 	D3D_FEATURE_LEVEL featureLevels[] = {
-#ifdef KORE_WINDOWSAPP
+#ifdef KINC_WINDOWSAPP
 	    D3D_FEATURE_LEVEL_11_1,
 #endif
 	    D3D_FEATURE_LEVEL_11_0,
@@ -216,7 +216,7 @@ void kinc_g4_internal_init(void) {
 #endif
 
 	IDXGIAdapter *adapter = NULL;
-#ifdef KORE_HOLOLENS
+#ifdef KINC_HOLOLENS
 	adapter = holographicFrameController->getCompatibleDxgiAdapter().Get();
 #endif
 	HRESULT result = D3D11CreateDevice(adapter, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION,
@@ -249,7 +249,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 
 	struct dx_window *window = &dx_ctx.windows[windowId];
 	// TODO: make WindowsApp actually work again
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	window->hwnd = kinc_windows_window_handle(windowId);
 #endif
 	window->depth_bits = depthBufferBits;
@@ -273,7 +273,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	swapChainDesc.BufferCount = 2; // use two buffers to enable flip effect
 	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // DXGI_SCALING_NONE;
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	if (isWindows10OrGreater()) {
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		//(DXGI_SWAP_EFFECT) _DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -335,7 +335,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 	rtbd.SrcBlendAlpha = D3D11_BLEND_ONE;
 	rtbd.DestBlendAlpha = D3D11_BLEND_ZERO;
 	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-#ifdef KORE_WINDOWSAPP
+#ifdef KINC_WINDOWSAPP
 	rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 #else
 	rtbd.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;
@@ -474,7 +474,7 @@ void kinc_g4_begin(int windowId) {
 		createBackbuffer(window, kinc_g4_antialiasing_samples());
 	}
 	kinc_g4_restore_render_target();
-	// #ifdef KORE_WINDOWSAPP
+	// #ifdef KINC_WINDOWSAPP
 	// 	// TODO (DK) do i need to do something here?
 	// 	dx_ctx.context->lpVtbl->OMSetRenderTargets(dx_ctx.context, 1, &renderTargetView, depthStencilView);
 	// #endif

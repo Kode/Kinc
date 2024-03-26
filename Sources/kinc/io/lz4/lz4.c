@@ -1314,7 +1314,7 @@ _output_error:
 	return (int)(-(((const char *)ip) - source)) - 1;
 }
 
-#ifndef KORE_LZ4X
+#ifndef KINC_LZ4X
 int LZ4_decompress_safe(const char *source, char *dest, int compressedSize, int maxDecompressedSize) {
 	return LZ4_decompress_generic(source, dest, compressedSize, maxDecompressedSize, endOnInputSize, full, 0, noDict, (BYTE *)dest, NULL, 0);
 }

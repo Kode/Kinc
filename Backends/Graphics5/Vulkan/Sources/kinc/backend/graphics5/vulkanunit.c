@@ -1,4 +1,4 @@
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 
 // Windows 7
 #define WINVER 0x0601

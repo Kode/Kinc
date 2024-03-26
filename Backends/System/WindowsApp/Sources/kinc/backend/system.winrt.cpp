@@ -11,11 +11,11 @@
 #define NOMINMAX
 #include <windows.h>
 #ifndef XINPUT
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #define XINPUT 1
 #endif
 
-#ifdef KORE_WINDOWSAPP
+#ifdef KINC_WINDOWSAPP
 #define XINPUT !(WINAPI_PARTITION_PHONE_APP)
 #endif
 #endif
@@ -28,11 +28,11 @@
 #include <dxgi1_5.h>
 #include <wrl.h>
 
-#ifdef KORE_WINDOWSAPP
+#ifdef KINC_WINDOWSAPP
 using namespace ::Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
-#ifdef KORE_HOLOLENS
+#ifdef KINC_HOLOLENS
 using namespace Windows::Graphics::Holographic;
 using namespace Windows::Graphics::DirectX::Direct3D11;
 #endif
@@ -245,7 +245,7 @@ void Win8Application::SetWindow(CoreWindow ^ window) {
 	    ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow ^, Windows::UI::Core::KeyEventArgs ^>(this, &Win8Application::OnKeyUp);
 	// m_renderer->Initialize(CoreWindow::GetForCurrentThread());
 
-#ifdef KORE_HOLOLENS
+#ifdef KINC_HOLOLENS
 	// Create holographics space - needs to be created before window is activated
 	holographicFrameController = std::make_unique<HolographicFrameController>(window);
 

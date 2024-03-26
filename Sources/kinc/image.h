@@ -147,7 +147,7 @@ KINC_FUNC int kinc_image_format_sizeof(kinc_image_format_t format);
 
 #include "image.h"
 
-#ifdef KORE_LZ4X
+#ifdef KINC_LZ4X
 #include <kinc/libs/lz4x.h>
 #else
 #include <kinc/io/lz4/lz4.h>

@@ -15,7 +15,7 @@ namespace Kore {
 		int myCount;
 		int myStride;
 		uint bufferId;
-		// #if defined KORE_ANDROID || defined KORE_EMSCRIPTEN || defined KORE_TIZEN
+		// #if defined KINC_ANDROID || defined KINC_EMSCRIPTEN || defined KINC_TIZEN
 		Graphics4::VertexStructure structure;
 		// #endif
 		int instanceDataStepRate;

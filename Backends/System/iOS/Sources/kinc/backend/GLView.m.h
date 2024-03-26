@@ -10,7 +10,7 @@
 #include <kinc/input/surface.h>
 #include <kinc/system.h>
 
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 #include <kinc/backend/graphics4/OpenGLWindow.h>
 #endif
 
@@ -63,7 +63,7 @@ int kinc_window_height(int window) {
 
 @implementation GLView
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 + (Class)layerClass {
 	return [CAMetalLayer class];
 }
@@ -73,11 +73,11 @@ int kinc_window_height(int window) {
 }
 #endif
 
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 extern int kinc_ios_gl_framebuffer;
 #endif
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 - (id)initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:(CGRect)frame];
 	self.contentScaleFactor = [UIScreen mainScreen].scale;
@@ -141,7 +141,7 @@ extern int kinc_ios_gl_framebuffer;
 
 	// Start acceletometer
 	hasAccelerometer = false;
-#ifndef KORE_TVOS
+#ifndef KINC_TVOS
 	motionManager = [[CMMotionManager alloc] init];
 	if ([motionManager isAccelerometerAvailable]) {
 		motionManager.accelerometerUpdateInterval = 0.033;
@@ -150,7 +150,7 @@ extern int kinc_ios_gl_framebuffer;
 	}
 #endif
 
-#ifndef KORE_TVOS
+#ifndef KINC_TVOS
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onKeyboardHide:) name:UIKeyboardWillHideNotification object:nil];
 #endif
 
@@ -158,7 +158,7 @@ extern int kinc_ios_gl_framebuffer;
 }
 #endif
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 - (void)begin {
 }
 #else
@@ -167,7 +167,7 @@ extern int kinc_ios_gl_framebuffer;
 	// glBindFramebufferOES(GL_FRAMEBUFFER_OES, defaultFramebuffer);
 	// glViewport(0, 0, backingWidth, backingHeight);
 
-#ifndef KORE_TVOS
+#ifndef KINC_TVOS
 	// Accelerometer updates
 	if (hasAccelerometer) {
 
@@ -186,7 +186,7 @@ extern int kinc_ios_gl_framebuffer;
 }
 #endif
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 - (void)end {
 }
 #else
@@ -198,7 +198,7 @@ extern int kinc_ios_gl_framebuffer;
 
 void kinc_internal_call_resize_callback(int window, int width, int height);
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 - (void)layoutSubviews {
 	backingWidth = self.frame.size.width * self.contentScaleFactor;
 	backingHeight = self.frame.size.height * self.contentScaleFactor;
@@ -229,7 +229,7 @@ void kinc_internal_call_resize_callback(int window, int width, int height);
 }
 #endif
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 - (void)dealloc {
 }
 #else
@@ -429,7 +429,7 @@ static bool shiftDown = false;
 	kinc_keyboard_hide();
 }
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 - (CAMetalLayer *)metalLayer {
 	return (CAMetalLayer *)self.layer;
 }

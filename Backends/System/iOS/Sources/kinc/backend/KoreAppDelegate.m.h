@@ -52,7 +52,7 @@ void loadURL(const char *url) {
 	// glView = [[GLView alloc] initWithFrame:CGRectMake(0, 0, Kore::max(screenBounds.size.width, screenBounds.size.height), Kore::max(screenBounds.size.width,
 	// screenBounds.size.height))];
 	glViewController = [[GLViewController alloc] init];
-#ifndef KORE_TVOS
+#ifndef KINC_TVOS
 	glViewController.view.multipleTouchEnabled = YES;
 #endif
 	// glViewController.view = glView;
@@ -66,7 +66,7 @@ void loadURL(const char *url) {
 	return YES;
 }
 
-#ifndef KORE_TVOS
+#ifndef KINC_TVOS
 // static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
 //	switch (orientation) {
 //	case UIDeviceOrientationLandscapeLeft:

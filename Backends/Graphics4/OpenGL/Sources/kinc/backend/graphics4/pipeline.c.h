@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef KORE_OPENGL_ES
+#ifndef KINC_OPENGL_ES
 bool Kinc_Internal_ProgramUsesTessellation = false;
 #endif
 extern bool Kinc_Internal_SupportsConservativeRaster;
@@ -125,7 +125,7 @@ static int toGlShader(kinc_g4_shader_type_t type) {
 		return GL_VERTEX_SHADER;
 	case KINC_G4_SHADER_TYPE_FRAGMENT:
 		return GL_FRAGMENT_SHADER;
-#ifndef KORE_OPENGL_ES
+#ifndef KINC_OPENGL_ES
 	case KINC_G4_SHADER_TYPE_GEOMETRY:
 		return GL_GEOMETRY_SHADER;
 	case KINC_G4_SHADER_TYPE_TESSELLATION_CONTROL:
@@ -157,7 +157,7 @@ static void compileShader(unsigned *id, const char *source, size_t length, kinc_
 void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 	compileShader(&state->vertex_shader->impl._glid, state->vertex_shader->impl.source, state->vertex_shader->impl.length, KINC_G4_SHADER_TYPE_VERTEX);
 	compileShader(&state->fragment_shader->impl._glid, state->fragment_shader->impl.source, state->fragment_shader->impl.length, KINC_G4_SHADER_TYPE_FRAGMENT);
-#ifndef KORE_OPENGL_ES
+#ifndef KINC_OPENGL_ES
 	if (state->geometry_shader != NULL) {
 		compileShader(&state->geometry_shader->impl._glid, state->geometry_shader->impl.source, state->geometry_shader->impl.length,
 		              KINC_G4_SHADER_TYPE_GEOMETRY);
@@ -173,7 +173,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 #endif
 	glAttachShader(state->impl.programId, state->vertex_shader->impl._glid);
 	glAttachShader(state->impl.programId, state->fragment_shader->impl._glid);
-#ifndef KORE_OPENGL_ES
+#ifndef KINC_OPENGL_ES
 	if (state->geometry_shader != NULL) {
 		glAttachShader(state->impl.programId, state->geometry_shader->impl._glid);
 	}
@@ -214,8 +214,8 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 		free(errormessage);
 	}
 
-#ifndef KORE_OPENGL_ES
-#ifndef KORE_LINUX
+#ifndef KINC_OPENGL_ES
+#ifndef KINC_LINUX
 	if (state->tessellation_control_shader != NULL) {
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
 		glCheckErrors();
@@ -225,7 +225,7 @@ void kinc_g4_pipeline_compile(kinc_g4_pipeline_t *state) {
 }
 
 void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
-#ifndef KORE_OPENGL_ES
+#ifndef KINC_OPENGL_ES
 	Kinc_Internal_ProgramUsesTessellation = pipeline->tessellation_control_shader != NULL;
 #endif
 	glUseProgram(pipeline->impl.programId);
@@ -257,7 +257,7 @@ void kinc_g4_internal_set_pipeline(kinc_g4_pipeline_t *pipeline) {
 		                      pipeline->stencil_read_mask);
 	}
 
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 	glColorMask(pipeline->color_write_mask_red[0], pipeline->color_write_mask_green[0], pipeline->color_write_mask_blue[0],
 	            pipeline->color_write_mask_alpha[0]);
 #else

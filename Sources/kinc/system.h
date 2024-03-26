@@ -381,7 +381,7 @@ void kinc_internal_logout_callback(void);
 #include <stdlib.h>
 #include <string.h>
 
-#if !defined(KORE_WASM) && !defined(KORE_EMSCRIPTEN) && !defined(KORE_ANDROID) && !defined(KORE_WINDOWS) && !defined(KORE_CONSOLE)
+#if !defined(KINC_WASM) && !defined(KINC_EMSCRIPTEN) && !defined(KINC_ANDROID) && !defined(KINC_WINDOWS) && !defined(KINC_CONSOLE)
 double kinc_time(void) {
 	return kinc_timestamp() / kinc_frequency();
 }
@@ -412,7 +412,7 @@ static void *login_callback_data = NULL;
 static void (*logout_callback)(void *) = NULL;
 static void *logout_callback_data = NULL;
 
-#if defined(KORE_IOS) || defined(KORE_MACOS)
+#if defined(KINC_IOS) || defined(KINC_MACOS)
 bool withAutoreleasepool(bool (*f)(void));
 #endif
 
@@ -581,10 +581,10 @@ bool kinc_internal_frame(void) {
 void kinc_start(void) {
 	running = true;
 
-#if !defined(KORE_WASM) && !defined(KORE_EMSCRIPTEN) && !defined(KORE_TIZEN)
+#if !defined(KINC_WASM) && !defined(KINC_EMSCRIPTEN) && !defined(KINC_TIZEN)
 	// if (Graphics::hasWindow()) Graphics::swapBuffers();
 
-#if defined(KORE_IOS) || defined(KORE_MACOS)
+#if defined(KINC_IOS) || defined(KINC_MACOS)
 	while (withAutoreleasepool(kinc_internal_frame)) {
 	}
 #else
@@ -607,11 +607,11 @@ int kinc_height(void) {
 void kinc_memory_emergency(void) {}
 #endif
 
-#if !defined(KORE_SONY) && !defined(KORE_SWITCH)
+#if !defined(KINC_SONY) && !defined(KINC_SWITCH)
 static float safe_zone = 0.9f;
 
 float kinc_safe_zone(void) {
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	return 1.0f;
 #else
 	return safe_zone;
@@ -619,7 +619,7 @@ float kinc_safe_zone(void) {
 }
 
 bool kinc_automatic_safe_zone(void) {
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	return true;
 #else
 	return false;
@@ -631,7 +631,7 @@ void kinc_set_safe_zone(float value) {
 }
 #endif
 
-#if !defined(KORE_SONY)
+#if !defined(KINC_SONY)
 bool is_save_load_initialized(void) {
 	return true;
 }
@@ -645,7 +645,7 @@ bool is_save_load_broken(void) {
 }
 #endif
 
-#if !defined(KORE_CONSOLE)
+#if !defined(KINC_CONSOLE)
 
 #define SAVE_RESULT_NONE 0
 #define SAVE_RESULT_SUCCESS 1
@@ -701,7 +701,7 @@ bool kinc_waiting_for_login(void) {
 	return false;
 }
 
-#if !defined(KORE_WINDOWS) && !defined(KORE_LINUX) && !defined(KORE_MACOS)
+#if !defined(KINC_WINDOWS) && !defined(KINC_LINUX) && !defined(KINC_MACOS)
 void kinc_copy_to_clipboard(const char *text) {
 	kinc_log(KINC_LOG_LEVEL_WARNING, "Oh no, kinc_copy_to_clipboard is not implemented for this system.");
 }

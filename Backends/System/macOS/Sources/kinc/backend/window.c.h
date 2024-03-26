@@ -20,7 +20,7 @@ void kinc_window_change_framebuffer(int window, struct kinc_framebuffer_options 
 	kinc_internal_change_framebuffer(0, frame);
 }
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 void kinc_internal_change_framebuffer(int window, struct kinc_framebuffer_options *frame) {}
 #endif
 

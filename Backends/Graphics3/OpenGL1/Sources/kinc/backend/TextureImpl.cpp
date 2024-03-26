@@ -26,7 +26,7 @@ namespace {
 		case Graphics3::Image::RGB24:
 			return GL_RGB;
 		case Graphics3::Image::Grey8:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 			return GL_LUMINANCE;
 #else
 			return GL_RED;
@@ -49,7 +49,7 @@ namespace {
 		case Graphics3::Image::RGB24:
 			return GL_RGB;
 		case Graphics3::Image::Grey8:
-#ifdef KORE_OPENGL_ES
+#ifdef KINC_OPENGL_ES
 			return GL_LUMINANCE;
 #else
 			return GL_RED;
@@ -187,14 +187,14 @@ void Graphics3::Texture::init(const char *format, bool readable) {
 	u8 *conversionBuffer = nullptr;
 
 	if (compressed) {
-#if defined(KORE_IOS)
+#if defined(KINC_IOS)
 		texWidth = Kore::max(texWidth, texHeight);
 		texHeight = Kore::max(texWidth, texHeight);
 		if (texWidth < 8)
 			texWidth = 8;
 		if (texHeight < 8)
 			texHeight = 8;
-#elif defined(KORE_ANDROID)
+#elif defined(KINC_ANDROID)
 		texWidth = width;
 		texHeight = height;
 #endif
@@ -204,7 +204,7 @@ void Graphics3::Texture::init(const char *format, bool readable) {
 		convertImageToPow2(this->format, (u8 *)data, width, height, conversionBuffer, texWidth, texHeight);
 	}
 
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	external_oes = false;
 #endif
 
@@ -219,9 +219,9 @@ void Graphics3::Texture::init(const char *format, bool readable) {
 	bool isHdr = convertedType == GL_FLOAT;
 
 	if (compressed) {
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, texWidth, texHeight, 0, texWidth * texHeight / 2, data);
-// #elif defined(KORE_ANDROID)
+// #elif defined(KINC_ANDROID)
 //		u8 blockX = internalFormat >> 8;
 //		u8 blockY = internalFormat & 0xff;
 //		glCompressedTexImage2D(GL_TEXTURE_2D, 0, astcFormat(blockX, blockY), texWidth, texHeight, 0, dataSize, data);
@@ -263,7 +263,7 @@ void Graphics3::Texture::init(const char *format, bool readable) {
 }
 
 Graphics3::Texture::Texture(int width, int height, Image::Format format, bool readable) : Image(width, height, format, readable) {
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 	texWidth = width;
 	texHeight = height;
 #else
@@ -278,7 +278,7 @@ Graphics3::Texture::Texture(int width, int height, Image::Format format, bool re
 #endif
 	// conversionBuffer = new u8[texWidth * texHeight * 4];
 
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	external_oes = false;
 #endif
 
@@ -324,7 +324,7 @@ Graphics3::Texture::Texture(int width, int height, int depth, Graphics3::Image::
 #endif
 }
 
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 Texture::Texture(unsigned texid) : Image(1023, 684, Image::RGBA32, false) {
 	texture = texid;
 	external_oes = true;
@@ -342,7 +342,7 @@ void Graphics3::Texture::_set(TextureUnit unit) {
 	GLenum target = depth > 1 ? GL_TEXTURE_3D : GL_TEXTURE_2D;
 	glActiveTexture(GL_TEXTURE0 + unit.unit);
 	glCheckErrors();
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 	if (external_oes) {
 		glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
 		glCheckErrors();
@@ -408,7 +408,7 @@ void Graphics3::Texture::clear(int x, int y, int z, int width, int height, int d
 #endif
 }
 
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 void Texture::upload(u8 *data) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glCheckErrors();

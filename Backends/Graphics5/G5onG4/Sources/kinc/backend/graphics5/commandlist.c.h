@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <string.h>
 
-#ifdef KORE_MICROSOFT
+#ifdef KINC_MICROSOFT
 #include <malloc.h>
 #endif
 
@@ -212,7 +212,7 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 		}
 		case SetVertexBuffers: {
 			READ(int, count);
-#ifdef KORE_MICROSOFT
+#ifdef KINC_MICROSOFT
 			kinc_g4_vertex_buffer_t **buffers = (kinc_g4_vertex_buffer_t **)alloca(sizeof(kinc_g4_vertex_buffer_t *) * count);
 #else
 			kinc_g4_vertex_buffer_t *buffers[count];
@@ -231,7 +231,7 @@ void kinc_g5_command_list_execute(kinc_g5_command_list_t *list) {
 		}
 		case SetRenderTargets: {
 			READ(int, count);
-#ifdef KORE_MICROSOFT
+#ifdef KINC_MICROSOFT
 			kinc_g4_render_target_t **buffers = (kinc_g4_render_target_t **)alloca(sizeof(kinc_g4_render_target_t *) * count);
 #else
 			kinc_g4_render_target_t *buffers[count];

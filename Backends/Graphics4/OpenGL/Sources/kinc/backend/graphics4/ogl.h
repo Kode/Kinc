@@ -1,44 +1,44 @@
 #pragma once
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #include <GL/glew.h>
 
 #include <GL/gl.h>
 #endif
 
-#ifdef KORE_MACOS
+#ifdef KINC_MACOS
 #include <OpenGL/gl3.h>
 #include <OpenGL/gl3ext.h>
 #endif
 
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 #import <OpenGLES/ES3/gl.h>
 #endif
 
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 #include <EGL/egl.h>
-#if KORE_ANDROID_API >= 18
+#if KINC_ANDROID_API >= 18
 #include <GLES3/gl3.h>
 #endif
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #endif
 
-#ifdef KORE_EMSCRIPTEN
+#ifdef KINC_EMSCRIPTEN
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 #include <GL/gl.h>
 #endif
 
-#ifdef KORE_LINUX
+#ifdef KINC_LINUX
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glext.h>
 #endif
 
-#ifdef KORE_PI
+#ifdef KINC_PI
 // #define GL_GLEXT_PROTOTYPES
 #include "GLES2/gl2.h"
 
@@ -46,11 +46,11 @@
 #include "EGL/eglext.h"
 #endif
 
-#ifdef KORE_TIZEN
+#ifdef KINC_TIZEN
 #include <gl2.h>
 #endif
 
-#ifdef KORE_WASM
+#ifdef KINC_WASM
 #include <GL/gl.h>
 #endif
 

@@ -13,7 +13,7 @@ static GLView *glView;
 static bool visible;
 
 void beginGL(void) {
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 	if (!visible) {
 		return;
 	}
@@ -22,7 +22,7 @@ void beginGL(void) {
 }
 
 void endGL(void) {
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 	if (!visible) {
 		return;
 	}
@@ -38,7 +38,7 @@ void hideKeyboard(void) {
 	[glView hideKeyboard];
 }
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 
 CAMetalLayer *getMetalLayer(void) {
 	return [glView metalLayer];

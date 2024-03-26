@@ -2,7 +2,7 @@
 
 #include <kinc/global.h>
 
-#if defined(KORE_MACOS) || defined(KORE_IOS)
+#if defined(KINC_MACOS) || defined(KINC_IOS)
 
 #include <libkern/OSAtomic.h>
 

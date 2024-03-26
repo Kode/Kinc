@@ -56,7 +56,7 @@ static struct HIDManager *hidManager;
     }
 };*/
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 CAMetalLayer *getMetalLayer(void) {
 	return [view metalLayer];
 }
@@ -92,7 +92,7 @@ bool kinc_internal_handle_messages(void) {
 }
 
 void swapBuffersMac(int windowId) {
-#ifndef KORE_METAL
+#ifndef KINC_METAL
 	[windows[windowId].view switchBuffers];
 #endif
 }

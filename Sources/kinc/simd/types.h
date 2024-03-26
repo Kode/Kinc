@@ -26,19 +26,19 @@ extern "C" {
 // Note for Windows:
 //	_M_IX86_FP checks SSE2 and SSE for 32bit Windows programs only, and is unset if not a 32bit program.
 //	SSE2 and earlier is --guaranteed-- to be active for any 64bit Windows program
-#if defined(__SSE2__) || (_M_IX86_FP == 2) || (defined(KORE_WINDOWS) && defined(KORE_64))
+#if defined(__SSE2__) || (_M_IX86_FP == 2) || (defined(KINC_WINDOWS) && defined(KINC_64))
 #define KINC_SSE2
 #endif
 
 // SSE Capability check
-#if defined(__SSE__) || _M_IX86_FP == 2 || _M_IX86_FP == 1 || (defined(KORE_WINDOWS) && !defined(__aarch64__)) ||                                              \
-    (defined(KORE_WINDOWSAPP) && !defined(__aarch64__)) || (defined(KORE_MACOS) && __x86_64)
+#if defined(__SSE__) || _M_IX86_FP == 2 || _M_IX86_FP == 1 || (defined(KINC_WINDOWS) && !defined(__aarch64__)) ||                                              \
+    (defined(KINC_WINDOWSAPP) && !defined(__aarch64__)) || (defined(KINC_MACOS) && __x86_64)
 
 #define KINC_SSE
 #endif
 
 // NEON Capability check
-#if defined(KORE_IOS) || defined(KORE_SWITCH) || defined(__aarch64__) || defined(KORE_NEON)
+#if defined(KINC_IOS) || defined(KINC_SWITCH) || defined(__aarch64__) || defined(KINC_NEON)
 #define KINC_NEON
 #endif
 

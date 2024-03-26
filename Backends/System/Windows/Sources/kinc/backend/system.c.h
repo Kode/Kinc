@@ -33,9 +33,9 @@
 __itt_domain *kinc_itt_domain;
 #endif
 
-#ifdef KORE_G4ONG5
+#ifdef KINC_G4ONG5
 #define Graphics Graphics5
-#elif KORE_G4
+#elif KINC_G4
 #define Graphics Graphics4
 #else
 #define Graphics Graphics3
@@ -290,7 +290,7 @@ static wchar_t toUnicode(WPARAM wParam, LPARAM lParam) {
 	return buffer[0];
 }
 
-#if !defined(KORE_DIRECT3D9) && !defined(KORE_DIRECT3D11) && !defined(KORE_DIRECT3D12)
+#if !defined(KINC_DIRECT3D9) && !defined(KINC_DIRECT3D11) && !defined(KINC_DIRECT3D12)
 #define HANDLE_ALT_ENTER
 #endif
 

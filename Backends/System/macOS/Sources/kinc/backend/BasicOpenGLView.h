@@ -1,4 +1,4 @@
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 #import <MetalKit/MTKView.h>
 #else
 #import <Cocoa/Cocoa.h>
@@ -9,7 +9,7 @@
 #import <OpenGL/glu.h>
 #endif
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 
 struct kinc_g5_render_target;
 
@@ -32,7 +32,7 @@ struct kinc_g5_render_target;
 
 #endif
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 - (CAMetalLayer *)metalLayer;
 - (id<MTLDevice>)metalDevice;
 - (id<MTLLibrary>)metalLibrary;

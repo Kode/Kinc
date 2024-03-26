@@ -93,11 +93,11 @@ KINC_FUNC void kinc_g4_texture_set_mipmap(kinc_g4_texture_t *texture, kinc_image
 /// <returns>The stride of the first mipmap-layer in bytes</returns>
 KINC_FUNC int kinc_g4_texture_stride(kinc_g4_texture_t *texture);
 
-#ifdef KORE_ANDROID
+#ifdef KINC_ANDROID
 KINC_FUNC void kinc_g4_texture_init_from_id(kinc_g4_texture_t *texture, unsigned texid);
 #endif
 
-#if defined(KORE_IOS) || defined(KORE_MACOS)
+#if defined(KINC_IOS) || defined(KINC_MACOS)
 KINC_FUNC void kinc_g4_texture_upload(kinc_g4_texture_t *texture, uint8_t *data, int stride);
 #endif
 

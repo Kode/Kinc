@@ -4,7 +4,7 @@
 
 #include <kinc/backend/Windows.h>
 
-#ifdef KORE_VR
+#ifdef KINC_VR
 #include <kinc/vr/vrinterface.h>
 #endif
 
@@ -34,13 +34,13 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 static WindowData windows[MAXIMUM_WINDOWS] = {0};
 static int window_counter = 0;
 
-#ifdef KORE_OCULUS
+#ifdef KINC_OCULUS
 const wchar_t *windowClassName = L"ORT";
 #else
 const wchar_t *windowClassName = L"KoreWindow";
 #endif
 
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_win32.h>
 
@@ -193,7 +193,7 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 
 	int display_index = target_display_index == -1 ? kinc_primary_display() : target_display_index;
 
-#ifdef KORE_VR
+#ifdef KINC_VR
 	int dstx = 0;
 	int dsty = 0;
 
@@ -424,7 +424,7 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 
 	kinc_g4_set_antialiasing_samples(frame->samples_per_pixel);
 	bool vsync = frame->vertical_sync;
-#ifdef KORE_OCULUS
+#ifdef KINC_OCULUS
 	vsync = false;
 #endif
 	kinc_g4_internal_init_window(windowId, frame->depth_bits, frame->stencil_bits, vsync);

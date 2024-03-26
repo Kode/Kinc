@@ -277,7 +277,7 @@ void kinc_g5_texture_set_mipmap(kinc_g5_texture_t *texture, kinc_image_t *mipmap
 
 #include <kinc/graphics4/texture.h>
 
-#if defined(KORE_IOS) || defined(KORE_MACOS)
+#if defined(KINC_IOS) || defined(KINC_MACOS)
 void kinc_g4_texture_upload(kinc_g4_texture_t *texture_g4, uint8_t *data, int stride) {
 	kinc_g5_texture_t *tex = &texture_g4->impl._texture;
 	id<MTLTexture> texture = (__bridge id<MTLTexture>)tex->impl._tex;

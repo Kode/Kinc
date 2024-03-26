@@ -7,12 +7,12 @@
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/math/core.h>
 #include <kinc/window.h>
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #include <dxgi1_4.h>
 #undef CreateWindow
 #endif
 #include <kinc/system.h>
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #include <kinc/backend/Windows.h>
 #endif
 #include <kinc/backend/SystemMicrosoft.h>
@@ -42,7 +42,7 @@ ID3D12DescriptorHeap* cbvHeap;*/
 
 extern "C" {
 ID3D12CommandQueue *commandQueue;
-#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+#ifdef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
 ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
 #else
 // IDXGISwapChain *swapChain;
@@ -54,7 +54,7 @@ ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
 // int window->new_width;
 // int window->new_height;
 
-#ifndef KORE_WINDOWS
+#ifndef KINC_WINDOWS
 #define DXGI_SWAP_CHAIN_DESC DXGI_SWAP_CHAIN_DESC1
 #define IDXGISwapChain IDXGISwapChain1
 #endif
@@ -62,15 +62,15 @@ ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
 struct RenderEnvironment {
 	ID3D12Device *device;
 	ID3D12CommandQueue *queue;
-#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+#ifdef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
 	ID3D12Resource *renderTargets[QUEUE_SLOT_COUNT];
 #else
 	IDXGISwapChain *swapChain;
 #endif
 };
 
-#ifndef KORE_WINDOWS
-#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+#ifndef KINC_WINDOWS
+#ifdef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
 extern "C" void createSwapChain(struct RenderEnvironment *env, int bufferCount);
 #else
 extern "C" void createSwapChain(struct RenderEnvironment *env, const DXGI_SWAP_CHAIN_DESC1 *desc);
@@ -92,7 +92,7 @@ static ID3D12CommandAllocator *initCommandAllocator;
 
 extern "C" struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_LEVEL minimumFeatureLevel, const struct DXGI_SWAP_CHAIN_DESC *swapChainDesc) {
 	struct RenderEnvironment result = {0};
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	kinc_microsoft_affirm(D3D12CreateDevice(NULL, minimumFeatureLevel, IID_PPV_ARGS(&result.device)));
 
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -107,7 +107,7 @@ extern "C" struct RenderEnvironment createDeviceAndSwapChainHelper(D3D_FEATURE_L
 	DXGI_SWAP_CHAIN_DESC swapChainDescCopy = *swapChainDesc;
 	kinc_microsoft_affirm(dxgiFactory->CreateSwapChain((IUnknown *)result.queue, &swapChainDescCopy, &result.swapChain));
 #else
-#ifdef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+#ifdef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
 	createSwapChain(&result, QUEUE_SLOT_COUNT);
 #else
 	createSwapChain(&result, swapChainDesc);
@@ -167,7 +167,7 @@ extern "C" void setupSwapChain(struct dx_window *window) {
 	//**createRenderTargetView();
 }
 
-#ifdef KORE_CONSOLE
+#ifdef KINC_CONSOLE
 extern "C" void createDeviceAndSwapChain(struct dx_window *window);
 #else
 static void createDeviceAndSwapChain(struct dx_window *window) {
@@ -407,7 +407,7 @@ static void shutdown() {
 	}
 }
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 static void initWindow(struct dx_window *window, int windowIndex) {
 	HWND hwnd = kinc_windows_window_handle(windowIndex);
 
@@ -436,7 +436,7 @@ static void initWindow(struct dx_window *window, int windowIndex) {
 void kinc_g5_internal_destroy_window(int window) {}
 
 void kinc_g5_internal_destroy() {
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	if (device) {
 		device->Release();
 		device = NULL;
@@ -445,7 +445,7 @@ void kinc_g5_internal_destroy() {
 }
 
 void kinc_g5_internal_init() {
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
 	if (D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)) == S_OK) {
@@ -491,7 +491,7 @@ void kinc_g5_internal_init_window(int windowIndex, int depthBufferBits, int sten
 	window->vsync = verticalSync;
 	window->width = window->new_width = kinc_window_width(windowIndex);
 	window->height = window->new_height = kinc_window_height(windowIndex);
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	initWindow(window, windowIndex);
 #else
 	HWND hwnd = NULL;
@@ -506,7 +506,7 @@ int kinc_g5_max_bound_textures(void) {
 	return D3D12_COMMONSHADER_SAMPLER_SLOT_COUNT;
 }
 
-#ifndef KORE_WINDOWS
+#ifndef KINC_WINDOWS
 extern "C" void kinc_internal_wait_for_frame();
 #endif
 
@@ -517,7 +517,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 		return;
 	began = true;
 
-#ifndef KORE_WINDOWS
+#ifndef KINC_WINDOWS
 	kinc_internal_wait_for_frame();
 #endif
 
@@ -527,7 +527,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 	window->current_backbuffer = (window->current_backbuffer + 1) % QUEUE_SLOT_COUNT;
 
 	if (window->new_width != window->width || window->new_height != window->height) {
-#ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+#ifndef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
 		kinc_microsoft_affirm(window->swapChain->ResizeBuffers(QUEUE_SLOT_COUNT, window->new_width, window->new_height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 #endif
 		setupSwapChain(window);
@@ -541,7 +541,7 @@ void kinc_g5_begin(kinc_g5_render_target_t *renderTarget, int windowId) {
 	window->fence_values[window->current_backbuffer] = fenceValue;
 	++window->current_fence_value;
 
-#ifdef KORE_WINDOWSAPP
+#ifdef KINC_WINDOWSAPP
 	context->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 #endif
 
@@ -583,7 +583,7 @@ extern "C" void kinc_internal_resize(int windowId, int width, int height) {
 
 extern "C" void kinc_internal_change_framebuffer(int window, kinc_framebuffer_options_t *frame) {}
 
-#ifndef KORE_DIRECT3D_HAS_NO_SWAPCHAIN
+#ifndef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
 bool kinc_g5_swap_buffers() {
 	for (int i = 0; i < MAXIMUM_WINDOWS; i++) {
 		struct dx_window *window = &dx_ctx.windows[i];

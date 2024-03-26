@@ -31,7 +31,7 @@ KINC_FUNC void kinc_http_request(const char *url, const char *path, const char *
 
 #ifdef KINC_IMPLEMENTATION
 
-#if !defined KORE_MACOS && !defined KORE_IOS && !defined KORE_WINDOWS
+#if !defined KINC_MACOS && !defined KINC_IOS && !defined KINC_WINDOWS
 
 #include <assert.h>
 

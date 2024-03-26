@@ -161,7 +161,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 		return;
 	}
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	// TODO (DK) convert depthBufferBits + stencilBufferBits to: d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 	D3DPRESENT_PARAMETERS d3dpp;
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
@@ -201,7 +201,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 		d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
 		// d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_REF, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &device);
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	// if (System::hasShowWindowFlag(/*windowId*/)) {
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
 	UpdateWindow(hWnd);
@@ -210,7 +210,7 @@ void kinc_g4_internal_init_window(int windowId, int depthBufferBits, int stencil
 
 	initDeviceStates();
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	if (fullscreen) {
 		// hz = d3dpp.FullScreen_RefreshRateInHz;
 		D3DDISPLAYMODE mode;

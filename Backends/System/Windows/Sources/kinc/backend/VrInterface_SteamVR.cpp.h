@@ -1,4 +1,4 @@
-#ifdef KORE_STEAMVR
+#ifdef KINC_STEAMVR
 
 #include <Kinc/graphics4/graphics.h>
 #include <Kinc/graphics4/rendertarget.h>
@@ -280,7 +280,7 @@ kinc_vr_pose_state_t kinc_vr_interface_get_controller(int index) {
 }
 
 void kinc_vr_interface_warp_swap() {
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 	vr::Texture_t leftEyeTexture = {(void *)(uintptr_t)leftTexture.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
 	vr::Texture_t rightEyeTexture = {(void *)(uintptr_t)rightTexture.impl._texture, vr::TextureType_OpenGL, vr::ColorSpace_Gamma};

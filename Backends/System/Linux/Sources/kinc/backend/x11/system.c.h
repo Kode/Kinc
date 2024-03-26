@@ -870,7 +870,7 @@ EGLNativeWindowType kinc_x11_egl_get_native_window(EGLDisplay display, EGLConfig
 }
 #endif
 
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_xlib.h>
 VkResult kinc_x11_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {

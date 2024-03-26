@@ -2,7 +2,7 @@
 
 #include <kinc/graphics4/compute.h>
 
-#if defined(KORE_WINDOWS) || (defined(KORE_LINUX) && defined(GL_VERSION_4_3)) || (defined(KORE_ANDROID) && defined(GL_ES_VERSION_3_1))
+#if defined(KINC_WINDOWS) || (defined(KINC_LINUX) && defined(GL_VERSION_4_3)) || (defined(KINC_ANDROID) && defined(GL_ES_VERSION_3_1))
 #define HAS_COMPUTE
 #endif
 

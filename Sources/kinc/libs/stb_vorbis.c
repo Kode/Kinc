@@ -601,7 +601,7 @@ enum STBVorbisError
    #endif
 #endif
 
-#if defined(__FreeBSD__) && !defined(KORE_PS4) && !defined(KORE_PS5)
+#if defined(__FreeBSD__) && !defined(KINC_PS4) && !defined(KINC_PS5)
    #ifdef alloca
    #undef alloca
    #endif

@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>

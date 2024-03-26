@@ -3,24 +3,29 @@ const path = require('path');
 
 const project = new Project('Kinc');
 
+function addKincDefine(name) {
+	project.addDefine('KINC_' + name);
+	project.addDefine('KORE_' + name);
+}
+
 const g1 = true;
-project.addDefine('KORE_G1');
+addKincDefine('G1');
 
 const g2 = true;
-project.addDefine('KORE_G2');
+addKincDefine('G2');
 
 const g3 = true;
-project.addDefine('KORE_G3');
+addKincDefine('G3');
 
 let g4 = false;
 
 let g5 = false;
 
 const a1 = true;
-project.addDefine('KORE_A1');
+addKincDefine('A1');
 
 const a2 = true;
-project.addDefine('KORE_A2');
+addKincDefine('A2');
 
 let a3 = false;
 
@@ -38,7 +43,7 @@ else {
 }
 
 if (lz4x) {
-	project.addDefine('KORE_LZ4X');
+	addKincDefine('LZ4X');
 	project.addExclude('Sources/kinc/io/lz4/**');
 }
 project.addIncludeDir('Sources');
@@ -77,28 +82,28 @@ if (platform === Platform.Windows) {
 
 	if (graphics === GraphicsApi.OpenGL1) {
 		addBackend('Graphics3/OpenGL1');
-		project.addDefine('KORE_OPENGL1');
+		addKincDefine('OPENGL1');
 		project.addDefine('GLEW_STATIC');
 	}
 	else if (graphics === GraphicsApi.OpenGL) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
-		project.addDefine('KORE_OPENGL');
+		addKincDefine('OPENGL');
 		project.addDefine('GLEW_STATIC');
 	}
 	else if (graphics === GraphicsApi.Direct3D11) {
 		g4 = true;
 		addBackend('Graphics4/Direct3D11');
-		project.addDefine('KORE_DIRECT3D');
-		project.addDefine('KORE_DIRECT3D11');
+		addKincDefine('DIRECT3D');
+		addKincDefine('DIRECT3D11');
 		project.addLib('d3d11');
 	}
 	else if (graphics === GraphicsApi.Direct3D12 || graphics === GraphicsApi.Default) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Direct3D12');
-		project.addDefine('KORE_DIRECT3D');
-		project.addDefine('KORE_DIRECT3D12');
+		addKincDefine('DIRECT3D');
+		addKincDefine('DIRECT3D12');
 		project.addLib('dxgi');
 		project.addLib('d3d12');
 	}
@@ -106,7 +111,7 @@ if (platform === Platform.Windows) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Vulkan');
-		project.addDefine('KORE_VULKAN');
+		addKincDefine('VULKAN');
 		project.addDefine('VK_USE_PLATFORM_WIN32_KHR');
 		if (!process.env.VULKAN_SDK) {
 			throw 'Could not find a Vulkan SDK';
@@ -123,8 +128,8 @@ if (platform === Platform.Windows) {
 	else if (graphics === GraphicsApi.Direct3D9) {
 		g4 = true;
 		addBackend('Graphics4/Direct3D9');
-		project.addDefine('KORE_DIRECT3D');
-		project.addDefine('KORE_DIRECT3D9');
+		addKincDefine('DIRECT3D');
+		addKincDefine('DIRECT3D9');
 		project.addLib('d3d9');
 	}
 	else {
@@ -142,8 +147,8 @@ if (platform === Platform.Windows) {
 	}
 
 	if (vr === VrApi.Oculus) {
-		project.addDefine('KORE_VR');
-		project.addDefine('KORE_OCULUS');
+		addKincDefine('VR');
+		addKincDefine('OCULUS');
 		project.addLibFor('x64', 'Backends/System/Windows/Libraries/OculusSDK/LibOVR/Lib/Windows/x64/Release/VS2017/LibOVR');
 		project.addLibFor('Win32', 'Backends/System/Windows/Libraries/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2017/LibOVR');
 		project.addFile('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src/GL/**');
@@ -151,8 +156,8 @@ if (platform === Platform.Windows) {
 		project.addIncludeDir('Backends/System/Windows/Libraries/OculusSDK/LibOVRKernel/Src/');
 	}
 	else if (vr === VrApi.SteamVR) {
-		project.addDefine('KORE_VR');
-		project.addDefine('KORE_STEAMVR');
+		addKincDefine('VR');
+		addKincDefine('STEAMVR');
 		project.addDefine('VR_API_PUBLIC');
 		project.addFile('Backends/System/Windows/Libraries/SteamVR/src/**');
 		project.addIncludeDir('Backends/System/Windows/Libraries/SteamVR/src');
@@ -168,7 +173,7 @@ if (platform === Platform.Windows) {
 }
 else if (platform === Platform.WindowsApp) {
 	g4 = true;
-	project.addDefine('KORE_WINDOWSAPP');
+	addKincDefine('WINDOWSAPP');
 	addBackend('System/WindowsApp');
 	addBackend('System/Microsoft');
 	addBackend('Graphics4/Direct3D11');
@@ -177,8 +182,8 @@ else if (platform === Platform.WindowsApp) {
 	project.vsdeploy = true;
 
 	if (vr === VrApi.HoloLens) {
-		project.addDefine('KORE_VR');
-		project.addDefine('KORE_HOLOLENS');
+		addKincDefine('VR');
+		addKincDefine('HOLOLENS');
 	}
 	else if (vr === VrApi.None) {
 
@@ -195,19 +200,19 @@ else if (platform === Platform.OSX) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Metal');
-		project.addDefine('KORE_METAL');
+		addKincDefine('METAL');
 		project.addLib('Metal');
 		project.addLib('MetalKit');
 	}
 	else if (graphics === GraphicsApi.OpenGL1) {
 		addBackend('Graphics3/OpenGL1');
-		project.addDefine('KORE_OPENGL1');
+		addKincDefine('OPENGL1');
 		project.addLib('OpenGL');
 	}
 	else if (graphics === GraphicsApi.OpenGL) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
-		project.addDefine('KORE_OPENGL');
+		addKincDefine('OPENGL');
 		project.addLib('OpenGL');
 	}
 	else {
@@ -225,7 +230,7 @@ else if (platform === Platform.OSX) {
 }
 else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	if (platform === Platform.tvOS) {
-		project.addDefine('KORE_TVOS');
+		addKincDefine('TVOS');
 	}
 	addBackend('System/Apple');
 	addBackend('System/iOS');
@@ -234,14 +239,14 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Metal');
-		project.addDefine('KORE_METAL');
+		addKincDefine('METAL');
 		project.addLib('Metal');
 	}
 	else if (graphics === GraphicsApi.OpenGL) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
-		project.addDefine('KORE_OPENGL');
-		project.addDefine('KORE_OPENGL_ES');
+		addKincDefine('OPENGL');
+		addKincDefine('OPENGL_ES');
 		project.addLib('OpenGLES');
 	}
 	else {
@@ -260,24 +265,24 @@ else if (platform === Platform.iOS || platform === Platform.tvOS) {
 	project.addLib('CoreMedia');
 }
 else if (platform === Platform.Android) {
-	project.addDefine('KORE_ANDROID');
+	addKincDefine('ANDROID');
 	addBackend('System/Android');
 	addBackend('System/POSIX');
 	if (graphics === GraphicsApi.Vulkan || graphics === GraphicsApi.Default) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/Vulkan');
-		project.addDefine('KORE_VULKAN');
+		addKincDefine('VULKAN');
 		project.addDefine('VK_USE_PLATFORM_ANDROID_KHR');
 		project.addLib('vulkan');
-		project.addDefine('KORE_ANDROID_API=24');
+		addKincDefine('ANDROID_API=24');
 	}
 	else if (graphics === GraphicsApi.OpenGL) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
-		project.addDefine('KORE_OPENGL');
-		project.addDefine('KORE_OPENGL_ES');
-		project.addDefine('KORE_ANDROID_API=19');
+		addKincDefine('OPENGL');
+		addKincDefine('OPENGL_ES');
+		addKincDefine('ANDROID_API=19');
 		project.addDefine('KINC_EGL');
 	}
 	else {
@@ -296,7 +301,7 @@ else if (platform === Platform.Android) {
 	project.addLib('OpenMAXAL');
 }
 else if (platform === Platform.Emscripten) {
-	project.addDefine('KORE_EMSCRIPTEN');
+	addKincDefine('EMSCRIPTEN');
 	//project.addLib('websocket.js -sPROXY_POSIX_SOCKETS -sUSE_PTHREADS -sPROXY_TO_PTHREAD');
 	addBackend('System/Emscripten');
 	project.addLib('USE_GLFW=2');
@@ -304,14 +309,14 @@ else if (platform === Platform.Emscripten) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/WebGPU');
-		project.addDefine('KORE_WEBGPU');
+		addKincDefine('WEBGPU');
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
-		project.addDefine('KORE_OPENGL');
-		project.addDefine('KORE_OPENGL_ES');
+		addKincDefine('OPENGL');
+		addKincDefine('OPENGL_ES');
 		if (Options.kong) {
 			project.addLib('USE_WEBGL2=1');
 		}
@@ -321,7 +326,7 @@ else if (platform === Platform.Emscripten) {
 	}
 }
 else if (platform === Platform.Wasm) {
-	project.addDefine('KORE_WASM');
+	addKincDefine('WASM');
 	addBackend('System/Wasm');
 	project.addIncludeDir('miniClib');
 	project.addFile('miniClib/**');
@@ -329,14 +334,14 @@ else if (platform === Platform.Wasm) {
 		g4 = true;
 		g5 = true;
 		addBackend('Graphics5/WebGPU');
-		project.addDefine('KORE_WEBGPU');
+		addKincDefine('WEBGPU');
 	}
 	else if (graphics === GraphicsApi.OpenGL || graphics === GraphicsApi.Default) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
-		project.addDefine('KORE_OPENGL');
-		project.addDefine('KORE_OPENGL_ES');
+		addKincDefine('OPENGL');
+		addKincDefine('OPENGL_ES');
 	}
 	else {
 		throw new Error('Graphics API ' + graphics + ' is not available for Wasm.');
@@ -344,7 +349,7 @@ else if (platform === Platform.Wasm) {
 }
 else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 	if (platform === Platform.FreeBSD) { // TODO
-		project.addDefine('KORE_LINUX');
+		addKincDefine('LINUX');
 	}
 	addBackend('System/Linux');
 	addBackend('System/POSIX');
@@ -461,14 +466,14 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		g5 = true;
 		addBackend('Graphics5/Vulkan');
 		project.addLib('vulkan');
-		project.addDefine('KORE_VULKAN');
+		addKincDefine('VULKAN');
 	}
 	else if (graphics === GraphicsApi.OpenGL || (platform === Platform.FreeBSD && graphics === GraphicsApi.Default)) {
 		g4 = true;
 		addBackend('Graphics4/OpenGL');
 		project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/glew.c');
 		project.addLib('GL');
-		project.addDefine('KORE_OPENGL');
+		addKincDefine('OPENGL');
 		project.addLib('EGL');
 		project.addDefine('KINC_EGL');
 	}
@@ -476,21 +481,21 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 		throw new Error('Graphics API ' + graphics + ' is not available for Linux.');
 	}
 	if (platform === Platform.FreeBSD) { // TODO
-		project.addDefine('KORE_POSIX');
+		addKincDefine('POSIX');
 	}
 	project.addDefine('_POSIX_C_SOURCE=200112L');
 	project.addDefine('_XOPEN_SOURCE=600');
 }
 else if (platform === Platform.Pi) {
 	g4 = true;
-	project.addDefine('KORE_PI');
+	addKincDefine('PI');
 	addBackend('System/Pi');
 	addBackend('System/POSIX');
 	addBackend('Graphics4/OpenGL');
 	project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
-	project.addDefine('KORE_OPENGL');
-	project.addDefine('KORE_OPENGL_ES');
-	project.addDefine('KORE_POSIX');
+	addKincDefine('OPENGL');
+	addKincDefine('OPENGL_ES');
+	addKincDefine('POSIX');
 	project.addDefine('_POSIX_C_SOURCE=200112L');
 	project.addDefine('_XOPEN_SOURCE=600');
 	project.addIncludeDir('/opt/vc/include');
@@ -505,14 +510,14 @@ else if (platform === Platform.Pi) {
 }
 else if (platform === Platform.Tizen) {
 	g4 = true;
-	project.addDefine('KORE_TIZEN');
+	addKincDefine('TIZEN');
 	addBackend('System/Tizen');
 	addBackend('System/POSIX');
 	addBackend('Graphics4/OpenGL');
 	project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
-	project.addDefine('KORE_OPENGL');
-	project.addDefine('KORE_OPENGL_ES');
-	project.addDefine('KORE_POSIX');
+	addKincDefine('OPENGL');
+	addKincDefine('OPENGL_ES');
+	addKincDefine('POSIX');
 }
 else {
 	plugin = true;
@@ -521,7 +526,7 @@ else {
 }
 
 if (g4) {
-	project.addDefine('KORE_G4');
+	addKincDefine('G4');
 }
 else {
 	project.addExclude('Sources/Kore/Graphics4/**');
@@ -529,20 +534,20 @@ else {
 }
 
 if (g5) {
-	project.addDefine('KORE_G5');
-	project.addDefine('KORE_G4ONG5');
+	addKincDefine('G5');
+	addKincDefine('G4ONG5');
 	addBackend('Graphics4/G4onG5');
 }
 else {
-	project.addDefine('KORE_G5');
-	project.addDefine('KORE_G5ONG4');
+	addKincDefine('G5');
+	addKincDefine('G5ONG4');
 	addBackend('Graphics5/G5onG4');
 }
 
 if (!a3) {
 	if (cpp) {
 		a3 = true;
-		project.addDefine('KORE_A3');
+		addKincDefine('A3');
 		addBackend('Audio3/A3onA2');
 	}
 }

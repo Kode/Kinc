@@ -48,7 +48,7 @@
 
 #include <kinc/backend/SystemMicrosoft.h>
 
-#ifdef KORE_WINDOWSAPP
+#ifdef KINC_WINDOWSAPP
 #include <d3d11_1.h>
 #else
 #pragma warning(disable : 4005)

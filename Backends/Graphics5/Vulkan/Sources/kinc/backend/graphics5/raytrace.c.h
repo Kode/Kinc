@@ -2,7 +2,7 @@
 
 #include "raytrace.h"
 
-#ifndef KORE_ANDROID
+#ifndef KINC_ANDROID
 
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/constantbuffer.h>

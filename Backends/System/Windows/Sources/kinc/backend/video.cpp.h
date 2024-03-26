@@ -1,6 +1,6 @@
 #include <kinc/video.h>
 
-#ifdef KORE_DIRECT3D12
+#ifdef KINC_DIRECT3D12
 
 void kinc_video_init(kinc_video_t *video, const char *filename) {}
 

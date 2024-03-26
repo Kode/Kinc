@@ -435,12 +435,12 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipeline) {
 		vertexBindingCount++;
 	}
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	VkVertexInputBindingDescription *vi_bindings = (VkVertexInputBindingDescription *)alloca(sizeof(VkVertexInputBindingDescription) * vertexBindingCount);
 #else
 	VkVertexInputBindingDescription vi_bindings[vertexBindingCount];
 #endif
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 	VkVertexInputAttributeDescription *vi_attrs = (VkVertexInputAttributeDescription *)alloca(sizeof(VkVertexInputAttributeDescription) * vertexAttributeCount);
 #else
 	VkVertexInputAttributeDescription vi_attrs[vertexAttributeCount];

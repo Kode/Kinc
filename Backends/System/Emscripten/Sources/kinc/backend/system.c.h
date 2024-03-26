@@ -1,4 +1,4 @@
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 #include <GL/glfw.h>
 #endif
 
@@ -22,7 +22,7 @@ static void drawfunc() {
 		return;
 	kinc_internal_update_callback();
 	kinc_a2_update();
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 	glfwSwapBuffers();
 #endif
 }
@@ -37,7 +37,7 @@ static void drawfunc() {
 		kinc_internal_keyboard_trigger_key_up(KINC_KEY);                                                                                                       \
 		break;
 
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 // glfw mappings as state here: https://www.glfw.org/docs/3.3/group__keys.html
 static void onKeyPressed(int key, int action) {
 	if (action == GLFW_PRESS) {
@@ -268,7 +268,7 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	win->width = width;
 	win->height = height;
 
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 	glfwInit();
 	glfwOpenWindow(width, height, 8, 8, 8, 0, frame->depth_bits, frame->stencil_bits, GLFW_WINDOW);
 	glfwSetWindowTitle(name);
@@ -299,7 +299,7 @@ double kinc_frequency(void) {
 }
 
 kinc_ticks_t kinc_timestamp(void) {
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 	return (kinc_ticks_t)(glfwGetTime() * 1000.0);
 #else
 	return (kinc_ticks_t)(0.0);
@@ -307,7 +307,7 @@ kinc_ticks_t kinc_timestamp(void) {
 }
 
 double kinc_time(void) {
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 	return glfwGetTime();
 #else
 	return 0.0;
@@ -324,7 +324,7 @@ int kinc_hardware_threads(void) {
 
 extern int kickstart(int argc, char **argv);
 
-#ifdef KORE_WEBGPU
+#ifdef KINC_WEBGPU
 EMSCRIPTEN_KEEPALIVE void kinc_internal_webgpu_initialized() {
 	kickstart(html5_argc, html5_argv);
 	initialized = true;
@@ -334,7 +334,7 @@ EMSCRIPTEN_KEEPALIVE void kinc_internal_webgpu_initialized() {
 int main(int argc, char **argv) {
 	html5_argc = argc;
 	html5_argv = argv;
-#ifdef KORE_WEBGPU
+#ifdef KINC_WEBGPU
 	char *code = "(async () => {\
 		const adapter = await navigator.gpu.requestAdapter();\
 		const device = await adapter.requestDevice();\

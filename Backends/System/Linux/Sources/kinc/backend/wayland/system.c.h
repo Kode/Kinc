@@ -770,7 +770,7 @@ void zwp_tablet_tool_v2_handle_type(void *data, struct zwp_tablet_tool_v2 *zwp_t
 	tool->type = tool_type;
 }
 
-#ifdef KORE_LITTLE_ENDIAN
+#ifdef KINC_LITTLE_ENDIAN
 #define HI_LO_TO_64(hi, lo) (uint64_t) lo | ((uint64_t)hi << 32)
 #else
 #define HI_LO_TO_64(hi, lo) (uint64_t) hi | ((uint64_t)lo << 32)
@@ -1180,7 +1180,7 @@ EGLNativeWindowType kinc_wayland_egl_get_native_window(EGLDisplay display, EGLCo
 }
 #endif
 
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_wayland.h>
 VkResult kinc_wayland_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {

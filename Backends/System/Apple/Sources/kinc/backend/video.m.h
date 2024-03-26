@@ -126,13 +126,13 @@ void kinc_video_init(kinc_video_t *video, const char *filename) {
 	video->impl.sound = NULL;
 	video->impl.image_initialized = false;
 	char name[2048];
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 	strcpy(name, iphonegetresourcepath());
 #else
 	strcpy(name, macgetresourcepath());
 #endif
 	strcat(name, "/");
-	strcat(name, KORE_DEBUGDIR);
+	strcat(name, KINC_DEBUGDIR);
 	strcat(name, "/");
 	strcat(name, filename);
 	video->impl.url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:name]];
@@ -147,7 +147,7 @@ void kinc_video_destroy(kinc_video_t *video) {
 	kinc_video_stop(video);
 }
 
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 void iosPlayVideoSoundStream(kinc_internal_video_sound_stream_t *video);
 void iosStopVideoSoundStream(void);
 #else
@@ -162,7 +162,7 @@ void kinc_video_play(kinc_video_t *video, bool loop) {
 	kinc_internal_video_sound_stream_t *stream = (kinc_internal_video_sound_stream_t *)malloc(sizeof(kinc_internal_video_sound_stream_t));
 	kinc_internal_video_sound_stream_init(stream, 2, 44100);
 	video->impl.sound = stream;
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 	iosPlayVideoSoundStream((kinc_internal_video_sound_stream_t *)video->impl.sound);
 #else
 	macPlayVideoSoundStream((kinc_internal_video_sound_stream_t *)video->impl.sound);
@@ -177,7 +177,7 @@ void kinc_video_pause(kinc_video_t *video) {
 	video->impl.playing = false;
 	if (video->impl.sound != NULL) {
 // Mixer::stop(sound);
-#ifdef KORE_IOS
+#ifdef KINC_IOS
 		iosStopVideoSoundStream();
 #else
 		macStopVideoSoundStream();
@@ -235,7 +235,7 @@ static void updateImage(kinc_video_t *video) {
 
 		if (pixelBuffer != NULL) {
 			CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 			kinc_g4_texture_upload(&video->impl.image, (uint8_t *)CVPixelBufferGetBaseAddress(pixelBuffer),
 			                       (int)(CVPixelBufferGetBytesPerRow(pixelBuffer) / 4));
 #else

@@ -31,7 +31,7 @@
 */
 #include <kinc/global.h>
 
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #include <GL/glew.h>
 
 #if defined(GLEW_OSMESA)

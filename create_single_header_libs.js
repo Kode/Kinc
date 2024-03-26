@@ -136,7 +136,7 @@ let windows_backend = fs.readFileSync(path.resolve('Backends', 'Audio2', 'WASAPI
 windows_backend = windows_backend.replace('#include <kinc/audio2/audio.h>', '');
 windows_backend = miniPreprocessor(windows_backend);
 
-lib = lib.replace('// BACKENDS-PLACEHOLDER', '#ifdef KORE_WINDOWS\n' + windows_backend + '\n#endif');
+lib = lib.replace('// BACKENDS-PLACEHOLDER', '#ifdef KINC_WINDOWS\n' + windows_backend + '\n#endif');
 
 if (!fs.existsSync('single_header_libs')) {
 	fs.mkdirSync('single_header_libs');

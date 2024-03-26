@@ -1,4 +1,4 @@
-#ifdef KORE_WINDOWSAPP
+#ifdef KINC_WINDOWSAPP
 
 #include <Kore/Audio3/TextToSpeech.h>
 #include <Kore/Log.h>

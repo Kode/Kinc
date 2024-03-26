@@ -5,7 +5,7 @@
 #include <kinc/input/pen.h>
 #include <kinc/system.h>
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 #include <kinc/graphics5/graphics.h>
 #endif
 
@@ -16,7 +16,7 @@ static bool ctrl = false;
 static bool alt = false;
 static bool cmd = false;
 
-#ifndef KORE_METAL
+#ifndef KINC_METAL
 + (NSOpenGLPixelFormat *)basicPixelFormat {
 	// TODO (DK) pass via argument in
 	int aa = 1; // Kore::Application::the()->antialiasing();
@@ -393,7 +393,7 @@ static bool controlKeyMouseButton = false;
 	return YES;
 }
 
-#ifndef KORE_METAL
+#ifndef KINC_METAL
 - (void)prepareOpenGL {
 	const GLint swapInt = 1;
 	[[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
@@ -402,12 +402,12 @@ static bool controlKeyMouseButton = false;
 #endif
 
 - (void)update { // window resizes, moves and display changes (resize, depth and display config change)
-#ifdef KORE_OPENGL
+#ifdef KINC_OPENGL
 	[super update];
 #endif
 }
 
-#ifndef KORE_METAL
+#ifndef KINC_METAL
 - (id)initWithFrame:(NSRect)frameRect {
 	NSOpenGLPixelFormat *pf = [BasicOpenGLView basicPixelFormat];
 	self = [super initWithFrame:frameRect pixelFormat:pf];
@@ -456,7 +456,7 @@ static bool controlKeyMouseButton = false;
 	[self setFrameSize:size];
 }
 
-#ifdef KORE_METAL
+#ifdef KINC_METAL
 - (CAMetalLayer *)metalLayer {
 	return (CAMetalLayer *)self.layer;
 }

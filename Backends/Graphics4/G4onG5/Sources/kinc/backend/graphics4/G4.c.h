@@ -207,7 +207,7 @@ static void endDraw(bool compute) {
 			kinc_g5_command_list_set_pipeline(&commandList, current_state.pipeline);
 		}
 		if (current_state.compute_shader != NULL) {
-#ifndef KORE_METAL
+#ifndef KINC_METAL
 			// Metal still has some trouble switching between graphics and compute encoders
 			kinc_g5_command_list_set_compute_shader(&commandList, current_state.compute_shader);
 #endif

@@ -43,6 +43,7 @@ static bool activityJustResized = false;
 #include <kinc/log.h>
 
 #ifdef KINC_EGL
+
 EGLDisplay kinc_egl_get_display() {
 	return eglGetDisplay(EGL_DEFAULT_DISPLAY);
 }
@@ -57,11 +58,14 @@ EGLNativeWindowType kinc_egl_get_native_window(EGLDisplay display, EGLConfig con
 	}
 	return app->window;
 }
+
 #endif
 
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
+
 #include <vulkan/vulkan_android.h>
 #include <vulkan/vulkan_core.h>
+
 VkResult kinc_vulkan_create_surface(VkInstance instance, int window_index, VkSurfaceKHR *surface) {
 	assert(app->window != NULL);
 	VkAndroidSurfaceCreateInfoKHR createInfo = {};
@@ -88,25 +92,25 @@ VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice p
 }
 #endif
 
-#ifndef KORE_VULKAN
+#ifndef KINC_VULKAN
 void kinc_egl_init_window(int window);
 void kinc_egl_destroy_window(int window);
 #endif
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 void kinc_vulkan_init_window(int window);
 #endif
 
 static void initDisplay() {
-#ifndef KORE_VULKAN
+#ifndef KINC_VULKAN
 	kinc_egl_init_window(0);
 #endif
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 	kinc_vulkan_init_window(0);
 #endif
 }
 
 static void termDisplay() {
-#ifndef KORE_VULKAN
+#ifndef KINC_VULKAN
 	kinc_egl_destroy_window(0);
 #endif
 }
@@ -956,7 +960,7 @@ const char *kinc_language() {
 	return str;
 }
 
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 bool kinc_vulkan_internal_get_size(int *width, int *height);
 #endif
 
@@ -968,7 +972,7 @@ extern int kinc_egl_height(int window);
 int kinc_android_width() {
 #if defined(KINC_EGL)
 	return kinc_egl_width(0);
-#elif defined(KORE_VULKAN)
+#elif defined(KINC_VULKAN)
 	int width, height;
 	if (kinc_vulkan_internal_get_size(&width, &height)) {
 		return width;
@@ -981,7 +985,7 @@ int kinc_android_width() {
 int kinc_android_height() {
 #if defined(KINC_EGL)
 	return kinc_egl_height(0);
-#elif defined(KORE_VULKAN)
+#elif defined(KINC_VULKAN)
 	int width, height;
 	if (kinc_vulkan_internal_get_size(&width, &height)) {
 		return height;
@@ -1082,7 +1086,7 @@ bool kinc_internal_handle_messages(void) {
 		activityJustResized = false;
 		int32_t width = kinc_android_width();
 		int32_t height = kinc_android_height();
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 		kinc_internal_resize(0, width, height);
 #endif
 		kinc_internal_call_resize_callback(0, width, height);
@@ -1150,7 +1154,7 @@ void android_main(struct android_app *application) {
 	application->onAppCmd = cmd;
 	application->onInputEvent = input;
 	activity->callbacks->onNativeWindowResized = resize;
-	// #ifndef KORE_VULKAN
+	// #ifndef KINC_VULKAN
 	// 	glContext = ndk_helper::GLContext::GetInstance();
 	// #endif
 	sensorManager = ASensorManager_getInstance();

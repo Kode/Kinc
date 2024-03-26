@@ -1,4 +1,4 @@
-#ifdef KORE_WINDOWS
+#ifdef KINC_WINDOWS
 #include "OpenGLWindow.h"
 
 #include <kinc/graphics4/graphics.h>

@@ -11,7 +11,7 @@
 extern kinc_g4_index_buffer_t *Kinc_Internal_CurrentIndexBuffer;
 static kinc_g4_vertex_buffer_t *currentVertexBuffer = NULL;
 
-#if defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18
+#if defined(KINC_OPENGL_ES) && defined(KINC_ANDROID) && KINC_ANDROID_API >= 18
 void *glesVertexAttribDivisor;
 #endif
 
@@ -120,7 +120,7 @@ int kinc_g4_vertex_buffer_stride(kinc_g4_vertex_buffer_t *buffer) {
 	return buffer->impl.myStride;
 }
 
-#if !defined(KORE_OPENGL_ES) || (defined(KORE_OPENGL_ES) && defined(KORE_WASM)) || (defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18)
+#if !defined(KINC_OPENGL_ES) || (defined(KINC_OPENGL_ES) && defined(KINC_WASM)) || (defined(KINC_OPENGL_ES) && defined(KINC_ANDROID) && KINC_ANDROID_API >= 18)
 static bool attribDivisorUsed = false;
 #endif
 
@@ -253,14 +253,14 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 				glCheckErrors();
 				glVertexAttribPointer(offset + actualIndex, 4, type, false, buffer->impl.myStride, (void *)(int64_t)(internaloffset + addonOffset));
 				glCheckErrors();
-#if !defined(KORE_OPENGL_ES) || (defined(KORE_OPENGL_ES) && defined(KORE_WASM))
+#if !defined(KINC_OPENGL_ES) || (defined(KINC_OPENGL_ES) && defined(KINC_WASM))
 				if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
 					attribDivisorUsed = true;
 					glVertexAttribDivisor(offset + actualIndex, buffer->impl.instanceDataStepRate);
 					glCheckErrors();
 				}
 #endif
-#if (defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18)
+#if (defined(KINC_OPENGL_ES) && defined(KINC_ANDROID) && KINC_ANDROID_API >= 18)
 				if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
 					attribDivisorUsed = true;
 					((void (*)(GLuint, GLuint))glesVertexAttribDivisor)(offset + actualIndex, buffer->impl.instanceDataStepRate);
@@ -277,14 +277,14 @@ int Kinc_G4_Internal_SetVertexAttributes(kinc_g4_vertex_buffer_t *buffer, int of
 			glCheckErrors();
 			glVertexAttribPointer(offset + actualIndex, size, type, type == GL_FLOAT ? false : true, buffer->impl.myStride, (void *)(int64_t)internaloffset);
 			glCheckErrors();
-#if !defined(KORE_OPENGL_ES) || (defined(KORE_OPENGL_ES) && defined(KORE_WASM))
+#if !defined(KINC_OPENGL_ES) || (defined(KINC_OPENGL_ES) && defined(KINC_WASM))
 			if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
 				attribDivisorUsed = true;
 				glVertexAttribDivisor(offset + actualIndex, buffer->impl.instanceDataStepRate);
 				glCheckErrors();
 			}
 #endif
-#if (defined(KORE_OPENGL_ES) && defined(KORE_ANDROID) && KORE_ANDROID_API >= 18)
+#if (defined(KINC_OPENGL_ES) && defined(KINC_ANDROID) && KINC_ANDROID_API >= 18)
 			if (attribDivisorUsed || buffer->impl.instanceDataStepRate != 0) {
 				attribDivisorUsed = true;
 				((void (*)(GLuint, GLuint))glesVertexAttribDivisor)(offset + actualIndex, buffer->impl.instanceDataStepRate);

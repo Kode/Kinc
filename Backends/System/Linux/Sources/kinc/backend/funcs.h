@@ -7,7 +7,7 @@
 #define EGL_NO_PLATFORM_SPECIFIC_TYPES
 #include <EGL/egl.h>
 #endif
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 #include <vulkan/vulkan.h>
 #endif
 
@@ -55,7 +55,7 @@ struct linux_procs {
 	EGLDisplay (*egl_get_display)(void);
 	EGLNativeWindowType (*egl_get_native_window)(EGLDisplay display, EGLConfig config, int window_index);
 #endif
-#ifdef KORE_VULKAN
+#ifdef KINC_VULKAN
 	void (*vulkan_get_instance_extensions)(const char **extensions, int *count, int max);
 	VkResult (*vulkan_create_surface)(VkInstance instance, int window_index, VkSurfaceKHR *surface);
 	VkBool32 (*vulkan_get_physical_device_presentation_support)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);

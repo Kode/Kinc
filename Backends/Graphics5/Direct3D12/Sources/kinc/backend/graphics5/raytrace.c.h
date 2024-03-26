@@ -1,4 +1,4 @@
-#ifndef KORE_XBOX_ONE
+#ifndef KINC_XBOX_ONE
 
 #include <kinc/backend/graphics5/raytrace.h>
 

@@ -1,4 +1,4 @@
-#ifdef KORE_OCULUS
+#ifdef KINC_OCULUS
 #include <Kinc/vr/vrinterface.h>
 
 #include <Kinc/graphics4/graphics.h>

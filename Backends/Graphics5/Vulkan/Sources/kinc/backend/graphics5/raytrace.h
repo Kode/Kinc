@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef KORE_ANDROID
+#ifndef KINC_ANDROID
 
 #include "MiniVulkan.h"
 
