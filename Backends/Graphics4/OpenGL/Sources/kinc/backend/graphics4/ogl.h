@@ -46,10 +46,6 @@
 #include "EGL/eglext.h"
 #endif
 
-#ifdef KINC_TIZEN
-#include <gl2.h>
-#endif
-
 #ifdef KINC_WASM
 #include <GL/gl.h>
 #endif

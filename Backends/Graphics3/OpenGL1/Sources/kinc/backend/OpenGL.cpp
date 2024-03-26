@@ -207,7 +207,7 @@ void Graphics3::init(int windowId, int depthBufferBits, int stencilBufferBits, b
 	glGenVertexArraysOES(1, &arrayId[windowId]);
 #elif defined(KINC_MACOS)
 	glGenVertexArraysAPPLE(1, &arrayId[windowId]);
-#elif !defined(KINC_ANDROID) && !defined(KINC_EMSCRIPTEN) && !defined(KINC_TIZEN) && !defined(KINC_RASPBERRY_PI)
+#elif !defined(KINC_ANDROID) && !defined(KINC_EMSCRIPTEN) && !defined(KINC_RASPBERRY_PI)
 	glGenVertexArrays(1, &arrayId[windowId]);
 #endif
 	glCheckErrors();

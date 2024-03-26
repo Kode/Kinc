@@ -15,7 +15,7 @@ namespace Kore {
 		int myCount;
 		int myStride;
 		uint bufferId;
-		// #if defined KINC_ANDROID || defined KINC_EMSCRIPTEN || defined KINC_TIZEN
+		// #if defined KINC_ANDROID || defined KINC_EMSCRIPTEN
 		Graphics4::VertexStructure structure;
 		// #endif
 		int instanceDataStepRate;

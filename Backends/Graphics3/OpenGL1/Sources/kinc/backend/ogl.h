@@ -47,10 +47,6 @@
 #include "GLES2/gl2.h"
 #endif
 
-#ifdef KINC_TIZEN
-#include <gl2.h>
-#endif
-
 #include <Kore/Log.h>
 
 #if defined(NDEBUG) || defined(KINC_OSX) || defined(KINC_IOS) || defined(KINC_ANDROID) || 1 // Calling glGetError too early means trouble

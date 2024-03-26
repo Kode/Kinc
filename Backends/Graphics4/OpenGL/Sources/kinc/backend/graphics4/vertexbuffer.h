@@ -15,7 +15,7 @@ typedef struct {
 	unsigned bufferId;
 	int sectionStart;
 	int sectionSize;
-	// #if defined KINC_ANDROID || defined KINC_EMSCRIPTEN || defined KINC_TIZEN
+	// #if defined KINC_ANDROID || defined KINC_EMSCRIPTEN
 	kinc_g4_vertex_structure_t structure;
 	// #endif
 	int instanceDataStepRate;

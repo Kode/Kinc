@@ -508,17 +508,6 @@ else if (platform === Platform.Pi) {
 	project.addLib('asound');
 	project.addLib('X11');
 }
-else if (platform === Platform.Tizen) {
-	g4 = true;
-	addKincDefine('TIZEN');
-	addBackend('System/Tizen');
-	addBackend('System/POSIX');
-	addBackend('Graphics4/OpenGL');
-	project.addExclude('Backends/Graphics4/OpenGL/Sources/GL/**');
-	addKincDefine('OPENGL');
-	addKincDefine('OPENGL_ES');
-	addKincDefine('POSIX');
-}
 else {
 	plugin = true;
 	g4 = true;

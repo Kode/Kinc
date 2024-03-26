@@ -252,10 +252,6 @@ const char *macgetresourcepath(void);
 #include <kinc/backend/MiniWindows.h>
 #endif
 
-#ifdef KINC_TIZEN
-#include <FApp.h>
-#endif
-
 #ifdef KINC_RASPBERRY_PI
 #define KINC_LINUX
 #endif
@@ -384,16 +380,6 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 #endif
 #ifdef KINC_EMSCRIPTEN
 	strcpy(filepath, KINC_DEBUGDIR);
-	strcat(filepath, "/");
-	strcat(filepath, filename);
-#endif
-#ifdef KINC_TIZEN
-	for (int i = 0; i < Tizen::App::App::GetInstance()->GetAppDataPath().GetLength(); ++i) {
-		wchar_t c;
-		Tizen::App::App::GetInstance()->GetAppDataPath().GetCharAt(i, c);
-		filepath[i] = (char)c;
-	}
-	filepath[Tizen::App::App::GetInstance()->GetAppDataPath().GetLength()] = 0;
 	strcat(filepath, "/");
 	strcat(filepath, filename);
 #endif
