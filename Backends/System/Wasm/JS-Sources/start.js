@@ -24,8 +24,10 @@ function create_thread(func) {
 async function start_audio_thread() {
 	const audioContext = new AudioContext();
 	await audioContext.audioWorklet.addModule('audio-thread.js');
-	const audioThreadNode = new AudioWorkletNode(audioContext, 'audio-thread');
-	audioThreadNode.port.postMessage({ mod, memory });
+	const audioThreadNode = new AudioWorkletNode(audioContext, 'audio-thread', { processorOptions: { mod, memory }});
+	audioThreadNode.port.onmessage = (message) => {
+		console.log(message.data);
+	};
 	audioThreadNode.connect(audioContext.destination);
 }
 
