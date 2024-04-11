@@ -86,6 +86,22 @@ void kinc_log(kinc_log_level_t level, const char *format, ...) {
 #define UTF8
 
 void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
+#ifdef KINC_ANDROID
+	va_list args_android_copy;
+	va_copy(args_android_copy, args);
+	switch (level) {
+	case KINC_LOG_LEVEL_INFO:
+		__android_log_vprint(ANDROID_LOG_INFO, "Kinc", format, args_android_copy);
+		break;
+	case KINC_LOG_LEVEL_WARNING:
+		__android_log_vprint(ANDROID_LOG_WARN, "Kinc", format, args_android_copy);
+		break;
+	case KINC_LOG_LEVEL_ERROR:
+		__android_log_vprint(ANDROID_LOG_ERROR, "Kinc", format, args_android_copy);
+		break;
+	}
+	va_end(args_android_copy);
+#endif
 #ifdef KINC_MICROSOFT
 #ifdef UTF8
 	wchar_t buffer[4096];
@@ -111,20 +127,6 @@ void kinc_log_args(kinc_log_level_t level, const char *format, va_list args) {
 	vsnprintf(buffer, 4090, format, args);
 	strcat(buffer, "\n");
 	fprintf(level == KINC_LOG_LEVEL_INFO ? stdout : stderr, "%s", buffer);
-#endif
-
-#ifdef KINC_ANDROID
-	switch (level) {
-	case KINC_LOG_LEVEL_INFO:
-		__android_log_vprint(ANDROID_LOG_INFO, "Kinc", format, args);
-		break;
-	case KINC_LOG_LEVEL_WARNING:
-		__android_log_vprint(ANDROID_LOG_WARN, "Kinc", format, args);
-		break;
-	case KINC_LOG_LEVEL_ERROR:
-		__android_log_vprint(ANDROID_LOG_ERROR, "Kinc", format, args);
-		break;
-	}
 #endif
 }
 
