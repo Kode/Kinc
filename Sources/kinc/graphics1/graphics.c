@@ -17,6 +17,9 @@ static kinc_g4_shader_t vertexShader;
 static kinc_g4_shader_t fragmentShader;
 static kinc_g4_pipeline_t pipeline;
 static kinc_g4_texture_unit_t tex;
+kinc_g4_texture_filter_t kinc_internal_g1_texture_minf = KINC_G4_TEXTURE_FILTER_LINEAR;
+kinc_g4_texture_filter_t kinc_internal_g1_texture_magf = KINC_G4_TEXTURE_FILTER_LINEAR;
+kinc_g4_mipmap_filter_t kinc_internal_g1_texture_mipf = KINC_G4_MIPMAP_FILTER_NONE;
 #endif
 static kinc_g4_vertex_buffer_t vb;
 static kinc_g4_index_buffer_t ib;
@@ -44,6 +47,9 @@ void kinc_g1_end(void) {
 
 #ifndef KINC_KONG
 	kinc_g4_set_texture(tex, &texture);
+	kinc_g4_set_texture_minification_filter(tex, kinc_internal_g1_texture_minf);
+	kinc_g4_set_texture_magnification_filter(tex, kinc_internal_g1_texture_magf);
+	kinc_g4_set_texture_mipmap_filter(tex, kinc_internal_g1_texture_mipf);
 #endif
 	kinc_g4_set_vertex_buffer(&vb);
 	kinc_g4_set_index_buffer(&ib);
