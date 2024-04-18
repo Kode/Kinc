@@ -202,11 +202,11 @@ int kinc_g1_height() {
 }
 
 void kinc_g1_set_texture_magnification_filter(kinc_g1_texture_filter_t filter) {
-	kinc_internal_g1_texture_filter_min = filter;
+	kinc_internal_g1_texture_filter_mag = filter;
 }
 
 void kinc_g1_set_texture_minification_filter(kinc_g1_texture_filter_t filter) {
-	kinc_internal_g1_texture_filter_mag = filter;
+	kinc_internal_g1_texture_filter_min = filter;
 }
 
 void kinc_g1_set_texture_mipmap_filter(kinc_g1_mipmap_filter_t filter) {
