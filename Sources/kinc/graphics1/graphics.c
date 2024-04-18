@@ -7,6 +7,7 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/graphics4/vertexbuffer.h>
 #include <kinc/io/filereader.h>
+#include <kinc/log.h>
 
 #ifdef KINC_KONG
 #include <kong.h>
@@ -17,6 +18,9 @@ static kinc_g4_shader_t vertexShader;
 static kinc_g4_shader_t fragmentShader;
 static kinc_g4_pipeline_t pipeline;
 static kinc_g4_texture_unit_t tex;
+kinc_g1_texture_filter_t kinc_internal_g1_texture_filter_min = KINC_G1_TEXTURE_FILTER_LINEAR;
+kinc_g1_texture_filter_t kinc_internal_g1_texture_filter_mag = KINC_G1_TEXTURE_FILTER_LINEAR;
+kinc_g1_mipmap_filter_t kinc_internal_g1_mipmap_filter = KINC_G1_MIPMAP_FILTER_NONE;
 #endif
 static kinc_g4_vertex_buffer_t vb;
 static kinc_g4_index_buffer_t ib;
@@ -28,6 +32,28 @@ int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
 void kinc_g1_begin(void) {
 	kinc_g4_begin(0);
 	kinc_internal_g1_image = (uint32_t *)kinc_g4_texture_lock(&texture);
+}
+
+static inline kinc_g4_texture_filter_t map_texture_filter(kinc_g1_texture_filter_t filter) {
+	switch (filter) {
+		case KINC_G1_TEXTURE_FILTER_POINT: return KINC_G4_TEXTURE_FILTER_POINT;
+		case KINC_G1_TEXTURE_FILTER_LINEAR: return KINC_G4_TEXTURE_FILTER_LINEAR;
+		case KINC_G1_TEXTURE_FILTER_ANISOTROPIC: return KINC_G4_TEXTURE_FILTER_ANISOTROPIC;
+	}
+
+	kinc_log(KINC_LOG_LEVEL_WARNING, "unhandled kinc_g1_texture_filter_t (%i)", filter);
+	return KINC_G1_TEXTURE_FILTER_LINEAR;
+}
+
+static inline kinc_g4_texture_filter_t map_mipmap_filter(kinc_g1_texture_filter_t filter) {
+	switch (filter) {
+		case KINC_G1_MIPMAP_FILTER_NONE: return KINC_G4_MIPMAP_FILTER_NONE;
+		case KINC_G1_MIPMAP_FILTER_POINT: return KINC_G4_MIPMAP_FILTER_POINT;
+		case KINC_G1_MIPMAP_FILTER_LINEAR: return KINC_G4_MIPMAP_FILTER_LINEAR;
+	}
+
+	kinc_log(KINC_LOG_LEVEL_WARNING, "unhandled kinc_g1_mipmap_filter_t (%i)", filter);
+	return KINC_G4_MIPMAP_FILTER_NONE;
 }
 
 void kinc_g1_end(void) {
@@ -44,6 +70,9 @@ void kinc_g1_end(void) {
 
 #ifndef KINC_KONG
 	kinc_g4_set_texture(tex, &texture);
+	kinc_g4_set_texture_minification_filter(tex, map_texture_filter(kinc_internal_g1_texture_filter_min));
+	kinc_g4_set_texture_magnification_filter(tex, map_texture_filter(kinc_internal_g1_texture_filter_mag));
+	kinc_g4_set_texture_mipmap_filter(tex, map_mipmap_filter(kinc_internal_g1_mipmap_filter));
 #endif
 	kinc_g4_set_vertex_buffer(&vb);
 	kinc_g4_set_index_buffer(&ib);
@@ -170,6 +199,18 @@ int kinc_g1_width() {
 
 int kinc_g1_height() {
 	return kinc_internal_g1_h;
+}
+
+void kinc_g1_set_texture_magnification_filter(kinc_g1_texture_filter_t filter) {
+	kinc_internal_g1_texture_filter_mag = filter;
+}
+
+void kinc_g1_set_texture_minification_filter(kinc_g1_texture_filter_t filter) {
+	kinc_internal_g1_texture_filter_min = filter;
+}
+
+void kinc_g1_set_texture_mipmap_filter(kinc_g1_mipmap_filter_t filter) {
+	kinc_internal_g1_mipmap_filter = filter;
 }
 
 #endif
