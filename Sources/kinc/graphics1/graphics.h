@@ -14,6 +14,18 @@
 extern "C" {
 #endif
 
+typedef enum {
+	KINC_G1_TEXTURE_FILTER_POINT,
+	KINC_G1_TEXTURE_FILTER_LINEAR,
+	KINC_G1_TEXTURE_FILTER_ANISOTROPIC,
+} kinc_g1_texture_filter_t;
+
+typedef enum {
+	KINC_G1_MIPMAP_FILTER_NONE,
+	KINC_G1_MIPMAP_FILTER_POINT,
+	KINC_G1_MIPMAP_FILTER_LINEAR,
+} kinc_g1_mipmap_filter_t;
+
 /// <summary>
 /// Initializes the G1-API.
 /// </summary>
@@ -34,6 +46,9 @@ KINC_FUNC void kinc_g1_end(void);
 
 extern uint32_t *kinc_internal_g1_image;
 extern int kinc_internal_g1_w, kinc_internal_g1_h, kinc_internal_g1_tex_width;
+extern kinc_g1_texture_filter_t kinc_internal_g1_texture_filter_min;
+extern kinc_g1_texture_filter_t kinc_internal_g1_texture_filter_mag;
+extern kinc_g1_mipmap_filter_t kinc_internal_g1_mipmap_filter;
 
 #if defined(KINC_DYNAMIC_COMPILE) || defined(KINC_DYNAMIC) || defined(KINC_DOCS)
 
@@ -59,6 +74,27 @@ KINC_FUNC int kinc_g1_width(void);
 /// <returns>The height</returns>
 KINC_FUNC int kinc_g1_height(void);
 
+/// <summary>
+/// Set the texture-sampling-mode for upscaled textures.
+/// </summary>
+/// <param name="unit">The texture-unit to set the texture-sampling-mode for</param>
+/// <param name="filter">The mode to set</param>
+KINC_FUNC void kinc_g1_set_texture_magnification_filter(kinc_g1_texture_filter_t filter);
+
+/// <summary>
+/// Set the texture-sampling-mode for downscaled textures.
+/// </summary>
+/// <param name="unit">The texture-unit to set the texture-sampling-mode for</param>
+/// <param name="filter">The mode to set</param>
+KINC_FUNC void kinc_g1_set_texture_minification_filter(kinc_g1_texture_filter_t filter);
+
+/// <summary>
+/// Sets the mipmap-sampling-mode which defines whether mipmaps are used at all and if so whether the two neighbouring mipmaps are linearly interpolated.
+/// </summary>
+/// <param name="unit">The texture-unit to set the mipmap-sampling-mode for</param>
+/// <param name="filter">The mode to set</param>
+KINC_FUNC void kinc_g1_set_texture_mipmap_filter(kinc_g1_mipmap_filter_t filter);
+
 #else
 
 // implementation moved to the header to allow easy inlining
@@ -77,6 +113,18 @@ static inline int kinc_g1_width(void) {
 
 static inline int kinc_g1_height(void) {
 	return kinc_internal_g1_h;
+}
+
+static inline void kinc_g1_set_texture_magnification_filter(kinc_g1_texture_filter_t filter) {
+	kinc_internal_g1_texture_filter_min = filter;
+}
+
+static inline void kinc_g1_set_texture_minification_filter(kinc_g1_texture_filter_t filter) {
+	kinc_internal_g1_texture_filter_mag = filter;
+}
+
+static inline void kinc_g1_set_texture_mipmap_filter(kinc_g1_mipmap_filter_t filter) {
+	kinc_internal_g1_mipmap_filter = filter;
 }
 
 #endif
