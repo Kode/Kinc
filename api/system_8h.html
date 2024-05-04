@@ -197,13 +197,13 @@ Functions</h2></td></tr>
 <tr class="memdesc:a666e11efb2c2c9e03e4d6e52a55affbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when files are dropped on the application-window.  <a href="system_8h.html#a666e11efb2c2c9e03e4d6e52a55affbf">More...</a><br /></td></tr>
 <tr class="separator:a666e11efb2c2c9e03e4d6e52a55affbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0278577d472e91d02587ebfb362a3e39"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a0278577d472e91d02587ebfb362a3e39">kinc_set_cut_callback</a> (char *(*callback)(void *), void *data)</td></tr>
-<tr class="memdesc:a0278577d472e91d02587ebfb362a3e39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when the application is instructed to cut, typically via ctrl+x or cmd+x.  <a href="system_8h.html#a0278577d472e91d02587ebfb362a3e39">More...</a><br /></td></tr>
+<tr class="memdesc:a0278577d472e91d02587ebfb362a3e39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when the application is instructed to cut, typically via ctrl+x or cmd+x. Kinc does not take ownership of the provided string.  <a href="system_8h.html#a0278577d472e91d02587ebfb362a3e39">More...</a><br /></td></tr>
 <tr class="separator:a0278577d472e91d02587ebfb362a3e39"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af248510f1f9b3b1c2a2824ade47419fc"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#af248510f1f9b3b1c2a2824ade47419fc">kinc_set_copy_callback</a> (char *(*callback)(void *), void *data)</td></tr>
-<tr class="memdesc:af248510f1f9b3b1c2a2824ade47419fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when the application is instructed to copy, typically via ctrl+c or cmd+c.  <a href="system_8h.html#af248510f1f9b3b1c2a2824ade47419fc">More...</a><br /></td></tr>
+<tr class="memdesc:af248510f1f9b3b1c2a2824ade47419fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when the application is instructed to copy, typically via ctrl+c or cmd+c. Kinc does not take ownership of the provided string.  <a href="system_8h.html#af248510f1f9b3b1c2a2824ade47419fc">More...</a><br /></td></tr>
 <tr class="separator:af248510f1f9b3b1c2a2824ade47419fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68b59014bdb8dbbb23946337a00dcd50"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a68b59014bdb8dbbb23946337a00dcd50">kinc_set_paste_callback</a> (void(*callback)(char *, void *), void *data)</td></tr>
-<tr class="memdesc:a68b59014bdb8dbbb23946337a00dcd50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when the application is instructed to paste, typically via ctrl+v or cmd+v.  <a href="system_8h.html#a68b59014bdb8dbbb23946337a00dcd50">More...</a><br /></td></tr>
+<tr class="memdesc:a68b59014bdb8dbbb23946337a00dcd50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when the application is instructed to paste, typically via ctrl+v or cmd+v. The provided string is only valid during the callback-call - copy it if you want to keep it.  <a href="system_8h.html#a68b59014bdb8dbbb23946337a00dcd50">More...</a><br /></td></tr>
 <tr class="separator:a68b59014bdb8dbbb23946337a00dcd50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a249e5e1eee8ac6b9dff5412a1310e3b9"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="system_8h.html#a249e5e1eee8ac6b9dff5412a1310e3b9">kinc_set_login_callback</a> (void(*callback)(void *), void *data)</td></tr>
 <tr class="memdesc:a249e5e1eee8ac6b9dff5412a1310e3b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a callback which is called when a user logs in.  <a href="system_8h.html#a249e5e1eee8ac6b9dff5412a1310e3b9">More...</a><br /></td></tr>
@@ -801,7 +801,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Sets a callback which is called when the application is instructed to copy, typically via ctrl+c or cmd+c. </p>
+<p>Sets a callback which is called when the application is instructed to copy, typically via ctrl+c or cmd+c. Kinc does not take ownership of the provided string. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">callback</td><td>The copy-callback</td></tr>
@@ -838,7 +838,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Sets a callback which is called when the application is instructed to cut, typically via ctrl+x or cmd+x. </p>
+<p>Sets a callback which is called when the application is instructed to cut, typically via ctrl+x or cmd+x. Kinc does not take ownership of the provided string. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">callback</td><td>The cut-callback</td></tr>
@@ -1049,7 +1049,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Sets a callback which is called when the application is instructed to paste, typically via ctrl+v or cmd+v. </p>
+<p>Sets a callback which is called when the application is instructed to paste, typically via ctrl+v or cmd+v. The provided string is only valid during the callback-call - copy it if you want to keep it. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">callback</td><td>The paste-callback</td></tr>
