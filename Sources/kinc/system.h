@@ -252,6 +252,7 @@ KINC_FUNC void kinc_set_drop_files_callback(void (*callback)(wchar_t *, void *),
 
 /// <summary>
 /// Sets a callback which is called when the application is instructed to cut, typically via ctrl+x or cmd+x.
+/// Kinc does not take ownership of the provided string.
 /// </summary>
 /// <param name="callback">The cut-callback</param>
 /// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
@@ -259,6 +260,7 @@ KINC_FUNC void kinc_set_cut_callback(char *(*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called when the application is instructed to copy, typically via ctrl+c or cmd+c.
+/// Kinc does not take ownership of the provided string.
 /// </summary>
 /// <param name="callback">The copy-callback</param>
 /// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
@@ -266,6 +268,7 @@ KINC_FUNC void kinc_set_copy_callback(char *(*callback)(void *), void *data);
 
 /// <summary>
 /// Sets a callback which is called when the application is instructed to paste, typically via ctrl+v or cmd+v.
+/// The provided string is only valid during the callback-call - copy it if you want to keep it.
 /// </summary>
 /// <param name="callback">The paste-callback</param>
 /// <param name="data">Arbitrary data-pointer that's passed to the callback</param>
