@@ -81,7 +81,7 @@ $(function() {
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">static</span> <a class="code" href="structkinc__a1__sound__stream.html">kinc_a1_sound_stream_t</a> streams[256];</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> nextStream = 0;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">static</span> uint8_t buffer[1024 * 10];</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">static</span> uint8_t buffer[1024 * 1024 * 10];</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> bufferIndex;</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
 <div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="soundstream_8h.html#afc2488d96142c6d6fe172a0ef7290418">   16</a></span>&#160;<a class="code" href="structkinc__a1__sound__stream.html">kinc_a1_sound_stream_t</a> *<a class="code" href="soundstream_8h.html#afc2488d96142c6d6fe172a0ef7290418">kinc_a1_sound_stream_create</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename, <span class="keywordtype">bool</span> looping) {</div>
