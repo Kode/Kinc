@@ -1,5 +1,7 @@
 #include "graphics.h"
 
+#ifndef KINC_KONG
+
 #include <kinc/graphics1/graphics.h>
 #include <kinc/math/core.h>
 #include <kinc/math/matrix.h>
@@ -283,3 +285,5 @@ void kinc_g2_set_rotation(float angle, float centerx, float centery) {
 	kinc_matrix3x3_t transformation1 = kinc_matrix3x3_multiply(&translation1, &rotation);
 	transform = kinc_matrix3x3_multiply(&transformation1, &translation2);
 }
+
+#endif

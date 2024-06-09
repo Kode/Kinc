@@ -34,6 +34,7 @@ typedef struct kinc_matrix4x4 {
 KINC_FUNC float kinc_matrix4x4_get(kinc_matrix4x4_t *matrix, int x, int y);
 KINC_FUNC void kinc_matrix4x4_set(kinc_matrix4x4_t *matrix, int x, int y, float value);
 KINC_FUNC void kinc_matrix4x4_transpose(kinc_matrix4x4_t *matrix);
+KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_identity(void);
 KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_matrix4x4_t *b);
 
 #ifdef KINC_IMPLEMENTATION_MATH
@@ -176,6 +177,15 @@ void kinc_matrix4x4_transpose(kinc_matrix4x4_t *matrix) {
 		}
 	}
 	memcpy(matrix->m, transposed.m, sizeof(transposed.m));
+}
+
+kinc_matrix4x4_t kinc_matrix4x4_identity(void) {
+	kinc_matrix4x4_t m;
+	memset(m.m, 0, sizeof(m.m));
+	for (unsigned x = 0; x < 4; ++x) {
+		kinc_matrix4x4_set(&m, x, x, 1.0f);
+	}
+	return m;
 }
 
 kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_matrix4x4_t *b) {
