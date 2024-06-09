@@ -1,0 +1,97 @@
+const kinc_g2_constants: {
+	projection: float4x4;
+};
+
+struct kinc_g2_colored_vertex_in {
+	pos: float3;
+	col: float4;
+}
+
+struct kinc_g2_colored_vertex_out {
+	pos: float4;
+	col: float4;
+}
+
+fun kinc_g2_colored_vertex(input: kinc_g2_colored_vertex_in): kinc_g2_colored_vertex_out {
+	var output: kinc_g2_colored_vertex_out;
+
+	output.pos = kinc_g2_constants.projection * float4(input.pos, 1.0);
+	output.col = input.col;
+
+	return output;
+}
+
+fun kinc_g2_colored_fragment(input: kinc_g2_colored_vertex_out): float4 {
+	return input.col;
+}
+
+#[pipe]
+struct kinc_g2_colored_pipeline {
+	vertex = kinc_g2_colored_vertex;
+	fragment = kinc_g2_colored_fragment;
+}
+
+struct kinc_g2_image_vertex_in {
+	pos: float3;
+	tex: float2;
+	col: float4;
+}
+
+struct kinc_g2_image_vertex_out {
+	pos: float4;
+	tex: float2;
+	col: float4;
+}
+
+fun kinc_g2_image_vertex(input: kinc_g2_image_vertex_in): kinc_g2_image_vertex_out {
+	var output: kinc_g2_image_vertex_out;
+
+	output.pos = kinc_g2_constants.projection * float4(input.pos, 1.0);
+	output.tex = input.tex;
+	output.col = input.col;
+
+	return output;
+}
+
+const kinc_g2_texture: tex2d;
+const kinc_g2_sampler: sampler;
+
+fun kinc_g2_image_fragment(input: kinc_g2_image_vertex_out): float4 {
+	var texcolor: float4 = sample(kinc_g2_texture, kinc_g2_sampler, input.tex) * input.col;
+	//texcolor.rgb *= color.a;
+	return texcolor;
+}
+
+#[pipe]
+struct kinc_g2_image_pipeline {
+	vertex = kinc_g2_image_vertex;
+	fragment = kinc_g2_image_fragment;
+}
+
+/*
+#version 450
+
+in vec3 vertexPosition;
+in vec2 vertexUV;
+in vec4 vertexColor;
+uniform mat4 projectionMatrix;
+out vec2 texCoord;
+out vec4 fragmentColor;
+
+void text_vertex() {
+	gl_Position = projectionMatrix * vec4(vertexPosition, 1.0);
+	texCoord = vertexUV;
+	fragmentColor = vertexColor;
+}
+
+#version 450
+
+uniform sampler2D tex;
+in vec2 texCoord;
+in vec4 fragmentColor;
+out vec4 FragColor;
+
+void text_fragment() {
+	FragColor = vec4(fragmentColor.rgb, texture(tex, texCoord).r * fragmentColor.a);
+}
+*/
