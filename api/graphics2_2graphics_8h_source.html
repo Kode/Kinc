@@ -80,21 +80,75 @@ $(function() {
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keywordtype">void</span> kinc_g2_init(<span class="keywordtype">int</span> screen_width, <span class="keywordtype">int</span> screen_height);</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keywordtype">void</span> kinc_g2_begin(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keywordtype">void</span> kinc_g2_end(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keywordtype">void</span> kinc_g2_clear(<span class="keywordtype">float</span> r, <span class="keywordtype">float</span> g, <span class="keywordtype">float</span> b);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keywordtype">void</span> kinc_g2_draw_image(<a class="code" href="structkinc__image.html">kinc_image_t</a> *img, <span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">// void drawScaledSubImage(Graphics4::Texture *img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keywordtype">void</span> kinc_g2_set_rotation(<span class="keywordtype">float</span> angle, <span class="keywordtype">float</span> centerx, <span class="keywordtype">float</span> centery);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;}</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#ifdef KINC_KONG</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">typedef</span> <span class="keyword">enum</span> kinc_g2_image_scale_quality {</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    KINC_G2_IMAGE_SCALE_QUALITY_LOW, <span class="comment">// usually point filter</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    KINC_G2_IMAGE_SCALE_QUALITY_HIGH <span class="comment">// usually bilinear filter</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;} kinc_g2_image_scale_quality;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">// enum HorTextAlignment { TextLeft, TextCenter, TextRight };</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">// enum VerTextAlignment { TextTop, TextMiddle, TextBottom };</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keywordtype">void</span> kinc_g2_init(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keywordtype">void</span> kinc_g2_draw_image(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *img, <span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keywordtype">void</span> kinc_g2_draw_scaled_sub_image(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *img, <span class="keywordtype">float</span> sx, <span class="keywordtype">float</span> sy, <span class="keywordtype">float</span> sw, <span class="keywordtype">float</span> sh, <span class="keywordtype">float</span> dx, <span class="keywordtype">float</span> dy, <span class="keywordtype">float</span> dw, <span class="keywordtype">float</span> dh);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keywordtype">void</span> kinc_g2_draw_sub_image(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *img, <span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y, <span class="keywordtype">float</span> sx, <span class="keywordtype">float</span> sy, <span class="keywordtype">float</span> sw, <span class="keywordtype">float</span> sh);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keywordtype">void</span> kinc_g2_draw_scaled_image(<a class="code" href="structkinc__g4__texture.html">kinc_g4_texture_t</a> *img, <span class="keywordtype">float</span> dx, <span class="keywordtype">float</span> dy, <span class="keywordtype">float</span> dw, <span class="keywordtype">float</span> dh);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;uint32_t kinc_g2_get_color(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keywordtype">void</span> kinc_g2_set_color(uint32_t color);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keywordtype">void</span> kinc_g2_draw_rect(<span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y, <span class="keywordtype">float</span> width, <span class="keywordtype">float</span> height, <span class="keywordtype">float</span> strength <span class="comment">/*= 1.0*/</span>);</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keywordtype">void</span> kinc_g2_fill_rect(<span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y, <span class="keywordtype">float</span> width, <span class="keywordtype">float</span> height);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keywordtype">void</span> kinc_g2_draw_line(<span class="keywordtype">float</span> x1, <span class="keywordtype">float</span> y1, <span class="keywordtype">float</span> x2, <span class="keywordtype">float</span> y2, <span class="keywordtype">float</span> strength <span class="comment">/*= 1.0*/</span>);</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keywordtype">void</span> kinc_g2_fill_triangle(<span class="keywordtype">float</span> x1, <span class="keywordtype">float</span> y1, <span class="keywordtype">float</span> x2, <span class="keywordtype">float</span> y2, <span class="keywordtype">float</span> x3, <span class="keywordtype">float</span> y3);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;kinc_g2_image_scale_quality kinc_g2_get_image_scale_quality(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keywordtype">void</span> kinc_g2_set_image_scale_quality(kinc_g2_image_scale_quality value);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;kinc_g2_image_scale_quality kinc_g2_get_mipmap_scale_quality(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keywordtype">void</span> kinc_g2_set_mipmap_scale_quality(kinc_g2_image_scale_quality value);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keywordtype">void</span> kinc_g2_scissor(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">int</span> width, <span class="keywordtype">int</span> height);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keywordtype">void</span> kinc_g2_disable_scissor(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keywordtype">void</span> kinc_g2_begin(<span class="keywordtype">bool</span> clear <span class="comment">/*= true*/</span>, uint32_t clear_color);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keywordtype">void</span> kinc_g2_clear(uint32_t color);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keywordtype">void</span> kinc_g2_flush(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keywordtype">void</span> kinc_g2_end(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<a class="code" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> kinc_g2_get_transformation(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keywordtype">void</span> kinc_g2_set_transformation(<a class="code" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> transformation);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keywordtype">void</span> kinc_g2_push_transformation(<a class="code" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> trans);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<a class="code" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> kinc_g2_pop_transformation();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keywordtype">void</span> kinc_g2_scale(<span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keywordtype">void</span> kinc_g2_push_scale(<span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<a class="code" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> kinc_g2_translation(<span class="keywordtype">float</span> tx, <span class="keywordtype">float</span> ty);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="keywordtype">void</span> kinc_g2_translate(<span class="keywordtype">float</span> tx, <span class="keywordtype">float</span> ty);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keywordtype">void</span> kinc_g2_push_translation(<span class="keywordtype">float</span> tx, <span class="keywordtype">float</span> ty);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<a class="code" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> kinc_g2_rotation(<span class="keywordtype">float</span> angle, <span class="keywordtype">float</span> centerx, <span class="keywordtype">float</span> centery);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keywordtype">void</span> kinc_g2_rotate(<span class="keywordtype">float</span> angle, <span class="keywordtype">float</span> centerx, <span class="keywordtype">float</span> centery);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="keywordtype">void</span> kinc_g2_push_rotation(<span class="keywordtype">float</span> angle, <span class="keywordtype">float</span> centerx, <span class="keywordtype">float</span> centery);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keywordtype">void</span> kinc_g2_push_opacity(<span class="keywordtype">float</span> opacity);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keywordtype">float</span> kinc_g2_pop_opacity();</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keywordtype">float</span> kinc_g2_get_opacity();</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keywordtype">void</span> kinc_g2_set_opacity(<span class="keywordtype">float</span> opacity);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="keywordtype">void</span> kinc_g2_init(<span class="keywordtype">int</span> screen_width, <span class="keywordtype">int</span> screen_height);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keywordtype">void</span> kinc_g2_begin(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keywordtype">void</span> kinc_g2_end(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keywordtype">void</span> kinc_g2_clear(<span class="keywordtype">float</span> r, <span class="keywordtype">float</span> g, <span class="keywordtype">float</span> b);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keywordtype">void</span> kinc_g2_draw_image(<a class="code" href="structkinc__image.html">kinc_image_t</a> *img, <span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">// void drawScaledSubImage(Graphics4::Texture *img, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh);</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keywordtype">void</span> kinc_g2_set_rotation(<span class="keywordtype">float</span> angle, <span class="keywordtype">float</span> centerx, <span class="keywordtype">float</span> centery);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;}</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aglobal_8h_html"><div class="ttname"><a href="global_8h.html">global.h</a></div><div class="ttdoc">Provides basic functionality that's used all over the place. There's usually no need to manually incl...</div></div>
 <div class="ttc" id="agraphics4_2texture_8h_html"><div class="ttname"><a href="graphics4_2texture_8h.html">texture.h</a></div><div class="ttdoc">Provides functions for handling textures.</div></div>
 <div class="ttc" id="amatrix_8h_html"><div class="ttname"><a href="matrix_8h.html">matrix.h</a></div><div class="ttdoc">Provides basic matrix types and a few functions which create transformation-matrices....</div></div>
+<div class="ttc" id="astructkinc__g4__texture_html"><div class="ttname"><a href="structkinc__g4__texture.html">kinc_g4_texture</a></div><div class="ttdef"><b>Definition:</b> texture.h:18</div></div>
 <div class="ttc" id="astructkinc__image_html"><div class="ttname"><a href="structkinc__image.html">kinc_image</a></div><div class="ttdef"><b>Definition:</b> image.h:36</div></div>
+<div class="ttc" id="astructkinc__matrix3x3_html"><div class="ttname"><a href="structkinc__matrix3x3.html">kinc_matrix3x3</a></div><div class="ttdef"><b>Definition:</b> matrix.h:15</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
