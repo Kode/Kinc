@@ -147,23 +147,23 @@ static kinc_matrix4x4_t orthogonal_projection(float left, float right, float bot
 	float ty = -(top + bottom) / (top - bottom);
 	float tz = -(zf + zn) / (zf - zn);
 
-	kinc_matrix4x4_t m;
-	m.m[0] = 2 / (right - left);
-	m.m[1] = 0;
-	m.m[2] = 0;
-	m.m[3] = tx;
-	m.m[4] = 0;
-	m.m[5] = 2.0f / (top - bottom);
-	m.m[6] = 0;
-	m.m[7] = ty;
-	m.m[8] = 0;
-	m.m[9] = 0;
-	m.m[10] = -2 / (zf - zn);
-	m.m[11] = tz;
-	m.m[12] = 0;
-	m.m[13] = 0;
-	m.m[14] = 0;
-	m.m[15] = 1;
+	kinc_matrix4x4_t m = kinc_matrix4x4_identity();
+	kinc_matrix4x4_set(&m, 0, 0, 2 / (right - left));
+	kinc_matrix4x4_set(&m, 0, 1, 0);
+	kinc_matrix4x4_set(&m, 0, 2, 0);
+	kinc_matrix4x4_set(&m, 0, 3, 0);
+	kinc_matrix4x4_set(&m, 1, 0, 0);
+	kinc_matrix4x4_set(&m, 1, 1, 2 / (top - bottom));
+	kinc_matrix4x4_set(&m, 1, 2, 0);
+	kinc_matrix4x4_set(&m, 1, 3, 0);
+	kinc_matrix4x4_set(&m, 2, 0, 0);
+	kinc_matrix4x4_set(&m, 2, 1, 0);
+	kinc_matrix4x4_set(&m, 2, 2, -2 / (zf - zn));
+	kinc_matrix4x4_set(&m, 2, 3, 0);
+	kinc_matrix4x4_set(&m, 3, 0, tx);
+	kinc_matrix4x4_set(&m, 3, 1, ty);
+	kinc_matrix4x4_set(&m, 3, 2, tz);
+	kinc_matrix4x4_set(&m, 3, 3, 1);
 	return m;
 }
 
@@ -175,6 +175,7 @@ static void set_projection(void) {
 	int height = CANVAS_HEIGHT;
 	// if (Std.isOfType(canvas, Framebuffer)) {
 	projection_matrix = orthogonal_projection(0, (float)width, (float)height, 0, 0.1f, 1000.0f);
+
 	//}
 	/*else {
 	    if (!Image.nonPow2Supported) {

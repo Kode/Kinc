@@ -16,6 +16,8 @@ fun kinc_g2_colored_vertex(input: kinc_g2_colored_vertex_in): kinc_g2_colored_ve
 	var output: kinc_g2_colored_vertex_out;
 
 	output.pos = kinc_g2_constants.projection * float4(input.pos, 1.0);
+	output.pos.z = 0.5;
+	output.pos.w = 1.0;
 	output.col = input.col;
 
 	return output;
@@ -47,6 +49,8 @@ fun kinc_g2_image_vertex(input: kinc_g2_image_vertex_in): kinc_g2_image_vertex_o
 	var output: kinc_g2_image_vertex_out;
 
 	output.pos = kinc_g2_constants.projection * float4(input.pos, 1.0);
+	output.pos.z = 0.5;
+	output.pos.w = 1.0;
 	output.tex = input.tex;
 	output.col = input.col;
 

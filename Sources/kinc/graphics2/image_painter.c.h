@@ -77,6 +77,8 @@ static void image_init_buffers(void) {
 		}
 		kinc_g4_index_buffer_unlock_all(&image_index_buffer);
 
+		kinc_g2_constants_type_buffer_init(&image_constants);
+
 		image_buffers_initialized = true;
 	}
 }
@@ -151,7 +153,7 @@ static void image_draw_buffer(bool end) {
 
 	kinc_g4_draw_indexed_vertices_from_to(image_buffer_start * 2 * 3, (image_buffer_index - image_buffer_start) * 2 * 3);
 
-	kinc_g4_set_texture(kinc_g2_texture, NULL);
+	// kinc_g4_set_texture(kinc_g2_texture, NULL);
 
 	if (end || (image_buffer_start + image_buffer_index + 1) * 4 >= image_buffer_size) {
 		image_buffer_start = 0;
@@ -191,7 +193,7 @@ static void image_draw_image(kinc_g4_texture_t *tex, float bottomleftx, float bo
 	float g = a * color_components[2];
 	float b = a * color_components[3];
 
-	image_set_tex_coords(0, 0, (float)tex->tex_width, (float)tex->tex_height);
+	image_set_tex_coords(0, 0, 1.0f, 1.0f);
 	image_set_color(r, g, b, a * opacity);
 	image_set_vertices(bottomleftx, bottomlefty, topleftx, toplefty, toprightx, toprighty, bottomrightx, bottomrighty);
 
