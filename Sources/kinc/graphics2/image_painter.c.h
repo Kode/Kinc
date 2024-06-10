@@ -4,7 +4,7 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/graphics4/vertexbuffer.h>
 
-// #include <kong.h>
+#include <kong.h>
 
 static kinc_matrix4x4_t image_projection_matrix;
 
