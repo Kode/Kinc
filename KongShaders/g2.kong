@@ -31,6 +31,10 @@ fun kinc_g2_colored_fragment(input: kinc_g2_colored_vertex_out): float4 {
 struct kinc_g2_colored_pipeline {
 	vertex = kinc_g2_colored_vertex;
 	fragment = kinc_g2_colored_fragment;
+	blend_source = BLEND_ONE;
+	blend_destination = BLEND_INV_SOURCE_ALPHA;
+	alpha_blend_source = BLEND_ONE;
+	alpha_blend_destination = BLEND_INV_SOURCE_ALPHA;
 }
 
 struct kinc_g2_image_vertex_in {
@@ -70,6 +74,10 @@ fun kinc_g2_image_fragment(input: kinc_g2_image_vertex_out): float4 {
 struct kinc_g2_image_pipeline {
 	vertex = kinc_g2_image_vertex;
 	fragment = kinc_g2_image_fragment;
+	blend_source = BLEND_ONE;
+	blend_destination = BLEND_INV_SOURCE_ALPHA;
+	alpha_blend_source = BLEND_ONE;
+	alpha_blend_destination = BLEND_INV_SOURCE_ALPHA;
 }
 
 /*
