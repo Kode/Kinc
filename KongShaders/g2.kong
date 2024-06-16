@@ -66,7 +66,7 @@ const kinc_g2_sampler: sampler;
 
 fun kinc_g2_image_fragment(input: kinc_g2_image_vertex_out): float4 {
 	var texcolor: float4 = sample(kinc_g2_texture, kinc_g2_sampler, input.tex) * input.col;
-	//texcolor.rgb *= color.a;
+	texcolor.rgb *= input.col.a;
 	return texcolor;
 }
 
