@@ -189,6 +189,8 @@ KINC_FUNC void kinc_g4_set_blend_constant(float r, float g, float b, float a);
 KINC_FUNC void kinc_g4_set_constant_buffer(uint32_t id, struct kinc_g4_constant_buffer *buffer);
 #endif
 
+#ifndef KINC_KONG
+
 /// <summary>
 /// Assigns an integer to a constant/uniform in the currently set pipeline.
 /// </summary>
@@ -293,6 +295,8 @@ KINC_FUNC void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_ma
 /// <param name="location">The location of the constant/uniform to assign the value to</param>
 /// <param name="value">The value to assign to the constant/uniform</param>
 KINC_FUNC void kinc_g4_set_matrix4(kinc_g4_constant_location_t location, kinc_matrix4x4_t *value);
+
+#endif
 
 /// <summary>
 /// Set the texture-sampling-mode for upscaled textures.
