@@ -51,6 +51,8 @@ struct dx_window {
 	int window_index;
 };
 
+struct dx_window *kinc_dx_current_window();
+
 #ifdef __cplusplus
 }
 #endif

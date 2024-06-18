@@ -81,7 +81,7 @@ struct dx_ctx {
 
 static struct dx_ctx dx_ctx = {0};
 
-inline struct dx_window *kinc_dx_current_window() {
+struct dx_window *kinc_dx_current_window() {
 	return &dx_ctx.windows[dx_ctx.current_window];
 }
 
