@@ -32,16 +32,16 @@ struct D3D12Rect {
 	long bottom;
 };
 
-#define QUEUE_SLOT_COUNT 2
+#define KINC_INTERNAL_D3D12_SWAP_CHAIN_COUNT 2
 
 struct dx_window {
 #ifndef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
 	struct IDXGISwapChain *swapChain;
 #endif
 	UINT64 current_fence_value;
-	UINT64 fence_values[QUEUE_SLOT_COUNT];
-	HANDLE frame_fence_events[QUEUE_SLOT_COUNT];
-	struct ID3D12Fence *frame_fences[QUEUE_SLOT_COUNT];
+	UINT64 fence_values[KINC_INTERNAL_D3D12_SWAP_CHAIN_COUNT];
+	HANDLE frame_fence_events[KINC_INTERNAL_D3D12_SWAP_CHAIN_COUNT];
+	struct ID3D12Fence *frame_fences[KINC_INTERNAL_D3D12_SWAP_CHAIN_COUNT];
 	int width;
 	int height;
 	int new_width;

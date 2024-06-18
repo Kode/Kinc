@@ -9,7 +9,7 @@
 #endif
 
 #ifdef KINC_DIRECT3D_HAS_NO_SWAPCHAIN
-extern ID3D12Resource *swapChainRenderTargets[QUEUE_SLOT_COUNT];
+extern ID3D12Resource *swapChainRenderTargets[KINC_INTERNAL_D3D12_SWAP_CHAIN_COUNT];
 #endif
 
 static void WaitForFence(ID3D12Fence *fence, UINT64 completionValue, HANDLE waitEvent) {
