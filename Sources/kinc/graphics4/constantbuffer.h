@@ -9,6 +9,8 @@
 #include <kinc/math/matrix.h>
 #include <kinc/math/vector.h>
 
+#include <stddef.h>
+
 /*! \file constantbuffer.h
     \brief Provides support for managing buffers of constant-data for shaders.
 */
