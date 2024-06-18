@@ -175,6 +175,7 @@ static void startDraw(bool compute) {
 	kinc_g4_on_g5_internal_set_samplers(current_state.render_target_count, current_state.render_target_units);
 	kinc_g4_on_g5_internal_set_samplers(current_state.depth_render_target_count, current_state.depth_render_target_units);
 
+#ifndef KINC_KONG
 	if (compute) {
 		kinc_g5_command_list_set_compute_constant_buffer(&commandList, &computeConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 	}
@@ -182,6 +183,7 @@ static void startDraw(bool compute) {
 		kinc_g5_command_list_set_vertex_constant_buffer(&commandList, &vertexConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 		kinc_g5_command_list_set_fragment_constant_buffer(&commandList, &fragmentConstantBuffer, constantBufferIndex * constantBufferSize, constantBufferSize);
 	}
+#endif
 }
 
 static void endDraw(bool compute) {
