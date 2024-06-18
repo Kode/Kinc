@@ -203,7 +203,7 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef KINC_WINDOWS
+#ifdef KINC_MICROSOFT
 #include <malloc.h>
 #include <memory.h>
 #endif
@@ -248,7 +248,7 @@ const char *iphonegetresourcepath(void);
 const char *macgetresourcepath(void);
 #endif
 
-#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP)
+#if defined(KINC_MICROSOFT)
 #include <kinc/backend/MiniWindows.h>
 #endif
 
@@ -258,7 +258,7 @@ const char *macgetresourcepath(void);
 
 static char *fileslocation = NULL;
 static bool (*file_reader_callback)(kinc_file_reader_t *reader, const char *filename, int type) = NULL;
-#ifdef KINC_WINDOWS
+#ifdef KINC_MICROSOFT
 static wchar_t wfilepath[1001];
 #endif
 
@@ -278,7 +278,7 @@ bool kinc_internal_file_reader_callback(kinc_file_reader_t *reader, const char *
 void kinc_internal_uwp_installed_location_path(char *path);
 #endif
 
-#if defined(KINC_WINDOWS)
+#if defined(KINC_MICROSOFT)
 static size_t kinc_libc_file_reader_read(kinc_file_reader_t *reader, void *data, size_t size) {
 	DWORD readBytes = 0;
 	if (ReadFile(reader->data, data, (DWORD)size, &readBytes, NULL)) {
@@ -348,7 +348,7 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 	}
 	strcat(filepath, filename);
 #endif
-#ifdef KINC_WINDOWS
+#ifdef KINC_MICROSOFT
 	if (type == KINC_FILE_TYPE_SAVE) {
 		strcpy(filepath, kinc_internal_save_path());
 		strcat(filepath, filename);
@@ -384,7 +384,7 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 	strcat(filepath, filename);
 #endif
 
-#ifdef KINC_WINDOWS
+#ifdef KINC_MICROSOFT
 	// Drive letter or network
 	bool isAbsolute = (filename[1] == ':' && filename[2] == '\\') || (filename[0] == '\\' && filename[1] == '\\');
 #else
@@ -400,7 +400,7 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 		strcat(filepath, filename);
 	}
 
-#ifdef KINC_WINDOWS
+#ifdef KINC_MICROSOFT
 	MultiByteToWideChar(CP_UTF8, 0, filepath, -1, wfilepath, 1000);
 	reader->data = CreateFileW(wfilepath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (reader->data == INVALID_HANDLE_VALUE) {
@@ -413,7 +413,7 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 	}
 #endif
 
-#ifdef KINC_WINDOWS
+#ifdef KINC_MICROSOFT
 	// TODO: make this 64-bit compliant
 	reader->size = (size_t)GetFileSize(reader->data, NULL);
 #else
