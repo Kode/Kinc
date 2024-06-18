@@ -493,6 +493,8 @@ void kinc_g4_set_blend_constant(float r, float g, float b, float a) {
 	device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA((int)(r * 255), (int)(g * 255), (int)(b * 255), (int)(a * 255)));
 }
 
+#ifndef KINC_KONG
+
 void kinc_g4_set_bool(kinc_g4_constant_location_t position, bool value) {
 	if (position.impl.shaderType == -1)
 		return;
@@ -708,6 +710,8 @@ void kinc_g4_set_matrix3(kinc_g4_constant_location_t location, kinc_matrix3x3_t 
 	else
 		device->SetPixelShaderConstantF(location.impl.reg.regindex, floats, 3);
 }
+
+#endif
 
 void kinc_g4_set_vertex_buffers(kinc_g4_vertex_buffer_t **buffers, int count) {
 	for (int i = 0; i < count; ++i) {
