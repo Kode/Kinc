@@ -80,7 +80,14 @@ static int formatByteSize(kinc_image_format_t format) {
 }
 
 void kinc_g5_internal_set_textures(kinc_g5_command_list_t *list) {
-	if (list->impl.currentRenderTargets[0] != NULL || list->impl.currentTextures[0] != NULL) {
+	int texture_count = 0;
+	for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
+		if ((list->impl.currentRenderTargets[i] != NULL || list->impl.currentTextures[i] != NULL) && list->impl.current_samplers[i] != NULL) {
+			texture_count += 1;
+		}
+	}
+
+	if (texture_count > 0) {
 		int srvStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		int samplerStep = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 
@@ -94,14 +101,14 @@ void kinc_g5_internal_set_textures(kinc_g5_command_list_t *list) {
 		samplerGpu.ptr += list->impl.heapIndex * samplerStep;
 
 		for (int i = 0; i < KINC_INTERNAL_G5_TEXTURE_COUNT; ++i) {
+			D3D12_CPU_DESCRIPTOR_HANDLE srvCpu = list->impl.srvHeap->GetCPUDescriptorHandleForHeapStart();
+			D3D12_CPU_DESCRIPTOR_HANDLE samplerCpu = list->impl.samplerHeap->GetCPUDescriptorHandleForHeapStart();
+			srvCpu.ptr += list->impl.heapIndex * srvStep;
+			samplerCpu.ptr += list->impl.heapIndex * samplerStep;
+			++list->impl.heapIndex;
+
 			if ((list->impl.currentRenderTargets[i] != NULL || list->impl.currentTextures[i] != NULL) && list->impl.current_samplers[i] != NULL) {
 				ID3D12DescriptorHeap *samplerDescriptorHeap = list->impl.current_samplers[i]->impl.sampler_heap;
-
-				D3D12_CPU_DESCRIPTOR_HANDLE srvCpu = list->impl.srvHeap->GetCPUDescriptorHandleForHeapStart();
-				D3D12_CPU_DESCRIPTOR_HANDLE samplerCpu = list->impl.samplerHeap->GetCPUDescriptorHandleForHeapStart();
-				srvCpu.ptr += list->impl.heapIndex * srvStep;
-				samplerCpu.ptr += list->impl.heapIndex * samplerStep;
-				++list->impl.heapIndex;
 
 				if (list->impl.currentRenderTargets[i] != NULL) {
 					bool is_depth = list->impl.currentRenderTargets[i]->impl.stage_depth == i;
@@ -118,6 +125,31 @@ void kinc_g5_internal_set_textures(kinc_g5_command_list_t *list) {
 					device->CopyDescriptorsSimple(1, samplerCpu, samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 					                              D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 				}
+			}
+			else {
+				D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+				ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
+				shaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+				shaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+				shaderResourceViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				shaderResourceViewDesc.Texture2D.MipLevels = 1;
+				shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+				shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+				device->CreateShaderResourceView(NULL, &shaderResourceViewDesc,
+				                                 srvCpu);
+
+				D3D12_SAMPLER_DESC samplerDesc;
+				ZeroMemory(&samplerDesc, sizeof(D3D12_SAMPLER_DESC));
+				samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+				samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+				samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+				samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+				samplerDesc.MinLOD = 0.0f;
+				samplerDesc.MaxLOD = 1.0f;
+				samplerDesc.MipLODBias = 0.0f;
+				samplerDesc.MaxAnisotropy = 1;
+				samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+				device->CreateSampler(&samplerDesc, samplerCpu);
 			}
 		}
 
