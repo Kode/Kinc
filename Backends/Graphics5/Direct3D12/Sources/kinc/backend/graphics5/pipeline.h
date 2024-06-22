@@ -14,12 +14,14 @@ struct ID3D12RootSignature;
 
 typedef struct {
 	struct ID3D12PipelineState *pso;
+#ifndef KINC_KONG
 #ifdef KINC_DXC
 	// struct ID3D12RootSignature *rootSignature;
 	int vertexConstantsSize;
 	int fragmentConstantsSize;
 #endif
 	int textures;
+#endif
 	// ID3D11InputLayout* inputLayout;
 	// ID3D11Buffer* fragmentConstantBuffer;
 	// ID3D11Buffer* vertexConstantBuffer;

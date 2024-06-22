@@ -161,10 +161,10 @@ void kinc_g5_command_list_render_target_to_texture_barrier(struct kinc_g5_comman
 void kinc_g5_command_list_set_vertex_constant_buffer(struct kinc_g5_command_list *list, kinc_g5_constant_buffer_t *buffer, int offset, size_t size) {
 	assert(list->impl.open);
 
-#ifdef KINC_DXC
 #ifdef KINC_KONG
 	list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
 #else
+#ifdef KINC_DXC
 	if (list->impl._currentPipeline->impl.vertexConstantsSize > 0) {
 		if (list->impl._currentPipeline->impl.textures > 0) {
 			list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
@@ -173,15 +173,18 @@ void kinc_g5_command_list_set_vertex_constant_buffer(struct kinc_g5_command_list
 			list->impl._commandList->SetGraphicsRootConstantBufferView(0, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
 		}
 	}
-#endif
 #else
 	list->impl._commandList->SetGraphicsRootConstantBufferView(2, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+#endif
 #endif
 }
 
 void kinc_g5_command_list_set_fragment_constant_buffer(struct kinc_g5_command_list *list, kinc_g5_constant_buffer_t *buffer, int offset, size_t size) {
 	assert(list->impl.open);
 
+#ifdef KINC_KONG
+	list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+#else
 #ifdef KINC_DXC
 	if (list->impl._currentPipeline->impl.fragmentConstantsSize > 0) {
 		list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
@@ -189,17 +192,22 @@ void kinc_g5_command_list_set_fragment_constant_buffer(struct kinc_g5_command_li
 #else
 	list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
 #endif
+#endif
 }
 
 void kinc_g5_command_list_set_compute_constant_buffer(struct kinc_g5_command_list *list, kinc_g5_constant_buffer_t *buffer, int offset, size_t size) {
 	assert(list->impl.open);
 
+#ifdef KINC_KONG
+	list->impl._commandList->SetComputeRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+#else
 #ifdef KINC_DXC
 	if (list->impl._currentPipeline->impl.fragmentConstantsSize > 0) {
 		list->impl._commandList->SetGraphicsRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
 	}
 #else
 	list->impl._commandList->SetComputeRootConstantBufferView(3, buffer->impl.constant_buffer->GetGPUVirtualAddress() + offset);
+#endif
 #endif
 }
 
