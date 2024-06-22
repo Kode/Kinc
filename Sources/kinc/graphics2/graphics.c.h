@@ -104,8 +104,6 @@ static float opacities[16];
 static uint8_t opacities_size;
 static int my_font_size;
 
-static void set_projection(void);
-
 void kinc_g2_init(void) {
 	transformations[0] = kinc_matrix3x3_identity();
 	transformations_size = 1;
@@ -121,7 +119,6 @@ void kinc_g2_init(void) {
 	// init_g2_text_painter();
 	// textPainter.fontSize = fontSize;
 	projection_matrix = kinc_matrix4x4_identity();
-	set_projection();
 
 	/*if (videoPipeline == null) {
 	    videoPipeline = createImagePipeline(createImageVertexStructure());
@@ -167,12 +164,7 @@ static kinc_matrix4x4_t orthogonal_projection(float left, float right, float bot
 	return m;
 }
 
-#define CANVAS_WIDTH 1024
-#define CANVAS_HEIGHT 768
-
-static void set_projection(void) {
-	int width = CANVAS_WIDTH;
-	int height = CANVAS_HEIGHT;
+static void set_projection(int width, int height) {
 	// if (Std.isOfType(canvas, Framebuffer)) {
 	projection_matrix = orthogonal_projection(0, (float)width, (float)height, 0, 0.1f, 1000.0f);
 
@@ -483,7 +475,7 @@ void kinc_g2_disable_scissor(void) {
 	// }
 }
 
-void kinc_g2_begin(bool clear /*= true*/, uint32_t clear_color) {
+void kinc_g2_begin(int width, int height, bool clear /*= true*/, uint32_t clear_color) {
 	/*if (current == NULL) {
 	    current = this;
 	}
@@ -496,7 +488,7 @@ void kinc_g2_begin(bool clear /*= true*/, uint32_t clear_color) {
 	if (clear) {
 		kinc_g2_clear(clear_color);
 	}
-	set_projection();
+	set_projection(width, height);
 }
 
 void kinc_g2_clear(uint32_t color) {

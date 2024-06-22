@@ -40,7 +40,7 @@ kinc_g2_image_scale_quality kinc_g2_get_mipmap_scale_quality(void);
 void kinc_g2_set_mipmap_scale_quality(kinc_g2_image_scale_quality value);
 void kinc_g2_scissor(int x, int y, int width, int height);
 void kinc_g2_disable_scissor(void);
-void kinc_g2_begin(bool clear /*= true*/, uint32_t clear_color);
+void kinc_g2_begin(int width, int height, bool clear /*= true*/, uint32_t clear_color);
 void kinc_g2_clear(uint32_t color);
 void kinc_g2_flush(void);
 void kinc_g2_end(void);
