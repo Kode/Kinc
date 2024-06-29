@@ -181,7 +181,7 @@ static void *buffer_malloc(size_t size) {
 		kinc_log(KINC_LOG_LEVEL_ERROR, "Not enough memory on image.c Buffer.");
 		return NULL;
 	}
-	memcpy(current, &size, sizeof(*current));
+	memcpy(current, &size, sizeof(size_t));
 	last_allocated_pointer = current + sizeof(size_t);
 	return current + sizeof(size_t);
 }
@@ -213,9 +213,11 @@ static void *buffer_realloc(void *p, size_t size) {
 
 static void buffer_free(void *p) {}
 
+#ifndef KINC_NO_STBI_BUFFER
 #define STBI_MALLOC(sz) buffer_malloc(sz)
 #define STBI_REALLOC(p, newsz) buffer_realloc(p, newsz)
 #define STBI_FREE(p) buffer_free(p)
+#endif
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
