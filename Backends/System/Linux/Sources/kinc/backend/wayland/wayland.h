@@ -93,6 +93,7 @@ struct kinc_wl_procs {
 extern struct kinc_wl_procs wl;
 
 #include <wayland-client-protocol.h>
+#include <wayland-generated/wayland-fractional-scale.h>
 #include <wayland-generated/wayland-pointer-constraint.h>
 #include <wayland-generated/wayland-relative-pointer.h>
 #include <wayland-generated/wayland-tablet.h>
@@ -150,25 +151,25 @@ enum kinc_wl_decoration_focus {
 
 #define KINC_WL_DECORATION_TOP_X 0
 #define KINC_WL_DECORATION_TOP_Y -(KINC_WL_DECORATION_TOP_HEIGHT)
-#define KINC_WL_DECORATION_TOP_WIDTH window->width
+#define KINC_WL_DECORATION_TOP_WIDTH window->surface_width
 #define KINC_WL_DECORATION_TOP_HEIGHT KINC_WL_DECORATION_WIDTH * 3
 
 #define KINC_WL_DECORATION_LEFT_X -10
 #define KINC_WL_DECORATION_LEFT_Y -(KINC_WL_DECORATION_TOP_HEIGHT)
 #define KINC_WL_DECORATION_LEFT_WIDTH KINC_WL_DECORATION_WIDTH
-#define KINC_WL_DECORATION_LEFT_HEIGHT window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT
+#define KINC_WL_DECORATION_LEFT_HEIGHT window->surface_height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT
 
-#define KINC_WL_DECORATION_RIGHT_X window->width
+#define KINC_WL_DECORATION_RIGHT_X window->surface_width
 #define KINC_WL_DECORATION_RIGHT_Y -(KINC_WL_DECORATION_TOP_HEIGHT)
 #define KINC_WL_DECORATION_RIGHT_WIDTH 10
-#define KINC_WL_DECORATION_RIGHT_HEIGHT window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT
+#define KINC_WL_DECORATION_RIGHT_HEIGHT window->surface_height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT
 
 #define KINC_WL_DECORATION_BOTTOM_X 0
-#define KINC_WL_DECORATION_BOTTOM_Y window->height
-#define KINC_WL_DECORATION_BOTTOM_WIDTH window->width
+#define KINC_WL_DECORATION_BOTTOM_Y window->surface_height
+#define KINC_WL_DECORATION_BOTTOM_WIDTH window->surface_width
 #define KINC_WL_DECORATION_BOTTOM_HEIGHT KINC_WL_DECORATION_WIDTH
 
-#define KINC_WL_DECORATION_CLOSE_X window->width - 10
+#define KINC_WL_DECORATION_CLOSE_X window->surface_width - 10
 #define KINC_WL_DECORATION_CLOSE_Y -20
 #define KINC_WL_DECORATION_CLOSE_WIDTH 9
 #define KINC_WL_DECORATION_CLOSE_HEIGHT 9
@@ -176,13 +177,21 @@ enum kinc_wl_decoration_focus {
 struct kinc_wl_window {
 	int display_index;
 	int window_id;
-	int width;
-	int height;
+	int surface_width;
+	int surface_height;
+
+	int buffer_width;
+	int buffer_height;
+
 	kinc_window_mode_t mode;
 	struct wl_surface *surface;
 	struct xdg_surface *xdg_surface;
 	struct xdg_toplevel *toplevel;
 	struct zxdg_toplevel_decoration_v1 *xdg_decoration;
+	struct wp_fractional_scale_v1 *fractional_scale;
+	struct wp_viewport *viewport;
+
+	uint32_t preferred_scale;
 
 	bool configured;
 
@@ -347,6 +356,7 @@ struct wayland_context {
 	struct zwp_tablet_manager_v2 *tablet_manager;
 	struct zwp_pointer_constraints_v1 *pointer_constraints;
 	struct zwp_relative_pointer_manager_v1 *relative_pointer_manager;
+	struct wp_fractional_scale_manager_v1 *fractional_scale_manager;
 	struct wl_cursor_theme *cursor_theme;
 	int cursor_size;
 	int num_windows;

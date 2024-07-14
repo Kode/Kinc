@@ -436,6 +436,7 @@ else if (platform === Platform.Linux || platform === Platform.FreeBSD) {
 			wl_protocol('unstable/tablet/tablet-unstable-v2.xml', 'wayland-tablet');
 			wl_protocol('unstable/pointer-constraints/pointer-constraints-unstable-v1.xml', 'wayland-pointer-constraint');
 			wl_protocol('unstable/relative-pointer/relative-pointer-unstable-v1.xml', 'wayland-relative-pointer');
+			wl_protocol('staging/fractional-scale/fractional-scale-v1.xml', 'wayland-fractional-scale');
 
 			if (good_wayland) {
 				let cfile = '#include "wayland-protocol.c.h"\n';

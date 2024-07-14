@@ -1,3 +1,5 @@
+#include "kinc/math/core.h"
+#include "wayland-generated/wayland-fractional-scale.h"
 #include "wayland.h"
 
 #include <kinc/input/pen.h>
@@ -280,7 +282,7 @@ void wl_pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_
 		case KINC_WL_DECORATION_FOCUS_BOTTOM:
 			if (x < 10)
 				cursor_name = "sw-resize";
-			else if (x > window->width + 10)
+			else if (x > window->surface_width + 10)
 				cursor_name = "se-resize";
 			else
 				cursor_name = "s-resize";
@@ -942,7 +944,7 @@ static const struct zwp_tablet_seat_v2_listener zwp_tablet_seat_v2_listener = {
 
 static void wl_registry_handle_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
 	if (strcmp(interface, wl_compositor_interface.name) == 0) {
-		wl_ctx.compositor = wl_registry_bind(wl_ctx.registry, name, &wl_compositor_interface, 4);
+		wl_ctx.compositor = wl_registry_bind(wl_ctx.registry, name, &wl_compositor_interface, kinc_mini(version, 6));
 	}
 	else if (strcmp(interface, wl_shm_interface.name) == 0) {
 		wl_ctx.shm = wl_registry_bind(registry, name, &wl_shm_interface, 1);
@@ -1012,6 +1014,8 @@ static void wl_registry_handle_global(void *data, struct wl_registry *registry, 
 	}
 	else if (strcmp(interface, zwp_relative_pointer_manager_v1_interface.name) == 0) {
 		wl_ctx.relative_pointer_manager = wl_registry_bind(registry, name, &zwp_relative_pointer_manager_v1_interface, 1);
+	} else if(strcmp(interface, wp_fractional_scale_manager_v1_interface.name) == 0) {
+		wl_ctx.fractional_scale_manager = wl_registry_bind(registry, name, &wp_fractional_scale_manager_v1_interface, 1);
 	}
 }
 

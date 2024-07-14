@@ -2,6 +2,7 @@
 
 #include <kinc/image.h>
 #include <kinc/window.h>
+#include <kinc/log.h>
 
 // for all that shared memory stuff later on
 #include <errno.h>
@@ -27,17 +28,17 @@ void kinc_wayland_destroy_decoration(struct kinc_wl_decoration *);
 void kinc_wayland_resize_decoration(struct kinc_wl_decoration *, int x, int y, int width, int height);
 static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *toplevel, int32_t width, int32_t height, struct wl_array *states) {
 	struct kinc_wl_window *window = data;
-	if ((width <= 0 || height <= 0) || (width == window->width + (KINC_WL_DECORATION_WIDTH * 2) &&
-	                                    height == window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT)) {
-		return;
-	}
-	if (window->decorations.server_side) {
-		window->width = width;
-		window->height = height;
-	}
-	else {
-		window->width = width - (KINC_WL_DECORATION_WIDTH * 2);
-		window->height = height - KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT;
+	if(width > 0 && height > 0) {
+		if (window->decorations.server_side) {
+			window->surface_width = width;
+			window->surface_height = height;
+		}
+		else {
+			window->surface_width = width - (KINC_WL_DECORATION_WIDTH * 2);
+			window->surface_height = height - KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT;
+		}
+		window->buffer_width = window->surface_width * window->preferred_scale / 120;
+		window->buffer_height = window->surface_height * window->preferred_scale / 120;
 	}
 
 	enum xdg_toplevel_state *state;
@@ -54,30 +55,41 @@ static void xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *tople
 			break;
 		}
 	}
-	kinc_internal_resize(window->window_id, window->width, window->height);
-	kinc_internal_call_resize_callback(window->window_id, window->width, window->height);
-	if (window->decorations.server_side) {
-		xdg_surface_set_window_geometry(window->xdg_surface, 0, 0, window->width, window->height);
-	}
-	else {
-		xdg_surface_set_window_geometry(window->xdg_surface, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_TOP_Y,
-		                                window->width + (KINC_WL_DECORATION_WIDTH * 2),
-		                                window->height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT);
-	}
+
+	if (window->surface_width > 0 && window->surface_height > 0) {
+		if (window->decorations.server_side) {
+			xdg_surface_set_window_geometry(window->xdg_surface, 0, 0, window->surface_width, window->surface_height);
+		}
+		else {
+			xdg_surface_set_window_geometry(window->xdg_surface, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_TOP_Y,
+			                                window->surface_width + (KINC_WL_DECORATION_WIDTH * 2),
+			                                window->surface_height + KINC_WL_DECORATION_TOP_HEIGHT + KINC_WL_DECORATION_BOTTOM_HEIGHT);
+		}
+		if (window->viewport) {
+			wp_viewport_set_source(window->viewport, 0, 0, wl_fixed_from_int(window->buffer_width), wl_fixed_from_int(window->buffer_height));
+			wp_viewport_set_destination(window->viewport, window->surface_width, window->surface_height);
+		}
+		else {
+			wl_surface_set_buffer_scale(window->surface, window->preferred_scale / 120);
+		}
+
+		kinc_internal_resize(window->window_id, window->buffer_width, window->buffer_height);
+		kinc_internal_call_resize_callback(window->window_id, window->buffer_width, window->buffer_height);
 #ifdef KINC_EGL
-	wl_egl_window_resize(window->egl_window, window->width, window->height, 0, 0);
+		wl_egl_window_resize(window->egl_window, window->buffer_width, window->buffer_height, 0, 0);
 #endif
 
-	kinc_wayland_resize_decoration(&window->decorations.top, KINC_WL_DECORATION_TOP_X, KINC_WL_DECORATION_TOP_Y, KINC_WL_DECORATION_TOP_WIDTH,
-	                               KINC_WL_DECORATION_TOP_HEIGHT);
-	kinc_wayland_resize_decoration(&window->decorations.left, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_LEFT_Y, KINC_WL_DECORATION_LEFT_WIDTH,
-	                               KINC_WL_DECORATION_LEFT_HEIGHT);
-	kinc_wayland_resize_decoration(&window->decorations.right, KINC_WL_DECORATION_RIGHT_X, KINC_WL_DECORATION_RIGHT_Y, KINC_WL_DECORATION_RIGHT_WIDTH,
-	                               KINC_WL_DECORATION_RIGHT_HEIGHT);
-	kinc_wayland_resize_decoration(&window->decorations.bottom, KINC_WL_DECORATION_BOTTOM_X, KINC_WL_DECORATION_BOTTOM_Y, KINC_WL_DECORATION_BOTTOM_WIDTH,
-	                               KINC_WL_DECORATION_BOTTOM_HEIGHT);
-	kinc_wayland_resize_decoration(&window->decorations.close, KINC_WL_DECORATION_CLOSE_X, KINC_WL_DECORATION_CLOSE_Y, KINC_WL_DECORATION_CLOSE_WIDTH,
-	                               KINC_WL_DECORATION_CLOSE_HEIGHT);
+		kinc_wayland_resize_decoration(&window->decorations.top, KINC_WL_DECORATION_TOP_X, KINC_WL_DECORATION_TOP_Y, KINC_WL_DECORATION_TOP_WIDTH,
+									KINC_WL_DECORATION_TOP_HEIGHT);
+		kinc_wayland_resize_decoration(&window->decorations.left, KINC_WL_DECORATION_LEFT_X, KINC_WL_DECORATION_LEFT_Y, KINC_WL_DECORATION_LEFT_WIDTH,
+									KINC_WL_DECORATION_LEFT_HEIGHT);
+		kinc_wayland_resize_decoration(&window->decorations.right, KINC_WL_DECORATION_RIGHT_X, KINC_WL_DECORATION_RIGHT_Y, KINC_WL_DECORATION_RIGHT_WIDTH,
+									KINC_WL_DECORATION_RIGHT_HEIGHT);
+		kinc_wayland_resize_decoration(&window->decorations.bottom, KINC_WL_DECORATION_BOTTOM_X, KINC_WL_DECORATION_BOTTOM_Y, KINC_WL_DECORATION_BOTTOM_WIDTH,
+									KINC_WL_DECORATION_BOTTOM_HEIGHT);
+		kinc_wayland_resize_decoration(&window->decorations.close, KINC_WL_DECORATION_CLOSE_X, KINC_WL_DECORATION_CLOSE_Y, KINC_WL_DECORATION_CLOSE_WIDTH,
+									KINC_WL_DECORATION_CLOSE_HEIGHT);
+	}
 }
 
 void kinc_wayland_window_destroy(int window_index);
@@ -301,9 +313,23 @@ void wl_surface_handle_enter(void *data, struct wl_surface *wl_surface, struct w
 
 void wl_surface_handle_leave(void *data, struct wl_surface *wl_surface, struct wl_output *output) {}
 
+static void wl_surface_handle_preferred_buffer_scale(void *data, struct wl_surface *wl_surface, int32_t scale) {
+	struct kinc_wl_window *window = wl_surface_get_user_data(wl_surface);
+	if (!wl_ctx.fractional_scale_manager) {
+		window->preferred_scale = scale * 120;
+	}
+}
+static void wl_surface_handle_preferred_buffer_transform(void *data, struct wl_surface *wl_surface, uint32_t transform) {}
+
 static const struct wl_surface_listener wl_surface_listener = {
     wl_surface_handle_enter,
     wl_surface_handle_leave,
+#ifdef WL_SURFACE_PREFERRED_BUFFER_SCALE_SINCE_VERSION
+    wl_surface_handle_preferred_buffer_scale,
+#endif
+#ifdef WL_SURFACE_PREFERRED_BUFFER_TRANSFORM_SINCE_VERSION
+    wl_surface_handle_preferred_buffer_transform,
+#endif
 };
 
 static const struct xdg_surface_listener xdg_surface_listener = {
@@ -319,6 +345,15 @@ static const struct zxdg_toplevel_decoration_v1_listener xdg_toplevel_decoration
     xdg_toplevel_decoration_configure,
 };
 
+static void wp_fractional_scale_v1_handle_preferred_scale(void *data, struct wp_fractional_scale_v1 *fractional_scale, uint32_t scale) {
+	struct kinc_wl_window *window = data;
+	window->preferred_scale = scale;
+}
+
+static const struct wp_fractional_scale_v1_listener wp_fractional_scale_v1_listener = {
+    wp_fractional_scale_v1_handle_preferred_scale,
+};
+
 void kinc_wayland_window_set_title(int window_index, const char *title);
 void kinc_wayland_window_change_mode(int window_index, kinc_window_mode_t mode);
 
@@ -331,25 +366,35 @@ int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_opti
 		}
 	}
 	if (window_index == -1) {
-		kinc_log(KINC_LOG_LEVEL_ERROR, "Too much windows (maximum is %i)", MAXIMUM_WINDOWS);
+		kinc_log(KINC_LOG_LEVEL_ERROR, "Too many windows (maximum is %i)", MAXIMUM_WINDOWS);
 		exit(1);
 	}
 	struct kinc_wl_window *window = &wl_ctx.windows[window_index];
 	window->window_id = window_index;
-	window->width = win->width;
-	window->height = win->height;
-	window->mode = KINC_WINDOW_MODE_WINDOW;
+	window->mode = -1;
+	window->preferred_scale = 120;
 	window->surface = wl_compositor_create_surface(wl_ctx.compositor);
 	wl_surface_set_user_data(window->surface, window);
 	wl_surface_add_listener(window->surface, &wl_surface_listener, NULL);
+
+	if (wl_ctx.viewporter) {
+		window->viewport = wp_viewporter_get_viewport(wl_ctx.viewporter, window->surface);
+	}
+
+	if (wl_ctx.fractional_scale_manager) {
+		if (!window->viewport) {
+			kinc_log(KINC_LOG_LEVEL_ERROR, "missing wp_viewport wayland extension");
+			exit(1);
+		}
+		window->fractional_scale = wp_fractional_scale_manager_v1_get_fractional_scale(wl_ctx.fractional_scale_manager, window->surface);
+		wp_fractional_scale_v1_add_listener(window->fractional_scale, &wp_fractional_scale_v1_listener, window);
+	}
 
 	window->xdg_surface = xdg_wm_base_get_xdg_surface(wl_ctx.xdg_wm_base, window->surface);
 	xdg_surface_add_listener(window->xdg_surface, &xdg_surface_listener, window);
 
 	window->toplevel = xdg_surface_get_toplevel(window->xdg_surface);
 	xdg_toplevel_add_listener(window->toplevel, &xdg_toplevel_listener, window);
-
-	kinc_wayland_window_set_title(window_index, win->title);
 
 	if (wl_ctx.decoration_manager) {
 		window->xdg_decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(wl_ctx.decoration_manager, window->toplevel);
@@ -360,20 +405,36 @@ int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_opti
 	}
 	else {
 		window->decorations.server_side = false;
-		kinc_wayland_create_decorations(window);
 	}
 
-#ifdef KINC_EGL
-	window->egl_window = wl_egl_window_create(window->surface, window->width, window->height);
-#endif
 	wl_surface_commit(window->surface);
-	kinc_wayland_window_change_mode(window_index, win->mode);
 	wl_ctx.num_windows++;
 
 	while (!window->configured) {
 		wl_display_roundtrip(wl_ctx.display);
 	}
 
+	kinc_wayland_window_set_title(window_index, win->title);
+	kinc_wayland_window_change_mode(window_index, win->mode);
+	window->surface_width = (win->width * 120) / window->preferred_scale;
+	window->surface_height = (win->height * 120) / window->preferred_scale;
+	window->buffer_width = win->width;
+	window->buffer_height = win->height;
+	if (window->viewport) {
+		wp_viewport_set_source(window->viewport, 0, 0, wl_fixed_from_int(window->buffer_width), wl_fixed_from_int(window->buffer_height));
+		wp_viewport_set_destination(window->viewport, window->surface_width, window->surface_height);
+	} else {
+		wl_surface_set_buffer_scale(window->surface, window->preferred_scale / 120);
+	}
+	xdg_surface_set_window_geometry(window->xdg_surface, 0, 0, window->surface_width, window->surface_height);
+	if(!window->decorations.server_side) {
+		kinc_wayland_create_decorations(window);
+	}
+
+#ifdef KINC_EGL
+	window->egl_window = wl_egl_window_create(window->surface, window->buffer_width, window->buffer_height);
+#endif
+	wl_surface_commit(window->surface);
 	return window_index;
 }
 
@@ -413,11 +474,11 @@ void kinc_wayland_window_move(int window_index, int x, int y) {
 }
 
 int kinc_wayland_window_width(int window_index) {
-	return wl_ctx.windows[window_index].width;
+	return wl_ctx.windows[window_index].buffer_width;
 }
 
 int kinc_wayland_window_height(int window_index) {
-	return wl_ctx.windows[window_index].height;
+	return wl_ctx.windows[window_index].buffer_height;
 }
 
 void kinc_wayland_window_resize(int window_index, int width, int height) {
