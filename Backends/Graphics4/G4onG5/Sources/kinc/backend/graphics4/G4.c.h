@@ -340,6 +340,7 @@ void kinc_g4_begin(int window) {
 
 	bool resized = windows[window].resized;
 	if (resized) {
+		kinc_g5_command_list_wait_for_execution_to_finish(&commandList);
 		for (int i = 0; i < bufferCount; ++i) {
 			kinc_g5_render_target_destroy(&windows[current_window].framebuffers[i]);
 		}
