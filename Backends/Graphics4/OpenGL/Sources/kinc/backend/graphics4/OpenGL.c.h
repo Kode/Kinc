@@ -720,12 +720,7 @@ static bool scissor_on = false;
 void kinc_g4_scissor(int x, int y, int width, int height) {
 	scissor_on = true;
 	glEnable(GL_SCISSOR_TEST);
-	if (renderToBackbuffer) {
-		glScissor(x, _renderTargetHeight - y - height, width, height);
-	}
-	else {
-		glScissor(x, y, width, height);
-	}
+	glScissor(x, _renderTargetHeight - y - height, width, height);
 }
 
 void kinc_g4_disable_scissor() {
