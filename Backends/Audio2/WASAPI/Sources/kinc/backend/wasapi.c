@@ -163,6 +163,18 @@ static bool initDefaultDevice() {
 	}
 }
 
+static void submitEmptyBuffer(unsigned frames) {
+	BYTE *buffer = NULL;
+	HRESULT result = renderClient->lpVtbl->GetBuffer(renderClient, frames, &buffer);
+	if (FAILED(result)) {
+		return;
+	}
+
+	memset(buffer, 0, frames * format->nBlockAlign);
+
+	result = renderClient->lpVtbl->ReleaseBuffer(renderClient, frames, 0);
+}
+
 static void restartAudio() {
 	initDefaultDevice();
 	submitEmptyBuffer(bufferFrames);
@@ -189,18 +201,6 @@ static void copyFloatSample(float *left, float *right) {
 	}
 	*left = left_value;
 	*right = right_value;
-}
-
-static void submitEmptyBuffer(unsigned frames) {
-	BYTE *buffer = NULL;
-	HRESULT result = renderClient->lpVtbl->GetBuffer(renderClient, frames, &buffer);
-	if (FAILED(result)) {
-		return;
-	}
-
-	memset(buffer, 0, frames * format->nBlockAlign);
-
-	result = renderClient->lpVtbl->ReleaseBuffer(renderClient, frames, 0);
 }
 
 static void submitBuffer(unsigned frames) {
