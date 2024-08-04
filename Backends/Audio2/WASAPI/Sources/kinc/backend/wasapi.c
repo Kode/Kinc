@@ -163,6 +163,12 @@ static bool initDefaultDevice() {
 	}
 }
 
+static void restartAudio() {
+	initDefaultDevice();
+	submitEmptyBuffer(bufferFrames);
+	audioClient->lpVtbl->Start(audioClient);
+}
+
 static void copyS16Sample(int16_t *left, int16_t *right) {
 	float left_value = *(float *)&a2_buffer.channels[0][a2_buffer.read_location];
 	float right_value = *(float *)&a2_buffer.channels[1][a2_buffer.read_location];
@@ -202,9 +208,7 @@ static void submitBuffer(unsigned frames) {
 	HRESULT result = renderClient->lpVtbl->GetBuffer(renderClient, frames, &buffer);
 	if (FAILED(result)) {
 		if (result == AUDCLNT_E_DEVICE_INVALIDATED) {
-			initDefaultDevice();
-			submitEmptyBuffer(bufferFrames);
-			audioClient->lpVtbl->Start(audioClient);
+			restartAudio();
 		}
 		return;
 	}
@@ -228,9 +232,7 @@ static void submitBuffer(unsigned frames) {
 	result = renderClient->lpVtbl->ReleaseBuffer(renderClient, frames, 0);
 	if (FAILED(result)) {
 		if (result == AUDCLNT_E_DEVICE_INVALIDATED) {
-			initDefaultDevice();
-			submitEmptyBuffer(bufferFrames);
-			audioClient->lpVtbl->Start(audioClient);
+			restartAudio();
 		}
 	}
 }
@@ -244,9 +246,7 @@ static DWORD WINAPI audioThread(LPVOID ignored) {
 		HRESULT result = audioClient->lpVtbl->GetCurrentPadding(audioClient, &padding);
 		if (FAILED(result)) {
 			if (result == AUDCLNT_E_DEVICE_INVALIDATED) {
-				initDefaultDevice();
-				submitEmptyBuffer(bufferFrames);
-				audioClient->lpVtbl->Start(audioClient);
+				restartAudio();
 			}
 			continue;
 		}
