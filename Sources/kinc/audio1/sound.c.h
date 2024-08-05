@@ -201,7 +201,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 			kinc_affirm(false);
 		}
 	}
-	sound->sample_rate_pos = 44100 / (float)sound->samples_per_second;
+	sound->sample_rate_pos = kinc_a2_samples_per_second() / (float)sound->samples_per_second;
 	free(data);
 
 	return sound;

@@ -4,7 +4,7 @@
 
 struct kinc_a1_channel {
 	kinc_a1_sound_t *sound;
-	float position;
+	double position;
 	bool loop;
 	volatile float volume;
 	float pitch;
