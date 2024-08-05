@@ -272,7 +272,7 @@ $(function() {
 <div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;            <a class="code" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(<span class="keyword">false</span>);</div>
 <div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        }</div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    }</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    sound-&gt;sample_rate_pos = 44100 / (float)sound-&gt;samples_per_second;</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    sound-&gt;sample_rate_pos = <a class="code" href="audio2_2audio_8h.html#a3662cae1ff8846326589cb97f4ae94e8">kinc_a2_samples_per_second</a>() / (float)sound-&gt;samples_per_second;</div>
 <div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    free(data);</div>
 <div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160; </div>
 <div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordflow">return</span> sound;</div>
@@ -294,6 +294,7 @@ $(function() {
 <div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    sound-&gt;volume = value;</div>
 <div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;}</div>
 <div class="ttc" id="aaudio2_2audio_8h_html"><div class="ttname"><a href="audio2_2audio_8h.html">audio.h</a></div><div class="ttdoc">Audio2 is a low-level audio-API that allows you to directly provide a stream of audio-samples.</div></div>
+<div class="ttc" id="aaudio2_2audio_8h_html_a3662cae1ff8846326589cb97f4ae94e8"><div class="ttname"><a href="audio2_2audio_8h.html#a3662cae1ff8846326589cb97f4ae94e8">kinc_a2_samples_per_second</a></div><div class="ttdeci">KINC_FUNC uint32_t kinc_a2_samples_per_second(void)</div><div class="ttdoc">The current sample-rate of the system.</div></div>
 <div class="ttc" id="aerror_8h_html"><div class="ttname"><a href="error_8h.html">error.h</a></div><div class="ttdoc">Contains functionality to stop the program in case of an error and create a user-visible error messag...</div></div>
 <div class="ttc" id="aerror_8h_html_a2d847867382dad8cec8995ea337766c9"><div class="ttname"><a href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a></div><div class="ttdeci">KINC_FUNC void kinc_affirm(bool condition)</div><div class="ttdoc">Exits the program when a condition is untrue and shows a generic error message.</div></div>
 <div class="ttc" id="afilereader_8h_html"><div class="ttname"><a href="filereader_8h.html">filereader.h</a></div><div class="ttdoc">Provides an API very similar to fread and friends but handles the intricacies of where files are actu...</div></div>
