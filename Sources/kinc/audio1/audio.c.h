@@ -164,7 +164,7 @@ kinc_a1_channel_t *kinc_a1_play_sound(kinc_a1_sound_t *sound, bool loop, float p
 				channels[i].position = 0;
 				channels[i].loop = loop;
 				channels[i].pitch = pitch;
-				channels[i].volume = sound->volume;
+				channels[i].volume = 1.0f;
 				channel = &channels[i];
 				break;
 			}
