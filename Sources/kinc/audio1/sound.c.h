@@ -127,6 +127,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 
 		int channels, sample_rate;
 		int samples = stb_vorbis_decode_memory(filedata, (int)kinc_file_reader_size(&file), &channels, &sample_rate, (short **)&data);
+		kinc_affirm(samples > 0);
 		sound->channel_count = (uint8_t)channels;
 		sound->samples_per_second = (uint32_t)sample_rate;
 		sound->size = samples * 2 * sound->channel_count;
