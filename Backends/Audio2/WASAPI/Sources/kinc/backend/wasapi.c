@@ -75,7 +75,6 @@ static IMMDevice *device;
 static IAudioClient *audioClient = NULL;
 static IAudioRenderClient *renderClient = NULL;
 static HANDLE bufferEndEvent = 0;
-static HANDLE audioProcessingDoneEvent;
 static UINT32 bufferFrames;
 static WAVEFORMATEX requestedFormat;
 static WAVEFORMATEX *closestFormat;
@@ -240,7 +239,7 @@ static void submitBuffer(unsigned frames) {
 static DWORD WINAPI audioThread(LPVOID ignored) {
 	submitBuffer(bufferFrames);
 	audioClient->lpVtbl->Start(audioClient);
-	while (WAIT_OBJECT_0 != WaitForSingleObject(audioProcessingDoneEvent, 0)) {
+	while (1) {
 		WaitForSingleObject(bufferEndEvent, INFINITE);
 		UINT32 padding = 0;
 		HRESULT result = audioClient->lpVtbl->GetCurrentPadding(audioClient, &padding);
@@ -274,9 +273,6 @@ void kinc_a2_init() {
 	a2_buffer.channel_count = 2;
 	a2_buffer.channels[0] = (float *)malloc(a2_buffer.data_size * sizeof(float));
 	a2_buffer.channels[1] = (float *)malloc(a2_buffer.data_size * sizeof(float));
-
-	audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
-	kinc_affirm(audioProcessingDoneEvent != 0);
 
 	kinc_windows_co_initialize();
 	kinc_microsoft_affirm(CoCreateInstance(&CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, &IID_IMMDeviceEnumerator, (void **)&deviceEnumerator));

@@ -45,7 +45,6 @@ namespace {
 	IAudioClient *audioClient = NULL;
 	IAudioRenderClient *renderClient = NULL;
 	HANDLE bufferEndEvent = 0;
-	HANDLE audioProcessingDoneEvent;
 	UINT32 bufferFrames;
 	WAVEFORMATEX requestedFormat;
 	WAVEFORMATEX *closestFormat;
@@ -229,7 +228,7 @@ namespace {
 	void audioThread(LPVOID) {
 		submitBuffer(bufferFrames);
 		audioClient->Start();
-		while (WAIT_OBJECT_0 != WaitForSingleObject(audioProcessingDoneEvent, 0)) {
+		while (true) {
 			WaitForSingleObject(bufferEndEvent, INFINITE);
 			UINT32 padding = 0;
 			HRESULT result = audioClient->GetCurrentPadding(&padding);
@@ -268,9 +267,6 @@ void kinc_a2_init() {
 	a2_buffer.channel_count = 2;
 	a2_buffer.channels[0] = (float *)malloc(a2_buffer.data_size * sizeof(float));
 	a2_buffer.channels[1] = (float *)malloc(a2_buffer.data_size * sizeof(float));
-
-	audioProcessingDoneEvent = CreateEvent(0, FALSE, FALSE, 0);
-	kinc_affirm(audioProcessingDoneEvent != 0);
 
 #ifdef KINC_WINDOWSAPP
 	renderer = Make<AudioRenderer>();
