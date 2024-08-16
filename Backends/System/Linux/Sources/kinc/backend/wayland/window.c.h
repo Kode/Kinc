@@ -357,6 +357,10 @@ static const struct wp_fractional_scale_v1_listener wp_fractional_scale_v1_liste
 void kinc_wayland_window_set_title(int window_index, const char *title);
 void kinc_wayland_window_change_mode(int window_index, kinc_window_mode_t mode);
 
+#ifndef KINC_WAYLAND_APP_ID
+#define KINC_WAYLAND_APP_ID "_KincApplication"
+#endif
+
 int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *frame) {
 	int window_index = -1;
 	for (int i = 0; i < MAXIMUM_WINDOWS; i++) {
@@ -406,6 +410,8 @@ int kinc_wayland_window_create(kinc_window_options_t *win, kinc_framebuffer_opti
 	else {
 		window->decorations.server_side = false;
 	}
+
+	xdg_toplevel_set_app_id(window->toplevel, KINC_WAYLAND_APP_ID);
 
 	wl_surface_commit(window->surface);
 	wl_ctx.num_windows++;
