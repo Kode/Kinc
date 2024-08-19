@@ -48,6 +48,13 @@ void kinc_g5_constant_buffer_init(kinc_g5_constant_buffer_t *buffer, int size) {
 	createUniformBuffer(&buffer->impl.buf, &buffer->impl.mem_alloc, &buffer->impl.mem, &buffer->impl.buffer_info, size);
 
 	// buffer hack
+	if (vk_ctx.vertex_uniform_buffer != NULL && vk_ctx.fragment_uniform_buffer != NULL && vk_ctx.compute_uniform_buffer != NULL) {
+		// allow writing the buffers again after G4onG5 wrote them
+		vk_ctx.vertex_uniform_buffer = NULL;
+		vk_ctx.fragment_uniform_buffer = NULL;
+		vk_ctx.compute_uniform_buffer = NULL;
+	}
+
 	if (vk_ctx.vertex_uniform_buffer == NULL) {
 		vk_ctx.vertex_uniform_buffer = &buffer->impl.buf;
 	}
