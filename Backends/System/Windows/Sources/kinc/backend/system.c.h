@@ -52,7 +52,12 @@ static GetPointerPenInfoType MyGetPointerPenInfo = NULL;
 typedef BOOL(WINAPI *EnableNonClientDpiScalingType)(HWND hwnd);
 static EnableNonClientDpiScalingType MyEnableNonClientDpiScaling = NULL;
 
+#if !defined(KINC_DIRECT3D9) && !defined(KINC_DIRECT3D11) && !defined(KINC_DIRECT3D12)
+#define HANDLE_ALT_ENTER
+#endif
+
 #define MAX_TOUCH_POINTS 10
+#define MAX_KEYS 256
 
 #define KINC_DINPUT_MAX_COUNT 8
 
@@ -64,8 +69,12 @@ struct touchpoint {
 
 static struct touchpoint touchPoints[MAX_TOUCH_POINTS];
 static int mouseX, mouseY;
-static bool keyPressed[256];
-static int keyTranslated[256]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
+static bool keyPressed[MAX_KEYS];
+static int keyTranslated[MAX_KEYS]; // http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
+static bool controlDown = false;
+#ifdef HANDLE_ALT_ENTER
+static bool altDown = false;
+#endif
 
 static int GetTouchIndex(int dwID) {
 	for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
@@ -102,7 +111,7 @@ static void ReleaseTouchIndex(int dwID) {
 }
 
 static void initKeyTranslation() {
-	for (int i = 0; i < 256; ++i)
+	for (int i = 0; i < MAX_KEYS; ++i)
 		keyTranslated[i] = KINC_KEY_UNKNOWN;
 
 	keyTranslated[VK_BACK] = KINC_KEY_BACKSPACE;
@@ -278,6 +287,111 @@ static void initKeyTranslation() {
 	// keyTranslated[VK_OEM_CLEAR
 }
 
+static void onKeyDown(HWND hWnd, WPARAM wParam) {
+	if (!keyPressed[wParam]) {
+		keyPressed[wParam] = true;
+
+		if (keyTranslated[wParam] == KINC_KEY_CONTROL) {
+			controlDown = true;
+		}
+#ifdef HANDLE_ALT_ENTER
+		else if (keyTranslated[wParam] == KINC_KEY_ALT) {
+			altDown = true;
+		}
+#endif
+		else {
+			if (controlDown && keyTranslated[wParam] == KINC_KEY_X) {
+				char *text = kinc_internal_cut_callback();
+				if (text != NULL) {
+					wchar_t wtext[4096];
+					MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
+					OpenClipboard(hWnd);
+					EmptyClipboard();
+					size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+					HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
+					void *data = GlobalLock(handle);
+					memcpy(data, wtext, size);
+					GlobalUnlock(handle);
+					SetClipboardData(CF_UNICODETEXT, handle);
+					CloseClipboard();
+				}
+			}
+
+			if (controlDown && keyTranslated[wParam] == KINC_KEY_C) {
+				char *text = kinc_internal_copy_callback();
+				if (text != NULL) {
+					wchar_t wtext[4096];
+					MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
+					OpenClipboard(hWnd);
+					EmptyClipboard();
+					size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
+					HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
+					void *data = GlobalLock(handle);
+					memcpy(data, wtext, size);
+					GlobalUnlock(handle);
+					SetClipboardData(CF_UNICODETEXT, handle);
+					CloseClipboard();
+				}
+			}
+
+			if (controlDown && keyTranslated[wParam] == KINC_KEY_V) {
+				if (IsClipboardFormatAvailable(CF_UNICODETEXT)) {
+					OpenClipboard(hWnd);
+					HANDLE handle = GetClipboardData(CF_UNICODETEXT);
+					if (handle != NULL) {
+						wchar_t *wtext = (wchar_t *)GlobalLock(handle);
+						if (wtext != NULL) {
+							char text[4096];
+							WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, NULL, NULL);
+							kinc_internal_paste_callback(text);
+							GlobalUnlock(handle);
+						}
+					}
+					CloseClipboard();
+				}
+			}
+
+#ifdef HANDLE_ALT_ENTER
+			if (altDown && keyTranslated[wParam] == KINC_KEY_RETURN) {
+				if (kinc_window_get_mode(0) == KINC_WINDOW_MODE_WINDOW) {
+					last_window_width = kinc_window_width(0);
+					last_window_height = kinc_window_height(0);
+					last_window_x = kinc_window_x(0);
+					last_window_y = kinc_window_y(0);
+					kinc_window_change_mode(0, KINC_WINDOW_MODE_FULLSCREEN);
+				}
+				else {
+					kinc_window_change_mode(0, KINC_WINDOW_MODE_WINDOW);
+					if (last_window_width > 0 && last_window_height > 0) {
+						kinc_window_resize(0, last_window_width, last_window_height);
+					}
+					if (last_window_x > INT_MIN && last_window_y > INT_MIN) {
+						kinc_window_move(0, last_window_x, last_window_y);
+					}
+				}
+			}
+#endif
+		}
+	}
+
+	kinc_internal_keyboard_trigger_key_down(keyTranslated[wParam]);
+}
+
+static void onKeyUp(HWND hWnd, WPARAM wParam) {
+	keyPressed[wParam] = false;
+
+	if (keyTranslated[wParam] == KINC_KEY_CONTROL) {
+		controlDown = false;
+	}
+#ifdef HANDLE_ALT_ENTER
+	if (keyTranslated[wParam] == KINC_KEY_ALT) {
+		altDown = false;
+	}
+#endif
+
+	kinc_internal_keyboard_trigger_key_up(keyTranslated[wParam]);
+}
+
 static bool detectGamepad = true;
 static bool gamepadFound = false;
 static unsigned r = 0;
@@ -289,10 +403,6 @@ static wchar_t toUnicode(WPARAM wParam, LPARAM lParam) {
 	ToUnicode((UINT)wParam, (lParam >> 8) & 0xFFFFFF00, state, buffer, 10, 0);
 	return buffer[0];
 }
-
-#if !defined(KINC_DIRECT3D9) && !defined(KINC_DIRECT3D11) && !defined(KINC_DIRECT3D12)
-#define HANDLE_ALT_ENTER
-#endif
 
 static bool cursors_initialized = false;
 static int cursor = 0;
@@ -311,10 +421,6 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 	DWORD pointerId;
 	POINTER_INFO pointerInfo = {0};
 	POINTER_PEN_INFO penInfo = {0};
-	static bool controlDown = false;
-#ifdef HANDLE_ALT_ENTER
-	static bool altDown = false;
-#endif
 	static int last_window_width = -1;
 	static int last_window_height = -1;
 	static int last_window_x = INT_MIN;
@@ -552,107 +658,11 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 	} break;
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
-		if (!keyPressed[wParam]) {
-			keyPressed[wParam] = true;
-
-			if (keyTranslated[wParam] == KINC_KEY_CONTROL) {
-				controlDown = true;
-			}
-#ifdef HANDLE_ALT_ENTER
-			else if (keyTranslated[wParam] == KINC_KEY_ALT) {
-				altDown = true;
-			}
-#endif
-			else {
-				if (controlDown && keyTranslated[wParam] == KINC_KEY_X) {
-					char *text = kinc_internal_cut_callback();
-					if (text != NULL) {
-						wchar_t wtext[4096];
-						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
-						OpenClipboard(hWnd);
-						EmptyClipboard();
-						size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
-						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
-						void *data = GlobalLock(handle);
-						memcpy(data, wtext, size);
-						GlobalUnlock(handle);
-						SetClipboardData(CF_UNICODETEXT, handle);
-						CloseClipboard();
-					}
-				}
-
-				if (controlDown && keyTranslated[wParam] == KINC_KEY_C) {
-					char *text = kinc_internal_copy_callback();
-					if (text != NULL) {
-						wchar_t wtext[4096];
-						MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, 4096);
-						OpenClipboard(hWnd);
-						EmptyClipboard();
-						size_t size = (wcslen(wtext) + 1) * sizeof(wchar_t);
-						HANDLE handle = GlobalAlloc(GMEM_MOVEABLE, size);
-						void *data = GlobalLock(handle);
-						memcpy(data, wtext, size);
-						GlobalUnlock(handle);
-						SetClipboardData(CF_UNICODETEXT, handle);
-						CloseClipboard();
-					}
-				}
-
-				if (controlDown && keyTranslated[wParam] == KINC_KEY_V) {
-					if (IsClipboardFormatAvailable(CF_UNICODETEXT)) {
-						OpenClipboard(hWnd);
-						HANDLE handle = GetClipboardData(CF_UNICODETEXT);
-						if (handle != NULL) {
-							wchar_t *wtext = (wchar_t *)GlobalLock(handle);
-							if (wtext != NULL) {
-								char text[4096];
-								WideCharToMultiByte(CP_UTF8, 0, wtext, -1, text, 4096, NULL, NULL);
-								kinc_internal_paste_callback(text);
-								GlobalUnlock(handle);
-							}
-						}
-						CloseClipboard();
-					}
-				}
-
-#ifdef HANDLE_ALT_ENTER
-				if (altDown && keyTranslated[wParam] == KINC_KEY_RETURN) {
-					if (kinc_window_get_mode(0) == KINC_WINDOW_MODE_WINDOW) {
-						last_window_width = kinc_window_width(0);
-						last_window_height = kinc_window_height(0);
-						last_window_x = kinc_window_x(0);
-						last_window_y = kinc_window_y(0);
-						kinc_window_change_mode(0, KINC_WINDOW_MODE_FULLSCREEN);
-					}
-					else {
-						kinc_window_change_mode(0, KINC_WINDOW_MODE_WINDOW);
-						if (last_window_width > 0 && last_window_height > 0) {
-							kinc_window_resize(0, last_window_width, last_window_height);
-						}
-						if (last_window_x > INT_MIN && last_window_y > INT_MIN) {
-							kinc_window_move(0, last_window_x, last_window_y);
-						}
-					}
-				}
-#endif
-			}
-		}
-		kinc_internal_keyboard_trigger_key_down(keyTranslated[wParam]);
+		onKeyDown(hWnd, wParam);
 		break;
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
-		keyPressed[wParam] = false;
-
-		if (keyTranslated[wParam] == KINC_KEY_CONTROL) {
-			controlDown = false;
-		}
-#ifdef HANDLE_ALT_ENTER
-		if (keyTranslated[wParam] == KINC_KEY_ALT) {
-			altDown = false;
-		}
-#endif
-
-		kinc_internal_keyboard_trigger_key_up(keyTranslated[wParam]);
+		onKeyUp(hWnd, wParam);
 		break;
 	case WM_CHAR:
 		switch (wParam) {
@@ -1378,7 +1388,7 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	MyGetPointerPenInfo = (GetPointerPenInfoType)GetProcAddress(user32, "GetPointerPenInfo");
 	MyEnableNonClientDpiScaling = (EnableNonClientDpiScalingType)GetProcAddress(user32, "EnableNonClientDpiScaling");
 	initKeyTranslation();
-	for (int i = 0; i < 256; ++i) {
+	for (int i = 0; i < MAX_KEYS; ++i) {
 		keyPressed[i] = false;
 	}
 
@@ -1392,10 +1402,6 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 
 	QueryPerformanceCounter(&startCount);
 	QueryPerformanceFrequency(&frequency);
-
-	for (int i = 0; i < 256; ++i) {
-		keyPressed[i] = false;
-	}
 
 	// Kore::System::_init(name, width, height, &win, &frame);
 	kinc_set_application_name(name);
