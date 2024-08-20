@@ -475,6 +475,13 @@ LRESULT WINAPI KoreWindowsMessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, L
 		else {
 			kinc_internal_mouse_window_deactivated(kinc_windows_window_index_from_hwnd(hWnd));
 			kinc_internal_background_callback();
+			// Release all keys because the client app will not see the actual key release events
+			for (int i = 0; i < MAX_KEYS; ++i) {
+				if (keyPressed[i]) {
+					onKeyUp(hWnd, i);
+				}
+			}
+			controlDown = false;
 #ifdef HANDLE_ALT_ENTER
 			altDown = false;
 #endif
