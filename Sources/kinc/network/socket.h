@@ -222,7 +222,7 @@ static int resolveAddress(const char *url, int port, struct addrinfo **result) {
 }
 #endif
 
-KINC_FUNC bool kinc_socket_bind(kinc_socket_t *sock) {
+bool kinc_socket_bind(kinc_socket_t *sock) {
 #if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)
 	struct sockaddr_in address;
 	address.sin_family = sock->family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6;
@@ -238,7 +238,7 @@ KINC_FUNC bool kinc_socket_bind(kinc_socket_t *sock) {
 #endif
 }
 
-KINC_FUNC void kinc_socket_options_set_defaults(kinc_socket_options_t *options) {
+void kinc_socket_options_set_defaults(kinc_socket_options_t *options) {
 	options->non_blocking = true;
 	options->broadcast = false;
 	options->tcp_no_delay = false;
