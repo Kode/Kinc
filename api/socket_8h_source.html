@@ -242,7 +242,7 @@ $(function() {
 <div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;}</div>
 <div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160; </div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;KINC_FUNC <span class="keywordtype">bool</span> kinc_socket_bind(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock) {</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;<span class="keywordtype">bool</span> kinc_socket_bind(<a class="code" href="structkinc__socket.html">kinc_socket_t</a> *sock) {</div>
 <div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="preprocessor">#if defined(KINC_WINDOWS) || defined(KINC_WINDOWSAPP) || defined(KINC_POSIX)</span></div>
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="keyword">struct </span>sockaddr_in address;</div>
 <div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    address.sin_family = sock-&gt;family == KINC_SOCKET_FAMILY_IP4 ? AF_INET : AF_INET6;</div>
@@ -258,7 +258,7 @@ $(function() {
 <div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;}</div>
 <div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160; </div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;KINC_FUNC <span class="keywordtype">void</span> <a class="code" href="socket_8h.html#a2629b091db6348f829f465565d719e36">kinc_socket_options_set_defaults</a>(<a class="code" href="structkinc__socket__options.html">kinc_socket_options_t</a> *options) {</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="keywordtype">void</span> <a class="code" href="socket_8h.html#a2629b091db6348f829f465565d719e36">kinc_socket_options_set_defaults</a>(<a class="code" href="structkinc__socket__options.html">kinc_socket_options_t</a> *options) {</div>
 <div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    options-&gt;non_blocking = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    options-&gt;broadcast = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    options-&gt;tcp_no_delay = <span class="keyword">false</span>;</div>
