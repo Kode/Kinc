@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #define KOPE_DIRECT3D12
-#define KOPE_VULKAN
+// #define KOPE_VULKAN
 
 typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_api;
 

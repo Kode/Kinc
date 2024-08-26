@@ -6,16 +6,20 @@
 #include "api.h"
 
 #ifdef KOPE_DIRECT3D12
-#include <kope/direct3d12/device.h>
+#include <kope/direct3d12/device_structs.h>
 #endif
 
 #ifdef KOPE_VULKAN
-#include <kope/vulkan/device.h>
+#include <kope/vulkan/device_structs.h>
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct kope_g5_device_wishlist {
+	int nothing;
+} kope_g5_device_wishlist;
 
 typedef struct kope_g5_device {
 	union {
@@ -23,7 +27,7 @@ typedef struct kope_g5_device {
 	};
 } kope_g5_device;
 
-KOPE_FUNC void kope_g5_device_create(kope_g5_device *device);
+KOPE_FUNC void kope_g5_device_create(kope_g5_device *device, kope_g5_device_wishlist wishlist);
 
 KOPE_FUNC void kope_g5_device_destroy(kope_g5_device *device);
 
