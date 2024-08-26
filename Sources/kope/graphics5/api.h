@@ -15,8 +15,10 @@ typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_
 #if defined(KOPE_VULKAN)
 
 #define KOPE_G5_IMPL(name)                                                                                                                                     \
-	kope_d3d12_##name d3d12;                                                                                                                                   \
-	kope_vulkan_##name vulkan
+	union {                                                                                                                                                    \
+		kope_d3d12_##name d3d12;                                                                                                                               \
+		kope_vulkan_##name vulkan;                                                                                                                             \
+	}
 #define KOPE_G5_CALL(name)                                                                                                                                     \
 	switch (selected_api) {                                                                                                                                    \
 	case KOPE_G5_API_DIRECT3D12:                                                                                                                               \

@@ -13,6 +13,8 @@
 #include <kope/vulkan/device_structs.h>
 #endif
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,9 +24,7 @@ typedef struct kope_g5_device_wishlist {
 } kope_g5_device_wishlist;
 
 typedef struct kope_g5_device {
-	union {
-		KOPE_G5_IMPL(device);
-	};
+	KOPE_G5_IMPL(device);
 } kope_g5_device;
 
 KOPE_FUNC void kope_g5_device_create(kope_g5_device *device, kope_g5_device_wishlist wishlist);
@@ -32,6 +32,33 @@ KOPE_FUNC void kope_g5_device_create(kope_g5_device *device, kope_g5_device_wish
 KOPE_FUNC void kope_g5_device_destroy(kope_g5_device *device);
 
 KOPE_FUNC void kope_g5_device_set_name(kope_g5_device *device, const char *name);
+
+typedef enum kope_g5_buffer_usage {
+	KOPE_G5_BUFFER_USAGE_CPU_READ = 0x0001,
+	KOPE_G5_BUFFER_USAGE_CPU_WRITE = 0x0002,
+	KOPE_G5_BUFFER_USAGE_COPY_SRC = 0x0004,
+	KOPE_G5_BUFFER_USAGE_COPY_DST = 0x0008,
+	KOPE_G5_BUFFER_USAGE_INDEX = 0x0010,
+	KOPE_G5_BUFFER_USAGE_VERTEX = 0x0020,
+	KOPE_G5_BUFFER_USAGE_WRITE = 0x0080,
+	KOPE_G5_BUFFER_USAGE_INDIRECT = 0x0100,
+	KOPE_G5_BUFFER_USAGE_QUERY_RESOLVE = 0x0200
+} kope_g5_buffer_usage;
+
+typedef struct kope_g5_buffer_parameters {
+	uint64_t size;
+	uint32_t usage_flags;
+} kope_g5_buffer_parameters;
+
+KOPE_FUNC void kope_g5_device_create_buffer(kope_g5_buffer_parameters parameters);
+
+KOPE_FUNC void kope_g5_device_create_texture(void *descriptor);
+
+KOPE_FUNC void kope_g5_device_create_sampler(void *descriptor);
+
+KOPE_FUNC void kope_g5_device_create_command_list(void *descriptor);
+
+KOPE_FUNC void kope_g5_device_create_query_set(void *descriptor);
 
 #ifdef __cplusplus
 }

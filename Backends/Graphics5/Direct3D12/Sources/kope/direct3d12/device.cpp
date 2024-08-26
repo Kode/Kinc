@@ -5,7 +5,7 @@
 #include <kinc/backend/SystemMicrosoft.h>
 
 void kope_d3d12_device_create(kope_g5_device *device, kope_g5_device_wishlist wishlist) {
-#ifdef _DEBUG
+#ifndef NDEBUG
 	ID3D12Debug *debug = NULL;
 	if (D3D12GetDebugInterface(IID_PPV_ARGS(&debug)) == S_OK) {
 		debug->EnableDebugLayer();
