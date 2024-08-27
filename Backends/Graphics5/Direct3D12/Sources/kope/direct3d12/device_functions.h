@@ -15,6 +15,8 @@ void kope_d3d12_device_set_name(kope_g5_device *device, const char *name);
 
 void kope_d3d12_device_create_buffer(kope_g5_device *device, kope_g5_buffer_parameters parameters, kope_g5_buffer *buffer);
 
+void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list);
+
 #ifdef __cplusplus
 }
 #endif

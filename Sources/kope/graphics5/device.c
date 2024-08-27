@@ -23,3 +23,7 @@ void kope_g5_device_set_name(kope_g5_device *device, const char *name) {
 void kope_g5_device_create_buffer(kope_g5_device *device, kope_g5_buffer_parameters parameters, kope_g5_buffer *buffer) {
 	KOPE_G5_CALL3(device_create_buffer, device, parameters, buffer);
 }
+
+void kope_g5_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list) {
+	KOPE_G5_CALL2(device_create_command_list, device, list);
+}

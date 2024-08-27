@@ -5,6 +5,7 @@
 
 #include "api.h"
 #include "buffer.h"
+#include "commandlist.h"
 
 #ifdef KOPE_DIRECT3D12
 #include <kope/direct3d12/device_structs.h>
@@ -54,7 +55,7 @@ KOPE_FUNC void kope_g5_device_create_texture(void *descriptor);
 
 KOPE_FUNC void kope_g5_device_create_sampler(void *descriptor);
 
-KOPE_FUNC void kope_g5_device_create_command_list(void *descriptor);
+KOPE_FUNC void kope_g5_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
 KOPE_FUNC void kope_g5_device_create_query_set(void *descriptor);
 

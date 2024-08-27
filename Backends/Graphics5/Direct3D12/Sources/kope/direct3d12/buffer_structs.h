@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 typedef struct kope_d3d12_buffer {
-	struct ID3D12Resource *buffer;
+	struct ID3D12Resource *resource;
 } kope_d3d12_buffer;
 
 #ifdef __cplusplus

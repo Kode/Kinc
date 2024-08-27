@@ -64,7 +64,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, kope_g5_buffer_para
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
-	                                                                    NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.buffer)));
+	                                                                    NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));
 
 	// buffer->impl.index_buffer_view.BufferLocation = buffer->impl.upload_buffer->GetGPUVirtualAddress();
 	// buffer->impl.index_buffer_view.SizeInBytes = uploadBufferSize;
@@ -72,4 +72,9 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, kope_g5_buffer_para
 
 	// buffer->impl.last_start = 0;
 	// buffer->impl.last_count = kinc_g5_index_buffer_count(buffer);
+}
+
+void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list) {
+	device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator));
+	device->d3d12.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator, NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list));
 }
