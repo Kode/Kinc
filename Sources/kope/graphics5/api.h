@@ -8,6 +8,10 @@ extern "C" {
 #define KOPE_DIRECT3D12
 // #define KOPE_VULKAN
 
+#ifndef NDEBUG
+#define KOPE_G5_VALIDATION
+#endif
+
 typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_api;
 
 #if defined(KOPE_DIRECT3D12)
@@ -53,6 +57,7 @@ typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_
 #define KOPE_G5_CALL(name) kope_d3d12_##name()
 #define KOPE_G5_CALL1(name, arg0) kope_d3d12_##name(arg0)
 #define KOPE_G5_CALL2(name, arg0, arg1) kope_d3d12_##name(arg0, arg1)
+#define KOPE_G5_CALL3(name, arg0, arg1, arg2) kope_d3d12_##name(arg0, arg1, arg2)
 
 #endif
 
@@ -62,6 +67,7 @@ typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_
 #define KOPE_G5_CALL(name) kope_vulkan_##name()
 #define KOPE_G5_CALL1(name, arg0) kope_vulkan_##name(arg0)
 #define KOPE_G5_CALL2(name, arg0, arg1) kope_vulkan_##name(arg0, arg1)
+#define KOPE_G5_CALL3(name, arg0, arg1, arg2) kope_vulkan_##name(arg0, arg1, arg2)
 
 #endif
 

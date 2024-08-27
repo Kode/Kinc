@@ -4,6 +4,7 @@
 #include <kope/global.h>
 
 #include "api.h"
+#include "buffer.h"
 
 #ifdef KOPE_DIRECT3D12
 #include <kope/direct3d12/device_structs.h>
@@ -12,8 +13,6 @@
 #ifdef KOPE_VULKAN
 #include <kope/vulkan/device_structs.h>
 #endif
-
-#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,10 +38,9 @@ typedef enum kope_g5_buffer_usage {
 	KOPE_G5_BUFFER_USAGE_COPY_SRC = 0x0004,
 	KOPE_G5_BUFFER_USAGE_COPY_DST = 0x0008,
 	KOPE_G5_BUFFER_USAGE_INDEX = 0x0010,
-	KOPE_G5_BUFFER_USAGE_VERTEX = 0x0020,
-	KOPE_G5_BUFFER_USAGE_WRITE = 0x0080,
-	KOPE_G5_BUFFER_USAGE_INDIRECT = 0x0100,
-	KOPE_G5_BUFFER_USAGE_QUERY_RESOLVE = 0x0200
+	KOPE_G5_BUFFER_USAGE_WRITE = 0x0020,
+	KOPE_G5_BUFFER_USAGE_INDIRECT = 0x0040,
+	KOPE_G5_BUFFER_USAGE_QUERY_RESOLVE = 0x0080
 } kope_g5_buffer_usage;
 
 typedef struct kope_g5_buffer_parameters {
@@ -50,7 +48,7 @@ typedef struct kope_g5_buffer_parameters {
 	uint32_t usage_flags;
 } kope_g5_buffer_parameters;
 
-KOPE_FUNC void kope_g5_device_create_buffer(kope_g5_buffer_parameters parameters);
+KOPE_FUNC void kope_g5_device_create_buffer(kope_g5_device *device, kope_g5_buffer_parameters parameters, kope_g5_buffer *buffer);
 
 KOPE_FUNC void kope_g5_device_create_texture(void *descriptor);
 

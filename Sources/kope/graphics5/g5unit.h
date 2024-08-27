@@ -1,5 +1,5 @@
-#ifndef KOPE_G5_SHARED_HEADER
-#define KOPE_G5_SHARED_HEADER
+#ifndef KOPE_G5_UNIT_HEADER
+#define KOPE_G5_UNIT_HEADER
 
 #include "api.h"
 

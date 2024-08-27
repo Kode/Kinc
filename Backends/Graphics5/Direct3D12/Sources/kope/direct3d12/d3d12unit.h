@@ -1,5 +1,5 @@
-#ifndef KOPE_D3D12_SHARED_HEADER
-#define KOPE_D3D12_SHARED_HEADER
+#ifndef KOPE_D3D12_UNIT_HEADER
+#define KOPE_D3D12_UNIT_HEADER
 
 // Windows 7
 #define WINVER 0x0601
@@ -49,5 +49,9 @@
 
 #include <d3d12.h>
 #include <dxgi.h>
+
+#ifndef IID_GRAPHICS_PPV_ARGS
+#define IID_GRAPHICS_PPV_ARGS(x) IID_PPV_ARGS(x)
+#endif
 
 #endif
