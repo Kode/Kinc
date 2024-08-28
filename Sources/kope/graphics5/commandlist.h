@@ -94,6 +94,51 @@ KOPE_FUNC void kope_g5_command_list_clear_buffer(kope_g5_command_list *list, kop
 
 KOPE_FUNC void kope_g5_command_list_finish(kope_g5_command_list *list);
 
+KOPE_FUNC void kope_g5_command_list_set_pipeline(kope_g5_command_list *list, void *pipeline);
+
+typedef enum kope_g5_index_buffer_format { KONG_G5_INDEX_BUFFER_FORMAT_UINT16, KONG_G5_INDEX_BUFFER_FORMAT_UINT32 } kope_g5_index_buffer_format;
+
+KOPE_FUNC void kope_g5_command_list_set_index_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, kope_g5_index_buffer_format indexFormat,
+                                                     uint64_t offset, uint64_t size);
+
+KOPE_FUNC void kope_g5_command_list_set_vertex_buffer(kope_g5_command_list *list, uint32_t slot, kope_g5_buffer *buffer, uint64_t offset, uint64_t size);
+
+KOPE_FUNC void kope_g5_command_list_draw(kope_g5_command_list *list, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex,
+                                         uint32_t first_instance);
+
+KOPE_FUNC void kope_g5_command_list_draw_indexed(kope_g5_command_list *list, uint32_t index_count, uint32_t instance_count, uint32_t first_index,
+                                                 int32_t base_vertex, uint32_t first_instance);
+
+KOPE_FUNC void kope_g5_command_list_draw_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
+
+KOPE_FUNC void kope_g5_command_list_draw_indexed_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
+
+KOPE_FUNC void kope_g5_command_list_push_debug_group(kope_g5_command_list *list, const char *name);
+
+KOPE_FUNC void kope_g5_command_list_pop_debug_group(kope_g5_command_list *list);
+
+KOPE_FUNC void kope_g5_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name);
+
+KOPE_FUNC void kope_g5_command_list_set_viewport(kope_g5_command_list *list, float x, float y, float width, float height, float min_depth, float max_depth);
+
+KOPE_FUNC void kope_g5_command_list_set_scissor_rect(kope_g5_command_list *list, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+
+KOPE_FUNC void kope_g5_command_list_set_blend_constant(kope_g5_command_list *list, kope_g5_color color);
+
+KOPE_FUNC void kope_g5_command_list_set_stencil_reference(kope_g5_command_list *list, uint32_t reference);
+
+KOPE_FUNC void kope_g5_command_list_begin_occlusion_query(kope_g5_command_list *list, uint32_t query_index);
+
+KOPE_FUNC void kope_g5_command_list_endOcclusionQuery(kope_g5_command_list *list);
+
+KOPE_FUNC void kope_g5_command_list_end_render_pass(kope_g5_command_list *list);
+
+KOPE_FUNC void kope_g5_command_list_set_compute_shader(kope_g5_command_list *list, void *shader);
+
+KOPE_FUNC void kope_g5_command_list_compute(kope_g5_command_list *list, uint32_t workgroup_count_x, uint32_t workgroup_count_y, uint32_t workgroup_count_z);
+
+KOPE_FUNC void kope_g5_command_list_compute_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
+
 #ifdef __cplusplus
 }
 #endif
