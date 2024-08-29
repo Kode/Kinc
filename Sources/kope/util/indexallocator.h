@@ -3,18 +3,26 @@
 
 #include <stdint.h>
 
-#define INDEX_ALLOCATOR_SIZE 1024 * 10
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef struct index_allocator {
-	uint32_t indices[INDEX_ALLOCATOR_SIZE];
+#define KOPE_INDEX_ALLOCATOR_SIZE 1024 * 10
+
+typedef struct kope_index_allocator {
+	uint32_t indices[KOPE_INDEX_ALLOCATOR_SIZE];
 	uint32_t next_indices_index;
 	uint32_t remaining;
-} index_allocator;
+} kope_index_allocator;
 
-void index_allocator_init(index_allocator *allocator);
+void kope_index_allocator_init(kope_index_allocator *allocator);
 
-uint32_t index_allocator_allocate(index_allocator *allocator);
+uint32_t kope_index_allocator_allocate(kope_index_allocator *allocator);
 
-void index_allocator_free(index_allocator *allocator, uint32_t index);
+void kope_index_allocator_free(kope_index_allocator *allocator, uint32_t index);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

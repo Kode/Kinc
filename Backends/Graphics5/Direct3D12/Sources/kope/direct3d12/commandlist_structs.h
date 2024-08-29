@@ -7,7 +7,10 @@
 extern "C" {
 #endif
 
+struct kope_d3d12_device;
+
 typedef struct kope_d3d12_command_list {
+	struct kope_d3d12_device *device;
 	struct ID3D12CommandAllocator *allocator;
 	struct ID3D12GraphicsCommandList *list;
 } kope_d3d12_command_list;

@@ -48,6 +48,18 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 
 		kinc_microsoft_affirm(dxgi_factory->CreateSwapChain((IUnknown *)device->d3d12.queue, &desc, &device->d3d12.swap_chain));
 	}
+
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.NumDescriptors = KOPE_INDEX_ALLOCATOR_SIZE;
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.all_rtvs)));
+
+		kope_index_allocator_init(&device->d3d12.rtv_index_allocator);
+
+		device->d3d12.rtv_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	}
 }
 
 void kope_d3d12_device_destroy(kope_g5_device *device) {
@@ -107,6 +119,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 }
 
 void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list) {
+	list->d3d12.device = &device->d3d12;
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator)));
 	kinc_microsoft_affirm(
 	    device->d3d12.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator, NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
@@ -313,6 +326,23 @@ static D3D12_RESOURCE_DIMENSION convert_texture_dimension(kope_g5_texture_dimens
 	return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 }
 
+static D3D12_RTV_DIMENSION convert_texture_rtv_dimension(kope_g5_texture_dimension dimension) {
+	switch (dimension) {
+	case KOPE_G5_TEXTURE_DIMENSION_1D:
+		return D3D12_RTV_DIMENSION_TEXTURE1D;
+	case KOPE_G5_TEXTURE_DIMENSION_2D:
+		return D3D12_RTV_DIMENSION_TEXTURE2D;
+	case KOPE_G5_TEXTURE_DIMENSION_3D:
+		return D3D12_RTV_DIMENSION_TEXTURE3D;
+	}
+
+	assert(false);
+	return D3D12_RTV_DIMENSION_TEXTURE2D;
+
+	// D3D12_RTV_DIMENSION_TEXTURE1D = 2, D3D12_RTV_DIMENSION_TEXTURE1DARRAY = 3, D3D12_RTV_DIMENSION_TEXTURE2D = 4, D3D12_RTV_DIMENSION_TEXTURE2DARRAY = 5,
+	// D3D12_RTV_DIMENSION_TEXTURE2DMS = 6, D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY = 7, D3D12_RTV_DIMENSION_TEXTURE3D = 8
+}
+
 void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
 	DXGI_FORMAT format = convert_texture_format(parameters->format);
 	int format_size = format_byte_size(parameters->format);
@@ -325,7 +355,7 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	heap_properties.VisibleNodeMask = 1;
 
 	D3D12_RESOURCE_DESC desc;
-	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	desc.Dimension = convert_texture_dimension(parameters->dimension);
 	desc.Alignment = 0;
 	desc.Width = parameters->width;
 	desc.Height = parameters->height;
@@ -337,6 +367,24 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-	HRESULT result = device->d3d12.device->CreateCommittedResource(&heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-	                                                               NULL, IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource));
+	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(
+	    &heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, NULL, IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource)));
+
+	if (parameters->usage & KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT) {
+		texture->d3d12.rtv_index = kope_index_allocator_allocate(&device->d3d12.rtv_index_allocator);
+
+		D3D12_RENDER_TARGET_VIEW_DESC desc;
+		desc.Format = format;
+		desc.ViewDimension = convert_texture_rtv_dimension(parameters->dimension);
+		desc.Texture2D.MipSlice = 0;
+		desc.Texture2D.PlaneSlice = 0;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE rtv = device->d3d12.all_rtvs->GetCPUDescriptorHandleForHeapStart();
+		rtv.ptr += texture->d3d12.rtv_index * device->d3d12.rtv_increment;
+
+		device->d3d12.device->CreateRenderTargetView(texture->d3d12.resource, &desc, rtv);
+	}
+	else {
+		texture->d3d12.rtv_index = 0xffffffff;
+	}
 }
