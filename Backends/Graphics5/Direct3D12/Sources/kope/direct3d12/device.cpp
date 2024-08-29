@@ -5,17 +5,49 @@
 #include <kope/graphics5/device.h>
 
 #include <kinc/backend/SystemMicrosoft.h>
+#include <kinc/backend/Windows.h>
+
+#include <kinc/window.h>
 
 #include <assert.h>
 
-void kope_d3d12_device_create(kope_g5_device *device, kope_g5_device_wishlist wishlist) {
+#include <dxgi1_4.h>
+
+void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
 #ifndef NDEBUG
 	ID3D12Debug *debug = NULL;
 	if (D3D12GetDebugInterface(IID_PPV_ARGS(&debug)) == S_OK) {
 		debug->EnableDebugLayer();
 	}
 #endif
+
 	kinc_microsoft_affirm(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&device->d3d12.device)));
+
+	{
+		D3D12_COMMAND_QUEUE_DESC desc = {};
+		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+		desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+		kinc_microsoft_affirm(device->d3d12.device->CreateCommandQueue(&desc, IID_PPV_ARGS(&device->d3d12.queue)));
+	}
+
+	{
+		DXGI_SWAP_CHAIN_DESC desc = {0};
+		desc.BufferCount = 2;
+		desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		desc.BufferDesc.Width = kinc_window_width(0);
+		desc.BufferDesc.Height = kinc_window_height(0);
+		desc.OutputWindow = kinc_windows_window_handle(0);
+		desc.SampleDesc.Count = 1;
+		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		desc.Windowed = true;
+
+		IDXGIFactory4 *dxgi_factory = NULL;
+		kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgi_factory)));
+
+		kinc_microsoft_affirm(dxgi_factory->CreateSwapChain((IUnknown *)device->d3d12.queue, &desc, &device->d3d12.swap_chain));
+	}
 }
 
 void kope_d3d12_device_destroy(kope_g5_device *device) {
@@ -28,7 +60,7 @@ void kope_d3d12_device_set_name(kope_g5_device *device, const char *name) {
 	device->d3d12.device->SetName(wstr);
 }
 
-void kope_d3d12_device_create_buffer(kope_g5_device *device, kope_g5_buffer_parameters parameters, kope_g5_buffer *buffer) {
+void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffer_parameters *parameters, kope_g5_buffer *buffer) {
 	// assert(parameters.usage_flags & KOPE_G5_BUFFER_USAGE_INDEX);
 
 	// buffer->impl.count = count;
@@ -43,7 +75,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, kope_g5_buffer_para
 	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	heapProperties.CreationNodeMask = 1;
 	heapProperties.VisibleNodeMask = 1;
-	if ((parameters.usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) || (parameters.usage_flags & KOPE_G5_BUFFER_USAGE_CPU_WRITE)) {
+	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) || (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_WRITE)) {
 		heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
 	}
 	else {
@@ -53,7 +85,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, kope_g5_buffer_para
 	D3D12_RESOURCE_DESC resourceDesc;
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resourceDesc.Alignment = 0;
-	resourceDesc.Width = parameters.size;
+	resourceDesc.Width = parameters->size;
 	resourceDesc.Height = 1;
 	resourceDesc.DepthOrArraySize = 1;
 	resourceDesc.MipLevels = 1;
@@ -75,8 +107,9 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, kope_g5_buffer_para
 }
 
 void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list) {
-	device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator));
-	device->d3d12.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator, NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list));
+	kinc_microsoft_affirm(device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator)));
+	kinc_microsoft_affirm(
+	    device->d3d12.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator, NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
 }
 
 static DXGI_FORMAT convert_texture_format(kope_g5_texture_format format) {
@@ -280,9 +313,9 @@ static D3D12_RESOURCE_DIMENSION convert_texture_dimension(kope_g5_texture_dimens
 	return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 }
 
-void kope_d3d12_device_create_texture(kope_g5_device *device, kope_g5_texture_parameters parameters, kope_g5_texture *texture) {
-	DXGI_FORMAT format = convert_texture_format(parameters.format);
-	int format_size = format_byte_size(parameters.format);
+void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
+	DXGI_FORMAT format = convert_texture_format(parameters->format);
+	int format_size = format_byte_size(parameters->format);
 
 	D3D12_HEAP_PROPERTIES heap_properties;
 	heap_properties.Type = D3D12_HEAP_TYPE_DEFAULT;
@@ -294,12 +327,12 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, kope_g5_texture_pa
 	D3D12_RESOURCE_DESC desc;
 	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	desc.Alignment = 0;
-	desc.Width = parameters.width;
-	desc.Height = parameters.height;
-	desc.DepthOrArraySize = parameters.depth_or_array_layers;
-	desc.MipLevels = parameters.mip_level_count;
+	desc.Width = parameters->width;
+	desc.Height = parameters->height;
+	desc.DepthOrArraySize = parameters->depth_or_array_layers;
+	desc.MipLevels = parameters->mip_level_count;
 	desc.Format = format;
-	desc.SampleDesc.Count = parameters.sample_count;
+	desc.SampleDesc.Count = parameters->sample_count;
 	desc.SampleDesc.Quality = 0;
 	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	desc.Flags = D3D12_RESOURCE_FLAG_NONE;

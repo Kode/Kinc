@@ -27,7 +27,7 @@ typedef struct kope_g5_device {
 	KOPE_G5_IMPL(device);
 } kope_g5_device;
 
-KOPE_FUNC void kope_g5_device_create(kope_g5_device *device, kope_g5_device_wishlist wishlist);
+KOPE_FUNC void kope_g5_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist);
 
 KOPE_FUNC void kope_g5_device_destroy(kope_g5_device *device);
 
@@ -49,7 +49,7 @@ typedef struct kope_g5_buffer_parameters {
 	uint32_t usage_flags;
 } kope_g5_buffer_parameters;
 
-KOPE_FUNC void kope_g5_device_create_buffer(kope_g5_device *device, kope_g5_buffer_parameters parameters, kope_g5_buffer *buffer);
+KOPE_FUNC void kope_g5_device_create_buffer(kope_g5_device *device, const kope_g5_buffer_parameters *parameters, kope_g5_buffer *buffer);
 
 typedef enum kope_g5_texture_dimension { KOPE_G5_TEXTURE_DIMENSION_1D, KOPE_G5_TEXTURE_DIMENSION_2D, KOPE_G5_TEXTURE_DIMENSION_3D } kope_g5_texture_dimension;
 
@@ -121,7 +121,7 @@ typedef struct kope_g5_texture_parameters {
 	kope_g5_texture_format view_formats[8]; // necessary?
 } kope_g5_texture_parameters;
 
-KOPE_FUNC void kope_g5_device_create_texture(kope_g5_device *device, kope_g5_texture_parameters parameters, kope_g5_texture *texture);
+KOPE_FUNC void kope_g5_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
 KOPE_FUNC void kope_g5_device_create_sampler(void *descriptor);
 

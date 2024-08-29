@@ -7,3 +7,7 @@
 #ifdef KOPE_VULKAN
 #include <kope/vulkan/commandlist_functions.h>
 #endif
+
+void kope_g5_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
+	KOPE_G5_CALL2(command_list_begin_render_pass, list, parameters);
+}

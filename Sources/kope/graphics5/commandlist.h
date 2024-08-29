@@ -76,7 +76,7 @@ typedef struct kope_g5_render_pass_parameters {
 	// GPURenderPassTimestampWrites timestampWrites;
 } kope_g5_render_pass_parameters;
 
-KOPE_FUNC void kope_g5_command_list_begin_render_pass(kope_g5_command_list *list, kope_g5_render_pass_parameters parameters);
+KOPE_FUNC void kope_g5_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters);
 
 KOPE_FUNC void kope_g5_command_list_copy_buffer_to_buffer(kope_g5_command_list *list, kope_g5_buffer *source, uint64_t source_offset,
                                                           kope_g5_buffer *destination, uint64_t destination_offset, uint64_t size);
