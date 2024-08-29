@@ -100,6 +100,8 @@ typedef enum kope_g5_texture_format {
 	// TODO: compressed formats
 } kope_g5_texture_format;
 
+bool kope_g5_texture_format_is_depth(kope_g5_texture_format format);
+
 typedef enum kope_g5_texture_usage {
 	KONG_G5_TEXTURE_USAGE_COPY_SRC = 0x01,
 	KONG_G5_TEXTURE_USAGE_COPY_DST = 0x02,

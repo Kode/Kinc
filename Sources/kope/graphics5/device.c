@@ -29,5 +29,24 @@ void kope_g5_device_create_command_list(kope_g5_device *device, kope_g5_command_
 }
 
 void kope_g5_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
+#ifdef KOPE_VALIDATION
+	if (kope_g5_texture_format_is_depth(parameters->format)) {
+		assert(parameters->dimension != KOPE_G5_TEXTURE_DIMENSION_3D);
+	}
+#endif
 	KOPE_G5_CALL3(device_create_texture, device, parameters, texture);
+}
+
+bool kope_g5_texture_format_is_depth(kope_g5_texture_format format) {
+	switch (format) {
+	// case KOPE_G5_TEXTURE_FORMAT_STENCIL8:
+	//	return 1;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH16_UNORM:
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_NOTHING8:
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_STENCIL8:
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT:
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT_STENCIL8_NOTHING24:
+		return true;
+	}
+	return false;
 }

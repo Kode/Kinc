@@ -324,20 +324,6 @@ static int format_byte_size(kope_g5_texture_format format) {
 	return 4;
 }
 
-bool is_depth_format(kope_g5_texture_format format) {
-	switch (format) {
-	// case KOPE_G5_TEXTURE_FORMAT_STENCIL8:
-	//	return 1;
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH16_UNORM:
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_NOTHING8:
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_STENCIL8:
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT:
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT_STENCIL8_NOTHING24:
-		return true;
-	}
-	return false;
-}
-
 static D3D12_RESOURCE_DIMENSION convert_texture_dimension(kope_g5_texture_dimension dimension) {
 	switch (dimension) {
 	case KOPE_G5_TEXTURE_DIMENSION_1D:
@@ -418,7 +404,7 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	texture->d3d12.dsv_index = 0xffffffff;
 
 	if (parameters->usage & KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT) {
-		if (is_depth_format(parameters->format)) {
+		if (kope_g5_texture_format_is_depth(parameters->format)) {
 			texture->d3d12.dsv_index = kope_index_allocator_allocate(&device->d3d12.dsv_index_allocator);
 
 			D3D12_DEPTH_STENCIL_VIEW_DESC desc = {};
