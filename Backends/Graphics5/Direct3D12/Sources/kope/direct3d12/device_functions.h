@@ -19,6 +19,12 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 
 void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
+void kope_d3d12_device_get_framebuffer_texture(kope_g5_device *device, uint32_t index, kope_g5_texture *texture);
+
+void kope_d3d12_device_submit_command_list(kope_g5_device *device, kope_g5_command_list *list);
+
+void kope_d3d12_device_swap_buffers(kope_g5_device *device);
+
 #ifdef __cplusplus
 }
 #endif

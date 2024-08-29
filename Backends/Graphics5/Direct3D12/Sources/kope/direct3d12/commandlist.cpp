@@ -15,3 +15,9 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 	memcpy(color, &parameters->color_attachments[0].clear_value, sizeof(color));
 	list->d3d12.list->ClearRenderTargetView(rtv, color, 0, NULL);
 }
+
+void kope_d3d12_command_list_end_render_pass(kope_g5_command_list *list) {}
+
+void kope_d3d12_command_list_finish(kope_g5_command_list *list) {
+	list->d3d12.list->Close();
+}

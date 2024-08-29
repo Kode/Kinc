@@ -230,100 +230,6 @@ static DXGI_FORMAT convert_texture_format(kope_g5_texture_format format) {
 	return DXGI_FORMAT_UNKNOWN;
 }
 
-static int format_byte_size(kope_g5_texture_format format) {
-	switch (format) {
-	case KOPE_G5_TEXTURE_FORMAT_R8_UNORM:
-		return 1;
-	case KOPE_G5_TEXTURE_FORMAT_R8_SNORM:
-		return 1;
-	case KOPE_G5_TEXTURE_FORMAT_R8_UINT:
-		return 1;
-	case KOPE_G5_TEXTURE_FORMAT_R8_SINT:
-		return 1;
-	case KOPE_G5_TEXTURE_FORMAT_R16_UINT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_R16_SINT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_R16_FLOAT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RG8_UNORM:
-		return 2;
-	case KOPE_G5_TEXTURE_FORMAT_RG8_SNORM:
-		return 2;
-	case KOPE_G5_TEXTURE_FORMAT_RG8_UINT:
-		return 2;
-	case KOPE_G5_TEXTURE_FORMAT_RG8_SINT:
-		return 2;
-	case KOPE_G5_TEXTURE_FORMAT_R32_UINT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_R32_SINT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_R32_FLOAT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RG16_UINT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RG16_SINT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RG16_FLOAT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM_SRGB:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA8_SNORM:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA8_UINT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA8_SINT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM_SRGB:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RGB9E5U_FLOAT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RGB10A2_UINT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RGB10A2_UNORM:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RG11B10U_FLOAT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_RG32_UINT:
-		return 8;
-	case KOPE_G5_TEXTURE_FORMAT_RG32_SINT:
-		return 8;
-	case KOPE_G5_TEXTURE_FORMAT_RG32_FLOAT:
-		return 8;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA16_UINT:
-		return 8;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA16_SINT:
-		return 8;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA16_FLOAT:
-		return 8;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA32_UINT:
-		return 16;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA32_SINT:
-		return 16;
-	case KOPE_G5_TEXTURE_FORMAT_RGBA32_FLOAT:
-		return 16;
-	// case KOPE_G5_TEXTURE_FORMAT_STENCIL8:
-	//	return 1;
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH16_UNORM:
-		return 2;
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_NOTHING8:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_STENCIL8:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT:
-		return 4;
-	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT_STENCIL8_NOTHING24:
-		return 8;
-	}
-
-	assert(false);
-	return 4;
-}
-
 static D3D12_RESOURCE_DIMENSION convert_texture_dimension(kope_g5_texture_dimension dimension) {
 	switch (dimension) {
 	case KOPE_G5_TEXTURE_DIMENSION_1D:
@@ -373,32 +279,8 @@ static D3D12_DSV_DIMENSION convert_texture_dsv_dimension(kope_g5_texture_dimensi
 	// D3D12_DSV_DIMENSION_TEXTURE2DARRAY = 4, D3D12_DSV_DIMENSION_TEXTURE2DMS = 5, D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY = 6
 }
 
-void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
+static void create_texture_views(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
 	DXGI_FORMAT format = convert_texture_format(parameters->format);
-	int format_size = format_byte_size(parameters->format);
-
-	D3D12_HEAP_PROPERTIES heap_properties;
-	heap_properties.Type = D3D12_HEAP_TYPE_DEFAULT;
-	heap_properties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heap_properties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	heap_properties.CreationNodeMask = 1;
-	heap_properties.VisibleNodeMask = 1;
-
-	D3D12_RESOURCE_DESC desc;
-	desc.Dimension = convert_texture_dimension(parameters->dimension);
-	desc.Alignment = 0;
-	desc.Width = parameters->width;
-	desc.Height = parameters->height;
-	desc.DepthOrArraySize = parameters->depth_or_array_layers;
-	desc.MipLevels = parameters->mip_level_count;
-	desc.Format = format;
-	desc.SampleDesc.Count = parameters->sample_count;
-	desc.SampleDesc.Quality = 0;
-	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(
-	    &heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, NULL, IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource)));
 
 	texture->d3d12.rtv_index = 0xffffffff;
 	texture->d3d12.dsv_index = 0xffffffff;
@@ -429,4 +311,53 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 			device->d3d12.device->CreateRenderTargetView(texture->d3d12.resource, &desc, rtv);
 		}
 	}
+}
+
+void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
+	DXGI_FORMAT format = convert_texture_format(parameters->format);
+
+	D3D12_HEAP_PROPERTIES heap_properties;
+	heap_properties.Type = D3D12_HEAP_TYPE_DEFAULT;
+	heap_properties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heap_properties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	heap_properties.CreationNodeMask = 1;
+	heap_properties.VisibleNodeMask = 1;
+
+	D3D12_RESOURCE_DESC desc;
+	desc.Dimension = convert_texture_dimension(parameters->dimension);
+	desc.Alignment = 0;
+	desc.Width = parameters->width;
+	desc.Height = parameters->height;
+	desc.DepthOrArraySize = parameters->depth_or_array_layers;
+	desc.MipLevels = parameters->mip_level_count;
+	desc.Format = format;
+	desc.SampleDesc.Count = parameters->sample_count;
+	desc.SampleDesc.Quality = 0;
+	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(
+	    &heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, NULL, IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource)));
+
+	create_texture_views(device, parameters, texture);
+}
+
+void kope_d3d12_device_get_framebuffer_texture(kope_g5_device *device, uint32_t index, kope_g5_texture *texture) {
+	device->d3d12.swap_chain->GetBuffer(index, IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource));
+
+	kope_g5_texture_parameters parameters = {};
+	parameters.format = KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
+	parameters.dimension = KOPE_G5_TEXTURE_DIMENSION_2D;
+	parameters.usage = KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT;
+
+	create_texture_views(device, &parameters, texture);
+}
+
+void kope_d3d12_device_submit_command_list(kope_g5_device *device, kope_g5_command_list *list) {
+	ID3D12CommandList *lists[] = {list->d3d12.list};
+	device->d3d12.queue->ExecuteCommandLists(1, lists);
+}
+
+void kope_d3d12_device_swap_buffers(kope_g5_device *device) {
+	kinc_microsoft_affirm(device->d3d12.swap_chain->Present(1, 0));
 }

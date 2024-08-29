@@ -31,11 +31,11 @@ KOPE_FUNC void kope_g5_command_list_destroy(kope_g5_command_list *list);
 
 KOPE_FUNC void kope_g5_command_list_set_name(kope_g5_command_list *list, const char *name);
 
-KOPE_FUNC void kope_g5_command_list_pushDebugGroup(kope_g5_command_list *list, const char *name);
+KOPE_FUNC void kope_g5_command_list_push_debug_group(kope_g5_command_list *list, const char *name);
 
-KOPE_FUNC void kope_g5_command_list_popDebugGroup(kope_g5_command_list *list);
+KOPE_FUNC void kope_g5_command_list_pop_debug_group(kope_g5_command_list *list);
 
-KOPE_FUNC void kope_g5_command_list_insertDebugMarker(kope_g5_command_list *list, const char *name);
+KOPE_FUNC void kope_g5_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name);
 
 typedef enum kope_g5_load_op { KOPE_G5_LOAD_OP_LOAD, KOPE_G5_LOAD_OP_CLEAR } kope_g5_load_op;
 
@@ -81,7 +81,7 @@ KOPE_FUNC void kope_g5_command_list_begin_render_pass(kope_g5_command_list *list
 KOPE_FUNC void kope_g5_command_list_copy_buffer_to_buffer(kope_g5_command_list *list, kope_g5_buffer *source, uint64_t source_offset,
                                                           kope_g5_buffer *destination, uint64_t destination_offset, uint64_t size);
 
-KOPE_FUNC void copyBufferToTexturekope_g5_command_list_(kope_g5_command_list *list, kope_g5_buffer *source, kope_g5_texture *destination, kope_uint3 size);
+KOPE_FUNC void kope_g5_command_list_copy_buffer_to_texture(kope_g5_command_list *list, kope_g5_buffer *source, kope_g5_texture *destination, kope_uint3 size);
 
 KOPE_FUNC void kope_g5_command_list_copy_texture_to_buffer(kope_g5_command_list *list, kope_g5_texture *source, kope_g5_buffer *destination, kope_uint3 size);
 
@@ -112,12 +112,6 @@ KOPE_FUNC void kope_g5_command_list_draw_indexed(kope_g5_command_list *list, uin
 KOPE_FUNC void kope_g5_command_list_draw_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
 
 KOPE_FUNC void kope_g5_command_list_draw_indexed_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
-
-KOPE_FUNC void kope_g5_command_list_push_debug_group(kope_g5_command_list *list, const char *name);
-
-KOPE_FUNC void kope_g5_command_list_pop_debug_group(kope_g5_command_list *list);
-
-KOPE_FUNC void kope_g5_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name);
 
 KOPE_FUNC void kope_g5_command_list_set_viewport(kope_g5_command_list *list, float x, float y, float width, float height, float min_depth, float max_depth);
 

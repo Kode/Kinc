@@ -9,6 +9,10 @@ extern "C" {
 
 void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters);
 
+void kope_d3d12_command_list_end_render_pass(kope_g5_command_list *list);
+
+void kope_d3d12_command_list_finish(kope_g5_command_list *list);
+
 #ifdef __cplusplus
 }
 #endif

@@ -100,6 +100,8 @@ typedef enum kope_g5_texture_format {
 	// TODO: compressed formats
 } kope_g5_texture_format;
 
+uint32_t kope_g5_texture_format_byte_size(kope_g5_texture_format format);
+
 bool kope_g5_texture_format_is_depth(kope_g5_texture_format format);
 
 typedef enum kope_g5_texture_usage {
@@ -125,11 +127,17 @@ typedef struct kope_g5_texture_parameters {
 
 KOPE_FUNC void kope_g5_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
+KOPE_FUNC void kope_g5_device_get_framebuffer_texture(kope_g5_device *device, uint32_t index, kope_g5_texture *texture);
+
 KOPE_FUNC void kope_g5_device_create_sampler(void *descriptor);
 
 KOPE_FUNC void kope_g5_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
 KOPE_FUNC void kope_g5_device_create_query_set(void *descriptor);
+
+KOPE_FUNC void kope_g5_device_submit_command_list(kope_g5_device *device, kope_g5_command_list *list);
+
+KOPE_FUNC void kope_g5_device_swap_buffers(kope_g5_device *device);
 
 #ifdef __cplusplus
 }
