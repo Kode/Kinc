@@ -17,6 +17,10 @@ typedef struct kope_d3d12_device {
 	struct ID3D12DescriptorHeap *all_rtvs;
 	kope_index_allocator rtv_index_allocator;
 	uint32_t rtv_increment;
+
+	struct ID3D12DescriptorHeap *all_dsvs;
+	kope_index_allocator dsv_index_allocator;
+	uint32_t dsv_increment;
 } kope_d3d12_device;
 
 #ifdef __cplusplus
