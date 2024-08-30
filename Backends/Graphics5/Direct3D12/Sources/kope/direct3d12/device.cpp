@@ -13,6 +13,8 @@
 
 #include <dxgi1_4.h>
 
+static void create_texture_views(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
+
 void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
 #ifndef NDEBUG
 	ID3D12Debug *debug = NULL;
@@ -72,6 +74,21 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 
 		device->d3d12.dsv_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	}
+
+	for (int i = 0; i < 2; ++i) {
+		device->d3d12.swap_chain->GetBuffer(i, IID_GRAPHICS_PPV_ARGS(&device->d3d12.framebuffer_textures[i].d3d12.resource));
+
+		kope_g5_texture_parameters parameters = {};
+		parameters.format = KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
+		parameters.dimension = KOPE_G5_TEXTURE_DIMENSION_2D;
+		parameters.usage = KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT;
+
+		device->d3d12.framebuffer_textures[i].d3d12.resource_state = D3D12_RESOURCE_STATE_PRESENT;
+
+		create_texture_views(device, &parameters, &device->d3d12.framebuffer_textures[i]);
+	}
+
+	device->d3d12.framebuffer_index = 0;
 }
 
 void kope_d3d12_device_destroy(kope_g5_device *device) {
@@ -135,6 +152,7 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator)));
 	kinc_microsoft_affirm(
 	    device->d3d12.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator, NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
+	list->d3d12.render_pass_framebuffer = NULL;
 }
 
 static DXGI_FORMAT convert_texture_format(kope_g5_texture_format format) {
@@ -339,25 +357,25 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(
 	    &heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, NULL, IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource)));
 
+	texture->d3d12.resource_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+
 	create_texture_views(device, parameters, texture);
 }
 
-void kope_d3d12_device_get_framebuffer_texture(kope_g5_device *device, uint32_t index, kope_g5_texture *texture) {
-	device->d3d12.swap_chain->GetBuffer(index, IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource));
-
-	kope_g5_texture_parameters parameters = {};
-	parameters.format = KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
-	parameters.dimension = KOPE_G5_TEXTURE_DIMENSION_2D;
-	parameters.usage = KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT;
-
-	create_texture_views(device, &parameters, texture);
+kope_g5_texture *kope_d3d12_device_get_framebuffer_texture(kope_g5_device *device) {
+	return &device->d3d12.framebuffer_textures[device->d3d12.framebuffer_index];
 }
 
 void kope_d3d12_device_submit_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	ID3D12CommandList *lists[] = {list->d3d12.list};
 	device->d3d12.queue->ExecuteCommandLists(1, lists);
+
+	list->d3d12.allocator->Reset();
+	list->d3d12.list->Reset(list->d3d12.allocator, NULL);
 }
 
 void kope_d3d12_device_swap_buffers(kope_g5_device *device) {
 	kinc_microsoft_affirm(device->d3d12.swap_chain->Present(1, 0));
+
+	device->d3d12.framebuffer_index = (device->d3d12.framebuffer_index + 1) % 2;
 }

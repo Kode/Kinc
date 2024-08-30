@@ -127,7 +127,7 @@ typedef struct kope_g5_texture_parameters {
 
 KOPE_FUNC void kope_g5_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
-KOPE_FUNC void kope_g5_device_get_framebuffer_texture(kope_g5_device *device, uint32_t index, kope_g5_texture *texture);
+KOPE_FUNC kope_g5_texture *kope_g5_device_get_framebuffer_texture(kope_g5_device *device);
 
 KOPE_FUNC void kope_g5_device_create_sampler(void *descriptor);
 
