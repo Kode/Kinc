@@ -147,19 +147,21 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 	// buffer->impl.last_count = kinc_g5_index_buffer_count(buffer);
 }
 
+static uint32_t current_command_list_allocator_index(kope_g5_command_list *list) {
+	return list->d3d12.run_index % KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT;
+}
+
 void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	list->d3d12.device = &device->d3d12;
 
 	list->d3d12.run_index = KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1;
-	list->d3d12.current_allocator_index = list->d3d12.run_index % KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT;
 
 	for (int i = 0; i < KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT; ++i) {
 		kinc_microsoft_affirm(device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator[i])));
 	}
 
-	list->d3d12.current_allocator_index = 0;
-	kinc_microsoft_affirm(device->d3d12.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator[list->d3d12.current_allocator_index],
-	                                                              NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
+	kinc_microsoft_affirm(device->d3d12.device->CreateCommandList(
+	    0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator[current_command_list_allocator_index(list)], NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
 
 	list->d3d12.render_pass_framebuffer = NULL;
 
@@ -394,10 +396,10 @@ void kope_d3d12_device_submit_command_list(kope_g5_device *device, kope_g5_comma
 	wait_for_fence(list->d3d12.fence, list->d3d12.run_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1), list->d3d12.event);
 
 	list->d3d12.run_index += 1;
-	list->d3d12.current_allocator_index = list->d3d12.run_index % KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT;
+	uint32_t allocator_index = current_command_list_allocator_index(list);
 
-	list->d3d12.allocator[list->d3d12.current_allocator_index]->Reset();
-	list->d3d12.list->Reset(list->d3d12.allocator[list->d3d12.current_allocator_index], NULL);
+	list->d3d12.allocator[allocator_index]->Reset();
+	list->d3d12.list->Reset(list->d3d12.allocator[allocator_index], NULL);
 }
 
 void kope_d3d12_device_swap_buffers(kope_g5_device *device) {

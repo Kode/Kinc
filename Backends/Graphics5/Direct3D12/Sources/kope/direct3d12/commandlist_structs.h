@@ -17,7 +17,6 @@ typedef struct kope_d3d12_command_list {
 	struct kope_d3d12_device *device;
 
 	struct ID3D12CommandAllocator *allocator[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
-	uint32_t current_allocator_index;
 
 	struct ID3D12GraphicsCommandList *list;
 	kope_d3d12_texture *render_pass_framebuffer;
