@@ -137,8 +137,6 @@ KOPE_FUNC void kope_g5_device_create_query_set(void *descriptor);
 
 KOPE_FUNC void kope_g5_device_submit_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
-KOPE_FUNC void kope_g5_device_swap_buffers(kope_g5_device *device);
-
 #ifdef __cplusplus
 }
 #endif

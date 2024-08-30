@@ -16,6 +16,6 @@ void kope_g5_command_list_end_render_pass(kope_g5_command_list *list) {
 	KOPE_G5_CALL1(command_list_end_render_pass, list);
 }
 
-void kope_g5_command_list_finish(kope_g5_command_list *list) {
-	KOPE_G5_CALL1(command_list_finish, list);
+void kope_g5_command_list_present(kope_g5_command_list *list) {
+	KOPE_G5_CALL1(command_list_present, list);
 }

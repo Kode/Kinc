@@ -24,6 +24,11 @@ typedef struct kope_d3d12_device {
 
 	uint32_t framebuffer_index;
 	kope_g5_texture framebuffer_textures[2];
+
+	struct ID3D12Fence *frame_fence;
+	HANDLE frame_event;
+	uint64_t current_frame_index;
+
 } kope_d3d12_device;
 
 #ifdef __cplusplus

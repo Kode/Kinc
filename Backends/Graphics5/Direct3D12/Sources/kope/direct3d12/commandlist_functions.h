@@ -13,6 +13,8 @@ void kope_d3d12_command_list_end_render_pass(kope_g5_command_list *list);
 
 void kope_d3d12_command_list_finish(kope_g5_command_list *list);
 
+void kope_d3d12_command_list_present(kope_g5_command_list *list);
+
 #ifdef __cplusplus
 }
 #endif

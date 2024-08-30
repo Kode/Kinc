@@ -47,10 +47,6 @@ void kope_g5_device_submit_command_list(kope_g5_device *device, kope_g5_command_
 	KOPE_G5_CALL2(device_submit_command_list, device, list);
 }
 
-void kope_g5_device_swap_buffers(kope_g5_device *device) {
-	KOPE_G5_CALL1(device_swap_buffers, device);
-}
-
 uint32_t kope_g5_texture_format_byte_size(kope_g5_texture_format format) {
 	switch (format) {
 	case KOPE_G5_TEXTURE_FORMAT_R8_UNORM:

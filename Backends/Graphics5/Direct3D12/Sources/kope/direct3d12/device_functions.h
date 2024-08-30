@@ -23,8 +23,6 @@ kope_g5_texture *kope_d3d12_device_get_framebuffer_texture(kope_g5_device *devic
 
 void kope_d3d12_device_submit_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
-void kope_d3d12_device_swap_buffers(kope_g5_device *device);
-
 #ifdef __cplusplus
 }
 #endif

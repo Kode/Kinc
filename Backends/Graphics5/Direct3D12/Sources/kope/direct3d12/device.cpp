@@ -89,6 +89,11 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 	}
 
 	device->d3d12.framebuffer_index = 0;
+
+	device->d3d12.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&device->d3d12.frame_fence));
+	device->d3d12.frame_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	device->d3d12.current_frame_index = 1;
 }
 
 void kope_d3d12_device_destroy(kope_g5_device *device) {
@@ -163,10 +168,12 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommandList(
 	    0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator[current_command_list_allocator_index(list)], NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
 
-	list->d3d12.render_pass_framebuffer = NULL;
-
 	device->d3d12.device->CreateFence(list->d3d12.run_index - 1, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&list->d3d12.fence));
 	list->d3d12.event = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	list->d3d12.blocking_frame_index = 0;
+
+	list->d3d12.presenting = false;
 }
 
 static DXGI_FORMAT convert_texture_format(kope_g5_texture_format format) {
@@ -373,6 +380,8 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 
 	texture->d3d12.resource_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
+	texture->d3d12.in_flight_frame_index = 0;
+
 	create_texture_views(device, parameters, texture);
 }
 
@@ -380,30 +389,66 @@ kope_g5_texture *kope_d3d12_device_get_framebuffer_texture(kope_g5_device *devic
 	return &device->d3d12.framebuffer_textures[device->d3d12.framebuffer_index];
 }
 
-static void wait_for_fence(ID3D12Fence *fence, UINT64 completion_value, HANDLE event) {
+static void wait_for_fence(ID3D12Fence *fence, HANDLE event, UINT64 completion_value) {
 	if (fence->GetCompletedValue() < completion_value) {
 		kinc_microsoft_affirm(fence->SetEventOnCompletion(completion_value, event));
 		WaitForSingleObject(event, INFINITE);
 	}
 }
 
+static void wait_for_frame(kope_g5_device *device, uint64_t frame_index) {
+	wait_for_fence(device->d3d12.frame_fence, device->d3d12.frame_event, frame_index);
+}
+
 void kope_d3d12_device_submit_command_list(kope_g5_device *device, kope_g5_command_list *list) {
+	if (list->d3d12.presenting) {
+		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer_texture(device);
+		if (framebuffer->d3d12.resource_state != D3D12_RESOURCE_STATE_PRESENT) {
+			D3D12_RESOURCE_BARRIER barrier;
+			barrier.Transition.pResource = framebuffer->d3d12.resource;
+			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)framebuffer->d3d12.resource_state;
+			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+			list->d3d12.list->ResourceBarrier(1, &barrier);
+
+			framebuffer->d3d12.resource_state = D3D12_RESOURCE_STATE_PRESENT;
+		}
+	}
+
+	list->d3d12.list->Close();
+
+	if (list->d3d12.blocking_frame_index > 0) {
+		wait_for_frame(device, list->d3d12.blocking_frame_index);
+		list->d3d12.blocking_frame_index = 0;
+	}
+
 	ID3D12CommandList *lists[] = {list->d3d12.list};
 	device->d3d12.queue->ExecuteCommandLists(1, lists);
 
 	device->d3d12.queue->Signal(list->d3d12.fence, list->d3d12.run_index);
 
-	wait_for_fence(list->d3d12.fence, list->d3d12.run_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1), list->d3d12.event);
+	wait_for_fence(list->d3d12.fence, list->d3d12.event, list->d3d12.run_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1));
 
 	list->d3d12.run_index += 1;
 	uint32_t allocator_index = current_command_list_allocator_index(list);
 
 	list->d3d12.allocator[allocator_index]->Reset();
 	list->d3d12.list->Reset(list->d3d12.allocator[allocator_index], NULL);
-}
 
-void kope_d3d12_device_swap_buffers(kope_g5_device *device) {
-	kinc_microsoft_affirm(device->d3d12.swap_chain->Present(1, 0));
+	if (list->d3d12.presenting) {
+		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer_texture(device);
+		framebuffer->d3d12.in_flight_frame_index = device->d3d12.current_frame_index;
 
-	device->d3d12.framebuffer_index = (device->d3d12.framebuffer_index + 1) % 2;
+		kinc_microsoft_affirm(device->d3d12.swap_chain->Present(1, 0));
+
+		device->d3d12.queue->Signal(device->d3d12.frame_fence, device->d3d12.current_frame_index);
+
+		device->d3d12.current_frame_index += 1;
+		device->d3d12.framebuffer_index = (device->d3d12.framebuffer_index + 1) % 2;
+
+		list->d3d12.presenting = false;
+	}
 }
