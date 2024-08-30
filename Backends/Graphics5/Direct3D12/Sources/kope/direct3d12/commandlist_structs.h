@@ -23,7 +23,7 @@ typedef struct kope_d3d12_command_list {
 	struct ID3D12GraphicsCommandList *list;
 
 	// a bunch of variables used to figure out what allocators can be reused
-	uint64_t run_index;
+	uint64_t execution_index;
 	struct ID3D12Fence *fence;
 	HANDLE event;
 

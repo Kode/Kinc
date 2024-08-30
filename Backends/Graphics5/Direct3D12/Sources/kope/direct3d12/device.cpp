@@ -153,13 +153,13 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 }
 
 static uint32_t current_command_list_allocator_index(kope_g5_command_list *list) {
-	return list->d3d12.run_index % KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT;
+	return list->d3d12.execution_index % KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT;
 }
 
 void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	list->d3d12.device = &device->d3d12;
 
-	list->d3d12.run_index = KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1;
+	list->d3d12.execution_index = KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1;
 
 	for (int i = 0; i < KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT; ++i) {
 		kinc_microsoft_affirm(device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator[i])));
@@ -168,7 +168,7 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommandList(
 	    0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator[current_command_list_allocator_index(list)], NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
 
-	device->d3d12.device->CreateFence(list->d3d12.run_index - 1, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&list->d3d12.fence));
+	device->d3d12.device->CreateFence(list->d3d12.execution_index - 1, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&list->d3d12.fence));
 	list->d3d12.event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	list->d3d12.blocking_frame_index = 0;
@@ -428,11 +428,11 @@ void kope_d3d12_device_submit_command_list(kope_g5_device *device, kope_g5_comma
 	ID3D12CommandList *lists[] = {list->d3d12.list};
 	device->d3d12.queue->ExecuteCommandLists(1, lists);
 
-	device->d3d12.queue->Signal(list->d3d12.fence, list->d3d12.run_index);
+	device->d3d12.queue->Signal(list->d3d12.fence, list->d3d12.execution_index);
 
-	wait_for_fence(list->d3d12.fence, list->d3d12.event, list->d3d12.run_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1));
+	wait_for_fence(list->d3d12.fence, list->d3d12.event, list->d3d12.execution_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1));
 
-	list->d3d12.run_index += 1;
+	list->d3d12.execution_index += 1;
 	uint32_t allocator_index = current_command_list_allocator_index(list);
 
 	list->d3d12.allocator[allocator_index]->Reset();
