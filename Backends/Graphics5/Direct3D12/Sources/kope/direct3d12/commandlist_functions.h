@@ -11,9 +11,10 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 
 void kope_d3d12_command_list_end_render_pass(kope_g5_command_list *list);
 
-void kope_d3d12_command_list_finish(kope_g5_command_list *list);
-
 void kope_d3d12_command_list_present(kope_g5_command_list *list);
+
+void kope_d3d12_command_list_set_index_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, kope_g5_index_format index_format, uint64_t offset,
+                                              uint64_t size);
 
 #ifdef __cplusplus
 }

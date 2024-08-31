@@ -50,6 +50,23 @@ typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_
 		kope_vulkan_##name(arg0, arg1);                                                                                                                        \
 		break;                                                                                                                                                 \
 	}
+#define KOPE_G5_CALL3(name, arg0, arg1, arg2)                                                                                                                  \
+	switch (selected_api) {                                                                                                                                    \
+	case KOPE_G5_API_DIRECT3D12:                                                                                                                               \
+		kope_d3d12_##name(arg0, arg1, arg2);                                                                                                                   \
+		break;                                                                                                                                                 \
+	case KOPE_G5_API_VULKAN:                                                                                                                                   \
+		kope_vulkan_##name(arg0, arg1, arg2);                                                                                                                  \
+		break;                                                                                                                                                 \
+	}                                                                                                                                                          \
+	#define KOPE_G5_CALL4(name, arg0, arg1, arg2, arg3) switch (selected_api) {                                                                                \
+	case KOPE_G5_API_DIRECT3D12:                                                                                                                               \
+		kope_d3d12_##name(arg0, arg1, arg2, arg3);                                                                                                             \
+		break;                                                                                                                                                 \
+	case KOPE_G5_API_VULKAN:                                                                                                                                   \
+		kope_vulkan_##name(arg0, arg1, arg2, arg3);                                                                                                            \
+		break;                                                                                                                                                 \
+	}
 
 #else
 
@@ -58,6 +75,8 @@ typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_
 #define KOPE_G5_CALL1(name, arg0) kope_d3d12_##name(arg0)
 #define KOPE_G5_CALL2(name, arg0, arg1) kope_d3d12_##name(arg0, arg1)
 #define KOPE_G5_CALL3(name, arg0, arg1, arg2) kope_d3d12_##name(arg0, arg1, arg2)
+#define KOPE_G5_CALL4(name, arg0, arg1, arg2, arg3) kope_d3d12_##name(arg0, arg1, arg2, arg3)
+#define KOPE_G5_CALL5(name, arg0, arg1, arg2, arg3, arg4) kope_d3d12_##name(arg0, arg1, arg2, arg3, arg4)
 
 #endif
 
@@ -68,6 +87,8 @@ typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_
 #define KOPE_G5_CALL1(name, arg0) kope_vulkan_##name(arg0)
 #define KOPE_G5_CALL2(name, arg0, arg1) kope_vulkan_##name(arg0, arg1)
 #define KOPE_G5_CALL3(name, arg0, arg1, arg2) kope_vulkan_##name(arg0, arg1, arg2)
+#define KOPE_G5_CALL4(name, arg0, arg1, arg2, arg3) kope_vulkan_##name(arg0, arg1, arg2, arg3)
+#define KOPE_G5_CALL5(name, arg0, arg1, arg2, arg3, arg4) kope_vulkan_##name(arg0, arg1, arg2, arg3, arg4)
 
 #endif
 

@@ -7,6 +7,9 @@
 extern "C" {
 #endif
 
+void *kope_d3d12_buffer_lock(kope_g5_buffer *buffer);
+void kope_d3d12_buffer_unlock(kope_g5_buffer *buffer);
+
 #ifdef __cplusplus
 }
 #endif

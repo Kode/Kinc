@@ -143,13 +143,6 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
 	                                                                    NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));
-
-	// buffer->impl.index_buffer_view.BufferLocation = buffer->impl.upload_buffer->GetGPUVirtualAddress();
-	// buffer->impl.index_buffer_view.SizeInBytes = uploadBufferSize;
-	// buffer->impl.index_buffer_view.Format = format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
-
-	// buffer->impl.last_start = 0;
-	// buffer->impl.last_count = kinc_g5_index_buffer_count(buffer);
 }
 
 static uint32_t current_command_list_allocator_index(kope_g5_command_list *list) {
