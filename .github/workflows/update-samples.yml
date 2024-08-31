@@ -36,26 +36,6 @@ jobs:
       env:
         ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
     
-    - name: Clone Kong Samples
-      run: git clone https://github.com/Kode/KincKong-Samples.git
-    - name: Get Kinc-Submodule
-      working-directory: KincKong-Samples
-      run: git submodule update --init --remote Kinc
-    - name: Checkout Kinc
-      working-directory: KincKong-Samples/Kinc
-      run: git checkout main
-    - name: Add Kinc
-      working-directory: KincKong-Samples
-      run: git add Kinc
-    - name: Commit
-      working-directory: KincKong-Samples
-      run: git commit -m "Update Kinc"
-    - name: Push
-      working-directory: KincKong-Samples
-      run: git push https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/KincKong-Samples.git
-      env:
-        ROBBOT_PASS: ${{ secrets.ROBBOT_PASS }}
-    
     - name: Clone Switch Samples
       run: git clone https://Kode-Robbot:$ROBBOT_PASS@github.com/Kode/Kinc-Samples-Switch.git
       env:
