@@ -44,3 +44,7 @@ void kinc_microsoft_format(const char *format, va_list args, wchar_t *buffer) {
 	vsprintf(cbuffer, format, args);
 	MultiByteToWideChar(CP_UTF8, 0, cbuffer, -1, buffer, 4096);
 }
+
+void kinc_microsoft_convert_string(wchar_t *destination, const char *source, int num) {
+	MultiByteToWideChar(CP_UTF8, 0, source, -1, destination, num);
+}

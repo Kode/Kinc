@@ -1,0 +1,32 @@
+#ifndef KOPE_D3D12_SHADER_STRUCTS_HEADER
+#define KOPE_D3D12_SHADER_STRUCTS_HEADER
+
+#include "d3d12mini.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum kope_d3d12_shader_stage {
+	KOPE_D3D12_SHADER_STAGE_VERTEX,
+	KOPE_D3D12_SHADER_STAGE_AMPLIFICATION,
+	KOPE_D3D12_SHADER_STAGE_MESH,
+	KOPE_D3D12_SHADER_STAGE_FRAGMENT,
+	KOPE_D3D12_SHADER_STAGE_COMPUTE,
+	KOPE_D3D12_SHADER_STAGE_RAY_GENERATION,
+	KOPE_D3D12_SHADER_STAGE_RAY_MISS,
+	KOPE_D3D12_SHADER_STAGE_RAY_CLOSEST_HIT,
+	KOPE_D3D12_SHADER_STAGE_RAY_INTERSECTION,
+	KOPE_D3D12_SHADER_STAGE_RAY_ANY_HIT
+} kope_d3d12_shader_stage;
+
+typedef struct kope_d3d12_shader {
+	uint8_t *data;
+	size_t size;
+} kope_d3d12_shader;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

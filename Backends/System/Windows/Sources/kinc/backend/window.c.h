@@ -238,8 +238,8 @@ static int createWindow(const wchar_t *title, int x, int y, int width, int heigh
 		break;
 	}
 
-	HWND hwnd = CreateWindowExW(getDwExStyle(windowMode, features), windowClassName, title, getDwStyle(windowMode, features), dstx, dsty, dstw, dsth, NULL, NULL,
-	                            inst, NULL);
+	HWND hwnd = CreateWindowExW(getDwExStyle(windowMode, features), windowClassName, title, getDwStyle(windowMode, features), dstx, dsty, dstw, dsth, NULL,
+	                            NULL, inst, NULL);
 #endif
 
 	SetCursor(LoadCursor(NULL, IDC_ARROW));
@@ -427,7 +427,9 @@ int kinc_window_create(kinc_window_options_t *win, kinc_framebuffer_options_t *f
 #ifdef KINC_OCULUS
 	vsync = false;
 #endif
+#ifndef KOPE
 	kinc_g4_internal_init_window(windowId, frame->depth_bits, frame->stencil_bits, vsync);
+#endif
 
 	if (win->visible) {
 		kinc_window_show(windowId);

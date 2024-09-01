@@ -33,13 +33,19 @@ let a3 = false;
 // which is a little more restrictive than Kinc's zlib license.
 const lz4x = true;
 
-project.addFile('Sources/**');
+project.addFile('Sources/kinc/**');
 
 if (Options.kong) {
 	project.addKongDir('KongShaders');
 }
 else {
 	project.addFile('GLSLShaders/**');
+}
+
+if (Options.kope) {
+	project.addDefine('KOPE');
+	project.addFile('Sources/kope/**', {nocompile: true});
+	project.addFile('Sources/kope/**/*unit.c');
 }
 
 if (lz4x) {
@@ -49,7 +55,13 @@ if (lz4x) {
 project.addIncludeDir('Sources');
 
 function addBackend(name) {
-	project.addFile('Backends/' + name + '/Sources/**');
+	project.addFile('Backends/' + name + '/Sources/kinc/**');
+	project.addFile('Backends/' + name + '/Sources/GL/**');
+	project.addFile('Backends/' + name + '/Sources/Android/**');
+	if (Options.kope) {
+		project.addFile('Backends/' + name + '/Sources/kinc/**', {nocompile: true});
+		project.addFile('Backends/' + name + '/Sources/kinc/**/*unit.c');
+	}
 	project.addIncludeDir('Backends/' + name + '/Sources');
 }
 
