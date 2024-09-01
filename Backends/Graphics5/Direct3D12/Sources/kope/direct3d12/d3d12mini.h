@@ -18,22 +18,6 @@ struct IDXGISwapChain;
 typedef void *HANDLE;
 typedef unsigned __int64 UINT64;
 
-struct D3D12Viewport {
-	float TopLeftX;
-	float TopLeftY;
-	float Width;
-	float Height;
-	float MinDepth;
-	float MaxDepth;
-};
-
-struct D3D12Rect {
-	long left;
-	long top;
-	long right;
-	long bottom;
-};
-
 #ifdef __cplusplus
 }
 #endif
