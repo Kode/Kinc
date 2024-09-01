@@ -59,8 +59,8 @@ function addBackend(name) {
 	project.addFile('Backends/' + name + '/Sources/GL/**');
 	project.addFile('Backends/' + name + '/Sources/Android/**');
 	if (Options.kope) {
-		project.addFile('Backends/' + name + '/Sources/kinc/**', {nocompile: true});
-		project.addFile('Backends/' + name + '/Sources/kinc/**/*unit.c');
+		project.addFile('Backends/' + name + '/Sources/kope/**', {nocompile: true});
+		project.addFile('Backends/' + name + '/Sources/kope/**/*unit.c*');
 	}
 	project.addIncludeDir('Backends/' + name + '/Sources');
 }
