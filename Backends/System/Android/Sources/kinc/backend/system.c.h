@@ -10,7 +10,7 @@
 // #include <kinc/input/sensor.h>
 #include <android/sensor.h>
 #include <android/window.h>
-#include <android_native_app_glue.h>
+#include <Android/android_native_app_glue.h>
 #include <kinc/input/pen.h>
 #include <kinc/input/surface.h>
 #include <kinc/log.h>
