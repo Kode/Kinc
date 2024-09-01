@@ -7,15 +7,6 @@
 
 #include <kinc/backend/SystemMicrosoft.h>
 
-void kope_d3d12_pipeline_init(kope_d3d12_pipeline *pipe) {}
-
-void kope_d3d12_pipeline_destroy(kope_d3d12_pipeline *pipe) {
-	if (pipe->pipe != NULL) {
-		pipe->pipe->Release();
-		pipe->pipe = NULL;
-	}
-}
-
 static D3D12_BLEND convert_blend_factor(kope_d3d12_blend_factor factor) {
 	switch (factor) {
 	case KOPE_D3D12_BLEND_FACTOR_ZERO:
@@ -106,266 +97,272 @@ static D3D12_COMPARISON_FUNC convert_compare_function(kope_d3d12_compare_functio
 	}
 }
 
-/*static void set_blend_state(D3D12_BLEND_DESC *blend_desc, kinc_g5_pipeline_t *pipe, int target) {
-    blend_desc->RenderTarget[target].BlendEnable = pipe->blend_source != KINC_G5_BLEND_ONE || pipe->blend_destination != KINC_G5_BLEND_ZERO ||
-                                                   pipe->alpha_blend_source != KINC_G5_BLEND_ONE || pipe->alpha_blend_destination != KINC_G5_BLEND_ZERO;
-    blend_desc->RenderTarget[target].SrcBlend = convert_blend_factor(pipe->blend_source);
-    blend_desc->RenderTarget[target].DestBlend = convert_blend_factor(pipe->blend_destination);
-    blend_desc->RenderTarget[target].BlendOp = convert_blend_operation(pipe->blend_operation);
-    blend_desc->RenderTarget[target].SrcBlendAlpha = convert_blend_factor(pipe->alpha_blend_source);
-    blend_desc->RenderTarget[target].DestBlendAlpha = convert_blend_factor(pipe->alpha_blend_destination);
-    blend_desc->RenderTarget[target].BlendOpAlpha = convert_blend_operation(pipe->alpha_blend_operation);
-    blend_desc->RenderTarget[target].RenderTargetWriteMask =
-        (((pipe->colorWriteMaskRed[target] ? D3D12_COLOR_WRITE_ENABLE_RED : 0) | (pipe->colorWriteMaskGreen[target] ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0)) |
-         (pipe->colorWriteMaskBlue[target] ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0)) |
-        (pipe->colorWriteMaskAlpha[target] ? D3D12_COLOR_WRITE_ENABLE_ALPHA : 0);
-}*/
+D3D12_STENCIL_OP convert_stencil_operation(kope_d3d12_stencil_operation operation) {
+	switch (operation) {
+	case KOPE_D3D12_STENCIL_OPERATION_KEEP:
+		return D3D12_STENCIL_OP_KEEP;
+	case KOPE_D3D12_STENCIL_OPERATION_ZERO:
+		return D3D12_STENCIL_OP_ZERO;
+	case KOPE_D3D12_STENCIL_OPERATION_REPLACE:
+		return D3D12_STENCIL_OP_REPLACE;
+	case KOPE_D3D12_STENCIL_OPERATION_INVERT:
+		return D3D12_STENCIL_OP_INVERT;
+	case KOPE_D3D12_STENCIL_OPERATION_INCREMENT_CLAMP:
+		return D3D12_STENCIL_OP_INCR_SAT;
+	case KOPE_D3D12_STENCIL_OPERATION_DECREMENT_CLAMP:
+		return D3D12_STENCIL_OP_DECR_SAT;
+	case KOPE_D3D12_STENCIL_OPERATION_INCREMENT_WRAP:
+		return D3D12_STENCIL_OP_INCR;
+	case KOPE_D3D12_STENCIL_OPERATION_DECREMENT_WRAP:
+		return D3D12_STENCIL_OP_DECR;
+	default:
+		assert(false);
+		return D3D12_STENCIL_OP_KEEP;
+	}
+}
 
-/*void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
-    // TODO FLOAT4x4
-    int vertexAttributeCount = 0;
-    for (int i = 0; i < 16; ++i) {
-        if (pipe->inputLayout[i] == NULL) {
-            break;
-        }
-        vertexAttributeCount += pipe->inputLayout[i]->size;
-    }
-    D3D12_INPUT_ELEMENT_DESC *vertexDesc = (D3D12_INPUT_ELEMENT_DESC *)alloca(sizeof(D3D12_INPUT_ELEMENT_DESC) * vertexAttributeCount);
-    ZeroMemory(vertexDesc, sizeof(D3D12_INPUT_ELEMENT_DESC) * vertexAttributeCount);
-    int curAttr = 0;
-    for (int stream = 0; pipe->inputLayout[stream] != NULL; ++stream) {
-        for (int i = 0; i < pipe->inputLayout[stream]->size; ++i) {
-            vertexDesc[curAttr].SemanticName = "TEXCOORD";
-#ifdef KINC_KONG
-            vertexDesc[curAttr].SemanticIndex = i;
-#else
-            vertexDesc[curAttr].SemanticIndex = findAttribute(pipe->vertexShader, pipe->inputLayout[stream]->elements[i].name).attribute;
-#endif
-            vertexDesc[curAttr].InputSlot = stream;
-            vertexDesc[curAttr].AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
-            vertexDesc[curAttr].InputSlotClass =
-                pipe->inputLayout[stream]->instanced ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-            vertexDesc[curAttr].InstanceDataStepRate = pipe->inputLayout[stream]->instanced ? 1 : 0;
+D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_primitive_topology(kope_d3d12_primitive_topology topolocy) {
+	switch (topolocy) {
+	case KOPE_D3D12_PRIMITIVE_TOPOLOGY_POINT_LIST:
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	case KOPE_D3D12_PRIMITIVE_TOPOLOGY_LINE_LIST:
+	case KOPE_D3D12_PRIMITIVE_TOPOLOGY_LINE_STRIP:
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+	case KOPE_D3D12_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST:
+	case KOPE_D3D12_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP:
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	default:
+		assert(false);
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	}
+}
 
-            switch (pipe->inputLayout[stream]->elements[i].data) {
-            case KINC_G4_VERTEX_DATA_F32_1X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32_FLOAT;
-                break;
-            case KINC_G4_VERTEX_DATA_F32_2X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32_FLOAT;
-                break;
-            case KINC_G4_VERTEX_DATA_F32_3X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-                break;
-            case KINC_G4_VERTEX_DATA_F32_4X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-                break;
-            case KINC_G4_VERTEX_DATA_I8_1X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U8_1X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8_UINT;
-                break;
-            case KINC_G4_VERTEX_DATA_I8_1X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8_SNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_U8_1X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8_UNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_I8_2X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U8_2X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8_UINT;
-                break;
-            case KINC_G4_VERTEX_DATA_I8_2X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8_SNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_U8_2X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8_UNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_I8_4X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8B8A8_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U8_4X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8B8A8_UINT;
-                break;
-            case KINC_G4_VERTEX_DATA_I8_4X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8B8A8_SNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_U8_4X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_I16_1X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U16_1X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16_UINT;
-                break;
-            case KINC_G4_VERTEX_DATA_I16_1X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16_SNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_U16_1X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16_UNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_I16_2X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U16_2X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16_UINT;
-                break;
-            case KINC_G4_VERTEX_DATA_I16_2X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16_SNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_U16_2X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16_UNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_I16_4X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16B16A16_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U16_4X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16B16A16_UINT;
-                break;
-            case KINC_G4_VERTEX_DATA_I16_4X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_U16_4X_NORMALIZED:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R16G16B16A16_UNORM;
-                break;
-            case KINC_G4_VERTEX_DATA_I32_1X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U32_1X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32_UINT;
-                break;
-            case KINC_G4_VERTEX_DATA_I32_2X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U32_2X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32_UINT;
-                break;
-            case KINC_G4_VERTEX_DATA_I32_3X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U32_3X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32_UINT;
-                break;
-            case KINC_G4_VERTEX_DATA_I32_4X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32A32_SINT;
-                break;
-            case KINC_G4_VERTEX_DATA_U32_4X:
-                vertexDesc[curAttr].Format = DXGI_FORMAT_R32G32B32A32_UINT;
-                break;
-            default:
-                break;
-            }
-            curAttr++;
-        }
-    }
+static void set_blend_state(D3D12_BLEND_DESC *desc, const kope_d3d12_color_target_state *target_state, size_t target) {
+	desc->RenderTarget[target].BlendEnable =
+	    target_state->blend.color.src_factor != KOPE_D3D12_BLEND_FACTOR_ONE || target_state->blend.color.dst_factor != KOPE_D3D12_BLEND_FACTOR_ZERO ||
+	    target_state->blend.alpha.src_factor != KOPE_D3D12_BLEND_FACTOR_ONE || target_state->blend.alpha.dst_factor != KOPE_D3D12_BLEND_FACTOR_ZERO;
+	desc->RenderTarget[target].SrcBlend = convert_blend_factor(target_state->blend.color.src_factor);
+	desc->RenderTarget[target].DestBlend = convert_blend_factor(target_state->blend.color.dst_factor);
+	desc->RenderTarget[target].BlendOp = convert_blend_operation(target_state->blend.color.operation);
+	desc->RenderTarget[target].SrcBlendAlpha = convert_blend_factor(target_state->blend.alpha.src_factor);
+	desc->RenderTarget[target].DestBlendAlpha = convert_blend_factor(target_state->blend.alpha.dst_factor);
+	desc->RenderTarget[target].BlendOpAlpha = convert_blend_operation(target_state->blend.alpha.operation);
+	desc->RenderTarget[target].RenderTargetWriteMask = target_state->write_mask;
+}
 
-    HRESULT hr = S_OK;
-#ifdef KINC_DXC
-    // hr = device->CreateRootSignature(0, pipe->vertexShader->impl.data, pipe->vertexShader->impl.length,
-IID_GRAPHICS_PPV_ARGS(&pipe->impl.rootSignature)); if (hr != S_OK) { kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create root signature.");
-    }
-#ifndef KINC_KONG
-    pipe->impl.vertexConstantsSize = pipe->vertexShader->impl.constantsSize;
-    pipe->impl.fragmentConstantsSize = pipe->fragmentShader->impl.constantsSize;
-#endif
-#endif
+void kope_d3d12_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pipe, const kope_d3d12_pipeline_parameters *parameters) {
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {0};
 
-#ifndef KINC_KONG
-    pipe->impl.textures = pipe->fragmentShader->impl.texturesCount;
-#endif
+	desc.VS.BytecodeLength = parameters->vertex.shader->size;
+	desc.VS.pShaderBytecode = parameters->vertex.shader->data;
 
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {0};
-    psoDesc.VS.BytecodeLength = pipe->vertexShader->impl.length;
-    psoDesc.VS.pShaderBytecode = pipe->vertexShader->impl.data;
-    psoDesc.PS.BytecodeLength = pipe->fragmentShader->impl.length;
-    psoDesc.PS.pShaderBytecode = pipe->fragmentShader->impl.data;
-#ifdef KINC_DXC
-    // psoDesc.pRootSignature = pipe->impl.rootSignature;
-    psoDesc.pRootSignature = globalRootSignature;
-#else
-    psoDesc.pRootSignature = globalRootSignature;
-#endif
-    psoDesc.NumRenderTargets = pipe->colorAttachmentCount;
-    for (int i = 0; i < pipe->colorAttachmentCount; ++i) {
-        psoDesc.RTVFormats[i] = convert_format(pipe->colorAttachment[i]);
-    }
-    psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+	assert(parameters->vertex.buffers_count <= KOPE_D3D12_MAX_VERTEX_ATTRIBUTES);
+	D3D12_INPUT_ELEMENT_DESC input_elements[KOPE_D3D12_MAX_VERTEX_ATTRIBUTES] = {0};
 
-    psoDesc.InputLayout.NumElements = vertexAttributeCount;
-    psoDesc.InputLayout.pInputElementDescs = vertexDesc;
+	size_t input_element_index = 0;
+	for (size_t buffer_index = 0; buffer_index < parameters->vertex.buffers_count; ++buffer_index) {
+		for (size_t attribute_index = 0; attribute_index < parameters->vertex.buffers[buffer_index].attributes_count; ++attribute_index) {
+			input_elements[input_element_index].SemanticName = "TEXCOORD";
+			input_elements[input_element_index].SemanticIndex = (UINT)attribute_index;
+			input_elements[input_element_index].InputSlot = (UINT)buffer_index;
+			input_elements[input_element_index].AlignedByteOffset = (attribute_index == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
+			input_elements[input_element_index].InputSlotClass = parameters->vertex.buffers[buffer_index].step_mode == KOPE_D3D12_VERTEX_STEP_MODE_INSTANCE
+			                                                         ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA
+			                                                         : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+			input_elements[input_element_index].InstanceDataStepRate =
+			    parameters->vertex.buffers[buffer_index].step_mode == KOPE_D3D12_VERTEX_STEP_MODE_INSTANCE ? 1 : 0;
 
-    psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-    psoDesc.RasterizerState.CullMode = convert_cull_mode(pipe->cullMode);
-    psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
-    psoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
-    psoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
-    psoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
-    psoDesc.RasterizerState.DepthClipEnable = TRUE;
-    psoDesc.RasterizerState.MultisampleEnable = FALSE;
-    psoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
-    psoDesc.RasterizerState.ForcedSampleCount = 0;
-    psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+			switch (parameters->vertex.buffers[buffer_index].attributes[attribute_index].format) {
+			case KOPE_D3D12_VERTEX_FORMAT_UINT8X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R8G8_UINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UINT8X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R8G8B8A8_UINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SINT8X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R8G8_SINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SINT8X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R8G8B8A8_SINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UNORM8X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R8G8_UNORM;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UNORM8X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SNORM8X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R8G8_SNORM;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SNORM8X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UINT16X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16_UINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UINT16X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16B16A16_UINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SINT16X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16_SINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SINT16X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16B16A16_SINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UNORM16X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16_UNORM;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UNORM16X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16B16A16_UNORM;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SNORM16X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16_SNORM;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SNORM16X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16B16A16_SNORM;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_FLOAT16X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16_FLOAT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_FLOAT16X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_FLOAT32:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32_FLOAT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_FLOAT32X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32_FLOAT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_FLOAT32X3:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_FLOAT32X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UINT32:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32_UINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UINT32X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32_UINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UINT32X3:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32B32_UINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UINT32X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32B32A32_UINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SIN32:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32_SINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SINT32X2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32_SINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SINT32X3:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32B32_SINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_SINT32X4:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32B32A32_SINT;
+				break;
+			case KOPE_D3D12_VERTEX_FORMAT_UNORM10_10_10_2:
+				input_elements[input_element_index].Format = DXGI_FORMAT_R10G10B10A2_UNORM;
+				break;
+			default:
+				assert(false);
+				break;
+			}
+			input_element_index += 1;
+		}
+	}
 
-    psoDesc.BlendState.AlphaToCoverageEnable = FALSE;
-    psoDesc.BlendState.IndependentBlendEnable = FALSE;
-    const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
-        FALSE,
-        FALSE,
-        D3D12_BLEND_ONE,
-        D3D12_BLEND_ZERO,
-        D3D12_BLEND_OP_ADD,
-        D3D12_BLEND_ONE,
-        D3D12_BLEND_ZERO,
-        D3D12_BLEND_OP_ADD,
-        D3D12_LOGIC_OP_NOOP,
-        D3D12_COLOR_WRITE_ENABLE_ALL,
-    };
-    for (UINT i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i) {
-        psoDesc.BlendState.RenderTarget[i] = defaultRenderTargetBlendDesc;
-    }
+	desc.InputLayout.NumElements = (UINT)input_element_index;
+	desc.InputLayout.pInputElementDescs = input_elements;
 
-    bool independentBlend = false;
-    for (int i = 1; i < 8; ++i) {
-        if (pipe->colorWriteMaskRed[0] != pipe->colorWriteMaskRed[i] || pipe->colorWriteMaskGreen[0] != pipe->colorWriteMaskGreen[i] ||
-            pipe->colorWriteMaskBlue[0] != pipe->colorWriteMaskBlue[i] || pipe->colorWriteMaskAlpha[0] != pipe->colorWriteMaskAlpha[i]) {
-            independentBlend = true;
-            break;
-        }
-    }
+	desc.PrimitiveTopologyType = convert_primitive_topology(parameters->primitive.topology);
 
-    set_blend_state(&psoDesc.BlendState, pipe, 0);
-    if (independentBlend) {
-        psoDesc.BlendState.IndependentBlendEnable = true;
-        for (int i = 1; i < 8; ++i) {
-            set_blend_state(&psoDesc.BlendState, pipe, i);
-        }
-    }
+	desc.RasterizerState.FrontCounterClockwise = parameters->primitive.frontFace == KOPE_D3D12_FRONT_FACE_CCW ? TRUE : FALSE;
+	desc.RasterizerState.CullMode = convert_cull_mode(parameters->primitive.cull_mode);
 
-    psoDesc.DepthStencilState.DepthEnable = TRUE;
-    psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-    psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-    psoDesc.DepthStencilState.StencilEnable = FALSE;
-    psoDesc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
-    psoDesc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
-    const D3D12_DEPTH_STENCILOP_DESC defaultStencilOp = {D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS};
-    psoDesc.DepthStencilState.FrontFace = defaultStencilOp;
-    psoDesc.DepthStencilState.BackFace = defaultStencilOp;
+	desc.RasterizerState.DepthClipEnable = parameters->primitive.unclipped_depth ? FALSE : TRUE;
 
-    psoDesc.DepthStencilState.DepthEnable = pipe->depthMode != KINC_G5_COMPARE_MODE_ALWAYS;
-    psoDesc.DepthStencilState.DepthWriteMask = pipe->depthWrite ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
-    psoDesc.DepthStencilState.DepthFunc = convert_compare_mode(pipe->depthMode);
-    psoDesc.DepthStencilState.StencilEnable = false;
-    psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-    psoDesc.SampleDesc.Count = 1;
-    psoDesc.SampleMask = 0xFFFFFFFF;
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	desc.DSVFormat = convert_texture_format(parameters->depth_stencil.format);
 
-    hr = device->CreateGraphicsPipelineState(&psoDesc, IID_GRAPHICS_PPV_ARGS(&pipe->impl.pso));
-    if (hr != S_OK) {
-        kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
-    }
-}*/
+	desc.DepthStencilState.DepthEnable = parameters->depth_stencil.depth_compare != KOPE_D3D12_COMPARE_FUNCTION_ALWAYS;
+	desc.DepthStencilState.DepthWriteMask = parameters->depth_stencil.depth_write_enabled ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
+	desc.DepthStencilState.DepthFunc = convert_compare_function(parameters->depth_stencil.depth_compare);
+
+	desc.DepthStencilState.StencilEnable = parameters->depth_stencil.stencil_front.compare != KOPE_D3D12_COMPARE_FUNCTION_ALWAYS ||
+	                                       parameters->depth_stencil.stencil_front.pass_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
+	                                       parameters->depth_stencil.stencil_front.fail_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
+	                                       parameters->depth_stencil.stencil_front.depth_fail_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
+	                                       parameters->depth_stencil.stencil_back.compare != KOPE_D3D12_COMPARE_FUNCTION_ALWAYS ||
+	                                       parameters->depth_stencil.stencil_back.pass_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
+	                                       parameters->depth_stencil.stencil_back.fail_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
+	                                       parameters->depth_stencil.stencil_back.depth_fail_op != KOPE_D3D12_STENCIL_OPERATION_KEEP;
+	desc.DepthStencilState.StencilReadMask = parameters->depth_stencil.stencil_read_mask;
+	desc.DepthStencilState.StencilWriteMask = parameters->depth_stencil.stencil_write_mask;
+	desc.DepthStencilState.FrontFace.StencilFunc = convert_compare_function(parameters->depth_stencil.stencil_front.compare);
+	desc.DepthStencilState.FrontFace.StencilPassOp = convert_stencil_operation(parameters->depth_stencil.stencil_front.pass_op);
+	desc.DepthStencilState.FrontFace.StencilFailOp = convert_stencil_operation(parameters->depth_stencil.stencil_front.fail_op);
+	desc.DepthStencilState.FrontFace.StencilDepthFailOp = convert_stencil_operation(parameters->depth_stencil.stencil_front.depth_fail_op);
+	desc.DepthStencilState.BackFace.StencilFunc = convert_compare_function(parameters->depth_stencil.stencil_back.compare);
+	desc.DepthStencilState.BackFace.StencilPassOp = convert_stencil_operation(parameters->depth_stencil.stencil_back.pass_op);
+	desc.DepthStencilState.BackFace.StencilFailOp = convert_stencil_operation(parameters->depth_stencil.stencil_back.fail_op);
+	desc.DepthStencilState.BackFace.StencilDepthFailOp = convert_stencil_operation(parameters->depth_stencil.stencil_back.depth_fail_op);
+
+	desc.RasterizerState.DepthBias = parameters->depth_stencil.depth_bias;
+	desc.RasterizerState.SlopeScaledDepthBias = parameters->depth_stencil.depth_bias_slope_scale;
+	desc.RasterizerState.DepthBiasClamp = parameters->depth_stencil.depth_bias_clamp;
+
+	desc.RasterizerState.MultisampleEnable = parameters->multisample.count > 1 ? TRUE : FALSE;
+	desc.SampleDesc.Count = parameters->multisample.count;
+	desc.SampleDesc.Quality = 0;
+	desc.SampleMask = 0xFFFFFFFF;
+	desc.BlendState.AlphaToCoverageEnable = parameters->multisample.alpha_to_coverage_enabled ? TRUE : FALSE;
+
+	desc.PS.BytecodeLength = parameters->fragment.shader->size;
+	desc.PS.pShaderBytecode = parameters->fragment.shader->data;
+
+	desc.NumRenderTargets = (UINT)parameters->fragment.targets_count;
+	assert(parameters->fragment.targets_count <= KOPE_D3D12_MAX_COLOR_TARGETS);
+	for (size_t target_index = 0; target_index < parameters->fragment.targets_count; ++target_index) {
+		desc.RTVFormats[target_index] = convert_texture_format(parameters->fragment.targets[target_index].format);
+	}
+
+	desc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+
+	desc.RasterizerState.AntialiasedLineEnable = FALSE;
+	desc.RasterizerState.ForcedSampleCount = 0;
+	desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+	desc.BlendState.IndependentBlendEnable = FALSE;
+
+	bool independent_blend = false;
+	for (int i = 1; i < KOPE_D3D12_MAX_COLOR_TARGETS; ++i) {
+		if (parameters->fragment.targets[0].write_mask != parameters->fragment.targets[i].write_mask) {
+			independent_blend = true;
+			break;
+		}
+	}
+
+	set_blend_state(&desc.BlendState, &parameters->fragment.targets[0], 0);
+	if (independent_blend) {
+		desc.BlendState.IndependentBlendEnable = true;
+		for (int i = 1; i < KOPE_D3D12_MAX_COLOR_TARGETS; ++i) {
+			set_blend_state(&desc.BlendState, &parameters->fragment.targets[i], i);
+		}
+	}
+
+	desc.pRootSignature = NULL;
+
+	HRESULT result = device->device->CreateGraphicsPipelineState(&desc, IID_GRAPHICS_PPV_ARGS(&pipe->pipe));
+	if (result != S_OK) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
+	}
+}
+
+void kope_d3d12_pipeline_destroy(kope_d3d12_pipeline *pipe) {
+	if (pipe->pipe != NULL) {
+		pipe->pipe->Release();
+		pipe->pipe = NULL;
+	}
+}

@@ -116,7 +116,6 @@ typedef struct kope_d3d12_stencil_face_state {
 	kope_d3d12_stencil_operation fail_op;
 	kope_d3d12_stencil_operation depth_fail_op;
 	kope_d3d12_stencil_operation pass_op;
-
 } kope_d3d12_stencil_face_state;
 
 typedef struct kope_d3d12_depth_stencil_state {
@@ -124,7 +123,7 @@ typedef struct kope_d3d12_depth_stencil_state {
 	bool depth_write_enabled;
 	kope_d3d12_compare_function depth_compare;
 	kope_d3d12_stencil_face_state stencil_front;
-	kope_d3d12_stencil_face_state stencilBack;
+	kope_d3d12_stencil_face_state stencil_back;
 	uint32_t stencil_read_mask;
 	uint32_t stencil_write_mask;
 	int32_t depth_bias;
@@ -184,7 +183,7 @@ typedef enum kope_d3d12_color_write_flags {
 typedef struct kope_d3d12_color_target_state {
 	kope_g5_texture_format format;
 	kope_d3d12_blend_state blend;
-	uint32_t writeMask;
+	uint32_t write_mask;
 } kope_d3d12_color_target_state;
 
 #define KOPE_D3D12_MAX_COLOR_TARGETS 8
@@ -192,12 +191,13 @@ typedef struct kope_d3d12_color_target_state {
 typedef struct kope_d3d12_fragment_state {
 	kope_d3d12_shader *shader;
 	kope_d3d12_color_target_state targets[KOPE_D3D12_MAX_COLOR_TARGETS];
+	size_t targets_count;
 } kope_d3d12_fragment_state;
 
 typedef struct kope_d3d12_pipeline_parameters {
-	kope_d3d12_vertex_state *vertex;
+	kope_d3d12_vertex_state vertex;
 	kope_d3d12_primitive_state primitive;
-	kope_d3d12_depth_stencil_state depthStencil;
+	kope_d3d12_depth_stencil_state depth_stencil;
 	kope_d3d12_multisample_state multisample;
 	kope_d3d12_fragment_state fragment;
 } kope_d3d12_pipeline_parameters;
