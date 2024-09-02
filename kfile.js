@@ -36,7 +36,9 @@ const lz4x = true;
 project.addFile('Sources/kinc/**');
 
 if (Options.kong) {
-	project.addKongDir('KongShaders');
+	if (!Options.kope) {
+		project.addKongDir('KongShaders');
+	}
 }
 else {
 	project.addFile('GLSLShaders/**');
