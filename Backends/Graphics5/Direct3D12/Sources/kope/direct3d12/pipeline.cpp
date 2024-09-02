@@ -1,8 +1,6 @@
 #include "pipeline_functions.h"
 #include "pipeline_structs.h"
 
-#include "shader_structs.h"
-
 #include <kinc/log.h>
 
 #include <kinc/backend/SystemMicrosoft.h>
@@ -147,14 +145,14 @@ static void set_blend_state(D3D12_BLEND_DESC *desc, const kope_d3d12_color_targe
 	desc->RenderTarget[target].SrcBlendAlpha = convert_blend_factor(target_state->blend.alpha.src_factor);
 	desc->RenderTarget[target].DestBlendAlpha = convert_blend_factor(target_state->blend.alpha.dst_factor);
 	desc->RenderTarget[target].BlendOpAlpha = convert_blend_operation(target_state->blend.alpha.operation);
-	desc->RenderTarget[target].RenderTargetWriteMask = target_state->write_mask;
+	desc->RenderTarget[target].RenderTargetWriteMask = (UINT8)target_state->write_mask;
 }
 
 void kope_d3d12_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pipe, const kope_d3d12_pipeline_parameters *parameters) {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {0};
 
-	desc.VS.BytecodeLength = parameters->vertex.shader->size;
-	desc.VS.pShaderBytecode = parameters->vertex.shader->data;
+	desc.VS.BytecodeLength = parameters->vertex.shader.size;
+	desc.VS.pShaderBytecode = parameters->vertex.shader.data;
 
 	assert(parameters->vertex.buffers_count <= KOPE_D3D12_MAX_VERTEX_ATTRIBUTES);
 	D3D12_INPUT_ELEMENT_DESC input_elements[KOPE_D3D12_MAX_VERTEX_ATTRIBUTES] = {0};
@@ -279,7 +277,7 @@ void kope_d3d12_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pi
 
 	desc.PrimitiveTopologyType = convert_primitive_topology(parameters->primitive.topology);
 
-	desc.RasterizerState.FrontCounterClockwise = parameters->primitive.frontFace == KOPE_D3D12_FRONT_FACE_CCW ? TRUE : FALSE;
+	desc.RasterizerState.FrontCounterClockwise = parameters->primitive.front_face == KOPE_D3D12_FRONT_FACE_CCW ? TRUE : FALSE;
 	desc.RasterizerState.CullMode = convert_cull_mode(parameters->primitive.cull_mode);
 
 	desc.RasterizerState.DepthClipEnable = parameters->primitive.unclipped_depth ? FALSE : TRUE;
@@ -319,8 +317,8 @@ void kope_d3d12_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pi
 	desc.SampleMask = 0xFFFFFFFF;
 	desc.BlendState.AlphaToCoverageEnable = parameters->multisample.alpha_to_coverage_enabled ? TRUE : FALSE;
 
-	desc.PS.BytecodeLength = parameters->fragment.shader->size;
-	desc.PS.pShaderBytecode = parameters->fragment.shader->data;
+	desc.PS.BytecodeLength = parameters->fragment.shader.size;
+	desc.PS.pShaderBytecode = parameters->fragment.shader.data;
 
 	desc.NumRenderTargets = (UINT)parameters->fragment.targets_count;
 	assert(parameters->fragment.targets_count <= KOPE_D3D12_MAX_COLOR_TARGETS);

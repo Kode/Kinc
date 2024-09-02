@@ -9,6 +9,8 @@
 #include <kinc/io/filereader.h>
 #include <kinc/log.h>
 
+#ifndef KOPE
+
 #ifdef KINC_KONG
 #include <kong.h>
 #endif
@@ -36,9 +38,12 @@ void kinc_g1_begin(void) {
 
 static inline kinc_g4_texture_filter_t map_texture_filter(kinc_g1_texture_filter_t filter) {
 	switch (filter) {
-		case KINC_G1_TEXTURE_FILTER_POINT: return KINC_G4_TEXTURE_FILTER_POINT;
-		case KINC_G1_TEXTURE_FILTER_LINEAR: return KINC_G4_TEXTURE_FILTER_LINEAR;
-		case KINC_G1_TEXTURE_FILTER_ANISOTROPIC: return KINC_G4_TEXTURE_FILTER_ANISOTROPIC;
+	case KINC_G1_TEXTURE_FILTER_POINT:
+		return KINC_G4_TEXTURE_FILTER_POINT;
+	case KINC_G1_TEXTURE_FILTER_LINEAR:
+		return KINC_G4_TEXTURE_FILTER_LINEAR;
+	case KINC_G1_TEXTURE_FILTER_ANISOTROPIC:
+		return KINC_G4_TEXTURE_FILTER_ANISOTROPIC;
 	}
 
 	kinc_log(KINC_LOG_LEVEL_WARNING, "unhandled kinc_g1_texture_filter_t (%i)", filter);
@@ -47,9 +52,12 @@ static inline kinc_g4_texture_filter_t map_texture_filter(kinc_g1_texture_filter
 
 static inline kinc_g4_texture_filter_t map_mipmap_filter(kinc_g1_texture_filter_t filter) {
 	switch (filter) {
-		case KINC_G1_MIPMAP_FILTER_NONE: return KINC_G4_MIPMAP_FILTER_NONE;
-		case KINC_G1_MIPMAP_FILTER_POINT: return KINC_G4_MIPMAP_FILTER_POINT;
-		case KINC_G1_MIPMAP_FILTER_LINEAR: return KINC_G4_MIPMAP_FILTER_LINEAR;
+	case KINC_G1_MIPMAP_FILTER_NONE:
+		return KINC_G4_MIPMAP_FILTER_NONE;
+	case KINC_G1_MIPMAP_FILTER_POINT:
+		return KINC_G4_MIPMAP_FILTER_POINT;
+	case KINC_G1_MIPMAP_FILTER_LINEAR:
+		return KINC_G4_MIPMAP_FILTER_LINEAR;
 	}
 
 	kinc_log(KINC_LOG_LEVEL_WARNING, "unhandled kinc_g1_mipmap_filter_t (%i)", filter);
@@ -212,5 +220,7 @@ void kinc_g1_set_texture_minification_filter(kinc_g1_texture_filter_t filter) {
 void kinc_g1_set_texture_mipmap_filter(kinc_g1_mipmap_filter_t filter) {
 	kinc_internal_g1_mipmap_filter = filter;
 }
+
+#endif
 
 #endif

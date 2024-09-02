@@ -1,9 +1,9 @@
 #ifndef KOPE_D3D12_PIPELINE_STRUCTS_HEADER
 #define KOPE_D3D12_PIPELINE_STRUCTS_HEADER
 
-#include "shader_structs.h"
-
 #include <kope/graphics5/buffer.h>
+#include <kope/graphics5/commandlist.h>
+#include <kope/graphics5/device.h>
 #include <kope/graphics5/texture.h>
 
 #ifdef __cplusplus
@@ -61,10 +61,15 @@ typedef struct kope_d3d12_vertex_buffer_layout {
 	size_t attributes_count;
 } kope_d3d12_vertex_buffer_layout;
 
+typedef struct kope_d3d12_shader {
+	uint8_t *data;
+	size_t size;
+} kope_d3d12_shader;
+
 #define KOPE_D3D12_MAX_VERTEX_BUFFERS 16
 
 typedef struct kope_d3d12_vertex_state {
-	kope_d3d12_shader *shader;
+	kope_d3d12_shader shader;
 	kope_d3d12_vertex_buffer_layout buffers[KOPE_D3D12_MAX_VERTEX_BUFFERS];
 	size_t buffers_count;
 } kope_d3d12_vertex_state;
@@ -84,7 +89,7 @@ typedef enum kope_d3d12_cull_mode { KOPE_D3D12_CULL_MODE_NONE, KOPE_D3D12_CULL_M
 typedef struct kope_d3d12_primitive_state {
 	kope_d3d12_primitive_topology topology;
 	kope_g5_index_format strip_index_format;
-	kope_d3d12_front_face frontFace;
+	kope_d3d12_front_face front_face;
 	kope_d3d12_cull_mode cull_mode;
 	bool unclipped_depth;
 } kope_d3d12_primitive_state;
@@ -189,7 +194,7 @@ typedef struct kope_d3d12_color_target_state {
 #define KOPE_D3D12_MAX_COLOR_TARGETS 8
 
 typedef struct kope_d3d12_fragment_state {
-	kope_d3d12_shader *shader;
+	kope_d3d12_shader shader;
 	kope_d3d12_color_target_state targets[KOPE_D3D12_MAX_COLOR_TARGETS];
 	size_t targets_count;
 } kope_d3d12_fragment_state;
