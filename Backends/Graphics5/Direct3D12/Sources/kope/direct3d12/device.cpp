@@ -378,7 +378,7 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	create_texture_views(device, parameters, texture);
 }
 
-kope_g5_texture *kope_d3d12_device_get_framebuffer_texture(kope_g5_device *device) {
+kope_g5_texture *kope_d3d12_device_get_framebuffer(kope_g5_device *device) {
 	return &device->d3d12.framebuffer_textures[device->d3d12.framebuffer_index];
 }
 
@@ -393,9 +393,9 @@ static void wait_for_frame(kope_g5_device *device, uint64_t frame_index) {
 	wait_for_fence(device->d3d12.frame_fence, device->d3d12.frame_event, frame_index);
 }
 
-void kope_d3d12_device_submit_command_list(kope_g5_device *device, kope_g5_command_list *list) {
+void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	if (list->d3d12.presenting) {
-		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer_texture(device);
+		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer(device);
 		if (framebuffer->d3d12.resource_state != D3D12_RESOURCE_STATE_PRESENT) {
 			D3D12_RESOURCE_BARRIER barrier;
 			barrier.Transition.pResource = framebuffer->d3d12.resource;
@@ -432,7 +432,7 @@ void kope_d3d12_device_submit_command_list(kope_g5_device *device, kope_g5_comma
 	list->d3d12.list->Reset(list->d3d12.allocator[allocator_index], NULL);
 
 	if (list->d3d12.presenting) {
-		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer_texture(device);
+		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer(device);
 		framebuffer->d3d12.in_flight_frame_index = device->d3d12.current_frame_index;
 
 		kinc_microsoft_affirm(device->d3d12.swap_chain->Present(1, 0));
