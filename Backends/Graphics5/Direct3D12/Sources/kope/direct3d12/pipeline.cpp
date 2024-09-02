@@ -332,30 +332,29 @@ void kope_d3d12_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pi
 	desc.RasterizerState.ForcedSampleCount = 0;
 	desc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
-	desc.BlendState.IndependentBlendEnable = FALSE;
-
 	bool independent_blend = false;
-	for (int i = 1; i < KOPE_D3D12_MAX_COLOR_TARGETS; ++i) {
-		if (parameters->fragment.targets[0].write_mask != parameters->fragment.targets[i].write_mask) {
+	for (int i = 1; i < parameters->fragment.targets_count; ++i) {
+		if (memcmp(&parameters->fragment.targets[0], &parameters->fragment.targets[i], sizeof(kope_d3d12_color_target_state)) != 0) {
 			independent_blend = true;
 			break;
 		}
 	}
 
+	desc.BlendState.IndependentBlendEnable = independent_blend ? TRUE : FALSE;
+
 	set_blend_state(&desc.BlendState, &parameters->fragment.targets[0], 0);
 	if (independent_blend) {
-		desc.BlendState.IndependentBlendEnable = true;
-		for (int i = 1; i < KOPE_D3D12_MAX_COLOR_TARGETS; ++i) {
+		for (int i = 1; i < parameters->fragment.targets_count; ++i) {
 			set_blend_state(&desc.BlendState, &parameters->fragment.targets[i], i);
 		}
 	}
 
 	desc.pRootSignature = NULL;
 
-	HRESULT result = device->device->CreateGraphicsPipelineState(&desc, IID_GRAPHICS_PPV_ARGS(&pipe->pipe));
-	if (result != S_OK) {
-		kinc_log(KINC_LOG_LEVEL_WARNING, "Could not create pipeline.");
-	}
+	kinc_microsoft_affirm(device->device->CreateGraphicsPipelineState(&desc, IID_GRAPHICS_PPV_ARGS(&pipe->pipe)));
+
+	kinc_microsoft_affirm(
+	    device->device->CreateRootSignature(0, desc.VS.pShaderBytecode, desc.VS.BytecodeLength, IID_GRAPHICS_PPV_ARGS(&pipe->root_signature)));
 }
 
 void kope_d3d12_pipeline_destroy(kope_d3d12_pipeline *pipe) {

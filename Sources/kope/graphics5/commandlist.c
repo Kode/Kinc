@@ -24,3 +24,8 @@ void kope_g5_command_list_set_index_buffer(kope_g5_command_list *list, kope_g5_b
                                            uint64_t size) {
 	KOPE_G5_CALL5(command_list_set_index_buffer, list, buffer, index_format, offset, size);
 }
+
+void kope_g5_command_list_draw_indexed(kope_g5_command_list *list, uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t base_vertex,
+                                       uint32_t first_instance) {
+	KOPE_G5_CALL6(command_list_draw_indexed, list, index_count, instance_count, first_index, base_vertex, first_instance);
+}

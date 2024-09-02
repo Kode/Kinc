@@ -3,6 +3,8 @@
 
 #include <kope/graphics5/commandlist.h>
 
+#include "pipeline_structs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,6 +17,14 @@ void kope_d3d12_command_list_present(kope_g5_command_list *list);
 
 void kope_d3d12_command_list_set_index_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, kope_g5_index_format index_format, uint64_t offset,
                                               uint64_t size);
+
+void kope_d3d12_command_list_set_vertex_buffer(kope_g5_command_list *list, uint32_t slot, kope_d3d12_buffer *buffer, uint64_t offset, uint64_t size,
+                                               uint64_t stride);
+
+void kope_d3d12_command_list_set_pipeline(kope_g5_command_list *list, kope_d3d12_pipeline *pipeline);
+
+void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t base_vertex,
+                                          uint32_t first_instance);
 
 #ifdef __cplusplus
 }

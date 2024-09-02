@@ -208,9 +208,11 @@ typedef struct kope_d3d12_pipeline_parameters {
 } kope_d3d12_pipeline_parameters;
 
 struct ID3D12PipelineState;
+struct ID3D12RootSignature;
 
 typedef struct kope_d3d12_pipeline {
 	struct ID3D12PipelineState *pipe;
+	struct ID3D12RootSignature *root_signature;
 } kope_d3d12_pipeline;
 
 #ifdef __cplusplus

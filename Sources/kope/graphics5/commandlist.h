@@ -92,14 +92,10 @@ KOPE_FUNC void kope_g5_command_list_clear_buffer(kope_g5_command_list *list, kop
 // KOPE_FUNC void kope_g5_command_list_resolve_query_set(kope_g5_command_list *list, GPUQuerySet querySet, uint32_t firstQuery, uint32_t queryCount,
 //                                                     kope_g5_buffer *destination, uint64_t destinationOffset);
 
-KOPE_FUNC void kope_g5_command_list_set_pipeline(kope_g5_command_list *list, void *pipeline);
-
 typedef enum kope_g5_index_format { KOPE_G5_INDEX_FORMAT_UINT16, KOPE_G5_INDEX_FORMAT_UINT32 } kope_g5_index_format;
 
 KOPE_FUNC void kope_g5_command_list_set_index_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, kope_g5_index_format index_format, uint64_t offset,
                                                      uint64_t size);
-
-KOPE_FUNC void kope_g5_command_list_set_vertex_buffer(kope_g5_command_list *list, uint32_t slot, kope_g5_buffer *buffer, uint64_t offset, uint64_t size);
 
 KOPE_FUNC void kope_g5_command_list_draw(kope_g5_command_list *list, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex,
                                          uint32_t first_instance);
