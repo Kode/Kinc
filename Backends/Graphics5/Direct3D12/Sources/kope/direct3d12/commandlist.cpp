@@ -33,6 +33,14 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 	D3D12_CPU_DESCRIPTOR_HANDLE rtv = list->d3d12.device->all_rtvs->GetCPUDescriptorHandleForHeapStart();
 	rtv.ptr += render_target->d3d12.rtv_index * list->d3d12.device->rtv_increment;
 
+	D3D12_RECT scissor = {0, 0, 1024, 768};
+
+	D3D12_VIEWPORT viewport = {0.0f, 0.0f, 1024.0f, 768.0f, 0.0f, 1.0f};
+
+	list->d3d12.list->OMSetRenderTargets(1, &rtv, true, nullptr);
+	list->d3d12.list->RSSetViewports(1, &viewport);
+	list->d3d12.list->RSSetScissorRects(1, &scissor);
+
 	FLOAT color[4];
 	memcpy(color, &parameters->color_attachments[0].clear_value, sizeof(color));
 	list->d3d12.list->ClearRenderTargetView(rtv, color, 0, NULL);
