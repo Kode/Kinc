@@ -9,6 +9,21 @@
 extern "C" {
 #endif
 
+struct ID3D12CommandAllocator;
+struct ID3D12DescriptorHeap;
+
+#define KOPE_D3D12_FRAME_COUNT 2
+
+typedef struct kope_d3d12_execution_context {
+	uint64_t blocking_frame_index;
+	struct ID3D12DescriptorHeap *descriptor_heap;
+	size_t descriptor_heap_offset;
+	struct ID3D12DescriptorHeap *sampler_heap;
+	size_t sampler_heap_offset;
+} kope_d3d12_execution_context;
+
+#define KOPE_D3D12_NUM_EXECUTION_CONTEXTS 2
+
 typedef struct kope_d3d12_device {
 	struct ID3D12Device *device;
 	struct ID3D12CommandQueue *queue;
@@ -22,13 +37,17 @@ typedef struct kope_d3d12_device {
 	kope_index_allocator dsv_index_allocator;
 	uint32_t dsv_increment;
 
+	kope_d3d12_execution_context execution_contexts[KOPE_D3D12_NUM_EXECUTION_CONTEXTS];
+	uint32_t execution_context_index;
+
 	uint32_t framebuffer_index;
-	kope_g5_texture framebuffer_textures[2];
+	kope_g5_texture framebuffer_textures[KOPE_D3D12_FRAME_COUNT];
 
 	struct ID3D12Fence *frame_fence;
 	HANDLE frame_event;
 	uint64_t current_frame_index;
 
+	kope_g5_command_list management_list;
 } kope_d3d12_device;
 
 #ifdef __cplusplus

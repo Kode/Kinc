@@ -75,7 +75,7 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		device->d3d12.dsv_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	}
 
-	for (int i = 0; i < 2; ++i) {
+	for (int i = 0; i < KOPE_D3D12_FRAME_COUNT; ++i) {
 		device->d3d12.swap_chain->GetBuffer(i, IID_GRAPHICS_PPV_ARGS(&device->d3d12.framebuffer_textures[i].d3d12.resource));
 
 		kope_g5_texture_parameters parameters = {};
@@ -93,7 +93,41 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 	device->d3d12.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&device->d3d12.frame_fence));
 	device->d3d12.frame_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
+	for (int i = 0; i < KOPE_D3D12_NUM_EXECUTION_CONTEXTS; ++i) {
+		device->d3d12.execution_contexts[i] = {0};
+
+		{
+			D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+			desc.NumDescriptors = 1024;
+			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+			kinc_microsoft_affirm(
+			    device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.execution_contexts[i].descriptor_heap)));
+		}
+
+		{
+			D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+			desc.NumDescriptors = 1024;
+			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+			kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.execution_contexts[i].sampler_heap)));
+		}
+	}
+
 	device->d3d12.current_frame_index = 1;
+
+	device->d3d12.execution_context_index = 0;
+	device->d3d12.execution_contexts[device->d3d12.execution_context_index].blocking_frame_index = 1;
+
+	{
+		kope_d3d12_device_create_command_list(device, &device->d3d12.management_list);
+
+		kope_d3d12_execution_context *execution_context = &device->d3d12.execution_contexts[device->d3d12.execution_context_index];
+		ID3D12DescriptorHeap *heaps[] = {execution_context->descriptor_heap, execution_context->sampler_heap};
+		device->d3d12.management_list.d3d12.list->SetDescriptorHeaps(2, heaps);
+
+		kope_g5_device_execute_command_list(device, &device->d3d12.management_list);
+	}
 }
 
 void kope_d3d12_device_destroy(kope_g5_device *device) {
@@ -411,12 +445,31 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 		}
 	}
 
-	list->d3d12.list->Close();
-
 	if (list->d3d12.blocking_frame_index > 0) {
 		wait_for_frame(device, list->d3d12.blocking_frame_index);
 		list->d3d12.blocking_frame_index = 0;
 	}
+
+	{
+		uint64_t completed_frame = device->d3d12.frame_fence->GetCompletedValue();
+
+		for (uint32_t execution_index = 0; execution_index < KOPE_D3D12_NUM_EXECUTION_CONTEXTS; ++execution_index) {
+			kope_d3d12_execution_context *execution_context = &device->d3d12.execution_contexts[execution_index];
+			if (execution_context->blocking_frame_index <= completed_frame) {
+				device->d3d12.execution_context_index = execution_index;
+
+				execution_context->descriptor_heap_offset = 0;
+				execution_context->sampler_heap_offset = 0;
+
+				ID3D12DescriptorHeap *heaps[] = {execution_context->descriptor_heap, execution_context->sampler_heap};
+				list->d3d12.list->SetDescriptorHeaps(2, heaps);
+
+				break;
+			}
+		}
+	}
+
+	list->d3d12.list->Close();
 
 	ID3D12CommandList *lists[] = {list->d3d12.list};
 	device->d3d12.queue->ExecuteCommandLists(1, lists);
@@ -440,7 +493,9 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 		device->d3d12.queue->Signal(device->d3d12.frame_fence, device->d3d12.current_frame_index);
 
 		device->d3d12.current_frame_index += 1;
-		device->d3d12.framebuffer_index = (device->d3d12.framebuffer_index + 1) % 2;
+		device->d3d12.framebuffer_index = (device->d3d12.framebuffer_index + 1) % KOPE_D3D12_FRAME_COUNT;
+
+		device->d3d12.execution_contexts[device->d3d12.execution_context_index].blocking_frame_index = device->d3d12.current_frame_index;
 
 		list->d3d12.presenting = false;
 	}
