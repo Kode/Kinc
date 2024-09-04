@@ -4,6 +4,7 @@
 #include "d3d12mini.h"
 
 #include <kope/util/indexallocator.h>
+#include <kope/util/offalloc/offalloc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +47,9 @@ typedef struct kope_d3d12_device {
 	struct ID3D12Fence *frame_fence;
 	HANDLE frame_event;
 	uint64_t current_frame_index;
+
+	struct ID3D12DescriptorHeap *descriptor_sets_heap;
+	oa_allocator_t descriptor_sets_allocator;
 
 	kope_g5_command_list management_list;
 } kope_d3d12_device;
