@@ -96,51 +96,41 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 	device->d3d12.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&device->d3d12.frame_fence));
 	device->d3d12.frame_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
-	for (int i = 0; i < KOPE_D3D12_NUM_EXECUTION_CONTEXTS; ++i) {
-		device->d3d12.execution_contexts[i] = {0};
-
-		{
-			D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-			desc.NumDescriptors = 1024;
-			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-			kinc_microsoft_affirm(
-			    device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.execution_contexts[i].descriptor_heap)));
-		}
-
-		{
-			D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-			desc.NumDescriptors = 1024;
-			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
-			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-			kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.execution_contexts[i].sampler_heap)));
-		}
-	}
-
 	device->d3d12.current_frame_index = 1;
 
-	device->d3d12.execution_context_index = 0;
-	device->d3d12.execution_contexts[device->d3d12.execution_context_index].blocking_frame_index = 1;
-
 	{
+		const uint32_t descriptor_count = 1024 * 10;
+
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-		desc.NumDescriptors = 1024 * 10;
+		desc.NumDescriptors = descriptor_count;
 		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.staging_descriptor_heap)));
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.descriptor_heap)));
 
-		oa_create(&device->d3d12.descriptor_sets_allocator, 1024 * 10, 4096);
+		oa_create(&device->d3d12.descriptor_heap_allocator, descriptor_count, 4096);
 	}
 
 	{
-		kope_d3d12_device_create_command_list(device, &device->d3d12.management_list);
+		const uint32_t sampler_count = 1024;
 
-		kope_d3d12_execution_context *execution_context = &device->d3d12.execution_contexts[device->d3d12.execution_context_index];
-		ID3D12DescriptorHeap *heaps[] = {execution_context->descriptor_heap, execution_context->sampler_heap};
-		device->d3d12.management_list.d3d12.list->SetDescriptorHeaps(2, heaps);
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.NumDescriptors = sampler_count;
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.sampler_heap)));
 
-		kope_g5_device_execute_command_list(device, &device->d3d12.management_list);
+		oa_create(&device->d3d12.sampler_heap_allocator, sampler_count, 4096);
 	}
+
+	/*{
+	    kope_d3d12_device_create_command_list(device, &device->d3d12.management_list);
+
+	    kope_d3d12_execution_context *execution_context = &device->d3d12.execution_contexts[device->d3d12.execution_context_index];
+	    ID3D12DescriptorHeap *heaps[] = {execution_context->descriptor_heap, execution_context->sampler_heap};
+	    device->d3d12.management_list.d3d12.list->SetDescriptorHeaps(2, heaps);
+
+	    kope_g5_device_execute_command_list(device, &device->d3d12.management_list);
+	}*/
 }
 
 void kope_d3d12_device_destroy(kope_g5_device *device) {
@@ -216,6 +206,9 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	list->d3d12.blocking_frame_index = 0;
 
 	list->d3d12.presenting = false;
+
+	ID3D12DescriptorHeap *heaps[] = {list->d3d12.device->descriptor_heap, list->d3d12.device->sampler_heap};
+	list->d3d12.list->SetDescriptorHeaps(2, heaps);
 }
 
 static DXGI_FORMAT convert_texture_format(kope_g5_texture_format format) {
@@ -465,22 +458,6 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 		list->d3d12.blocking_frame_index = 0;
 	}
 
-	{
-		uint64_t completed_frame = device->d3d12.frame_fence->GetCompletedValue();
-
-		for (uint32_t execution_index = 0; execution_index < KOPE_D3D12_NUM_EXECUTION_CONTEXTS; ++execution_index) {
-			kope_d3d12_execution_context *execution_context = &device->d3d12.execution_contexts[execution_index];
-			if (execution_context->blocking_frame_index <= completed_frame) {
-				device->d3d12.execution_context_index = execution_index;
-
-				ID3D12DescriptorHeap *heaps[] = {execution_context->descriptor_heap, execution_context->sampler_heap};
-				list->d3d12.list->SetDescriptorHeaps(2, heaps);
-
-				break;
-			}
-		}
-	}
-
 	list->d3d12.list->Close();
 
 	ID3D12CommandList *lists[] = {list->d3d12.list};
@@ -496,6 +473,9 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 	list->d3d12.allocator[allocator_index]->Reset();
 	list->d3d12.list->Reset(list->d3d12.allocator[allocator_index], NULL);
 
+	ID3D12DescriptorHeap *heaps[] = {list->d3d12.device->descriptor_heap, list->d3d12.device->sampler_heap};
+	list->d3d12.list->SetDescriptorHeaps(2, heaps);
+
 	if (list->d3d12.presenting) {
 		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer(device);
 		framebuffer->d3d12.in_flight_frame_index = device->d3d12.current_frame_index;
@@ -507,16 +487,11 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 		device->d3d12.current_frame_index += 1;
 		device->d3d12.framebuffer_index = (device->d3d12.framebuffer_index + 1) % KOPE_D3D12_FRAME_COUNT;
 
-		device->d3d12.execution_contexts[device->d3d12.execution_context_index].blocking_frame_index = device->d3d12.current_frame_index;
-
 		list->d3d12.presenting = false;
 	}
 }
 
 void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, kope_d3d12_descriptor_set *set) {
-	for (uint32_t index = 0; index < KOPE_D3D12_NUM_EXECUTION_CONTEXTS; ++index) {
-		set->copied_to_execution_context[index] = false;
-	}
-	oa_allocate(&device->d3d12.descriptor_sets_allocator, descriptor_count, &set->allocation);
+	oa_allocate(&device->d3d12.descriptor_heap_allocator, descriptor_count, &set->allocation);
 	set->descriptor_count = descriptor_count;
 }

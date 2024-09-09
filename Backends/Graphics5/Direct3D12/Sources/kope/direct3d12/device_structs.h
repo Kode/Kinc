@@ -15,14 +15,6 @@ struct ID3D12DescriptorHeap;
 
 #define KOPE_D3D12_FRAME_COUNT 2
 
-typedef struct kope_d3d12_execution_context {
-	uint64_t blocking_frame_index;
-	struct ID3D12DescriptorHeap *descriptor_heap;
-	struct ID3D12DescriptorHeap *sampler_heap;
-} kope_d3d12_execution_context;
-
-#define KOPE_D3D12_NUM_EXECUTION_CONTEXTS 2
-
 typedef struct kope_d3d12_device {
 	struct ID3D12Device *device;
 	struct ID3D12CommandQueue *queue;
@@ -39,9 +31,6 @@ typedef struct kope_d3d12_device {
 	uint32_t cbv_srv_uav_increment;
 	uint32_t sampler_increment;
 
-	kope_d3d12_execution_context execution_contexts[KOPE_D3D12_NUM_EXECUTION_CONTEXTS];
-	uint32_t execution_context_index;
-
 	uint32_t framebuffer_index;
 	kope_g5_texture framebuffer_textures[KOPE_D3D12_FRAME_COUNT];
 
@@ -49,8 +38,11 @@ typedef struct kope_d3d12_device {
 	HANDLE frame_event;
 	uint64_t current_frame_index;
 
-	struct ID3D12DescriptorHeap *staging_descriptor_heap;
-	oa_allocator_t descriptor_sets_allocator;
+	struct ID3D12DescriptorHeap *descriptor_heap;
+	oa_allocator_t descriptor_heap_allocator;
+
+	struct ID3D12DescriptorHeap *sampler_heap;
+	oa_allocator_t sampler_heap_allocator;
 
 	kope_g5_command_list management_list;
 } kope_d3d12_device;
