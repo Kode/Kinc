@@ -18,9 +18,7 @@ struct ID3D12DescriptorHeap;
 typedef struct kope_d3d12_execution_context {
 	uint64_t blocking_frame_index;
 	struct ID3D12DescriptorHeap *descriptor_heap;
-	size_t descriptor_heap_offset;
 	struct ID3D12DescriptorHeap *sampler_heap;
-	size_t sampler_heap_offset;
 } kope_d3d12_execution_context;
 
 #define KOPE_D3D12_NUM_EXECUTION_CONTEXTS 2
@@ -38,6 +36,9 @@ typedef struct kope_d3d12_device {
 	kope_index_allocator dsv_index_allocator;
 	uint32_t dsv_increment;
 
+	uint32_t cbv_srv_uav_increment;
+	uint32_t sampler_increment;
+
 	kope_d3d12_execution_context execution_contexts[KOPE_D3D12_NUM_EXECUTION_CONTEXTS];
 	uint32_t execution_context_index;
 
@@ -48,7 +49,7 @@ typedef struct kope_d3d12_device {
 	HANDLE frame_event;
 	uint64_t current_frame_index;
 
-	struct ID3D12DescriptorHeap *descriptor_sets_heap;
+	struct ID3D12DescriptorHeap *staging_descriptor_heap;
 	oa_allocator_t descriptor_sets_allocator;
 
 	kope_g5_command_list management_list;

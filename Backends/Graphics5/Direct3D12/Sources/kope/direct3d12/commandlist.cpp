@@ -87,3 +87,22 @@ void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t i
 	list->d3d12.list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	list->d3d12.list->DrawIndexedInstanced(index_count, instance_count, first_index, base_vertex, first_instance);
 }
+
+void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set) {
+	uint32_t execution_index = list->d3d12.device->execution_context_index;
+
+	if (!set->copied_to_execution_context[execution_index]) {
+		D3D12_CPU_DESCRIPTOR_HANDLE src_descriptor = list->d3d12.device->staging_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+		src_descriptor.ptr += set->allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE dst_descriptor =
+		    list->d3d12.device->execution_contexts[execution_index].descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+		dst_descriptor.ptr += set->allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
+
+		list->d3d12.device->device->CopyDescriptorsSimple((UINT)set->descriptor_count, dst_descriptor, src_descriptor, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	}
+
+	D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->execution_contexts[execution_index].descriptor_heap->GetGPUDescriptorHandleForHeapStart();
+	gpu_descriptor.ptr += set->allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
+	list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+}

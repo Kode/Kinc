@@ -3,6 +3,7 @@
 
 #include <kope/graphics5/commandlist.h>
 
+#include "descriptorset_structs.h"
 #include "pipeline_structs.h"
 
 #ifdef __cplusplus
@@ -25,6 +26,8 @@ void kope_d3d12_command_list_set_pipeline(kope_g5_command_list *list, kope_d3d12
 
 void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t base_vertex,
                                           uint32_t first_instance);
+
+void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set);
 
 #ifdef __cplusplus
 }

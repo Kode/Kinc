@@ -51,6 +51,9 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		kinc_microsoft_affirm(dxgi_factory->CreateSwapChain((IUnknown *)device->d3d12.queue, &desc, &device->d3d12.swap_chain));
 	}
 
+	device->d3d12.cbv_srv_uav_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	device->d3d12.sampler_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 		desc.NumDescriptors = KOPE_INDEX_ALLOCATOR_SIZE;
@@ -124,7 +127,7 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		desc.NumDescriptors = 1024 * 10;
 		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.descriptor_sets_heap)));
+		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.staging_descriptor_heap)));
 
 		oa_create(&device->d3d12.descriptor_sets_allocator, 1024 * 10, 4096);
 	}
@@ -175,7 +178,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 	D3D12_RESOURCE_DESC resourceDesc;
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resourceDesc.Alignment = 0;
-	resourceDesc.Width = parameters->size;
+	resourceDesc.Width = 256; // parameters->size;
 	resourceDesc.Height = 1;
 	resourceDesc.DepthOrArraySize = 1;
 	resourceDesc.MipLevels = 1;
@@ -184,6 +187,8 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 	resourceDesc.SampleDesc.Quality = 0;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	buffer->d3d12.size = 256; // parameters->size;
 
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
 	                                                                    NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));
@@ -468,9 +473,6 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 			if (execution_context->blocking_frame_index <= completed_frame) {
 				device->d3d12.execution_context_index = execution_index;
 
-				execution_context->descriptor_heap_offset = 0;
-				execution_context->sampler_heap_offset = 0;
-
 				ID3D12DescriptorHeap *heaps[] = {execution_context->descriptor_heap, execution_context->sampler_heap};
 				list->d3d12.list->SetDescriptorHeaps(2, heaps);
 
@@ -512,6 +514,9 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 }
 
 void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, kope_d3d12_descriptor_set *set) {
+	for (uint32_t index = 0; index < KOPE_D3D12_NUM_EXECUTION_CONTEXTS; ++index) {
+		set->copied_to_execution_context[index] = false;
+	}
 	oa_allocate(&device->d3d12.descriptor_sets_allocator, descriptor_count, &set->allocation);
 	set->descriptor_count = descriptor_count;
 }
