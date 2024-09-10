@@ -178,7 +178,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 	D3D12_RESOURCE_DESC resourceDesc;
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resourceDesc.Alignment = 0;
-	resourceDesc.Width = 256; // parameters->size;
+	resourceDesc.Width = align_pow2((int)parameters->size, 256); // 256 required for CBVs
 	resourceDesc.Height = 1;
 	resourceDesc.DepthOrArraySize = 1;
 	resourceDesc.MipLevels = 1;
@@ -188,7 +188,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-	buffer->d3d12.size = 256; // parameters->size;
+	buffer->d3d12.size = parameters->size;
 
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
 	                                                                    NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));

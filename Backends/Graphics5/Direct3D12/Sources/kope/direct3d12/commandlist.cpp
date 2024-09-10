@@ -102,3 +102,22 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 		list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
 	}
 }
+
+void kope_g5_command_list_copy_buffer_to_texture(kope_g5_command_list *list, kope_g5_buffer *source, kope_g5_texture *destination, kope_uint3 size) {
+	D3D12_TEXTURE_COPY_LOCATION dst;
+	dst.pResource = destination->d3d12.resource;
+	dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	dst.SubresourceIndex = 0;
+
+	D3D12_TEXTURE_COPY_LOCATION src;
+	src.pResource = source->d3d12.resource;
+	src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	src.PlacedFootprint.Offset = 0;
+	src.PlacedFootprint.Footprint.Depth = 1;
+	src.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	src.PlacedFootprint.Footprint.Height = 512;
+	src.PlacedFootprint.Footprint.RowPitch = 512 * 4;
+	src.PlacedFootprint.Footprint.Width = 512;
+
+	list->d3d12.list->CopyTextureRegion(&dst, 0, 0, 0, &src, NULL);
+}
