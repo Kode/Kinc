@@ -491,7 +491,14 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 	}
 }
 
-void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, kope_d3d12_descriptor_set *set) {
-	oa_allocate(&device->d3d12.descriptor_heap_allocator, descriptor_count, &set->allocation);
+void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t sampler_count, kope_d3d12_descriptor_set *set) {
+	if (descriptor_count > 0) {
+		oa_allocate(&device->d3d12.descriptor_heap_allocator, descriptor_count, &set->descriptor_allocation);
+	}
 	set->descriptor_count = descriptor_count;
+
+	if (sampler_count > 0) {
+		oa_allocate(&device->d3d12.sampler_heap_allocator, sampler_count, &set->sampler_allocation);
+	}
+	set->sampler_count = sampler_count;
 }

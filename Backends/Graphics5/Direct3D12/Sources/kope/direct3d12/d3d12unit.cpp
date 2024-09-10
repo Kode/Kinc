@@ -5,4 +5,5 @@
 #include "descriptorset.cpp"
 #include "device.cpp"
 #include "pipeline.cpp"
+#include "sampler.cpp"
 #include "texture.cpp"

@@ -12,8 +12,11 @@ extern "C" {
 #endif
 
 typedef struct kope_d3d12_descriptor_set {
-	oa_allocation_t allocation;
+	oa_allocation_t descriptor_allocation;
 	size_t descriptor_count;
+
+	oa_allocation_t sampler_allocation;
+	size_t sampler_count;
 } kope_d3d12_descriptor_set;
 
 #ifdef __cplusplus

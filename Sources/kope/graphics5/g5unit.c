@@ -4,4 +4,5 @@
 #include "commandlist.c"
 #include "device.c"
 #include "graphics.c"
+#include "sampler.c"
 #include "texture.c"

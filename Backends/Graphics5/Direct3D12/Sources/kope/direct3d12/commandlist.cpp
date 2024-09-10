@@ -89,7 +89,16 @@ void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t i
 }
 
 void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set) {
-	D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->descriptor_heap->GetGPUDescriptorHandleForHeapStart();
-	gpu_descriptor.ptr += set->allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
-	list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+	if (set->descriptor_count > 0) {
+		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->descriptor_heap->GetGPUDescriptorHandleForHeapStart();
+		gpu_descriptor.ptr += set->descriptor_allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
+		list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+		table_index += 1;
+	}
+
+	if (set->sampler_count > 0) {
+		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->sampler_heap->GetGPUDescriptorHandleForHeapStart();
+		gpu_descriptor.ptr += set->sampler_allocation.offset * list->d3d12.device->sampler_increment;
+		list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+	}
 }
