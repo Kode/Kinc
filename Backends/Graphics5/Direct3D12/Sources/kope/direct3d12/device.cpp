@@ -78,6 +78,16 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		device->d3d12.dsv_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	}
 
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.NumDescriptors = KOPE_INDEX_ALLOCATOR_SIZE;
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.all_samplers)));
+
+		kope_index_allocator_init(&device->d3d12.sampler_index_allocator);
+	}
+
 	for (int i = 0; i < KOPE_D3D12_FRAME_COUNT; ++i) {
 		device->d3d12.swap_chain->GetBuffer(i, IID_GRAPHICS_PPV_ARGS(&device->d3d12.framebuffer_textures[i].d3d12.resource));
 
@@ -501,4 +511,38 @@ void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t de
 		oa_allocate(&device->d3d12.sampler_heap_allocator, sampler_count, &set->sampler_allocation);
 	}
 	set->sampler_count = sampler_count;
+}
+
+static D3D12_TEXTURE_ADDRESS_MODE convert_address_mode(kope_g5_address_mode mode) {
+	switch (mode) {
+	case KOPE_G5_ADDRESS_MODE_CLAMP_TO_EDGE:
+		return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	case KOPE_G5_ADDRESS_MODE_REPEAT:
+		return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	case KOPE_G5_ADDRESS_MODE_MIRROR_REPEAT:
+		return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+	default:
+		assert(false);
+		return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	}
+}
+
+void kope_d3d12_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler) {
+	sampler->d3d12.sampler_index = kope_index_allocator_allocate(&device->d3d12.sampler_index_allocator);
+
+	D3D12_SAMPLER_DESC desc = {};
+	desc.Filter =
+	    parameters->max_anisotropy > 1 ? D3D12_FILTER_ANISOTROPIC : convert_filter(parameters->min_filter, parameters->mag_filter, parameters->mipmap_filter);
+	desc.AddressU = convert_address_mode(parameters->address_mode_u);
+	desc.AddressV = convert_address_mode(parameters->address_mode_v);
+	desc.AddressW = convert_address_mode(parameters->address_mode_w);
+	desc.MinLOD = parameters->lod_min_clamp;
+	desc.MaxLOD = parameters->lod_max_clamp;
+	desc.MipLODBias = 0.0f;
+	desc.MaxAnisotropy = parameters->max_anisotropy;
+	desc.ComparisonFunc = convert_compare_function(parameters->compare);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = device->d3d12.all_samplers->GetCPUDescriptorHandleForHeapStart();
+	descriptor_handle.ptr += sampler->d3d12.sampler_index * device->d3d12.sampler_increment;
+	device->d3d12.device->CreateSampler(&desc, descriptor_handle);
 }

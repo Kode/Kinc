@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 typedef struct kope_g5_sampler {
-	KOPE_G5_IMPL(texture);
+	KOPE_G5_IMPL(sampler);
 } kope_g5_sampler;
 
 #ifdef __cplusplus

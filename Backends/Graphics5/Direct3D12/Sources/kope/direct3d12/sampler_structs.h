@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 typedef struct kope_d3d12_sampler {
-	int nothing;
+	uint32_t sampler_index;
 } kope_d3d12_sampler;
 
 #ifdef __cplusplus

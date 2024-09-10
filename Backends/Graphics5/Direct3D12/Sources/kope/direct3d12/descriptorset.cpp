@@ -26,18 +26,11 @@ void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope
 }
 
 void kope_d3d12_descriptor_set_set_sampler(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_sampler *sampler, uint32_t index) {
-	D3D12_SAMPLER_DESC desc = {};
-	desc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-	desc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	desc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	desc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	desc.MinLOD = 0.0f;
-	desc.MaxLOD = 1.0f;
-	desc.MipLODBias = 0.0f;
-	desc.MaxAnisotropy = 1;
-	desc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	D3D12_CPU_DESCRIPTOR_HANDLE src_handle = device->d3d12.all_samplers->GetCPUDescriptorHandleForHeapStart();
+	src_handle.ptr += sampler->d3d12.sampler_index * device->d3d12.sampler_increment;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = device->d3d12.sampler_heap->GetCPUDescriptorHandleForHeapStart();
-	descriptor_handle.ptr += (set->sampler_allocation.offset + index) * device->d3d12.sampler_increment;
-	device->d3d12.device->CreateSampler(&desc, descriptor_handle);
+	D3D12_CPU_DESCRIPTOR_HANDLE dst_handle = device->d3d12.sampler_heap->GetCPUDescriptorHandleForHeapStart();
+	dst_handle.ptr += (set->sampler_allocation.offset + index) * device->d3d12.sampler_increment;
+
+	device->d3d12.device->CopyDescriptorsSimple(1, dst_handle, src_handle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 }

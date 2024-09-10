@@ -154,3 +154,7 @@ bool kope_g5_texture_format_is_depth(kope_g5_texture_format format) {
 	}
 	return false;
 }
+
+void kope_g5_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler) {
+	KOPE_G5_CALL3(device_create_sampler, device, parameters, sampler);
+}

@@ -44,6 +44,9 @@ typedef struct kope_d3d12_device {
 	struct ID3D12DescriptorHeap *sampler_heap;
 	oa_allocator_t sampler_heap_allocator;
 
+	struct ID3D12DescriptorHeap *all_samplers;
+	kope_index_allocator sampler_index_allocator;
+
 	kope_g5_command_list management_list;
 } kope_d3d12_device;
 

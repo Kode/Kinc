@@ -71,30 +71,6 @@ static D3D12_CULL_MODE convert_cull_mode(kope_d3d12_cull_mode mode) {
 	}
 }
 
-static D3D12_COMPARISON_FUNC convert_compare_function(kope_d3d12_compare_function fun) {
-	switch (fun) {
-	case KOPE_D3D12_COMPARE_FUNCTION_NEVER:
-		return D3D12_COMPARISON_FUNC_NEVER;
-	case KOPE_D3D12_COMPARE_FUNCTION_LESS:
-		return D3D12_COMPARISON_FUNC_LESS;
-	case KOPE_D3D12_COMPARE_FUNCTION_EQUAL:
-		return D3D12_COMPARISON_FUNC_EQUAL;
-	case KOPE_D3D12_COMPARE_FUNCTION_LESS_EQUAL:
-		return D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	case KOPE_D3D12_COMPARE_FUNCTION_GREATER:
-		return D3D12_COMPARISON_FUNC_GREATER;
-	case KOPE_D3D12_COMPARE_FUNCTION_NOT_EQUAL:
-		return D3D12_COMPARISON_FUNC_NOT_EQUAL;
-	case KOPE_D3D12_COMPARE_FUNCTION_GREATER_EQUAL:
-		return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
-	case KOPE_D3D12_COMPARE_FUNCTION_ALWAYS:
-		return D3D12_COMPARISON_FUNC_ALWAYS;
-	default:
-		assert(false);
-		return D3D12_COMPARISON_FUNC_ALWAYS;
-	}
-}
-
 D3D12_STENCIL_OP convert_stencil_operation(kope_d3d12_stencil_operation operation) {
 	switch (operation) {
 	case KOPE_D3D12_STENCIL_OPERATION_KEEP:
@@ -284,15 +260,15 @@ void kope_d3d12_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pi
 
 	desc.DSVFormat = convert_texture_format(parameters->depth_stencil.format);
 
-	desc.DepthStencilState.DepthEnable = parameters->depth_stencil.depth_compare != KOPE_D3D12_COMPARE_FUNCTION_ALWAYS;
+	desc.DepthStencilState.DepthEnable = parameters->depth_stencil.depth_compare != KOPE_G5_COMPARE_FUNCTION_ALWAYS;
 	desc.DepthStencilState.DepthWriteMask = parameters->depth_stencil.depth_write_enabled ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
 	desc.DepthStencilState.DepthFunc = convert_compare_function(parameters->depth_stencil.depth_compare);
 
-	desc.DepthStencilState.StencilEnable = parameters->depth_stencil.stencil_front.compare != KOPE_D3D12_COMPARE_FUNCTION_ALWAYS ||
+	desc.DepthStencilState.StencilEnable = parameters->depth_stencil.stencil_front.compare != KOPE_G5_COMPARE_FUNCTION_ALWAYS ||
 	                                       parameters->depth_stencil.stencil_front.pass_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
 	                                       parameters->depth_stencil.stencil_front.fail_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
 	                                       parameters->depth_stencil.stencil_front.depth_fail_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
-	                                       parameters->depth_stencil.stencil_back.compare != KOPE_D3D12_COMPARE_FUNCTION_ALWAYS ||
+	                                       parameters->depth_stencil.stencil_back.compare != KOPE_G5_COMPARE_FUNCTION_ALWAYS ||
 	                                       parameters->depth_stencil.stencil_back.pass_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
 	                                       parameters->depth_stencil.stencil_back.fail_op != KOPE_D3D12_STENCIL_OPERATION_KEEP ||
 	                                       parameters->depth_stencil.stencil_back.depth_fail_op != KOPE_D3D12_STENCIL_OPERATION_KEEP;

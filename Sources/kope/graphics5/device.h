@@ -6,6 +6,7 @@
 #include "api.h"
 #include "buffer.h"
 #include "commandlist.h"
+#include "sampler.h"
 
 #ifdef KOPE_DIRECT3D12
 #include <kope/direct3d12/device_structs.h>
@@ -129,7 +130,37 @@ KOPE_FUNC void kope_g5_device_create_texture(kope_g5_device *device, const kope_
 
 KOPE_FUNC kope_g5_texture *kope_g5_device_get_framebuffer(kope_g5_device *device);
 
-KOPE_FUNC void kope_g5_device_create_sampler(void *descriptor);
+typedef enum kope_g5_address_mode { KOPE_G5_ADDRESS_MODE_CLAMP_TO_EDGE, KOPE_G5_ADDRESS_MODE_REPEAT, KOPE_G5_ADDRESS_MODE_MIRROR_REPEAT } kope_g5_address_mode;
+
+typedef enum kope_g5_filter_mode { KOPE_G5_FILTER_MODE_NEAREST, KOPE_G5_FILTER_MODE_LINEAR } kope_g5_filter_mode;
+
+typedef enum kope_g5_mipmap_filter_mode { KOPE_G5_MIPMAP_FILTER_MODE_NEAREST, KOPE_G5_MIPMAP_FILTER_MODE_LINEAR } kope_g5_mipmap_filter_mode;
+
+typedef enum kope_g5_compare_function {
+	KOPE_G5_COMPARE_FUNCTION_NEVER,
+	KOPE_G5_COMPARE_FUNCTION_LESS,
+	KOPE_G5_COMPARE_FUNCTION_EQUAL,
+	KOPE_G5_COMPARE_FUNCTION_LESS_EQUAL,
+	KOPE_G5_COMPARE_FUNCTION_GREATER,
+	KOPE_G5_COMPARE_FUNCTION_NOT_EQUAL,
+	KOPE_G5_COMPARE_FUNCTION_GREATER_EQUAL,
+	KOPE_G5_COMPARE_FUNCTION_ALWAYS
+} kope_g5_compare_function;
+
+typedef struct kope_g5_sampler_parameters {
+	kope_g5_address_mode address_mode_u;
+	kope_g5_address_mode address_mode_v;
+	kope_g5_address_mode address_mode_w;
+	kope_g5_filter_mode mag_filter;
+	kope_g5_filter_mode min_filter;
+	kope_g5_mipmap_filter_mode mipmap_filter;
+	float lod_min_clamp;
+	float lod_max_clamp;
+	kope_g5_compare_function compare;
+	uint16_t max_anisotropy;
+} kope_g5_sampler_parameters;
+
+KOPE_FUNC void kope_g5_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler);
 
 KOPE_FUNC void kope_g5_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list);
 

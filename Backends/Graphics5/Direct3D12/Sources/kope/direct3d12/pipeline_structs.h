@@ -94,17 +94,6 @@ typedef struct kope_d3d12_primitive_state {
 	bool unclipped_depth;
 } kope_d3d12_primitive_state;
 
-typedef enum kope_d3d12_compare_function {
-	KOPE_D3D12_COMPARE_FUNCTION_NEVER,
-	KOPE_D3D12_COMPARE_FUNCTION_LESS,
-	KOPE_D3D12_COMPARE_FUNCTION_EQUAL,
-	KOPE_D3D12_COMPARE_FUNCTION_LESS_EQUAL,
-	KOPE_D3D12_COMPARE_FUNCTION_GREATER,
-	KOPE_D3D12_COMPARE_FUNCTION_NOT_EQUAL,
-	KOPE_D3D12_COMPARE_FUNCTION_GREATER_EQUAL,
-	KOPE_D3D12_COMPARE_FUNCTION_ALWAYS
-} kope_d3d12_compare_function;
-
 typedef enum kope_d3d12_stencil_operation {
 	KOPE_D3D12_STENCIL_OPERATION_KEEP,
 	KOPE_D3D12_STENCIL_OPERATION_ZERO,
@@ -117,7 +106,7 @@ typedef enum kope_d3d12_stencil_operation {
 } kope_d3d12_stencil_operation;
 
 typedef struct kope_d3d12_stencil_face_state {
-	kope_d3d12_compare_function compare;
+	kope_g5_compare_function compare;
 	kope_d3d12_stencil_operation fail_op;
 	kope_d3d12_stencil_operation depth_fail_op;
 	kope_d3d12_stencil_operation pass_op;
@@ -126,7 +115,7 @@ typedef struct kope_d3d12_stencil_face_state {
 typedef struct kope_d3d12_depth_stencil_state {
 	kope_g5_texture_format format;
 	bool depth_write_enabled;
-	kope_d3d12_compare_function depth_compare;
+	kope_g5_compare_function depth_compare;
 	kope_d3d12_stencil_face_state stencil_front;
 	kope_d3d12_stencil_face_state stencil_back;
 	uint32_t stencil_read_mask;
