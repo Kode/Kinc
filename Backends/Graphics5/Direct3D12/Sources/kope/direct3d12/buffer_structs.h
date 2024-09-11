@@ -3,12 +3,15 @@
 
 #include "d3d12mini.h"
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct kope_d3d12_buffer {
 	struct ID3D12Resource *resource;
+	uint32_t resource_state;
 	size_t size;
 } kope_d3d12_buffer;
 

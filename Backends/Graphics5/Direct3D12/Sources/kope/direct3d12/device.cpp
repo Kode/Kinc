@@ -190,6 +190,8 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 
 	buffer->d3d12.size = parameters->size;
 
+	buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_GENERIC_READ;
+
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
 	                                                                    NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));
 }
