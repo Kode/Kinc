@@ -188,13 +188,17 @@ typedef struct kope_d3d12_fragment_state {
 	size_t targets_count;
 } kope_d3d12_fragment_state;
 
-typedef struct kope_d3d12_pipeline_parameters {
+typedef struct kope_d3d12_render_pipeline_parameters {
 	kope_d3d12_vertex_state vertex;
 	kope_d3d12_primitive_state primitive;
 	kope_d3d12_depth_stencil_state depth_stencil;
 	kope_d3d12_multisample_state multisample;
 	kope_d3d12_fragment_state fragment;
-} kope_d3d12_pipeline_parameters;
+} kope_d3d12_render_pipeline_parameters;
+
+typedef struct kope_d3d12_compute_pipeline_parameters {
+	kope_d3d12_shader shader;
+} kope_d3d12_compute_pipeline_parameters;
 
 struct ID3D12PipelineState;
 struct ID3D12RootSignature;

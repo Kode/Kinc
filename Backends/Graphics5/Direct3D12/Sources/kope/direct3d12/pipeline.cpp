@@ -124,7 +124,7 @@ static void set_blend_state(D3D12_BLEND_DESC *desc, const kope_d3d12_color_targe
 	desc->RenderTarget[target].RenderTargetWriteMask = (UINT8)target_state->write_mask;
 }
 
-void kope_d3d12_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pipe, const kope_d3d12_pipeline_parameters *parameters) {
+void kope_d3d12_render_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pipe, const kope_d3d12_render_pipeline_parameters *parameters) {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {0};
 
 	desc.VS.BytecodeLength = parameters->vertex.shader.size;
@@ -333,7 +333,27 @@ void kope_d3d12_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pi
 	    device->device->CreateRootSignature(0, desc.VS.pShaderBytecode, desc.VS.BytecodeLength, IID_GRAPHICS_PPV_ARGS(&pipe->root_signature)));
 }
 
-void kope_d3d12_pipeline_destroy(kope_d3d12_pipeline *pipe) {
+void kope_d3d12_render_pipeline_destroy(kope_d3d12_pipeline *pipe) {
+	if (pipe->pipe != NULL) {
+		pipe->pipe->Release();
+		pipe->pipe = NULL;
+	}
+}
+
+void kope_d3d12_compute_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pipe, const kope_d3d12_compute_pipeline_parameters *parameters) {
+	D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {0};
+
+	desc.CS.pShaderBytecode = parameters->shader.data;
+	desc.CS.BytecodeLength = parameters->shader.size;
+	desc.pRootSignature = NULL;
+
+	kinc_microsoft_affirm(device->device->CreateComputePipelineState(&desc, IID_GRAPHICS_PPV_ARGS(&pipe->pipe)));
+
+	kinc_microsoft_affirm(
+	    device->device->CreateRootSignature(0, desc.CS.pShaderBytecode, desc.CS.BytecodeLength, IID_GRAPHICS_PPV_ARGS(&pipe->root_signature)));
+}
+
+void kope_d3d12_compute_pipeline_destroy(kope_d3d12_pipeline *pipe) {
 	if (pipe->pipe != NULL) {
 		pipe->pipe->Release();
 		pipe->pipe = NULL;

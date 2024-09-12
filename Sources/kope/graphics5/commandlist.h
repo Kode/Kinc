@@ -89,8 +89,8 @@ KOPE_FUNC void kope_g5_command_list_copy_texture_to_texture(kope_g5_command_list
 
 KOPE_FUNC void kope_g5_command_list_clear_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, size_t offset, uint64_t size);
 
-// KOPE_FUNC void kope_g5_command_list_resolve_query_set(kope_g5_command_list *list, GPUQuerySet querySet, uint32_t firstQuery, uint32_t queryCount,
-//                                                     kope_g5_buffer *destination, uint64_t destinationOffset);
+// KOPE_FUNC void kope_g5_command_list_resolve_query_set(kope_g5_command_list *list, GPUQuerySet query_set, uint32_t first_query, uint32_t query_count,
+//                                                     kope_g5_buffer *destination, uint64_t destination_offset);
 
 typedef enum kope_g5_index_format { KOPE_G5_INDEX_FORMAT_UINT16, KOPE_G5_INDEX_FORMAT_UINT32 } kope_g5_index_format;
 
@@ -117,7 +117,7 @@ KOPE_FUNC void kope_g5_command_list_set_stencil_reference(kope_g5_command_list *
 
 KOPE_FUNC void kope_g5_command_list_begin_occlusion_query(kope_g5_command_list *list, uint32_t query_index);
 
-KOPE_FUNC void kope_g5_command_list_endOcclusionQuery(kope_g5_command_list *list);
+KOPE_FUNC void kope_g5_command_list_end_occlusion_query(kope_g5_command_list *list);
 
 KOPE_FUNC void kope_g5_command_list_end_render_pass(kope_g5_command_list *list);
 

@@ -27,6 +27,18 @@ void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope
 	device->d3d12.device->CreateShaderResourceView(texture->d3d12.resource, &desc, descriptor_handle);
 }
 
+void kope_d3d12_descriptor_set_set_texture_view_uav(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_texture *texture, uint32_t index) {
+	D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
+	desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Texture2D.MipSlice = 0;
+	desc.Texture2D.PlaneSlice = 0;
+
+	D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = device->d3d12.descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+	descriptor_handle.ptr += (set->descriptor_allocation.offset + index) * device->d3d12.cbv_srv_uav_increment;
+	device->d3d12.device->CreateUnorderedAccessView(texture->d3d12.resource, NULL, &desc, descriptor_handle);
+}
+
 void kope_d3d12_descriptor_set_set_sampler(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_sampler *sampler, uint32_t index) {
 	D3D12_CPU_DESCRIPTOR_HANDLE src_handle = device->d3d12.all_samplers->GetCPUDescriptorHandleForHeapStart();
 	src_handle.ptr += sampler->d3d12.sampler_index * device->d3d12.sampler_increment;
@@ -66,5 +78,21 @@ void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, k
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
 		texture->d3d12.resource_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+	}
+}
+
+void kope_d3d12_descriptor_set_prepare_uav_texture(kope_g5_command_list *list, kope_g5_texture *texture) {
+	if (texture->d3d12.resource_state != D3D12_RESOURCE_STATE_UNORDERED_ACCESS) {
+		D3D12_RESOURCE_BARRIER barrier;
+		barrier.Transition.pResource = texture->d3d12.resource;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)texture->d3d12.resource_state;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+		list->d3d12.list->ResourceBarrier(1, &barrier);
+
+		texture->d3d12.resource_state = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	}
 }
