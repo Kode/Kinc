@@ -203,10 +203,15 @@ typedef struct kope_d3d12_compute_pipeline_parameters {
 struct ID3D12PipelineState;
 struct ID3D12RootSignature;
 
-typedef struct kope_d3d12_pipeline {
+typedef struct kope_d3d12_render_pipeline {
 	struct ID3D12PipelineState *pipe;
 	struct ID3D12RootSignature *root_signature;
-} kope_d3d12_pipeline;
+} kope_d3d12_render_pipeline;
+
+typedef struct kope_d3d12_compute_pipeline {
+	struct ID3D12PipelineState *pipe;
+	struct ID3D12RootSignature *root_signature;
+} kope_d3d12_compute_pipeline;
 
 #ifdef __cplusplus
 }

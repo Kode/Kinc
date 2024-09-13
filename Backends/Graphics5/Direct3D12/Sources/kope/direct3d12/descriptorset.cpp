@@ -17,7 +17,7 @@ void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope
 	D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
 	desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Format = (DXGI_FORMAT)texture->d3d12.format;
 	desc.Texture2D.MipLevels = 1;
 	desc.Texture2D.MostDetailedMip = 0;
 	desc.Texture2D.ResourceMinLODClamp = 0.0f;
@@ -30,7 +30,7 @@ void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope
 void kope_d3d12_descriptor_set_set_texture_view_uav(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_texture *texture, uint32_t index) {
 	D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
 	desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Format = (DXGI_FORMAT)texture->d3d12.format;
 	desc.Texture2D.MipSlice = 0;
 	desc.Texture2D.PlaneSlice = 0;
 

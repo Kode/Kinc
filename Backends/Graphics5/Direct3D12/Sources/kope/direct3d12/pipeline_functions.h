@@ -8,13 +8,13 @@
 extern "C" {
 #endif
 
-void kope_d3d12_render_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pipe, const kope_d3d12_render_pipeline_parameters *parameters);
+void kope_d3d12_render_pipeline_init(kope_d3d12_device *device, kope_d3d12_render_pipeline *pipe, const kope_d3d12_render_pipeline_parameters *parameters);
 
-void kope_d3d12_render_pipeline_destroy(kope_d3d12_pipeline *pipe);
+void kope_d3d12_render_pipeline_destroy(kope_d3d12_render_pipeline *pipe);
 
-void kope_d3d12_compute_pipeline_init(kope_d3d12_device *device, kope_d3d12_pipeline *pipe, const kope_d3d12_compute_pipeline_parameters *parameters);
+void kope_d3d12_compute_pipeline_init(kope_d3d12_device *device, kope_d3d12_compute_pipeline *pipe, const kope_d3d12_compute_pipeline_parameters *parameters);
 
-void kope_d3d12_compute_pipeline_destroy(kope_d3d12_pipeline *pipe);
+void kope_d3d12_compute_pipeline_destroy(kope_d3d12_compute_pipeline *pipe);
 
 #ifdef __cplusplus
 }

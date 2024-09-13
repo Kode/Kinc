@@ -10,6 +10,8 @@
 #include <assert.h>
 
 void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
+	list->d3d12.compute_pipeline_set = false;
+
 	kope_g5_texture *render_target = parameters->color_attachments[0].texture;
 
 	if (render_target->d3d12.in_flight_frame_index > 0) {
@@ -77,7 +79,7 @@ void kope_d3d12_command_list_set_vertex_buffer(kope_g5_command_list *list, uint3
 	list->d3d12.list->IASetVertexBuffers(slot, 1, &view);
 }
 
-void kope_d3d12_command_list_set_pipeline(kope_g5_command_list *list, kope_d3d12_pipeline *pipeline) {
+void kope_d3d12_command_list_set_render_pipeline(kope_g5_command_list *list, kope_d3d12_render_pipeline *pipeline) {
 	list->d3d12.list->SetPipelineState(pipeline->pipe);
 	list->d3d12.list->SetGraphicsRootSignature(pipeline->root_signature);
 }
@@ -92,14 +94,24 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 	if (set->descriptor_count > 0) {
 		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->descriptor_heap->GetGPUDescriptorHandleForHeapStart();
 		gpu_descriptor.ptr += set->descriptor_allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
-		list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+		if (list->d3d12.compute_pipeline_set) {
+			list->d3d12.list->SetComputeRootDescriptorTable(table_index, gpu_descriptor);
+		}
+		else {
+			list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+		}
 		table_index += 1;
 	}
 
 	if (set->sampler_count > 0) {
 		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->sampler_heap->GetGPUDescriptorHandleForHeapStart();
 		gpu_descriptor.ptr += set->sampler_allocation.offset * list->d3d12.device->sampler_increment;
-		list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+		if (list->d3d12.compute_pipeline_set) {
+			list->d3d12.list->SetComputeRootDescriptorTable(table_index, gpu_descriptor);
+		}
+		else {
+			list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+		}
 	}
 }
 
@@ -148,4 +160,14 @@ void kope_g5_command_list_copy_buffer_to_texture(kope_g5_command_list *list, kop
 	src.PlacedFootprint.Footprint.Width = 512;
 
 	list->d3d12.list->CopyTextureRegion(&dst, 0, 0, 0, &src, NULL);
+}
+
+void kope_d3d12_command_list_set_compute_pipeline(kope_g5_command_list *list, kope_d3d12_compute_pipeline *pipeline) {
+	list->d3d12.compute_pipeline_set = true;
+	list->d3d12.list->SetPipelineState(pipeline->pipe);
+	list->d3d12.list->SetComputeRootSignature(pipeline->root_signature);
+}
+
+void kope_d3d12_command_list_compute(kope_g5_command_list *list, uint32_t workgroup_count_x, uint32_t workgroup_count_y, uint32_t workgroup_count_z) {
+	list->d3d12.list->Dispatch(workgroup_count_x, workgroup_count_y, workgroup_count_z);
 }

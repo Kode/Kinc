@@ -29,3 +29,7 @@ void kope_g5_command_list_draw_indexed(kope_g5_command_list *list, uint32_t inde
                                        uint32_t first_instance) {
 	KOPE_G5_CALL6(command_list_draw_indexed, list, index_count, instance_count, first_index, base_vertex, first_instance);
 }
+
+void kope_g5_command_list_compute(kope_g5_command_list *list, uint32_t workgroup_count_x, uint32_t workgroup_count_y, uint32_t workgroup_count_z) {
+	KOPE_G5_CALL4(command_list_compute, list, workgroup_count_x, workgroup_count_y, workgroup_count_z);
+}

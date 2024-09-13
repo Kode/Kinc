@@ -30,6 +30,8 @@ typedef struct kope_d3d12_command_list {
 	// set when a framebuffer is attached to a render-pass so we don't render into it during scan-out
 	uint64_t blocking_frame_index;
 
+	bool compute_pipeline_set;
+
 	bool presenting;
 } kope_d3d12_command_list;
 

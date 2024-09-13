@@ -3,6 +3,8 @@
 
 #include "d3d12mini.h"
 
+#include <kope/graphics5/commandlist.h>
+#include <kope/graphics5/texture.h>
 #include <kope/util/indexallocator.h>
 #include <kope/util/offalloc/offalloc.h>
 

@@ -215,6 +215,8 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	device->d3d12.device->CreateFence(list->d3d12.execution_index - 1, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&list->d3d12.fence));
 	list->d3d12.event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
+	list->d3d12.compute_pipeline_set = false;
+
 	list->d3d12.blocking_frame_index = 0;
 
 	list->d3d12.presenting = false;
@@ -422,10 +424,15 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
+	if ((parameters->usage & KONG_G5_TEXTURE_USAGE_READ_WRITE) != 0) {
+		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+	}
+
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(
 	    &heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, NULL, IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource)));
 
 	texture->d3d12.resource_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	texture->d3d12.format = format;
 
 	texture->d3d12.in_flight_frame_index = 0;
 

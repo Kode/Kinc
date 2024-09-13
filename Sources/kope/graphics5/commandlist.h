@@ -121,8 +121,6 @@ KOPE_FUNC void kope_g5_command_list_end_occlusion_query(kope_g5_command_list *li
 
 KOPE_FUNC void kope_g5_command_list_end_render_pass(kope_g5_command_list *list);
 
-KOPE_FUNC void kope_g5_command_list_set_compute_shader(kope_g5_command_list *list, void *shader);
-
 KOPE_FUNC void kope_g5_command_list_compute(kope_g5_command_list *list, uint32_t workgroup_count_x, uint32_t workgroup_count_y, uint32_t workgroup_count_z);
 
 KOPE_FUNC void kope_g5_command_list_compute_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
