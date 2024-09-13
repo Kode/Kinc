@@ -5,6 +5,8 @@
 
 #include <kinc/backend/SystemMicrosoft.h>
 
+#include <kong_ray.h>
+
 static D3D12_BLEND convert_blend_factor(kope_d3d12_blend_factor factor) {
 	switch (factor) {
 	case KOPE_D3D12_BLEND_FACTOR_ZERO:
@@ -354,6 +356,71 @@ void kope_d3d12_compute_pipeline_init(kope_d3d12_device *device, kope_d3d12_comp
 }
 
 void kope_d3d12_compute_pipeline_destroy(kope_d3d12_compute_pipeline *pipe) {
+	if (pipe->pipe != NULL) {
+		pipe->pipe->Release();
+		pipe->pipe = NULL;
+	}
+}
+
+void kope_d3d12_ray_pipeline_init(kope_d3d12_device *device, kope_d3d12_ray_pipeline *pipe, const kope_d3d12_ray_pipeline_parameters *parameters) {
+	D3D12_DXIL_LIBRARY_DESC lib = {0};
+	lib.DXILLibrary.pShaderBytecode = ray_code;
+	lib.DXILLibrary.BytecodeLength = ray_code_size;
+
+	D3D12_HIT_GROUP_DESC hit_group = {0};
+	hit_group.HitGroupExport = L"HitGroup";
+	hit_group.Type = D3D12_HIT_GROUP_TYPE_TRIANGLES;
+
+	wchar_t closest_hit[1024];
+	kinc_microsoft_convert_string(closest_hit, parameters->closest_shader_name, 1024);
+	hit_group.ClosestHitShaderImport = closest_hit;
+
+	wchar_t any_hit[1024];
+	wchar_t intersection[1024];
+
+	if (parameters->any_shader_name != NULL) {
+		kinc_microsoft_convert_string(any_hit, parameters->any_shader_name, 1024);
+		hit_group.AnyHitShaderImport = any_hit;
+	}
+
+	if (parameters->intersection_shader_name != NULL) {
+		kinc_microsoft_convert_string(intersection, parameters->intersection_shader_name, 1024);
+		hit_group.IntersectionShaderImport = intersection;
+	}
+
+	D3D12_RAYTRACING_SHADER_CONFIG shader_config = {0};
+	shader_config.MaxPayloadSizeInBytes = 20;
+	shader_config.MaxAttributeSizeInBytes = 8;
+
+	D3D12_RAYTRACING_PIPELINE_CONFIG pipeline_config = {0};
+	pipeline_config.MaxTraceRecursionDepth = 3;
+
+	D3D12_STATE_SUBOBJECT subobjects[4];
+
+	subobjects[0].Type = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
+	subobjects[0].pDesc = &lib;
+
+	subobjects[1].Type = D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP;
+	subobjects[1].pDesc = &hit_group;
+
+	subobjects[2].Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG;
+	subobjects[2].pDesc = &shader_config;
+
+	// subobjects[3].Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
+	// subobjects[3].pDesc = &globalSig;
+
+	subobjects[3].Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
+	subobjects[3].pDesc = &pipeline_config;
+
+	D3D12_STATE_OBJECT_DESC desc;
+	desc.Type = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
+	desc.NumSubobjects = 4;
+	desc.pSubobjects = subobjects;
+
+	kinc_microsoft_affirm(device->device->CreateStateObject(&desc, IID_PPV_ARGS(&pipe->pipe)));
+}
+
+void kope_d3d12_ray_pipeline_destroy(kope_d3d12_ray_pipeline *pipe) {
 	if (pipe->pipe != NULL) {
 		pipe->pipe->Release();
 		pipe->pipe = NULL;

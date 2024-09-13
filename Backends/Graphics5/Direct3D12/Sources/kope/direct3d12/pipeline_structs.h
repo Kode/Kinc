@@ -196,10 +196,6 @@ typedef struct kope_d3d12_render_pipeline_parameters {
 	kope_d3d12_fragment_state fragment;
 } kope_d3d12_render_pipeline_parameters;
 
-typedef struct kope_d3d12_compute_pipeline_parameters {
-	kope_d3d12_shader shader;
-} kope_d3d12_compute_pipeline_parameters;
-
 struct ID3D12PipelineState;
 struct ID3D12RootSignature;
 
@@ -208,10 +204,29 @@ typedef struct kope_d3d12_render_pipeline {
 	struct ID3D12RootSignature *root_signature;
 } kope_d3d12_render_pipeline;
 
+typedef struct kope_d3d12_compute_pipeline_parameters {
+	kope_d3d12_shader shader;
+} kope_d3d12_compute_pipeline_parameters;
+
 typedef struct kope_d3d12_compute_pipeline {
 	struct ID3D12PipelineState *pipe;
 	struct ID3D12RootSignature *root_signature;
 } kope_d3d12_compute_pipeline;
+
+typedef struct kope_d3d12_ray_pipeline_parameters {
+	const char *gen_shader_name;
+	const char *miss_shader_name;
+	const char *closest_shader_name;
+	const char *intersection_shader_name;
+	const char *any_shader_name;
+} kope_d3d12_ray_pipeline_parameters;
+
+struct ID3D12StateObject;
+
+typedef struct kope_d3d12_ray_pipeline {
+	struct ID3D12StateObject *pipe;
+	struct ID3D12RootSignature *root_signature;
+} kope_d3d12_ray_pipeline;
 
 #ifdef __cplusplus
 }

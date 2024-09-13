@@ -16,6 +16,10 @@ void kope_d3d12_compute_pipeline_init(kope_d3d12_device *device, kope_d3d12_comp
 
 void kope_d3d12_compute_pipeline_destroy(kope_d3d12_compute_pipeline *pipe);
 
+void kope_d3d12_ray_pipeline_init(kope_d3d12_device *device, kope_d3d12_ray_pipeline *pipe, const kope_d3d12_ray_pipeline_parameters *parameters);
+
+void kope_d3d12_ray_pipeline_destroy(kope_d3d12_ray_pipeline *pipe);
+
 #ifdef __cplusplus
 }
 #endif

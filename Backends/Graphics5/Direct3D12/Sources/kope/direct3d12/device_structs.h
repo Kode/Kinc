@@ -18,7 +18,7 @@ struct ID3D12DescriptorHeap;
 #define KOPE_D3D12_FRAME_COUNT 2
 
 typedef struct kope_d3d12_device {
-	struct ID3D12Device *device;
+	struct ID3D12Device5 *device;
 	struct ID3D12CommandQueue *queue;
 	struct IDXGISwapChain *swap_chain;
 
