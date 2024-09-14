@@ -362,7 +362,8 @@ void kope_d3d12_compute_pipeline_destroy(kope_d3d12_compute_pipeline *pipe) {
 	}
 }
 
-void kope_d3d12_ray_pipeline_init(kope_d3d12_device *device, kope_d3d12_ray_pipeline *pipe, const kope_d3d12_ray_pipeline_parameters *parameters) {
+void kope_d3d12_ray_pipeline_init(kope_d3d12_device *device, kope_d3d12_ray_pipeline *pipe, const kope_d3d12_ray_pipeline_parameters *parameters,
+                                  ID3D12RootSignature *root_signature) {
 	D3D12_DXIL_LIBRARY_DESC lib = {0};
 	lib.DXILLibrary.pShaderBytecode = ray_code;
 	lib.DXILLibrary.BytecodeLength = ray_code_size;
@@ -392,10 +393,13 @@ void kope_d3d12_ray_pipeline_init(kope_d3d12_device *device, kope_d3d12_ray_pipe
 	shader_config.MaxPayloadSizeInBytes = 20;
 	shader_config.MaxAttributeSizeInBytes = 8;
 
+	D3D12_GLOBAL_ROOT_SIGNATURE global_signature = {0};
+	global_signature.pGlobalRootSignature = root_signature;
+
 	D3D12_RAYTRACING_PIPELINE_CONFIG pipeline_config = {0};
 	pipeline_config.MaxTraceRecursionDepth = 3;
 
-	D3D12_STATE_SUBOBJECT subobjects[4];
+	D3D12_STATE_SUBOBJECT subobjects[5];
 
 	subobjects[0].Type = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
 	subobjects[0].pDesc = &lib;
@@ -406,15 +410,15 @@ void kope_d3d12_ray_pipeline_init(kope_d3d12_device *device, kope_d3d12_ray_pipe
 	subobjects[2].Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG;
 	subobjects[2].pDesc = &shader_config;
 
-	// subobjects[3].Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
-	// subobjects[3].pDesc = &globalSig;
+	subobjects[3].Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
+	subobjects[3].pDesc = &global_signature;
 
-	subobjects[3].Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
-	subobjects[3].pDesc = &pipeline_config;
+	subobjects[4].Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
+	subobjects[4].pDesc = &pipeline_config;
 
 	D3D12_STATE_OBJECT_DESC desc;
 	desc.Type = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
-	desc.NumSubobjects = 4;
+	desc.NumSubobjects = 5;
 	desc.pSubobjects = subobjects;
 
 	kinc_microsoft_affirm(device->device->CreateStateObject(&desc, IID_PPV_ARGS(&pipe->pipe)));
