@@ -171,3 +171,34 @@ void kope_d3d12_command_list_set_compute_pipeline(kope_g5_command_list *list, ko
 void kope_d3d12_command_list_compute(kope_g5_command_list *list, uint32_t workgroup_count_x, uint32_t workgroup_count_y, uint32_t workgroup_count_z) {
 	list->d3d12.list->Dispatch(workgroup_count_x, workgroup_count_y, workgroup_count_z);
 }
+
+void kope_d3d12_command_list_prepare_raytracing_volume(kope_g5_command_list *list, kope_g5_raytracing_volume *volume) {
+	D3D12_RAYTRACING_GEOMETRY_DESC geometry_desc = {};
+
+	geometry_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+	geometry_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+
+	geometry_desc.Triangles.Transform3x4 = 0;
+
+	geometry_desc.Triangles.IndexFormat = volume->d3d12.index_buffer != nullptr ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_UNKNOWN;
+	geometry_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+	geometry_desc.Triangles.IndexCount = volume->d3d12.index_count;
+	geometry_desc.Triangles.VertexCount = (UINT)volume->d3d12.vertex_count;
+	geometry_desc.Triangles.IndexBuffer = volume->d3d12.index_buffer != nullptr ? volume->d3d12.index_buffer->d3d12.resource->GetGPUVirtualAddress() : 0;
+	geometry_desc.Triangles.VertexBuffer.StartAddress = volume->d3d12.vertex_buffer->d3d12.resource->GetGPUVirtualAddress();
+	geometry_desc.Triangles.VertexBuffer.StrideInBytes = sizeof(float) * 3;
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
+	inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
+	inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+	inputs.NumDescs = 1;
+	inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+	inputs.pGeometryDescs = &geometry_desc;
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc = {};
+	build_desc.DestAccelerationStructureData = volume->d3d12.acceleration_structure.d3d12.resource->GetGPUVirtualAddress();
+	build_desc.Inputs = inputs;
+	build_desc.ScratchAccelerationStructureData = volume->d3d12.scratch_buffer.d3d12.resource->GetGPUVirtualAddress();
+
+	list->d3d12.list->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
+}

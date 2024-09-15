@@ -42,7 +42,8 @@ typedef enum kope_g5_buffer_usage {
 	KOPE_G5_BUFFER_USAGE_INDEX = 0x0010,
 	KOPE_G5_BUFFER_USAGE_READ_WRITE = 0x0020,
 	KOPE_G5_BUFFER_USAGE_INDIRECT = 0x0040,
-	KOPE_G5_BUFFER_USAGE_QUERY_RESOLVE = 0x0080
+	KOPE_G5_BUFFER_USAGE_QUERY_RESOLVE = 0x0080,
+	KOPE_G5_BUFFER_USAGE_RAYTRACING_VOLUME = 0x0100
 } kope_g5_buffer_usage;
 
 typedef struct kope_g5_buffer_parameters {
@@ -167,6 +168,13 @@ KOPE_FUNC void kope_g5_device_create_command_list(kope_g5_device *device, kope_g
 KOPE_FUNC void kope_g5_device_create_query_set(void *descriptor);
 
 KOPE_FUNC void kope_g5_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list);
+
+typedef struct kope_g5_raytracing_volume {
+	KOPE_G5_IMPL(raytracing_volume);
+} kope_g5_raytracing_volume;
+
+KOPE_FUNC void kope_g5_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count,
+                                                       kope_g5_buffer *index_buffer, uint32_t index_count, kope_g5_raytracing_volume *volume);
 
 #ifdef __cplusplus
 }

@@ -33,3 +33,7 @@ void kope_g5_command_list_draw_indexed(kope_g5_command_list *list, uint32_t inde
 void kope_g5_command_list_compute(kope_g5_command_list *list, uint32_t workgroup_count_x, uint32_t workgroup_count_y, uint32_t workgroup_count_z) {
 	KOPE_G5_CALL4(command_list_compute, list, workgroup_count_x, workgroup_count_y, workgroup_count_z);
 }
+
+void kope_g5_command_list_prepare_raytracing_volume(kope_g5_command_list *list, kope_g5_raytracing_volume *volume) {
+	KOPE_G5_CALL2(command_list_prepare_raytracing_volume, list, volume);
+}

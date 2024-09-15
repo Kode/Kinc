@@ -20,7 +20,7 @@ typedef struct kope_d3d12_command_list {
 
 	struct ID3D12CommandAllocator *allocator[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
 
-	struct ID3D12GraphicsCommandList *list;
+	struct ID3D12GraphicsCommandList4 *list;
 
 	// a bunch of variables used to figure out what allocators can be reused
 	uint64_t execution_index;

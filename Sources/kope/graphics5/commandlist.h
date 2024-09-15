@@ -125,6 +125,10 @@ KOPE_FUNC void kope_g5_command_list_compute(kope_g5_command_list *list, uint32_t
 
 KOPE_FUNC void kope_g5_command_list_compute_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
 
+struct kope_g5_raytracing_volume;
+
+KOPE_FUNC void kope_g5_command_list_prepare_raytracing_volume(kope_g5_command_list *list, struct kope_g5_raytracing_volume *volume);
+
 KOPE_FUNC void kope_g5_command_list_present(kope_g5_command_list *list);
 
 #ifdef __cplusplus

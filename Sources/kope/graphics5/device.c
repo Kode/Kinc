@@ -158,3 +158,8 @@ bool kope_g5_texture_format_is_depth(kope_g5_texture_format format) {
 void kope_g5_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler) {
 	KOPE_G5_CALL3(device_create_sampler, device, parameters, sampler);
 }
+
+void kope_g5_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count, kope_g5_buffer *index_buffer,
+                                             uint32_t index_count, kope_g5_raytracing_volume *volume) {
+	KOPE_G5_CALL6(device_create_raytracing_volume, device, vertex_buffer, vertex_count, index_buffer, index_count, volume);
+}
