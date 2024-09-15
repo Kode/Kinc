@@ -133,6 +133,8 @@ struct kope_g5_raytracing_hierarchy;
 
 KOPE_FUNC void kope_g5_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *list, struct kope_g5_raytracing_hierarchy *hierarchy);
 
+KOPE_FUNC void kope_g5_command_list_trace_rays(kope_g5_command_list *list);
+
 KOPE_FUNC void kope_g5_command_list_present(kope_g5_command_list *list);
 
 #ifdef __cplusplus

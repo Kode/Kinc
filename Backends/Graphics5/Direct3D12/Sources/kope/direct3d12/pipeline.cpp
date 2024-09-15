@@ -362,7 +362,7 @@ void kope_d3d12_compute_pipeline_destroy(kope_d3d12_compute_pipeline *pipe) {
 	}
 }
 
-void kope_d3d12_ray_pipeline_init(kope_d3d12_device *device, kope_d3d12_ray_pipeline *pipe, const kope_d3d12_ray_pipeline_parameters *parameters,
+void kope_d3d12_ray_pipeline_init(kope_g5_device *device, kope_d3d12_ray_pipeline *pipe, const kope_d3d12_ray_pipeline_parameters *parameters,
                                   ID3D12RootSignature *root_signature) {
 	D3D12_DXIL_LIBRARY_DESC lib = {0};
 	lib.DXILLibrary.pShaderBytecode = ray_code;
@@ -421,7 +421,34 @@ void kope_d3d12_ray_pipeline_init(kope_d3d12_device *device, kope_d3d12_ray_pipe
 	desc.NumSubobjects = 5;
 	desc.pSubobjects = subobjects;
 
-	kinc_microsoft_affirm(device->device->CreateStateObject(&desc, IID_PPV_ARGS(&pipe->pipe)));
+	kinc_microsoft_affirm(device->d3d12.device->CreateStateObject(&desc, IID_PPV_ARGS(&pipe->pipe)));
+
+	uint32_t shader_id_count = 3;
+	kope_g5_buffer_parameters id_buffer_params;
+	id_buffer_params.size = shader_id_count * D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT;
+	id_buffer_params.usage_flags = KOPE_G5_BUFFER_USAGE_CPU_WRITE;
+	kope_g5_device_create_buffer(device, &id_buffer_params, &pipe->shader_ids);
+
+	ID3D12StateObjectProperties *props;
+	pipe->pipe->QueryInterface(&props);
+
+	uint8_t *data = (uint8_t *)kope_g5_buffer_lock(&pipe->shader_ids);
+
+	wchar_t raygen[1024];
+	kinc_microsoft_convert_string(raygen, parameters->gen_shader_name, 1024);
+	memcpy(data, props->GetShaderIdentifier(raygen), D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+
+	wchar_t miss[1024];
+	kinc_microsoft_convert_string(miss, parameters->miss_shader_name, 1024);
+	memcpy(&data[D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT], props->GetShaderIdentifier(miss), D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+
+	memcpy(&data[D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT * 2], props->GetShaderIdentifier(L"HitGroup"), D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+
+	kope_g5_buffer_unlock(&pipe->shader_ids);
+
+	props->Release();
+
+	pipe->root_signature = root_signature;
 }
 
 void kope_d3d12_ray_pipeline_destroy(kope_d3d12_ray_pipeline *pipe) {

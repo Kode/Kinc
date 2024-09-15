@@ -229,6 +229,8 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 
 	list->d3d12.compute_pipeline_set = false;
 
+	list->d3d12.ray_pipe = NULL;
+
 	list->d3d12.blocking_frame_index = 0;
 
 	list->d3d12.presenting = false;
@@ -611,8 +613,12 @@ void kope_d3d12_device_create_raytracing_volume(kope_g5_device *device, kope_g5_
 	kope_g5_device_create_buffer(device, &as_params, &volume->d3d12.acceleration_structure);
 }
 
+#include <DirectXMath.h> // temporary
+
 void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, uint32_t volumes_count,
                                                    kope_g5_raytracing_hierarchy *hierarchy) {
+	using namespace DirectX; // temporary
+
 	hierarchy->d3d12.volumes_count = volumes_count;
 
 	kope_g5_buffer_parameters instances_params;
@@ -627,6 +633,35 @@ void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_
 		descs[volume_index].InstanceMask = 1;
 		descs[volume_index].AccelerationStructure = volumes[volume_index]->d3d12.acceleration_structure.d3d12.resource->GetGPUVirtualAddress();
 	}
+
+	// temporary
+
+	auto time = static_cast<float>(GetTickCount64()) / 1000;
+
+	{
+		auto cube = XMMatrixRotationRollPitchYaw(time / 2, time / 3, time / 5);
+		cube *= XMMatrixTranslation(-1.5, 2, 2);
+		auto *ptr = reinterpret_cast<XMFLOAT3X4 *>(&descs[0].Transform);
+		XMStoreFloat3x4(ptr, cube);
+	}
+
+	{
+		auto mirror = XMMatrixRotationX(-1.8f);
+		mirror *= XMMatrixRotationY(XMScalarSinEst(time) / 8 + 1);
+		mirror *= XMMatrixTranslation(2, 2, 2);
+		auto *ptr = reinterpret_cast<XMFLOAT3X4 *>(&descs[1].Transform);
+		XMStoreFloat3x4(ptr, mirror);
+	}
+
+	{
+		auto floor = XMMatrixScaling(5, 5, 5);
+		floor *= XMMatrixTranslation(0, 0, 2);
+		auto *ptr = reinterpret_cast<XMFLOAT3X4 *>(&descs[2].Transform);
+		XMStoreFloat3x4(ptr, floor);
+	}
+
+	//
+
 	kope_g5_buffer_unlock(&hierarchy->d3d12.instances);
 
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};

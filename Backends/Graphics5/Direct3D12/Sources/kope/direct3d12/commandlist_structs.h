@@ -9,6 +9,7 @@ extern "C" {
 
 struct kope_d3d12_device;
 struct kope_d3d12_texture;
+struct kope_d3d12_ray_pipeline;
 struct ID3D12Fence;
 
 // Allocators can not be re-used while a command-list is executing. We carry along a bag of allocators so we only have to wait when we ran out of in-flight
@@ -31,6 +32,8 @@ typedef struct kope_d3d12_command_list {
 	uint64_t blocking_frame_index;
 
 	bool compute_pipeline_set;
+
+	struct kope_d3d12_ray_pipeline *ray_pipe;
 
 	bool presenting;
 } kope_d3d12_command_list;

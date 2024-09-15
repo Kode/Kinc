@@ -218,3 +218,27 @@ void kope_d3d12_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *
 
 	list->d3d12.list->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
 }
+
+void kope_d3d12_command_list_set_ray_pipeline(kope_g5_command_list *list, kope_d3d12_ray_pipeline *pipeline) {
+	list->d3d12.list->SetPipelineState1(pipeline->pipe);
+	list->d3d12.list->SetComputeRootSignature(pipeline->root_signature);
+	list->d3d12.ray_pipe = pipeline;
+	list->d3d12.compute_pipeline_set = true;
+}
+
+void kope_d3d12_command_list_trace_rays(kope_g5_command_list *list) {
+	D3D12_DISPATCH_RAYS_DESC desc = {};
+	desc.RayGenerationShaderRecord.StartAddress = list->d3d12.ray_pipe->shader_ids.d3d12.resource->GetGPUVirtualAddress();
+	desc.RayGenerationShaderRecord.SizeInBytes = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+	desc.MissShaderTable.StartAddress = list->d3d12.ray_pipe->shader_ids.d3d12.resource->GetGPUVirtualAddress() + D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT;
+	desc.MissShaderTable.SizeInBytes = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+	desc.HitGroupTable.StartAddress =
+	    list->d3d12.ray_pipe->shader_ids.d3d12.resource->GetGPUVirtualAddress() + 2 * D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT;
+	desc.HitGroupTable.SizeInBytes = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+
+	desc.Width = 1024;
+	desc.Height = 768;
+	desc.Depth = 1;
+
+	list->d3d12.list->DispatchRays(&desc);
+}

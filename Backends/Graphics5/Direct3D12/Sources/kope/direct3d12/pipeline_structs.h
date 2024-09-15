@@ -226,6 +226,7 @@ struct ID3D12StateObject;
 typedef struct kope_d3d12_ray_pipeline {
 	struct ID3D12StateObject *pipe;
 	struct ID3D12RootSignature *root_signature;
+	kope_g5_buffer shader_ids;
 } kope_d3d12_ray_pipeline;
 
 #ifdef __cplusplus
