@@ -555,3 +555,49 @@ void kope_d3d12_device_create_sampler(kope_g5_device *device, const kope_g5_samp
 	descriptor_handle.ptr += sampler->d3d12.sampler_index * device->d3d12.sampler_increment;
 	device->d3d12.device->CreateSampler(&desc, descriptor_handle);
 }
+
+void kope_d3d12_device_create_raytracing_instance(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count, kope_g5_buffer *index_buffer,
+                                                  uint32_t index_count) {
+	D3D12_RAYTRACING_GEOMETRY_DESC geometry_desc;
+
+	geometry_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+	geometry_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+
+	geometry_desc.Triangles.Transform3x4 = 0;
+
+	geometry_desc.Triangles.IndexFormat = index_buffer != nullptr ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_UNKNOWN;
+	geometry_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+	geometry_desc.Triangles.IndexCount = index_count;
+	geometry_desc.Triangles.VertexCount = (UINT)vertex_count;
+	geometry_desc.Triangles.IndexBuffer = index_buffer != nullptr ? index_buffer->d3d12.resource->GetGPUVirtualAddress() : 0;
+	geometry_desc.Triangles.VertexBuffer.StartAddress = vertex_buffer->d3d12.resource->GetGPUVirtualAddress();
+	geometry_desc.Triangles.VertexBuffer.StrideInBytes = sizeof(float) * 3;
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs;
+	inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
+	inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+	inputs.NumDescs = 1;
+	inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+	inputs.pGeometryDescs = &geometry_desc;
+
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info;
+	device->d3d12.device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuild_info);
+
+	kope_g5_buffer scratch;
+	kope_g5_buffer_parameters scratch_params;
+	scratch_params.size = prebuild_info.ScratchDataSizeInBytes;
+	scratch_params.usage_flags = KOPE_G5_BUFFER_USAGE_READ_WRITE;
+	kope_g5_device_create_buffer(device, &scratch_params, &scratch);
+
+	kope_g5_buffer acceleration_structure;
+	kope_g5_buffer_parameters as_params;
+	scratch_params.size = prebuild_info.ResultDataMaxSizeInBytes;
+	scratch_params.usage_flags = KOPE_G5_BUFFER_USAGE_READ_WRITE;
+	kope_g5_device_create_buffer(device, &as_params, &acceleration_structure);
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc;
+
+	build_desc.DestAccelerationStructureData = acceleration_structure.d3d12.resource->GetGPUVirtualAddress();
+	build_desc.Inputs = inputs;
+	build_desc.ScratchAccelerationStructureData = scratch.d3d12.resource->GetGPUVirtualAddress();
+}
