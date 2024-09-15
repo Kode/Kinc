@@ -202,3 +202,19 @@ void kope_d3d12_command_list_prepare_raytracing_volume(kope_g5_command_list *lis
 
 	list->d3d12.list->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
 }
+
+void kope_d3d12_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *list, kope_g5_raytracing_hierarchy *hierarchy) {
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
+	inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
+	inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+	inputs.NumDescs = hierarchy->d3d12.volumes_count;
+	inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+	inputs.InstanceDescs = hierarchy->d3d12.instances.d3d12.resource->GetGPUVirtualAddress();
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc = {};
+	build_desc.DestAccelerationStructureData = hierarchy->d3d12.acceleration_structure.d3d12.resource->GetGPUVirtualAddress();
+	build_desc.Inputs = inputs;
+	build_desc.ScratchAccelerationStructureData = hierarchy->d3d12.scratch_buffer.d3d12.resource->GetGPUVirtualAddress();
+
+	list->d3d12.list->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
+}

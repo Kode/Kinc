@@ -173,8 +173,15 @@ typedef struct kope_g5_raytracing_volume {
 	KOPE_G5_IMPL(raytracing_volume);
 } kope_g5_raytracing_volume;
 
+typedef struct kope_g5_raytracing_hierarchy {
+	KOPE_G5_IMPL(raytracing_hierarchy);
+} kope_g5_raytracing_hierarchy;
+
 KOPE_FUNC void kope_g5_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count,
                                                        kope_g5_buffer *index_buffer, uint32_t index_count, kope_g5_raytracing_volume *volume);
+
+KOPE_FUNC void kope_g5_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, uint32_t volumes_count,
+                                                          kope_g5_raytracing_hierarchy *hierarchy);
 
 #ifdef __cplusplus
 }

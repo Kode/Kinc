@@ -610,3 +610,42 @@ void kope_d3d12_device_create_raytracing_volume(kope_g5_device *device, kope_g5_
 	as_params.usage_flags = KOPE_G5_BUFFER_USAGE_READ_WRITE | KOPE_G5_BUFFER_USAGE_RAYTRACING_VOLUME;
 	kope_g5_device_create_buffer(device, &as_params, &volume->d3d12.acceleration_structure);
 }
+
+void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, uint32_t volumes_count,
+                                                   kope_g5_raytracing_hierarchy *hierarchy) {
+	hierarchy->d3d12.volumes_count = volumes_count;
+
+	kope_g5_buffer_parameters instances_params;
+	instances_params.size = sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * hierarchy->d3d12.volumes_count;
+	instances_params.usage_flags = KOPE_G5_BUFFER_USAGE_CPU_WRITE;
+	kope_g5_device_create_buffer(device, &instances_params, &hierarchy->d3d12.instances);
+
+	D3D12_RAYTRACING_INSTANCE_DESC *descs = (D3D12_RAYTRACING_INSTANCE_DESC *)kope_g5_buffer_lock(&hierarchy->d3d12.instances);
+	for (uint32_t volume_index = 0; volume_index < hierarchy->d3d12.volumes_count; ++volume_index) {
+		memset(&descs[volume_index], 0, sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
+		descs[volume_index].InstanceID = volume_index;
+		descs[volume_index].InstanceMask = 1;
+		descs[volume_index].AccelerationStructure = volumes[volume_index]->d3d12.acceleration_structure.d3d12.resource->GetGPUVirtualAddress();
+	}
+	kope_g5_buffer_unlock(&hierarchy->d3d12.instances);
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
+	inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
+	inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+	inputs.NumDescs = hierarchy->d3d12.volumes_count;
+	inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+	inputs.InstanceDescs = hierarchy->d3d12.instances.d3d12.resource->GetGPUVirtualAddress();
+
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info = {};
+	device->d3d12.device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuild_info);
+
+	kope_g5_buffer_parameters scratch_params;
+	scratch_params.size = prebuild_info.ScratchDataSizeInBytes;
+	scratch_params.usage_flags = KOPE_G5_BUFFER_USAGE_READ_WRITE;
+	kope_g5_device_create_buffer(device, &scratch_params, &hierarchy->d3d12.scratch_buffer); // TODO: delete later
+
+	kope_g5_buffer_parameters as_params;
+	as_params.size = prebuild_info.ResultDataMaxSizeInBytes;
+	as_params.usage_flags = KOPE_G5_BUFFER_USAGE_READ_WRITE | KOPE_G5_BUFFER_USAGE_RAYTRACING_VOLUME;
+	kope_g5_device_create_buffer(device, &as_params, &hierarchy->d3d12.acceleration_structure);
+}

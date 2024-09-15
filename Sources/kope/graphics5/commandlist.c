@@ -37,3 +37,6 @@ void kope_g5_command_list_compute(kope_g5_command_list *list, uint32_t workgroup
 void kope_g5_command_list_prepare_raytracing_volume(kope_g5_command_list *list, kope_g5_raytracing_volume *volume) {
 	KOPE_G5_CALL2(command_list_prepare_raytracing_volume, list, volume);
 }
+void kope_g5_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *list, kope_g5_raytracing_hierarchy *hierarchy) {
+	KOPE_G5_CALL2(command_list_prepare_raytracing_hierarchy, list, hierarchy);
+}

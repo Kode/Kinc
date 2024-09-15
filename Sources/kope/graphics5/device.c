@@ -163,3 +163,8 @@ void kope_g5_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buf
                                              uint32_t index_count, kope_g5_raytracing_volume *volume) {
 	KOPE_G5_CALL6(device_create_raytracing_volume, device, vertex_buffer, vertex_count, index_buffer, index_count, volume);
 }
+
+void kope_g5_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, uint32_t volumes_count,
+                                                kope_g5_raytracing_hierarchy *hierarchy) {
+	KOPE_G5_CALL4(device_create_raytracing_hierarchy, device, volumes, volumes_count, hierarchy);
+}

@@ -62,6 +62,14 @@ typedef struct kope_d3d12_raytracing_volume {
 	kope_g5_buffer acceleration_structure;
 } kope_d3d12_raytracing_volume;
 
+typedef struct kope_d3d12_raytracing_hierarchy {
+	uint32_t volumes_count;
+	kope_g5_buffer instances;
+
+	kope_g5_buffer scratch_buffer;
+	kope_g5_buffer acceleration_structure;
+} kope_d3d12_raytracing_hierarchy;
+
 #ifdef __cplusplus
 }
 #endif
