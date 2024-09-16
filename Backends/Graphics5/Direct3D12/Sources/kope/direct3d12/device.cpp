@@ -11,7 +11,6 @@
 #include <kinc/window.h>
 
 #include <assert.h>
-#include <math.h>
 
 #include <dxgi1_4.h>
 
@@ -667,83 +666,23 @@ void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_
 		descs[volume_index].AccelerationStructure = volumes[volume_index]->d3d12.acceleration_structure.d3d12.resource->GetGPUVirtualAddress();
 	}
 
-	// temporary
+	for (uint32_t volume_index = 0; volume_index < hierarchy->d3d12.volumes_count; ++volume_index) {
+		descs[volume_index].Transform[0][0] = volume_transforms[volume_index].m[0];
+		descs[volume_index].Transform[1][0] = volume_transforms[volume_index].m[1];
+		descs[volume_index].Transform[2][0] = volume_transforms[volume_index].m[2];
 
-	auto time = static_cast<float>(GetTickCount64()) / 1000;
+		descs[volume_index].Transform[0][1] = volume_transforms[volume_index].m[4];
+		descs[volume_index].Transform[1][1] = volume_transforms[volume_index].m[5];
+		descs[volume_index].Transform[2][1] = volume_transforms[volume_index].m[6];
 
-	{
-		kinc_matrix4x4_t cube = kinc_matrix4x4_rotation_y(time / 3);
-		kinc_matrix4x4_t a = kinc_matrix4x4_rotation_x(time / 2);
-		cube = kinc_matrix4x4_multiply(&a, &cube);
-		kinc_matrix4x4_t b = kinc_matrix4x4_rotation_z(time / 5);
-		cube = kinc_matrix4x4_multiply(&b, &cube);
-		kinc_matrix4x4_t c = kinc_matrix4x4_translation(-1.5, 2, 2);
-		cube = kinc_matrix4x4_multiply(&c, &cube);
+		descs[volume_index].Transform[0][2] = volume_transforms[volume_index].m[8];
+		descs[volume_index].Transform[1][2] = volume_transforms[volume_index].m[9];
+		descs[volume_index].Transform[2][2] = volume_transforms[volume_index].m[10];
 
-		descs[0].Transform[0][0] = cube.m[0];
-		descs[0].Transform[1][0] = cube.m[1];
-		descs[0].Transform[2][0] = cube.m[2];
-
-		descs[0].Transform[0][1] = cube.m[4];
-		descs[0].Transform[1][1] = cube.m[5];
-		descs[0].Transform[2][1] = cube.m[6];
-
-		descs[0].Transform[0][2] = cube.m[8];
-		descs[0].Transform[1][2] = cube.m[9];
-		descs[0].Transform[2][2] = cube.m[10];
-
-		descs[0].Transform[0][3] = cube.m[12];
-		descs[0].Transform[1][3] = cube.m[13];
-		descs[0].Transform[2][3] = cube.m[14];
+		descs[volume_index].Transform[0][3] = volume_transforms[volume_index].m[12];
+		descs[volume_index].Transform[1][3] = volume_transforms[volume_index].m[13];
+		descs[volume_index].Transform[2][3] = volume_transforms[volume_index].m[14];
 	}
-
-	{
-		kinc_matrix4x4_t mirror = kinc_matrix4x4_rotation_x(-1.8f);
-		kinc_matrix4x4_t a = kinc_matrix4x4_rotation_y(sinf(time) / 8 + 1);
-		mirror = kinc_matrix4x4_multiply(&a, &mirror);
-		kinc_matrix4x4_t b = kinc_matrix4x4_translation(2, 2, 2);
-		mirror = kinc_matrix4x4_multiply(&b, &mirror);
-
-		descs[1].Transform[0][0] = mirror.m[0];
-		descs[1].Transform[1][0] = mirror.m[1];
-		descs[1].Transform[2][0] = mirror.m[2];
-
-		descs[1].Transform[0][1] = mirror.m[4];
-		descs[1].Transform[1][1] = mirror.m[5];
-		descs[1].Transform[2][1] = mirror.m[6];
-
-		descs[1].Transform[0][2] = mirror.m[8];
-		descs[1].Transform[1][2] = mirror.m[9];
-		descs[1].Transform[2][2] = mirror.m[10];
-
-		descs[1].Transform[0][3] = mirror.m[12];
-		descs[1].Transform[1][3] = mirror.m[13];
-		descs[1].Transform[2][3] = mirror.m[14];
-	}
-
-	{
-		kinc_matrix4x4_t floor = kinc_matrix4x4_scale(5, 5, 5);
-		kinc_matrix4x4_t a = kinc_matrix4x4_translation(0, 0, 2);
-		floor = kinc_matrix4x4_multiply(&a, &floor);
-
-		descs[2].Transform[0][0] = floor.m[0];
-		descs[2].Transform[1][0] = floor.m[1];
-		descs[2].Transform[2][0] = floor.m[2];
-
-		descs[2].Transform[0][1] = floor.m[4];
-		descs[2].Transform[1][1] = floor.m[5];
-		descs[2].Transform[2][1] = floor.m[6];
-
-		descs[2].Transform[0][2] = floor.m[8];
-		descs[2].Transform[1][2] = floor.m[9];
-		descs[2].Transform[2][2] = floor.m[10];
-
-		descs[2].Transform[0][3] = floor.m[12];
-		descs[2].Transform[1][3] = floor.m[13];
-		descs[2].Transform[2][3] = floor.m[14];
-	}
-
-	//
 
 	kope_g5_buffer_unlock(&hierarchy->d3d12.instances);
 
