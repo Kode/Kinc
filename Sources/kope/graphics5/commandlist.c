@@ -8,6 +8,14 @@
 #include <kope/vulkan/commandlist_functions.h>
 #endif
 
+void kope_g5_command_list_copy_buffer_to_texture(kope_g5_command_list *list, kope_g5_buffer *source, kope_g5_texture *destination, kope_uint3 size) {
+	KOPE_G5_CALL4(command_list_copy_buffer_to_texture, list, source, destination, size);
+}
+
+void kope_g5_command_list_copy_texture_to_texture(kope_g5_command_list *list, kope_g5_texture *source, kope_g5_texture *destination, kope_uint3 size) {
+	KOPE_G5_CALL4(command_list_copy_texture_to_texture, list, source, destination, size);
+}
+
 void kope_g5_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
 	KOPE_G5_CALL2(command_list_begin_render_pass, list, parameters);
 }

@@ -10,6 +10,10 @@
 extern "C" {
 #endif
 
+void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, kope_g5_buffer *source, kope_g5_texture *destination, kope_uint3 size);
+
+void kope_d3d12_command_list_copy_texture_to_texture(kope_g5_command_list *list, kope_g5_texture *source, kope_g5_texture *destination, kope_uint3 size);
+
 void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters);
 
 void kope_d3d12_command_list_end_render_pass(kope_g5_command_list *list);
