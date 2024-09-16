@@ -140,9 +140,24 @@ KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_matrix
 <tr class="memitem:aaff45c6dd52ec6b7a4b6fb4c047ad497"><td class="memItemLeft" align="right" valign="top"><a id="aaff45c6dd52ec6b7a4b6fb4c047ad497"></a>
 KINC_FUNC <a class="el" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_matrix4x4_identity</b> (void)</td></tr>
 <tr class="separator:aaff45c6dd52ec6b7a4b6fb4c047ad497"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0efc72d14335f853030f8d8f52e3eff1"><td class="memItemLeft" align="right" valign="top"><a id="a0efc72d14335f853030f8d8f52e3eff1"></a>
+KINC_FUNC <a class="el" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_matrix4x4_rotation_x</b> (float alpha)</td></tr>
+<tr class="separator:a0efc72d14335f853030f8d8f52e3eff1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6332b20316302974cf709fd80b0b9a12"><td class="memItemLeft" align="right" valign="top"><a id="a6332b20316302974cf709fd80b0b9a12"></a>
+KINC_FUNC <a class="el" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_matrix4x4_rotation_y</b> (float alpha)</td></tr>
+<tr class="separator:a6332b20316302974cf709fd80b0b9a12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35ccfd3c4944dc0265209324ec481c0b"><td class="memItemLeft" align="right" valign="top"><a id="a35ccfd3c4944dc0265209324ec481c0b"></a>
+KINC_FUNC <a class="el" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_matrix4x4_rotation_z</b> (float alpha)</td></tr>
+<tr class="separator:a35ccfd3c4944dc0265209324ec481c0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85b646123ce056701f37ab23a7863c16"><td class="memItemLeft" align="right" valign="top"><a id="a85b646123ce056701f37ab23a7863c16"></a>
+KINC_FUNC <a class="el" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_matrix4x4_translation</b> (float x, float y, float z)</td></tr>
+<tr class="separator:a85b646123ce056701f37ab23a7863c16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84088ddde58015f0d0fc80f89f573725"><td class="memItemLeft" align="right" valign="top"><a id="a84088ddde58015f0d0fc80f89f573725"></a>
 KINC_FUNC <a class="el" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_matrix4x4_multiply</b> (<a class="el" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a> *a, <a class="el" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a> *b)</td></tr>
 <tr class="separator:a84088ddde58015f0d0fc80f89f573725"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab57426904475664334a9b60224031c06"><td class="memItemLeft" align="right" valign="top"><a id="ab57426904475664334a9b60224031c06"></a>
+KINC_FUNC <a class="el" href="structkinc__vector4.html">kinc_vector4_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kinc_matrix4x4_multiply_vector</b> (<a class="el" href="structkinc__matrix4x4.html">kinc_matrix4x4_t</a> *a, <a class="el" href="structkinc__vector4.html">kinc_vector4_t</a> b)</td></tr>
+<tr class="separator:ab57426904475664334a9b60224031c06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides basic matrix types and a few functions which create transformation-matrices. This only provides functionality which is needed elsewhere in Kinc - if you need more, look up how transformation-matrices work and add some functions to your own project. Alternatively the Kore/C++-API also provides a more complete matrix-API. </p>
