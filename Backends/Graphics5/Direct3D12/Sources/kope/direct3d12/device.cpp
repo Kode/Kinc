@@ -202,10 +202,15 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
 	}
 
-	D3D12_RESOURCE_DESC resourceDesc;
+	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resourceDesc.Alignment = 0;
-	resourceDesc.Width = align_pow2((int)parameters->size, 256); // 256 required for CBVs
+	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_RAYTRACING_VOLUME) != 0 || (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_READ_WRITE) != 0) {
+		resourceDesc.Width = parameters->size;
+	}
+	else {
+		resourceDesc.Width = align_pow2((int)parameters->size, 256); // 256 required for CBVs
+	}
 	resourceDesc.Height = 1;
 	resourceDesc.DepthOrArraySize = 1;
 	resourceDesc.MipLevels = 1;
@@ -227,7 +232,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 
 	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_RAYTRACING_VOLUME) != 0) {
 		buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE;
-		resourceDesc.Flags |= D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE;
+		resourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	}
 
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,

@@ -243,6 +243,12 @@ void kope_d3d12_command_list_prepare_raytracing_volume(kope_g5_command_list *lis
 	build_desc.ScratchAccelerationStructureData = volume->d3d12.scratch_buffer.d3d12.resource->GetGPUVirtualAddress();
 
 	list->d3d12.list->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
+
+	D3D12_RESOURCE_BARRIER barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	barrier.UAV.pResource = volume->d3d12.acceleration_structure.d3d12.resource;
+
+	list->d3d12.list->ResourceBarrier(1, &barrier);
 }
 
 void kope_d3d12_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *list, kope_g5_raytracing_hierarchy *hierarchy) {
@@ -259,6 +265,12 @@ void kope_d3d12_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *
 	build_desc.ScratchAccelerationStructureData = hierarchy->d3d12.scratch_buffer.d3d12.resource->GetGPUVirtualAddress();
 
 	list->d3d12.list->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
+
+	D3D12_RESOURCE_BARRIER barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	barrier.UAV.pResource = hierarchy->d3d12.acceleration_structure.d3d12.resource;
+
+	list->d3d12.list->ResourceBarrier(1, &barrier);
 }
 
 void kope_d3d12_command_list_set_ray_pipeline(kope_g5_command_list *list, kope_d3d12_ray_pipeline *pipeline) {
