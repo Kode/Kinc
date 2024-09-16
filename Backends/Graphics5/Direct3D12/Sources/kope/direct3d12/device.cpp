@@ -7,11 +7,31 @@
 #include <kinc/backend/SystemMicrosoft.h>
 #include <kinc/backend/Windows.h>
 
+#include <kinc/log.h>
 #include <kinc/window.h>
 
 #include <assert.h>
 
 #include <dxgi1_4.h>
+
+#if defined(KOPE_NVAPI) && !defined(NDEBUG)
+
+#include <nvapi.h>
+
+static void __stdcall myValidationMessageCallback(void *pUserData, NVAPI_D3D12_RAYTRACING_VALIDATION_MESSAGE_SEVERITY severity, const char *messageCode,
+                                                  const char *message, const char *messageDetails) {
+	const char *severityString = "unknown";
+	switch (severity) {
+	case NVAPI_D3D12_RAYTRACING_VALIDATION_MESSAGE_SEVERITY_ERROR:
+		severityString = "error";
+		break;
+	case NVAPI_D3D12_RAYTRACING_VALIDATION_MESSAGE_SEVERITY_WARNING:
+		severityString = "warning";
+		break;
+	}
+	kinc_log(KINC_LOG_LEVEL_ERROR, "Ray Tracing Validation message: %s: [%s] %s\n%s", severityString, messageCode, message, messageDetails);
+}
+#endif
 
 static void create_texture_views(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
@@ -24,6 +44,13 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 #endif
 
 	kinc_microsoft_affirm(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&device->d3d12.device)));
+
+	NvAPI_Initialize();
+#if defined(KOPE_NVAPI) && !defined(NDEBUG)
+	NvAPI_D3D12_EnableRaytracingValidation(device->d3d12.device, NVAPI_D3D12_RAYTRACING_VALIDATION_FLAG_NONE);
+	void *handle = nullptr;
+	NvAPI_D3D12_RegisterRaytracingValidationMessageCallback(device->d3d12.device, &myValidationMessageCallback, nullptr, &handle);
+#endif
 
 	{
 		D3D12_COMMAND_QUEUE_DESC desc = {};
@@ -457,15 +484,19 @@ kope_g5_texture *kope_d3d12_device_get_framebuffer(kope_g5_device *device) {
 	return &device->d3d12.framebuffer_textures[device->d3d12.framebuffer_index];
 }
 
-static void wait_for_fence(ID3D12Fence *fence, HANDLE event, UINT64 completion_value) {
+static void wait_for_fence(kope_g5_device *device, ID3D12Fence *fence, HANDLE event, UINT64 completion_value) {
 	if (fence->GetCompletedValue() < completion_value) {
 		kinc_microsoft_affirm(fence->SetEventOnCompletion(completion_value, event));
 		WaitForSingleObject(event, INFINITE);
+
+#if defined(KOPE_NVAPI) && !defined(NDEBUG)
+		NvAPI_D3D12_FlushRaytracingValidationMessages(device->d3d12.device);
+#endif
 	}
 }
 
 static void wait_for_frame(kope_g5_device *device, uint64_t frame_index) {
-	wait_for_fence(device->d3d12.frame_fence, device->d3d12.frame_event, frame_index);
+	wait_for_fence(device, device->d3d12.frame_fence, device->d3d12.frame_event, frame_index);
 }
 
 void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
@@ -498,7 +529,7 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 
 	device->d3d12.queue->Signal(list->d3d12.fence, list->d3d12.execution_index);
 
-	wait_for_fence(list->d3d12.fence, list->d3d12.event, list->d3d12.execution_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1));
+	wait_for_fence(device, list->d3d12.fence, list->d3d12.event, list->d3d12.execution_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1));
 
 	list->d3d12.execution_index += 1;
 	uint32_t allocator_index = current_command_list_allocator_index(list);
