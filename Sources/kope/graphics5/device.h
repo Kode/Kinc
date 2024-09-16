@@ -3,6 +3,8 @@
 
 #include <kope/global.h>
 
+#include <kinc/math/matrix.h>
+
 #include "api.h"
 #include "buffer.h"
 #include "commandlist.h"
@@ -180,8 +182,8 @@ typedef struct kope_g5_raytracing_hierarchy {
 KOPE_FUNC void kope_g5_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count,
                                                        kope_g5_buffer *index_buffer, uint32_t index_count, kope_g5_raytracing_volume *volume);
 
-KOPE_FUNC void kope_g5_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, uint32_t volumes_count,
-                                                          kope_g5_raytracing_hierarchy *hierarchy);
+KOPE_FUNC void kope_g5_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, kinc_matrix4x4_t *volume_transforms,
+                                                          uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy);
 
 #ifdef __cplusplus
 }

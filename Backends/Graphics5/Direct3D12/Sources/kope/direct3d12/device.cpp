@@ -11,6 +11,7 @@
 #include <kinc/window.h>
 
 #include <assert.h>
+#include <math.h>
 
 #include <dxgi1_4.h>
 
@@ -649,12 +650,8 @@ void kope_d3d12_device_create_raytracing_volume(kope_g5_device *device, kope_g5_
 	kope_g5_device_create_buffer(device, &as_params, &volume->d3d12.acceleration_structure);
 }
 
-#include <DirectXMath.h> // temporary
-
-void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, uint32_t volumes_count,
-                                                   kope_g5_raytracing_hierarchy *hierarchy) {
-	using namespace DirectX; // temporary
-
+void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, kinc_matrix4x4_t *volume_transforms,
+                                                   uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy) {
 	hierarchy->d3d12.volumes_count = volumes_count;
 
 	kope_g5_buffer_parameters instances_params;
@@ -675,25 +672,75 @@ void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_
 	auto time = static_cast<float>(GetTickCount64()) / 1000;
 
 	{
-		auto cube = XMMatrixRotationRollPitchYaw(time / 2, time / 3, time / 5);
-		cube *= XMMatrixTranslation(-1.5, 2, 2);
-		auto *ptr = reinterpret_cast<XMFLOAT3X4 *>(&descs[0].Transform);
-		XMStoreFloat3x4(ptr, cube);
+		kinc_matrix4x4_t cube = kinc_matrix4x4_rotation_y(time / 3);
+		kinc_matrix4x4_t a = kinc_matrix4x4_rotation_x(time / 2);
+		cube = kinc_matrix4x4_multiply(&a, &cube);
+		kinc_matrix4x4_t b = kinc_matrix4x4_rotation_z(time / 5);
+		cube = kinc_matrix4x4_multiply(&b, &cube);
+		kinc_matrix4x4_t c = kinc_matrix4x4_translation(-1.5, 2, 2);
+		cube = kinc_matrix4x4_multiply(&c, &cube);
+
+		descs[0].Transform[0][0] = cube.m[0];
+		descs[0].Transform[1][0] = cube.m[1];
+		descs[0].Transform[2][0] = cube.m[2];
+
+		descs[0].Transform[0][1] = cube.m[4];
+		descs[0].Transform[1][1] = cube.m[5];
+		descs[0].Transform[2][1] = cube.m[6];
+
+		descs[0].Transform[0][2] = cube.m[8];
+		descs[0].Transform[1][2] = cube.m[9];
+		descs[0].Transform[2][2] = cube.m[10];
+
+		descs[0].Transform[0][3] = cube.m[12];
+		descs[0].Transform[1][3] = cube.m[13];
+		descs[0].Transform[2][3] = cube.m[14];
 	}
 
 	{
-		auto mirror = XMMatrixRotationX(-1.8f);
-		mirror *= XMMatrixRotationY(XMScalarSinEst(time) / 8 + 1);
-		mirror *= XMMatrixTranslation(2, 2, 2);
-		auto *ptr = reinterpret_cast<XMFLOAT3X4 *>(&descs[1].Transform);
-		XMStoreFloat3x4(ptr, mirror);
+		kinc_matrix4x4_t mirror = kinc_matrix4x4_rotation_x(-1.8f);
+		kinc_matrix4x4_t a = kinc_matrix4x4_rotation_y(sinf(time) / 8 + 1);
+		mirror = kinc_matrix4x4_multiply(&a, &mirror);
+		kinc_matrix4x4_t b = kinc_matrix4x4_translation(2, 2, 2);
+		mirror = kinc_matrix4x4_multiply(&b, &mirror);
+
+		descs[1].Transform[0][0] = mirror.m[0];
+		descs[1].Transform[1][0] = mirror.m[1];
+		descs[1].Transform[2][0] = mirror.m[2];
+
+		descs[1].Transform[0][1] = mirror.m[4];
+		descs[1].Transform[1][1] = mirror.m[5];
+		descs[1].Transform[2][1] = mirror.m[6];
+
+		descs[1].Transform[0][2] = mirror.m[8];
+		descs[1].Transform[1][2] = mirror.m[9];
+		descs[1].Transform[2][2] = mirror.m[10];
+
+		descs[1].Transform[0][3] = mirror.m[12];
+		descs[1].Transform[1][3] = mirror.m[13];
+		descs[1].Transform[2][3] = mirror.m[14];
 	}
 
 	{
-		auto floor = XMMatrixScaling(5, 5, 5);
-		floor *= XMMatrixTranslation(0, 0, 2);
-		auto *ptr = reinterpret_cast<XMFLOAT3X4 *>(&descs[2].Transform);
-		XMStoreFloat3x4(ptr, floor);
+		kinc_matrix4x4_t floor = kinc_matrix4x4_scale(5, 5, 5);
+		kinc_matrix4x4_t a = kinc_matrix4x4_translation(0, 0, 2);
+		floor = kinc_matrix4x4_multiply(&a, &floor);
+
+		descs[2].Transform[0][0] = floor.m[0];
+		descs[2].Transform[1][0] = floor.m[1];
+		descs[2].Transform[2][0] = floor.m[2];
+
+		descs[2].Transform[0][1] = floor.m[4];
+		descs[2].Transform[1][1] = floor.m[5];
+		descs[2].Transform[2][1] = floor.m[6];
+
+		descs[2].Transform[0][2] = floor.m[8];
+		descs[2].Transform[1][2] = floor.m[9];
+		descs[2].Transform[2][2] = floor.m[10];
+
+		descs[2].Transform[0][3] = floor.m[12];
+		descs[2].Transform[1][3] = floor.m[13];
+		descs[2].Transform[2][3] = floor.m[14];
 	}
 
 	//

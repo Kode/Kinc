@@ -3,6 +3,8 @@
 
 #include <kope/graphics5/device.h>
 
+#include <kinc/math/matrix.h>
+
 #include "descriptorset_structs.h"
 
 #ifdef __cplusplus
@@ -32,8 +34,8 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 void kope_d3d12_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count, kope_g5_buffer *index_buffer,
                                                 uint32_t index_count, kope_g5_raytracing_volume *volume);
 
-void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, uint32_t volumes_count,
-                                                   kope_g5_raytracing_hierarchy *hierarchy);
+void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, kinc_matrix4x4_t *volume_transforms,
+                                                   uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy);
 
 #ifdef __cplusplus
 }
