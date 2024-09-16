@@ -24,6 +24,7 @@ KINC_FUNC kinc_matrix3x3_t kinc_matrix3x3_rotation_x(float alpha);
 KINC_FUNC kinc_matrix3x3_t kinc_matrix3x3_rotation_y(float alpha);
 KINC_FUNC kinc_matrix3x3_t kinc_matrix3x3_rotation_z(float alpha);
 KINC_FUNC kinc_matrix3x3_t kinc_matrix3x3_translation(float x, float y);
+KINC_FUNC kinc_matrix3x3_t kinc_matrix3x3_scale(float x, float y, float z);
 KINC_FUNC kinc_matrix3x3_t kinc_matrix3x3_multiply(kinc_matrix3x3_t *a, kinc_matrix3x3_t *b);
 KINC_FUNC kinc_vector3_t kinc_matrix3x3_multiply_vector(kinc_matrix3x3_t *a, kinc_vector3_t b);
 
@@ -39,6 +40,7 @@ KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_rotation_x(float alpha);
 KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_rotation_y(float alpha);
 KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_rotation_z(float alpha);
 KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_translation(float x, float y, float z);
+KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_scale(float x, float y, float z);
 KINC_FUNC kinc_matrix4x4_t kinc_matrix4x4_multiply(kinc_matrix4x4_t *a, kinc_matrix4x4_t *b);
 KINC_FUNC kinc_vector4_t kinc_matrix4x4_multiply_vector(kinc_matrix4x4_t *a, kinc_vector4_t b);
 
@@ -123,6 +125,14 @@ kinc_matrix3x3_t kinc_matrix3x3_translation(float x, float y) {
 	kinc_matrix3x3_t m = kinc_matrix3x3_identity();
 	kinc_matrix3x3_set(&m, 2, 0, x);
 	kinc_matrix3x3_set(&m, 2, 1, y);
+	return m;
+}
+
+kinc_matrix3x3_t kinc_matrix3x3_scale(float x, float y, float z) {
+	kinc_matrix3x3_t m = kinc_matrix3x3_identity();
+	kinc_matrix3x3_set(&m, 0, 0, x);
+	kinc_matrix3x3_set(&m, 1, 1, y);
+	kinc_matrix3x3_set(&m, 2, 2, z);
 	return m;
 }
 
@@ -231,6 +241,14 @@ kinc_matrix4x4_t kinc_matrix4x4_translation(float x, float y, float z) {
 	kinc_matrix4x4_set(&m, 3, 0, x);
 	kinc_matrix4x4_set(&m, 3, 1, y);
 	kinc_matrix4x4_set(&m, 3, 2, z);
+	return m;
+}
+
+kinc_matrix4x4_t kinc_matrix4x4_scale(float x, float y, float z) {
+	kinc_matrix4x4_t m = kinc_matrix4x4_identity();
+	kinc_matrix4x4_set(&m, 0, 0, x);
+	kinc_matrix4x4_set(&m, 1, 1, y);
+	kinc_matrix4x4_set(&m, 2, 2, z);
 	return m;
 }
 
