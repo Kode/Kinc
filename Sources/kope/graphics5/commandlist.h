@@ -3,6 +3,8 @@
 
 #include <kope/global.h>
 
+#include <kinc/math/matrix.h>
+
 #include "api.h"
 #include "buffer.h"
 #include "texture.h"
@@ -132,6 +134,9 @@ KOPE_FUNC void kope_g5_command_list_prepare_raytracing_volume(kope_g5_command_li
 struct kope_g5_raytracing_hierarchy;
 
 KOPE_FUNC void kope_g5_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *list, struct kope_g5_raytracing_hierarchy *hierarchy);
+
+KOPE_FUNC void kope_g5_command_list_update_raytracing_hierarchy(kope_g5_command_list *list, kinc_matrix4x4_t *volume_transforms, uint32_t volumes_count,
+                                                                struct kope_g5_raytracing_hierarchy *hierarchy);
 
 KOPE_FUNC void kope_g5_command_list_trace_rays(kope_g5_command_list *list);
 

@@ -45,8 +45,8 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 
 	kinc_microsoft_affirm(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&device->d3d12.device)));
 
-	NvAPI_Initialize();
 #if defined(KOPE_NVAPI) && !defined(NDEBUG)
+	NvAPI_Initialize();
 	NvAPI_D3D12_EnableRaytracingValidation(device->d3d12.device, NVAPI_D3D12_RAYTRACING_VALIDATION_FLAG_NONE);
 	void *handle = nullptr;
 	NvAPI_D3D12_RegisterRaytracingValidationMessageCallback(device->d3d12.device, &myValidationMessageCallback, nullptr, &handle);
@@ -700,6 +700,11 @@ void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_
 	scratch_params.size = prebuild_info.ScratchDataSizeInBytes;
 	scratch_params.usage_flags = KOPE_G5_BUFFER_USAGE_READ_WRITE;
 	kope_g5_device_create_buffer(device, &scratch_params, &hierarchy->d3d12.scratch_buffer); // TODO: delete later
+
+	kope_g5_buffer_parameters update_scratch_params;
+	update_scratch_params.size = prebuild_info.UpdateScratchDataSizeInBytes;
+	update_scratch_params.usage_flags = KOPE_G5_BUFFER_USAGE_READ_WRITE;
+	kope_g5_device_create_buffer(device, &update_scratch_params, &hierarchy->d3d12.update_scratch_buffer);
 
 	kope_g5_buffer_parameters as_params;
 	as_params.size = prebuild_info.ResultDataMaxSizeInBytes;

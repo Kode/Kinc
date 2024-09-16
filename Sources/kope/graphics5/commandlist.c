@@ -49,6 +49,11 @@ void kope_g5_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *lis
 	KOPE_G5_CALL2(command_list_prepare_raytracing_hierarchy, list, hierarchy);
 }
 
+void kope_g5_command_list_update_raytracing_hierarchy(kope_g5_command_list *list, kinc_matrix4x4_t *volume_transforms, uint32_t volumes_count,
+                                                      kope_g5_raytracing_hierarchy *hierarchy) {
+	KOPE_G5_CALL4(command_list_update_raytracing_hierarchy, list, volume_transforms, volumes_count, hierarchy);
+}
+
 void kope_g5_command_list_trace_rays(kope_g5_command_list *list) {
 	KOPE_G5_CALL1(command_list_trace_rays, list);
 }

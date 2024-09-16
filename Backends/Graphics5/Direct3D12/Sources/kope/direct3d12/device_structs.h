@@ -67,6 +67,7 @@ typedef struct kope_d3d12_raytracing_hierarchy {
 	kope_g5_buffer instances;
 
 	kope_g5_buffer scratch_buffer;
+	kope_g5_buffer update_scratch_buffer;
 	kope_g5_buffer acceleration_structure;
 } kope_d3d12_raytracing_hierarchy;
 

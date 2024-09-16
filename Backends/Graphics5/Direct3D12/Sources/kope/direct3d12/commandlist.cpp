@@ -273,6 +273,52 @@ void kope_d3d12_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *
 	list->d3d12.list->ResourceBarrier(1, &barrier);
 }
 
+void kope_d3d12_command_list_update_raytracing_hierarchy(kope_g5_command_list *list, kinc_matrix4x4_t *volume_transforms, uint32_t volumes_count,
+                                                         kope_g5_raytracing_hierarchy *hierarchy) {
+	D3D12_RAYTRACING_INSTANCE_DESC *descs = (D3D12_RAYTRACING_INSTANCE_DESC *)kope_g5_buffer_lock(&hierarchy->d3d12.instances);
+
+	for (uint32_t volume_index = 0; volume_index < hierarchy->d3d12.volumes_count; ++volume_index) {
+		descs[volume_index].Transform[0][0] = volume_transforms[volume_index].m[0];
+		descs[volume_index].Transform[1][0] = volume_transforms[volume_index].m[1];
+		descs[volume_index].Transform[2][0] = volume_transforms[volume_index].m[2];
+
+		descs[volume_index].Transform[0][1] = volume_transforms[volume_index].m[4];
+		descs[volume_index].Transform[1][1] = volume_transforms[volume_index].m[5];
+		descs[volume_index].Transform[2][1] = volume_transforms[volume_index].m[6];
+
+		descs[volume_index].Transform[0][2] = volume_transforms[volume_index].m[8];
+		descs[volume_index].Transform[1][2] = volume_transforms[volume_index].m[9];
+		descs[volume_index].Transform[2][2] = volume_transforms[volume_index].m[10];
+
+		descs[volume_index].Transform[0][3] = volume_transforms[volume_index].m[12];
+		descs[volume_index].Transform[1][3] = volume_transforms[volume_index].m[13];
+		descs[volume_index].Transform[2][3] = volume_transforms[volume_index].m[14];
+	}
+
+	kope_g5_buffer_unlock(&hierarchy->d3d12.instances);
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
+	inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
+	inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+	inputs.NumDescs = hierarchy->d3d12.volumes_count;
+	inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+	inputs.InstanceDescs = hierarchy->d3d12.instances.d3d12.resource->GetGPUVirtualAddress();
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc = {};
+	build_desc.Inputs = inputs;
+	build_desc.SourceAccelerationStructureData = hierarchy->d3d12.acceleration_structure.d3d12.resource->GetGPUVirtualAddress();
+	build_desc.DestAccelerationStructureData = hierarchy->d3d12.acceleration_structure.d3d12.resource->GetGPUVirtualAddress();
+	build_desc.ScratchAccelerationStructureData = hierarchy->d3d12.update_scratch_buffer.d3d12.resource->GetGPUVirtualAddress();
+
+	list->d3d12.list->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);
+
+	D3D12_RESOURCE_BARRIER barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	barrier.UAV.pResource = hierarchy->d3d12.acceleration_structure.d3d12.resource;
+
+	list->d3d12.list->ResourceBarrier(1, &barrier);
+}
+
 void kope_d3d12_command_list_set_ray_pipeline(kope_g5_command_list *list, kope_d3d12_ray_pipeline *pipeline) {
 	list->d3d12.list->SetPipelineState1(pipeline->pipe);
 	list->d3d12.list->SetComputeRootSignature(pipeline->root_signature);

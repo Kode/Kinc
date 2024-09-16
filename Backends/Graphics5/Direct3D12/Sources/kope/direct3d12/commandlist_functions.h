@@ -41,6 +41,9 @@ void kope_d3d12_command_list_prepare_raytracing_volume(kope_g5_command_list *lis
 
 void kope_d3d12_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *list, kope_g5_raytracing_hierarchy *hierarchy);
 
+void kope_d3d12_command_list_update_raytracing_hierarchy(kope_g5_command_list *list, kinc_matrix4x4_t *volume_transforms, uint32_t volumes_count,
+                                                         kope_g5_raytracing_hierarchy *hierarchy);
+
 void kope_d3d12_command_list_set_ray_pipeline(kope_g5_command_list *list, kope_d3d12_ray_pipeline *pipeline);
 
 void kope_d3d12_command_list_trace_rays(kope_g5_command_list *list);
