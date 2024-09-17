@@ -6,3 +6,4 @@
 #include "graphics.c"
 #include "sampler.c"
 #include "texture.c"
+#include "textureformat.c"
