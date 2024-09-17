@@ -470,6 +470,10 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
+	if ((parameters->usage & KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT) != 0) {
+		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	}
+
 	if ((parameters->usage & KONG_G5_TEXTURE_USAGE_READ_WRITE) != 0) {
 		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	}

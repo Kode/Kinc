@@ -362,6 +362,7 @@ void kope_d3d12_compute_pipeline_destroy(kope_d3d12_compute_pipeline *pipe) {
 	}
 }
 
+#ifndef KONG_HAS_NO_RAY_SHADERS
 void kope_d3d12_ray_pipeline_init(kope_g5_device *device, kope_d3d12_ray_pipeline *pipe, const kope_d3d12_ray_pipeline_parameters *parameters,
                                   ID3D12RootSignature *root_signature) {
 	D3D12_DXIL_LIBRARY_DESC lib = {0};
@@ -457,3 +458,4 @@ void kope_d3d12_ray_pipeline_destroy(kope_d3d12_ray_pipeline *pipe) {
 		pipe->pipe = NULL;
 	}
 }
+#endif
