@@ -8,12 +8,16 @@
 #include <kope/vulkan/commandlist_functions.h>
 #endif
 
-void kope_g5_command_list_copy_buffer_to_texture(kope_g5_command_list *list, kope_g5_buffer *source, kope_g5_texture *destination, kope_uint3 size) {
-	KOPE_G5_CALL4(command_list_copy_buffer_to_texture, list, source, destination, size);
+void kope_g5_command_list_copy_buffer_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_buffer *source,
+                                                 const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
+                                                 uint32_t depth_or_array_layers) {
+	KOPE_G5_CALL6(command_list_copy_buffer_to_texture, list, source, destination, width, height, depth_or_array_layers);
 }
 
-void kope_g5_command_list_copy_texture_to_texture(kope_g5_command_list *list, kope_g5_texture *source, kope_g5_texture *destination, kope_uint3 size) {
-	KOPE_G5_CALL4(command_list_copy_texture_to_texture, list, source, destination, size);
+void kope_g5_command_list_copy_texture_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
+                                                  const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
+                                                  uint32_t depth_or_array_layers) {
+	KOPE_G5_CALL6(command_list_copy_texture_to_texture, list, source, destination, width, height, depth_or_array_layers);
 }
 
 void kope_g5_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
@@ -54,6 +58,6 @@ void kope_g5_command_list_update_raytracing_hierarchy(kope_g5_command_list *list
 	KOPE_G5_CALL4(command_list_update_raytracing_hierarchy, list, volume_transforms, volumes_count, hierarchy);
 }
 
-void kope_g5_command_list_trace_rays(kope_g5_command_list *list) {
-	KOPE_G5_CALL1(command_list_trace_rays, list);
+void kope_g5_command_list_trace_rays(kope_g5_command_list *list, uint32_t width, uint32_t height, uint32_t depth) {
+	KOPE_G5_CALL4(command_list_trace_rays, list, width, height, depth);
 }

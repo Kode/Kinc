@@ -73,21 +73,51 @@ typedef struct kope_g5_render_pass_depth_stencil_attachment {
 
 typedef struct kope_g5_render_pass_parameters {
 	kope_g5_render_pass_color_attachment color_attachments[8];
+	size_t color_attachments_count;
 	kope_g5_render_pass_depth_stencil_attachment depth_stencil_attachments[8];
+	size_t depth_stencil_attachments_count;
 	// GPUQuerySet occlusionQuerySet;
 	// GPURenderPassTimestampWrites timestampWrites;
 } kope_g5_render_pass_parameters;
 
 KOPE_FUNC void kope_g5_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters);
 
+typedef enum kope_g5_image_copy_aspect {
+	KOPE_G5_IMAGE_COPY_ASPECT_ALL,
+	KOPE_G5_IMAGE_COPY_ASPECT_DEPTH_ONLY,
+	KOPE_G5_IMAGE_COPY_ASPECT_STENCIL_ONLY
+} kope_g5_image_copy_aspect;
+
+typedef struct kope_g5_image_copy_texture {
+	kope_g5_image_copy_aspect aspect;
+	uint32_t mip_level;
+	uint32_t origin_x;
+	uint32_t origin_y;
+	uint32_t origin_z;
+	kope_g5_texture *texture;
+} kope_g5_image_copy_texture;
+
+typedef struct kope_g5_image_copy_buffer {
+	kope_g5_buffer *buffer;
+	uint64_t offset;
+	uint32_t bytes_per_row;
+	uint32_t rows_per_image;
+} kope_g5_image_copy_buffer;
+
 KOPE_FUNC void kope_g5_command_list_copy_buffer_to_buffer(kope_g5_command_list *list, kope_g5_buffer *source, uint64_t source_offset,
                                                           kope_g5_buffer *destination, uint64_t destination_offset, uint64_t size);
 
-KOPE_FUNC void kope_g5_command_list_copy_buffer_to_texture(kope_g5_command_list *list, kope_g5_buffer *source, kope_g5_texture *destination, kope_uint3 size);
+KOPE_FUNC void kope_g5_command_list_copy_buffer_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_buffer *source,
+                                                           const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
+                                                           uint32_t depth_or_array_layers);
 
-KOPE_FUNC void kope_g5_command_list_copy_texture_to_buffer(kope_g5_command_list *list, kope_g5_texture *source, kope_g5_buffer *destination, kope_uint3 size);
+KOPE_FUNC void kope_g5_command_list_copy_texture_to_buffer(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
+                                                           const kope_g5_image_copy_buffer *destination, uint32_t width, uint32_t height,
+                                                           uint32_t depth_or_array_layers);
 
-KOPE_FUNC void kope_g5_command_list_copy_texture_to_texture(kope_g5_command_list *list, kope_g5_texture *source, kope_g5_texture *destination, kope_uint3 size);
+KOPE_FUNC void kope_g5_command_list_copy_texture_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
+                                                            const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
+                                                            uint32_t depth_or_array_layers);
 
 KOPE_FUNC void kope_g5_command_list_clear_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, size_t offset, uint64_t size);
 
@@ -138,7 +168,7 @@ KOPE_FUNC void kope_g5_command_list_prepare_raytracing_hierarchy(kope_g5_command
 KOPE_FUNC void kope_g5_command_list_update_raytracing_hierarchy(kope_g5_command_list *list, kinc_matrix4x4_t *volume_transforms, uint32_t volumes_count,
                                                                 struct kope_g5_raytracing_hierarchy *hierarchy);
 
-KOPE_FUNC void kope_g5_command_list_trace_rays(kope_g5_command_list *list);
+KOPE_FUNC void kope_g5_command_list_trace_rays(kope_g5_command_list *list, uint32_t width, uint32_t height, uint32_t depth);
 
 KOPE_FUNC void kope_g5_command_list_present(kope_g5_command_list *list);
 

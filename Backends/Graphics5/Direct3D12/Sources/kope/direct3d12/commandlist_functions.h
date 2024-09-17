@@ -10,9 +10,13 @@
 extern "C" {
 #endif
 
-void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, kope_g5_buffer *source, kope_g5_texture *destination, kope_uint3 size);
+void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_buffer *source,
+                                                    const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
+                                                    uint32_t depth_or_array_layers);
 
-void kope_d3d12_command_list_copy_texture_to_texture(kope_g5_command_list *list, kope_g5_texture *source, kope_g5_texture *destination, kope_uint3 size);
+void kope_d3d12_command_list_copy_texture_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
+                                                     const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
+                                                     uint32_t depth_or_array_layers);
 
 void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters);
 
@@ -46,7 +50,7 @@ void kope_d3d12_command_list_update_raytracing_hierarchy(kope_g5_command_list *l
 
 void kope_d3d12_command_list_set_ray_pipeline(kope_g5_command_list *list, kope_d3d12_ray_pipeline *pipeline);
 
-void kope_d3d12_command_list_trace_rays(kope_g5_command_list *list);
+void kope_d3d12_command_list_trace_rays(kope_g5_command_list *list, uint32_t width, uint32_t height, uint32_t depth);
 
 #ifdef __cplusplus
 }
