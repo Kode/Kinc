@@ -470,16 +470,30 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
+	D3D12_CLEAR_VALUE optimizedClearValue;
+	D3D12_CLEAR_VALUE *optimizedClearValuePointer = NULL;
+
 	if ((parameters->usage & KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT) != 0) {
 		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+		optimizedClearValue.Color[0] = 0.0f;
+		optimizedClearValue.Color[1] = 0.0f;
+		optimizedClearValue.Color[2] = 0.0f;
+		optimizedClearValue.Color[3] = 1.0f;
+		optimizedClearValue.DepthStencil.Depth = 0.0f;
+		optimizedClearValue.DepthStencil.Stencil = 0;
+		optimizedClearValue.Format = format;
+
+		optimizedClearValuePointer = &optimizedClearValue;
 	}
 
 	if ((parameters->usage & KONG_G5_TEXTURE_USAGE_READ_WRITE) != 0) {
 		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	}
 
-	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(
-	    &heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, NULL, IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource)));
+	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(&heap_properties, D3D12_HEAP_FLAG_NONE, &desc,
+	                                                                    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, optimizedClearValuePointer,
+	                                                                    IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource)));
 
 	texture->d3d12.resource_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	texture->d3d12.format = format;
