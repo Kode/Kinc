@@ -42,8 +42,8 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 
 		render_target_views[render_target_index] = rtv;
 
-		scissors[render_target_index] = {0, 0, 1024, 768};
-		viewports[render_target_index] = {0.0f, 0.0f, 1024.0f, 768.0f, 0.0f, 1.0f};
+		scissors[render_target_index] = {0, 0, (LONG)render_target->d3d12.width, (LONG)render_target->d3d12.height};
+		viewports[render_target_index] = {0.0f, 0.0f, (FLOAT)render_target->d3d12.width, (FLOAT)render_target->d3d12.height, 0.0f, 1.0f};
 	}
 
 	list->d3d12.list->OMSetRenderTargets((UINT)parameters->color_attachments_count, render_target_views, true, nullptr);

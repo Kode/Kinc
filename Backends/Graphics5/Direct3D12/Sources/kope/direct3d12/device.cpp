@@ -484,6 +484,9 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	texture->d3d12.resource_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	texture->d3d12.format = format;
 
+	texture->d3d12.width = parameters->width;
+	texture->d3d12.height = parameters->height;
+
 	texture->d3d12.in_flight_frame_index = 0;
 
 	create_texture_views(device, parameters, texture);
