@@ -12,9 +12,7 @@
 void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
 	list->d3d12.compute_pipeline_set = false;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE render_target_views[8];
-	D3D12_RECT scissors[8];
-	D3D12_VIEWPORT viewports[8];
+	D3D12_CPU_DESCRIPTOR_HANDLE render_target_views[8] = {0};
 
 	for (size_t render_target_index = 0; render_target_index < parameters->color_attachments_count; ++render_target_index) {
 		kope_g5_texture *render_target = parameters->color_attachments[render_target_index].texture;
@@ -41,14 +39,16 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 		rtv.ptr += render_target->d3d12.rtv_index * list->d3d12.device->rtv_increment;
 
 		render_target_views[render_target_index] = rtv;
-
-		scissors[render_target_index] = {0, 0, (LONG)render_target->d3d12.width, (LONG)render_target->d3d12.height};
-		viewports[render_target_index] = {0.0f, 0.0f, (FLOAT)render_target->d3d12.width, (FLOAT)render_target->d3d12.height, 0.0f, 1.0f};
 	}
 
 	list->d3d12.list->OMSetRenderTargets((UINT)parameters->color_attachments_count, render_target_views, true, nullptr);
-	list->d3d12.list->RSSetViewports((UINT)parameters->color_attachments_count, viewports);
-	list->d3d12.list->RSSetScissorRects((UINT)parameters->color_attachments_count, scissors);
+
+	D3D12_VIEWPORT viewport = {
+	    0.0f, 0.0f, (FLOAT)parameters->color_attachments[0].texture->d3d12.width, (FLOAT)parameters->color_attachments[0].texture->d3d12.height, 0.0f, 1.0f};
+	list->d3d12.list->RSSetViewports(1, &viewport);
+
+	D3D12_RECT scissor = {0, 0, (LONG)parameters->color_attachments[0].texture->d3d12.width, (LONG)parameters->color_attachments[0].texture->d3d12.height};
+	list->d3d12.list->RSSetScissorRects(1, &scissor);
 
 	for (size_t render_target_index = 0; render_target_index < parameters->color_attachments_count; ++render_target_index) {
 		FLOAT color[4];
