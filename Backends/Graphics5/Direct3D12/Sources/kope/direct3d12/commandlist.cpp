@@ -124,6 +124,15 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 	}
 }
 
+void kope_d3d12_command_list_set_root_constants(kope_g5_command_list *list, const void *data, size_t data_size) {
+	if (list->d3d12.compute_pipeline_set) {
+		list->d3d12.list->SetComputeRoot32BitConstants(0, (UINT)(data_size / 4), data, 0);
+	}
+	else {
+		list->d3d12.list->SetGraphicsRoot32BitConstants(0, (UINT)(data_size / 4), data, 0);
+	}
+}
+
 void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_buffer *source,
                                                     const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
                                                     uint32_t depth_or_array_layers) {

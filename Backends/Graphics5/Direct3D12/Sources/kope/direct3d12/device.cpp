@@ -118,6 +118,10 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 	for (int i = 0; i < KOPE_D3D12_FRAME_COUNT; ++i) {
 		device->d3d12.swap_chain->GetBuffer(i, IID_GRAPHICS_PPV_ARGS(&device->d3d12.framebuffer_textures[i].d3d12.resource));
 
+#ifdef KOPE_G5_VALIDATION
+		device->d3d12.framebuffer_textures[i].validation_format = KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
+#endif
+
 		kope_g5_texture_parameters parameters = {};
 		parameters.format = KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
 		parameters.dimension = KOPE_G5_TEXTURE_DIMENSION_2D;

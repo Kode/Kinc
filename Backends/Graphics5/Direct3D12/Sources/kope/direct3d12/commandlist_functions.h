@@ -37,6 +37,8 @@ void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t i
 
 void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set);
 
+void kope_d3d12_command_list_set_root_constants(kope_g5_command_list *list, const void *data, size_t data_size);
+
 void kope_d3d12_command_list_set_compute_pipeline(kope_g5_command_list *list, kope_d3d12_compute_pipeline *pipeline);
 
 void kope_d3d12_command_list_compute(kope_g5_command_list *list, uint32_t workgroup_count_x, uint32_t workgroup_count_y, uint32_t workgroup_count_z);
