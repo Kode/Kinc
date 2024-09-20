@@ -44,7 +44,17 @@ void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope
 	D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
 	desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	desc.Format = (DXGI_FORMAT)texture->d3d12.format;
+
+	DXGI_FORMAT format = (DXGI_FORMAT)texture->d3d12.format;
+	switch (format) {
+	case DXGI_FORMAT_D16_UNORM:
+		desc.Format = DXGI_FORMAT_R16_UNORM;
+		break;
+	default:
+		desc.Format = format;
+		break;
+	}
+
 	desc.Texture2D.MipLevels = 1;
 	desc.Texture2D.MostDetailedMip = 0;
 	desc.Texture2D.ResourceMinLODClamp = 0.0f;

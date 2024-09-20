@@ -41,19 +41,78 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 		render_target_views[render_target_index] = rtv;
 	}
 
-	list->d3d12.list->OMSetRenderTargets((UINT)parameters->color_attachments_count, render_target_views, true, nullptr);
+	D3D12_CPU_DESCRIPTOR_HANDLE depth_stencil_view = {0};
 
-	D3D12_VIEWPORT viewport = {
-	    0.0f, 0.0f, (FLOAT)parameters->color_attachments[0].texture->d3d12.width, (FLOAT)parameters->color_attachments[0].texture->d3d12.height, 0.0f, 1.0f};
-	list->d3d12.list->RSSetViewports(1, &viewport);
+	if (parameters->depth_stencil_attachment.texture != NULL) {
+		kope_g5_texture *render_target = parameters->depth_stencil_attachment.texture;
 
-	D3D12_RECT scissor = {0, 0, (LONG)parameters->color_attachments[0].texture->d3d12.width, (LONG)parameters->color_attachments[0].texture->d3d12.height};
-	list->d3d12.list->RSSetScissorRects(1, &scissor);
+		if (render_target->d3d12.in_flight_frame_index > 0) {
+			list->d3d12.blocking_frame_index = render_target->d3d12.in_flight_frame_index;
+		}
+
+		if (render_target->d3d12.resource_state != D3D12_RESOURCE_STATE_DEPTH_WRITE) {
+			D3D12_RESOURCE_BARRIER barrier;
+			barrier.Transition.pResource = render_target->d3d12.resource;
+			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)render_target->d3d12.resource_state;
+			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+			list->d3d12.list->ResourceBarrier(1, &barrier);
+
+			render_target->d3d12.resource_state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+		}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE dsv = list->d3d12.device->all_dsvs->GetCPUDescriptorHandleForHeapStart();
+		dsv.ptr += render_target->d3d12.dsv_index * list->d3d12.device->dsv_increment;
+
+		depth_stencil_view = dsv;
+	}
+
+	if (parameters->color_attachments_count > 0) {
+		list->d3d12.list->OMSetRenderTargets((UINT)parameters->color_attachments_count, render_target_views, true, nullptr);
+		if (parameters->depth_stencil_attachment.texture != NULL) {
+			list->d3d12.list->OMSetRenderTargets((UINT)parameters->color_attachments_count, render_target_views, true, nullptr);
+		}
+	}
+	else if (parameters->depth_stencil_attachment.texture != NULL) {
+		list->d3d12.list->OMSetRenderTargets(0, NULL, TRUE, &depth_stencil_view);
+	}
+
+	if (parameters->color_attachments_count > 0) {
+		D3D12_VIEWPORT viewport = {
+		    0.0f, 0.0f, (FLOAT)parameters->color_attachments[0].texture->d3d12.width, (FLOAT)parameters->color_attachments[0].texture->d3d12.height,
+		    0.0f, 1.0f};
+		list->d3d12.list->RSSetViewports(1, &viewport);
+
+		D3D12_RECT scissor = {0, 0, (LONG)parameters->color_attachments[0].texture->d3d12.width, (LONG)parameters->color_attachments[0].texture->d3d12.height};
+		list->d3d12.list->RSSetScissorRects(1, &scissor);
+	}
+	else if (parameters->depth_stencil_attachment.texture != NULL) {
+		D3D12_VIEWPORT viewport = {
+		    0.0f, 0.0f, (FLOAT)parameters->depth_stencil_attachment.texture->d3d12.width, (FLOAT)parameters->depth_stencil_attachment.texture->d3d12.height,
+		    0.0f, 1.0f};
+		list->d3d12.list->RSSetViewports(1, &viewport);
+
+		D3D12_RECT scissor = {0, 0, (LONG)parameters->depth_stencil_attachment.texture->d3d12.width,
+		                      (LONG)parameters->depth_stencil_attachment.texture->d3d12.height};
+		list->d3d12.list->RSSetScissorRects(1, &scissor);
+	}
 
 	for (size_t render_target_index = 0; render_target_index < parameters->color_attachments_count; ++render_target_index) {
-		FLOAT color[4];
-		memcpy(color, &parameters->color_attachments[render_target_index].clear_value, sizeof(color));
-		list->d3d12.list->ClearRenderTargetView(render_target_views[render_target_index], color, 0, NULL);
+		if (parameters->color_attachments[render_target_index].load_op == KOPE_G5_LOAD_OP_CLEAR) {
+			FLOAT color[4];
+			memcpy(color, &parameters->color_attachments[render_target_index].clear_value, sizeof(color));
+			list->d3d12.list->ClearRenderTargetView(render_target_views[render_target_index], color, 0, NULL);
+		}
+	}
+
+	if (parameters->depth_stencil_attachment.texture != NULL) {
+		if (parameters->depth_stencil_attachment.depth_load_op == KOPE_G5_LOAD_OP_CLEAR) {
+			list->d3d12.list->ClearDepthStencilView(depth_stencil_view, D3D12_CLEAR_FLAG_DEPTH, parameters->depth_stencil_attachment.depth_clear_value, 0, 0,
+			                                        NULL);
+		}
 	}
 }
 

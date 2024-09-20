@@ -74,8 +74,7 @@ typedef struct kope_g5_render_pass_depth_stencil_attachment {
 typedef struct kope_g5_render_pass_parameters {
 	kope_g5_render_pass_color_attachment color_attachments[8];
 	size_t color_attachments_count;
-	kope_g5_render_pass_depth_stencil_attachment depth_stencil_attachments[8];
-	size_t depth_stencil_attachments_count;
+	kope_g5_render_pass_depth_stencil_attachment depth_stencil_attachment;
 	// GPUQuerySet occlusionQuerySet;
 	// GPURenderPassTimestampWrites timestampWrites;
 } kope_g5_render_pass_parameters;

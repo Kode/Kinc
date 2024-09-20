@@ -33,7 +33,7 @@ static void __stdcall myValidationMessageCallback(void *pUserData, NVAPI_D3D12_R
 }
 #endif
 
-static void create_texture_views(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
+static void create_render_target_views(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
 void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
 #ifndef NDEBUG
@@ -129,7 +129,7 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 
 		device->d3d12.framebuffer_textures[i].d3d12.resource_state = D3D12_RESOURCE_STATE_PRESENT;
 
-		create_texture_views(device, &parameters, &device->d3d12.framebuffer_textures[i]);
+		create_render_target_views(device, &parameters, &device->d3d12.framebuffer_textures[i]);
 	}
 
 	device->d3d12.framebuffer_index = 0;
@@ -417,7 +417,7 @@ static D3D12_DSV_DIMENSION convert_texture_dsv_dimension(kope_g5_texture_dimensi
 	// D3D12_DSV_DIMENSION_TEXTURE2DARRAY = 4, D3D12_DSV_DIMENSION_TEXTURE2DMS = 5, D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY = 6
 }
 
-static void create_texture_views(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
+static void create_render_target_views(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
 	DXGI_FORMAT format = convert_texture_format(parameters->format);
 
 	texture->d3d12.rtv_index = 0xffffffff;
@@ -432,7 +432,7 @@ static void create_texture_views(kope_g5_device *device, const kope_g5_texture_p
 			desc.ViewDimension = convert_texture_dsv_dimension(parameters->dimension);
 
 			D3D12_CPU_DESCRIPTOR_HANDLE dsv = device->d3d12.all_dsvs->GetCPUDescriptorHandleForHeapStart();
-			dsv.ptr += texture->d3d12.rtv_index * device->d3d12.dsv_increment;
+			dsv.ptr += texture->d3d12.dsv_index * device->d3d12.dsv_increment;
 
 			device->d3d12.device->CreateDepthStencilView(texture->d3d12.resource, &desc, dsv);
 		}
@@ -478,13 +478,18 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	D3D12_CLEAR_VALUE *optimizedClearValuePointer = NULL;
 
 	if ((parameters->usage & KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT) != 0) {
-		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+		if (kope_g5_texture_format_is_depth(parameters->format)) {
+			desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+		}
+		else {
+			desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+		}
 
 		optimizedClearValue.Color[0] = 0.0f;
 		optimizedClearValue.Color[1] = 0.0f;
 		optimizedClearValue.Color[2] = 0.0f;
 		optimizedClearValue.Color[3] = 1.0f;
-		optimizedClearValue.DepthStencil.Depth = 0.0f;
+		optimizedClearValue.DepthStencil.Depth = 1.0f;
 		optimizedClearValue.DepthStencil.Stencil = 0;
 		optimizedClearValue.Format = format;
 
@@ -507,7 +512,7 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 
 	texture->d3d12.in_flight_frame_index = 0;
 
-	create_texture_views(device, parameters, texture);
+	create_render_target_views(device, parameters, texture);
 }
 
 kope_g5_texture *kope_d3d12_device_get_framebuffer(kope_g5_device *device) {
