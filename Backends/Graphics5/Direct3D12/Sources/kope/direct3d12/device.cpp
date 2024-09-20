@@ -118,6 +118,9 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 	for (int i = 0; i < KOPE_D3D12_FRAME_COUNT; ++i) {
 		device->d3d12.swap_chain->GetBuffer(i, IID_GRAPHICS_PPV_ARGS(&device->d3d12.framebuffer_textures[i].d3d12.resource));
 
+		device->d3d12.framebuffer_textures[i].d3d12.width = kinc_window_width(0);
+		device->d3d12.framebuffer_textures[i].d3d12.height = kinc_window_height(0);
+
 #ifdef KOPE_G5_VALIDATION
 		device->d3d12.framebuffer_textures[i].validation_format = KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
 #endif
