@@ -40,7 +40,8 @@ void kope_d3d12_descriptor_set_set_bvh_view_srv(kope_g5_device *device, kope_d3d
 	device->d3d12.device->CreateShaderResourceView(nullptr, &desc, descriptor_handle);
 }
 
-void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_texture *texture, uint32_t index) {
+void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_texture *texture, uint32_t mip_level,
+                                                    uint32_t index) {
 	D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
 	desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -59,7 +60,7 @@ void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope
 	}
 
 	desc.Texture2D.MipLevels = 1;
-	desc.Texture2D.MostDetailedMip = 0;
+	desc.Texture2D.MostDetailedMip = mip_level;
 	desc.Texture2D.ResourceMinLODClamp = 0.0f;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = device->d3d12.descriptor_heap->GetCPUDescriptorHandleForHeapStart();
@@ -91,11 +92,12 @@ void kope_d3d12_descriptor_set_set_texture_cube_view_srv(kope_g5_device *device,
 	device->d3d12.device->CreateShaderResourceView(texture->d3d12.resource, &desc, descriptor_handle);
 }
 
-void kope_d3d12_descriptor_set_set_texture_view_uav(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_texture *texture, uint32_t index) {
+void kope_d3d12_descriptor_set_set_texture_view_uav(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_texture *texture, uint32_t mip_level,
+                                                    uint32_t index) {
 	D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
 	desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 	desc.Format = (DXGI_FORMAT)texture->d3d12.format;
-	desc.Texture2D.MipSlice = 0;
+	desc.Texture2D.MipSlice = mip_level;
 	desc.Texture2D.PlaneSlice = 0;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = device->d3d12.descriptor_heap->GetCPUDescriptorHandleForHeapStart();
@@ -129,7 +131,12 @@ void kope_d3d12_descriptor_set_prepare_cbv_buffer(kope_g5_command_list *list, ko
 	}
 }
 
-void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, kope_g5_texture *texture) {
+// https://learn.microsoft.com/en-us/windows/win32/direct3d12/subresources
+inline UINT D3D12CalcSubresource(UINT MipSlice, UINT ArraySlice, UINT PlaneSlice, UINT MipLevels, UINT ArraySize) {
+	return MipSlice + (ArraySlice * MipLevels) + (PlaneSlice * MipLevels * ArraySize);
+}
+
+void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, kope_g5_texture *texture, uint32_t mip_level) {
 	if (texture->d3d12.resource_state != (D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = texture->d3d12.resource;
@@ -137,7 +144,7 @@ void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, k
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)texture->d3d12.resource_state;
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.Subresource = D3D12CalcSubresource(mip_level, 0, 0, 0, 0);
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
@@ -145,7 +152,7 @@ void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, k
 	}
 }
 
-void kope_d3d12_descriptor_set_prepare_uav_texture(kope_g5_command_list *list, kope_g5_texture *texture) {
+void kope_d3d12_descriptor_set_prepare_uav_texture(kope_g5_command_list *list, kope_g5_texture *texture, uint32_t mip_level) {
 	if (texture->d3d12.resource_state != D3D12_RESOURCE_STATE_UNORDERED_ACCESS) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = texture->d3d12.resource;
@@ -153,7 +160,7 @@ void kope_d3d12_descriptor_set_prepare_uav_texture(kope_g5_command_list *list, k
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)texture->d3d12.resource_state;
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.Subresource = D3D12CalcSubresource(mip_level, 0, 0, 0, 0);
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
