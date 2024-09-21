@@ -13,9 +13,6 @@ typedef struct kope_d3d12_texture {
 	uint32_t width;
 	uint32_t height;
 
-	uint32_t rtv_index;
-	uint32_t dsv_index;
-
 	uint32_t resource_state;
 	uint32_t format;
 
