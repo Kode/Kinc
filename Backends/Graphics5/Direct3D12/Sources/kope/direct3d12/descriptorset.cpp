@@ -50,6 +50,9 @@ void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope
 	case DXGI_FORMAT_D16_UNORM:
 		desc.Format = DXGI_FORMAT_R16_UNORM;
 		break;
+	case DXGI_FORMAT_D32_FLOAT:
+		desc.Format = DXGI_FORMAT_R32_FLOAT;
+		break;
 	default:
 		desc.Format = format;
 		break;
