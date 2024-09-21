@@ -139,7 +139,7 @@ void kope_d3d12_render_pipeline_init(kope_d3d12_device *device, kope_d3d12_rende
 	for (size_t buffer_index = 0; buffer_index < parameters->vertex.buffers_count; ++buffer_index) {
 		for (size_t attribute_index = 0; attribute_index < parameters->vertex.buffers[buffer_index].attributes_count; ++attribute_index) {
 			input_elements[input_element_index].SemanticName = "TEXCOORD";
-			input_elements[input_element_index].SemanticIndex = (UINT)attribute_index;
+			input_elements[input_element_index].SemanticIndex = parameters->vertex.buffers[buffer_index].attributes[attribute_index].shader_location;
 			input_elements[input_element_index].InputSlot = (UINT)buffer_index;
 			input_elements[input_element_index].AlignedByteOffset = (attribute_index == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
 			input_elements[input_element_index].InputSlotClass = parameters->vertex.buffers[buffer_index].step_mode == KOPE_D3D12_VERTEX_STEP_MODE_INSTANCE
