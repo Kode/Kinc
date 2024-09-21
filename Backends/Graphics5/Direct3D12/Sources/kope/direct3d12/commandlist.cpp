@@ -12,7 +12,7 @@
 void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
 	list->d3d12.compute_pipeline_set = false;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE render_target_views[8] = {0};
+	D3D12_CPU_DESCRIPTOR_HANDLE render_target_views = list->d3d12.rtv_descriptors->GetCPUDescriptorHandleForHeapStart();
 
 	for (size_t render_target_index = 0; render_target_index < parameters->color_attachments_count; ++render_target_index) {
 		kope_g5_texture *render_target = parameters->color_attachments[render_target_index].texture;
@@ -35,13 +35,24 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 			render_target->d3d12.resource_state = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		}
 
-		D3D12_CPU_DESCRIPTOR_HANDLE rtv = list->d3d12.device->all_rtvs->GetCPUDescriptorHandleForHeapStart();
-		rtv.ptr += render_target->d3d12.rtv_index * list->d3d12.device->rtv_increment;
+		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
+		desc.Format = DXGI_FORMAT_UNKNOWN;
+		if (parameters->color_attachments[render_target_index].depth_slice != 0) {
+			desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+			desc.Texture2DArray.FirstArraySlice = parameters->color_attachments[render_target_index].depth_slice;
+			desc.Texture2DArray.ArraySize = 1;
+		}
+		else {
+			desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+		}
 
-		render_target_views[render_target_index] = rtv;
+		D3D12_CPU_DESCRIPTOR_HANDLE render_target_view = render_target_views;
+		render_target_view.ptr += render_target_index * list->d3d12.rtv_increment;
+
+		list->d3d12.device->device->CreateRenderTargetView(render_target->d3d12.resource, &desc, render_target_view);
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE depth_stencil_view = {0};
+	D3D12_CPU_DESCRIPTOR_HANDLE depth_stencil_view = list->d3d12.dsv_descriptor->GetCPUDescriptorHandleForHeapStart();
 
 	if (parameters->depth_stencil_attachment.texture != NULL) {
 		kope_g5_texture *render_target = parameters->depth_stencil_attachment.texture;
@@ -64,16 +75,19 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 			render_target->d3d12.resource_state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		}
 
-		D3D12_CPU_DESCRIPTOR_HANDLE dsv = list->d3d12.device->all_dsvs->GetCPUDescriptorHandleForHeapStart();
-		dsv.ptr += render_target->d3d12.dsv_index * list->d3d12.device->dsv_increment;
+		D3D12_DEPTH_STENCIL_VIEW_DESC desc = {};
+		desc.Format = (DXGI_FORMAT)render_target->d3d12.format;
+		desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 
-		depth_stencil_view = dsv;
+		list->d3d12.device->device->CreateDepthStencilView(render_target->d3d12.resource, &desc, depth_stencil_view);
 	}
 
 	if (parameters->color_attachments_count > 0) {
-		list->d3d12.list->OMSetRenderTargets((UINT)parameters->color_attachments_count, render_target_views, true, nullptr);
 		if (parameters->depth_stencil_attachment.texture != NULL) {
-			list->d3d12.list->OMSetRenderTargets((UINT)parameters->color_attachments_count, render_target_views, true, nullptr);
+			list->d3d12.list->OMSetRenderTargets((UINT)parameters->color_attachments_count, &render_target_views, TRUE, &depth_stencil_view);
+		}
+		else {
+			list->d3d12.list->OMSetRenderTargets((UINT)parameters->color_attachments_count, &render_target_views, TRUE, nullptr);
 		}
 	}
 	else if (parameters->depth_stencil_attachment.texture != NULL) {
@@ -102,9 +116,12 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 
 	for (size_t render_target_index = 0; render_target_index < parameters->color_attachments_count; ++render_target_index) {
 		if (parameters->color_attachments[render_target_index].load_op == KOPE_G5_LOAD_OP_CLEAR) {
+			D3D12_CPU_DESCRIPTOR_HANDLE render_target_view = render_target_views;
+			render_target_view.ptr += render_target_index * list->d3d12.rtv_increment;
+
 			FLOAT color[4];
 			memcpy(color, &parameters->color_attachments[render_target_index].clear_value, sizeof(color));
-			list->d3d12.list->ClearRenderTargetView(render_target_views[render_target_index], color, 0, NULL);
+			list->d3d12.list->ClearRenderTargetView(render_target_view, color, 0, NULL);
 		}
 	}
 

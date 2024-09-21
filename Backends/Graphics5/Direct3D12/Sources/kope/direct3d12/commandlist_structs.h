@@ -28,6 +28,12 @@ typedef struct kope_d3d12_command_list {
 	struct ID3D12Fence *fence;
 	HANDLE event;
 
+	struct ID3D12DescriptorHeap *rtv_descriptors;
+	uint32_t rtv_increment;
+
+	struct ID3D12DescriptorHeap *dsv_descriptor;
+	uint32_t dsv_increment;
+
 	// set when a framebuffer is attached to a render-pass so we don't render into it during scan-out
 	uint64_t blocking_frame_index;
 

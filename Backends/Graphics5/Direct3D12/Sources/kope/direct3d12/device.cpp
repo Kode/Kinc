@@ -33,8 +33,6 @@ static void __stdcall myValidationMessageCallback(void *pUserData, NVAPI_D3D12_R
 }
 #endif
 
-static void create_render_target_views(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
-
 void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
 #ifndef NDEBUG
 	ID3D12Debug *debug = NULL;
@@ -84,30 +82,6 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 		desc.NumDescriptors = KOPE_INDEX_ALLOCATOR_SIZE;
-		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.all_rtvs)));
-
-		kope_index_allocator_init(&device->d3d12.rtv_index_allocator);
-
-		device->d3d12.rtv_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	}
-
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-		desc.NumDescriptors = KOPE_INDEX_ALLOCATOR_SIZE;
-		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.all_dsvs)));
-
-		kope_index_allocator_init(&device->d3d12.dsv_index_allocator);
-
-		device->d3d12.dsv_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-	}
-
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-		desc.NumDescriptors = KOPE_INDEX_ALLOCATOR_SIZE;
 		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&device->d3d12.all_samplers)));
@@ -131,8 +105,6 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		parameters.usage = KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT;
 
 		device->d3d12.framebuffer_textures[i].d3d12.resource_state = D3D12_RESOURCE_STATE_PRESENT;
-
-		create_render_target_views(device, &parameters, &device->d3d12.framebuffer_textures[i]);
 	}
 
 	device->d3d12.framebuffer_index = 0;
@@ -270,6 +242,26 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 
 	list->d3d12.ray_pipe = NULL;
 
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.NumDescriptors = D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT;
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&list->d3d12.rtv_descriptors)));
+
+		list->d3d12.rtv_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	}
+
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.NumDescriptors = 1;
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		kinc_microsoft_affirm(device->d3d12.device->CreateDescriptorHeap(&desc, IID_GRAPHICS_PPV_ARGS(&list->d3d12.dsv_descriptor)));
+
+		list->d3d12.dsv_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	}
+
 	list->d3d12.blocking_frame_index = 0;
 
 	list->d3d12.presenting = false;
@@ -385,75 +377,6 @@ static D3D12_RESOURCE_DIMENSION convert_texture_dimension(kope_g5_texture_dimens
 	return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 }
 
-static D3D12_RTV_DIMENSION convert_texture_rtv_dimension(kope_g5_texture_dimension dimension) {
-	switch (dimension) {
-	case KOPE_G5_TEXTURE_DIMENSION_1D:
-		return D3D12_RTV_DIMENSION_TEXTURE1D;
-	case KOPE_G5_TEXTURE_DIMENSION_2D:
-		return D3D12_RTV_DIMENSION_TEXTURE2D;
-	case KOPE_G5_TEXTURE_DIMENSION_3D:
-		return D3D12_RTV_DIMENSION_TEXTURE3D;
-	}
-
-	assert(false);
-	return D3D12_RTV_DIMENSION_TEXTURE2D;
-
-	// D3D12_RTV_DIMENSION_TEXTURE1D = 2, D3D12_RTV_DIMENSION_TEXTURE1DARRAY = 3, D3D12_RTV_DIMENSION_TEXTURE2D = 4, D3D12_RTV_DIMENSION_TEXTURE2DARRAY = 5,
-	// D3D12_RTV_DIMENSION_TEXTURE2DMS = 6, D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY = 7, D3D12_RTV_DIMENSION_TEXTURE3D = 8
-}
-
-static D3D12_DSV_DIMENSION convert_texture_dsv_dimension(kope_g5_texture_dimension dimension) {
-	switch (dimension) {
-	case KOPE_G5_TEXTURE_DIMENSION_1D:
-		return D3D12_DSV_DIMENSION_TEXTURE1D;
-	case KOPE_G5_TEXTURE_DIMENSION_2D:
-		return D3D12_DSV_DIMENSION_TEXTURE2D;
-	case KOPE_G5_TEXTURE_DIMENSION_3D:
-		assert(false);
-		return D3D12_DSV_DIMENSION_TEXTURE2D;
-	}
-
-	assert(false);
-	return D3D12_DSV_DIMENSION_TEXTURE2D;
-
-	// D3D12_DSV_DIMENSION_UNKNOWN = 0, D3D12_DSV_DIMENSION_TEXTURE1D = 1, D3D12_DSV_DIMENSION_TEXTURE1DARRAY = 2, D3D12_DSV_DIMENSION_TEXTURE2D = 3,
-	// D3D12_DSV_DIMENSION_TEXTURE2DARRAY = 4, D3D12_DSV_DIMENSION_TEXTURE2DMS = 5, D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY = 6
-}
-
-static void create_render_target_views(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
-	DXGI_FORMAT format = convert_texture_format(parameters->format);
-
-	texture->d3d12.rtv_index = 0xffffffff;
-	texture->d3d12.dsv_index = 0xffffffff;
-
-	if (parameters->usage & KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT) {
-		if (kope_g5_texture_format_is_depth(parameters->format)) {
-			texture->d3d12.dsv_index = kope_index_allocator_allocate(&device->d3d12.dsv_index_allocator);
-
-			D3D12_DEPTH_STENCIL_VIEW_DESC desc = {};
-			desc.Format = format;
-			desc.ViewDimension = convert_texture_dsv_dimension(parameters->dimension);
-
-			D3D12_CPU_DESCRIPTOR_HANDLE dsv = device->d3d12.all_dsvs->GetCPUDescriptorHandleForHeapStart();
-			dsv.ptr += texture->d3d12.dsv_index * device->d3d12.dsv_increment;
-
-			device->d3d12.device->CreateDepthStencilView(texture->d3d12.resource, &desc, dsv);
-		}
-		else {
-			texture->d3d12.rtv_index = kope_index_allocator_allocate(&device->d3d12.rtv_index_allocator);
-
-			D3D12_RENDER_TARGET_VIEW_DESC desc = {};
-			desc.Format = format;
-			desc.ViewDimension = convert_texture_rtv_dimension(parameters->dimension);
-
-			D3D12_CPU_DESCRIPTOR_HANDLE rtv = device->d3d12.all_rtvs->GetCPUDescriptorHandleForHeapStart();
-			rtv.ptr += texture->d3d12.rtv_index * device->d3d12.rtv_increment;
-
-			device->d3d12.device->CreateRenderTargetView(texture->d3d12.resource, &desc, rtv);
-		}
-	}
-}
-
 void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
 	DXGI_FORMAT format = convert_texture_format(parameters->format);
 
@@ -483,17 +406,17 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	if ((parameters->usage & KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT) != 0) {
 		if (kope_g5_texture_format_is_depth(parameters->format)) {
 			desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+			optimizedClearValue.DepthStencil.Depth = 1.0f;
+			optimizedClearValue.DepthStencil.Stencil = 0;
 		}
 		else {
 			desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+			optimizedClearValue.Color[0] = 0.0f;
+			optimizedClearValue.Color[1] = 0.0f;
+			optimizedClearValue.Color[2] = 0.0f;
+			optimizedClearValue.Color[3] = 1.0f;
 		}
 
-		optimizedClearValue.Color[0] = 0.0f;
-		optimizedClearValue.Color[1] = 0.0f;
-		optimizedClearValue.Color[2] = 0.0f;
-		optimizedClearValue.Color[3] = 1.0f;
-		optimizedClearValue.DepthStencil.Depth = 1.0f;
-		optimizedClearValue.DepthStencil.Stencil = 0;
 		optimizedClearValue.Format = format;
 
 		optimizedClearValuePointer = &optimizedClearValue;
@@ -514,8 +437,6 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	texture->d3d12.height = parameters->height;
 
 	texture->d3d12.in_flight_frame_index = 0;
-
-	create_render_target_views(device, parameters, texture);
 }
 
 kope_g5_texture *kope_d3d12_device_get_framebuffer(kope_g5_device *device) {

@@ -64,6 +64,30 @@ void kope_d3d12_descriptor_set_set_texture_view_srv(kope_g5_device *device, kope
 	device->d3d12.device->CreateShaderResourceView(texture->d3d12.resource, &desc, descriptor_handle);
 }
 
+void kope_d3d12_descriptor_set_set_texture_cube_view_srv(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_texture *texture, uint32_t index) {
+	D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
+	desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+	desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	DXGI_FORMAT format = (DXGI_FORMAT)texture->d3d12.format;
+	switch (format) {
+	case DXGI_FORMAT_D16_UNORM:
+		desc.Format = DXGI_FORMAT_R16_UNORM;
+		break;
+	default:
+		desc.Format = format;
+		break;
+	}
+
+	desc.Texture2D.MipLevels = 1;
+	desc.Texture2D.MostDetailedMip = 0;
+	desc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = device->d3d12.descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+	descriptor_handle.ptr += (set->descriptor_allocation.offset + index) * device->d3d12.cbv_srv_uav_increment;
+	device->d3d12.device->CreateShaderResourceView(texture->d3d12.resource, &desc, descriptor_handle);
+}
+
 void kope_d3d12_descriptor_set_set_texture_view_uav(kope_g5_device *device, kope_d3d12_descriptor_set *set, kope_g5_texture *texture, uint32_t index) {
 	D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
 	desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
