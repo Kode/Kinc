@@ -94,6 +94,10 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 
 		device->d3d12.framebuffer_textures[i].d3d12.width = kinc_window_width(0);
 		device->d3d12.framebuffer_textures[i].d3d12.height = kinc_window_height(0);
+		device->d3d12.framebuffer_textures[i].d3d12.depth_or_array_layers = 1;
+		device->d3d12.framebuffer_textures[i].d3d12.mip_level_count = 1;
+
+		device->d3d12.framebuffer_textures[i].d3d12.in_flight_frame_index = 0;
 
 #ifdef KOPE_G5_VALIDATION
 		device->d3d12.framebuffer_textures[i].validation_format = KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
@@ -437,6 +441,8 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 
 	texture->d3d12.width = parameters->width;
 	texture->d3d12.height = parameters->height;
+	texture->d3d12.depth_or_array_layers = parameters->depth_or_array_layers;
+	texture->d3d12.mip_level_count = parameters->mip_level_count;
 
 	texture->d3d12.in_flight_frame_index = 0;
 }
