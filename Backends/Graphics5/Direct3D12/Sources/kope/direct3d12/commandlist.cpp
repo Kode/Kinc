@@ -21,18 +21,18 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 			list->d3d12.blocking_frame_index = render_target->d3d12.in_flight_frame_index;
 		}
 
-		if (render_target->d3d12.resource_state != D3D12_RESOURCE_STATE_RENDER_TARGET) {
+		if (render_target->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_RENDER_TARGET) {
 			D3D12_RESOURCE_BARRIER barrier;
 			barrier.Transition.pResource = render_target->d3d12.resource;
 			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)render_target->d3d12.resource_state;
+			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)render_target->d3d12.resource_states[0];
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			barrier.Transition.Subresource = 0;
 
 			list->d3d12.list->ResourceBarrier(1, &barrier);
 
-			render_target->d3d12.resource_state = D3D12_RESOURCE_STATE_RENDER_TARGET;
+			render_target->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		}
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
@@ -61,18 +61,18 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 			list->d3d12.blocking_frame_index = render_target->d3d12.in_flight_frame_index;
 		}
 
-		if (render_target->d3d12.resource_state != D3D12_RESOURCE_STATE_DEPTH_WRITE) {
+		if (render_target->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_DEPTH_WRITE) {
 			D3D12_RESOURCE_BARRIER barrier;
 			barrier.Transition.pResource = render_target->d3d12.resource;
 			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)render_target->d3d12.resource_state;
+			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)render_target->d3d12.resource_states[0];
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			barrier.Transition.Subresource = 0;
 
 			list->d3d12.list->ResourceBarrier(1, &barrier);
 
-			render_target->d3d12.resource_state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			render_target->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		}
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC desc = {};
@@ -200,12 +200,12 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 	}
 }
 
-void kope_d3d12_command_list_set_root_constants(kope_g5_command_list *list, const void *data, size_t data_size) {
+void kope_d3d12_command_list_set_root_constants(kope_g5_command_list *list, uint32_t table_index, const void *data, size_t data_size) {
 	if (list->d3d12.compute_pipeline_set) {
-		list->d3d12.list->SetComputeRoot32BitConstants(0, (UINT)(data_size / 4), data, 0);
+		list->d3d12.list->SetComputeRoot32BitConstants(table_index, (UINT)(data_size / 4), data, 0);
 	}
 	else {
-		list->d3d12.list->SetGraphicsRoot32BitConstants(0, (UINT)(data_size / 4), data, 0);
+		list->d3d12.list->SetGraphicsRoot32BitConstants(table_index, (UINT)(data_size / 4), data, 0);
 	}
 }
 
@@ -226,18 +226,18 @@ void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, 
 		source->buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_COPY_SOURCE;
 	}
 
-	if (destination->texture->d3d12.resource_state != D3D12_RESOURCE_STATE_COPY_DEST) {
+	if (destination->texture->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_COPY_DEST) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = destination->texture->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->texture->d3d12.resource_state;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->texture->d3d12.resource_states[0];
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.Subresource = 0;
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		destination->texture->d3d12.resource_state = D3D12_RESOURCE_STATE_COPY_DEST;
+		destination->texture->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_COPY_DEST;
 	}
 
 	D3D12_TEXTURE_COPY_LOCATION dst;
@@ -269,32 +269,32 @@ void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, 
 void kope_d3d12_command_list_copy_texture_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
                                                      const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
                                                      uint32_t depth_or_array_layers) {
-	if (source->texture->d3d12.resource_state != D3D12_RESOURCE_STATE_COPY_SOURCE) {
+	if (source->texture->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_COPY_SOURCE) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = source->texture->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)source->texture->d3d12.resource_state;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)source->texture->d3d12.resource_states[0];
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.Subresource = 0;
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		source->texture->d3d12.resource_state = D3D12_RESOURCE_STATE_COPY_SOURCE;
+		source->texture->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_COPY_SOURCE;
 	}
 
-	if (destination->texture->d3d12.resource_state != D3D12_RESOURCE_STATE_COPY_DEST) {
+	if (destination->texture->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_COPY_DEST) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = destination->texture->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->texture->d3d12.resource_state;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->texture->d3d12.resource_states[0];
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.Subresource = 0;
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		destination->texture->d3d12.resource_state = D3D12_RESOURCE_STATE_COPY_DEST;
+		destination->texture->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_COPY_DEST;
 	}
 
 	D3D12_TEXTURE_COPY_LOCATION dst;

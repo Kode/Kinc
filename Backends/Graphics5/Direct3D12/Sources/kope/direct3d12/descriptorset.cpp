@@ -137,33 +137,33 @@ inline UINT D3D12CalcSubresource(UINT MipSlice, UINT ArraySlice, UINT PlaneSlice
 }
 
 void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, kope_g5_texture *texture, uint32_t mip_level) {
-	if (texture->d3d12.resource_state != (D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)) {
+	if (texture->d3d12.resource_states[mip_level] != (D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = texture->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)texture->d3d12.resource_state;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)texture->d3d12.resource_states[mip_level];
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 		barrier.Transition.Subresource = D3D12CalcSubresource(mip_level, 0, 0, 0, 0);
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		texture->d3d12.resource_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		texture->d3d12.resource_states[mip_level] = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 	}
 }
 
 void kope_d3d12_descriptor_set_prepare_uav_texture(kope_g5_command_list *list, kope_g5_texture *texture, uint32_t mip_level) {
-	if (texture->d3d12.resource_state != D3D12_RESOURCE_STATE_UNORDERED_ACCESS) {
+	if (texture->d3d12.resource_states[mip_level] != D3D12_RESOURCE_STATE_UNORDERED_ACCESS) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = texture->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)texture->d3d12.resource_state;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)texture->d3d12.resource_states[mip_level];
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 		barrier.Transition.Subresource = D3D12CalcSubresource(mip_level, 0, 0, 0, 0);
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		texture->d3d12.resource_state = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+		texture->d3d12.resource_states[mip_level] = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	}
 }

@@ -104,7 +104,7 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		parameters.dimension = KOPE_G5_TEXTURE_DIMENSION_2D;
 		parameters.usage = KONG_G5_TEXTURE_USAGE_RENDER_ATTACHMENT;
 
-		device->d3d12.framebuffer_textures[i].d3d12.resource_state = D3D12_RESOURCE_STATE_PRESENT;
+		device->d3d12.framebuffer_textures[i].d3d12.resource_states[0] = D3D12_RESOURCE_STATE_PRESENT;
 	}
 
 	device->d3d12.framebuffer_index = 0;
@@ -430,7 +430,9 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	                                                                    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, optimizedClearValuePointer,
 	                                                                    IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource)));
 
-	texture->d3d12.resource_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	for (size_t mip_level = 0; mip_level < parameters->mip_level_count; ++mip_level) {
+		texture->d3d12.resource_states[mip_level] = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	}
 	texture->d3d12.format = format;
 
 	texture->d3d12.width = parameters->width;
@@ -461,18 +463,18 @@ static void wait_for_frame(kope_g5_device *device, uint64_t frame_index) {
 void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	if (list->d3d12.presenting) {
 		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer(device);
-		if (framebuffer->d3d12.resource_state != D3D12_RESOURCE_STATE_PRESENT) {
+		if (framebuffer->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_PRESENT) {
 			D3D12_RESOURCE_BARRIER barrier;
 			barrier.Transition.pResource = framebuffer->d3d12.resource;
 			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)framebuffer->d3d12.resource_state;
+			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)framebuffer->d3d12.resource_states[0];
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			barrier.Transition.Subresource = 0;
 
 			list->d3d12.list->ResourceBarrier(1, &barrier);
 
-			framebuffer->d3d12.resource_state = D3D12_RESOURCE_STATE_PRESENT;
+			framebuffer->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_PRESENT;
 		}
 	}
 
