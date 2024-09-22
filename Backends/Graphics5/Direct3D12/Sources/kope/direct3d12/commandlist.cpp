@@ -226,24 +226,24 @@ void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, 
 		source->buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_COPY_SOURCE;
 	}
 
-	if (destination->texture->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_COPY_DEST) {
+	if (destination->texture->d3d12.resource_states[destination->mip_level] != D3D12_RESOURCE_STATE_COPY_DEST) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = destination->texture->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->texture->d3d12.resource_states[0];
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->texture->d3d12.resource_states[destination->mip_level];
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		barrier.Transition.Subresource = 0;
+		barrier.Transition.Subresource = D3D12CalcSubresource(destination->mip_level, 0, 0, 0, 0);
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		destination->texture->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_COPY_DEST;
+		destination->texture->d3d12.resource_states[destination->mip_level] = D3D12_RESOURCE_STATE_COPY_DEST;
 	}
 
 	D3D12_TEXTURE_COPY_LOCATION dst;
 	dst.pResource = destination->texture->d3d12.resource;
 	dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-	dst.SubresourceIndex = 0;
+	dst.SubresourceIndex = D3D12CalcSubresource(destination->mip_level, 0, 0, 0, 0);
 
 	D3D12_TEXTURE_COPY_LOCATION src;
 	src.pResource = source->buffer->d3d12.resource;
@@ -269,43 +269,43 @@ void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, 
 void kope_d3d12_command_list_copy_texture_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
                                                      const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
                                                      uint32_t depth_or_array_layers) {
-	if (source->texture->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_COPY_SOURCE) {
+	if (source->texture->d3d12.resource_states[source->mip_level] != D3D12_RESOURCE_STATE_COPY_SOURCE) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = source->texture->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)source->texture->d3d12.resource_states[0];
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)source->texture->d3d12.resource_states[source->mip_level];
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
-		barrier.Transition.Subresource = 0;
+		barrier.Transition.Subresource = D3D12CalcSubresource(source->mip_level, 0, 0, 0, 0);
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		source->texture->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_COPY_SOURCE;
+		source->texture->d3d12.resource_states[source->mip_level] = D3D12_RESOURCE_STATE_COPY_SOURCE;
 	}
 
-	if (destination->texture->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_COPY_DEST) {
+	if (destination->texture->d3d12.resource_states[destination->mip_level] != D3D12_RESOURCE_STATE_COPY_DEST) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = destination->texture->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->texture->d3d12.resource_states[0];
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->texture->d3d12.resource_states[destination->mip_level];
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		barrier.Transition.Subresource = 0;
+		barrier.Transition.Subresource = D3D12CalcSubresource(destination->mip_level, 0, 0, 0, 0);
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		destination->texture->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_COPY_DEST;
+		destination->texture->d3d12.resource_states[destination->mip_level] = D3D12_RESOURCE_STATE_COPY_DEST;
 	}
 
 	D3D12_TEXTURE_COPY_LOCATION dst;
 	dst.pResource = destination->texture->d3d12.resource;
 	dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-	dst.SubresourceIndex = 0;
+	dst.SubresourceIndex = D3D12CalcSubresource(destination->mip_level, 0, 0, 0, 0);
 
 	D3D12_TEXTURE_COPY_LOCATION src;
 	src.pResource = source->texture->d3d12.resource;
 	src.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-	src.SubresourceIndex = 0;
+	src.SubresourceIndex = D3D12CalcSubresource(source->mip_level, 0, 0, 0, 0);
 
 	D3D12_BOX source_box = {0};
 	source_box.left = source->origin_x;
