@@ -16,6 +16,12 @@ void kope_g5_command_list_copy_buffer_to_texture(kope_g5_command_list *list, con
 	KOPE_G5_CALL6(command_list_copy_buffer_to_texture, list, source, destination, width, height, depth_or_array_layers);
 }
 
+void kope_g5_command_list_copy_texture_to_buffer(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
+                                                 const kope_g5_image_copy_buffer *destination, uint32_t width, uint32_t height,
+                                                 uint32_t depth_or_array_layers) {
+	KOPE_G5_CALL6(command_list_copy_texture_to_buffer, list, source, destination, width, height, depth_or_array_layers);
+}
+
 void kope_g5_command_list_copy_texture_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
                                                   const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
                                                   uint32_t depth_or_array_layers) {

@@ -121,6 +121,8 @@ KOPE_FUNC void kope_g5_device_create_query_set(void *descriptor);
 
 KOPE_FUNC void kope_g5_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
+KOPE_FUNC void kope_g5_device_wait_until_idle(kope_g5_device *device);
+
 typedef struct kope_g5_raytracing_volume {
 	KOPE_G5_IMPL(raytracing_volume);
 } kope_g5_raytracing_volume;

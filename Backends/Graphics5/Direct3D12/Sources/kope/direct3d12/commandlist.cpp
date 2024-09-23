@@ -269,6 +269,65 @@ void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, 
 	                                    &source_box); // Set DstZ to zero because it has already been selected via dst.SubresourceIndex
 }
 
+void kope_d3d12_command_list_copy_texture_to_buffer(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
+                                                    const kope_g5_image_copy_buffer *destination, uint32_t width, uint32_t height,
+                                                    uint32_t depth_or_array_layers) {
+	if (source->texture->d3d12.resource_states[source->mip_level] != D3D12_RESOURCE_STATE_COPY_SOURCE) {
+		D3D12_RESOURCE_BARRIER barrier;
+		barrier.Transition.pResource = source->texture->d3d12.resource;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)source->texture->d3d12.resource_states[source->mip_level];
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+		barrier.Transition.Subresource =
+		    D3D12CalcSubresource(source->mip_level, source->origin_z, 0, source->texture->d3d12.mip_level_count, source->texture->d3d12.depth_or_array_layers);
+
+		list->d3d12.list->ResourceBarrier(1, &barrier);
+
+		source->texture->d3d12.resource_states[source->mip_level] = D3D12_RESOURCE_STATE_COPY_SOURCE;
+	}
+
+	if (destination->buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_COPY_DEST) {
+		D3D12_RESOURCE_BARRIER barrier;
+		barrier.Transition.pResource = destination->buffer->d3d12.resource;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->buffer->d3d12.resource_state;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+		list->d3d12.list->ResourceBarrier(1, &barrier);
+
+		destination->buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_COPY_DEST;
+	}
+
+	D3D12_TEXTURE_COPY_LOCATION src;
+	src.pResource = source->texture->d3d12.resource;
+	src.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	src.SubresourceIndex =
+	    D3D12CalcSubresource(source->mip_level, source->origin_z, 0, source->texture->d3d12.mip_level_count, source->texture->d3d12.depth_or_array_layers);
+
+	D3D12_BOX source_box = {0};
+	source_box.left = 0;
+	source_box.right = source_box.left + width;
+	source_box.top = 0;
+	source_box.bottom = source_box.top + height;
+	source_box.front = 0;
+	source_box.back = source_box.front + depth_or_array_layers;
+
+	D3D12_TEXTURE_COPY_LOCATION dst;
+	dst.pResource = destination->buffer->d3d12.resource;
+	dst.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	dst.PlacedFootprint.Offset = destination->offset;
+	dst.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	dst.PlacedFootprint.Footprint.RowPitch = destination->bytes_per_row;
+	dst.PlacedFootprint.Footprint.Width = width;
+	dst.PlacedFootprint.Footprint.Height = height;
+	dst.PlacedFootprint.Footprint.Depth = depth_or_array_layers;
+
+	list->d3d12.list->CopyTextureRegion(&dst, 0, 0, 0, &src, &source_box);
+}
+
 void kope_d3d12_command_list_copy_texture_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
                                                      const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
                                                      uint32_t depth_or_array_layers) {

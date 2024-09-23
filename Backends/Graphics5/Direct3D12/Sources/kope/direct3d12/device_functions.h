@@ -31,6 +31,8 @@ kope_g5_texture *kope_d3d12_device_get_framebuffer(kope_g5_device *device);
 
 void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
+void kope_d3d12_device_wait_until_idle(kope_g5_device *device);
+
 void kope_d3d12_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count, kope_g5_buffer *index_buffer,
                                                 uint32_t index_count, kope_g5_raytracing_volume *volume);
 

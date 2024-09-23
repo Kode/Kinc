@@ -173,41 +173,47 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 	// static_assert(sizeof(D3D12IindexBufferView) == sizeof(D3D12_INDEX_BUFFER_VIEW), "Something is wrong with D3D12IindexBufferView");
 	// int uploadBufferSize = format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? sizeof(uint16_t) * count : sizeof(uint32_t) * count;
 
-	D3D12_HEAP_PROPERTIES heapProperties;
-	heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	heapProperties.CreationNodeMask = 1;
-	heapProperties.VisibleNodeMask = 1;
-	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) || (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_WRITE)) {
-		heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+	D3D12_HEAP_PROPERTIES props;
+	props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	props.CreationNodeMask = 1;
+	props.VisibleNodeMask = 1;
+	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_WRITE) != 0) {
+		props.Type = D3D12_HEAP_TYPE_UPLOAD;
+	}
+	else if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) != 0) {
+		props.Type = D3D12_HEAP_TYPE_READBACK;
 	}
 	else {
-		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+		props.Type = D3D12_HEAP_TYPE_DEFAULT;
 	}
 
-	D3D12_RESOURCE_DESC resourceDesc = {};
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Alignment = 0;
+	D3D12_RESOURCE_DESC desc = {};
+	desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	desc.Alignment = 0;
 	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_RAYTRACING_VOLUME) != 0 || (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_READ_WRITE) != 0) {
-		resourceDesc.Width = parameters->size;
+		desc.Width = parameters->size;
 	}
 	else {
-		resourceDesc.Width = align_pow2((int)parameters->size, 256); // 256 required for CBVs
+		desc.Width = align_pow2((int)parameters->size, 256); // 256 required for CBVs
 	}
-	resourceDesc.Height = 1;
-	resourceDesc.DepthOrArraySize = 1;
-	resourceDesc.MipLevels = 1;
-	resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-	resourceDesc.SampleDesc.Count = 1;
-	resourceDesc.SampleDesc.Quality = 0;
-	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	desc.Height = 1;
+	desc.DepthOrArraySize = 1;
+	desc.MipLevels = 1;
+	desc.Format = DXGI_FORMAT_UNKNOWN;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	buffer->d3d12.size = parameters->size;
 
 	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_READ_WRITE) != 0) {
 		buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_COMMON;
-		resourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+	}
+	else if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) != 0) {
+		buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_COMMON;
 	}
 	else {
 		buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_GENERIC_READ;
@@ -215,12 +221,11 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 
 	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_RAYTRACING_VOLUME) != 0) {
 		buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE;
-		resourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	}
 
-	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,
-	                                                                    (D3D12_RESOURCE_STATES)buffer->d3d12.resource_state, NULL,
-	                                                                    IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));
+	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(
+	    &props, D3D12_HEAP_FLAG_NONE, &desc, (D3D12_RESOURCE_STATES)buffer->d3d12.resource_state, NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));
 }
 
 static uint32_t current_command_list_allocator_index(kope_g5_command_list *list) {
@@ -520,6 +525,10 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 
 		list->d3d12.presenting = false;
 	}
+}
+
+void kope_d3d12_device_wait_until_idle(kope_g5_device *device) {
+	// wait_for_fence(device, list->d3d12.fence, list->d3d12.event, list->d3d12.execution_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1));
 }
 
 void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t sampler_count, kope_d3d12_descriptor_set *set) {

@@ -65,3 +65,7 @@ void kope_g5_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_
                                                 uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy) {
 	KOPE_G5_CALL5(device_create_raytracing_hierarchy, device, volumes, volume_transforms, volumes_count, hierarchy);
 }
+
+void kope_g5_device_wait_until_idle(kope_g5_device *device) {
+	KOPE_G5_CALL1(device_wait_until_idle, device);
+}
