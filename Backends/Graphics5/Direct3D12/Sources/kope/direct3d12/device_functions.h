@@ -39,6 +39,8 @@ void kope_d3d12_device_create_raytracing_volume(kope_g5_device *device, kope_g5_
 void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, kinc_matrix4x4_t *volume_transforms,
                                                    uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy);
 
+uint32_t kope_d3d12_device_align_texture_row_bytes(kope_g5_device *device, uint32_t row_bytes);
+
 #ifdef __cplusplus
 }
 #endif

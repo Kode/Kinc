@@ -3,6 +3,7 @@
 #include "d3d12unit.h"
 
 #include <kope/graphics5/device.h>
+#include <kope/util/align.h>
 
 #include <kinc/backend/SystemMicrosoft.h>
 #include <kinc/backend/Windows.h>
@@ -726,4 +727,8 @@ void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_
 	as_params.size = prebuild_info.ResultDataMaxSizeInBytes;
 	as_params.usage_flags = KOPE_G5_BUFFER_USAGE_READ_WRITE | KOPE_G5_BUFFER_USAGE_RAYTRACING_VOLUME;
 	kope_g5_device_create_buffer(device, &as_params, &hierarchy->d3d12.acceleration_structure);
+}
+
+uint32_t kope_d3d12_device_align_texture_row_bytes(kope_g5_device *device, uint32_t row_bytes) {
+	return (uint32_t)align_pow2((int)row_bytes, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 }
