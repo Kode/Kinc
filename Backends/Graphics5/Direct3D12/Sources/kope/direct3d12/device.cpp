@@ -115,8 +115,11 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 
 	device->d3d12.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&device->d3d12.frame_fence));
 	device->d3d12.frame_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-
 	device->d3d12.current_frame_index = 1;
+
+	device->d3d12.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&device->d3d12.execution_fence));
+	device->d3d12.execution_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+	device->d3d12.execution_index = 1;
 
 	{
 		const uint32_t descriptor_count = 1024 * 10;
@@ -228,24 +231,32 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 	    &props, D3D12_HEAP_FLAG_NONE, &desc, (D3D12_RESOURCE_STATES)buffer->d3d12.resource_state, NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));
 }
 
-static uint32_t current_command_list_allocator_index(kope_g5_command_list *list) {
-	return list->d3d12.execution_index % KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT;
+static uint8_t command_list_oldest_allocator(kope_g5_command_list *list) {
+	uint64_t lowest_execution_index = UINT64_MAX;
+	uint8_t allocator_index = 255;
+
+	for (uint8_t i = 0; i < KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT; ++i) {
+		if (list->d3d12.allocator_execution_index[i] < lowest_execution_index) {
+			allocator_index = i;
+			lowest_execution_index = list->d3d12.allocator_execution_index[i];
+		}
+	}
+
+	return allocator_index;
 }
 
 void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	list->d3d12.device = &device->d3d12;
 
-	list->d3d12.execution_index = KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1;
-
 	for (int i = 0; i < KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT; ++i) {
 		kinc_microsoft_affirm(device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator[i])));
+		list->d3d12.allocator_execution_index[i] = 0;
 	}
 
-	kinc_microsoft_affirm(device->d3d12.device->CreateCommandList(
-	    0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator[current_command_list_allocator_index(list)], NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
+	list->d3d12.current_allocator_index = 0;
 
-	device->d3d12.device->CreateFence(list->d3d12.execution_index - 1, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&list->d3d12.fence));
-	list->d3d12.event = CreateEvent(NULL, FALSE, FALSE, NULL);
+	kinc_microsoft_affirm(device->d3d12.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator[list->d3d12.current_allocator_index],
+	                                                              NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
 
 	list->d3d12.compute_pipeline_set = false;
 
@@ -496,15 +507,18 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 
 	list->d3d12.list->Close();
 
+	list->d3d12.allocator_execution_index[list->d3d12.current_allocator_index] = device->d3d12.execution_index;
+
 	ID3D12CommandList *lists[] = {list->d3d12.list};
 	device->d3d12.queue->ExecuteCommandLists(1, lists);
 
-	device->d3d12.queue->Signal(list->d3d12.fence, list->d3d12.execution_index);
+	device->d3d12.queue->Signal(device->d3d12.execution_fence, device->d3d12.execution_index);
 
-	wait_for_fence(device, list->d3d12.fence, list->d3d12.event, list->d3d12.execution_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1));
+	uint8_t allocator_index = command_list_oldest_allocator(list);
+	list->d3d12.current_allocator_index = allocator_index;
+	uint64_t allocator_execution_index = list->d3d12.allocator_execution_index[allocator_index];
 
-	list->d3d12.execution_index += 1;
-	uint32_t allocator_index = current_command_list_allocator_index(list);
+	wait_for_fence(device, device->d3d12.execution_fence, device->d3d12.execution_event, allocator_execution_index);
 
 	list->d3d12.allocator[allocator_index]->Reset();
 	list->d3d12.list->Reset(list->d3d12.allocator[allocator_index], NULL);
@@ -525,10 +539,12 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 
 		list->d3d12.presenting = false;
 	}
+
+	device->d3d12.execution_index += 1;
 }
 
 void kope_d3d12_device_wait_until_idle(kope_g5_device *device) {
-	// wait_for_fence(device, list->d3d12.fence, list->d3d12.event, list->d3d12.execution_index - (KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT - 1));
+	wait_for_fence(device, device->d3d12.execution_fence, device->d3d12.execution_event, device->d3d12.execution_index - 1);
 }
 
 void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t sampler_count, kope_d3d12_descriptor_set *set) {

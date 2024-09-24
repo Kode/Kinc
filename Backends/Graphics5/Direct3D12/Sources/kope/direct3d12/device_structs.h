@@ -32,6 +32,10 @@ typedef struct kope_d3d12_device {
 	HANDLE frame_event;
 	uint64_t current_frame_index;
 
+	struct ID3D12Fence *execution_fence;
+	HANDLE execution_event;
+	uint64_t execution_index;
+
 	struct ID3D12DescriptorHeap *descriptor_heap;
 	oa_allocator_t descriptor_heap_allocator;
 

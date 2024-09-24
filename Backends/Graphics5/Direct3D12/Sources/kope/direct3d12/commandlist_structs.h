@@ -20,13 +20,10 @@ typedef struct kope_d3d12_command_list {
 	struct kope_d3d12_device *device;
 
 	struct ID3D12CommandAllocator *allocator[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
+	uint64_t allocator_execution_index[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
+	uint8_t current_allocator_index;
 
 	struct ID3D12GraphicsCommandList4 *list;
-
-	// a bunch of variables used to figure out what allocators can be reused
-	uint64_t execution_index;
-	struct ID3D12Fence *fence;
-	HANDLE event;
 
 	struct ID3D12DescriptorHeap *rtv_descriptors;
 	uint32_t rtv_increment;
