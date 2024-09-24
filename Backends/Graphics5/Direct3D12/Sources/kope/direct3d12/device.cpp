@@ -241,7 +241,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	}
 	else if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) != 0) {
-		buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_COMMON;
+		buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_COPY_DEST;
 	}
 	else {
 		buffer->d3d12.resource_state = D3D12_RESOURCE_STATE_GENERIC_READ;
