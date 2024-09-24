@@ -41,7 +41,35 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 	}
 #endif
 
-	kinc_microsoft_affirm(D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&device->d3d12.device)));
+	IDXGIFactory4 *dxgi_factory = NULL;
+	kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgi_factory)));
+
+	HRESULT result = D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&device->d3d12.device));
+	if (result == S_OK) {
+		kinc_log(KINC_LOG_LEVEL_INFO, "%s", "Direct3D running on feature level 12.2.");
+	}
+
+	if (result != S_OK) {
+		result = D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&device->d3d12.device));
+		if (result == S_OK) {
+			kinc_log(KINC_LOG_LEVEL_INFO, "%s", "Direct3D running on feature level 12.1.");
+		}
+	}
+
+	if (result != S_OK) {
+		result = D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device->d3d12.device));
+		if (result == S_OK) {
+			kinc_log(KINC_LOG_LEVEL_INFO, "%s", "Direct3D running on feature level 12.0.");
+		}
+	}
+
+	if (result != S_OK) {
+		kinc_log(KINC_LOG_LEVEL_WARNING, "%s", "Falling back to the WARP driver, things will be slow.");
+
+		IDXGIAdapter *adapter;
+		dxgi_factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
+		kinc_microsoft_affirm(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&device->d3d12.device)));
+	}
 
 #if defined(KOPE_NVAPI) && !defined(NDEBUG)
 	NvAPI_Initialize();
@@ -69,9 +97,6 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		desc.SampleDesc.Count = 1;
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.Windowed = true;
-
-		IDXGIFactory4 *dxgi_factory = NULL;
-		kinc_microsoft_affirm(CreateDXGIFactory1(IID_PPV_ARGS(&dxgi_factory)));
 
 		kinc_microsoft_affirm(dxgi_factory->CreateSwapChain((IUnknown *)device->d3d12.queue, &desc, &device->d3d12.swap_chain));
 	}
