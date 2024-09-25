@@ -142,7 +142,7 @@ void kope_d3d12_descriptor_set_set_sampler(kope_g5_device *device, kope_d3d12_de
 }
 
 void kope_d3d12_descriptor_set_prepare_cbv_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer) {
-	if (buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER) {
+	if (buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER && buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_GENERIC_READ) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = buffer->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
