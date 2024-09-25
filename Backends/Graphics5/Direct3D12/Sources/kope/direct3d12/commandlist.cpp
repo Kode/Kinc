@@ -212,7 +212,7 @@ void kope_d3d12_command_list_set_root_constants(kope_g5_command_list *list, uint
 void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_buffer *source,
                                                     const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
                                                     uint32_t depth_or_array_layers) {
-	if (source->buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_COPY_SOURCE) {
+	if (source->buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_COPY_SOURCE && source->buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_GENERIC_READ) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = source->buffer->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
