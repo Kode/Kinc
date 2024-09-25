@@ -152,7 +152,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:a2ccb06781e2af5b2111151e881b334ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image file using callbacks.  <a href="image_8h.html#a2ccb06781e2af5b2111151e881b334ec">More...</a><br /></td></tr>
 <tr class="separator:a2ccb06781e2af5b2111151e881b334ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65559fe66d30efabdded6eeb91bf4fa9"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a65559fe66d30efabdded6eeb91bf4fa9">kinc_image_init_from_encoded_bytes</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *memory, void *data, size_t data_size, const char *format)</td></tr>
-<tr class="memdesc:a65559fe66d30efabdded6eeb91bf4fa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image file from a memory.  <a href="image_8h.html#a65559fe66d30efabdded6eeb91bf4fa9">More...</a><br /></td></tr>
+<tr class="memdesc:a65559fe66d30efabdded6eeb91bf4fa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image file from memory.  <a href="image_8h.html#a65559fe66d30efabdded6eeb91bf4fa9">More...</a><br /></td></tr>
 <tr class="separator:a65559fe66d30efabdded6eeb91bf4fa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0e847510bdad7e348595925c1ba56a06"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a0e847510bdad7e348595925c1ba56a06">kinc_image_init_from_bytes</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *data, int width, int height, kinc_image_format_t format)</td></tr>
 <tr class="memdesc:a0e847510bdad7e348595925c1ba56a06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a 2D image from memory.  <a href="image_8h.html#a0e847510bdad7e348595925c1ba56a06">More...</a><br /></td></tr>
@@ -614,7 +614,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Loads an image file from a memory. </p>
+<p>Loads an image file from memory. </p>
 <dl class="section return"><dt>Returns</dt><dd>The memory size in bytes that will be used when loading the image</dd></dl>
 
 </div>
@@ -652,6 +652,14 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Loads an image from a file. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">image</td><td>The image-object to initialize with the data</td></tr>
+    <tr><td class="paramname">memory</td><td>The pre-allocated memory to load the image-data into</td></tr>
+    <tr><td class="paramname">filename</td><td>The file to load</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>The memory size in bytes that will be used when loading the image</dd></dl>
 
 </div>
