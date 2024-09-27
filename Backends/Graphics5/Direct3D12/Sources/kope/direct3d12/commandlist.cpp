@@ -23,18 +23,25 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 			list->d3d12.blocking_frame_index = render_target->d3d12.in_flight_frame_index;
 		}
 
-		if (render_target->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_RENDER_TARGET) {
+		if (render_target->d3d12
+		        .resource_states[kope_d3d12_texture_resource_state_index(render_target, 0, parameters->color_attachments[render_target_index].depth_slice)] !=
+		    D3D12_RESOURCE_STATE_RENDER_TARGET) {
 			D3D12_RESOURCE_BARRIER barrier;
 			barrier.Transition.pResource = render_target->d3d12.resource;
 			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)render_target->d3d12.resource_states[0];
+			barrier.Transition.StateBefore =
+			    (D3D12_RESOURCE_STATES)render_target->d3d12
+			        .resource_states[kope_d3d12_texture_resource_state_index(render_target, 0, parameters->color_attachments[render_target_index].depth_slice)];
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-			barrier.Transition.Subresource = 0;
+			barrier.Transition.Subresource = D3D12CalcSubresource(0, parameters->color_attachments[render_target_index].depth_slice, 0,
+			                                                      render_target->d3d12.mip_level_count, render_target->d3d12.depth_or_array_layers);
 
 			list->d3d12.list->ResourceBarrier(1, &barrier);
 
-			render_target->d3d12.resource_states[0] = D3D12_RESOURCE_STATE_RENDER_TARGET;
+			render_target->d3d12
+			    .resource_states[kope_d3d12_texture_resource_state_index(render_target, 0, parameters->color_attachments[render_target_index].depth_slice)] =
+			    D3D12_RESOURCE_STATE_RENDER_TARGET;
 		}
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
@@ -280,19 +287,25 @@ void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, 
 void kope_d3d12_command_list_copy_texture_to_buffer(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
                                                     const kope_g5_image_copy_buffer *destination, uint32_t width, uint32_t height,
                                                     uint32_t depth_or_array_layers) {
-	if (source->texture->d3d12.resource_states[source->mip_level] != D3D12_RESOURCE_STATE_COPY_SOURCE) {
-		D3D12_RESOURCE_BARRIER barrier;
-		barrier.Transition.pResource = source->texture->d3d12.resource;
-		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)source->texture->d3d12.resource_states[source->mip_level];
-		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
-		barrier.Transition.Subresource =
-		    D3D12CalcSubresource(source->mip_level, source->origin_z, 0, source->texture->d3d12.mip_level_count, source->texture->d3d12.depth_or_array_layers);
+	for (uint32_t array_layer = source->origin_z; array_layer < source->origin_z + depth_or_array_layers; ++array_layer) {
+		if (source->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(source->texture, source->mip_level, array_layer)] !=
+		    D3D12_RESOURCE_STATE_COPY_SOURCE) {
+			D3D12_RESOURCE_BARRIER barrier;
+			barrier.Transition.pResource = source->texture->d3d12.resource;
+			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			barrier.Transition.StateBefore =
+			    (D3D12_RESOURCE_STATES)
+			        source->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(source->texture, source->mip_level, array_layer)];
+			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+			barrier.Transition.Subresource = D3D12CalcSubresource(source->mip_level, source->origin_z, 0, source->texture->d3d12.mip_level_count,
+			                                                      source->texture->d3d12.depth_or_array_layers);
 
-		list->d3d12.list->ResourceBarrier(1, &barrier);
+			list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		source->texture->d3d12.resource_states[source->mip_level] = D3D12_RESOURCE_STATE_COPY_SOURCE;
+			source->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(source->texture, source->mip_level, array_layer)] =
+			    D3D12_RESOURCE_STATE_COPY_SOURCE;
+		}
 	}
 
 	if (destination->buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_COPY_DEST) {
@@ -339,34 +352,46 @@ void kope_d3d12_command_list_copy_texture_to_buffer(kope_g5_command_list *list, 
 void kope_d3d12_command_list_copy_texture_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_texture *source,
                                                      const kope_g5_image_copy_texture *destination, uint32_t width, uint32_t height,
                                                      uint32_t depth_or_array_layers) {
-	if (source->texture->d3d12.resource_states[source->mip_level] != D3D12_RESOURCE_STATE_COPY_SOURCE) {
-		D3D12_RESOURCE_BARRIER barrier;
-		barrier.Transition.pResource = source->texture->d3d12.resource;
-		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)source->texture->d3d12.resource_states[source->mip_level];
-		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
-		barrier.Transition.Subresource =
-		    D3D12CalcSubresource(source->mip_level, source->origin_z, 0, source->texture->d3d12.mip_level_count, source->texture->d3d12.depth_or_array_layers);
+	for (uint32_t array_layer = source->origin_z; array_layer < source->origin_z + depth_or_array_layers; ++array_layer) {
+		if (source->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(source->texture, source->mip_level, array_layer)] !=
+		    D3D12_RESOURCE_STATE_COPY_SOURCE) {
+			D3D12_RESOURCE_BARRIER barrier;
+			barrier.Transition.pResource = source->texture->d3d12.resource;
+			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			barrier.Transition.StateBefore =
+			    (D3D12_RESOURCE_STATES)
+			        source->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(source->texture, source->mip_level, array_layer)];
+			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+			barrier.Transition.Subresource = D3D12CalcSubresource(source->mip_level, source->origin_z, 0, source->texture->d3d12.mip_level_count,
+			                                                      source->texture->d3d12.depth_or_array_layers);
 
-		list->d3d12.list->ResourceBarrier(1, &barrier);
+			list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		source->texture->d3d12.resource_states[source->mip_level] = D3D12_RESOURCE_STATE_COPY_SOURCE;
+			source->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(source->texture, source->mip_level, array_layer)] =
+			    D3D12_RESOURCE_STATE_COPY_SOURCE;
+		}
 	}
 
-	if (destination->texture->d3d12.resource_states[destination->mip_level] != D3D12_RESOURCE_STATE_COPY_DEST) {
-		D3D12_RESOURCE_BARRIER barrier;
-		barrier.Transition.pResource = destination->texture->d3d12.resource;
-		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->texture->d3d12.resource_states[destination->mip_level];
-		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		barrier.Transition.Subresource = D3D12CalcSubresource(destination->mip_level, destination->origin_z, 0, destination->texture->d3d12.mip_level_count,
-		                                                      destination->texture->d3d12.depth_or_array_layers);
+	for (uint32_t array_layer = destination->origin_z; array_layer < destination->origin_z + depth_or_array_layers; ++array_layer) {
+		if (destination->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(destination->texture, destination->mip_level, array_layer)] !=
+		    D3D12_RESOURCE_STATE_COPY_DEST) {
+			D3D12_RESOURCE_BARRIER barrier;
+			barrier.Transition.pResource = destination->texture->d3d12.resource;
+			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			barrier.Transition.StateBefore =
+			    (D3D12_RESOURCE_STATES)destination->texture->d3d12
+			        .resource_states[kope_d3d12_texture_resource_state_index(destination->texture, destination->mip_level, array_layer)];
+			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+			barrier.Transition.Subresource = D3D12CalcSubresource(destination->mip_level, destination->origin_z, 0, destination->texture->d3d12.mip_level_count,
+			                                                      destination->texture->d3d12.depth_or_array_layers);
 
-		list->d3d12.list->ResourceBarrier(1, &barrier);
+			list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		destination->texture->d3d12.resource_states[destination->mip_level] = D3D12_RESOURCE_STATE_COPY_DEST;
+			destination->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(destination->texture, destination->mip_level, array_layer)] =
+			    D3D12_RESOURCE_STATE_COPY_DEST;
+		}
 	}
 
 	D3D12_TEXTURE_COPY_LOCATION src;
