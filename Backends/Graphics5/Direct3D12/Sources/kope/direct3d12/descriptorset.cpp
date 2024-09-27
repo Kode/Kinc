@@ -164,7 +164,7 @@ void kope_d3d12_descriptor_set_prepare_cbv_buffer(kope_g5_command_list *list, ko
 void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, const kope_g5_texture_view *texture_view) {
 	for (uint32_t array_layer = texture_view->base_array_layer; array_layer < texture_view->base_array_layer + texture_view->array_layer_count; ++array_layer) {
 		for (uint32_t mip_level = texture_view->base_mip_level; mip_level < texture_view->base_mip_level + texture_view->mip_level_count; ++mip_level) {
-			if (texture_view->texture->d3d12.resource_states[mip_level] !=
+			if (texture_view->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(texture_view->texture, mip_level, array_layer)] !=
 			    (D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)) {
 				D3D12_RESOURCE_BARRIER barrier;
 				barrier.Transition.pResource = texture_view->texture->d3d12.resource;
@@ -179,7 +179,7 @@ void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, c
 
 				list->d3d12.list->ResourceBarrier(1, &barrier);
 
-				texture_view->texture->d3d12.resource_states[mip_level] =
+				texture_view->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(texture_view->texture, mip_level, array_layer)] =
 				    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 			}
 		}
@@ -187,7 +187,8 @@ void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, c
 }
 
 void kope_d3d12_descriptor_set_prepare_uav_texture(kope_g5_command_list *list, const kope_g5_texture_view *texture_view) {
-	if (texture_view->texture->d3d12.resource_states[texture_view->base_mip_level] != D3D12_RESOURCE_STATE_UNORDERED_ACCESS) {
+	if (texture_view->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(texture_view->texture, texture_view->base_mip_level, 0)] !=
+	    D3D12_RESOURCE_STATE_UNORDERED_ACCESS) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = texture_view->texture->d3d12.resource;
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -201,6 +202,7 @@ void kope_d3d12_descriptor_set_prepare_uav_texture(kope_g5_command_list *list, c
 
 		list->d3d12.list->ResourceBarrier(1, &barrier);
 
-		texture_view->texture->d3d12.resource_states[texture_view->base_mip_level] = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+		texture_view->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(texture_view->texture, texture_view->base_mip_level, 0)] =
+		    D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 	}
 }
