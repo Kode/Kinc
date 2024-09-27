@@ -247,8 +247,8 @@ void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, 
 	src.PlacedFootprint.Offset = source->offset;
 	src.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	src.PlacedFootprint.Footprint.RowPitch = source->bytes_per_row;
-	src.PlacedFootprint.Footprint.Width = height;
-	src.PlacedFootprint.Footprint.Height = width;
+	src.PlacedFootprint.Footprint.Width = width;
+	src.PlacedFootprint.Footprint.Height = height;
 	src.PlacedFootprint.Footprint.Depth = depth_or_array_layers;
 
 	D3D12_BOX source_box = {0};
