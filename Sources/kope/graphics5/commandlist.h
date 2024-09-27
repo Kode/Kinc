@@ -81,14 +81,8 @@ typedef struct kope_g5_render_pass_parameters {
 
 KOPE_FUNC void kope_g5_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters);
 
-typedef enum kope_g5_image_copy_aspect {
-	KOPE_G5_IMAGE_COPY_ASPECT_ALL,
-	KOPE_G5_IMAGE_COPY_ASPECT_DEPTH_ONLY,
-	KOPE_G5_IMAGE_COPY_ASPECT_STENCIL_ONLY
-} kope_g5_image_copy_aspect;
-
 typedef struct kope_g5_image_copy_texture {
-	kope_g5_image_copy_aspect aspect;
+	kope_g5_texture_aspect aspect;
 	uint32_t mip_level;
 	uint32_t origin_x;
 	uint32_t origin_y;
