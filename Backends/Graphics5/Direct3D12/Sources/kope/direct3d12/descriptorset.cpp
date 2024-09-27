@@ -175,7 +175,7 @@ void kope_d3d12_descriptor_set_prepare_srv_texture(kope_g5_command_list *list, c
 				        texture_view->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(texture_view->texture, mip_level, array_layer)];
 				barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 				barrier.Transition.Subresource =
-				    D3D12CalcSubresource(mip_level, 0, 0, texture_view->texture->d3d12.mip_level_count, texture_view->texture->d3d12.depth_or_array_layers);
+				    D3D12CalcSubresource(mip_level, array_layer, 0, texture_view->texture->d3d12.mip_level_count, texture_view->texture->d3d12.depth_or_array_layers);
 
 				list->d3d12.list->ResourceBarrier(1, &barrier);
 
