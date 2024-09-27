@@ -85,6 +85,9 @@ KINC_FUNC size_t kinc_image_size_from_encoded_bytes(void *data, size_t data_size
 /// <summary>
 /// Loads an image from a file.
 /// </summary>
+/// <param name="image">The image-object to initialize with the data</param>
+/// <param name="memory">The pre-allocated memory to load the image-data into</param>
+/// <param name="filename">The file to load</param>
 /// <returns>The memory size in bytes that will be used when loading the image</returns>
 KINC_FUNC size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename);
 
@@ -95,7 +98,7 @@ KINC_FUNC size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, co
 KINC_FUNC size_t kinc_image_init_from_callbacks(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data, const char *format);
 
 /// <summary>
-/// Loads an image file from a memory.
+/// Loads an image file from memory.
 /// </summary>
 /// <returns>The memory size in bytes that will be used when loading the image</returns>
 KINC_FUNC size_t kinc_image_init_from_encoded_bytes(kinc_image_t *image, void *memory, void *data, size_t data_size, const char *format);
@@ -338,8 +341,8 @@ static size_t loadImageSize(kinc_image_read_callbacks_t callbacks, void *user_da
 	}
 }
 
-static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename, uint8_t *output, size_t *outputSize, int *width, int *height,
-                      kinc_image_compression_t *compression, kinc_image_format_t *format, unsigned *internalFormat) {
+static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename, uint8_t *output, size_t *outputSize, int *width,
+                      int *height, kinc_image_compression_t *compression, kinc_image_format_t *format, unsigned *internalFormat) {
 	*format = KINC_IMAGE_FORMAT_RGBA32;
 	if (endsWith(filename, "k")) {
 		uint8_t data[4];

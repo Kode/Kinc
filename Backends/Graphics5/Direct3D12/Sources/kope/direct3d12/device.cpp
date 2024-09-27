@@ -480,9 +480,6 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	                                                                    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, optimizedClearValuePointer,
 	                                                                    IID_GRAPHICS_PPV_ARGS(&texture->d3d12.resource)));
 
-	for (size_t mip_level = 0; mip_level < parameters->mip_level_count; ++mip_level) {
-		texture->d3d12.resource_states[mip_level] = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	}
 	texture->d3d12.format = format;
 
 	texture->d3d12.width = parameters->width;
@@ -491,6 +488,13 @@ void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_text
 	texture->d3d12.mip_level_count = parameters->mip_level_count;
 
 	texture->d3d12.in_flight_frame_index = 0;
+
+	for (uint32_t array_layer = 0; array_layer < parameters->depth_or_array_layers; ++array_layer) {
+		for (uint32_t mip_level = 0; mip_level < parameters->mip_level_count; ++mip_level) {
+			texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(texture, mip_level, array_layer)] =
+			    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		}
+	}
 }
 
 kope_g5_texture *kope_d3d12_device_get_framebuffer(kope_g5_device *device) {
