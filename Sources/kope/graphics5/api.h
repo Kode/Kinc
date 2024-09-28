@@ -78,6 +78,7 @@ typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_
 #define KOPE_G5_CALL4(name, arg0, arg1, arg2, arg3) kope_d3d12_##name(arg0, arg1, arg2, arg3)
 #define KOPE_G5_CALL5(name, arg0, arg1, arg2, arg3, arg4) kope_d3d12_##name(arg0, arg1, arg2, arg3, arg4)
 #define KOPE_G5_CALL6(name, arg0, arg1, arg2, arg3, arg4, arg5) kope_d3d12_##name(arg0, arg1, arg2, arg3, arg4, arg5)
+#define KOPE_G5_CALL7(name, arg0, arg1, arg2, arg3, arg4, arg5, arg6) kope_d3d12_##name(arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 
 #endif
 
@@ -91,6 +92,7 @@ typedef enum kope_g5_api { KOPE_G5_API_DIRECT3D12, KOPE_G5_API_VULKAN } kope_g5_
 #define KOPE_G5_CALL4(name, arg0, arg1, arg2, arg3) kope_vulkan_##name(arg0, arg1, arg2, arg3)
 #define KOPE_G5_CALL5(name, arg0, arg1, arg2, arg3, arg4) kope_vulkan_##name(arg0, arg1, arg2, arg3, arg4)
 #define KOPE_G5_CALL6(name, arg0, arg1, arg2, arg3, arg4, arg5) kope_vulkan_##name(arg0, arg1, arg2, arg3, arg4, arg5)
+#define KOPE_G5_CALL7(name, arg0, arg1, arg2, arg3, arg4, arg5, arg6) kope_vulkan_##name(arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 
 #endif
 

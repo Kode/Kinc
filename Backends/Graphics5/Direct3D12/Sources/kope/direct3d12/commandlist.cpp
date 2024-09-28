@@ -178,6 +178,11 @@ void kope_d3d12_command_list_set_render_pipeline(kope_g5_command_list *list, kop
 	list->d3d12.list->SetGraphicsRootSignature(pipeline->root_signature);
 }
 
+void kope_d3d12_command_list_draw(kope_g5_command_list *list, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance) {
+	list->d3d12.list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	list->d3d12.list->DrawInstanced(vertex_count, instance_count, first_vertex, first_instance);
+}
+
 void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t base_vertex,
                                           uint32_t first_instance) {
 	list->d3d12.list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -216,6 +221,39 @@ void kope_d3d12_command_list_set_root_constants(kope_g5_command_list *list, uint
 	else {
 		list->d3d12.list->SetGraphicsRoot32BitConstants(table_index, (UINT)(data_size / 4), data, 0);
 	}
+}
+
+void kope_d3d12_command_list_copy_buffer_to_buffer(kope_g5_command_list *list, kope_g5_buffer *source, uint64_t source_offset, kope_g5_buffer *destination,
+                                                   uint64_t destination_offset, uint64_t size) {
+	if (source->d3d12.resource_state != D3D12_RESOURCE_STATE_COPY_SOURCE && source->d3d12.resource_state != D3D12_RESOURCE_STATE_GENERIC_READ) {
+		D3D12_RESOURCE_BARRIER barrier;
+		barrier.Transition.pResource = source->d3d12.resource;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)source->d3d12.resource_state;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+		list->d3d12.list->ResourceBarrier(1, &barrier);
+
+		source->d3d12.resource_state = D3D12_RESOURCE_STATE_COPY_SOURCE;
+	}
+
+	if (destination->d3d12.resource_state != D3D12_RESOURCE_STATE_COPY_DEST) {
+		D3D12_RESOURCE_BARRIER barrier;
+		barrier.Transition.pResource = destination->d3d12.resource;
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)destination->d3d12.resource_state;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+		list->d3d12.list->ResourceBarrier(1, &barrier);
+
+		destination->d3d12.resource_state = D3D12_RESOURCE_STATE_COPY_DEST;
+	}
+
+	list->d3d12.list->CopyBufferRegion(destination->d3d12.resource, destination_offset, source->d3d12.resource, source_offset, size);
 }
 
 void kope_d3d12_command_list_copy_buffer_to_texture(kope_g5_command_list *list, const kope_g5_image_copy_buffer *source,
@@ -417,6 +455,12 @@ void kope_d3d12_command_list_copy_texture_to_texture(kope_g5_command_list *list,
 	list->d3d12.list->CopyTextureRegion(&dst, destination->origin_x, destination->origin_y, destination->origin_z, &src, &source_box);
 }
 
+void kope_d3d12_command_list_clear_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, size_t offset, uint64_t size) {
+	UINT values[4] = {0};
+	// TODO
+	// list->d3d12.list->ClearUnorderedAccessViewUint(a, b, buffer->d3d12.resource, values, 0, NULL);
+}
+
 void kope_d3d12_command_list_set_compute_pipeline(kope_g5_command_list *list, kope_d3d12_compute_pipeline *pipeline) {
 	list->d3d12.compute_pipeline_set = true;
 	list->d3d12.list->SetPipelineState(pipeline->pipe);
@@ -554,4 +598,37 @@ void kope_d3d12_command_list_trace_rays(kope_g5_command_list *list, uint32_t wid
 	desc.Depth = depth;
 
 	list->d3d12.list->DispatchRays(&desc);
+}
+
+void kope_d3d12_command_list_set_viewport(kope_g5_command_list *list, float x, float y, float width, float height, float min_depth, float max_depth) {
+	D3D12_VIEWPORT viewport = {0};
+	viewport.TopLeftX = x;
+	viewport.TopLeftY = y;
+	viewport.Width = width;
+	viewport.Height = height;
+	viewport.MinDepth = min_depth;
+	viewport.MaxDepth = max_depth;
+	list->d3d12.list->RSSetViewports(1, &viewport);
+}
+
+void kope_d3d12_command_list_set_scissor_rect(kope_g5_command_list *list, uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
+	D3D12_RECT rect = {0};
+	rect.left = x;
+	rect.right = rect.left + width;
+	rect.top = y;
+	rect.bottom = rect.top + height;
+	list->d3d12.list->RSSetScissorRects(1, &rect);
+}
+
+void kope_d3d12_command_list_set_blend_constant(kope_g5_command_list *list, kope_g5_color color) {
+	float color_array[4] = {0};
+	color_array[0] = color.r;
+	color_array[1] = color.g;
+	color_array[2] = color.b;
+	color_array[3] = color.a;
+	list->d3d12.list->OMSetBlendFactor(color_array);
+}
+
+void kope_d3d12_command_list_set_stencil_reference(kope_g5_command_list *list, uint32_t reference) {
+	list->d3d12.list->OMSetStencilRef(reference);
 }
