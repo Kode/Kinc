@@ -73,6 +73,14 @@ void kope_d3d12_command_list_set_ray_pipeline(kope_g5_command_list *list, kope_d
 
 void kope_d3d12_command_list_trace_rays(kope_g5_command_list *list, uint32_t width, uint32_t height, uint32_t depth);
 
+void kope_d3d12_command_list_set_name(kope_g5_command_list *list, const char *name);
+
+void kope_d3d12_command_list_push_debug_group(kope_g5_command_list *list, const char *name);
+
+void kope_d3d12_command_list_pop_debug_group(kope_g5_command_list *list);
+
+void kope_d3d12_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name);
+
 #ifdef __cplusplus
 }
 #endif

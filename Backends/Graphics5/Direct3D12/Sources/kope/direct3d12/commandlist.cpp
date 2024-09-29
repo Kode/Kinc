@@ -7,6 +7,8 @@
 
 #include <kope/direct3d12/texture_functions.h>
 
+#include <kinc/backend/SystemMicrosoft.h>
+
 #include "pipeline_structs.h"
 
 #include <assert.h>
@@ -631,4 +633,18 @@ void kope_d3d12_command_list_set_blend_constant(kope_g5_command_list *list, kope
 
 void kope_d3d12_command_list_set_stencil_reference(kope_g5_command_list *list, uint32_t reference) {
 	list->d3d12.list->OMSetStencilRef(reference);
+}
+
+void kope_d3d12_command_list_set_name(kope_g5_command_list *list, const char *name) {
+	wchar_t wstr[1024];
+	kinc_microsoft_convert_string(wstr, name, 1024);
+	list->d3d12.list->SetName(wstr);
+}
+
+void kope_d3d12_command_list_push_debug_group(kope_g5_command_list *list, const char *name) {}
+
+void kope_d3d12_command_list_pop_debug_group(kope_g5_command_list *list) {}
+
+void kope_d3d12_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name) {
+	// PIXSetMarker();
 }

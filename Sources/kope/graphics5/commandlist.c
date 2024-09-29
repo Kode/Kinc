@@ -101,3 +101,19 @@ void kope_g5_command_list_set_blend_constant(kope_g5_command_list *list, kope_g5
 void kope_g5_command_list_set_stencil_reference(kope_g5_command_list *list, uint32_t reference) {
 	KOPE_G5_CALL2(command_list_set_stencil_reference, list, reference);
 }
+
+void kope_g5_command_list_set_name(kope_g5_command_list *list, const char *name) {
+	KOPE_G5_CALL2(command_list_set_name, list, name);
+}
+
+void kope_g5_command_list_push_debug_group(kope_g5_command_list *list, const char *name) {
+	KOPE_G5_CALL2(command_list_push_debug_group, list, name);
+}
+
+void kope_g5_command_list_pop_debug_group(kope_g5_command_list *list) {
+	KOPE_G5_CALL1(command_list_pop_debug_group, list);
+}
+
+void kope_g5_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name) {
+	KOPE_G5_CALL2(command_list_insert_debug_marker, list, name);
+}
