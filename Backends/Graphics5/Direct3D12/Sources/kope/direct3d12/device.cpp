@@ -733,6 +733,15 @@ void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_
 	kope_g5_device_create_buffer(device, &as_params, &hierarchy->d3d12.acceleration_structure);
 }
 
+void kope_d3d12_device_create_query_set(kope_g5_device *device, const kope_g5_query_set_parameters *parameters, kope_g5_query_set *query_set) {
+	D3D12_QUERY_HEAP_DESC desc = {};
+	desc.Type = parameters->type == KOPE_G5_QUERY_TYPE_OCCLUSION ? D3D12_QUERY_HEAP_TYPE_OCCLUSION : D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
+	desc.Count = parameters->count;
+	desc.NodeMask = 0;
+
+	device->d3d12.device->CreateQueryHeap(&desc, IID_GRAPHICS_PPV_ARGS(&query_set->d3d12.query_heap));
+}
+
 uint32_t kope_d3d12_device_align_texture_row_bytes(kope_g5_device *device, uint32_t row_bytes) {
 	return (uint32_t)align_pow2((int)row_bytes, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 }

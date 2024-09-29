@@ -117,7 +117,18 @@ KOPE_FUNC void kope_g5_device_create_sampler(kope_g5_device *device, const kope_
 
 KOPE_FUNC void kope_g5_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
-KOPE_FUNC void kope_g5_device_create_query_set(void *descriptor);
+typedef struct kope_g5_query_set {
+	KOPE_G5_IMPL(query_set);
+} kope_g5_query_set;
+
+typedef enum kope_g5_query_type { KOPE_G5_QUERY_TYPE_OCCLUSION, KOPE_G5_QUERY_TYPE_TIMESTAMP } kope_g5_query_type;
+
+typedef struct kope_g5_query_set_parameters {
+	kope_g5_query_type type;
+	uint32_t count;
+} kope_g5_query_set_parameters;
+
+KOPE_FUNC void kope_g5_device_create_query_set(kope_g5_device *device, const kope_g5_query_set_parameters *parameters, kope_g5_query_set *query_set);
 
 KOPE_FUNC void kope_g5_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list);
 

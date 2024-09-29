@@ -14,6 +14,7 @@ extern "C" {
 
 struct ID3D12CommandAllocator;
 struct ID3D12DescriptorHeap;
+struct ID3D12QueryHeap;
 
 #define KOPE_D3D12_FRAME_COUNT 2
 
@@ -47,6 +48,10 @@ typedef struct kope_d3d12_device {
 
 	kope_g5_command_list management_list;
 } kope_d3d12_device;
+
+typedef struct kope_d3d12_query_set {
+	struct ID3D12QueryHeap *query_heap;
+} kope_d3d12_query_set;
 
 typedef struct kope_d3d12_raytracing_volume {
 	kope_g5_buffer *vertex_buffer;
