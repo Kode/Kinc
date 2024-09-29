@@ -13,6 +13,10 @@
 
 #include <assert.h>
 
+#ifdef KOPE_PIX
+#include <WinPixEventRuntime/pix3.h>
+#endif
+
 void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
 	list->d3d12.compute_pipeline_set = false;
 
@@ -641,10 +645,20 @@ void kope_d3d12_command_list_set_name(kope_g5_command_list *list, const char *na
 	list->d3d12.list->SetName(wstr);
 }
 
-void kope_d3d12_command_list_push_debug_group(kope_g5_command_list *list, const char *name) {}
+void kope_d3d12_command_list_push_debug_group(kope_g5_command_list *list, const char *name) {
+#ifdef KOPE_PIX
+	PIXBeginEvent(list->d3d12.list, 0, "%s", name);
+#endif
+}
 
-void kope_d3d12_command_list_pop_debug_group(kope_g5_command_list *list) {}
+void kope_d3d12_command_list_pop_debug_group(kope_g5_command_list *list) {
+#ifdef KOPE_PIX
+	PIXEndEvent(list->d3d12.list);
+#endif
+}
 
 void kope_d3d12_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name) {
-	// PIXSetMarker();
+#ifdef KOPE_PIX
+	PIXSetMarker(list->d3d12.list, 0, "%s", name);
+#endif
 }

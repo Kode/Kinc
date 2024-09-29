@@ -12,7 +12,9 @@
 #define NOCLIPBOARD
 #define NOCOLOR
 #define NOCOMM
+#ifndef KOPE_PIX
 #define NOCTLMGR
+#endif
 #define NODEFERWINDOWPOS
 #define NODRAWTEXT
 #define NOGDI
@@ -34,7 +36,9 @@
 #define NORASTEROPS
 #define NOSCROLL
 #define NOSERVICE
+#ifndef KOPE_PIX
 #define NOSHOWWINDOW
+#endif
 #define NOSOUND
 #define NOSYSCOMMANDS
 #define NOSYSMETRICS
@@ -42,7 +46,9 @@
 // #define NOUSER
 #define NOVIRTUALKEYCODES
 #define NOWH
+#ifndef KOPE_PIX
 #define NOWINMESSAGES
+#endif
 #define NOWINOFFSETS
 #define NOWINSTYLES
 #define WIN32_LEAN_AND_MEAN

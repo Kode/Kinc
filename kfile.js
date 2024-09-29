@@ -184,6 +184,12 @@ if (platform === Platform.Windows) {
 	else {
 		throw new Error('VR API ' + vr + ' is not available for Windows.');
 	}
+
+	if (Options.pix) {
+		project.addDefine('KOPE_PIX');
+		project.addIncludeDir('Backends/Graphics5/Direct3D12/pix/Include');
+		project.addLib('Backends/Graphics5/Direct3D12/pix/bin/x64/WinPixEventRuntime');
+	}
 }
 else if (platform === Platform.WindowsApp) {
 	g4 = true;
