@@ -146,6 +146,8 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 			                                        NULL);
 		}
 	}
+
+	list->d3d12.occlusion_query_set = parameters->occlusion_query_set;
 }
 
 void kope_d3d12_command_list_end_render_pass(kope_g5_command_list *list) {}
@@ -661,4 +663,20 @@ void kope_d3d12_command_list_insert_debug_marker(kope_g5_command_list *list, con
 #ifdef KOPE_PIX
 	PIXSetMarker(list->d3d12.list, 0, "%s", name);
 #endif
+}
+
+void kope_d3d12_command_list_begin_occlusion_query(kope_g5_command_list *list, uint32_t query_index) {
+	list->d3d12.current_occlusion_query_index = query_index;
+	list->d3d12.list->BeginQuery(list->d3d12.occlusion_query_set->d3d12.query_heap, D3D12_QUERY_TYPE_OCCLUSION, query_index);
+}
+
+void kope_d3d12_command_list_end_occlusion_query(kope_g5_command_list *list) {
+	list->d3d12.list->EndQuery(list->d3d12.occlusion_query_set->d3d12.query_heap, D3D12_QUERY_TYPE_OCCLUSION, list->d3d12.current_occlusion_query_index);
+}
+
+void kope_d3d12_command_list_resolve_query_set(kope_g5_command_list *list, kope_g5_query_set *query_set, uint32_t first_query, uint32_t query_count,
+                                               kope_g5_buffer *destination, uint64_t destination_offset) {
+	list->d3d12.list->ResolveQueryData(query_set->d3d12.query_heap,
+	                                   query_set->d3d12.query_type == KOPE_G5_QUERY_TYPE_OCCLUSION ? D3D12_QUERY_TYPE_OCCLUSION : D3D12_QUERY_TYPE_TIMESTAMP,
+	                                   first_query, query_count, destination->d3d12.resource, destination_offset);
 }

@@ -81,6 +81,13 @@ void kope_d3d12_command_list_pop_debug_group(kope_g5_command_list *list);
 
 void kope_d3d12_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name);
 
+void kope_d3d12_command_list_begin_occlusion_query(kope_g5_command_list *list, uint32_t query_index);
+
+void kope_d3d12_command_list_end_occlusion_query(kope_g5_command_list *list);
+
+void kope_d3d12_command_list_resolve_query_set(kope_g5_command_list *list, kope_g5_query_set *query_set, uint32_t first_query, uint32_t query_count,
+                                               kope_g5_buffer *destination, uint64_t destination_offset);
+
 #ifdef __cplusplus
 }
 #endif

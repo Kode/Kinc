@@ -117,3 +117,16 @@ void kope_g5_command_list_pop_debug_group(kope_g5_command_list *list) {
 void kope_g5_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name) {
 	KOPE_G5_CALL2(command_list_insert_debug_marker, list, name);
 }
+
+void kope_g5_command_list_begin_occlusion_query(kope_g5_command_list *list, uint32_t query_index) {
+	KOPE_G5_CALL2(command_list_begin_occlusion_query, list, query_index);
+}
+
+void kope_g5_command_list_end_occlusion_query(kope_g5_command_list *list) {
+	KOPE_G5_CALL1(command_list_end_occlusion_query, list);
+}
+
+void kope_g5_command_list_resolve_query_set(kope_g5_command_list *list, kope_g5_query_set *query_set, uint32_t first_query, uint32_t query_count,
+                                            kope_g5_buffer *destination, uint64_t destination_offset) {
+	KOPE_G5_CALL6(command_list_resolve_query_set, list, query_set, first_query, query_count, destination, destination_offset);
+}

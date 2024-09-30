@@ -25,6 +25,8 @@
 extern "C" {
 #endif
 
+struct kope_g5_query_set;
+
 typedef struct kope_g5_command_list {
 	KOPE_G5_IMPL(command_list);
 } kope_g5_command_list;
@@ -75,7 +77,7 @@ typedef struct kope_g5_render_pass_parameters {
 	kope_g5_render_pass_color_attachment color_attachments[8];
 	size_t color_attachments_count;
 	kope_g5_render_pass_depth_stencil_attachment depth_stencil_attachment;
-	// GPUQuerySet occlusionQuerySet;
+	struct kope_g5_query_set *occlusion_query_set;
 	// GPURenderPassTimestampWrites timestampWrites;
 } kope_g5_render_pass_parameters;
 
@@ -114,8 +116,8 @@ KOPE_FUNC void kope_g5_command_list_copy_texture_to_texture(kope_g5_command_list
 
 KOPE_FUNC void kope_g5_command_list_clear_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, size_t offset, uint64_t size);
 
-// KOPE_FUNC void kope_g5_command_list_resolve_query_set(kope_g5_command_list *list, GPUQuerySet query_set, uint32_t first_query, uint32_t query_count,
-//                                                     kope_g5_buffer *destination, uint64_t destination_offset);
+KOPE_FUNC void kope_g5_command_list_resolve_query_set(kope_g5_command_list *list, struct kope_g5_query_set *query_set, uint32_t first_query,
+                                                      uint32_t query_count, kope_g5_buffer *destination, uint64_t destination_offset);
 
 typedef enum kope_g5_index_format { KOPE_G5_INDEX_FORMAT_UINT16, KOPE_G5_INDEX_FORMAT_UINT32 } kope_g5_index_format;
 

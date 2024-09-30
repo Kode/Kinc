@@ -312,6 +312,9 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 		list->d3d12.dsv_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	}
 
+	list->d3d12.occlusion_query_set = NULL;
+	list->d3d12.current_occlusion_query_index = 0;
+
 	list->d3d12.blocking_frame_index = 0;
 
 	list->d3d12.presenting = false;
@@ -739,6 +742,7 @@ void kope_d3d12_device_create_query_set(kope_g5_device *device, const kope_g5_qu
 	desc.Count = parameters->count;
 	desc.NodeMask = 0;
 
+	query_set->d3d12.query_type = (uint8_t)parameters->type;
 	device->d3d12.device->CreateQueryHeap(&desc, IID_GRAPHICS_PPV_ARGS(&query_set->d3d12.query_heap));
 }
 

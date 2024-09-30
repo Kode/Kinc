@@ -51,6 +51,7 @@ typedef struct kope_d3d12_device {
 
 typedef struct kope_d3d12_query_set {
 	struct ID3D12QueryHeap *query_heap;
+	uint8_t query_type;
 } kope_d3d12_query_set;
 
 typedef struct kope_d3d12_raytracing_volume {
