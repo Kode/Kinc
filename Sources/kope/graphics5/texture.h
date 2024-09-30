@@ -51,6 +51,8 @@ typedef struct kope_g5_texture_view {
 	uint32_t array_layer_count;
 } kope_g5_texture_view;
 
+KOPE_FUNC void kope_g5_texture_set_name(kope_g5_texture *texture, const char *name);
+
 #ifdef __cplusplus
 }
 #endif

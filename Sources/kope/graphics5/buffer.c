@@ -8,6 +8,10 @@
 #include <kope/vulkan/buffer_functions.h>
 #endif
 
+void kope_g5_buffer_set_name(kope_g5_buffer *buffer, const char *name) {
+	KOPE_G5_CALL2(buffer_set_name, buffer, name);
+}
+
 void kope_g5_buffer_destroy(kope_g5_buffer *buffer) {
 	KOPE_G5_CALL1(buffer_destroy, buffer);
 }
