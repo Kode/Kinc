@@ -148,9 +148,23 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 	}
 
 	list->d3d12.occlusion_query_set = parameters->occlusion_query_set;
+
+	list->d3d12.timestamp_query_set = parameters->timestamp_writes.query_set;
+	list->d3d12.timestamp_beginning_of_pass_write_index = parameters->timestamp_writes.beginning_of_pass_write_index;
+	list->d3d12.timestamp_end_of_pass_write_index = parameters->timestamp_writes.end_of_pass_write_index;
+
+	if (list->d3d12.timestamp_query_set != NULL) {
+		list->d3d12.list->EndQuery(list->d3d12.timestamp_query_set->d3d12.query_heap, D3D12_QUERY_TYPE_TIMESTAMP,
+		                           list->d3d12.timestamp_beginning_of_pass_write_index);
+	}
 }
 
-void kope_d3d12_command_list_end_render_pass(kope_g5_command_list *list) {}
+void kope_d3d12_command_list_end_render_pass(kope_g5_command_list *list) {
+	if (list->d3d12.timestamp_query_set != NULL) {
+		list->d3d12.list->EndQuery(list->d3d12.timestamp_query_set->d3d12.query_heap, D3D12_QUERY_TYPE_TIMESTAMP,
+		                           list->d3d12.timestamp_end_of_pass_write_index);
+	}
+}
 
 void kope_d3d12_command_list_present(kope_g5_command_list *list) {
 	list->d3d12.presenting = true;

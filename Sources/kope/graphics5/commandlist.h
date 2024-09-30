@@ -73,12 +73,18 @@ typedef struct kope_g5_render_pass_depth_stencil_attachment {
 	bool stencil_read_only;
 } kope_g5_render_pass_depth_stencil_attachment;
 
+typedef struct kope_g5_render_pass_timestamp_writes {
+	struct kope_g5_query_set *query_set;
+	uint32_t beginning_of_pass_write_index;
+	uint32_t end_of_pass_write_index;
+} kope_g5_render_pass_timestamp_writes;
+
 typedef struct kope_g5_render_pass_parameters {
 	kope_g5_render_pass_color_attachment color_attachments[8];
 	size_t color_attachments_count;
 	kope_g5_render_pass_depth_stencil_attachment depth_stencil_attachment;
 	struct kope_g5_query_set *occlusion_query_set;
-	// GPURenderPassTimestampWrites timestampWrites;
+	kope_g5_render_pass_timestamp_writes timestamp_writes;
 } kope_g5_render_pass_parameters;
 
 KOPE_FUNC void kope_g5_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters);

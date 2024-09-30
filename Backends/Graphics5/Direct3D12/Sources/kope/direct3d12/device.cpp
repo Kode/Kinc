@@ -315,6 +315,10 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	list->d3d12.occlusion_query_set = NULL;
 	list->d3d12.current_occlusion_query_index = 0;
 
+	list->d3d12.timestamp_query_set = NULL;
+	list->d3d12.timestamp_beginning_of_pass_write_index = 0;
+	list->d3d12.timestamp_end_of_pass_write_index = 0;
+
 	list->d3d12.blocking_frame_index = 0;
 
 	list->d3d12.presenting = false;

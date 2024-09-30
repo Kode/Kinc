@@ -43,6 +43,10 @@ typedef struct kope_d3d12_command_list {
 	struct kope_g5_query_set *occlusion_query_set;
 	uint32_t current_occlusion_query_index;
 
+	struct kope_g5_query_set *timestamp_query_set;
+	uint32_t timestamp_beginning_of_pass_write_index;
+	uint32_t timestamp_end_of_pass_write_index;
+
 	bool presenting;
 } kope_d3d12_command_list;
 
