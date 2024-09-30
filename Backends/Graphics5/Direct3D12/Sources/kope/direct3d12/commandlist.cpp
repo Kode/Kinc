@@ -17,8 +17,13 @@
 #include <WinPixEventRuntime/pix3.h>
 #endif
 
+void kope_d3d12_command_list_destroy(kope_g5_command_list *list) {
+	list->d3d12.list->Release();
+}
+
 void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
-	list->d3d12.compute_pipeline_set = false;
+	list->d3d12.compute_pipe = NULL;
+	list->d3d12.ray_pipe = NULL;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE render_target_views = list->d3d12.rtv_descriptors->GetCPUDescriptorHandleForHeapStart();
 
@@ -196,6 +201,10 @@ void kope_d3d12_command_list_set_vertex_buffer(kope_g5_command_list *list, uint3
 }
 
 void kope_d3d12_command_list_set_render_pipeline(kope_g5_command_list *list, kope_d3d12_render_pipeline *pipeline) {
+	list->d3d12.render_pipe = pipeline;
+	list->d3d12.ray_pipe = NULL;
+	list->d3d12.compute_pipe = NULL;
+
 	list->d3d12.list->SetPipelineState(pipeline->pipe);
 	list->d3d12.list->SetGraphicsRootSignature(pipeline->root_signature);
 }
@@ -215,7 +224,7 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 	if (set->descriptor_count > 0) {
 		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->descriptor_heap->GetGPUDescriptorHandleForHeapStart();
 		gpu_descriptor.ptr += set->descriptor_allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
-		if (list->d3d12.compute_pipeline_set) {
+		if (list->d3d12.compute_pipe != NULL || list->d3d12.ray_pipe != NULL) {
 			list->d3d12.list->SetComputeRootDescriptorTable(table_index, gpu_descriptor);
 		}
 		else {
@@ -227,7 +236,7 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 	if (set->sampler_count > 0) {
 		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->sampler_heap->GetGPUDescriptorHandleForHeapStart();
 		gpu_descriptor.ptr += set->sampler_allocation.offset * list->d3d12.device->sampler_increment;
-		if (list->d3d12.compute_pipeline_set) {
+		if (list->d3d12.compute_pipe != NULL || list->d3d12.ray_pipe != NULL) {
 			list->d3d12.list->SetComputeRootDescriptorTable(table_index, gpu_descriptor);
 		}
 		else {
@@ -237,7 +246,7 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 }
 
 void kope_d3d12_command_list_set_root_constants(kope_g5_command_list *list, uint32_t table_index, const void *data, size_t data_size) {
-	if (list->d3d12.compute_pipeline_set) {
+	if (list->d3d12.compute_pipe != NULL || list->d3d12.ray_pipe != NULL) {
 		list->d3d12.list->SetComputeRoot32BitConstants(table_index, (UINT)(data_size / 4), data, 0);
 	}
 	else {
@@ -484,7 +493,9 @@ void kope_d3d12_command_list_clear_buffer(kope_g5_command_list *list, kope_g5_bu
 }
 
 void kope_d3d12_command_list_set_compute_pipeline(kope_g5_command_list *list, kope_d3d12_compute_pipeline *pipeline) {
-	list->d3d12.compute_pipeline_set = true;
+	list->d3d12.compute_pipe = pipeline;
+	list->d3d12.ray_pipe = NULL;
+	list->d3d12.render_pipe = NULL;
 	list->d3d12.list->SetPipelineState(pipeline->pipe);
 	list->d3d12.list->SetComputeRootSignature(pipeline->root_signature);
 }
@@ -602,7 +613,8 @@ void kope_d3d12_command_list_set_ray_pipeline(kope_g5_command_list *list, kope_d
 	list->d3d12.list->SetPipelineState1(pipeline->pipe);
 	list->d3d12.list->SetComputeRootSignature(pipeline->root_signature);
 	list->d3d12.ray_pipe = pipeline;
-	list->d3d12.compute_pipeline_set = true;
+	list->d3d12.compute_pipe = NULL;
+	list->d3d12.render_pipe = NULL;
 }
 
 void kope_d3d12_command_list_trace_rays(kope_g5_command_list *list, uint32_t width, uint32_t height, uint32_t depth) {
@@ -693,4 +705,19 @@ void kope_d3d12_command_list_resolve_query_set(kope_g5_command_list *list, kope_
 	list->d3d12.list->ResolveQueryData(query_set->d3d12.query_heap,
 	                                   query_set->d3d12.query_type == KOPE_G5_QUERY_TYPE_OCCLUSION ? D3D12_QUERY_TYPE_OCCLUSION : D3D12_QUERY_TYPE_TIMESTAMP,
 	                                   first_query, query_count, destination->d3d12.resource, destination_offset);
+}
+void kope_d3d12_command_list_draw_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset, uint32_t max_draw_count,
+                                           kope_g5_buffer *count_buffer, uint64_t count_offset) {
+	list->d3d12.list->ExecuteIndirect(list->d3d12.render_pipe->draw_command_signature, max_draw_count, indirect_buffer->d3d12.resource, indirect_offset,
+	                                  count_buffer != NULL ? count_buffer->d3d12.resource : NULL, count_offset);
+}
+
+void kope_d3d12_command_list_draw_indexed_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset,
+                                                   uint32_t max_draw_count, kope_g5_buffer *count_buffer, uint64_t count_offset) {
+	list->d3d12.list->ExecuteIndirect(list->d3d12.render_pipe->draw_indexed_command_signature, max_draw_count, indirect_buffer->d3d12.resource, indirect_offset,
+	                                  count_buffer != NULL ? count_buffer->d3d12.resource : NULL, count_offset);
+}
+
+void kope_d3d12_command_list_compute_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset) {
+	list->d3d12.list->ExecuteIndirect(list->d3d12.compute_pipe->compute_command_signature, 1, indirect_buffer->d3d12.resource, indirect_offset, NULL, 0);
 }

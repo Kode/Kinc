@@ -202,6 +202,8 @@ struct ID3D12RootSignature;
 typedef struct kope_d3d12_render_pipeline {
 	struct ID3D12PipelineState *pipe;
 	struct ID3D12RootSignature *root_signature;
+	struct ID3D12CommandSignature *draw_command_signature;
+	struct ID3D12CommandSignature *draw_indexed_command_signature;
 } kope_d3d12_render_pipeline;
 
 typedef struct kope_d3d12_compute_pipeline_parameters {
@@ -211,6 +213,7 @@ typedef struct kope_d3d12_compute_pipeline_parameters {
 typedef struct kope_d3d12_compute_pipeline {
 	struct ID3D12PipelineState *pipe;
 	struct ID3D12RootSignature *root_signature;
+	struct ID3D12CommandSignature *compute_command_signature;
 } kope_d3d12_compute_pipeline;
 
 typedef struct kope_d3d12_ray_pipeline_parameters {

@@ -136,9 +136,34 @@ KOPE_FUNC void kope_g5_command_list_draw(kope_g5_command_list *list, uint32_t ve
 KOPE_FUNC void kope_g5_command_list_draw_indexed(kope_g5_command_list *list, uint32_t index_count, uint32_t instance_count, uint32_t first_index,
                                                  int32_t base_vertex, uint32_t first_instance);
 
-KOPE_FUNC void kope_g5_command_list_draw_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
+typedef struct kope_g5_draw_arguments {
+	uint32_t vertex_count;
+	uint32_t instance_count;
+	uint32_t first_vertex;
+	uint32_t first_instance;
+	uint32_t automatic_draw_index;
+} kope_g5_draw_arguments;
 
-KOPE_FUNC void kope_g5_command_list_draw_indexed_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
+typedef struct kope_g5_draw_indexed_arguments {
+	uint32_t index_count;
+	uint32_t instance_count;
+	uint32_t first_index;
+	int32_t base_vertex;
+	uint32_t first_instance;
+	uint32_t automatic_draw_index;
+} kope_g5_draw_indexed_arguments;
+
+typedef struct kope_g5_compute_arguments {
+	uint32_t workgroup_count_x;
+	uint32_t workgroup_count_y;
+	uint32_t workgroup_count_z;
+} kope_g5_compute_arguments;
+
+KOPE_FUNC void kope_g5_command_list_draw_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset,
+                                                  uint32_t max_draw_count, kope_g5_buffer *count_buffer, uint64_t count_offset);
+
+KOPE_FUNC void kope_g5_command_list_draw_indexed_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset,
+                                                          uint32_t max_draw_count, kope_g5_buffer *count_buffer, uint64_t count_offset);
 
 KOPE_FUNC void kope_g5_command_list_set_viewport(kope_g5_command_list *list, float x, float y, float width, float height, float min_depth, float max_depth);
 

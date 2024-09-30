@@ -9,7 +9,9 @@ extern "C" {
 
 struct kope_d3d12_device;
 struct kope_d3d12_texture;
+struct kope_d3d12_compute_pipeline;
 struct kope_d3d12_ray_pipeline;
+struct kope_d3d12_rendery_pipeline;
 struct kope_g5_query_set;
 
 struct ID3D12Fence;
@@ -36,7 +38,9 @@ typedef struct kope_d3d12_command_list {
 	// set when a framebuffer is attached to a render-pass so we don't render into it during scan-out
 	uint64_t blocking_frame_index;
 
-	bool compute_pipeline_set;
+	struct kope_d3d12_render_pipeline *render_pipe;
+
+	struct kope_d3d12_compute_pipeline *compute_pipe;
 
 	struct kope_d3d12_ray_pipeline *ray_pipe;
 

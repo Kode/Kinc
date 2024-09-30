@@ -288,9 +288,9 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator[list->d3d12.current_allocator_index],
 	                                                              NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
 
-	list->d3d12.compute_pipeline_set = false;
-
+	list->d3d12.compute_pipe = NULL;
 	list->d3d12.ray_pipe = NULL;
+	list->d3d12.render_pipe = NULL;
 
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};

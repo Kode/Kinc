@@ -10,6 +10,10 @@
 
 #include <assert.h>
 
+void kope_g5_command_list_destroy(kope_g5_command_list *list) {
+	KOPE_G5_CALL1(command_list_destroy, list);
+}
+
 void kope_g5_command_list_copy_buffer_to_buffer(kope_g5_command_list *list, kope_g5_buffer *source, uint64_t source_offset, kope_g5_buffer *destination,
                                                 uint64_t destination_offset, uint64_t size) {
 	KOPE_G5_CALL6(command_list_copy_buffer_to_buffer, list, source, source_offset, destination, destination_offset, size);
@@ -129,4 +133,18 @@ void kope_g5_command_list_end_occlusion_query(kope_g5_command_list *list) {
 void kope_g5_command_list_resolve_query_set(kope_g5_command_list *list, kope_g5_query_set *query_set, uint32_t first_query, uint32_t query_count,
                                             kope_g5_buffer *destination, uint64_t destination_offset) {
 	KOPE_G5_CALL6(command_list_resolve_query_set, list, query_set, first_query, query_count, destination, destination_offset);
+}
+
+void kope_g5_command_list_draw_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset, uint32_t max_draw_count,
+                                        kope_g5_buffer *count_buffer, uint64_t count_offset) {
+	KOPE_G5_CALL6(command_list_draw_indirect, list, indirect_buffer, indirect_offset, max_draw_count, count_buffer, count_offset);
+}
+
+void kope_g5_command_list_draw_indexed_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset, uint32_t max_draw_count,
+                                                kope_g5_buffer *count_buffer, uint64_t count_offset) {
+	KOPE_G5_CALL6(command_list_draw_indexed_indirect, list, indirect_buffer, indirect_offset, max_draw_count, count_buffer, count_offset);
+}
+
+void kope_g5_command_list_compute_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset) {
+	KOPE_G5_CALL3(command_list_compute_indirect, list, indirect_buffer, indirect_offset);
 }

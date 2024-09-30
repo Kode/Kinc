@@ -333,6 +333,26 @@ void kope_d3d12_render_pipeline_init(kope_d3d12_device *device, kope_d3d12_rende
 
 	kinc_microsoft_affirm(
 	    device->device->CreateRootSignature(0, desc.VS.pShaderBytecode, desc.VS.BytecodeLength, IID_GRAPHICS_PPV_ARGS(&pipe->root_signature)));
+
+	D3D12_INDIRECT_ARGUMENT_DESC indirect_args[2];
+	indirect_args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+	indirect_args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
+	indirect_args[1].Constant.RootParameterIndex = 0;
+	indirect_args[1].Constant.DestOffsetIn32BitValues = 0;
+	indirect_args[1].Constant.Num32BitValuesToSet = 1;
+
+	D3D12_COMMAND_SIGNATURE_DESC command_signature_desc;
+	command_signature_desc.ByteStride = sizeof(kope_g5_draw_arguments);
+	command_signature_desc.NumArgumentDescs = 2;
+	command_signature_desc.pArgumentDescs = indirect_args;
+
+	device->device->CreateCommandSignature(&command_signature_desc, pipe->root_signature, IID_GRAPHICS_PPV_ARGS(&pipe->draw_command_signature));
+
+	indirect_args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+
+	command_signature_desc.ByteStride = sizeof(kope_g5_draw_indexed_arguments);
+
+	device->device->CreateCommandSignature(&command_signature_desc, pipe->root_signature, IID_GRAPHICS_PPV_ARGS(&pipe->draw_indexed_command_signature));
 }
 
 void kope_d3d12_render_pipeline_destroy(kope_d3d12_render_pipeline *pipe) {
@@ -353,6 +373,16 @@ void kope_d3d12_compute_pipeline_init(kope_d3d12_device *device, kope_d3d12_comp
 
 	kinc_microsoft_affirm(
 	    device->device->CreateRootSignature(0, desc.CS.pShaderBytecode, desc.CS.BytecodeLength, IID_GRAPHICS_PPV_ARGS(&pipe->root_signature)));
+
+	D3D12_INDIRECT_ARGUMENT_DESC indirect_args[2];
+	indirect_args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+
+	D3D12_COMMAND_SIGNATURE_DESC command_signature_desc;
+	command_signature_desc.ByteStride = sizeof(kope_g5_compute_arguments);
+	command_signature_desc.NumArgumentDescs = 1;
+	command_signature_desc.pArgumentDescs = indirect_args;
+
+	device->device->CreateCommandSignature(&command_signature_desc, pipe->root_signature, IID_GRAPHICS_PPV_ARGS(&pipe->compute_command_signature));
 }
 
 void kope_d3d12_compute_pipeline_destroy(kope_d3d12_compute_pipeline *pipe) {
