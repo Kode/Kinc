@@ -335,11 +335,11 @@ void kope_d3d12_render_pipeline_init(kope_d3d12_device *device, kope_d3d12_rende
 	    device->device->CreateRootSignature(0, desc.VS.pShaderBytecode, desc.VS.BytecodeLength, IID_GRAPHICS_PPV_ARGS(&pipe->root_signature)));
 
 	D3D12_INDIRECT_ARGUMENT_DESC indirect_args[2];
-	indirect_args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
-	indirect_args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
-	indirect_args[1].Constant.RootParameterIndex = 0;
-	indirect_args[1].Constant.DestOffsetIn32BitValues = 0;
-	indirect_args[1].Constant.Num32BitValuesToSet = 1;
+	indirect_args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
+	indirect_args[0].Constant.RootParameterIndex = 0;
+	indirect_args[0].Constant.DestOffsetIn32BitValues = 0;
+	indirect_args[0].Constant.Num32BitValuesToSet = 1;
+	indirect_args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
 
 	D3D12_COMMAND_SIGNATURE_DESC command_signature_desc;
 	command_signature_desc.ByteStride = sizeof(kope_g5_draw_arguments);
@@ -348,7 +348,7 @@ void kope_d3d12_render_pipeline_init(kope_d3d12_device *device, kope_d3d12_rende
 
 	device->device->CreateCommandSignature(&command_signature_desc, pipe->root_signature, IID_GRAPHICS_PPV_ARGS(&pipe->draw_command_signature));
 
-	indirect_args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+	indirect_args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
 	command_signature_desc.ByteStride = sizeof(kope_g5_draw_indexed_arguments);
 

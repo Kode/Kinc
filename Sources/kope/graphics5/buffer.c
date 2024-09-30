@@ -16,6 +16,10 @@ void kope_g5_buffer_destroy(kope_g5_buffer *buffer) {
 	KOPE_G5_CALL1(buffer_destroy, buffer);
 }
 
+void *kope_g5_buffer_try_to_lock(kope_g5_buffer *buffer) {
+	return KOPE_G5_CALL1(buffer_try_to_lock, buffer);
+}
+
 void *kope_g5_buffer_lock(kope_g5_buffer *buffer) {
 	return KOPE_G5_CALL1(buffer_lock, buffer);
 }

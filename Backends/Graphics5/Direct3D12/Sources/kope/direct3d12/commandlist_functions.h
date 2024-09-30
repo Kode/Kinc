@@ -98,6 +98,8 @@ void kope_d3d12_command_list_draw_indexed_indirect(kope_g5_command_list *list, k
 
 void kope_d3d12_command_list_compute_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
 
+void kope_d3d12_command_list_queue_buffer_access(kope_g5_command_list *list, kope_g5_buffer *buffer);
+
 #ifdef __cplusplus
 }
 #endif

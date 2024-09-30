@@ -137,20 +137,24 @@ KOPE_FUNC void kope_g5_command_list_draw_indexed(kope_g5_command_list *list, uin
                                                  int32_t base_vertex, uint32_t first_instance);
 
 typedef struct kope_g5_draw_arguments {
+#ifdef KINC_DIRECT3D12
+	uint32_t automatic_draw_index;
+#endif
 	uint32_t vertex_count;
 	uint32_t instance_count;
 	uint32_t first_vertex;
 	uint32_t first_instance;
-	uint32_t automatic_draw_index;
 } kope_g5_draw_arguments;
 
 typedef struct kope_g5_draw_indexed_arguments {
+#ifdef KINC_DIRECT3D12
+	uint32_t automatic_draw_index;
+#endif
 	uint32_t index_count;
 	uint32_t instance_count;
 	uint32_t first_index;
 	int32_t base_vertex;
 	uint32_t first_instance;
-	uint32_t automatic_draw_index;
 } kope_g5_draw_indexed_arguments;
 
 typedef struct kope_g5_compute_arguments {

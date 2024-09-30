@@ -727,3 +727,8 @@ void kope_d3d12_command_list_draw_indexed_indirect(kope_g5_command_list *list, k
 void kope_d3d12_command_list_compute_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset) {
 	list->d3d12.list->ExecuteIndirect(list->d3d12.compute_pipe->compute_command_signature, 1, indirect_buffer->d3d12.resource, indirect_offset, NULL, 0);
 }
+
+void kope_d3d12_command_list_queue_buffer_access(kope_g5_command_list *list, kope_g5_buffer *buffer) {
+	list->d3d12.queued_buffer_accesses[list->d3d12.queued_buffer_accesses_count] = buffer;
+	list->d3d12.queued_buffer_accesses_count += 1;
+}

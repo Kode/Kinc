@@ -257,6 +257,13 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	}
 
+	buffer->d3d12.device = device;
+
+	buffer->d3d12.latest_execution_index = 0;
+
+	buffer->d3d12.cpu_accessible =
+	    (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) != 0 || (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_WRITE) != 0;
+
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(
 	    &props, D3D12_HEAP_FLAG_NONE, &desc, (D3D12_RESOURCE_STATES)buffer->d3d12.resource_state, NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));
 }
@@ -320,6 +327,8 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	list->d3d12.timestamp_end_of_pass_write_index = 0;
 
 	list->d3d12.blocking_frame_index = 0;
+
+	list->d3d12.queued_buffer_accesses_count = 0;
 
 	list->d3d12.presenting = false;
 
@@ -519,6 +528,11 @@ static void wait_for_fence(kope_g5_device *device, ID3D12Fence *fence, HANDLE ev
 	}
 }
 
+static bool check_for_fence(ID3D12Fence *fence, UINT64 completion_value) {
+	// kinc_log(KINC_LOG_LEVEL_INFO, "Done: %llu Check: %llu", fence->GetCompletedValue(), completion_value);
+	return fence->GetCompletedValue() >= completion_value;
+}
+
 static void wait_for_frame(kope_g5_device *device, uint64_t frame_index) {
 	wait_for_fence(device, device->d3d12.frame_fence, device->d3d12.frame_event, frame_index);
 }
@@ -547,6 +561,11 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 	}
 
 	list->d3d12.list->Close();
+
+	for (uint32_t buffer_access_index = 0; buffer_access_index < list->d3d12.queued_buffer_accesses_count; ++buffer_access_index) {
+		list->d3d12.queued_buffer_accesses[buffer_access_index]->d3d12.latest_execution_index = device->d3d12.execution_index;
+	}
+	list->d3d12.queued_buffer_accesses_count = 0;
 
 	list->d3d12.allocator_execution_index[list->d3d12.current_allocator_index] = device->d3d12.execution_index;
 

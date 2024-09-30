@@ -20,6 +20,8 @@ struct ID3D12Fence;
 // allocators. Increasing this value exchanges more memory against potentially less wait-times (depending on actual command-list usage).
 #define KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT 3
 
+#define KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_BUFFER_ACCESSES 256
+
 typedef struct kope_d3d12_command_list {
 	struct kope_d3d12_device *device;
 
@@ -50,6 +52,9 @@ typedef struct kope_d3d12_command_list {
 	struct kope_g5_query_set *timestamp_query_set;
 	uint32_t timestamp_beginning_of_pass_write_index;
 	uint32_t timestamp_end_of_pass_write_index;
+
+	kope_g5_buffer *queued_buffer_accesses[KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_BUFFER_ACCESSES];
+	uint32_t queued_buffer_accesses_count;
 
 	bool presenting;
 } kope_d3d12_command_list;

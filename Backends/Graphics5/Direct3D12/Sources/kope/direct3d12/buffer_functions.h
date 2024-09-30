@@ -8,8 +8,13 @@ extern "C" {
 #endif
 
 void kope_d3d12_buffer_set_name(kope_g5_buffer *buffer, const char *name);
+
 void kope_d3d12_buffer_destroy(kope_g5_buffer *buffer);
+
+void *kope_d3d12_buffer_try_to_lock(kope_g5_buffer *buffer);
+
 void *kope_d3d12_buffer_lock(kope_g5_buffer *buffer);
+
 void kope_d3d12_buffer_unlock(kope_g5_buffer *buffer);
 
 #ifdef __cplusplus

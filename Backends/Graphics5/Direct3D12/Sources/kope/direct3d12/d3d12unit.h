@@ -65,4 +65,9 @@ static inline UINT D3D12CalcSubresource(UINT MipSlice, UINT ArraySlice, UINT Pla
 	return MipSlice + (ArraySlice * MipLevels) + (PlaneSlice * MipLevels * ArraySize);
 }
 
+struct kope_g5_device;
+
+static void wait_for_fence(struct kope_g5_device *device, ID3D12Fence *fence, HANDLE event, UINT64 completion_value);
+static bool check_for_fence(ID3D12Fence *fence, UINT64 completion_value);
+
 #endif
