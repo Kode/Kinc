@@ -18,7 +18,13 @@
 #endif
 
 void kope_d3d12_command_list_destroy(kope_g5_command_list *list) {
+	for (int i = 0; i < KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT; ++i) {
+		list->d3d12.allocator[i]->Release();
+	}
 	list->d3d12.list->Release();
+
+	list->d3d12.rtv_descriptors->Release();
+	list->d3d12.dsv_descriptor->Release();
 }
 
 void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
