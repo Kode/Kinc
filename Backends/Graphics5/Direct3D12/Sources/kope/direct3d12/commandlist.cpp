@@ -571,7 +571,7 @@ void kope_d3d12_command_list_prepare_raytracing_hierarchy(kope_g5_command_list *
 
 void kope_d3d12_command_list_update_raytracing_hierarchy(kope_g5_command_list *list, kinc_matrix4x4_t *volume_transforms, uint32_t volumes_count,
                                                          kope_g5_raytracing_hierarchy *hierarchy) {
-	D3D12_RAYTRACING_INSTANCE_DESC *descs = (D3D12_RAYTRACING_INSTANCE_DESC *)kope_g5_buffer_lock(&hierarchy->d3d12.instances);
+	D3D12_RAYTRACING_INSTANCE_DESC *descs = (D3D12_RAYTRACING_INSTANCE_DESC *)kope_g5_buffer_lock_all(&hierarchy->d3d12.instances);
 
 	for (uint32_t volume_index = 0; volume_index < hierarchy->d3d12.volumes_count; ++volume_index) {
 		descs[volume_index].Transform[0][0] = volume_transforms[volume_index].m[0];

@@ -81,6 +81,8 @@ typedef struct kope_g5_texture_parameters {
 
 KOPE_FUNC void kope_g5_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
+#define KOPE_G5_MAX_FRAMEBUFFERS 3
+
 KOPE_FUNC kope_g5_texture *kope_g5_device_get_framebuffer(kope_g5_device *device);
 
 typedef enum kope_g5_address_mode { KOPE_G5_ADDRESS_MODE_CLAMP_TO_EDGE, KOPE_G5_ADDRESS_MODE_REPEAT, KOPE_G5_ADDRESS_MODE_MIRROR_REPEAT } kope_g5_address_mode;

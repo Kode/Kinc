@@ -261,8 +261,8 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 
 	buffer->d3d12.latest_execution_index = 0;
 
-	buffer->d3d12.cpu_accessible =
-	    (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) != 0 || (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_WRITE) != 0;
+	buffer->d3d12.cpu_read = (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) != 0;
+	buffer->d3d12.cpu_write = (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_WRITE) != 0;
 
 	kinc_microsoft_affirm(device->d3d12.device->CreateCommittedResource(
 	    &props, D3D12_HEAP_FLAG_NONE, &desc, (D3D12_RESOURCE_STATES)buffer->d3d12.resource_state, NULL, IID_GRAPHICS_PPV_ARGS(&buffer->d3d12.resource)));
@@ -705,7 +705,7 @@ void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_
 	instances_params.usage_flags = KOPE_G5_BUFFER_USAGE_CPU_WRITE;
 	kope_g5_device_create_buffer(device, &instances_params, &hierarchy->d3d12.instances);
 
-	D3D12_RAYTRACING_INSTANCE_DESC *descs = (D3D12_RAYTRACING_INSTANCE_DESC *)kope_g5_buffer_lock(&hierarchy->d3d12.instances);
+	D3D12_RAYTRACING_INSTANCE_DESC *descs = (D3D12_RAYTRACING_INSTANCE_DESC *)kope_g5_buffer_lock_all(&hierarchy->d3d12.instances);
 	for (uint32_t volume_index = 0; volume_index < hierarchy->d3d12.volumes_count; ++volume_index) {
 		memset(&descs[volume_index], 0, sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
 		descs[volume_index].InstanceID = volume_index;
