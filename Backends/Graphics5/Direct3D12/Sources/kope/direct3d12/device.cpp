@@ -259,7 +259,7 @@ void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 
 	buffer->d3d12.device = device;
 
-	buffer->d3d12.latest_execution_index = 0;
+	buffer->d3d12.ranges_count = 0;
 
 	buffer->d3d12.cpu_read = (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_READ) != 0;
 	buffer->d3d12.cpu_write = (parameters->usage_flags & KOPE_G5_BUFFER_USAGE_CPU_WRITE) != 0;
@@ -563,7 +563,12 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 	list->d3d12.list->Close();
 
 	for (uint32_t buffer_access_index = 0; buffer_access_index < list->d3d12.queued_buffer_accesses_count; ++buffer_access_index) {
-		list->d3d12.queued_buffer_accesses[buffer_access_index]->d3d12.latest_execution_index = device->d3d12.execution_index;
+		kope_d3d12_buffer_access access = list->d3d12.queued_buffer_accesses[buffer_access_index];
+		kope_g5_buffer *buffer = access.buffer;
+
+		buffer->d3d12.ranges[buffer->d3d12.ranges_count].execution_index = device->d3d12.execution_index;
+		buffer->d3d12.ranges[buffer->d3d12.ranges_count].offset = access.offset;
+		buffer->d3d12.ranges[buffer->d3d12.ranges_count].size = access.size;
 	}
 	list->d3d12.queued_buffer_accesses_count = 0;
 

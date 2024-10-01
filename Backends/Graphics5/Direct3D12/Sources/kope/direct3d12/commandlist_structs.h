@@ -22,6 +22,12 @@ struct ID3D12Fence;
 
 #define KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_BUFFER_ACCESSES 256
 
+typedef struct kope_d3d12_buffer_access {
+	kope_g5_buffer *buffer;
+	uint64_t offset;
+	uint64_t size;
+} kope_d3d12_buffer_access;
+
 typedef struct kope_d3d12_command_list {
 	struct kope_d3d12_device *device;
 
@@ -53,7 +59,7 @@ typedef struct kope_d3d12_command_list {
 	uint32_t timestamp_beginning_of_pass_write_index;
 	uint32_t timestamp_end_of_pass_write_index;
 
-	kope_g5_buffer *queued_buffer_accesses[KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_BUFFER_ACCESSES];
+	kope_d3d12_buffer_access queued_buffer_accesses[KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_BUFFER_ACCESSES];
 	uint32_t queued_buffer_accesses_count;
 
 	bool presenting;

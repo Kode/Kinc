@@ -11,6 +11,14 @@ extern "C" {
 
 struct kope_g5_device;
 
+#define KOPE_D3D12_MAX_BUFFER_RANGES 16
+
+typedef struct kope_d3d12_buffer_range {
+	uint64_t offset;
+	uint64_t size;
+	uint64_t execution_index;
+} kope_d3d12_buffer_range;
+
 typedef struct kope_d3d12_buffer {
 	struct kope_g5_device *device;
 
@@ -24,7 +32,9 @@ typedef struct kope_d3d12_buffer {
 
 	bool cpu_write;
 	bool cpu_read;
-	uint64_t latest_execution_index;
+
+	kope_d3d12_buffer_range ranges[KOPE_D3D12_MAX_BUFFER_RANGES];
+	uint32_t ranges_count;
 } kope_d3d12_buffer;
 
 #ifdef __cplusplus

@@ -729,6 +729,11 @@ void kope_d3d12_command_list_compute_indirect(kope_g5_command_list *list, kope_g
 }
 
 void kope_d3d12_command_list_queue_buffer_access(kope_g5_command_list *list, kope_g5_buffer *buffer) {
-	list->d3d12.queued_buffer_accesses[list->d3d12.queued_buffer_accesses_count] = buffer;
+	kope_d3d12_buffer_access access;
+	access.buffer = buffer;
+	access.offset = 0;
+	access.size = UINT64_MAX;
+
+	list->d3d12.queued_buffer_accesses[list->d3d12.queued_buffer_accesses_count] = access;
 	list->d3d12.queued_buffer_accesses_count += 1;
 }

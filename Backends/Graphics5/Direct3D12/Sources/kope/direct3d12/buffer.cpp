@@ -4,6 +4,37 @@
 
 #include <kinc/backend/SystemMicrosoft.h>
 
+static uint64_t find_max_execution_index_all(kope_g5_buffer *buffer) {
+	uint64_t max_execution_index = 0;
+
+	for (uint32_t range_index = 0; range_index < buffer->d3d12.ranges_count; ++range_index) {
+		uint64_t execution_index = buffer->d3d12.ranges[range_index].execution_index;
+		if (execution_index > max_execution_index) {
+			max_execution_index = execution_index;
+		}
+	}
+
+	return max_execution_index;
+}
+
+static uint64_t find_max_execution_index(kope_g5_buffer *buffer, uint64_t offset, uint64_t size) {
+	uint64_t max_execution_index = 0;
+
+	for (uint32_t range_index = 0; range_index < buffer->d3d12.ranges_count; ++range_index) {
+		kope_d3d12_buffer_range range = buffer->d3d12.ranges[range_index];
+
+		if (range.size == UINT64_MAX || (offset >= range.offset && offset < range.offset + range.size) ||
+		    (offset + size > range.offset && offset + size <= range.offset + range.size)) {
+			uint64_t execution_index = buffer->d3d12.ranges[range_index].execution_index;
+			if (execution_index > max_execution_index) {
+				max_execution_index = execution_index;
+			}
+		}
+	}
+
+	return max_execution_index;
+}
+
 void kope_d3d12_buffer_set_name(kope_g5_buffer *buffer, const char *name) {
 	wchar_t wstr[1024];
 	kinc_microsoft_convert_string(wstr, name, 1024);
@@ -15,7 +46,7 @@ void kope_d3d12_buffer_destroy(kope_g5_buffer *buffer) {
 }
 
 void *kope_d3d12_buffer_try_to_lock_all(kope_g5_buffer *buffer) {
-	if (check_for_fence(buffer->d3d12.device->d3d12.execution_fence, buffer->d3d12.latest_execution_index)) {
+	if (check_for_fence(buffer->d3d12.device->d3d12.execution_fence, find_max_execution_index_all(buffer))) {
 		buffer->d3d12.locked_data_offset = 0;
 		buffer->d3d12.locked_data_size = UINT64_MAX;
 
@@ -29,7 +60,7 @@ void *kope_d3d12_buffer_try_to_lock_all(kope_g5_buffer *buffer) {
 
 void *kope_d3d12_buffer_lock_all(kope_g5_buffer *buffer) {
 	wait_for_fence(buffer->d3d12.device, buffer->d3d12.device->d3d12.execution_fence, buffer->d3d12.device->d3d12.execution_event,
-	               buffer->d3d12.latest_execution_index);
+	               find_max_execution_index_all(buffer));
 
 	buffer->d3d12.locked_data_offset = 0;
 	buffer->d3d12.locked_data_size = UINT64_MAX;
@@ -39,7 +70,7 @@ void *kope_d3d12_buffer_lock_all(kope_g5_buffer *buffer) {
 }
 
 void *kope_d3d12_buffer_try_to_lock(kope_g5_buffer *buffer, uint64_t offset, uint64_t size) {
-	if (check_for_fence(buffer->d3d12.device->d3d12.execution_fence, buffer->d3d12.latest_execution_index)) {
+	if (check_for_fence(buffer->d3d12.device->d3d12.execution_fence, find_max_execution_index(buffer, offset, size))) {
 		D3D12_RANGE read_range;
 		D3D12_RANGE *read_range_pointer = NULL;
 
@@ -62,7 +93,7 @@ void *kope_d3d12_buffer_try_to_lock(kope_g5_buffer *buffer, uint64_t offset, uin
 
 void *kope_d3d12_buffer_lock(kope_g5_buffer *buffer, uint64_t offset, uint64_t size) {
 	wait_for_fence(buffer->d3d12.device, buffer->d3d12.device->d3d12.execution_fence, buffer->d3d12.device->d3d12.execution_event,
-	               buffer->d3d12.latest_execution_index);
+	               find_max_execution_index(buffer, offset, size));
 	D3D12_RANGE read_range;
 	D3D12_RANGE *read_range_pointer = NULL;
 
