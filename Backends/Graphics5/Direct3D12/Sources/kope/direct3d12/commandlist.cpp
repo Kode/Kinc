@@ -712,6 +712,7 @@ void kope_d3d12_command_list_resolve_query_set(kope_g5_command_list *list, kope_
 	                                   query_set->d3d12.query_type == KOPE_G5_QUERY_TYPE_OCCLUSION ? D3D12_QUERY_TYPE_OCCLUSION : D3D12_QUERY_TYPE_TIMESTAMP,
 	                                   first_query, query_count, destination->d3d12.resource, destination_offset);
 }
+
 void kope_d3d12_command_list_draw_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset, uint32_t max_draw_count,
                                            kope_g5_buffer *count_buffer, uint64_t count_offset) {
 	list->d3d12.list->ExecuteIndirect(list->d3d12.render_pipe->draw_command_signature, max_draw_count, indirect_buffer->d3d12.resource, indirect_offset,

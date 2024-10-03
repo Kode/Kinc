@@ -92,16 +92,58 @@ KINC_FUNC size_t kinc_image_size_from_encoded_bytes(void *data, size_t data_size
 KINC_FUNC size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename);
 
 /// <summary>
+/// Loads an image from a file with an enforced stride.
+/// </summary>
+/// <param name="image">The image-object to initialize with the data</param>
+/// <param name="memory">The pre-allocated memory to load the image-data into</param>
+/// <param name="filename">The file to load</param>
+/// <param name="stride">The enforced stride in bytes</param>
+/// <returns>The memory size in bytes that will be used when loading the image</returns>
+KINC_FUNC size_t kinc_image_init_from_file_with_stride(kinc_image_t *image, void *memory, const char *filename, uint32_t stride);
+
+/// <summary>
 /// Loads an image file using callbacks.
 /// </summary>
+/// <param name="image">The image-object to initialize with the data</param>
+/// <param name="memory">The pre-allocated memory to load the image-data into</param>
+/// <param name="callbacks">The callbacks that are used to query the data to encode</param>
+/// <param name="user_data">An optional pointer that is passed to the callbacks</param>
 /// <returns>The memory size in bytes that will be used when loading the image</returns>
 KINC_FUNC size_t kinc_image_init_from_callbacks(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data, const char *format);
 
 /// <summary>
+/// Loads an image file using callbacks with an enforced stride.
+/// </summary>
+/// <param name="image">The image-object to initialize with the data</param>
+/// <param name="memory">The pre-allocated memory to load the image-data into</param>
+/// <param name="callbacks">The callbacks that are used to query the data to encode</param>
+/// <param name="user_data">An optional pointer that is passed to the callbacks</param>
+/// <param name="stride">The enforced stride in bytes</param>
+/// <returns>The memory size in bytes that will be used when loading the image</returns>
+KINC_FUNC size_t kinc_image_init_from_callbacks_with_stride(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data,
+                                                            const char *format, uint32_t stride);
+
+/// <summary>
 /// Loads an image file from memory.
 /// </summary>
+/// <param name="image">The image-object to initialize with the data</param>
+/// <param name="memory">The pre-allocated memory to load the image-data into</param>
+/// <param name="data">The data to encode</param>
+/// <param name="data_size">The size of the data to encode in bytes</param>
 /// <returns>The memory size in bytes that will be used when loading the image</returns>
 KINC_FUNC size_t kinc_image_init_from_encoded_bytes(kinc_image_t *image, void *memory, void *data, size_t data_size, const char *format);
+
+/// <summary>
+/// Loads an image file from memory with an enforced stride.
+/// </summary>
+/// <param name="image">The image-object to initialize with the data</param>
+/// <param name="memory">The pre-allocated memory to load the image-data into</param>
+/// <param name="data">The data to encode</param>
+/// <param name="data_size">The size of the data to encode in bytes</param>
+/// <param name="stride">The enforced stride in bytes</param>
+/// <returns>The memory size in bytes that will be used when loading the image</returns>
+KINC_FUNC size_t kinc_image_init_from_encoded_bytes_with_stride(kinc_image_t *image, void *memory, void *data, size_t data_size, const char *format,
+                                                                uint32_t stride);
 
 /// <summary>
 /// Creates a 2D image from memory.
@@ -342,7 +384,7 @@ static size_t loadImageSize(kinc_image_read_callbacks_t callbacks, void *user_da
 }
 
 static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename, uint8_t *output, size_t *outputSize, int *width,
-                      int *height, kinc_image_compression_t *compression, kinc_image_format_t *format, unsigned *internalFormat) {
+                      int *height, kinc_image_compression_t *compression, kinc_image_format_t *format, unsigned *internalFormat, uint32_t forced_stride) {
 	*format = KINC_IMAGE_FORMAT_RGBA32;
 	if (endsWith(filename, "k")) {
 		uint8_t data[4];
@@ -525,6 +567,9 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 			kinc_log(KINC_LOG_LEVEL_ERROR, stbi_failure_reason());
 			return false;
 		}
+
+		uint32_t stride = forced_stride > 0 ? forced_stride : *width * 4;
+
 		for (int y = 0; y < *height; ++y) {
 			for (int x = 0; x < *width; ++x) {
 				float r = uncompressed[y * *width * 4 + x * 4 + 0] / 255.0f;
@@ -534,10 +579,10 @@ static bool loadImage(kinc_image_read_callbacks_t callbacks, void *user_data, co
 				r *= a;
 				g *= a;
 				b *= a;
-				output[y * *width * 4 + x * 4 + 0] = (uint8_t)kinc_round(r * 255.0f);
-				output[y * *width * 4 + x * 4 + 1] = (uint8_t)kinc_round(g * 255.0f);
-				output[y * *width * 4 + x * 4 + 2] = (uint8_t)kinc_round(b * 255.0f);
-				output[y * *width * 4 + x * 4 + 3] = (uint8_t)kinc_round(a * 255.0f);
+				output[y * stride + x * 4 + 0] = (uint8_t)kinc_round(r * 255.0f);
+				output[y * stride + x * 4 + 1] = (uint8_t)kinc_round(g * 255.0f);
+				output[y * stride + x * 4 + 2] = (uint8_t)kinc_round(b * 255.0f);
+				output[y * stride + x * 4 + 3] = (uint8_t)kinc_round(a * 255.0f);
 			}
 		}
 		*outputSize = (size_t)(*width * *height * 4);
@@ -678,15 +723,21 @@ size_t kinc_image_size_from_encoded_bytes(void *data, size_t data_size, const ch
 	return loadImageSize(callbacks, &image_memory, format);
 }
 
-size_t kinc_image_init_from_callbacks(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename) {
+size_t kinc_image_init_from_callbacks_with_stride(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data,
+                                                  const char *filename, uint32_t stride) {
 	size_t dataSize = 0;
-	loadImage(callbacks, user_data, filename, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format);
+	loadImage(callbacks, user_data, filename, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format,
+	          stride);
 	image->data = memory;
 	image->data_size = dataSize;
 	return dataSize;
 }
 
-size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename) {
+size_t kinc_image_init_from_callbacks(kinc_image_t *image, void *memory, kinc_image_read_callbacks_t callbacks, void *user_data, const char *filename) {
+	return kinc_image_init_from_callbacks_with_stride(image, memory, callbacks, user_data, filename, 0);
+}
+
+size_t kinc_image_init_from_file_with_stride(kinc_image_t *image, void *memory, const char *filename, uint32_t stride) {
 	kinc_file_reader_t reader;
 	if (kinc_file_reader_open(&reader, filename, KINC_FILE_TYPE_ASSET)) {
 		kinc_image_read_callbacks_t callbacks;
@@ -696,7 +747,8 @@ size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *
 		callbacks.seek = seek_callback;
 
 		size_t dataSize = 0;
-		loadImage(callbacks, &reader, filename, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format);
+		loadImage(callbacks, &reader, filename, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format,
+		          stride);
 		kinc_file_reader_close(&reader);
 		image->data = memory;
 		image->data_size = dataSize;
@@ -706,7 +758,11 @@ size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *
 	return 0;
 }
 
-size_t kinc_image_init_from_encoded_bytes(kinc_image_t *image, void *memory, void *data, size_t data_size, const char *format) {
+size_t kinc_image_init_from_file(kinc_image_t *image, void *memory, const char *filename) {
+	return kinc_image_init_from_file_with_stride(image, memory, filename, 0);
+}
+
+size_t kinc_image_init_from_encoded_bytes_with_stride(kinc_image_t *image, void *memory, void *data, size_t data_size, const char *format, uint32_t stride) {
 	kinc_image_read_callbacks_t callbacks;
 	callbacks.read = memory_read_callback;
 	callbacks.size = memory_size_callback;
@@ -719,11 +775,16 @@ size_t kinc_image_init_from_encoded_bytes(kinc_image_t *image, void *memory, voi
 	image_memory.offset = 0;
 
 	size_t dataSize = 0;
-	loadImage(callbacks, &image_memory, format, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format);
+	loadImage(callbacks, &image_memory, format, memory, &dataSize, &image->width, &image->height, &image->compression, &image->format, &image->internal_format,
+	          stride);
 	image->data = memory;
 	image->data_size = dataSize;
 	image->depth = 1;
 	return dataSize;
+}
+
+size_t kinc_image_init_from_encoded_bytes(kinc_image_t *image, void *memory, void *data, size_t data_size, const char *format) {
+	return kinc_image_init_from_encoded_bytes_with_stride(image, memory, data, data_size, format, 0);
 }
 
 void kinc_image_destroy(kinc_image_t *image) {
