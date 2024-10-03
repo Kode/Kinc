@@ -148,12 +148,21 @@ Functions</h2></td></tr>
 <tr class="memitem:a9ef140a779e43910f07e3681300be2f0"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a9ef140a779e43910f07e3681300be2f0">kinc_image_init_from_file</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *memory, const char *filename)</td></tr>
 <tr class="memdesc:a9ef140a779e43910f07e3681300be2f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image from a file.  <a href="image_8h.html#a9ef140a779e43910f07e3681300be2f0">More...</a><br /></td></tr>
 <tr class="separator:a9ef140a779e43910f07e3681300be2f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4670a17b9ac94b205229e005cf4a97b4"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a4670a17b9ac94b205229e005cf4a97b4">kinc_image_init_from_file_with_stride</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *memory, const char *filename, uint32_t stride)</td></tr>
+<tr class="memdesc:a4670a17b9ac94b205229e005cf4a97b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image from a file with an enforced stride.  <a href="image_8h.html#a4670a17b9ac94b205229e005cf4a97b4">More...</a><br /></td></tr>
+<tr class="separator:a4670a17b9ac94b205229e005cf4a97b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ccb06781e2af5b2111151e881b334ec"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a2ccb06781e2af5b2111151e881b334ec">kinc_image_init_from_callbacks</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *memory, <a class="el" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks, void *user_data, const char *format)</td></tr>
 <tr class="memdesc:a2ccb06781e2af5b2111151e881b334ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image file using callbacks.  <a href="image_8h.html#a2ccb06781e2af5b2111151e881b334ec">More...</a><br /></td></tr>
 <tr class="separator:a2ccb06781e2af5b2111151e881b334ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace172f5d451f2e9fd16075c66e7ae5f0"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#ace172f5d451f2e9fd16075c66e7ae5f0">kinc_image_init_from_callbacks_with_stride</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *memory, <a class="el" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a> callbacks, void *user_data, const char *format, uint32_t stride)</td></tr>
+<tr class="memdesc:ace172f5d451f2e9fd16075c66e7ae5f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image file using callbacks with an enforced stride.  <a href="image_8h.html#ace172f5d451f2e9fd16075c66e7ae5f0">More...</a><br /></td></tr>
+<tr class="separator:ace172f5d451f2e9fd16075c66e7ae5f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65559fe66d30efabdded6eeb91bf4fa9"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a65559fe66d30efabdded6eeb91bf4fa9">kinc_image_init_from_encoded_bytes</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *memory, void *data, size_t data_size, const char *format)</td></tr>
 <tr class="memdesc:a65559fe66d30efabdded6eeb91bf4fa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image file from memory.  <a href="image_8h.html#a65559fe66d30efabdded6eeb91bf4fa9">More...</a><br /></td></tr>
 <tr class="separator:a65559fe66d30efabdded6eeb91bf4fa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13e30f6db240107bbb371388b7bc2cc3"><td class="memItemLeft" align="right" valign="top">KINC_FUNC size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a13e30f6db240107bbb371388b7bc2cc3">kinc_image_init_from_encoded_bytes_with_stride</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *memory, void *data, size_t data_size, const char *format, uint32_t stride)</td></tr>
+<tr class="memdesc:a13e30f6db240107bbb371388b7bc2cc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads an image file from memory with an enforced stride.  <a href="image_8h.html#a13e30f6db240107bbb371388b7bc2cc3">More...</a><br /></td></tr>
+<tr class="separator:a13e30f6db240107bbb371388b7bc2cc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0e847510bdad7e348595925c1ba56a06"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="image_8h.html#a0e847510bdad7e348595925c1ba56a06">kinc_image_init_from_bytes</a> (<a class="el" href="structkinc__image.html">kinc_image_t</a> *image, void *data, int width, int height, kinc_image_format_t format)</td></tr>
 <tr class="memdesc:a0e847510bdad7e348595925c1ba56a06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a 2D image from memory.  <a href="image_8h.html#a0e847510bdad7e348595925c1ba56a06">More...</a><br /></td></tr>
 <tr class="separator:a0e847510bdad7e348595925c1ba56a06"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -566,6 +575,80 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Loads an image file using callbacks. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">image</td><td>The image-object to initialize with the data</td></tr>
+    <tr><td class="paramname">memory</td><td>The pre-allocated memory to load the image-data into</td></tr>
+    <tr><td class="paramname">callbacks</td><td>The callbacks that are used to query the data to encode</td></tr>
+    <tr><td class="paramname">user_data</td><td>An optional pointer that is passed to the callbacks</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The memory size in bytes that will be used when loading the image</dd></dl>
+
+</div>
+</div>
+<a id="ace172f5d451f2e9fd16075c66e7ae5f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace172f5d451f2e9fd16075c66e7ae5f0">&#9670;&nbsp;</a></span>kinc_image_init_from_callbacks_with_stride()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC size_t kinc_image_init_from_callbacks_with_stride </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__image.html">kinc_image_t</a> *&#160;</td>
+          <td class="paramname"><em>image</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>memory</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structkinc__image__read__callbacks.html">kinc_image_read_callbacks_t</a>&#160;</td>
+          <td class="paramname"><em>callbacks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>user_data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>stride</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Loads an image file using callbacks with an enforced stride. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">image</td><td>The image-object to initialize with the data</td></tr>
+    <tr><td class="paramname">memory</td><td>The pre-allocated memory to load the image-data into</td></tr>
+    <tr><td class="paramname">callbacks</td><td>The callbacks that are used to query the data to encode</td></tr>
+    <tr><td class="paramname">user_data</td><td>An optional pointer that is passed to the callbacks</td></tr>
+    <tr><td class="paramname">stride</td><td>The enforced stride in bytes</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>The memory size in bytes that will be used when loading the image</dd></dl>
 
 </div>
@@ -615,6 +698,80 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Loads an image file from memory. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">image</td><td>The image-object to initialize with the data</td></tr>
+    <tr><td class="paramname">memory</td><td>The pre-allocated memory to load the image-data into</td></tr>
+    <tr><td class="paramname">data</td><td>The data to encode</td></tr>
+    <tr><td class="paramname">data_size</td><td>The size of the data to encode in bytes</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The memory size in bytes that will be used when loading the image</dd></dl>
+
+</div>
+</div>
+<a id="a13e30f6db240107bbb371388b7bc2cc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13e30f6db240107bbb371388b7bc2cc3">&#9670;&nbsp;</a></span>kinc_image_init_from_encoded_bytes_with_stride()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC size_t kinc_image_init_from_encoded_bytes_with_stride </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__image.html">kinc_image_t</a> *&#160;</td>
+          <td class="paramname"><em>image</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>memory</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>data_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>stride</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Loads an image file from memory with an enforced stride. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">image</td><td>The image-object to initialize with the data</td></tr>
+    <tr><td class="paramname">memory</td><td>The pre-allocated memory to load the image-data into</td></tr>
+    <tr><td class="paramname">data</td><td>The data to encode</td></tr>
+    <tr><td class="paramname">data_size</td><td>The size of the data to encode in bytes</td></tr>
+    <tr><td class="paramname">stride</td><td>The enforced stride in bytes</td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>The memory size in bytes that will be used when loading the image</dd></dl>
 
 </div>
@@ -657,6 +814,58 @@ Functions</h2></td></tr>
     <tr><td class="paramname">image</td><td>The image-object to initialize with the data</td></tr>
     <tr><td class="paramname">memory</td><td>The pre-allocated memory to load the image-data into</td></tr>
     <tr><td class="paramname">filename</td><td>The file to load</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The memory size in bytes that will be used when loading the image</dd></dl>
+
+</div>
+</div>
+<a id="a4670a17b9ac94b205229e005cf4a97b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4670a17b9ac94b205229e005cf4a97b4">&#9670;&nbsp;</a></span>kinc_image_init_from_file_with_stride()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC size_t kinc_image_init_from_file_with_stride </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structkinc__image.html">kinc_image_t</a> *&#160;</td>
+          <td class="paramname"><em>image</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>memory</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>stride</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Loads an image from a file with an enforced stride. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">image</td><td>The image-object to initialize with the data</td></tr>
+    <tr><td class="paramname">memory</td><td>The pre-allocated memory to load the image-data into</td></tr>
+    <tr><td class="paramname">filename</td><td>The file to load</td></tr>
+    <tr><td class="paramname">stride</td><td>The enforced stride in bytes</td></tr>
   </table>
   </dd>
 </dl>
