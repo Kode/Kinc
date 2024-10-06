@@ -226,7 +226,7 @@ void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t i
 	list->d3d12.list->DrawIndexedInstanced(index_count, instance_count, first_index, base_vertex, first_instance);
 }
 
-void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set) {
+void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set, uint32_t *dynamic_offsets) {
 	if (set->descriptor_count > 0) {
 		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->descriptor_heap->GetGPUDescriptorHandleForHeapStart();
 		gpu_descriptor.ptr += set->descriptor_allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
@@ -236,6 +236,18 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 		else {
 			list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
 		}
+		table_index += 1;
+	}
+
+	if (set->dynamic_descriptor_count > 0) {
+		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->descriptor_heap->GetGPUDescriptorHandleForHeapStart();
+		/*gpu_descriptor.ptr += set->descriptor_allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
+		if (list->d3d12.compute_pipe != NULL || list->d3d12.ray_pipe != NULL) {
+		    list->d3d12.list->SetComputeRootDescriptorTable(table_index, gpu_descriptor);
+		}
+		else {
+		    list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+		}*/
 		table_index += 1;
 	}
 
