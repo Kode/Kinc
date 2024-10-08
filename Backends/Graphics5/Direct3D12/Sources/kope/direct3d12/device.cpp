@@ -612,11 +612,14 @@ void kope_d3d12_device_wait_until_idle(kope_g5_device *device) {
 	wait_for_fence(device, device->d3d12.execution_fence, device->d3d12.execution_event, device->d3d12.execution_index - 1);
 }
 
-void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t sampler_count, kope_d3d12_descriptor_set *set) {
+void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t dynamic_descriptor_count, uint32_t sampler_count,
+                                             kope_d3d12_descriptor_set *set) {
 	if (descriptor_count > 0) {
 		oa_allocate(&device->d3d12.descriptor_heap_allocator, descriptor_count, &set->descriptor_allocation);
 	}
 	set->descriptor_count = descriptor_count;
+
+	set->dynamic_descriptor_count = dynamic_descriptor_count;
 
 	if (sampler_count > 0) {
 		oa_allocate(&device->d3d12.sampler_heap_allocator, sampler_count, &set->sampler_allocation);
