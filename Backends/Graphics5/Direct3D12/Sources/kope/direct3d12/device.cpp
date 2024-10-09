@@ -288,6 +288,10 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	for (int i = 0; i < KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT; ++i) {
 		kinc_microsoft_affirm(device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator[i])));
 		list->d3d12.allocator_execution_index[i] = 0;
+
+		oa_allocate(&device->d3d12.descriptor_heap_allocator, KOPE_D3D12_COMMAND_LIST_DYNAMIC_DESCRIPTORS_COUNT,
+		            &list->d3d12.dynamic_descriptor_allocations[i]);
+		list->d3d12.dynamic_descriptor_offsets[i] = 0;
 	}
 
 	list->d3d12.current_allocator_index = 0;

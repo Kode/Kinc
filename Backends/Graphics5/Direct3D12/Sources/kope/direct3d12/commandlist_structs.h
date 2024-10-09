@@ -3,6 +3,8 @@
 
 #include "d3d12mini.h"
 
+#include <kope/util/offalloc/offalloc.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -20,6 +22,8 @@ struct ID3D12Fence;
 // allocators. Increasing this value exchanges more memory against potentially less wait-times (depending on actual command-list usage).
 #define KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT 3
 
+#define KOPE_D3D12_COMMAND_LIST_DYNAMIC_DESCRIPTORS_COUNT 64
+
 #define KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_BUFFER_ACCESSES 256
 
 typedef struct kope_d3d12_buffer_access {
@@ -33,6 +37,8 @@ typedef struct kope_d3d12_command_list {
 
 	struct ID3D12CommandAllocator *allocator[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
 	uint64_t allocator_execution_index[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
+	oa_allocation_t dynamic_descriptor_allocations[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
+	uint32_t dynamic_descriptor_offsets[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
 	uint8_t current_allocator_index;
 
 	struct ID3D12GraphicsCommandList4 *list;

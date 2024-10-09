@@ -240,14 +240,30 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 	}
 
 	if (set->dynamic_descriptor_count > 0) {
+		uint32_t offset = list->d3d12.dynamic_descriptor_allocations[list->d3d12.current_allocator_index].offset +
+		                  list->d3d12.dynamic_descriptor_offsets[list->d3d12.current_allocator_index];
+
+		for (uint32_t descriptor_index = 0; descriptor_index < set->dynamic_descriptor_count; ++descriptor_index) {
+			D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
+			// desc.BufferLocation = buffer->d3d12.resource->GetGPUVirtualAddress() + dynamic_offsets[descriptor_index];
+			// desc.SizeInBytes = align_pow2((int)buffer->d3d12.size, 256);
+
+			D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = list->d3d12.device->descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+			descriptor_handle.ptr += (offset + descriptor_index) * list->d3d12.device->cbv_srv_uav_increment;
+			list->d3d12.device->device->CreateConstantBufferView(&desc, descriptor_handle);
+		}
+
 		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->descriptor_heap->GetGPUDescriptorHandleForHeapStart();
-		/*gpu_descriptor.ptr += set->descriptor_allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
+		gpu_descriptor.ptr += offset * list->d3d12.device->cbv_srv_uav_increment;
 		if (list->d3d12.compute_pipe != NULL || list->d3d12.ray_pipe != NULL) {
-		    list->d3d12.list->SetComputeRootDescriptorTable(table_index, gpu_descriptor);
+			list->d3d12.list->SetComputeRootDescriptorTable(table_index, gpu_descriptor);
 		}
 		else {
-		    list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
-		}*/
+			list->d3d12.list->SetGraphicsRootDescriptorTable(table_index, gpu_descriptor);
+		}
+
+		list->d3d12.dynamic_descriptor_offsets[list->d3d12.current_allocator_index] += (uint32_t)set->dynamic_descriptor_count;
+
 		table_index += 1;
 	}
 
