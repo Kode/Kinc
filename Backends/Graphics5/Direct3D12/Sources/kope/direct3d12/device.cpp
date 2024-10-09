@@ -589,6 +589,7 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 
 	wait_for_fence(device, device->d3d12.execution_fence, device->d3d12.execution_event, allocator_execution_index);
 
+	list->d3d12.dynamic_descriptor_offsets[allocator_index] = 0;
 	list->d3d12.allocator[allocator_index]->Reset();
 	list->d3d12.list->Reset(list->d3d12.allocator[allocator_index], NULL);
 
