@@ -11,6 +11,8 @@
 
 #include "pipeline_structs.h"
 
+#include <kope/util/align.h>
+
 #include <assert.h>
 
 #ifdef KOPE_PIX
@@ -226,7 +228,8 @@ void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t i
 	list->d3d12.list->DrawIndexedInstanced(index_count, instance_count, first_index, base_vertex, first_instance);
 }
 
-void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set, uint32_t *dynamic_offsets) {
+void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set,
+                                                  kope_g5_buffer **dynamic_buffers, uint32_t *dynamic_offsets) {
 	if (set->descriptor_count > 0) {
 		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->descriptor_heap->GetGPUDescriptorHandleForHeapStart();
 		gpu_descriptor.ptr += set->descriptor_allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
@@ -245,8 +248,8 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 
 		for (uint32_t descriptor_index = 0; descriptor_index < set->dynamic_descriptor_count; ++descriptor_index) {
 			D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
-			// desc.BufferLocation = buffer->d3d12.resource->GetGPUVirtualAddress() + dynamic_offsets[descriptor_index];
-			// desc.SizeInBytes = align_pow2((int)buffer->d3d12.size, 256);
+			desc.BufferLocation = dynamic_buffers[descriptor_index]->d3d12.resource->GetGPUVirtualAddress() + dynamic_offsets[descriptor_index];
+			desc.SizeInBytes = align_pow2((int)dynamic_buffers[descriptor_index]->d3d12.size, 256);
 
 			D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = list->d3d12.device->descriptor_heap->GetCPUDescriptorHandleForHeapStart();
 			descriptor_handle.ptr += (offset + descriptor_index) * list->d3d12.device->cbv_srv_uav_increment;
