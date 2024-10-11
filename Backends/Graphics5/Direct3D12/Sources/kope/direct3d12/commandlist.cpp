@@ -249,7 +249,7 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 		for (uint32_t descriptor_index = 0; descriptor_index < set->dynamic_descriptor_count; ++descriptor_index) {
 			D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
 			desc.BufferLocation = dynamic_buffers[descriptor_index]->d3d12.resource->GetGPUVirtualAddress() + dynamic_offsets[descriptor_index];
-			desc.SizeInBytes = align_pow2((int)dynamic_buffers[descriptor_index]->d3d12.size, 256);
+			desc.SizeInBytes = (UINT)dynamic_buffers[descriptor_index]->d3d12.size - dynamic_offsets[descriptor_index];
 
 			D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = list->d3d12.device->descriptor_heap->GetCPUDescriptorHandleForHeapStart();
 			descriptor_handle.ptr += (offset + descriptor_index) * list->d3d12.device->cbv_srv_uav_increment;

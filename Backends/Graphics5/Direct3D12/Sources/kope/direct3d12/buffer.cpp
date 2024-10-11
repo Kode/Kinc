@@ -83,7 +83,9 @@ void *kope_d3d12_buffer_try_to_lock(kope_g5_buffer *buffer, uint64_t offset, uin
 		buffer->d3d12.locked_data_offset = offset;
 		buffer->d3d12.locked_data_size = size;
 
-		buffer->d3d12.resource->Map(0, read_range_pointer, &buffer->d3d12.locked_data);
+		uint8_t *data = nullptr;
+		buffer->d3d12.resource->Map(0, read_range_pointer, (void **)&data);
+		buffer->d3d12.locked_data = data + offset;
 		return buffer->d3d12.locked_data;
 	}
 	else {
@@ -106,7 +108,9 @@ void *kope_d3d12_buffer_lock(kope_g5_buffer *buffer, uint64_t offset, uint64_t s
 	buffer->d3d12.locked_data_offset = offset;
 	buffer->d3d12.locked_data_size = size;
 
-	buffer->d3d12.resource->Map(0, read_range_pointer, &buffer->d3d12.locked_data);
+	uint8_t *data = nullptr;
+	buffer->d3d12.resource->Map(0, read_range_pointer, (void **)&data);
+	buffer->d3d12.locked_data = data + offset;
 	return buffer->d3d12.locked_data;
 }
 
