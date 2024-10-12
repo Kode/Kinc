@@ -145,7 +145,7 @@ void kope_d3d12_descriptor_set_set_sampler(kope_g5_device *device, kope_d3d12_de
 	device->d3d12.device->CopyDescriptorsSimple(1, dst_handle, src_handle, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 }
 
-void kope_d3d12_descriptor_set_prepare_cbv_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer) {
+void kope_d3d12_descriptor_set_prepare_cbv_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, uint32_t offset, uint32_t size) {
 	if (buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER && buffer->d3d12.resource_state != D3D12_RESOURCE_STATE_GENERIC_READ) {
 		D3D12_RESOURCE_BARRIER barrier;
 		barrier.Transition.pResource = buffer->d3d12.resource;
@@ -161,7 +161,7 @@ void kope_d3d12_descriptor_set_prepare_cbv_buffer(kope_g5_command_list *list, ko
 	}
 
 	if (buffer->d3d12.cpu_read || buffer->d3d12.cpu_write) {
-		kope_d3d12_command_list_queue_buffer_access(list, buffer);
+		kope_d3d12_command_list_queue_buffer_access(list, buffer, offset, size);
 	}
 }
 

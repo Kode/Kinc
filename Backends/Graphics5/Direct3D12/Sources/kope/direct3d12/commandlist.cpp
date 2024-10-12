@@ -229,7 +229,7 @@ void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t i
 }
 
 void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set,
-                                                  kope_g5_buffer **dynamic_buffers, uint32_t *dynamic_offsets) {
+                                                  kope_g5_buffer **dynamic_buffers, uint32_t *dynamic_offsets, uint32_t *dynamic_sizes) {
 	if (set->descriptor_count > 0) {
 		D3D12_GPU_DESCRIPTOR_HANDLE gpu_descriptor = list->d3d12.device->descriptor_heap->GetGPUDescriptorHandleForHeapStart();
 		gpu_descriptor.ptr += set->descriptor_allocation.offset * list->d3d12.device->cbv_srv_uav_increment;
@@ -249,7 +249,7 @@ void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, ui
 		for (uint32_t descriptor_index = 0; descriptor_index < set->dynamic_descriptor_count; ++descriptor_index) {
 			D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
 			desc.BufferLocation = dynamic_buffers[descriptor_index]->d3d12.resource->GetGPUVirtualAddress() + dynamic_offsets[descriptor_index];
-			desc.SizeInBytes = (UINT)dynamic_buffers[descriptor_index]->d3d12.size - dynamic_offsets[descriptor_index];
+			desc.SizeInBytes = (UINT)dynamic_sizes[descriptor_index];
 
 			D3D12_CPU_DESCRIPTOR_HANDLE descriptor_handle = list->d3d12.device->descriptor_heap->GetCPUDescriptorHandleForHeapStart();
 			descriptor_handle.ptr += (offset + descriptor_index) * list->d3d12.device->cbv_srv_uav_increment;
@@ -760,11 +760,11 @@ void kope_d3d12_command_list_compute_indirect(kope_g5_command_list *list, kope_g
 	list->d3d12.list->ExecuteIndirect(list->d3d12.compute_pipe->compute_command_signature, 1, indirect_buffer->d3d12.resource, indirect_offset, NULL, 0);
 }
 
-void kope_d3d12_command_list_queue_buffer_access(kope_g5_command_list *list, kope_g5_buffer *buffer) {
+void kope_d3d12_command_list_queue_buffer_access(kope_g5_command_list *list, kope_g5_buffer *buffer, uint32_t offset, uint32_t size) {
 	kope_d3d12_buffer_access access;
 	access.buffer = buffer;
-	access.offset = 0;
-	access.size = UINT64_MAX;
+	access.offset = offset;
+	access.size = size;
 
 	list->d3d12.queued_buffer_accesses[list->d3d12.queued_buffer_accesses_count] = access;
 	list->d3d12.queued_buffer_accesses_count += 1;

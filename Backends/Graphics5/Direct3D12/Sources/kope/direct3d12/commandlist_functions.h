@@ -57,7 +57,7 @@ void kope_d3d12_command_list_draw_indexed(kope_g5_command_list *list, uint32_t i
                                           uint32_t first_instance);
 
 void kope_d3d12_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_d3d12_descriptor_set *set,
-                                                  kope_g5_buffer **dynamic_buffers, uint32_t *dynamic_offsets);
+                                                  kope_g5_buffer **dynamic_buffers, uint32_t *dynamic_offsets, uint32_t *dynamic_sizes);
 
 void kope_d3d12_command_list_set_root_constants(kope_g5_command_list *list, uint32_t table_index, const void *data, size_t data_size);
 
@@ -99,7 +99,7 @@ void kope_d3d12_command_list_draw_indexed_indirect(kope_g5_command_list *list, k
 
 void kope_d3d12_command_list_compute_indirect(kope_g5_command_list *list, kope_g5_buffer *indirect_buffer, uint64_t indirect_offset);
 
-void kope_d3d12_command_list_queue_buffer_access(kope_g5_command_list *list, kope_g5_buffer *buffer);
+void kope_d3d12_command_list_queue_buffer_access(kope_g5_command_list *list, kope_g5_buffer *buffer, uint32_t offset, uint32_t size);
 
 #ifdef __cplusplus
 }

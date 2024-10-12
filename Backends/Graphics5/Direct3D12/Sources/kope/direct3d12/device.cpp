@@ -573,6 +573,7 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 		buffer->d3d12.ranges[buffer->d3d12.ranges_count].execution_index = device->d3d12.execution_index;
 		buffer->d3d12.ranges[buffer->d3d12.ranges_count].offset = access.offset;
 		buffer->d3d12.ranges[buffer->d3d12.ranges_count].size = access.size;
+		buffer->d3d12.ranges_count += 1;
 	}
 	list->d3d12.queued_buffer_accesses_count = 0;
 
