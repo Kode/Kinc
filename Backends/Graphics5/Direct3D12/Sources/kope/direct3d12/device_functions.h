@@ -23,8 +23,8 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 
 void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
-void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t dynamic_descriptor_count, uint32_t sampler_count,
-                                             kope_d3d12_descriptor_set *set);
+void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t dynamic_descriptor_count,
+                                             uint32_t bindless_descriptor_count, uint32_t sampler_count, kope_d3d12_descriptor_set *set);
 
 void kope_d3d12_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler);
 

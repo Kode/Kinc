@@ -17,6 +17,9 @@ typedef struct kope_d3d12_descriptor_set {
 
 	size_t dynamic_descriptor_count;
 
+	oa_allocation_t bindless_descriptor_allocation;
+	size_t bindless_descriptor_count;
+
 	oa_allocation_t sampler_allocation;
 	size_t sampler_count;
 } kope_d3d12_descriptor_set;
