@@ -18,13 +18,13 @@ jobs:
       matrix:
         include:
           - arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu22.04
           - arch: armv7
-            distro: ubuntu20.04
+            distro: ubuntu22.04
 
     steps:
       - uses: actions/checkout@v4
-      - uses: uraimo/run-on-arch-action@v2.0.9
+      - uses: uraimo/run-on-arch-action@v2
         name: Run Tests in ${{ matrix.distro }} ${{ matrix.arch }}
         id: build
         with:
