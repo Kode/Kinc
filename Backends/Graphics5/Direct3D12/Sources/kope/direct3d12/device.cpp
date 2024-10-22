@@ -541,6 +541,21 @@ static void wait_for_frame(kope_g5_device *device, uint64_t frame_index) {
 	wait_for_fence(device, device->d3d12.frame_fence, device->d3d12.frame_event, frame_index);
 }
 
+static void clean_buffer_accesses(kope_g5_buffer *buffer, uint64_t finished_execution_index) {
+	kope_d3d12_buffer_range ranges[KOPE_D3D12_MAX_BUFFER_RANGES];
+	uint32_t ranges_count = 0;
+
+	for (uint32_t range_index = 0; range_index < buffer->d3d12.ranges_count; ++range_index) {
+		if (buffer->d3d12.ranges[range_index].execution_index > finished_execution_index) {
+			ranges[ranges_count] = buffer->d3d12.ranges[range_index];
+			ranges_count += 1;
+		}
+	}
+
+	memcpy(&buffer->d3d12.ranges, &ranges, sizeof(ranges));
+	buffer->d3d12.ranges_count = ranges_count;
+}
+
 void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	if (list->d3d12.presenting) {
 		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer(device);
@@ -569,6 +584,8 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 	for (uint32_t buffer_access_index = 0; buffer_access_index < list->d3d12.queued_buffer_accesses_count; ++buffer_access_index) {
 		kope_d3d12_buffer_access access = list->d3d12.queued_buffer_accesses[buffer_access_index];
 		kope_g5_buffer *buffer = access.buffer;
+
+		clean_buffer_accesses(buffer, device->d3d12.execution_fence->GetCompletedValue());
 
 		assert(buffer->d3d12.ranges_count < KOPE_D3D12_MAX_BUFFER_RANGES);
 		buffer->d3d12.ranges[buffer->d3d12.ranges_count].execution_index = device->d3d12.execution_index;
