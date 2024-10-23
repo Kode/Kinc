@@ -53,9 +53,9 @@ typedef struct kope_g5_color {
 } kope_g5_color;
 
 typedef struct kope_g5_render_pass_color_attachment {
-	kope_g5_texture *texture;
+	kope_g5_texture_view texture;
 	uint32_t depth_slice;
-	kope_g5_texture *resolve_target;
+	kope_g5_texture_view resolve_target;
 	kope_g5_color clear_value;
 	kope_g5_load_op load_op;
 	kope_g5_store_op store_op;

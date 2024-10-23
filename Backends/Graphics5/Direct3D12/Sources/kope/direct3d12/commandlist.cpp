@@ -36,7 +36,7 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 	D3D12_CPU_DESCRIPTOR_HANDLE render_target_views = list->d3d12.rtv_descriptors->GetCPUDescriptorHandleForHeapStart();
 
 	for (size_t render_target_index = 0; render_target_index < parameters->color_attachments_count; ++render_target_index) {
-		kope_g5_texture *render_target = parameters->color_attachments[render_target_index].texture;
+		kope_g5_texture *render_target = parameters->color_attachments[render_target_index].texture.texture;
 
 		if (render_target->d3d12.in_flight_frame_index > 0) {
 			list->d3d12.blocking_frame_index = render_target->d3d12.in_flight_frame_index;
@@ -65,10 +65,11 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
 		desc.Format = DXGI_FORMAT_UNKNOWN;
-		if (parameters->color_attachments[render_target_index].depth_slice != 0) {
+		if (parameters->color_attachments[render_target_index].texture.array_layer_count > 1 ||
+		    parameters->color_attachments[render_target_index].texture.base_array_layer != 0) {
 			desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
-			desc.Texture2DArray.FirstArraySlice = parameters->color_attachments[render_target_index].depth_slice;
-			desc.Texture2DArray.ArraySize = 1;
+			desc.Texture2DArray.FirstArraySlice = parameters->color_attachments[render_target_index].texture.base_array_layer;
+			desc.Texture2DArray.ArraySize = parameters->color_attachments[render_target_index].texture.array_layer_count;
 		}
 		else {
 			desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
@@ -123,12 +124,16 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 	}
 
 	if (parameters->color_attachments_count > 0) {
-		D3D12_VIEWPORT viewport = {
-		    0.0f, 0.0f, (FLOAT)parameters->color_attachments[0].texture->d3d12.width, (FLOAT)parameters->color_attachments[0].texture->d3d12.height,
-		    0.0f, 1.0f};
+		D3D12_VIEWPORT viewport = {0.0f,
+		                           0.0f,
+		                           (FLOAT)parameters->color_attachments[0].texture.texture->d3d12.width,
+		                           (FLOAT)parameters->color_attachments[0].texture.texture->d3d12.height,
+		                           0.0f,
+		                           1.0f};
 		list->d3d12.list->RSSetViewports(1, &viewport);
 
-		D3D12_RECT scissor = {0, 0, (LONG)parameters->color_attachments[0].texture->d3d12.width, (LONG)parameters->color_attachments[0].texture->d3d12.height};
+		D3D12_RECT scissor = {0, 0, (LONG)parameters->color_attachments[0].texture.texture->d3d12.width,
+		                      (LONG)parameters->color_attachments[0].texture.texture->d3d12.height};
 		list->d3d12.list->RSSetScissorRects(1, &scissor);
 	}
 	else if (parameters->depth_stencil_attachment.texture != NULL) {
