@@ -334,6 +334,8 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 
 	list->d3d12.queued_buffer_accesses_count = 0;
 
+	list->d3d12.queued_descriptor_set_accesses_count = 0;
+
 	list->d3d12.presenting = false;
 
 	ID3D12DescriptorHeap *heaps[] = {list->d3d12.device->descriptor_heap, list->d3d12.device->sampler_heap};
@@ -595,6 +597,13 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 	}
 	list->d3d12.queued_buffer_accesses_count = 0;
 
+	for (uint32_t set_access_index = 0; set_access_index < list->d3d12.queued_descriptor_set_accesses_count; ++set_access_index) {
+		kope_d3d12_descriptor_set *set = list->d3d12.queued_descriptor_set_accesses[set_access_index];
+
+		set->execution_index = device->d3d12.execution_index;
+	}
+	list->d3d12.queued_descriptor_set_accesses_count = 0;
+
 	list->d3d12.allocator_execution_index[list->d3d12.current_allocator_index] = device->d3d12.execution_index;
 
 	ID3D12CommandList *lists[] = {list->d3d12.list};
@@ -654,6 +663,8 @@ void kope_d3d12_device_create_descriptor_set(kope_g5_device *device, uint32_t de
 		oa_allocate(&device->d3d12.sampler_heap_allocator, sampler_count, &set->sampler_allocation);
 	}
 	set->sampler_count = sampler_count;
+
+	set->execution_index = 0;
 }
 
 static D3D12_TEXTURE_ADDRESS_MODE convert_address_mode(kope_g5_address_mode mode) {

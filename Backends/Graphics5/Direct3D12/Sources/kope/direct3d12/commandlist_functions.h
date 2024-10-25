@@ -101,6 +101,8 @@ void kope_d3d12_command_list_compute_indirect(kope_g5_command_list *list, kope_g
 
 void kope_d3d12_command_list_queue_buffer_access(kope_g5_command_list *list, kope_g5_buffer *buffer, uint32_t offset, uint32_t size);
 
+void kope_d3d12_command_list_queue_descriptor_set_access(kope_g5_command_list *list, kope_d3d12_descriptor_set *descriptor_set);
+
 #ifdef __cplusplus
 }
 #endif

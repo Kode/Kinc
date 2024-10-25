@@ -14,6 +14,7 @@ struct kope_d3d12_texture;
 struct kope_d3d12_compute_pipeline;
 struct kope_d3d12_ray_pipeline;
 struct kope_d3d12_rendery_pipeline;
+struct kope_d3d12_descriptor_set;
 struct kope_g5_query_set;
 
 struct ID3D12Fence;
@@ -25,6 +26,8 @@ struct ID3D12Fence;
 #define KOPE_D3D12_COMMAND_LIST_DYNAMIC_DESCRIPTORS_COUNT 64
 
 #define KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_BUFFER_ACCESSES 256
+
+#define KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_DESCRIPTOR_SET_ACCESSES 256
 
 typedef struct kope_d3d12_buffer_access {
 	kope_g5_buffer *buffer;
@@ -67,6 +70,9 @@ typedef struct kope_d3d12_command_list {
 
 	kope_d3d12_buffer_access queued_buffer_accesses[KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_BUFFER_ACCESSES];
 	uint32_t queued_buffer_accesses_count;
+
+	struct kope_d3d12_descriptor_set *queued_descriptor_set_accesses[KOPE_D3D12_COMMAND_LIST_MAX_QUEUED_DESCRIPTOR_SET_ACCESSES];
+	uint32_t queued_descriptor_set_accesses_count;
 
 	bool presenting;
 } kope_d3d12_command_list;

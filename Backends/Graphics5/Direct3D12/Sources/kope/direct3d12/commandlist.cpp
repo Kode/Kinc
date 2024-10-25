@@ -786,3 +786,8 @@ void kope_d3d12_command_list_queue_buffer_access(kope_g5_command_list *list, kop
 	list->d3d12.queued_buffer_accesses[list->d3d12.queued_buffer_accesses_count] = access;
 	list->d3d12.queued_buffer_accesses_count += 1;
 }
+
+void kope_d3d12_command_list_queue_descriptor_set_access(kope_g5_command_list *list, kope_d3d12_descriptor_set *descriptor_set) {
+	list->d3d12.queued_descriptor_set_accesses[list->d3d12.queued_descriptor_set_accesses_count] = descriptor_set;
+	list->d3d12.queued_descriptor_set_accesses_count += 1;
+}

@@ -22,6 +22,8 @@ typedef struct kope_d3d12_descriptor_set {
 
 	oa_allocation_t sampler_allocation;
 	size_t sampler_count;
+
+	uint64_t execution_index;
 } kope_d3d12_descriptor_set;
 
 #ifdef __cplusplus
