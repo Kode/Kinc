@@ -75,7 +75,7 @@ id getMetalQueue(void) {
 #endif
 
 bool kinc_internal_handle_messages(void) {
-	NSEvent *event = [myapp nextEventMatchingMask:NSAnyEventMask
+	NSEvent *event = [myapp nextEventMatchingMask:NSEventMaskAny
 	                                    untilDate:[NSDate distantPast]
 	                                       inMode:NSDefaultRunLoopMode
 	                                      dequeue:YES]; // distantPast: non-blocking

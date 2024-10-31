@@ -47,10 +47,10 @@ static inline kinc_g4_texture_filter_t map_texture_filter(kinc_g1_texture_filter
 	}
 
 	kinc_log(KINC_LOG_LEVEL_WARNING, "unhandled kinc_g1_texture_filter_t (%i)", filter);
-	return KINC_G1_TEXTURE_FILTER_LINEAR;
+	return KINC_G4_TEXTURE_FILTER_LINEAR;
 }
 
-static inline kinc_g4_texture_filter_t map_mipmap_filter(kinc_g1_texture_filter_t filter) {
+static inline kinc_g4_mipmap_filter_t map_mipmap_filter(kinc_g1_mipmap_filter_t filter) {
 	switch (filter) {
 	case KINC_G1_MIPMAP_FILTER_NONE:
 		return KINC_G4_MIPMAP_FILTER_NONE;

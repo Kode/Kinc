@@ -62,19 +62,19 @@ static bool cmd = false;
 		cmd = false;
 	}
 
-	if ([theEvent modifierFlags] & NSShiftKeyMask) {
+	if ([theEvent modifierFlags] & NSEventModifierFlagShift) {
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_SHIFT);
 		shift = true;
 	}
-	if ([theEvent modifierFlags] & NSControlKeyMask) {
+	if ([theEvent modifierFlags] & NSEventModifierFlagControl) {
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_CONTROL);
 		ctrl = true;
 	}
-	if ([theEvent modifierFlags] & NSAlternateKeyMask) {
+	if ([theEvent modifierFlags] & NSEventModifierFlagOption) {
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_ALT);
 		alt = true;
 	}
-	if ([theEvent modifierFlags] & NSCommandKeyMask) {
+	if ([theEvent modifierFlags] & NSEventModifierFlagCommand) {
 		kinc_internal_keyboard_trigger_key_down(KINC_KEY_META);
 		cmd = true;
 	}
@@ -155,7 +155,7 @@ static bool cmd = false;
 			kinc_internal_keyboard_trigger_key_press('\t');
 			break;
 		default:
-			if (ch == 'x' && [theEvent modifierFlags] & NSCommandKeyMask) {
+				if (ch == 'x' && [theEvent modifierFlags] & NSEventModifierFlagCommand) {
 				char *text = kinc_internal_cut_callback();
 				if (text != NULL) {
 					NSPasteboard *board = [NSPasteboard generalPasteboard];
@@ -163,7 +163,7 @@ static bool cmd = false;
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
 			}
-			if (ch == 'c' && [theEvent modifierFlags] & NSCommandKeyMask) {
+				if (ch == 'c' && [theEvent modifierFlags] & NSEventModifierFlagCommand) {
 				char *text = kinc_internal_copy_callback();
 				if (text != NULL) {
 					NSPasteboard *board = [NSPasteboard generalPasteboard];
@@ -171,7 +171,7 @@ static bool cmd = false;
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
 			}
-			if (ch == 'v' && [theEvent modifierFlags] & NSCommandKeyMask) {
+				if (ch == 'v' && [theEvent modifierFlags] & NSEventModifierFlagCommand) {
 				NSPasteboard *board = [NSPasteboard generalPasteboard];
 				NSString *data = [board stringForType:NSStringPboardType];
 				if (data != nil) {
@@ -295,7 +295,7 @@ static bool controlKeyMouseButton = false;
 
 - (void)mouseDown:(NSEvent *)theEvent {
 	// TODO (DK) map [theEvent window] to window id instead of 0
-	if ([theEvent modifierFlags] & NSControlKeyMask) {
+	if ([theEvent modifierFlags] & NSEventModifierFlagControl) {
 		controlKeyMouseButton = true;
 		kinc_internal_mouse_trigger_press(0, 1, getMouseX(theEvent), getMouseY(theEvent));
 	}
@@ -304,7 +304,7 @@ static bool controlKeyMouseButton = false;
 		kinc_internal_mouse_trigger_press(0, 0, getMouseX(theEvent), getMouseY(theEvent));
 	}
 
-	if ([theEvent subtype] == NSTabletPointEventSubtype) {
+	if ([theEvent subtype] == NSEventSubtypeTabletPoint) {
 		kinc_internal_pen_trigger_press(0, getMouseX(theEvent), getMouseY(theEvent), theEvent.pressure);
 	}
 }
@@ -319,7 +319,7 @@ static bool controlKeyMouseButton = false;
 	}
 	controlKeyMouseButton = false;
 
-	if ([theEvent subtype] == NSTabletPointEventSubtype) {
+	if ([theEvent subtype] == NSEventSubtypeTabletPoint) {
 		kinc_internal_pen_trigger_release(0, getMouseX(theEvent), getMouseY(theEvent), theEvent.pressure);
 	}
 }
@@ -333,7 +333,7 @@ static bool controlKeyMouseButton = false;
 	// TODO (DK) map [theEvent window] to window id instead of 0
 	kinc_internal_mouse_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent));
 
-	if ([theEvent subtype] == NSTabletPointEventSubtype) {
+	if ([theEvent subtype] == NSEventSubtypeTabletPoint) {
 		kinc_internal_pen_trigger_move(0, getMouseX(theEvent), getMouseY(theEvent), theEvent.pressure);
 	}
 }

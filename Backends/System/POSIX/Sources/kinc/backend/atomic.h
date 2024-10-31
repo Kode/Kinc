@@ -2,40 +2,6 @@
 
 #include <kinc/global.h>
 
-#if defined(KINC_MACOS) || defined(KINC_IOS)
-
-#include <libkern/OSAtomic.h>
-
-static inline bool kinc_atomic_compare_exchange(volatile int32_t *pointer, int32_t old_value, int32_t new_value) {
-	return OSAtomicCompareAndSwap32Barrier(old_value, new_value, pointer);
-}
-
-static inline bool kinc_atomic_compare_exchange_pointer(void *volatile *pointer, void *old_value, void *new_value) {
-	return OSAtomicCompareAndSwapPtrBarrier(old_value, new_value, pointer);
-}
-
-static inline int32_t kinc_atomic_increment(volatile int32_t *pointer) {
-	return OSAtomicIncrement32Barrier(pointer) - 1;
-}
-
-static inline int32_t kinc_atomic_decrement(volatile int32_t *pointer) {
-	return OSAtomicDecrement32Barrier(pointer) + 1;
-}
-
-static inline void kinc_atomic_exchange(volatile int32_t *pointer, int32_t value) {
-	__sync_swap(pointer, value);
-}
-
-static inline void kinc_atomic_exchange_float(volatile float *pointer, float value) {
-	__sync_swap((volatile int32_t *)pointer, *(int32_t *)&value);
-}
-
-static inline void kinc_atomic_exchange_double(volatile double *pointer, double value) {
-	__sync_swap((volatile int64_t *)pointer, *(int64_t *)&value);
-}
-
-#else
-
 // clang/gcc intrinsics
 
 static inline bool kinc_atomic_compare_exchange(volatile int32_t *pointer, int32_t old_value, int32_t new_value) {
@@ -83,8 +49,6 @@ static inline void kinc_atomic_exchange_float(volatile float *pointer, float val
 static inline void kinc_atomic_exchange_double(volatile double *pointer, double value) {
 	__sync_lock_test_and_set((volatile int64_t *)pointer, *(int64_t *)&value);
 }
-
-#endif
 
 #endif
 

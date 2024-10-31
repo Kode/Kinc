@@ -96,7 +96,7 @@ kinc_g5_constant_location_t kinc_g5_compute_shader_get_constant_location(kinc_g5
 }
 
 kinc_g5_texture_unit_t kinc_g5_compute_shader_get_texture_unit(kinc_g5_compute_shader *shader, const char *name) {
-	kinc_g5_texture_unit_t unit;
+	kinc_g5_texture_unit_t unit = {0};
 	for (int i = 0; i < KINC_G5_SHADER_TYPE_COUNT; ++i) {
 		unit.stages[i] = -1;
 	}
