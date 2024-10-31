@@ -16,19 +16,9 @@ void loadURL(const char *url) {
 }
 
 - (void)mainLoop {
-	// NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-	// try {
 	@autoreleasepool {
 		kickstart(0, NULL);
 	}
-	//}
-	// catch (Kt::Exception& ex) {
-	//	printf("Exception\n");
-	//	printf("%s", ex.what());
-	//}
-
-	//[pool drain];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -66,48 +56,8 @@ void loadURL(const char *url) {
 	return YES;
 }
 
-#ifndef KINC_TVOS
-// static Kore::Orientation convertOrientation(UIDeviceOrientation orientation) {
-//	switch (orientation) {
-//	case UIDeviceOrientationLandscapeLeft:
-//		return Kore::OrientationLandscapeRight;
-//	case UIDeviceOrientationLandscapeRight:
-//		return Kore::OrientationLandscapeLeft;
-//	case UIDeviceOrientationPortrait:
-//		return Kore::OrientationPortrait;
-//	case UIDeviceOrientationPortraitUpsideDown:
-//		return Kore::OrientationPortraitUpsideDown;
-//	default:
-//		return Kore::OrientationUnknown;
-//	}
-//}
-
-// static UIInterfaceOrientation convertAppleOrientation(UIDeviceOrientation orientation, UIInterfaceOrientation lastOrientation) {
-//	switch (orientation) {
-//	case UIDeviceOrientationLandscapeLeft:
-//		return UIInterfaceOrientationLandscapeRight;
-//	case UIDeviceOrientationLandscapeRight:
-//		return UIInterfaceOrientationLandscapeLeft;
-//	case UIDeviceOrientationPortrait:
-//		return UIInterfaceOrientationPortrait;
-//	case UIDeviceOrientationPortraitUpsideDown:
-//		return UIInterfaceOrientationPortraitUpsideDown;
-//	default:
-//		return lastOrientation;
-//	}
-//}
-#endif
-
 void KoreUpdateKeyboard(void);
-/*
-- (void)didRotate:(NSNotification*)notification {
-    if (Kore::Application::the() != nullptr && Kore::Application::the()->orientationCallback != nullptr)
-Kore::Application::the()->orientationCallback(convertOrientation([[UIDevice currentDevice] orientation]));
-    [UIApplication sharedApplication].statusBarOrientation = convertAppleOrientation([[UIDevice currentDevice] orientation], [UIApplication
-sharedApplication].statusBarOrientation);
-    KoreUpdateKeyboard();
-}
-*/
+
 - (void)applicationWillEnterForeground:(UIApplication *)application {
 	[glViewController setVisible:YES];
 	kinc_internal_foreground_callback();
