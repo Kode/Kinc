@@ -269,7 +269,12 @@ void kinc_internal_call_resize_callback(int window, int width, int height);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				kinc_internal_mouse_trigger_press(0, event.buttonMask == UIEventButtonMaskSecondary ? 1 : 0, x, y);
+				if (@available(iOS 13.4, *)) {
+					kinc_internal_mouse_trigger_press(0, event.buttonMask == UIEventButtonMaskSecondary ? 1 : 0, x, y);
+				}
+				else {
+					kinc_internal_mouse_trigger_press(0, 0, x, y);
+				}
 			}
 			kinc_internal_surface_trigger_touch_start(index, x, y);
 
@@ -314,7 +319,12 @@ void kinc_internal_call_resize_callback(int window, int width, int height);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				kinc_internal_mouse_trigger_release(0, event.buttonMask == UIEventButtonMaskSecondary ? 1 : 0, x, y);
+				if (@available(iOS 13.4, *)) {
+					kinc_internal_mouse_trigger_release(0, event.buttonMask == UIEventButtonMaskSecondary ? 1 : 0, x, y);
+				}
+				else {
+					kinc_internal_mouse_trigger_release(0, 0, x, y);
+				}
 			}
 			kinc_internal_surface_trigger_touch_end(index, x, y);
 
@@ -333,7 +343,12 @@ void kinc_internal_call_resize_callback(int window, int width, int height);
 			float x = point.x * self.contentScaleFactor;
 			float y = point.y * self.contentScaleFactor;
 			if (index == 0) {
-				kinc_internal_mouse_trigger_release(0, event.buttonMask == UIEventButtonMaskSecondary ? 1 : 0, x, y);
+				if (@available(iOS 13.4, *)) {
+					kinc_internal_mouse_trigger_release(0, event.buttonMask == UIEventButtonMaskSecondary ? 1 : 0, x, y);
+				}
+				else {
+					kinc_internal_mouse_trigger_release(0, 0, x, y);
+				}
 			}
 			kinc_internal_surface_trigger_touch_end(index, x, y);
 

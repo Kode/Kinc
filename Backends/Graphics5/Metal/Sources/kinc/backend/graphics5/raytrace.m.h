@@ -16,7 +16,7 @@ id getMetalQueue(void);
 
 id<MTLComputePipelineState> _raytracing_pipeline;
 NSMutableArray *_primitive_accels;
-API_AVAILABLE(macos(11.0))
+API_AVAILABLE(macos(11.0), ios(14.0))
 id<MTLAccelerationStructure> _instance_accel;
 dispatch_semaphore_t _sem;
 
@@ -42,7 +42,7 @@ void kinc_raytrace_pipeline_init(kinc_raytrace_pipeline_t *pipeline, kinc_g5_com
 
 void kinc_raytrace_pipeline_destroy(kinc_raytrace_pipeline_t *pipeline) {}
 
-API_AVAILABLE(macos(11.0))
+API_AVAILABLE(macos(11.0), ios(14.0))
 id<MTLAccelerationStructure> create_acceleration_sctructure(MTLAccelerationStructureDescriptor *descriptor) {
 	id<MTLDevice> device = getMetalDevice();
 	id<MTLCommandQueue> queue = getMetalQueue();
@@ -74,7 +74,7 @@ id<MTLAccelerationStructure> create_acceleration_sctructure(MTLAccelerationStruc
 	return compacted_acceleration_structure;
 }
 
-API_AVAILABLE(macos(11.0))
+API_AVAILABLE(macos(11.0), ios(14.0))
 void kinc_raytrace_acceleration_structure_init(kinc_raytrace_acceleration_structure_t *accel, kinc_g5_command_list_t *command_list, kinc_g5_vertex_buffer_t *vb,
 											   kinc_g5_index_buffer_t *ib) {
 #if !TARGET_OS_IPHONE
@@ -133,7 +133,7 @@ void kinc_raytrace_set_target(kinc_g5_texture_t *_output) {
 	output = _output;
 }
 
-API_AVAILABLE(macos(11.0))
+API_AVAILABLE(macos(11.0), ios(14.0))
 void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	dispatch_semaphore_wait(_sem, DISPATCH_TIME_FOREVER);
 	
@@ -165,7 +165,7 @@ void kinc_raytrace_dispatch_rays(kinc_g5_command_list_t *command_list) {
 	[command_buffer commit];
 }
 
-API_AVAILABLE(macos(11.0))
+API_AVAILABLE(macos(11.0), ios(14.0))
 void kinc_raytrace_copy(kinc_g5_command_list_t *command_list, kinc_g5_render_target_t *target, kinc_g5_texture_t *source) {
 	id<MTLCommandQueue> queue = getMetalQueue();
 	id<MTLCommandBuffer> command_buffer = [queue commandBuffer];

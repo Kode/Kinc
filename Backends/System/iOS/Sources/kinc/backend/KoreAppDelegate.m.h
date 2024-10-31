@@ -12,7 +12,7 @@ static UIWindow *window;
 static GLViewController *glViewController;
 
 void loadURL(const char *url) {
-	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]] options:@{} completionHandler:nil];
 }
 
 - (void)mainLoop {
