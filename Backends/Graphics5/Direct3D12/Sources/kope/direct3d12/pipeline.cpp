@@ -463,7 +463,7 @@ void kope_d3d12_ray_pipeline_init(kope_g5_device *device, kope_d3d12_ray_pipelin
 	ID3D12StateObjectProperties *props;
 	pipe->pipe->QueryInterface(&props);
 
-	uint8_t *data = (uint8_t *)kope_g5_buffer_lock(&pipe->shader_ids);
+	uint8_t *data = (uint8_t *)kope_g5_buffer_lock_all(&pipe->shader_ids);
 
 	wchar_t raygen[1024];
 	kinc_microsoft_convert_string(raygen, parameters->gen_shader_name, 1024);
