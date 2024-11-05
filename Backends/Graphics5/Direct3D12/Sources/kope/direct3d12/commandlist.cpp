@@ -42,25 +42,22 @@ void kope_d3d12_command_list_begin_render_pass(kope_g5_command_list *list, const
 			list->d3d12.blocking_frame_index = render_target->d3d12.in_flight_frame_index;
 		}
 
-		if (render_target->d3d12
-		        .resource_states[kope_d3d12_texture_resource_state_index(render_target, 0, parameters->color_attachments[render_target_index].depth_slice)] !=
-		    D3D12_RESOURCE_STATE_RENDER_TARGET) {
+		if (render_target->d3d12.resource_states[kope_d3d12_texture_resource_state_index(
+		        render_target, 0, parameters->color_attachments[render_target_index].texture.base_array_layer)] != D3D12_RESOURCE_STATE_RENDER_TARGET) {
 			D3D12_RESOURCE_BARRIER barrier;
 			barrier.Transition.pResource = render_target->d3d12.resource;
 			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.StateBefore =
-			    (D3D12_RESOURCE_STATES)render_target->d3d12
-			        .resource_states[kope_d3d12_texture_resource_state_index(render_target, 0, parameters->color_attachments[render_target_index].depth_slice)];
+			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)render_target->d3d12.resource_states[kope_d3d12_texture_resource_state_index(
+			    render_target, 0, parameters->color_attachments[render_target_index].texture.base_array_layer)];
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-			barrier.Transition.Subresource = D3D12CalcSubresource(0, parameters->color_attachments[render_target_index].depth_slice, 0,
+			barrier.Transition.Subresource = D3D12CalcSubresource(0, parameters->color_attachments[render_target_index].texture.base_array_layer, 0,
 			                                                      render_target->d3d12.mip_level_count, render_target->d3d12.depth_or_array_layers);
 
 			list->d3d12.list->ResourceBarrier(1, &barrier);
 
-			render_target->d3d12
-			    .resource_states[kope_d3d12_texture_resource_state_index(render_target, 0, parameters->color_attachments[render_target_index].depth_slice)] =
-			    D3D12_RESOURCE_STATE_RENDER_TARGET;
+			render_target->d3d12.resource_states[kope_d3d12_texture_resource_state_index(
+			    render_target, 0, parameters->color_attachments[render_target_index].texture.base_array_layer)] = D3D12_RESOURCE_STATE_RENDER_TARGET;
 		}
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
