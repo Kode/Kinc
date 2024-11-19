@@ -73,7 +73,7 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 
 		IDXGIAdapter *adapter;
 		dxgi_factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
-		
+
 		result = D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&device->d3d12.device));
 		if (result == S_OK) {
 			kinc_log(KINC_LOG_LEVEL_INFO, "%s", "Direct3D running on feature level 12.2.");
@@ -817,7 +817,8 @@ void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_
 	kope_g5_device_create_buffer(device, &scratch_params, &hierarchy->d3d12.scratch_buffer); // TODO: delete later
 
 	kope_g5_buffer_parameters update_scratch_params;
-	update_scratch_params.size = prebuild_info.UpdateScratchDataSizeInBytes > 0 ? prebuild_info.UpdateScratchDataSizeInBytes : 1;
+	update_scratch_params.size =
+	    prebuild_info.UpdateScratchDataSizeInBytes > 0 ? prebuild_info.UpdateScratchDataSizeInBytes : prebuild_info.ScratchDataSizeInBytes;
 	update_scratch_params.usage_flags = KOPE_G5_BUFFER_USAGE_READ_WRITE;
 	kope_g5_device_create_buffer(device, &update_scratch_params, &hierarchy->d3d12.update_scratch_buffer);
 
