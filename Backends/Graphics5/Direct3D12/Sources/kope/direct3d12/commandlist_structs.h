@@ -38,6 +38,8 @@ typedef struct kope_d3d12_buffer_access {
 typedef struct kope_d3d12_command_list {
 	struct kope_d3d12_device *device;
 
+	int list_type;
+
 	struct ID3D12CommandAllocator *allocator[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
 	uint64_t allocator_execution_index[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];
 	oa_allocation_t dynamic_descriptor_allocations[KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT];

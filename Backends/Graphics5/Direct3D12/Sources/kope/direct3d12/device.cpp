@@ -318,11 +318,26 @@ static uint8_t command_list_oldest_allocator(kope_g5_command_list *list) {
 	return allocator_index;
 }
 
-void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list) {
+static D3D12_COMMAND_LIST_TYPE convert_command_list_type(kope_g5_command_list_type type) {
+	switch (type) {
+	case KOPE_G5_COMMAND_LIST_TYPE_GRAPHICS:
+		return D3D12_COMMAND_LIST_TYPE_DIRECT;
+	case KOPE_G5_COMMAND_LIST_TYPE_ASYNC:
+		return D3D12_COMMAND_LIST_TYPE_COMPUTE;
+	case KOPE_G5_COMMAND_LIST_TYPE_COPY:
+		return D3D12_COMMAND_LIST_TYPE_COPY;
+	}
+}
+
+void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list) {
 	list->d3d12.device = &device->d3d12;
 
+	D3D12_COMMAND_LIST_TYPE list_type = convert_command_list_type(type);
+
+	list->d3d12.list_type = list_type;
+
 	for (int i = 0; i < KOPE_D3D12_COMMAND_LIST_ALLOCATOR_COUNT; ++i) {
-		kinc_microsoft_affirm(device->d3d12.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator[i])));
+		kinc_microsoft_affirm(device->d3d12.device->CreateCommandAllocator(list_type, IID_GRAPHICS_PPV_ARGS(&list->d3d12.allocator[i])));
 		list->d3d12.allocator_execution_index[i] = 0;
 
 		oa_allocate(&device->d3d12.descriptor_heap_allocator, KOPE_D3D12_COMMAND_LIST_DYNAMIC_DESCRIPTORS_COUNT,
@@ -332,8 +347,8 @@ void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_comma
 
 	list->d3d12.current_allocator_index = 0;
 
-	kinc_microsoft_affirm(device->d3d12.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, list->d3d12.allocator[list->d3d12.current_allocator_index],
-	                                                              NULL, IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
+	kinc_microsoft_affirm(device->d3d12.device->CreateCommandList(0, list_type, list->d3d12.allocator[list->d3d12.current_allocator_index], NULL,
+	                                                              IID_GRAPHICS_PPV_ARGS(&list->d3d12.list)));
 
 	list->d3d12.compute_pipe = NULL;
 	list->d3d12.ray_pipe = NULL;
@@ -594,10 +609,8 @@ static void clean_buffer_accesses(kope_g5_buffer *buffer, uint64_t finished_exec
 	buffer->d3d12.ranges_count = ranges_count;
 }
 
-enum command_list_type { COMMAND_LIST_TYPE_DIRECT, COMMAND_LIST_TYPE_ASYNC, COMMAND_LIST_TYPE_COPY };
-
-static void execute_command_list(command_list_type list_type, kope_g5_device *device, kope_g5_command_list *list) {
-	if (list_type == COMMAND_LIST_TYPE_DIRECT && list->d3d12.presenting) {
+void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
+	if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_DIRECT && list->d3d12.presenting) {
 		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer(device);
 		if (framebuffer->d3d12.resource_states[0] != D3D12_RESOURCE_STATE_PRESENT) {
 			D3D12_RESOURCE_BARRIER barrier;
@@ -614,7 +627,7 @@ static void execute_command_list(command_list_type list_type, kope_g5_device *de
 		}
 	}
 
-	if (list_type == COMMAND_LIST_TYPE_DIRECT && list->d3d12.blocking_frame_index > 0) {
+	if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_DIRECT && list->d3d12.blocking_frame_index > 0) {
 		wait_for_frame(device, list->d3d12.blocking_frame_index);
 		list->d3d12.blocking_frame_index = 0;
 	}
@@ -645,15 +658,15 @@ static void execute_command_list(command_list_type list_type, kope_g5_device *de
 	list->d3d12.allocator_execution_index[list->d3d12.current_allocator_index] = device->d3d12.execution_index;
 
 	ID3D12CommandList *lists[] = {list->d3d12.list};
-	if (list_type == COMMAND_LIST_TYPE_DIRECT) {
+	if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
 		device->d3d12.queue->ExecuteCommandLists(1, lists);
 		device->d3d12.queue->Signal(device->d3d12.execution_fence, device->d3d12.execution_index);
 	}
-	else if (list_type == COMMAND_LIST_TYPE_ASYNC) {
+	else if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_COMPUTE) {
 		device->d3d12.async_queue->ExecuteCommandLists(1, lists);
 		device->d3d12.async_queue->Signal(device->d3d12.execution_fence, device->d3d12.execution_index);
 	}
-	else if (list_type == COMMAND_LIST_TYPE_COPY) {
+	else if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_COPY) {
 		device->d3d12.copy_queue->ExecuteCommandLists(1, lists);
 		device->d3d12.copy_queue->Signal(device->d3d12.execution_fence, device->d3d12.execution_index);
 	}
@@ -671,7 +684,7 @@ static void execute_command_list(command_list_type list_type, kope_g5_device *de
 	ID3D12DescriptorHeap *heaps[] = {list->d3d12.device->descriptor_heap, list->d3d12.device->sampler_heap};
 	list->d3d12.list->SetDescriptorHeaps(2, heaps);
 
-	if (list_type == COMMAND_LIST_TYPE_DIRECT && list->d3d12.presenting) {
+	if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_DIRECT && list->d3d12.presenting) {
 		kope_g5_texture *framebuffer = kope_d3d12_device_get_framebuffer(device);
 		framebuffer->d3d12.in_flight_frame_index = device->d3d12.current_frame_index;
 
@@ -686,18 +699,6 @@ static void execute_command_list(command_list_type list_type, kope_g5_device *de
 	}
 
 	device->d3d12.execution_index += 1;
-}
-
-void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
-	execute_command_list(COMMAND_LIST_TYPE_DIRECT, device, list);
-}
-
-void kope_d3d12_device_execute_async_command_list(kope_g5_device *device, kope_g5_command_list *list) {
-	execute_command_list(COMMAND_LIST_TYPE_ASYNC, device, list);
-}
-
-void kope_d3d12_device_execute_copy_command_list(kope_g5_device *device, kope_g5_command_list *list) {
-	execute_command_list(COMMAND_LIST_TYPE_COPY, device, list);
 }
 
 void kope_d3d12_device_wait_until_idle(kope_g5_device *device) {

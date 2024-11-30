@@ -117,7 +117,13 @@ typedef struct kope_g5_sampler_parameters {
 
 KOPE_FUNC void kope_g5_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler);
 
-KOPE_FUNC void kope_g5_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list);
+typedef enum kope_g5_command_list_type {
+	KOPE_G5_COMMAND_LIST_TYPE_GRAPHICS,
+	KOPE_G5_COMMAND_LIST_TYPE_ASYNC,
+	KOPE_G5_COMMAND_LIST_TYPE_COPY
+} kope_g5_command_list_type;
+
+KOPE_FUNC void kope_g5_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list);
 
 typedef struct kope_g5_query_set {
 	KOPE_G5_IMPL(query_set);
@@ -133,10 +139,6 @@ typedef struct kope_g5_query_set_parameters {
 KOPE_FUNC void kope_g5_device_create_query_set(kope_g5_device *device, const kope_g5_query_set_parameters *parameters, kope_g5_query_set *query_set);
 
 KOPE_FUNC void kope_g5_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list);
-
-KOPE_FUNC void kope_g5_device_execute_async_command_list(kope_g5_device *device, kope_g5_command_list *list);
-
-KOPE_FUNC void kope_g5_device_execute_copy_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
 KOPE_FUNC void kope_g5_device_wait_until_idle(kope_g5_device *device);
 

@@ -19,7 +19,7 @@ void kope_d3d12_device_set_name(kope_g5_device *device, const char *name);
 
 void kope_d3d12_device_create_buffer(kope_g5_device *device, const kope_g5_buffer_parameters *parameters, kope_g5_buffer *buffer);
 
-void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list *list);
+void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list);
 
 void kope_d3d12_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
@@ -31,10 +31,6 @@ void kope_d3d12_device_create_sampler(kope_g5_device *device, const kope_g5_samp
 kope_g5_texture *kope_d3d12_device_get_framebuffer(kope_g5_device *device);
 
 void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list);
-
-void kope_d3d12_device_execute_async_command_list(kope_g5_device *device, kope_g5_command_list *list);
-
-void kope_d3d12_device_execute_copy_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
 void kope_d3d12_device_wait_until_idle(kope_g5_device *device);
 
