@@ -20,8 +20,8 @@ struct ID3D12QueryHeap;
 
 typedef struct kope_d3d12_device {
 	struct ID3D12Device5 *device;
-	struct ID3D12CommandQueue *queue;
-	struct ID3D12CommandQueue *async_queue;
+	struct ID3D12CommandQueue *graphics_queue;
+	struct ID3D12CommandQueue *compute_queue;
 	struct ID3D12CommandQueue *copy_queue;
 	struct IDXGISwapChain *swap_chain;
 

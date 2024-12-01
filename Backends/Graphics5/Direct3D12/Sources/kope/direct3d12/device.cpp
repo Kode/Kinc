@@ -108,7 +108,7 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		kinc_microsoft_affirm(device->d3d12.device->CreateCommandQueue(&desc, IID_PPV_ARGS(&device->d3d12.queue)));
+		kinc_microsoft_affirm(device->d3d12.device->CreateCommandQueue(&desc, IID_PPV_ARGS(&device->d3d12.graphics_queue)));
 	}
 
 	{
@@ -116,7 +116,7 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		desc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
 
-		kinc_microsoft_affirm(device->d3d12.device->CreateCommandQueue(&desc, IID_PPV_ARGS(&device->d3d12.async_queue)));
+		kinc_microsoft_affirm(device->d3d12.device->CreateCommandQueue(&desc, IID_PPV_ARGS(&device->d3d12.compute_queue)));
 	}
 
 	{
@@ -139,7 +139,7 @@ void kope_d3d12_device_create(kope_g5_device *device, const kope_g5_device_wishl
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.Windowed = true;
 
-		kinc_microsoft_affirm(dxgi_factory->CreateSwapChain((IUnknown *)device->d3d12.queue, &desc, &device->d3d12.swap_chain));
+		kinc_microsoft_affirm(dxgi_factory->CreateSwapChain((IUnknown *)device->d3d12.graphics_queue, &desc, &device->d3d12.swap_chain));
 	}
 
 	device->d3d12.cbv_srv_uav_increment = device->d3d12.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -322,7 +322,7 @@ static D3D12_COMMAND_LIST_TYPE convert_command_list_type(kope_g5_command_list_ty
 	switch (type) {
 	case KOPE_G5_COMMAND_LIST_TYPE_GRAPHICS:
 		return D3D12_COMMAND_LIST_TYPE_DIRECT;
-	case KOPE_G5_COMMAND_LIST_TYPE_ASYNC:
+	case KOPE_G5_COMMAND_LIST_TYPE_COMPUTE:
 		return D3D12_COMMAND_LIST_TYPE_COMPUTE;
 	case KOPE_G5_COMMAND_LIST_TYPE_COPY:
 		return D3D12_COMMAND_LIST_TYPE_COPY;
@@ -660,12 +660,12 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 
 	ID3D12CommandList *lists[] = {list->d3d12.list};
 	if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
-		device->d3d12.queue->ExecuteCommandLists(1, lists);
-		device->d3d12.queue->Signal(device->d3d12.execution_fence, device->d3d12.execution_index);
+		device->d3d12.graphics_queue->ExecuteCommandLists(1, lists);
+		device->d3d12.graphics_queue->Signal(device->d3d12.execution_fence, device->d3d12.execution_index);
 	}
 	else if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_COMPUTE) {
-		device->d3d12.async_queue->ExecuteCommandLists(1, lists);
-		device->d3d12.async_queue->Signal(device->d3d12.execution_fence, device->d3d12.execution_index);
+		device->d3d12.compute_queue->ExecuteCommandLists(1, lists);
+		device->d3d12.compute_queue->Signal(device->d3d12.execution_fence, device->d3d12.execution_index);
 	}
 	else if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_COPY) {
 		device->d3d12.copy_queue->ExecuteCommandLists(1, lists);
@@ -691,7 +691,7 @@ void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 
 		kinc_microsoft_affirm(device->d3d12.swap_chain->Present(1, 0));
 
-		device->d3d12.queue->Signal(device->d3d12.frame_fence, device->d3d12.current_frame_index);
+		device->d3d12.graphics_queue->Signal(device->d3d12.frame_fence, device->d3d12.current_frame_index);
 
 		device->d3d12.current_frame_index += 1;
 		device->d3d12.framebuffer_index = (device->d3d12.framebuffer_index + 1) % KOPE_D3D12_FRAME_COUNT;
@@ -890,10 +890,10 @@ void kope_d3d12_device_create_fence(kope_g5_device *device, kope_g5_fence *fence
 void kope_d3d12_device_signal(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {
 	switch (list_type) {
 	case KOPE_G5_COMMAND_LIST_TYPE_GRAPHICS:
-		device->d3d12.queue->Signal(fence->d3d12.fence, value);
+		device->d3d12.graphics_queue->Signal(fence->d3d12.fence, value);
 		break;
-	case KOPE_G5_COMMAND_LIST_TYPE_ASYNC:
-		device->d3d12.async_queue->Signal(fence->d3d12.fence, value);
+	case KOPE_G5_COMMAND_LIST_TYPE_COMPUTE:
+		device->d3d12.compute_queue->Signal(fence->d3d12.fence, value);
 		break;
 	case KOPE_G5_COMMAND_LIST_TYPE_COPY:
 		device->d3d12.copy_queue->Signal(fence->d3d12.fence, value);
@@ -904,10 +904,10 @@ void kope_d3d12_device_signal(kope_g5_device *device, kope_g5_command_list_type 
 void kope_d3d12_device_wait(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {
 	switch (list_type) {
 	case KOPE_G5_COMMAND_LIST_TYPE_GRAPHICS:
-		device->d3d12.queue->Wait(fence->d3d12.fence, value);
+		device->d3d12.graphics_queue->Wait(fence->d3d12.fence, value);
 		break;
-	case KOPE_G5_COMMAND_LIST_TYPE_ASYNC:
-		device->d3d12.async_queue->Wait(fence->d3d12.fence, value);
+	case KOPE_G5_COMMAND_LIST_TYPE_COMPUTE:
+		device->d3d12.compute_queue->Wait(fence->d3d12.fence, value);
 		break;
 	case KOPE_G5_COMMAND_LIST_TYPE_COPY:
 		device->d3d12.copy_queue->Wait(fence->d3d12.fence, value);

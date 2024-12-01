@@ -120,7 +120,7 @@ KOPE_FUNC void kope_g5_device_create_sampler(kope_g5_device *device, const kope_
 
 typedef enum kope_g5_command_list_type {
 	KOPE_G5_COMMAND_LIST_TYPE_GRAPHICS,
-	KOPE_G5_COMMAND_LIST_TYPE_ASYNC,
+	KOPE_G5_COMMAND_LIST_TYPE_COMPUTE,
 	KOPE_G5_COMMAND_LIST_TYPE_COPY
 } kope_g5_command_list_type;
 
