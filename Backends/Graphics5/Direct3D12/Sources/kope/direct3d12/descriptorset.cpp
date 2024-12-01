@@ -199,6 +199,9 @@ void kope_d3d12_descriptor_set_prepare_uav_texture(kope_g5_command_list *list, c
 		barrier.Transition.StateBefore =
 		    (D3D12_RESOURCE_STATES)
 		        texture_view->texture->d3d12.resource_states[kope_d3d12_texture_resource_state_index(texture_view->texture, texture_view->base_mip_level, 0)];
+		if (list->d3d12.list_type == D3D12_COMMAND_LIST_TYPE_COMPUTE && barrier.Transition.StateBefore == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) {
+			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
+		}
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 		barrier.Transition.Subresource = D3D12CalcSubresource(texture_view->base_mip_level, 0, 0, texture_view->texture->d3d12.mip_level_count,
 		                                                      texture_view->texture->d3d12.depth_or_array_layers);

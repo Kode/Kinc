@@ -8,6 +8,7 @@
 #include "api.h"
 #include "buffer.h"
 #include "commandlist.h"
+#include "fence.h"
 #include "sampler.h"
 #include "textureformat.h"
 
@@ -138,6 +139,8 @@ typedef struct kope_g5_query_set_parameters {
 
 KOPE_FUNC void kope_g5_device_create_query_set(kope_g5_device *device, const kope_g5_query_set_parameters *parameters, kope_g5_query_set *query_set);
 
+KOPE_FUNC void kope_g5_device_create_fence(kope_g5_device *device, kope_g5_fence *fence);
+
 KOPE_FUNC void kope_g5_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
 KOPE_FUNC void kope_g5_device_wait_until_idle(kope_g5_device *device);
@@ -157,6 +160,10 @@ KOPE_FUNC void kope_g5_device_create_raytracing_hierarchy(kope_g5_device *device
                                                           uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy);
 
 KOPE_FUNC uint32_t kope_g5_device_align_texture_row_bytes(kope_g5_device *device, uint32_t row_bytes);
+
+KOPE_FUNC void kope_g5_device_signal(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value);
+
+KOPE_FUNC void kope_g5_device_wait(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value);
 
 #ifdef __cplusplus
 }

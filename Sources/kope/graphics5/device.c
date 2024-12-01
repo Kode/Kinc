@@ -52,6 +52,10 @@ void kope_g5_device_create_query_set(kope_g5_device *device, const kope_g5_query
 	KOPE_G5_CALL3(device_create_query_set, device, parameters, query_set);
 }
 
+void kope_g5_device_create_fence(kope_g5_device *device, kope_g5_fence *fence) {
+	KOPE_G5_CALL2(device_create_fence, device, fence);
+}
+
 void kope_g5_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	KOPE_G5_CALL2(device_execute_command_list, device, list);
 }
@@ -76,4 +80,12 @@ void kope_g5_device_wait_until_idle(kope_g5_device *device) {
 
 uint32_t kope_g5_device_align_texture_row_bytes(kope_g5_device *device, uint32_t row_bytes) {
 	return KOPE_G5_CALL2(device_align_texture_row_bytes, device, row_bytes);
+}
+
+void kope_g5_device_signal(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {
+	KOPE_G5_CALL4(device_signal, device, list_type, fence, value);
+}
+
+void kope_g5_device_wait(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {
+	KOPE_G5_CALL4(device_wait, device, list_type, fence, value);
 }

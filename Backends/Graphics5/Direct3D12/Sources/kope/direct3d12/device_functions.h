@@ -42,7 +42,13 @@ void kope_d3d12_device_create_raytracing_hierarchy(kope_g5_device *device, kope_
 
 void kope_d3d12_device_create_query_set(kope_g5_device *device, const kope_g5_query_set_parameters *parameters, kope_g5_query_set *query_set);
 
+void kope_d3d12_device_create_fence(kope_g5_device *device, kope_g5_fence *fence);
+
 uint32_t kope_d3d12_device_align_texture_row_bytes(kope_g5_device *device, uint32_t row_bytes);
+
+void kope_d3d12_device_signal(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value);
+
+void kope_d3d12_device_wait(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value);
 
 #ifdef __cplusplus
 }

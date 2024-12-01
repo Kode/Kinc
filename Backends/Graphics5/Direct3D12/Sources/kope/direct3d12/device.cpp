@@ -327,6 +327,7 @@ static D3D12_COMMAND_LIST_TYPE convert_command_list_type(kope_g5_command_list_ty
 	case KOPE_G5_COMMAND_LIST_TYPE_COPY:
 		return D3D12_COMMAND_LIST_TYPE_COPY;
 	}
+	return D3D12_COMMAND_LIST_TYPE_DIRECT;
 }
 
 void kope_d3d12_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list) {
@@ -880,4 +881,36 @@ void kope_d3d12_device_create_query_set(kope_g5_device *device, const kope_g5_qu
 
 uint32_t kope_d3d12_device_align_texture_row_bytes(kope_g5_device *device, uint32_t row_bytes) {
 	return (uint32_t)align_pow2((int)row_bytes, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+}
+
+void kope_d3d12_device_create_fence(kope_g5_device *device, kope_g5_fence *fence) {
+	device->d3d12.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_GRAPHICS_PPV_ARGS(&fence->d3d12.fence));
+}
+
+void kope_d3d12_device_signal(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {
+	switch (list_type) {
+	case KOPE_G5_COMMAND_LIST_TYPE_GRAPHICS:
+		device->d3d12.queue->Signal(fence->d3d12.fence, value);
+		break;
+	case KOPE_G5_COMMAND_LIST_TYPE_ASYNC:
+		device->d3d12.async_queue->Signal(fence->d3d12.fence, value);
+		break;
+	case KOPE_G5_COMMAND_LIST_TYPE_COPY:
+		device->d3d12.copy_queue->Signal(fence->d3d12.fence, value);
+		break;
+	}
+}
+
+void kope_d3d12_device_wait(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {
+	switch (list_type) {
+	case KOPE_G5_COMMAND_LIST_TYPE_GRAPHICS:
+		device->d3d12.queue->Wait(fence->d3d12.fence, value);
+		break;
+	case KOPE_G5_COMMAND_LIST_TYPE_ASYNC:
+		device->d3d12.async_queue->Wait(fence->d3d12.fence, value);
+		break;
+	case KOPE_G5_COMMAND_LIST_TYPE_COPY:
+		device->d3d12.copy_queue->Wait(fence->d3d12.fence, value);
+		break;
+	}
 }
