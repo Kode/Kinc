@@ -1,8 +1,8 @@
 #include <kinc/graphics5/indexbuffer.h>
 
-#include <string.h>
-#include <stdlib.h>
 #include <kinc/graphics5/indexbuffer.h>
+#include <stdlib.h>
+#include <string.h>
 
 extern WGPUDevice device;
 
@@ -13,9 +13,7 @@ void kinc_g5_index_buffer_init(kinc_g5_index_buffer_t *buffer, int count, kinc_g
 	buffer->impl.format = format;
 }
 
-void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {
-
-}
+void kinc_g5_index_buffer_destroy(kinc_g5_index_buffer_t *buffer) {}
 
 static int kinc_g5_internal_index_buffer_stride(kinc_g5_index_buffer_t *buffer) {
 	return buffer->impl.format == KINC_G5_INDEX_BUFFER_FORMAT_16BIT ? 2 : 4;
@@ -43,9 +41,7 @@ void kinc_g5_index_buffer_unlock(kinc_g5_index_buffer_t *buffer, int count) {
 	kinc_g5_index_buffer_unlock_all(buffer);
 }
 
-void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {
-
-}
+void kinc_g5_internal_index_buffer_set(kinc_g5_index_buffer_t *buffer) {}
 
 int kinc_g5_index_buffer_count(kinc_g5_index_buffer_t *buffer) {
 	return buffer->impl.count;

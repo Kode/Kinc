@@ -302,8 +302,8 @@ static inline kinc_float32x4_t kinc_float32x4_not(kinc_float32x4_t t) {
 
 #define kinc_float32x4_shuffle_custom(abcd, efgh, left_1, left_2, right_1, right_2)                                                                            \
 	(kinc_float32x4_t) {                                                                                                                                       \
-		vgetq_lane_f32((abcd), ((left_1)&0x3)), vgetq_lane_f32((abcd), ((left_2)&0x3)), vgetq_lane_f32((efgh), ((right_1)&0x3)),                               \
-		    vgetq_lane_f32((efgh), ((right_2)&0x3))                                                                                                            \
+		vgetq_lane_f32((abcd), ((left_1) & 0x3)), vgetq_lane_f32((abcd), ((left_2) & 0x3)), vgetq_lane_f32((efgh), ((right_1) & 0x3)),                         \
+		    vgetq_lane_f32((efgh), ((right_2) & 0x3))                                                                                                          \
 	}
 
 static inline kinc_float32x4_t kinc_float32x4_shuffle_aebf(kinc_float32x4_t abcd, kinc_float32x4_t efgh) {

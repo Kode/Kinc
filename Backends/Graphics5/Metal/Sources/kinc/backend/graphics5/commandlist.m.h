@@ -367,14 +367,14 @@ void kinc_g5_command_list_set_compute_shader(kinc_g5_command_list_t *list, kinc_
 		end_render_pass();
 		compute_command_encoder = [command_buffer computeCommandEncoder];
 	}
-	
+
 	id<MTLComputePipelineState> pipeline = (__bridge id<MTLComputePipelineState>)shader->impl._pipeline;
 	[compute_command_encoder setComputePipelineState:pipeline];
 }
 
 void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, int z) {
 	assert(compute_command_encoder != nil);
-	
+
 	MTLSize perGrid;
 	perGrid.width = x;
 	perGrid.height = y;
@@ -386,7 +386,7 @@ void kinc_g5_command_list_compute(kinc_g5_command_list_t *list, int x, int y, in
 	[compute_command_encoder dispatchThreadgroups:perGrid threadsPerThreadgroup:perGroup];
 
 	[compute_command_encoder endEncoding];
-	
+
 	compute_command_encoder = nil;
 
 	start_render_pass();

@@ -75,7 +75,7 @@ static void start_render_pass(void) {
 	renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
 	renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
 	renderPassDescriptor.stencilAttachment.texture = depthTexture;
-	
+
 	render_command_encoder = [command_buffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
 

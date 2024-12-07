@@ -135,8 +135,7 @@ void kinc_g5_internal_set_textures(kinc_g5_command_list_t *list) {
 				shaderResourceViewDesc.Texture2D.MipLevels = 1;
 				shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 				shaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-				device->CreateShaderResourceView(NULL, &shaderResourceViewDesc,
-				                                 srvCpu);
+				device->CreateShaderResourceView(NULL, &shaderResourceViewDesc, srvCpu);
 
 				D3D12_SAMPLER_DESC samplerDesc;
 				ZeroMemory(&samplerDesc, sizeof(D3D12_SAMPLER_DESC));

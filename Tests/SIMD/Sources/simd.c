@@ -354,7 +354,8 @@ int kickstart(int argc, char **argv) {
 
 		result = kinc_uint8x16_not(a);
 		uint8_t chk[16] = {1, 2, 3, 4, 5, 6, 7, 8, 4, 2, 3, 4, 5, 6, 7, 8};
-		for (int i = 0; i < 16; ++i) chk[i] = (uint8_t)(~chk[i]);
+		for (int i = 0; i < 16; ++i)
+			chk[i] = (uint8_t)(~chk[i]);
 		failed += check_u8("uint8x16 not", result, chk) ? 0 : 1;
 	}
 
@@ -446,7 +447,8 @@ int kickstart(int argc, char **argv) {
 
 		result = kinc_uint16x8_not(a);
 		uint16_t chk[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-		for (int i = 0; i < 8; ++i) chk[i] = (uint16_t)(~chk[i]);
+		for (int i = 0; i < 8; ++i)
+			chk[i] = (uint16_t)(~chk[i]);
 		failed += check_u16("uint16x8 not", result, chk) ? 0 : 1;
 	}
 
@@ -538,7 +540,8 @@ int kickstart(int argc, char **argv) {
 
 		result = kinc_uint32x4_not(a);
 		uint32_t chk[4] = {1, 2, 3, 4};
-		for (int i = 0; i < 4; ++i) chk[i] = (uint32_t)(~chk[i]);
+		for (int i = 0; i < 4; ++i)
+			chk[i] = (uint32_t)(~chk[i]);
 		failed += check_u32("uint32x4 not", result, chk) ? 0 : 1;
 	}
 

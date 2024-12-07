@@ -8,9 +8,9 @@
 #include <kinc/input/keyboard.h>
 #include <kinc/input/mouse.h>
 // #include <kinc/input/sensor.h>
+#include <Android/android_native_app_glue.h>
 #include <android/sensor.h>
 #include <android/window.h>
-#include <Android/android_native_app_glue.h>
 #include <kinc/input/pen.h>
 #include <kinc/input/surface.h>
 #include <kinc/log.h>
@@ -1292,8 +1292,7 @@ static bool kinc_aasset_reader_open(kinc_file_reader_t *reader, const char *file
 
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
 	memset(reader, 0, sizeof(*reader));
-	return kinc_internal_file_reader_callback(reader, filename, type) ||
-	       kinc_internal_file_reader_open(reader, filename, type) ||
+	return kinc_internal_file_reader_callback(reader, filename, type) || kinc_internal_file_reader_open(reader, filename, type) ||
 	       kinc_aasset_reader_open(reader, filename, type);
 }
 

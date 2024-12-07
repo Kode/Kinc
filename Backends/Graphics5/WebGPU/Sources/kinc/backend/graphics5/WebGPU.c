@@ -1,13 +1,13 @@
-#include <string.h>
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #include <emscripten/html5_webgpu.h>
-#include <webgpu/webgpu.h>
 #include <kinc/graphics5/graphics.h>
 #include <kinc/graphics5/pipeline.h>
+#include <kinc/log.h>
 #include <kinc/math/core.h>
 #include <kinc/system.h>
-#include <kinc/log.h>
+#include <string.h>
+#include <webgpu/webgpu.h>
 
 int renderTargetWidth;
 int renderTargetHeight;

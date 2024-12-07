@@ -20,8 +20,7 @@ void kinc_g5_texture_init(kinc_g5_texture_t *texture, int width, int height, kin
 	// WGPUTextureViewDescriptor tvDesc = {};
 	// tvDesc.format = WGPUTextureFormat_BGRA8Unorm;
 	// tvDesc.dimension = WGPUTextureViewDimension_2D;
- 	// WGPUTextureView textureView = wgpuTextureCreateView(texture, &tvDesc);
-
+	// WGPUTextureView textureView = wgpuTextureCreateView(texture, &tvDesc);
 }
 void kinc_g5_texture_init3d(kinc_g5_texture_t *texture, int width, int height, int depth, kinc_image_format_t format) {}
 void kinc_g5_texture_init_from_image(kinc_g5_texture_t *texture, kinc_image_t *image) {}

@@ -1,8 +1,8 @@
 #include "rendertarget.h"
 
+#include <kinc/backend/SystemMicrosoft.h>
 #include <kinc/graphics5/rendertarget.h>
 #include <kinc/graphics5/texture.h>
-#include <kinc/backend/SystemMicrosoft.h>
 
 #ifdef KINC_WINDOWS
 #include <dxgi1_4.h>

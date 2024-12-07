@@ -155,7 +155,7 @@ static bool cmd = false;
 			kinc_internal_keyboard_trigger_key_press('\t');
 			break;
 		default:
-				if (ch == 'x' && [theEvent modifierFlags] & NSEventModifierFlagCommand) {
+			if (ch == 'x' && [theEvent modifierFlags] & NSEventModifierFlagCommand) {
 				char *text = kinc_internal_cut_callback();
 				if (text != NULL) {
 					NSPasteboard *board = [NSPasteboard generalPasteboard];
@@ -163,7 +163,7 @@ static bool cmd = false;
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
 			}
-				if (ch == 'c' && [theEvent modifierFlags] & NSEventModifierFlagCommand) {
+			if (ch == 'c' && [theEvent modifierFlags] & NSEventModifierFlagCommand) {
 				char *text = kinc_internal_copy_callback();
 				if (text != NULL) {
 					NSPasteboard *board = [NSPasteboard generalPasteboard];
@@ -171,7 +171,7 @@ static bool cmd = false;
 					[board setString:[NSString stringWithUTF8String:text] forType:NSStringPboardType];
 				}
 			}
-				if (ch == 'v' && [theEvent modifierFlags] & NSEventModifierFlagCommand) {
+			if (ch == 'v' && [theEvent modifierFlags] & NSEventModifierFlagCommand) {
 				NSPasteboard *board = [NSPasteboard generalPasteboard];
 				NSString *data = [board stringForType:NSStringPboardType];
 				if (data != nil) {

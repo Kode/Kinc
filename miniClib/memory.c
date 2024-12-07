@@ -9,9 +9,10 @@ static size_t heap_top = 4;
 #endif
 
 #ifdef KINC_WASM
-__attribute__((export_name("malloc"))) 
+__attribute__((export_name("malloc")))
 #endif
-void *malloc(size_t size) {
+void *
+malloc(size_t size) {
 #ifdef KINC_WASM
 	// Align to 4 bytes to make js typed arrays work
 	if (size % 4 != 0) {
@@ -35,9 +36,7 @@ void *realloc(void *mem, size_t size) {
 	return NULL;
 }
 
-void free(void *mem) {
-
-}
+void free(void *mem) {}
 
 void *memset(void *ptr, int value, size_t num) {
 	unsigned char *data = (unsigned char *)ptr;

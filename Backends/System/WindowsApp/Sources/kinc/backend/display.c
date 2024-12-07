@@ -8,9 +8,7 @@ int kinc_count_displays() {
 	return 1;
 }
 
-void kinc_display_init() {
-
-}
+void kinc_display_init() {}
 
 bool kinc_display_available(int display_index) {
 	return display_index == 0;

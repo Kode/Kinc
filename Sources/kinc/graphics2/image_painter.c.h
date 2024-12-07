@@ -1,8 +1,8 @@
-#include <kinc/math/matrix.h>
 #include <kinc/graphics4/graphics.h>
 #include <kinc/graphics4/indexbuffer.h>
 #include <kinc/graphics4/texture.h>
 #include <kinc/graphics4/vertexbuffer.h>
+#include <kinc/math/matrix.h>
 
 #include <kong.h>
 

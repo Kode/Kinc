@@ -5,12 +5,12 @@ static MTLSamplerAddressMode convert_addressing(kinc_g5_texture_addressing_t mod
 	case KINC_G5_TEXTURE_ADDRESSING_REPEAT:
 		return MTLSamplerAddressModeRepeat;
 	case KINC_G5_TEXTURE_ADDRESSING_BORDER:
-			if (@available(iOS 14.0, *)) {
-				return MTLSamplerAddressModeClampToBorderColor;
-			}
-			else {
-				return MTLSamplerAddressModeClampToEdge;
-			}
+		if (@available(iOS 14.0, *)) {
+			return MTLSamplerAddressModeClampToBorderColor;
+		}
+		else {
+			return MTLSamplerAddressModeClampToEdge;
+		}
 	case KINC_G5_TEXTURE_ADDRESSING_CLAMP:
 		return MTLSamplerAddressModeClampToEdge;
 	case KINC_G5_TEXTURE_ADDRESSING_MIRROR:

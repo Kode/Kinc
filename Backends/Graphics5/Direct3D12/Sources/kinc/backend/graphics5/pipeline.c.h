@@ -71,8 +71,8 @@ void kinc_g5_internal_set_compute_constants(kinc_g5_command_list_t *commandList)
 
 	commandList->impl._commandList->SetComputeRootSignature(globalComputeRootSignature);
 
-	//if (pipeline->impl.textures > 0) {
-		kinc_g5_internal_set_textures(commandList);
+	// if (pipeline->impl.textures > 0) {
+	kinc_g5_internal_set_textures(commandList);
 	//}
 }
 

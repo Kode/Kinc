@@ -200,9 +200,9 @@ static void endDraw(bool compute) {
 #endif
 	if (
 #ifndef KINC_KONG
-		constantBufferIndex >= constantBufferMultiply || 
+	    constantBufferIndex >= constantBufferMultiply ||
 #endif
-		waitAfterNextDraw) {
+	    waitAfterNextDraw) {
 		kinc_g5_command_list_end(&commandList);
 		kinc_g5_command_list_execute(&commandList);
 		kinc_g5_command_list_wait_for_execution_to_finish(&commandList);

@@ -1,11 +1,11 @@
 #include <kinc/global.h>
-#include <kinc/io/filereader.h>
 #include <kinc/graphics5/commandlist.h>
 #include <kinc/graphics5/graphics.h>
+#include <kinc/graphics5/indexbuffer.h>
 #include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/shader.h>
 #include <kinc/graphics5/vertexbuffer.h>
-#include <kinc/graphics5/indexbuffer.h>
+#include <kinc/io/filereader.h>
 #include <kinc/system.h>
 #include <kinc/window.h>
 
@@ -47,8 +47,8 @@ static void update(void *data) {
 	kinc_g5_command_list_set_pipeline(&command_list, &pipeline);
 	kinc_g5_command_list_set_pipeline_layout(&command_list);
 
-	int offsets[1] = { 0 };
-	kinc_g5_vertex_buffer_t *vertex_buffers[1] = { &vertices };
+	int offsets[1] = {0};
+	kinc_g5_vertex_buffer_t *vertex_buffers[1] = {&vertices};
 	kinc_g5_command_list_set_vertex_buffers(&command_list, vertex_buffers, offsets, 1);
 	kinc_g5_command_list_set_index_buffer(&command_list, &indices);
 	kinc_g5_command_list_draw_indexed_vertices(&command_list);
@@ -71,11 +71,11 @@ static void load_shader(const char *filename, kinc_g5_shader_t *shader, kinc_g5_
 	kinc_g5_shader_init(shader, data, data_size, shader_type);
 }
 
-int kickstart(int argc, char** argv) {
+int kickstart(int argc, char **argv) {
 	kinc_init("Shader", 1024, 768, NULL, NULL);
 	kinc_set_update_callback(update, NULL);
 
-	heap = (uint8_t*)malloc(HEAP_SIZE);
+	heap = (uint8_t *)malloc(HEAP_SIZE);
 	assert(heap != NULL);
 
 	load_shader("shader.vert", &vertex_shader, KINC_G5_SHADER_TYPE_VERTEX);
@@ -94,20 +94,28 @@ int kickstart(int argc, char** argv) {
 	kinc_g5_command_list_init(&command_list);
 	for (int i = 0; i < BUFFER_COUNT; ++i) {
 		kinc_g5_render_target_init(&framebuffers[i], kinc_window_width(0), kinc_window_height(0), 16, false, KINC_G5_RENDER_TARGET_FORMAT_32BIT, -1,
-			-i - 1 /* hack in an index for backbuffer render targets */);
+		                           -i - 1 /* hack in an index for backbuffer render targets */);
 	}
 
 	kinc_g5_vertex_buffer_init(&vertices, 3, &structure, true, 0);
 	float *v = kinc_g5_vertex_buffer_lock_all(&vertices);
-	v[0] = -1; v[1] = -1; v[2] = 0.5;
-	v[3] = 1;  v[4] = -1; v[5] = 0.5;
-	v[6] = -1; v[7] = 1;  v[8] = 0.5;
+	v[0] = -1;
+	v[1] = -1;
+	v[2] = 0.5;
+	v[3] = 1;
+	v[4] = -1;
+	v[5] = 0.5;
+	v[6] = -1;
+	v[7] = 1;
+	v[8] = 0.5;
 	kinc_g5_vertex_buffer_unlock_all(&vertices);
 	kinc_g5_command_list_upload_vertex_buffer(&command_list, &vertices);
 
 	kinc_g5_index_buffer_init(&indices, 3, KINC_G5_INDEX_BUFFER_FORMAT_32BIT, true);
 	int *i = kinc_g5_index_buffer_lock_all(&indices);
-	i[0] = 0; i[1] = 1; i[2] = 2;
+	i[0] = 0;
+	i[1] = 1;
+	i[2] = 2;
 	kinc_g5_index_buffer_unlock_all(&indices);
 	kinc_g5_command_list_upload_index_buffer(&command_list, &indices);
 

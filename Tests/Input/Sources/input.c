@@ -14,7 +14,7 @@ static void update(void *data) {
 	kinc_g4_swap_buffers();
 }
 
-static void mouse_enter_window(int window, void* data) {
+static void mouse_enter_window(int window, void *data) {
 	kinc_log(KINC_LOG_LEVEL_INFO, "mouse_enter_window -- window: %i", window);
 }
 static void mouse_leave_window(int window, void *data) {

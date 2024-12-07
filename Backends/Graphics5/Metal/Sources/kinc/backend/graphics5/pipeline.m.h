@@ -372,7 +372,7 @@ kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipel
 	location.impl.vertexOffset = -1;
 	location.impl.fragmentOffset = -1;
 	location.impl.computeOffset = -1;
-	
+
 	MTLRenderPipelineReflection *reflection = (__bridge MTLRenderPipelineReflection *)pipeline->impl._reflection;
 
 	for (MTLArgument *arg in reflection.vertexArguments) {

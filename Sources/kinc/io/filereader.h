@@ -228,8 +228,7 @@ static bool memory_seek_callback(kinc_file_reader_t *reader, size_t pos) {
 	return true;
 }
 
-bool kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size)
-{
+bool kinc_file_reader_from_memory(kinc_file_reader_t *reader, void *data, size_t size) {
 	memset(reader, 0, sizeof(kinc_file_reader_t));
 	reader->data = data;
 	reader->size = size;
@@ -433,8 +432,7 @@ bool kinc_internal_file_reader_open(kinc_file_reader_t *reader, const char *file
 #if !defined(KINC_ANDROID) && !defined(KINC_CONSOLE)
 bool kinc_file_reader_open(kinc_file_reader_t *reader, const char *filename, int type) {
 	memset(reader, 0, sizeof(*reader));
-	return kinc_internal_file_reader_callback(reader, filename, type) ||
-	       kinc_internal_file_reader_open(reader, filename, type);
+	return kinc_internal_file_reader_callback(reader, filename, type) || kinc_internal_file_reader_open(reader, filename, type);
 }
 #endif
 

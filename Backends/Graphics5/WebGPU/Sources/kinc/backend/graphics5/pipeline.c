@@ -1,5 +1,5 @@
-#include <kinc/graphics5/pipeline.h>
 #include <kinc/graphics5/constantlocation.h>
+#include <kinc/graphics5/pipeline.h>
 
 #include <assert.h>
 #include <string.h>
@@ -14,7 +14,7 @@ void kinc_g5_pipeline_init(kinc_g5_pipeline_t *pipe) {
 	kinc_g5_internal_pipeline_init(pipe);
 }
 
-kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipe, const char* name) {
+kinc_g5_constant_location_t kinc_g5_pipeline_get_constant_location(kinc_g5_pipeline_t *pipe, const char *name) {
 	kinc_g5_constant_location_t location;
 	return location;
 }
@@ -92,7 +92,7 @@ void kinc_g5_pipeline_compile(kinc_g5_pipeline_t *pipe) {
 			vaDesc[i].format = WGPUVertexFormat_Sint8x2;
 			break;
 		case KINC_G4_VERTEX_DATA_U8_2X:
-			vaDesc[i].format = WGPUVertexFormat_Uint8x2 ;
+			vaDesc[i].format = WGPUVertexFormat_Uint8x2;
 			break;
 		case KINC_G4_VERTEX_DATA_I8_2X_NORMALIZED:
 			vaDesc[i].format = WGPUVertexFormat_Snorm8x2;

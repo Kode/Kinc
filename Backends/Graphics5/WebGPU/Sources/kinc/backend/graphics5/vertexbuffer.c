@@ -1,7 +1,7 @@
-#include <stdlib.h>
-#include <string.h>
 #include <kinc/graphics5/vertexbuffer.h>
 #include <kinc/log.h>
+#include <stdlib.h>
+#include <string.h>
 
 extern WGPUDevice device;
 
@@ -15,9 +15,7 @@ void kinc_g5_vertex_buffer_init(kinc_g5_vertex_buffer_t *buffer, int count, kinc
 	}
 }
 
-void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer) {
-
-}
+void kinc_g5_vertex_buffer_destroy(kinc_g5_vertex_buffer_t *buffer) {}
 
 float *kinc_g5_vertex_buffer_lock_all(kinc_g5_vertex_buffer_t *buffer) {
 	WGPUBufferDescriptor bDesc;
@@ -37,9 +35,7 @@ void kinc_g5_vertex_buffer_unlock_all(kinc_g5_vertex_buffer_t *buffer) {
 	wgpuBufferUnmap(buffer->impl.buffer);
 }
 
-void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t* buffer, int count) {
-
-}
+void kinc_g5_vertex_buffer_unlock(kinc_g5_vertex_buffer_t *buffer, int count) {}
 
 int kinc_g5_vertex_buffer_count(kinc_g5_vertex_buffer_t *buffer) {
 	return buffer->impl.count;
