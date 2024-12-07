@@ -7,8 +7,6 @@ const excludes = [
 	'Backends/Graphics4/OpenGL/Sources/GL',
 	'Backends/Graphics5/Direct3D12/Sources/d3dx12.h',
 	'Backends/Graphics5/Direct3D12/pix',
-	'Backends/Graphics5/Vulkan/Sources/vulkan/vk_platform.h',
-	'Backends/Graphics5/Vulkan/Sources/vulkan/vulkan.h',
 	'Backends/System/Android/Sources/Android',
 	'Backends/System/Linux/Sources/kinc/backend/wayland',
 	'Sources/kope/util/offalloc',
