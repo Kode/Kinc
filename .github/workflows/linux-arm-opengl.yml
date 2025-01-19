@@ -10,73 +10,36 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
 
-    # Run steps for both armv6 and aarch64
-    strategy:
-      matrix:
-        include:
-          - arch: aarch64
-            distro: ubuntu22.04
-          - arch: armv7
-            distro: ubuntu22.04
+    runs-on: ubuntu-22.04-arm
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: uraimo/run-on-arch-action@v2
-        name: Run Tests in ${{ matrix.distro }} ${{ matrix.arch }}
-        id: build
-        with:
-          arch: ${{ matrix.arch }}
-          distro: ${{ matrix.distro }}
-
-          # Not required, but speeds up builds
-          githubToken: ${{ github.token }}
-
-          # The shell to run commands with in the container
-          shell: /bin/bash
-
-          # Install some dependencies in the container. This speeds up builds if
-          # you are also using githubToken. Any dependencies installed here will
-          # be part of the container image that gets cached, so subsequent
-          # builds don't have to re-install them. The image layer is cached
-          # publicly in your project's package repository, so it is vital that
-          # no secrets are present in the container state or logs.
-          install: |
-              apt-get update -y -q
-              apt-get upgrade -y -q
-              apt-get install -y -q libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libudev-dev git build-essential imagemagick xvfb libwayland-dev wayland-protocols libxkbcommon-dev ninja-build
-
-          # Produce a binary artifact and place it in the mounted volume
-          run: |
-            echo " * Make Git happy"
-            git config --global --add safe.directory /home/runner/work/Kinc/Kinc
-            git config --global --add safe.directory /home/runner/work/Kinc/Kinc/Tools/linux_arm
-            git config --global --add safe.directory /home/runner/work/Kinc/Kinc/Tools/linux_arm64
-            echo " * Get Submodules"
-            ./get_dlc
-            echo " * Compile"
-            ./make -g opengl --kinc . --from Tests/Empty --compile
-            echo " * Clean"
-            rm -rf build
-            echo " * Compile Test 1"
-            ./make -g opengl --kinc . --from Tests/Shader --compile
-            echo " * Copy Test 1"
-            cp build/Release/ShaderTest Tests/Shader/Deployment/ShaderTest
-            echo " * Run Test 1"
-            cd Tests/Shader/Deployment
-            xvfb-run ./ShaderTest
-            cd ../../..
-            echo " * Check Test 1"
-            compare-im6 -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
-            echo " * Clean"
-            rm -rf build
-            echo " * Compile Test 2 (SIMD)"
-            ./make -g opengl --kinc . --from Tests/SIMD --compile
-            echo " * Copy Test 2"
-            cp build/Release/SIMD Tests/SIMD/Deployment/SIMD
-            echo " * Run Test 2"
-            cd Tests/SIMD/Deployment
-            ./SIMD && echo "SUCCESS" || echo "FAILED"
-            cd ../../..
+    - uses: actions/checkout@v4
+    - name: Apt Update
+      run: sudo apt update
+    - name: Apt Install
+      run: sudo apt-get install libasound2-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libxi-dev libxcursor-dev libudev-dev libwayland-dev wayland-protocols libxkbcommon-dev ninja-build --yes --quiet
+    - name: Get Submodules
+      run: ./get_dlc
+    - name: Compile
+      run: ./make -g opengl --kinc . --from Tests/Empty --compile
+    - name: Clean
+      run: rm -r build
+    - name: Get ImageMagick and xvfb
+      run: sudo apt install imagemagick xvfb
+    - name: Compile Test 1
+      run: ./make -g opengl --kinc . --from Tests/Shader --compile
+    - name: Copy Test 1
+      run: cp build/Release/ShaderTest Tests/Shader/Deployment/ShaderTest
+    - name: Run Test 1
+      working-directory: ./Tests/Shader/Deployment
+      run: xvfb-run ./ShaderTest
+    - name: Check Test 1
+      run: compare-im6 -metric mae Tests/Shader/reference.png Tests/Shader/Deployment/test.png difference.png
+    - name: Compile Test 2 (SIMD)
+      run: ./make -g opengl --kinc . --from Tests/SIMD --compile
+    - name: Copy Test 2
+      run: cp build/Release/SIMD Tests/SIMD/Deployment/SIMD
+    - name: Run Test 2
+      working-directory: ./Tests/SIMD/Deployment
+      run: ./SIMD
