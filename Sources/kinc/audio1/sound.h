@@ -32,9 +32,9 @@ typedef enum {
 } kinc_a1_audioformat_t;
 
 /// <summary>
-/// Create a sound from a wav file.
+/// Create a sound from a wav or ogg file.
 /// </summary>
-/// <param name="filename">Path to a wav file</param>
+/// <param name="filename">Path to a wav or ogg file</param>
 /// <returns>The newly created sound</returns>
 KINC_FUNC kinc_a1_sound_t *kinc_a1_sound_create(const char *filename);
 
