@@ -190,7 +190,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>}</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
 <div class="foldopen" id="foldopen00107" data-start="{" data-end="}">
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="sound_8h.html#ae31aed948f98ce67385b75c3f866f5dd">  107</a></span><a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *kinc_a1_sound_create(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="sound_8h.html#abfc6940b52c173930e651e82e3efe29f">  107</a></span><a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *kinc_a1_sound_create_from_buffer(uint8_t* audio_data, <span class="keyword">const</span> uint32_t size, kinc_a1_audioformat_t format){</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound = find_sound();</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    assert(sound != NULL);</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    sound-&gt;in_use = <span class="keyword">true</span>;</div>
@@ -198,123 +198,137 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    sound-&gt;size = 0;</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    sound-&gt;left = NULL;</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    sound-&gt;right = NULL;</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keywordtype">size_t</span> filenameLength = strlen(filename);</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="comment">// size_t filenameLength = strlen(filename);</span></div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    uint8_t *data = NULL;</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keywordflow">if</span> (strncmp(&amp;filename[filenameLength - 4], <span class="stringliteral">&quot;.ogg&quot;</span>, 4) == 0) {</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        <a class="code hl_struct" href="structkinc__file__reader.html">kinc_file_reader_t</a> file;</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        <span class="keywordflow">if</span> (!<a class="code hl_function" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(&amp;file, filename, KINC_FILE_TYPE_ASSET)) {</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>            sound-&gt;in_use = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>            <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        }</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        uint8_t *filedata = (uint8_t *)malloc(<a class="code hl_function" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file));</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        <a class="code hl_function" href="filereader_8h.html#af9be232dc287995059ddbad5f3061321">kinc_file_reader_read</a>(&amp;file, filedata, <a class="code hl_function" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file));</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        <a class="code hl_function" href="filereader_8h.html#a9c505ccfa41e48e8f087ad055bab335a">kinc_file_reader_close</a>(&amp;file);</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        <span class="keywordtype">int</span> channels, sample_rate;</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>        <span class="keywordtype">int</span> samples = stb_vorbis_decode_memory(filedata, (<span class="keywordtype">int</span>)<a class="code hl_function" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file), &amp;channels, &amp;sample_rate, (<span class="keywordtype">short</span> **)&amp;data);</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>        <a class="code hl_function" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(samples &gt; 0);</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>        sound-&gt;channel_count = (uint8_t)channels;</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>        sound-&gt;samples_per_second = (uint32_t)sample_rate;</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>        sound-&gt;size = samples * 2 * sound-&gt;channel_count;</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>        sound-&gt;bits_per_sample = 16;</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>        free(filedata);</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    }</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strncmp(&amp;filename[filenameLength - 4], <span class="stringliteral">&quot;.wav&quot;</span>, 4) == 0) {</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>        <span class="keyword">struct </span><a class="code hl_struct" href="struct_wave_data.html">WaveData</a> wave = {0};</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>        {</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>            <a class="code hl_struct" href="structkinc__file__reader.html">kinc_file_reader_t</a> file;</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>            <span class="keywordflow">if</span> (!<a class="code hl_function" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(&amp;file, filename, KINC_FILE_TYPE_ASSET)) {</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>                sound-&gt;in_use = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>                <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>            }</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>            uint8_t *filedata = (uint8_t *)malloc(<a class="code hl_function" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file));</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>            <a class="code hl_function" href="filereader_8h.html#af9be232dc287995059ddbad5f3061321">kinc_file_reader_read</a>(&amp;file, filedata, <a class="code hl_function" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file));</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>            <a class="code hl_function" href="filereader_8h.html#a9c505ccfa41e48e8f087ad055bab335a">kinc_file_reader_close</a>(&amp;file);</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>            uint8_t *data = filedata;</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>            checkFOURCC(&amp;data, <span class="stringliteral">&quot;RIFF&quot;</span>);</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>            uint32_t filesize = <a class="code hl_function" href="filereader_8h.html#aa9a6763373fb7385d3808ff17a8dda6d">kinc_read_u32le</a>(data);</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>            data += 4;</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>            checkFOURCC(&amp;data, <span class="stringliteral">&quot;WAVE&quot;</span>);</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>            <span class="keywordflow">while</span> (data + 8 - filedata &lt; (intptr_t)filesize) {</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>                readChunk(&amp;data, &amp;wave);</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>            }</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>            free(filedata);</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>        }</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>        sound-&gt;bits_per_sample = (uint8_t)wave.bitsPerSample;</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        sound-&gt;channel_count = (uint8_t)wave.numChannels;</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>        sound-&gt;samples_per_second = wave.sampleRate;</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>        data = wave.data;</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>        sound-&gt;size = wave.dataSize;</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keywordflow">if</span> (format == KINC_A1_AUDIOFORMAT_OGG){</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        <span class="keywordtype">int</span> channels, sample_rate;</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        <span class="keywordtype">int</span> samples = stb_vorbis_decode_memory(audio_data, size, &amp;channels, &amp;sample_rate, (<span class="keywordtype">short</span> **)&amp;data);</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        <a class="code hl_function" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(samples &gt; 0);</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>        sound-&gt;channel_count = (uint8_t)channels;</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        sound-&gt;samples_per_second = (uint32_t)sample_rate;</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        sound-&gt;size = samples * 2 * sound-&gt;channel_count;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        sound-&gt;bits_per_sample = 16;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    } </div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (format == KINC_A1_AUDIOFORMAT_WAV) {</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        <span class="keyword">struct </span><a class="code hl_struct" href="struct_wave_data.html">WaveData</a> wave = {0};</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>        {</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>            uint8_t *data = audio_data;</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>            checkFOURCC(&amp;data, <span class="stringliteral">&quot;RIFF&quot;</span>);</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>            uint32_t filesize = <a class="code hl_function" href="filereader_8h.html#aa9a6763373fb7385d3808ff17a8dda6d">kinc_read_u32le</a>(data);</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>            data += 4;</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>            checkFOURCC(&amp;data, <span class="stringliteral">&quot;WAVE&quot;</span>);</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>            <span class="keywordflow">while</span> (data + 8 - audio_data &lt; (intptr_t)filesize) {</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>                readChunk(&amp;data, &amp;wave);</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>            }</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>        }</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>        sound-&gt;bits_per_sample = (uint8_t)wave.bitsPerSample;</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>        sound-&gt;channel_count = (uint8_t)wave.numChannels;</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>        sound-&gt;samples_per_second = wave.sampleRate;</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>        data = wave.data;</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>        sound-&gt;size = wave.dataSize;</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    }</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        <a class="code hl_function" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(<span class="keyword">false</span>);</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    }</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    <span class="keywordflow">if</span> (sound-&gt;channel_count == 1) {</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>        <span class="keywordflow">if</span> (sound-&gt;bits_per_sample == 8) {</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>            sound-&gt;left = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>            sound-&gt;right = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>            splitMono8(data, sound-&gt;size, sound-&gt;left, sound-&gt;right);</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>        }</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (sound-&gt;bits_per_sample == 16) {</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>            sound-&gt;size /= 2;</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>            sound-&gt;left = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>            sound-&gt;right = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>            splitMono16((int16_t *)data, sound-&gt;size, sound-&gt;left, sound-&gt;right);</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        }</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>        <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>            <a class="code hl_function" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(<span class="keyword">false</span>);</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>        }</div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    }</div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        assert(<span class="keyword">false</span>);</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    }</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordflow">if</span> (sound-&gt;channel_count == 1) {</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        <span class="keywordflow">if</span> (sound-&gt;bits_per_sample == 8) {</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>            sound-&gt;left = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>            sound-&gt;right = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>            splitMono8(data, sound-&gt;size, sound-&gt;left, sound-&gt;right);</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>        }</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (sound-&gt;bits_per_sample == 16) {</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>            sound-&gt;size /= 2;</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>            sound-&gt;left = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>            sound-&gt;right = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>            splitMono16((int16_t *)data, sound-&gt;size, sound-&gt;left, sound-&gt;right);</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>        }</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>        <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>            <a class="code hl_function" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(<span class="keyword">false</span>);</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>        }</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    }</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>        <span class="comment">// Left and right channel are in s16 audio stream, alternating.</span></div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>        <span class="keywordflow">if</span> (sound-&gt;bits_per_sample == 8) {</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>            sound-&gt;size /= 2;</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>            sound-&gt;left = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>            sound-&gt;right = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>            splitStereo8(data, sound-&gt;size, sound-&gt;left, sound-&gt;right);</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>        }</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (sound-&gt;bits_per_sample == 16) {</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>            sound-&gt;size /= 4;</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>            sound-&gt;left = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>            sound-&gt;right = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>            splitStereo16((int16_t *)data, sound-&gt;size, sound-&gt;left, sound-&gt;right);</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>        }</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>        <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>            <a class="code hl_function" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(<span class="keyword">false</span>);</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>        }</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        <span class="comment">// Left and right channel are in s16 audio stream, alternating.</span></div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>        <span class="keywordflow">if</span> (sound-&gt;bits_per_sample == 8) {</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>            sound-&gt;size /= 2;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>            sound-&gt;left = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>            sound-&gt;right = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>            splitStereo8(data, sound-&gt;size, sound-&gt;left, sound-&gt;right);</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        }</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span> (sound-&gt;bits_per_sample == 16) {</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>            sound-&gt;size /= 4;</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>            sound-&gt;left = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>            sound-&gt;right = (int16_t *)malloc(sound-&gt;size * <span class="keyword">sizeof</span>(int16_t));</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>            splitStereo16((int16_t *)data, sound-&gt;size, sound-&gt;left, sound-&gt;right);</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>        }</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>        <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>            <a class="code hl_function" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(<span class="keyword">false</span>);</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>        }</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    }</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    sound-&gt;sample_rate_pos = <a class="code hl_function" href="audio2_2audio_8h.html#a3662cae1ff8846326589cb97f4ae94e8">kinc_a2_samples_per_second</a>() / (float)sound-&gt;samples_per_second;</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    free(data);</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keywordflow">return</span> sound;</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>}</div>
+</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
+<div class="foldopen" id="foldopen00191" data-start="{" data-end="}">
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno"><a class="line" href="sound_8h.html#ae31aed948f98ce67385b75c3f866f5dd">  191</a></span><a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *kinc_a1_sound_create(<span class="keyword">const</span> <span class="keywordtype">char</span> *filename) {</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keywordtype">size_t</span> filenameLength = strlen(filename);</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    uint8_t *data = NULL;</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    kinc_a1_audioformat_t fileformat;</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keywordflow">if</span> (strncmp(&amp;filename[filenameLength - 4], <span class="stringliteral">&quot;.ogg&quot;</span>, 4) == 0) {</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>        fileformat = KINC_A1_AUDIOFORMAT_OGG;</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    }</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (strncmp(&amp;filename[filenameLength - 4], <span class="stringliteral">&quot;.wav&quot;</span>, 4) == 0) {</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>        fileformat = KINC_A1_AUDIOFORMAT_WAV;</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    }</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>        assert(<span class="keyword">false</span>);</div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    }</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    sound-&gt;sample_rate_pos = <a class="code hl_function" href="audio2_2audio_8h.html#a3662cae1ff8846326589cb97f4ae94e8">kinc_a2_samples_per_second</a>() / (float)sound-&gt;samples_per_second;</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    free(data);</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keywordflow">return</span> sound;</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>}</div>
-</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <a class="code hl_struct" href="structkinc__file__reader.html">kinc_file_reader_t</a> file;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <span class="keywordflow">if</span> (!<a class="code hl_function" href="filereader_8h.html#a4e30e4610f0e57dc244b8fb7a0271681">kinc_file_reader_open</a>(&amp;file, filename, KINC_FILE_TYPE_ASSET)) {</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    }</div>
 <div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
-<div class="foldopen" id="foldopen00211" data-start="{" data-end="}">
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno"><a class="line" href="sound_8h.html#a6e0d312f14fa90e3a33deee3d529588d">  211</a></span><span class="keywordtype">void</span> kinc_a1_sound_destroy(<a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound) {</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    free(sound-&gt;left);</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    free(sound-&gt;right);</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    sound-&gt;left = NULL;</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    sound-&gt;right = NULL;</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    sound-&gt;in_use = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>}</div>
-</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
-<div class="foldopen" id="foldopen00219" data-start="{" data-end="}">
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno"><a class="line" href="sound_8h.html#a9aa2be2aca35d4a0bf7a0effb110c0d5">  219</a></span><span class="keywordtype">float</span> kinc_a1_sound_volume(<a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound) {</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordflow">return</span> sound-&gt;volume;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    uint8_t *filedata = (uint8_t *)malloc(<a class="code hl_function" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file));</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <a class="code hl_function" href="filereader_8h.html#af9be232dc287995059ddbad5f3061321">kinc_file_reader_read</a>(&amp;file, filedata, <a class="code hl_function" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file));</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <a class="code hl_function" href="filereader_8h.html#a9c505ccfa41e48e8f087ad055bab335a">kinc_file_reader_close</a>(&amp;file);</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    <span class="keywordtype">size_t</span> filesize = <a class="code hl_function" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file);</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span> </div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    <a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a>* sound = kinc_a1_sound_create_from_buffer(filedata,filesize,fileformat);</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    free(filedata);</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordflow">return</span> sound;</div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>}</div>
 </div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
 <div class="foldopen" id="foldopen00223" data-start="{" data-end="}">
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno"><a class="line" href="sound_8h.html#a7ce60a6ebdcabe19338adcda9ba5b785">  223</a></span><span class="keywordtype">void</span> kinc_a1_sound_set_volume(<a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound, <span class="keywordtype">float</span> value) {</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    sound-&gt;volume = value;</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>}</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno"><a class="line" href="sound_8h.html#a6e0d312f14fa90e3a33deee3d529588d">  223</a></span><span class="keywordtype">void</span> kinc_a1_sound_destroy(<a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound) {</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    free(sound-&gt;left);</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    free(sound-&gt;right);</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    sound-&gt;left = NULL;</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    sound-&gt;right = NULL;</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    sound-&gt;in_use = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>}</div>
+</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
+<div class="foldopen" id="foldopen00231" data-start="{" data-end="}">
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno"><a class="line" href="sound_8h.html#a9aa2be2aca35d4a0bf7a0effb110c0d5">  231</a></span><span class="keywordtype">float</span> kinc_a1_sound_volume(<a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound) {</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keywordflow">return</span> sound-&gt;volume;</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>}</div>
+</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
+<div class="foldopen" id="foldopen00235" data-start="{" data-end="}">
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno"><a class="line" href="sound_8h.html#a7ce60a6ebdcabe19338adcda9ba5b785">  235</a></span><span class="keywordtype">void</span> kinc_a1_sound_set_volume(<a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound, <span class="keywordtype">float</span> value) {</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    sound-&gt;volume = value;</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>}</div>
 </div>
 <div class="ttc" id="aaudio2_2audio_8h_html"><div class="ttname"><a href="audio2_2audio_8h.html">audio.h</a></div><div class="ttdoc">Audio2 is a low-level audio-API that allows you to directly provide a stream of audio-samples.</div></div>
 <div class="ttc" id="aaudio2_2audio_8h_html_a3662cae1ff8846326589cb97f4ae94e8"><div class="ttname"><a href="audio2_2audio_8h.html#a3662cae1ff8846326589cb97f4ae94e8">kinc_a2_samples_per_second</a></div><div class="ttdeci">KINC_FUNC uint32_t kinc_a2_samples_per_second(void)</div><div class="ttdoc">The current sample-rate of the system.</div></div>
