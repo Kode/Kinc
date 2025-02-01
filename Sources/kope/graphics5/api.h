@@ -5,8 +5,15 @@
 extern "C" {
 #endif
 
+#if defined(KINC_METAL)
+#define KOPE_METAL
+#elif defined(KINC_DIRECT3D12)
 #define KOPE_DIRECT3D12
-// #define KOPE_VULKAN
+#elif defined(KINC_VULKAN)
+#define KOPE_VULKAN
+#elif defined(KINC_WEBGPU)
+#define KOPE_WEBGPU
+#endif
 
 #ifndef NDEBUG
 #define KOPE_G5_VALIDATION

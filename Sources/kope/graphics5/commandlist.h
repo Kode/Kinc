@@ -13,6 +13,10 @@
 #include <kope/direct3d12/commandlist_structs.h>
 #endif
 
+#ifdef KOPE_METAL
+#include <kope/metal/commandlist_structs.h>
+#endif
+
 #ifdef KOPE_VULKAN
 #include <kope/vulkan/commandlist_structs.h>
 #endif

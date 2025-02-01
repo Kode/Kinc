@@ -9,6 +9,14 @@
 #include <kope/direct3d12/fence_structs.h>
 #endif
 
+#ifdef KOPE_METAL
+#include <kope/metal/fence_structs.h>
+#endif
+
+#ifdef KOPE_VULKAN
+#include <kope/vulkan/fence_structs.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

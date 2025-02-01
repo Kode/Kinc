@@ -10,6 +10,10 @@
 #include <kope/direct3d12/texture_structs.h>
 #endif
 
+#ifdef KOPE_METAL
+#include <kope/metal/texture_structs.h>
+#endif
+
 #ifdef KOPE_VULKAN
 #include <kope/vulkan/texture_structs.h>
 #endif
