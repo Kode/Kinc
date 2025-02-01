@@ -19,7 +19,7 @@ void *kope_metal_buffer_lock_all(kope_g5_buffer *buffer) {
 }
 
 void *kope_metal_buffer_try_to_lock(kope_g5_buffer *buffer, uint64_t offset, uint64_t size) {
-	
+	return NULL;
 }
 
 void *kope_metal_buffer_lock(kope_g5_buffer *buffer, uint64_t offset, uint64_t size) {
