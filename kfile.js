@@ -47,7 +47,8 @@ else {
 if (Options.kope) {
 	project.addDefine('KOPE');
 	project.addFile('Sources/kope/**', {nocompile: true});
-	project.addFile('Sources/kope/**/*unit.c');
+	project.addFile('Sources/kope/**/*unit.c*');
+	project.addFile('Sources/kope/**/*unit.m');
 }
 
 if (lz4x) {
@@ -63,6 +64,7 @@ function addBackend(name) {
 	if (Options.kope) {
 		project.addFile('Backends/' + name + '/Sources/kope/**', {nocompile: true});
 		project.addFile('Backends/' + name + '/Sources/kope/**/*unit.c*');
+		project.addFile('Backends/' + name + '/Sources/kope/**/*unit.m');
 	}
 	project.addIncludeDir('Backends/' + name + '/Sources');
 }
