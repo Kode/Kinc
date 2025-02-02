@@ -126,7 +126,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><a class="code hl_struct" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> kinc_g2_get_transformation(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keywordtype">void</span> kinc_g2_set_transformation(<a class="code hl_struct" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> transformation);</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="keywordtype">void</span> kinc_g2_push_transformation(<a class="code hl_struct" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> trans);</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><a class="code hl_struct" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> kinc_g2_pop_transformation();</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><a class="code hl_struct" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> kinc_g2_pop_transformation(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keywordtype">void</span> kinc_g2_scale(<span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y);</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keywordtype">void</span> kinc_g2_push_scale(<span class="keywordtype">float</span> x, <span class="keywordtype">float</span> y);</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><a class="code hl_struct" href="structkinc__matrix3x3.html">kinc_matrix3x3_t</a> kinc_g2_translation(<span class="keywordtype">float</span> tx, <span class="keywordtype">float</span> ty);</div>
@@ -136,8 +136,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keywordtype">void</span> kinc_g2_rotate(<span class="keywordtype">float</span> angle, <span class="keywordtype">float</span> centerx, <span class="keywordtype">float</span> centery);</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="keywordtype">void</span> kinc_g2_push_rotation(<span class="keywordtype">float</span> angle, <span class="keywordtype">float</span> centerx, <span class="keywordtype">float</span> centery);</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keywordtype">void</span> kinc_g2_push_opacity(<span class="keywordtype">float</span> opacity);</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keywordtype">float</span> kinc_g2_pop_opacity();</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keywordtype">float</span> kinc_g2_get_opacity();</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keywordtype">float</span> kinc_g2_pop_opacity(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keywordtype">float</span> kinc_g2_get_opacity(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keywordtype">void</span> kinc_g2_set_opacity(<span class="keywordtype">float</span> opacity);</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="preprocessor">#else</span></div>
