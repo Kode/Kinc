@@ -19,13 +19,9 @@ void kope_metal_device_create(kope_g5_device *device, const kope_g5_device_wishl
 	device->metal.library = (__bridge_retained void *)[metal_device newDefaultLibrary];
 }
 
-void kope_metal_device_destroy(kope_g5_device *device) {
-	
-}
+void kope_metal_device_destroy(kope_g5_device *device) {}
 
-void kope_metal_device_set_name(kope_g5_device *device, const char *name) {
-	
-}
+void kope_metal_device_set_name(kope_g5_device *device, const char *name) {}
 
 void kope_metal_device_create_buffer(kope_g5_device *device, const kope_g5_buffer_parameters *parameters, kope_g5_buffer *buffer) {
 	id<MTLDevice> metal_device = (__bridge id<MTLDevice>)device->metal.device;
@@ -51,9 +47,7 @@ void kope_metal_device_create_command_list(kope_g5_device *device, kope_g5_comma
 	list->metal.command_buffer = (__bridge_retained void *)[command_queue commandBuffer];
 }
 
-void kope_metal_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
-	
-}
+void kope_metal_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {}
 
 static kope_g5_texture framebuffer;
 
@@ -69,45 +63,27 @@ void kope_metal_device_execute_command_list(kope_g5_device *device, kope_g5_comm
 	[command_buffer commit];
 }
 
-void kope_metal_device_wait_until_idle(kope_g5_device *device) {
-	
-}
+void kope_metal_device_wait_until_idle(kope_g5_device *device) {}
 
 void kope_metal_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t dynamic_descriptor_count,
-                                             uint32_t bindless_descriptor_count, uint32_t sampler_count, kope_metal_descriptor_set *set) {
-	
-}
+                                             uint32_t bindless_descriptor_count, uint32_t sampler_count, kope_metal_descriptor_set *set) {}
 
-void kope_metal_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler) {
-
-}
+void kope_metal_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler) {}
 
 void kope_metal_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count, kope_g5_buffer *index_buffer,
-                                                uint32_t index_count, kope_g5_raytracing_volume *volume) {
-	
-}
+                                                uint32_t index_count, kope_g5_raytracing_volume *volume) {}
 
 void kope_metal_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, kinc_matrix4x4_t *volume_transforms,
-                                                   uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy) {
-	
-}
+                                                   uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy) {}
 
-void kope_metal_device_create_query_set(kope_g5_device *device, const kope_g5_query_set_parameters *parameters, kope_g5_query_set *query_set) {
-	
-}
+void kope_metal_device_create_query_set(kope_g5_device *device, const kope_g5_query_set_parameters *parameters, kope_g5_query_set *query_set) {}
 
 uint32_t kope_metal_device_align_texture_row_bytes(kope_g5_device *device, uint32_t row_bytes) {
 	return 0;
 }
 
-void kope_metal_device_create_fence(kope_g5_device *device, kope_g5_fence *fence) {
-	
-}
+void kope_metal_device_create_fence(kope_g5_device *device, kope_g5_fence *fence) {}
 
-void kope_metal_device_signal(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {
-	
-}
+void kope_metal_device_signal(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {}
 
-void kope_metal_device_wait(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {
-	
-}
+void kope_metal_device_wait(kope_g5_device *device, kope_g5_command_list_type list_type, kope_g5_fence *fence, uint64_t value) {}

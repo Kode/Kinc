@@ -4,8 +4,6 @@
 
 #include <assert.h>
 
-
-
 #include "buffer.c"
 #include "commandlist.c"
 #include "descriptorset.c"

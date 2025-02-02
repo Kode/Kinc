@@ -24,7 +24,7 @@ void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_comm
 void kope_vulkan_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
 void kope_vulkan_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t dynamic_descriptor_count,
-                                             uint32_t bindless_descriptor_count, uint32_t sampler_count, kope_vulkan_descriptor_set *set);
+                                              uint32_t bindless_descriptor_count, uint32_t sampler_count, kope_vulkan_descriptor_set *set);
 
 void kope_vulkan_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler);
 
@@ -35,10 +35,10 @@ void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_com
 void kope_vulkan_device_wait_until_idle(kope_g5_device *device);
 
 void kope_vulkan_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count, kope_g5_buffer *index_buffer,
-                                                uint32_t index_count, kope_g5_raytracing_volume *volume);
+                                                 uint32_t index_count, kope_g5_raytracing_volume *volume);
 
 void kope_vulkan_device_create_raytracing_hierarchy(kope_g5_device *device, kope_g5_raytracing_volume **volumes, kinc_matrix4x4_t *volume_transforms,
-                                                   uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy);
+                                                    uint32_t volumes_count, kope_g5_raytracing_hierarchy *hierarchy);
 
 void kope_vulkan_device_create_query_set(kope_g5_device *device, const kope_g5_query_set_parameters *parameters, kope_g5_query_set *query_set);
 

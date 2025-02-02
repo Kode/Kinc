@@ -104,7 +104,7 @@ static kinc_a1_sound_t *find_sound(void) {
 	return NULL;
 }
 
-kinc_a1_sound_t *kinc_a1_sound_create_from_buffer(uint8_t* audio_data, const uint32_t size, kinc_a1_audioformat_t format){
+kinc_a1_sound_t *kinc_a1_sound_create_from_buffer(uint8_t *audio_data, const uint32_t size, kinc_a1_audioformat_t format) {
 	kinc_a1_sound_t *sound = find_sound();
 	assert(sound != NULL);
 	sound->in_use = true;
@@ -115,7 +115,7 @@ kinc_a1_sound_t *kinc_a1_sound_create_from_buffer(uint8_t* audio_data, const uin
 	// size_t filenameLength = strlen(filename);
 	uint8_t *data = NULL;
 
-    if (format == KINC_A1_AUDIOFORMAT_OGG){
+	if (format == KINC_A1_AUDIOFORMAT_OGG) {
 		int channels, sample_rate;
 		int samples = stb_vorbis_decode_memory(audio_data, size, &channels, &sample_rate, (short **)&data);
 		kinc_affirm(samples > 0);
@@ -123,8 +123,8 @@ kinc_a1_sound_t *kinc_a1_sound_create_from_buffer(uint8_t* audio_data, const uin
 		sound->samples_per_second = (uint32_t)sample_rate;
 		sound->size = samples * 2 * sound->channel_count;
 		sound->bits_per_sample = 16;
-    } 
-    else if (format == KINC_A1_AUDIOFORMAT_WAV) {
+	}
+	else if (format == KINC_A1_AUDIOFORMAT_WAV) {
 		struct WaveData wave = {0};
 		{
 			uint8_t *data = audio_data;
@@ -143,10 +143,10 @@ kinc_a1_sound_t *kinc_a1_sound_create_from_buffer(uint8_t* audio_data, const uin
 		sound->samples_per_second = wave.sampleRate;
 		data = wave.data;
 		sound->size = wave.dataSize;
-    }
-    else {
+	}
+	else {
 		kinc_affirm(false);
-    }
+	}
 
 	if (sound->channel_count == 1) {
 		if (sound->bits_per_sample == 8) {
@@ -191,32 +191,32 @@ kinc_a1_sound_t *kinc_a1_sound_create_from_buffer(uint8_t* audio_data, const uin
 kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 	size_t filenameLength = strlen(filename);
 
-    kinc_a1_audioformat_t fileformat;
+	kinc_a1_audioformat_t fileformat;
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
-        fileformat = KINC_A1_AUDIOFORMAT_OGG;
-    }
+		fileformat = KINC_A1_AUDIOFORMAT_OGG;
+	}
 	else if (strncmp(&filename[filenameLength - 4], ".wav", 4) == 0) {
 		fileformat = KINC_A1_AUDIOFORMAT_WAV;
-    }
-    else {
-        assert(false);
-    }
+	}
+	else {
+		assert(false);
+	}
 
-    kinc_file_reader_t file;
-    if (!kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET)) {
-        return NULL;
-    }
+	kinc_file_reader_t file;
+	if (!kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET)) {
+		return NULL;
+	}
 
-    uint8_t *filedata = (uint8_t *)malloc(kinc_file_reader_size(&file));
-    kinc_file_reader_read(&file, filedata, kinc_file_reader_size(&file));
-    kinc_file_reader_close(&file);
-    size_t filesize = kinc_file_reader_size(&file);
+	uint8_t *filedata = (uint8_t *)malloc(kinc_file_reader_size(&file));
+	kinc_file_reader_read(&file, filedata, kinc_file_reader_size(&file));
+	kinc_file_reader_close(&file);
+	size_t filesize = kinc_file_reader_size(&file);
 
-    kinc_a1_sound_t* sound = kinc_a1_sound_create_from_buffer(filedata, (uint32_t)filesize, fileformat);
+	kinc_a1_sound_t *sound = kinc_a1_sound_create_from_buffer(filedata, (uint32_t)filesize, fileformat);
 
-    free(filedata);
+	free(filedata);
 
-    return sound;
+	return sound;
 }
 
 void kinc_a1_sound_destroy(kinc_a1_sound_t *sound) {

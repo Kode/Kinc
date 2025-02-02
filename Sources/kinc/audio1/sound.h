@@ -26,10 +26,7 @@ typedef struct kinc_a1_sound {
 	bool in_use;
 } kinc_a1_sound_t;
 
-typedef enum {
-	KINC_A1_AUDIOFORMAT_WAV,
-	KINC_A1_AUDIOFORMAT_OGG
-} kinc_a1_audioformat_t;
+typedef enum { KINC_A1_AUDIOFORMAT_WAV, KINC_A1_AUDIOFORMAT_OGG } kinc_a1_audioformat_t;
 
 /// <summary>
 /// Create a sound from a wav or ogg file.
@@ -43,7 +40,7 @@ KINC_FUNC kinc_a1_sound_t *kinc_a1_sound_create(const char *filename);
 /// </summary>
 /// <param name="filename">Path to a wav file</param>
 /// <returns>The newly created sound</returns>
-KINC_FUNC kinc_a1_sound_t *kinc_a1_sound_create_from_buffer(uint8_t* audio_data, const uint32_t size, kinc_a1_audioformat_t format);
+KINC_FUNC kinc_a1_sound_t *kinc_a1_sound_create_from_buffer(uint8_t *audio_data, const uint32_t size, kinc_a1_audioformat_t format);
 
 /// <summary>
 /// Destroy a sound.

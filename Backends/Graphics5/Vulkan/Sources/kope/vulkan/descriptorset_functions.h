@@ -16,11 +16,11 @@ void kope_vulkan_descriptor_set_set_buffer_view_srv(kope_g5_device *device, kope
 void kope_vulkan_descriptor_set_set_bvh_view_srv(kope_g5_device *device, kope_vulkan_descriptor_set *set, kope_g5_raytracing_hierarchy *bvh, uint32_t index);
 void kope_vulkan_descriptor_set_set_texture_view_srv(kope_g5_device *device, uint32_t offset, const kope_g5_texture_view *texture_view);
 void kope_vulkan_descriptor_set_set_texture_array_view_srv(kope_g5_device *device, kope_vulkan_descriptor_set *set, const kope_g5_texture_view *texture_view,
-                                                          uint32_t index);
+                                                           uint32_t index);
 void kope_vulkan_descriptor_set_set_texture_cube_view_srv(kope_g5_device *device, kope_vulkan_descriptor_set *set, const kope_g5_texture_view *texture_view,
-                                                         uint32_t index);
+                                                          uint32_t index);
 void kope_vulkan_descriptor_set_set_texture_view_uav(kope_g5_device *device, kope_vulkan_descriptor_set *set, const kope_g5_texture_view *texture_view,
-                                                    uint32_t index);
+                                                     uint32_t index);
 void kope_vulkan_descriptor_set_set_sampler(kope_g5_device *device, kope_vulkan_descriptor_set *set, kope_g5_sampler *sampler, uint32_t index);
 
 void kope_vulkan_descriptor_set_prepare_cbv_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, uint32_t offset, uint32_t size);

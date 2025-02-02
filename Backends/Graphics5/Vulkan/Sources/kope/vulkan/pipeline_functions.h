@@ -12,7 +12,8 @@ void kope_vulkan_render_pipeline_init(kope_vulkan_device *device, kope_vulkan_re
 
 void kope_vulkan_render_pipeline_destroy(kope_vulkan_render_pipeline *pipe);
 
-void kope_vulkan_compute_pipeline_init(kope_vulkan_device *device, kope_vulkan_compute_pipeline *pipe, const kope_vulkan_compute_pipeline_parameters *parameters);
+void kope_vulkan_compute_pipeline_init(kope_vulkan_device *device, kope_vulkan_compute_pipeline *pipe,
+                                       const kope_vulkan_compute_pipeline_parameters *parameters);
 
 void kope_vulkan_compute_pipeline_destroy(kope_vulkan_compute_pipeline *pipe);
 

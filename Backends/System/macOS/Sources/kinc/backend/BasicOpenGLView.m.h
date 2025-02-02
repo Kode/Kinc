@@ -427,7 +427,7 @@ static CAMetalLayer *metalLayer = NULL;
 #ifdef KOPE
 	metalLayer = (CAMetalLayer *)self.layer;
 
-	//metalLayer.device = device;
+	// metalLayer.device = device;
 	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 	metalLayer.framebufferOnly = YES;
 	// metalLayer.presentsWithTransaction = YES;
@@ -449,7 +449,7 @@ static CAMetalLayer *metalLayer = NULL;
 	metalLayer.opaque = YES;
 	metalLayer.backgroundColor = nil;
 #endif
-	
+
 	return self;
 }
 #endif
