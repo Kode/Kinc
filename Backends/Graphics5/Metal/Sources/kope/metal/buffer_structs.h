@@ -10,7 +10,7 @@ extern "C" {
 struct kope_g5_device;
 
 typedef struct kope_metal_buffer {
-	int nothing;
+	void *buffer;
 } kope_metal_buffer;
 
 #ifdef __cplusplus

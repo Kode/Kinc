@@ -10,8 +10,13 @@
 
 #include <assert.h>
 
-void kope_metal_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
+CAMetalLayer *get_metal_layer(void);
 
+void kope_metal_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
+	id<MTLDevice> metal_device = MTLCreateSystemDefaultDevice();
+	get_metal_layer().device = metal_device;
+	device->metal.device = (__bridge_retained void *)metal_device;
+	device->metal.library = (__bridge_retained void *)[metal_device newDefaultLibrary];
 }
 
 void kope_metal_device_destroy(kope_g5_device *device) {
@@ -23,11 +28,25 @@ void kope_metal_device_set_name(kope_g5_device *device, const char *name) {
 }
 
 void kope_metal_device_create_buffer(kope_g5_device *device, const kope_g5_buffer_parameters *parameters, kope_g5_buffer *buffer) {
-	
+	id<MTLDevice> metal_device = (__bridge id<MTLDevice>)device->metal.device;
+	MTLResourceOptions options = MTLResourceCPUCacheModeWriteCombined;
+#ifdef KINC_APPLE_SOC
+	options |= MTLResourceStorageModeShared;
+#else
+	if (gpuMemory) {
+		options |= MTLResourceStorageModeManaged;
+	}
+	else {
+		options |= MTLResourceStorageModeShared;
+	}
+#endif
+	id<MTLBuffer> metal_buffer = [metal_device newBufferWithLength:parameters->size options:options];
+	buffer->metal.buffer = (__bridge_retained void *)metal_buffer;
 }
 
 void kope_metal_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list) {
-	
+	id<MTLDevice> metal_device = (__bridge id<MTLDevice>)device->metal.device;
+	list->metal.queue = (__bridge_retained void *)[metal_device newCommandQueue];
 }
 
 void kope_metal_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {

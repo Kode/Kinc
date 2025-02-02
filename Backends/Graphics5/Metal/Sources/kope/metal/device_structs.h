@@ -13,7 +13,8 @@ extern "C" {
 #define KOPE_METAL_FRAME_COUNT 2
 
 typedef struct kope_metal_device {
-	int nothing;
+	void *device;
+	void *library;
 } kope_metal_device;
 
 typedef struct kope_metal_query_set {

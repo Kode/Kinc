@@ -419,14 +419,27 @@ static bool controlKeyMouseButton = false;
 }
 #else
 
+static CAMetalLayer *metalLayer = NULL;
+
 - (id)initWithFrame:(NSRect)frameRect {
 	self = [super initWithFrame:frameRect];
 
+#ifdef KOPE
+	metalLayer = (CAMetalLayer *)self.layer;
+
+	//metalLayer.device = device;
+	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+	metalLayer.framebufferOnly = YES;
+	// metalLayer.presentsWithTransaction = YES;
+
+	metalLayer.opaque = YES;
+	metalLayer.backgroundColor = nil;
+#else
 	device = MTLCreateSystemDefaultDevice();
 	commandQueue = [device newCommandQueue];
 	library = [device newDefaultLibrary];
 
-	CAMetalLayer *metalLayer = (CAMetalLayer *)self.layer;
+	metalLayer = (CAMetalLayer *)self.layer;
 
 	metalLayer.device = device;
 	metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -435,7 +448,8 @@ static bool controlKeyMouseButton = false;
 
 	metalLayer.opaque = YES;
 	metalLayer.backgroundColor = nil;
-
+#endif
+	
 	return self;
 }
 #endif
@@ -472,6 +486,11 @@ static bool controlKeyMouseButton = false;
 - (id<MTLCommandQueue>)metalQueue {
 	return commandQueue;
 }
+
+CAMetalLayer *get_metal_layer(void) {
+	return metalLayer;
+}
+
 #endif
 
 @end
