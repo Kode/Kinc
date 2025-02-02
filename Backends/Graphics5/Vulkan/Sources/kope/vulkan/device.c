@@ -13,8 +13,14 @@
 #include <assert.h>
 #include <stdlib.h>
 
-void kinc_vulkan_get_instance_extensions(const char **extensions, int *index, int max);
-VkBool32 kinc_vulkan_get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
+static void get_instance_extensions(const char **names, int *index, int max) {
+	assert(*index + 1 < max);
+	names[(*index)++] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
+}
+
+static VkBool32 get_physical_device_presentation_support(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
+	return vkGetPhysicalDeviceWin32PresentationSupportKHR(physicalDevice, queueFamilyIndex);
+}
 
 static VkBool32 vkDebugUtilsMessengerCallbackEXT(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageTypes,
                                                  const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData) {
@@ -239,7 +245,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 
 	wanted_instance_extensions[wanted_instance_extension_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
 	wanted_instance_extensions[wanted_instance_extension_count++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
-	kinc_vulkan_get_instance_extensions(wanted_instance_extensions, &wanted_instance_extension_count, ARRAY_SIZE(wanted_instance_extensions));
+	get_instance_extensions(wanted_instance_extensions, &wanted_instance_extension_count, ARRAY_SIZE(wanted_instance_extensions));
 
 	err = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_count, NULL);
 	assert(!err);
@@ -335,7 +341,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 			// Just to be 100% safe verify that it supports both anyway.
 			bool can_compute = false;
 			for (uint32_t i = 0; i < queue_count; i++) {
-				VkBool32 queue_supports_present = kinc_vulkan_get_physical_device_presentation_support(gpu, i);
+				VkBool32 queue_supports_present = get_physical_device_presentation_support(gpu, i);
 				if (queue_supports_present) {
 					can_present = true;
 				}
@@ -510,7 +516,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 		// Iterate over each queue to learn whether it supports presenting:
 		VkBool32 *supportsPresent = (VkBool32 *)malloc(queue_count * sizeof(VkBool32));
 		for (uint32_t i = 0; i < queue_count; i++) {
-			supportsPresent[i] = kinc_vulkan_get_physical_device_presentation_support(vk_ctx.gpu, i);
+			supportsPresent[i] = get_physical_device_presentation_support(vk_ctx.gpu, i);
 			// vk.fpGetPhysicalDeviceSurfaceSupportKHR(vk_ctx.gpu, i, surface, &supportsPresent[i]);
 		}
 
