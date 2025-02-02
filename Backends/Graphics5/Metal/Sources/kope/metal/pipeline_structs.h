@@ -47,13 +47,18 @@ typedef enum kope_metal_vertex_format {
 } kope_metal_vertex_format;
 
 typedef struct kope_metal_vertex_attribute {
-	int nothing;
+	kope_metal_vertex_format format;
+	uint64_t offset;
+	uint32_t shader_location;
 } kope_metal_vertex_attribute;
 
 #define KOPE_METAL_MAX_VERTEX_ATTRIBUTES 32
 
 typedef struct kope_metal_vertex_buffer_layout {
-	int nothing;
+	uint64_t array_stride;
+	kope_metal_vertex_step_mode step_mode;
+	kope_metal_vertex_attribute attributes[KOPE_D3D12_MAX_VERTEX_ATTRIBUTES];
+	size_t attributes_count;
 } kope_metal_vertex_buffer_layout;
 
 typedef struct kope_metal_shader {
@@ -63,7 +68,9 @@ typedef struct kope_metal_shader {
 #define KOPE_METAL_MAX_VERTEX_BUFFERS 16
 
 typedef struct kope_metal_vertex_state {
-	int nothing;
+	kope_metal_shader shader;
+	kope_metal_vertex_buffer_layout buffers[KOPE_D3D12_MAX_VERTEX_BUFFERS];
+	size_t buffers_count;
 } kope_metal_vertex_state;
 
 typedef enum kope_metal_primitive_topology {
@@ -79,7 +86,11 @@ typedef enum kope_metal_front_face { KOPE_METAL_FRONT_FACE_CCW, KOPE_METAL_FRONT
 typedef enum kope_metal_cull_mode { KOPE_METAL_CULL_MODE_NONE, KOPE_METAL_CULL_MODE_FRONT, KOPE_METAL_CULL_MODE_BACK } kope_metal_cull_mode;
 
 typedef struct kope_metal_primitive_state {
-	int nothing;
+	kope_metal_primitive_topology topology;
+	kope_g5_index_format strip_index_format;
+	kope_metal_front_face front_face;
+	kope_metal_cull_mode cull_mode;
+	bool unclipped_depth;
 } kope_metal_primitive_state;
 
 typedef enum kope_metal_stencil_operation {
@@ -94,15 +105,29 @@ typedef enum kope_metal_stencil_operation {
 } kope_metal_stencil_operation;
 
 typedef struct kope_metal_stencil_face_state {
-	int nothing;
+	kope_g5_compare_function compare;
+	kope_metal_stencil_operation fail_op;
+	kope_metal_stencil_operation depth_fail_op;
+	kope_metal_stencil_operation pass_op;
 } kope_metal_stencil_face_state;
 
 typedef struct kope_metal_depth_stencil_state {
-	int nothing;
+	kope_g5_texture_format format;
+	bool depth_write_enabled;
+	kope_g5_compare_function depth_compare;
+	kope_metal_stencil_face_state stencil_front;
+	kope_metal_stencil_face_state stencil_back;
+	uint32_t stencil_read_mask;
+	uint32_t stencil_write_mask;
+	int32_t depth_bias;
+	float depth_bias_slope_scale;
+	float depth_bias_clamp;
 } kope_metal_depth_stencil_state;
 
 typedef struct kope_metal_multisample_state {
-	int nothing;
+	uint32_t count;
+	uint32_t mask;
+	bool alpha_to_coverage_enabled;
 } kope_metal_multisample_state;
 
 typedef enum kope_metal_blend_operation {
@@ -130,11 +155,14 @@ typedef enum kope_metal_blend_factor {
 } kope_metal_blend_factor;
 
 typedef struct kope_metal_blend_component {
-	int nothing;
+	kope_metal_blend_operation operation;
+	kope_metal_blend_factor src_factor;
+	kope_metal_blend_factor dst_factor;
 } kope_metal_blend_component;
 
 typedef struct kope_metal_blend_state {
-	int nothing;
+	kope_metal_blend_component color;
+	kope_metal_blend_component alpha;
 } kope_metal_blend_state;
 
 typedef enum kope_metal_color_write_flags {
@@ -146,17 +174,25 @@ typedef enum kope_metal_color_write_flags {
 } kope_metal_color_write_flags;
 
 typedef struct kope_metal_color_target_state {
-	int nothing;
+	kope_g5_texture_format format;
+	kope_metal_blend_state blend;
+	uint32_t write_mask;
 } kope_metal_color_target_state;
 
 #define KOPE_METAL_MAX_COLOR_TARGETS 8
 
 typedef struct kope_metal_fragment_state {
-	int nothing;
+	kope_metal_shader shader;
+	kope_metal_color_target_state targets[KOPE_D3D12_MAX_COLOR_TARGETS];
+	size_t targets_count;
 } kope_metal_fragment_state;
 
 typedef struct kope_metal_render_pipeline_parameters {
-	int nothing;
+	kope_metal_vertex_state vertex;
+	kope_metal_primitive_state primitive;
+	kope_metal_depth_stencil_state depth_stencil;
+	kope_metal_multisample_state multisample;
+	kope_metal_fragment_state fragment;
 } kope_metal_render_pipeline_parameters;
 
 typedef struct kope_metal_render_pipeline {
@@ -164,7 +200,7 @@ typedef struct kope_metal_render_pipeline {
 } kope_metal_render_pipeline;
 
 typedef struct kope_metal_compute_pipeline_parameters {
-	int nothing;
+	kope_metal_shader shader;
 } kope_metal_compute_pipeline_parameters;
 
 typedef struct kope_metal_compute_pipeline {
@@ -172,7 +208,11 @@ typedef struct kope_metal_compute_pipeline {
 } kope_metal_compute_pipeline;
 
 typedef struct kope_metal_ray_pipeline_parameters {
-	int nothing;
+	kope_metal_shader gen_shader;
+	kope_metal_shader miss_shader;
+	kope_metal_shader closest_shader;
+	kope_metal_shader intersection_shader;
+	kope_metal_shader any_shader;
 } kope_metal_ray_pipeline_parameters;
 
 typedef struct kope_metal_ray_pipeline {
