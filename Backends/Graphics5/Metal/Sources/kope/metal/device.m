@@ -10,11 +10,11 @@
 
 #include <assert.h>
 
-CAMetalLayer *get_metal_layer(void);
+CAMetalLayer *getMetalLayer(void);
 
 void kope_metal_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
 	id<MTLDevice> metal_device = MTLCreateSystemDefaultDevice();
-	get_metal_layer().device = metal_device;
+	getMetalLayer().device = metal_device;
 	device->metal.device = (__bridge_retained void *)metal_device;
 	device->metal.library = (__bridge_retained void *)[metal_device newDefaultLibrary];
 }
@@ -46,19 +46,27 @@ void kope_metal_device_create_buffer(kope_g5_device *device, const kope_g5_buffe
 
 void kope_metal_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list) {
 	id<MTLDevice> metal_device = (__bridge id<MTLDevice>)device->metal.device;
-	list->metal.queue = (__bridge_retained void *)[metal_device newCommandQueue];
+	id<MTLCommandQueue> command_queue = [metal_device newCommandQueue];
+	list->metal.command_queue = (__bridge_retained void *)command_queue;
+	list->metal.command_buffer = (__bridge_retained void *)[command_queue commandBuffer];
 }
 
 void kope_metal_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
 	
 }
 
+static kope_g5_texture framebuffer;
+
 kope_g5_texture *kope_metal_device_get_framebuffer(kope_g5_device *device) {
-	return NULL;
+	CAMetalLayer *metal_layer = getMetalLayer();
+	id<CAMetalDrawable> drawable = [metal_layer nextDrawable];
+	framebuffer.metal.texture = (__bridge_retained void *)drawable.texture;
+	return &framebuffer;
 }
 
 void kope_metal_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
-	
+	id<MTLCommandBuffer> command_buffer = (__bridge id<MTLCommandBuffer>)list->metal.command_buffer;
+	[command_buffer commit];
 }
 
 void kope_metal_device_wait_until_idle(kope_g5_device *device) {

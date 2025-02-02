@@ -18,15 +18,33 @@ void kope_metal_command_list_destroy(kope_g5_command_list *list) {
 }
 
 void kope_metal_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
-	
+	id<MTLTexture> texture = (__bridge id<MTLTexture>)parameters->color_attachments[0].texture.texture->metal.texture;
+	MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+	renderPassDescriptor.colorAttachments[0].texture = texture;
+	renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+	renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+	renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+	renderPassDescriptor.depthAttachment.clearDepth = 1;
+	renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+	renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+	renderPassDescriptor.depthAttachment.texture = nil; //depthTexture;
+	renderPassDescriptor.stencilAttachment.clearStencil = 0;
+	renderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionDontCare;
+	renderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionDontCare;
+	renderPassDescriptor.stencilAttachment.texture = nil; //depthTexture;
+
+	id<MTLCommandBuffer> command_buffer = (__bridge id<MTLCommandBuffer>)list->metal.command_buffer;
+	list->metal.render_command_encoder = (__bridge_retained void *)[command_buffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 }
 
 void kope_metal_command_list_end_render_pass(kope_g5_command_list *list) {
-	
+	id<MTLRenderCommandEncoder> render_command_encoder = (__bridge id<MTLRenderCommandEncoder>)list->metal.render_command_encoder;
+	[render_command_encoder endEncoding];
+	list->metal.render_command_encoder = NULL;
 }
 
 void kope_metal_command_list_present(kope_g5_command_list *list) {
-	
+	//[command_buffer presentDrawable:drawable];
 }
 
 void kope_metal_command_list_set_index_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, kope_g5_index_format index_format, uint64_t offset,

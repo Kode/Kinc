@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 typedef struct kope_metal_texture {
-	int nothing;
+	void *texture;
 } kope_metal_texture;
 
 #ifdef __cplusplus

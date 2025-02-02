@@ -486,11 +486,6 @@ static CAMetalLayer *metalLayer = NULL;
 - (id<MTLCommandQueue>)metalQueue {
 	return commandQueue;
 }
-
-CAMetalLayer *get_metal_layer(void) {
-	return metalLayer;
-}
-
 #endif
 
 @end

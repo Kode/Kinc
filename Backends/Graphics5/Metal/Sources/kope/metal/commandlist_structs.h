@@ -20,7 +20,9 @@ typedef struct kope_metal_buffer_access {
 } kope_metal_buffer_access;
 
 typedef struct kope_metal_command_list {
-	void *queue;
+	void *command_queue;
+	void *command_buffer;
+	void *render_command_encoder;
 } kope_metal_command_list;
 
 #ifdef __cplusplus
