@@ -47,7 +47,7 @@ void kinc_g2_end(void);
 kinc_matrix3x3_t kinc_g2_get_transformation(void);
 void kinc_g2_set_transformation(kinc_matrix3x3_t transformation);
 void kinc_g2_push_transformation(kinc_matrix3x3_t trans);
-kinc_matrix3x3_t kinc_g2_pop_transformation();
+kinc_matrix3x3_t kinc_g2_pop_transformation(void);
 void kinc_g2_scale(float x, float y);
 void kinc_g2_push_scale(float x, float y);
 kinc_matrix3x3_t kinc_g2_translation(float tx, float ty);
@@ -57,8 +57,8 @@ kinc_matrix3x3_t kinc_g2_rotation(float angle, float centerx, float centery);
 void kinc_g2_rotate(float angle, float centerx, float centery);
 void kinc_g2_push_rotation(float angle, float centerx, float centery);
 void kinc_g2_push_opacity(float opacity);
-float kinc_g2_pop_opacity();
-float kinc_g2_get_opacity();
+float kinc_g2_pop_opacity(void);
+float kinc_g2_get_opacity(void);
 void kinc_g2_set_opacity(float opacity);
 
 #else

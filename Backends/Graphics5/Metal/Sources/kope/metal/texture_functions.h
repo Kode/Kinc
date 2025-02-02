@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-
+void kope_metal_texture_set_name(kope_g5_texture *texture, const char *name);
 
 #ifdef __cplusplus
 }

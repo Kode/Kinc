@@ -62,7 +62,8 @@ typedef struct kope_metal_vertex_buffer_layout {
 } kope_metal_vertex_buffer_layout;
 
 typedef struct kope_metal_shader {
-	int nothing;
+	uint8_t *data;
+	size_t size;
 } kope_metal_shader;
 
 #define KOPE_METAL_MAX_VERTEX_BUFFERS 16

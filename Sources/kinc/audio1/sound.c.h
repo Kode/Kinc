@@ -190,7 +190,6 @@ kinc_a1_sound_t *kinc_a1_sound_create_from_buffer(uint8_t* audio_data, const uin
 
 kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
 	size_t filenameLength = strlen(filename);
-	uint8_t *data = NULL;
 
     kinc_a1_audioformat_t fileformat;
 	if (strncmp(&filename[filenameLength - 4], ".ogg", 4) == 0) {
@@ -213,7 +212,7 @@ kinc_a1_sound_t *kinc_a1_sound_create(const char *filename) {
     kinc_file_reader_close(&file);
     size_t filesize = kinc_file_reader_size(&file);
 
-    kinc_a1_sound_t* sound = kinc_a1_sound_create_from_buffer(filedata,filesize,fileformat);
+    kinc_a1_sound_t* sound = kinc_a1_sound_create_from_buffer(filedata, (uint32_t)filesize, fileformat);
 
     free(filedata);
 

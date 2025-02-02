@@ -4,6 +4,10 @@
 #include <kope/direct3d12/device_functions.h>
 #endif
 
+#ifdef KOPE_METAL
+#include <kope/metal/device_functions.h>
+#endif
+
 #ifdef KOPE_VULKAN
 #include <kope/vulkan/device_functions.h>
 #endif

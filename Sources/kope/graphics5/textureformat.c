@@ -106,6 +106,8 @@ bool kope_g5_texture_format_is_depth(kope_g5_texture_format format) {
 	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT:
 	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT_STENCIL8_NOTHING24:
 		return true;
+	default:
+		return false;
 	}
 	return false;
 }
