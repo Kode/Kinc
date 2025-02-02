@@ -190,7 +190,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>}</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
 <div class="foldopen" id="foldopen00107" data-start="{" data-end="}">
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="sound_8h.html#abfc6940b52c173930e651e82e3efe29f">  107</a></span><a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *kinc_a1_sound_create_from_buffer(uint8_t* audio_data, <span class="keyword">const</span> uint32_t size, kinc_a1_audioformat_t format){</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno"><a class="line" href="sound_8h.html#abfc6940b52c173930e651e82e3efe29f">  107</a></span><a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *kinc_a1_sound_create_from_buffer(uint8_t *audio_data, <span class="keyword">const</span> uint32_t size, kinc_a1_audioformat_t format) {</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound = find_sound();</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    assert(sound != NULL);</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    sound-&gt;in_use = <span class="keyword">true</span>;</div>
@@ -201,7 +201,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="comment">// size_t filenameLength = strlen(filename);</span></div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    uint8_t *data = NULL;</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keywordflow">if</span> (format == KINC_A1_AUDIOFORMAT_OGG){</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keywordflow">if</span> (format == KINC_A1_AUDIOFORMAT_OGG) {</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        <span class="keywordtype">int</span> channels, sample_rate;</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        <span class="keywordtype">int</span> samples = stb_vorbis_decode_memory(audio_data, size, &amp;channels, &amp;sample_rate, (<span class="keywordtype">short</span> **)&amp;data);</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        <a class="code hl_function" href="error_8h.html#a2d847867382dad8cec8995ea337766c9">kinc_affirm</a>(samples &gt; 0);</div>
@@ -209,7 +209,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        sound-&gt;samples_per_second = (uint32_t)sample_rate;</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        sound-&gt;size = samples * 2 * sound-&gt;channel_count;</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        sound-&gt;bits_per_sample = 16;</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    } </div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    }</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (format == KINC_A1_AUDIOFORMAT_WAV) {</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        <span class="keyword">struct </span><a class="code hl_struct" href="struct_wave_data.html">WaveData</a> wave = {0};</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>        {</div>
@@ -300,7 +300,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <a class="code hl_function" href="filereader_8h.html#a9c505ccfa41e48e8f087ad055bab335a">kinc_file_reader_close</a>(&amp;file);</div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keywordtype">size_t</span> filesize = <a class="code hl_function" href="filereader_8h.html#a72da9b6963f48433a7e89cf73e1c6f45">kinc_file_reader_size</a>(&amp;file);</div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    <a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a>* sound = kinc_a1_sound_create_from_buffer(filedata, (uint32_t)filesize, fileformat);</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    <a class="code hl_struct" href="structkinc__a1__sound.html">kinc_a1_sound_t</a> *sound = kinc_a1_sound_create_from_buffer(filedata, (uint32_t)filesize, fileformat);</div>
 <div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span> </div>
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    free(filedata);</div>
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
