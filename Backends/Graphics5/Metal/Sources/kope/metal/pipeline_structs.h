@@ -57,7 +57,7 @@ typedef struct kope_metal_vertex_attribute {
 typedef struct kope_metal_vertex_buffer_layout {
 	uint64_t array_stride;
 	kope_metal_vertex_step_mode step_mode;
-	kope_metal_vertex_attribute attributes[KOPE_D3D12_MAX_VERTEX_ATTRIBUTES];
+	kope_metal_vertex_attribute attributes[KOPE_METAL_MAX_VERTEX_ATTRIBUTES];
 	size_t attributes_count;
 } kope_metal_vertex_buffer_layout;
 
@@ -69,7 +69,7 @@ typedef struct kope_metal_shader {
 
 typedef struct kope_metal_vertex_state {
 	kope_metal_shader shader;
-	kope_metal_vertex_buffer_layout buffers[KOPE_D3D12_MAX_VERTEX_BUFFERS];
+	kope_metal_vertex_buffer_layout buffers[KOPE_METAL_MAX_VERTEX_BUFFERS];
 	size_t buffers_count;
 } kope_metal_vertex_state;
 
@@ -183,7 +183,7 @@ typedef struct kope_metal_color_target_state {
 
 typedef struct kope_metal_fragment_state {
 	kope_metal_shader shader;
-	kope_metal_color_target_state targets[KOPE_D3D12_MAX_COLOR_TARGETS];
+	kope_metal_color_target_state targets[KOPE_METAL_MAX_COLOR_TARGETS];
 	size_t targets_count;
 } kope_metal_fragment_state;
 
