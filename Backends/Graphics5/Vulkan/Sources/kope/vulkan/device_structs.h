@@ -6,6 +6,8 @@
 #include <kope/util/indexallocator.h>
 #include <kope/util/offalloc/offalloc.h>
 
+#include "vulkanmini.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,7 +15,10 @@ extern "C" {
 #define KOPE_VULKAN_FRAME_COUNT 2
 
 typedef struct kope_vulkan_device {
-	int nothing;
+	VkDevice device;
+	VkCommandPool command_pool;
+	VkQueue queue;
+	VkPhysicalDeviceMemoryProperties device_memory_properties;
 } kope_vulkan_device;
 
 typedef struct kope_vulkan_query_set {
