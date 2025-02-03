@@ -41,6 +41,13 @@ KINC_FUNC void kinc_gamepad_set_axis_callback(void (*value)(int /*gamepad*/, int
 KINC_FUNC void kinc_gamepad_set_button_callback(void (*value)(int /*gamepad*/, int /*button*/, float /*value*/, void * /*userdata*/), void *userdata);
 
 /// <summary>
+/// Sets the preferred number of gamepads for the application to work properly. The platform may display a system
+/// dialog to ask for more players to join the party. The operation is not guaranteed to succeed.
+/// </summary>
+/// <param name="count">The desired number of connected gamepads</param>
+KINC_FUNC void kinc_gamepad_set_count(int count);
+
+/// <summary>
 /// Returns a vendor-name for a gamepad.
 /// </summary>
 /// <param name="gamepad">The index of the gamepad for which to receive the vendor-name</param>

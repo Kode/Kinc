@@ -167,6 +167,8 @@ void kinc_login(void) {}
 
 void kinc_unlock_achievement(int id) {}
 
+void kinc_gamepad_set_count(int count) {}
+
 const char *kinc_gamepad_vendor(int gamepad) {
 	return "nobody";
 }
