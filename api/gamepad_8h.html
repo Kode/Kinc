@@ -106,6 +106,9 @@ Functions</h2></td></tr>
 <tr class="memitem:aa86b6233e65f1803dfccdcf5fe8e46c7" id="r_aa86b6233e65f1803dfccdcf5fe8e46c7"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#aa86b6233e65f1803dfccdcf5fe8e46c7">kinc_gamepad_set_button_callback</a> (void(*value)(int, int, float, void *), void *userdata)</td></tr>
 <tr class="memdesc:aa86b6233e65f1803dfccdcf5fe8e46c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the gamepad-button-callback which is called with data about changing gamepad-buttons.  <br /></td></tr>
 <tr class="separator:aa86b6233e65f1803dfccdcf5fe8e46c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab92aed5a5d772ddd5352dcd0662b281c" id="r_ab92aed5a5d772ddd5352dcd0662b281c"><td class="memItemLeft" align="right" valign="top">KINC_FUNC void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#ab92aed5a5d772ddd5352dcd0662b281c">kinc_gamepad_set_count</a> (int count)</td></tr>
+<tr class="memdesc:ab92aed5a5d772ddd5352dcd0662b281c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the preferred number of gamepads for the application to work properly. The platform may display a system dialog to ask for more players to join the party. The operation is not guaranteed to succeed.  <br /></td></tr>
+<tr class="separator:ab92aed5a5d772ddd5352dcd0662b281c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb2fc968628e4ec4c86c4979e5e78ab2" id="r_afb2fc968628e4ec4c86c4979e5e78ab2"><td class="memItemLeft" align="right" valign="top">KINC_FUNC const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gamepad_8h.html#afb2fc968628e4ec4c86c4979e5e78ab2">kinc_gamepad_vendor</a> (int gamepad)</td></tr>
 <tr class="memdesc:afb2fc968628e4ec4c86c4979e5e78ab2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a vendor-name for a gamepad.  <br /></td></tr>
 <tr class="separator:afb2fc968628e4ec4c86c4979e5e78ab2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -325,6 +328,32 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">value</td><td>The callback</td></tr>
     <tr><td class="paramname">userdata</td><td>Userdata you will receive back as the 2nd callback parameter</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab92aed5a5d772ddd5352dcd0662b281c" name="ab92aed5a5d772ddd5352dcd0662b281c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab92aed5a5d772ddd5352dcd0662b281c">&#9670;&#160;</a></span>kinc_gamepad_set_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">KINC_FUNC void kinc_gamepad_set_count </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>count</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the preferred number of gamepads for the application to work properly. The platform may display a system dialog to ask for more players to join the party. The operation is not guaranteed to succeed. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">count</td><td>The desired number of connected gamepads</td></tr>
   </table>
   </dd>
 </dl>
