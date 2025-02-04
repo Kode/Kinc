@@ -5,6 +5,8 @@
 #include <kope/graphics5/device.h>
 #include <kope/util/align.h>
 
+#include <kinc/backend/Windows.h>
+
 #include <kinc/error.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
@@ -279,6 +281,166 @@ uint32_t find_graphics_queue_family(void) {
 	return 0;
 }
 
+static void create_swapchain(kope_g5_device *device, uint32_t graphics_queue_family_index) {
+	HWND window_handle = kinc_windows_window_handle(0);
+	uint32_t window_width = kinc_window_width(0);
+	uint32_t window_height = kinc_window_height(0);
+	bool vsync = kinc_window_vsynced(0);
+
+	const VkWin32SurfaceCreateInfoKHR surface_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+	    .pNext = NULL,
+	    .flags = 0,
+	    .hinstance = GetModuleHandle(NULL),
+	    .hwnd = window_handle,
+	};
+
+	VkSurfaceKHR surface;
+	VkResult result = vkCreateWin32SurfaceKHR(vulkan_instance, &surface_create_info, NULL, &surface);
+
+	VkBool32 surface_supported;
+	result = vkGetPhysicalDeviceSurfaceSupportKHR(vulkan_gpu, graphics_queue_family_index, surface, &surface_supported);
+	assert(result == VK_SUCCESS);
+	assert(surface_supported);
+
+	VkSurfaceFormatKHR format;
+
+	VkSurfaceFormatKHR surfFormats[256];
+	uint32_t formatCount = sizeof(surfFormats) / sizeof(surfFormats[0]);
+	result = vulkan_GetPhysicalDeviceSurfaceFormatsKHR(vulkan_gpu, surface, &formatCount, surfFormats);
+	assert(result == VK_SUCCESS);
+
+	// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
+	// the surface has no preferred format.  Otherwise, at least one
+	// supported format will be returned.
+	if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) {
+		format = surfFormats[0];
+	}
+	else {
+		assert(formatCount >= 1);
+		bool found = false;
+		for (uint32_t i = 0; i < formatCount; ++i) {
+			// avoid SRGB to avoid automatic gamma-correction
+			if (surfFormats[i].format != VK_FORMAT_B8G8R8A8_SRGB) {
+				format = surfFormats[i];
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			format = surfFormats[0];
+		}
+	}
+
+	VkSurfaceCapabilitiesKHR surfCapabilities = {0};
+	result = vulkan_GetPhysicalDeviceSurfaceCapabilitiesKHR(vulkan_gpu, surface, &surfCapabilities);
+	assert(result == VK_SUCCESS);
+
+	VkPresentModeKHR present_modes[32];
+	uint32_t present_mode_count = sizeof(present_modes) / sizeof(present_modes[0]);
+	result = vulkan_GetPhysicalDeviceSurfacePresentModesKHR(vulkan_gpu, surface, &present_mode_count, present_modes);
+	assert(result == VK_SUCCESS);
+
+	VkExtent2D swapchainExtent;
+	if (surfCapabilities.currentExtent.width == (uint32_t)-1) {
+		swapchainExtent.width = window_width;
+		swapchainExtent.height = window_height;
+	}
+	else {
+		swapchainExtent = surfCapabilities.currentExtent;
+		window_width = surfCapabilities.currentExtent.width;
+		window_height = surfCapabilities.currentExtent.height;
+	}
+
+	VkPresentModeKHR swapchainPresentMode = vsync ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_MAILBOX_KHR;
+
+	uint32_t desiredNumberOfSwapchainImages = surfCapabilities.minImageCount + 1;
+	if ((surfCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfCapabilities.maxImageCount)) {
+		desiredNumberOfSwapchainImages = surfCapabilities.maxImageCount;
+	}
+
+	VkSurfaceTransformFlagBitsKHR preTransform = {0};
+	if (surfCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
+		preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	}
+	else {
+		preTransform = surfCapabilities.currentTransform;
+	}
+
+	VkSwapchainCreateInfoKHR swapchain_info = {0};
+	swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	swapchain_info.pNext = NULL;
+	swapchain_info.surface = surface;
+	swapchain_info.minImageCount = desiredNumberOfSwapchainImages;
+	swapchain_info.imageFormat = format.format;
+	swapchain_info.imageColorSpace = format.colorSpace;
+	swapchain_info.imageExtent.width = swapchainExtent.width;
+	swapchain_info.imageExtent.height = swapchainExtent.height;
+	swapchain_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	swapchain_info.preTransform = preTransform;
+
+	if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR) {
+		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	}
+	else if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) {
+		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+	}
+	else if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR) {
+		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
+	}
+	else if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR) {
+		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR;
+	}
+	else {
+		kinc_error_message("Vulkan driver problem, no supported composite alpha.");
+	}
+
+	swapchain_info.imageArrayLayers = 1;
+	swapchain_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	swapchain_info.queueFamilyIndexCount = 0;
+	swapchain_info.pQueueFamilyIndices = NULL;
+	swapchain_info.presentMode = swapchainPresentMode;
+	swapchain_info.oldSwapchain = VK_NULL_HANDLE;
+	swapchain_info.clipped = true;
+
+	VkSwapchainKHR swapchain;
+
+	result = vulkan_CreateSwapchainKHR(device->vulkan.device, &swapchain_info, NULL, &swapchain);
+	assert(result == VK_SUCCESS);
+
+	VkImage images[4];
+	uint32_t image_count = sizeof(images) / sizeof(images[0]);
+	result = vulkan_GetSwapchainImagesKHR(device->vulkan.device, swapchain, &image_count, images);
+	assert(result == VK_SUCCESS);
+
+	VkImageView views[4];
+
+	for (uint32_t i = 0; i < image_count; ++i) {
+		VkImageViewCreateInfo color_attachment_view = {
+		    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		    .pNext = NULL,
+		    .format = format.format,
+		    .components.r = VK_COMPONENT_SWIZZLE_R,
+		    .components.g = VK_COMPONENT_SWIZZLE_G,
+		    .components.b = VK_COMPONENT_SWIZZLE_B,
+		    .components.a = VK_COMPONENT_SWIZZLE_A,
+		    .subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+		    .subresourceRange.baseMipLevel = 0,
+		    .subresourceRange.levelCount = 1,
+		    .subresourceRange.baseArrayLayer = 0,
+		    .subresourceRange.layerCount = 1,
+		    .viewType = VK_IMAGE_VIEW_TYPE_2D,
+		    .flags = 0,
+		    .image = images[i],
+		};
+
+		// set_image_layout(images[i], VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+		result = vkCreateImageView(device->vulkan.device, &color_attachment_view, NULL, &views[i]);
+		assert(result == VK_SUCCESS);
+	}
+}
+
 void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
 	const char *instance_layers[64];
 	int instance_layers_count = 0;
@@ -483,6 +645,8 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 
 	result = vkCreateCommandPool(device->vulkan.device, &command_pool_create_info, NULL, &device->vulkan.command_pool);
 	assert(result == VK_SUCCESS);
+
+	create_swapchain(device, graphics_queue_family_index);
 }
 
 void kope_vulkan_device_destroy(kope_g5_device *device) {
