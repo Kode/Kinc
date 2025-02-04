@@ -23,21 +23,6 @@ static VkDebugUtilsMessengerEXT debug_utils_messenger;
 static const bool validation = false;
 #endif
 
-static PFN_vkGetPhysicalDeviceSurfaceSupportKHR vulkan_GetPhysicalDeviceSurfaceSupportKHR = NULL;
-static PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vulkan_GetPhysicalDeviceSurfaceCapabilitiesKHR = NULL;
-static PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vulkan_GetPhysicalDeviceSurfaceFormatsKHR = NULL;
-static PFN_vkGetPhysicalDeviceSurfacePresentModesKHR vulkan_GetPhysicalDeviceSurfacePresentModesKHR = NULL;
-static PFN_vkCreateSwapchainKHR vulkan_CreateSwapchainKHR = NULL;
-static PFN_vkDestroySwapchainKHR vulkan_DestroySwapchainKHR = NULL;
-static PFN_vkGetSwapchainImagesKHR vulkan_GetSwapchainImagesKHR = NULL;
-static PFN_vkDestroySurfaceKHR vulkan_DestroySurfaceKHR = NULL;
-
-static PFN_vkCreateDebugUtilsMessengerEXT vulkan_CreateDebugUtilsMessengerEXT = NULL;
-static PFN_vkDestroyDebugUtilsMessengerEXT vulkan_DestroyDebugUtilsMessengerEXT = NULL;
-
-static PFN_vkAcquireNextImageKHR vulkan_AcquireNextImageKHR = NULL;
-static PFN_vkQueuePresentKHR vulkan_QueuePresentKHR = NULL;
-
 static VkBool32 debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_types,
                                const VkDebugUtilsMessengerCallbackDataEXT *callback_data, void *user_data) {
 	if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
@@ -188,6 +173,10 @@ static void load_extension_functions(void) {
 	GET_VULKAN_FUNCTION(GetSwapchainImagesKHR);
 	GET_VULKAN_FUNCTION(AcquireNextImageKHR);
 	GET_VULKAN_FUNCTION(QueuePresentKHR);
+	GET_VULKAN_FUNCTION(DebugMarkerSetObjectNameEXT);
+	GET_VULKAN_FUNCTION(CmdDebugMarkerBeginEXT);
+	GET_VULKAN_FUNCTION(CmdDebugMarkerEndEXT);
+	GET_VULKAN_FUNCTION(CmdDebugMarkerInsertEXT);
 
 #undef GET_VULKAN_FUNCTION
 }
@@ -378,6 +367,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 	const char *device_extensions[64];
 	int device_extension_count = 0;
 
+	device_extensions[device_extension_count++] = VK_EXT_DEBUG_MARKER_EXTENSION_NAME;
 	device_extensions[device_extension_count++] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 	// Allows negative viewport height to flip viewport
 	device_extensions[device_extension_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
