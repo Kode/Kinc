@@ -486,7 +486,62 @@ void kope_vulkan_device_destroy(kope_g5_device *device) {}
 
 void kope_vulkan_device_set_name(kope_g5_device *device, const char *name) {}
 
-void kope_vulkan_device_create_buffer(kope_g5_device *device, const kope_g5_buffer_parameters *parameters, kope_g5_buffer *buffer) {}
+static bool memory_type_from_properties(kope_g5_device *device, uint32_t type_bits, VkFlags requirements_mask, uint32_t *type_index) {
+	for (uint32_t i = 0; i < 32; ++i) {
+		if ((type_bits & 1) == 1) {
+			if ((device->vulkan.device_memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
+				*type_index = i;
+				return true;
+			}
+		}
+		type_bits >>= 1;
+	}
+	return false;
+}
+
+void kope_vulkan_device_create_buffer(kope_g5_device *device, const kope_g5_buffer_parameters *parameters, kope_g5_buffer *buffer) {
+	buffer->vulkan.device = device->vulkan.device;
+
+	buffer->vulkan.size = parameters->size;
+
+	VkBufferCreateInfo create_info = {0};
+	create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	create_info.pNext = NULL;
+	create_info.size = parameters->size;
+	create_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+#ifdef KINC_VKRT
+	create_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+#endif
+	create_info.flags = 0;
+
+	VkResult result = vkCreateBuffer(device->vulkan.device, &create_info, NULL, &buffer->vulkan.buffer);
+	assert(result == VK_SUCCESS);
+
+	VkMemoryRequirements memory_requirements = {0};
+	vkGetBufferMemoryRequirements(device->vulkan.device, buffer->vulkan.buffer, &memory_requirements);
+
+	VkMemoryAllocateInfo memory_allocate_info;
+	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	memory_allocate_info.pNext = NULL;
+	memory_allocate_info.memoryTypeIndex = 0;
+	memory_allocate_info.allocationSize = memory_requirements.size;
+	bool memory_type_found =
+	    memory_type_from_properties(device, memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &memory_allocate_info.memoryTypeIndex);
+	assert(memory_type_found);
+
+#ifdef KINC_VKRT
+	VkMemoryAllocateFlagsInfo memory_allocate_flags_info = {0};
+	memory_allocate_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+	memory_allocate_flags_info.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR;
+	memory_allocate_info.pNext = &memory_allocate_flags_info;
+#endif
+
+	result = vkAllocateMemory(device->vulkan.device, &memory_allocate_info, NULL, &buffer->vulkan.memory);
+	assert(result == VK_SUCCESS);
+
+	result = vkBindBufferMemory(device->vulkan.device, buffer->vulkan.buffer, buffer->vulkan.memory, 0);
+	assert(result == VK_SUCCESS);
+}
 
 void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list) {}
 
