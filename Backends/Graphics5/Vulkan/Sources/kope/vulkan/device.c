@@ -90,8 +90,9 @@ static bool check_extensions(const char **extensions, int extensions_count, VkEx
 	return true;
 }
 
+static VkExtensionProperties instance_extension_properties[256];
+
 static bool check_instance_extensions(const char **instance_extensions, int instance_extensions_count) {
-	VkExtensionProperties instance_extension_properties[256];
 	uint32_t instance_extension_properties_count = sizeof(instance_extension_properties) / sizeof(instance_extension_properties[0]);
 
 	VkResult result = vkEnumerateInstanceExtensionProperties(NULL, &instance_extension_properties_count, instance_extension_properties);
@@ -100,8 +101,9 @@ static bool check_instance_extensions(const char **instance_extensions, int inst
 	return check_extensions(instance_extensions, instance_extensions_count, instance_extension_properties, instance_extension_properties_count);
 }
 
+static VkExtensionProperties device_extension_properties[256];
+
 static bool check_device_extensions(const char **device_extensions, int device_extensions_count) {
-	VkExtensionProperties device_extension_properties[256];
 	uint32_t device_extension_properties_count = sizeof(device_extension_properties) / sizeof(device_extension_properties[0]);
 
 	VkResult result = vkEnumerateDeviceExtensionProperties(vulkan_gpu, NULL, &device_extension_properties_count, device_extension_properties);
@@ -130,8 +132,9 @@ static bool check_layers(const char **layers, int layers_count, VkLayerPropertie
 	return true;
 }
 
+static VkLayerProperties instance_layer_properties[256];
+
 static bool check_instance_layers(const char **instance_layers, int instance_layers_count) {
-	VkLayerProperties instance_layer_properties[256];
 	uint32_t instance_layer_properties_count = sizeof(instance_layer_properties) / sizeof(instance_layer_properties[0]);
 
 	VkResult result = vkEnumerateInstanceLayerProperties(&instance_layer_properties_count, instance_layer_properties);
@@ -140,8 +143,9 @@ static bool check_instance_layers(const char **instance_layers, int instance_lay
 	return check_layers(instance_layers, instance_layers_count, instance_layer_properties, instance_layer_properties_count);
 }
 
+static VkLayerProperties device_layer_properties[256];
+
 static bool check_device_layers(const char **device_layers, int device_layers_count) {
-	VkLayerProperties device_layer_properties[256];
 	uint32_t device_layer_properties_count = sizeof(device_layer_properties) / sizeof(device_layer_properties[0]);
 
 	VkResult result = vkEnumerateDeviceLayerProperties(vulkan_gpu, &device_layer_properties_count, device_layer_properties);
@@ -305,38 +309,41 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 		instance_extensions[instance_extensions_count++] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
 	}
 
-	VkApplicationInfo app = {0};
-	app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	app.pNext = NULL;
-	app.pApplicationName = kinc_application_name();
-	app.applicationVersion = 0;
-	app.pEngineName = "Kope";
-	app.engineVersion = 0;
+	const VkApplicationInfo application_info = {
+	    .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+	    .pNext = NULL,
+	    .pApplicationName = kinc_application_name(),
+	    .applicationVersion = 0,
+	    .pEngineName = "Kope",
+	    .engineVersion = 0,
 #ifdef KINC_VKRT
-	app.apiVersion = VK_API_VERSION_1_2;
+	    .apiVersion = VK_API_VERSION_1_2,
 #else
-	app.apiVersion = VK_API_VERSION_1_0;
+	    .apiVersion = VK_API_VERSION_1_0,
 #endif
+	};
 
-	VkInstanceCreateInfo info = {0};
-	info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	info.pNext = NULL;
-	info.pApplicationInfo = &app;
+	const VkInstanceCreateInfo instance_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+	    .pNext = NULL,
+	    .pApplicationInfo = &application_info,
 
-	info.enabledLayerCount = instance_layers_count;
-	info.ppEnabledLayerNames = (const char *const *)instance_layers;
+	    .enabledLayerCount = instance_layers_count,
+	    .ppEnabledLayerNames = (const char *const *)instance_layers,
 
-	info.enabledExtensionCount = instance_extensions_count;
-	info.ppEnabledExtensionNames = (const char *const *)instance_extensions;
+	    .enabledExtensionCount = instance_extensions_count,
+	    .ppEnabledExtensionNames = (const char *const *)instance_extensions,
+	};
 
 #ifndef KINC_ANDROID
-	VkAllocationCallbacks allocator;
-	allocator.pfnAllocation = vulkan_alloc;
-	allocator.pfnFree = vulkan_free;
-	allocator.pfnReallocation = vulkan_realloc;
-	VkResult result = vkCreateInstance(&info, &allocator, &vulkan_instance);
+	const VkAllocationCallbacks allocator_callbacks = {
+	    .pfnAllocation = vulkan_alloc,
+	    .pfnFree = vulkan_free,
+	    .pfnReallocation = vulkan_realloc,
+	};
+	VkResult result = vkCreateInstance(&instance_create_info, &allocator_callbacks, &vulkan_instance);
 #else
-	VkResult result = vkCreateInstance(&info, NULL, &vulkan_instance);
+	VkResult result = vkCreateInstance(&instance_create_info, NULL, &vulkan_instance);
 #endif
 	if (result == VK_ERROR_INCOMPATIBLE_DRIVER) {
 		kinc_error_message("Vulkan driver is incompatible");
@@ -388,72 +395,77 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 
 	device_extensions[device_extension_count++] = VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME;
 
-	VkExtensionProperties device_extension_properties[256];
-	uint32_t device_extension_properties_count = sizeof(device_extension_properties) / sizeof(device_extension_properties[0]);
-	result = vkEnumerateDeviceExtensionProperties(vulkan_gpu, NULL, &device_extension_properties_count, device_extension_properties);
-	assert(result == VK_SUCCESS);
-
-	if (!check_extensions(device_extensions, device_extension_count, device_extension_properties, device_extension_properties_count)) {
+	if (!check_device_extensions(device_extensions, device_extension_count)) {
 		device_extension_count -= 1; // remove VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME
 	}
 
-	if (!check_extensions(device_extensions, device_extension_count, device_extension_properties, device_extension_properties_count)) {
+	if (!check_device_extensions(device_extensions, device_extension_count)) {
 		kinc_error_message("Missing device extensions");
 	}
 
 	if (validation) {
-		VkDebugUtilsMessengerCreateInfoEXT create_info = {0};
-		create_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		create_info.flags = 0;
-		create_info.pfnUserCallback = debug_callback;
-		create_info.pUserData = NULL;
-		create_info.pNext = NULL;
-		create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
-		create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+		const VkDebugUtilsMessengerCreateInfoEXT create_info = {
+		    .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+		    .flags = 0,
+		    .pfnUserCallback = debug_callback,
+		    .pUserData = NULL,
+		    .pNext = NULL,
+		    .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT,
+		    .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
+		};
+
 		result = vulkan_CreateDebugUtilsMessengerEXT(vulkan_instance, &create_info, NULL, &debug_utils_messenger);
 		assert(result == VK_SUCCESS);
 	}
 
-	uint32_t graphics_queue_family_index = find_graphics_queue_family();
+	const uint32_t graphics_queue_family_index = find_graphics_queue_family();
 
-	float queue_priorities[1] = {0.0};
-	VkDeviceQueueCreateInfo queue_create_info = {0};
-	queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	queue_create_info.pNext = NULL;
-	queue_create_info.queueFamilyIndex = graphics_queue_family_index;
-	queue_create_info.queueCount = 1;
-	queue_create_info.pQueuePriorities = queue_priorities;
+	const float queue_priorities[1] = {0.0};
 
-	VkDeviceCreateInfo device_create_info = {0};
-	device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	device_create_info.pNext = NULL;
-	device_create_info.queueCreateInfoCount = 1;
-	device_create_info.pQueueCreateInfos = &queue_create_info;
-
-	device_create_info.enabledLayerCount = device_layers_count;
-	device_create_info.ppEnabledLayerNames = (const char *const *)device_layers;
-
-	device_create_info.enabledExtensionCount = device_extension_count;
-	device_create_info.ppEnabledExtensionNames = (const char *const *)device_extensions;
+	const VkDeviceQueueCreateInfo queue_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+	    .pNext = NULL,
+	    .queueFamilyIndex = graphics_queue_family_index,
+	    .queueCount = 1,
+	    .pQueuePriorities = queue_priorities,
+	};
 
 #ifdef KINC_VKRT
-	VkPhysicalDeviceRayTracingPipelineFeaturesKHR raytracing_pipeline = {0};
-	raytracing_pipeline.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
-	raytracing_pipeline.pNext = NULL;
-	raytracing_pipeline.rayTracingPipeline = VK_TRUE;
+	const VkPhysicalDeviceRayTracingPipelineFeaturesKHR raytracing_pipeline = {
+	    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR,
+	    .pNext = NULL,
+	    .rayTracingPipeline = VK_TRUE,
+	};
 
-	VkPhysicalDeviceAccelerationStructureFeaturesKHR raytracing_acceleration_structure = {0};
-	raytracing_acceleration_structure.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
-	raytracing_acceleration_structure.pNext = &raytracing_pipeline;
-	raytracing_acceleration_structure.accelerationStructure = VK_TRUE;
+	const VkPhysicalDeviceAccelerationStructureFeaturesKHR raytracing_acceleration_structure = {
+	    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR,
+	    .pNext = &raytracing_pipeline,
+	    .accelerationStructure = VK_TRUE,
+	};
 
-	VkPhysicalDeviceBufferDeviceAddressFeatures buffer_device_address = {0};
-	buffer_device_address.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
-	buffer_device_address.pNext = &raytracing_acceleration_structure;
-	buffer_device_address.bufferDeviceAddress = VK_TRUE;
-
-	device_create_info.pNext = &buffer_device_address;
+	const VkPhysicalDeviceBufferDeviceAddressFeatures buffer_device_address = {
+	    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
+	    .pNext = &raytracing_acceleration_structure,
+	    .bufferDeviceAddress = VK_TRUE,
+	};
 #endif
+
+	const VkDeviceCreateInfo device_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+	    .pNext = NULL,
+	    .queueCreateInfoCount = 1,
+	    .pQueueCreateInfos = &queue_create_info,
+
+	    .enabledLayerCount = device_layers_count,
+	    .ppEnabledLayerNames = (const char *const *)device_layers,
+
+	    .enabledExtensionCount = device_extension_count,
+	    .ppEnabledExtensionNames = (const char *const *)device_extensions,
+
+#ifdef KINC_VKRT
+	    .pNext = &buffer_device_address,
+#endif
+	};
 
 	result = vkCreateDevice(vulkan_gpu, &device_create_info, NULL, &device->vulkan.device);
 	assert(result == VK_SUCCESS);
@@ -462,11 +474,12 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 
 	vkGetPhysicalDeviceMemoryProperties(vulkan_gpu, &device->vulkan.device_memory_properties);
 
-	VkCommandPoolCreateInfo command_pool_create_info = {0};
-	command_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	command_pool_create_info.pNext = NULL;
-	command_pool_create_info.queueFamilyIndex = graphics_queue_family_index;
-	command_pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	const VkCommandPoolCreateInfo command_pool_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+	    .pNext = NULL,
+	    .queueFamilyIndex = graphics_queue_family_index,
+	    .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+	};
 
 	result = vkCreateCommandPool(device->vulkan.device, &command_pool_create_info, NULL, &device->vulkan.command_pool);
 	assert(result == VK_SUCCESS);
@@ -494,15 +507,17 @@ void kope_vulkan_device_create_buffer(kope_g5_device *device, const kope_g5_buff
 
 	buffer->vulkan.size = parameters->size;
 
-	VkBufferCreateInfo create_info = {0};
-	create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	create_info.pNext = NULL;
-	create_info.size = parameters->size;
-	create_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	const VkBufferCreateInfo create_info = {
+	    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+	    .pNext = NULL,
+	    .size = parameters->size,
 #ifdef KINC_VKRT
-	create_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+	    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+#else
+	    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 #endif
-	create_info.flags = 0;
+	    .flags = 0,
+	};
 
 	VkResult result = vkCreateBuffer(device->vulkan.device, &create_info, NULL, &buffer->vulkan.buffer);
 	assert(result == VK_SUCCESS);
@@ -510,20 +525,23 @@ void kope_vulkan_device_create_buffer(kope_g5_device *device, const kope_g5_buff
 	VkMemoryRequirements memory_requirements = {0};
 	vkGetBufferMemoryRequirements(device->vulkan.device, buffer->vulkan.buffer, &memory_requirements);
 
-	VkMemoryAllocateInfo memory_allocate_info;
-	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	memory_allocate_info.pNext = NULL;
-	memory_allocate_info.memoryTypeIndex = 0;
-	memory_allocate_info.allocationSize = memory_requirements.size;
+	VkMemoryAllocateInfo memory_allocate_info = {
+	    .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+	    .pNext = NULL,
+	    .memoryTypeIndex = 0,
+	    .allocationSize = memory_requirements.size,
+	};
+
 	bool memory_type_found =
 	    memory_type_from_properties(device, memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &memory_allocate_info.memoryTypeIndex);
 	assert(memory_type_found);
 
 #ifdef KINC_VKRT
-	VkMemoryAllocateFlagsInfo memory_allocate_flags_info = {0};
-	memory_allocate_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
-	memory_allocate_flags_info.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR;
-	memory_allocate_info.pNext = &memory_allocate_flags_info;
+	const VkMemoryAllocateFlagsInfo memory_allocate_flags_info = {
+	    .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO,
+	    .flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR,
+	    .pNext = &memory_allocate_flags_info,
+	};
 #endif
 
 	result = vkAllocateMemory(device->vulkan.device, &memory_allocate_info, NULL, &buffer->vulkan.memory);
