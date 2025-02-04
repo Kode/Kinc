@@ -6,7 +6,9 @@ extern "C" {
 #endif
 
 typedef struct kope_vulkan_texture {
-	int nothing;
+	uint32_t width;
+	uint32_t height;
+	VkImageView image_view;
 } kope_vulkan_texture;
 
 #ifdef __cplusplus

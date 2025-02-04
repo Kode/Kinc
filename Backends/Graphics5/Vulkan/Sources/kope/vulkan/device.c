@@ -318,11 +318,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 	    .applicationVersion = 0,
 	    .pEngineName = "Kope",
 	    .engineVersion = 0,
-#ifdef KINC_VKRT
-	    .apiVersion = VK_API_VERSION_1_2,
-#else
-	    .apiVersion = VK_API_VERSION_1_0,
-#endif
+	    .apiVersion = VK_API_VERSION_1_3,
 	};
 
 	const VkInstanceCreateInfo instance_create_info = {

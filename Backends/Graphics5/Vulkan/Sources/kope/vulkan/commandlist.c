@@ -17,9 +17,66 @@ void kope_vulkan_command_list_destroy(kope_g5_command_list *list) {
 	vkFreeCommandBuffers(list->vulkan.device, list->vulkan.command_pool, 1, &list->vulkan.command_buffer);
 }
 
-void kope_vulkan_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {}
+void kope_vulkan_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
+	const kope_g5_texture *texture = parameters->color_attachments[0].texture.texture;
 
-void kope_vulkan_command_list_end_render_pass(kope_g5_command_list *list) {}
+	const VkClearValue clear_value = {
+	    .color =
+	        {
+	            .float32 = {0.0f, 0.0f, 0.0f, 1.0f},
+	        },
+	    .depthStencil =
+	        {
+	            .depth = 1.0f,
+	            .stencil = 0,
+	        },
+	};
+
+	const VkRenderingAttachmentInfo color_attachment_info = {
+	    .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+	    .pNext = NULL,
+	    .imageView = texture->vulkan.image_view,
+	    .imageLayout = VK_IMAGE_LAYOUT_GENERAL,
+	    .resolveMode = VK_RESOLVE_MODE_NONE,
+	    .resolveImageView = VK_NULL_HANDLE,
+	    .resolveImageLayout = VK_IMAGE_LAYOUT_GENERAL,
+	    .loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+	    .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+	    .clearValue = clear_value,
+	};
+
+	const VkRect2D render_area = {
+	    .offset =
+	        {
+	            .x = 0,
+	            .y = 0,
+	        },
+	    .extent =
+	        {
+	            .width = texture->vulkan.width,
+	            .height = texture->vulkan.height,
+	        },
+	};
+
+	const VkRenderingInfo rendering_info = {
+	    .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+	    .pNext = NULL,
+	    .flags = 0,
+	    .renderArea = render_area,
+	    .layerCount = 1,
+	    .viewMask = 0,
+	    .colorAttachmentCount = 1,
+	    .pColorAttachments = &color_attachment_info,
+	    .pDepthAttachment = VK_NULL_HANDLE,
+	    .pStencilAttachment = VK_NULL_HANDLE,
+	};
+
+	vkCmdBeginRendering(list->vulkan.command_buffer, &rendering_info);
+}
+
+void kope_vulkan_command_list_end_render_pass(kope_g5_command_list *list) {
+	vkCmdEndRendering(list->vulkan.command_buffer);
+}
 
 void kope_vulkan_command_list_present(kope_g5_command_list *list) {}
 
@@ -32,7 +89,6 @@ void kope_vulkan_command_list_set_vertex_buffer(kope_g5_command_list *list, uint
 void kope_vulkan_command_list_set_render_pipeline(kope_g5_command_list *list, kope_vulkan_render_pipeline *pipeline) {}
 
 void kope_vulkan_command_list_draw(kope_g5_command_list *list, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance) {
-
 }
 
 void kope_vulkan_command_list_draw_indexed(kope_g5_command_list *list, uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t base_vertex,
