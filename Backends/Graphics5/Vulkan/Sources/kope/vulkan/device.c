@@ -485,9 +485,22 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 	assert(result == VK_SUCCESS);
 }
 
-void kope_vulkan_device_destroy(kope_g5_device *device) {}
+void kope_vulkan_device_destroy(kope_g5_device *device) {
+	vkDestroyCommandPool(device->vulkan.device, device->vulkan.command_pool, NULL);
+	vkDestroyDevice(device->vulkan.device, NULL);
+}
 
-void kope_vulkan_device_set_name(kope_g5_device *device, const char *name) {}
+void kope_vulkan_device_set_name(kope_g5_device *device, const char *name) {
+	const VkDebugMarkerObjectNameInfoEXT name_info = {
+	    .sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT,
+	    .pNext = NULL,
+	    .objectType = VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
+	    .object = (uint64_t)device->vulkan.device,
+	    .pObjectName = name,
+	};
+
+	vulkan_DebugMarkerSetObjectNameEXT(device->vulkan.device, &name_info);
+}
 
 static bool memory_type_from_properties(kope_g5_device *device, uint32_t type_bits, VkFlags requirements_mask, uint32_t *type_index) {
 	for (uint32_t i = 0; i < 32; ++i) {
@@ -551,7 +564,21 @@ void kope_vulkan_device_create_buffer(kope_g5_device *device, const kope_g5_buff
 	assert(result == VK_SUCCESS);
 }
 
-void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list) {}
+void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list) {
+	list->vulkan.device = device->vulkan.device;
+	list->vulkan.command_pool = device->vulkan.command_pool;
+
+	const VkCommandBufferAllocateInfo allocate_info = {
+	    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+	    .pNext = NULL,
+	    .commandPool = device->vulkan.command_pool,
+	    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+	    .commandBufferCount = 1,
+	};
+
+	VkResult result = vkAllocateCommandBuffers(device->vulkan.device, &allocate_info, &list->vulkan.command_buffer);
+	assert(result == VK_SUCCESS);
+}
 
 void kope_vulkan_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {}
 

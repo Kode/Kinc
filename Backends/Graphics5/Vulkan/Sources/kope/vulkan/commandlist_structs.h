@@ -20,7 +20,9 @@ typedef struct kope_vulkan_buffer_access {
 } kope_vulkan_buffer_access;
 
 typedef struct kope_vulkan_command_list {
-	int nothing;
+	VkDevice device;
+	VkCommandPool command_pool;
+	VkCommandBuffer command_buffer;
 } kope_vulkan_command_list;
 
 #ifdef __cplusplus

@@ -13,7 +13,9 @@
 
 #include <assert.h>
 
-void kope_vulkan_command_list_destroy(kope_g5_command_list *list) {}
+void kope_vulkan_command_list_destroy(kope_g5_command_list *list) {
+	vkFreeCommandBuffers(list->vulkan.device, list->vulkan.command_pool, 1, &list->vulkan.command_buffer);
+}
 
 void kope_vulkan_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {}
 
@@ -81,13 +83,43 @@ void kope_vulkan_command_list_set_blend_constant(kope_g5_command_list *list, kop
 
 void kope_vulkan_command_list_set_stencil_reference(kope_g5_command_list *list, uint32_t reference) {}
 
-void kope_vulkan_command_list_set_name(kope_g5_command_list *list, const char *name) {}
+void kope_vulkan_command_list_set_name(kope_g5_command_list *list, const char *name) {
+	const VkDebugMarkerObjectNameInfoEXT name_info = {
+	    .sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT,
+	    .pNext = NULL,
+	    .objectType = VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+	    .object = (uint64_t)list->vulkan.command_buffer,
+	    .pObjectName = name,
+	};
 
-void kope_vulkan_command_list_push_debug_group(kope_g5_command_list *list, const char *name) {}
+	vulkan_DebugMarkerSetObjectNameEXT(list->vulkan.device, &name_info);
+}
 
-void kope_vulkan_command_list_pop_debug_group(kope_g5_command_list *list) {}
+void kope_vulkan_command_list_push_debug_group(kope_g5_command_list *list, const char *name) {
+	const VkDebugMarkerMarkerInfoEXT marker_info = {
+	    .sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT,
+	    .pNext = NULL,
+	    .pMarkerName = name,
+	    .color = {0.0f, 0.0f, 0.0f, 1.0f},
+	};
 
-void kope_vulkan_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name) {}
+	vulkan_CmdDebugMarkerBeginEXT(list->vulkan.command_buffer, &marker_info);
+}
+
+void kope_vulkan_command_list_pop_debug_group(kope_g5_command_list *list) {
+	vulkan_CmdDebugMarkerEndEXT(list->vulkan.command_buffer);
+}
+
+void kope_vulkan_command_list_insert_debug_marker(kope_g5_command_list *list, const char *name) {
+	const VkDebugMarkerMarkerInfoEXT marker_info = {
+	    .sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT,
+	    .pNext = NULL,
+	    .pMarkerName = name,
+	    .color = {0.0f, 0.0f, 0.0f, 1.0f},
+	};
+
+	vulkan_CmdDebugMarkerInsertEXT(list->vulkan.command_buffer, &marker_info);
+}
 
 void kope_vulkan_command_list_begin_occlusion_query(kope_g5_command_list *list, uint32_t query_index) {}
 
