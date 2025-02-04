@@ -782,7 +782,51 @@ kope_g5_texture *kope_vulkan_device_get_framebuffer(kope_g5_device *device) {
 
 void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	if (list->vulkan.presenting) {
-		VkPresentInfoKHR present_info = {
+		VkImageMemoryBarrier barrier = {
+		    .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+		    .pNext = NULL,
+		    .srcAccessMask = 0,
+		    .dstAccessMask = 0,
+		    .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		    .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+		    .image = framebuffers[framebuffer_index].vulkan.image,
+		    .subresourceRange =
+		        {
+		            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+		            .baseMipLevel = 0,
+		            .levelCount = 1,
+		            .baseArrayLayer = 0,
+		            .layerCount = 1,
+		        },
+		    .srcAccessMask = 0,
+		    .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+		};
+
+		vkCmdPipelineBarrier(list->vulkan.command_buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1,
+		                     &barrier);
+	}
+
+	vkEndCommandBuffer(list->vulkan.command_buffer);
+
+	VkPipelineStageFlags stage_mask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+	const VkSubmitInfo submit_info = {
+	    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+	    .pNext = NULL,
+	    .pWaitSemaphores = NULL,
+	    .pWaitDstStageMask = &stage_mask,
+	    .waitSemaphoreCount = 0,
+	    .commandBufferCount = 1,
+	    .pCommandBuffers = &list->vulkan.command_buffer,
+	    .signalSemaphoreCount = 0,
+	    .pSignalSemaphores = NULL,
+	};
+
+	VkResult result = vkQueueSubmit(device->vulkan.queue, 1, &submit_info, VK_NULL_HANDLE);
+	assert(result == VK_SUCCESS);
+
+	if (list->vulkan.presenting) {
+		const VkPresentInfoKHR present_info = {
 		    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		    .pNext = NULL,
 		    .swapchainCount = 1,
@@ -792,7 +836,7 @@ void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_com
 		    .waitSemaphoreCount = 0,
 		};
 
-		VkResult result = vulkan_QueuePresentKHR(device->vulkan.queue, &present_info);
+		result = vulkan_QueuePresentKHR(device->vulkan.queue, &present_info);
 		if (result == VK_ERROR_SURFACE_LOST_KHR) {
 			kinc_error_message("Surface lost");
 		}
