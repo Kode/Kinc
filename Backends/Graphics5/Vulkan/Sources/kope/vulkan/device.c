@@ -524,15 +524,25 @@ void kope_vulkan_device_create_buffer(kope_g5_device *device, const kope_g5_buff
 
 	buffer->vulkan.size = parameters->size;
 
+	VkBufferUsageFlags usage;
+	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_VERTEX) != 0) {
+		usage |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	}
+	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_INDEX) != 0) {
+		usage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+	}
+	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_INDIRECT) != 0) {
+		usage |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+	}
+#ifdef KINC_VKRT
+	usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+#endif
+
 	const VkBufferCreateInfo create_info = {
 	    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
 	    .pNext = NULL,
 	    .size = parameters->size,
-#ifdef KINC_VKRT
-	    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-#else
-	    .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-#endif
+	    .usage = usage,
 	    .flags = 0,
 	};
 
