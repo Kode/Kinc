@@ -613,6 +613,7 @@ static bool find_layer(VkLayerProperties *layers, int layer_count, const char *w
 }
 
 void kinc_g5_internal_init() {
+#ifndef KOPE
 	VkResult err;
 	uint32_t instance_layer_count = 0;
 
@@ -1036,6 +1037,7 @@ void kinc_g5_internal_init() {
 
 	err = vkCreateSemaphore(vk_ctx.device, &semInfo, NULL, &relay_semaphore);
 	assert(!err);
+#endif
 }
 
 void kinc_g5_internal_destroy() {}

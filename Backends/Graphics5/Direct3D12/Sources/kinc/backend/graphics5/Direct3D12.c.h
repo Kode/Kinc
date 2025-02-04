@@ -436,15 +436,18 @@ static void initWindow(struct dx_window *window, int windowIndex) {
 void kinc_g5_internal_destroy_window(int window) {}
 
 void kinc_g5_internal_destroy() {
+#ifndef KOPE
 #ifdef KINC_WINDOWS
 	if (device) {
 		device->Release();
 		device = NULL;
 	}
 #endif
+#endif
 }
 
 void kinc_g5_internal_init() {
+#ifndef KOPE
 #ifdef KINC_WINDOWS
 #ifdef _DEBUG
 	ID3D12Debug *debugController = NULL;
@@ -482,6 +485,7 @@ void kinc_g5_internal_init() {
 	initCommandAllocator->Release(); // check me
 
 	CloseHandle(waitEvent);
+#endif
 #endif
 }
 

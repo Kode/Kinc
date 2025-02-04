@@ -289,6 +289,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 
 	if (check_instance_layers(instance_layers, instance_layers_count)) {
 		kinc_log(KINC_LOG_LEVEL_INFO, "Running with Vulkan validation layers enabled.");
+		validation = true;
 	}
 	else {
 		--instance_layers_count; // Remove VK_LAYER_KHRONOS_validation
@@ -299,6 +300,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 
 	instance_extensions[instance_extensions_count++] = VK_KHR_SURFACE_EXTENSION_NAME;
 	instance_extensions[instance_extensions_count++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
+	instance_extensions[instance_extensions_count++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
 #ifdef KINC_WINDOWS
 	instance_extensions[instance_extensions_count++] = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 #endif
@@ -372,36 +374,38 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 #endif
 
 	const char *device_extensions[64];
-	int device_extension_count = 0;
+	int device_extensions_count = 0;
 
-	device_extensions[device_extension_count++] = VK_EXT_DEBUG_MARKER_EXTENSION_NAME;
-	device_extensions[device_extension_count++] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_EXT_DEBUG_MARKER_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 	// Allows negative viewport height to flip viewport
-	device_extensions[device_extension_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_KHR_MAINTENANCE1_EXTENSION_NAME;
 
 #ifdef KINC_VKRT
-	device_extensions[device_extension_count++] = VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME;
-	device_extensions[device_extension_count++] = VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME;
-	device_extensions[device_extension_count++] = VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME;
-	device_extensions[device_extension_count++] = VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME;
-	device_extensions[device_extension_count++] = VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME;
-	device_extensions[device_extension_count++] = VK_KHR_SPIRV_1_4_EXTENSION_NAME;
-	device_extensions[device_extension_count++] = VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_KHR_SPIRV_1_4_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME;
 #endif
 
 #ifndef VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME // For Dave's Debian
 #define VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME "VK_KHR_format_feature_flags2"
 #endif
 
-	device_extensions[device_extension_count++] = VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME;
+	device_extensions[device_extensions_count++] = VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME;
 
-	if (!check_device_extensions(device_extensions, device_extension_count)) {
-		device_extension_count -= 1; // remove VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME
+	if (!check_device_extensions(device_extensions, device_extensions_count)) {
+		device_extensions_count -= 1; // remove VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME
+
+		if (!check_device_extensions(device_extensions, device_extensions_count)) {
+			kinc_error_message("Missing device extensions");
+		}
 	}
 
-	if (!check_device_extensions(device_extensions, device_extension_count)) {
-		kinc_error_message("Missing device extensions");
-	}
+	load_extension_functions();
 
 	if (validation) {
 		const VkDebugUtilsMessengerCreateInfoEXT create_info = {
@@ -459,7 +463,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 	    .enabledLayerCount = device_layers_count,
 	    .ppEnabledLayerNames = (const char *const *)device_layers,
 
-	    .enabledExtensionCount = device_extension_count,
+	    .enabledExtensionCount = device_extensions_count,
 	    .ppEnabledExtensionNames = (const char *const *)device_extensions,
 
 #ifdef KINC_VKRT
