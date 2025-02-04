@@ -8,6 +8,7 @@ extern "C" {
 typedef struct kope_vulkan_texture {
 	uint32_t width;
 	uint32_t height;
+	VkImage image;
 	VkImageView image_view;
 } kope_vulkan_texture;
 

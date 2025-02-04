@@ -78,7 +78,9 @@ void kope_vulkan_command_list_end_render_pass(kope_g5_command_list *list) {
 	vkCmdEndRendering(list->vulkan.command_buffer);
 }
 
-void kope_vulkan_command_list_present(kope_g5_command_list *list) {}
+void kope_vulkan_command_list_present(kope_g5_command_list *list) {
+	list->vulkan.presenting = true;
+}
 
 void kope_vulkan_command_list_set_index_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, kope_g5_index_format index_format, uint64_t offset,
                                                uint64_t size) {}

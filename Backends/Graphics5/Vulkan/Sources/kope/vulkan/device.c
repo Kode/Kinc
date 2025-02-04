@@ -15,8 +15,12 @@
 #include <assert.h>
 #include <stdlib.h>
 
-static VkInstance vulkan_instance;
-static VkPhysicalDevice vulkan_gpu;
+static VkInstance instance;
+static VkPhysicalDevice gpu;
+static VkSwapchainKHR swapchain;
+static kope_g5_texture framebuffers[4];
+static uint32_t framebuffer_count = 0;
+static uint32_t framebuffer_index = 0;
 
 #ifdef VALIDATE
 static bool validation;
@@ -108,7 +112,7 @@ static VkExtensionProperties device_extension_properties[256];
 static bool check_device_extensions(const char **device_extensions, int device_extensions_count) {
 	uint32_t device_extension_properties_count = sizeof(device_extension_properties) / sizeof(device_extension_properties[0]);
 
-	VkResult result = vkEnumerateDeviceExtensionProperties(vulkan_gpu, NULL, &device_extension_properties_count, device_extension_properties);
+	VkResult result = vkEnumerateDeviceExtensionProperties(gpu, NULL, &device_extension_properties_count, device_extension_properties);
 	assert(result == VK_SUCCESS);
 
 	return check_extensions(device_extensions, device_extensions_count, device_extension_properties, device_extension_properties_count);
@@ -150,7 +154,7 @@ static VkLayerProperties device_layer_properties[256];
 static bool check_device_layers(const char **device_layers, int device_layers_count) {
 	uint32_t device_layer_properties_count = sizeof(device_layer_properties) / sizeof(device_layer_properties[0]);
 
-	VkResult result = vkEnumerateDeviceLayerProperties(vulkan_gpu, &device_layer_properties_count, device_layer_properties);
+	VkResult result = vkEnumerateDeviceLayerProperties(gpu, &device_layer_properties_count, device_layer_properties);
 	assert(result == VK_SUCCESS);
 
 	return check_layers(device_layers, device_layers_count, device_layer_properties, device_layer_properties_count);
@@ -159,7 +163,7 @@ static bool check_device_layers(const char **device_layers, int device_layers_co
 static void load_extension_functions(void) {
 #define GET_VULKAN_FUNCTION(entrypoint)                                                                                                                        \
 	{                                                                                                                                                          \
-		vulkan_##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(vulkan_instance, "vk" #entrypoint);                                                    \
+		vulkan_##entrypoint = (PFN_vk##entrypoint)vkGetInstanceProcAddr(instance, "vk" #entrypoint);                                                           \
 		if (vulkan_##entrypoint == NULL) {                                                                                                                     \
 			kinc_error_message("vkGetInstanceProcAddr failed to find vk" #entrypoint);                                                                         \
 		}                                                                                                                                                      \
@@ -191,7 +195,7 @@ void find_gpu(void) {
 	VkPhysicalDevice physical_devices[64];
 	uint32_t gpu_count = sizeof(physical_devices) / sizeof(physical_devices[0]);
 
-	VkResult result = vkEnumeratePhysicalDevices(vulkan_instance, &gpu_count, physical_devices);
+	VkResult result = vkEnumeratePhysicalDevices(instance, &gpu_count, physical_devices);
 
 	if (result != VK_SUCCESS || gpu_count == 0) {
 		kinc_error_message("No Vulkan device found");
@@ -201,17 +205,17 @@ void find_gpu(void) {
 	float best_score = -1.0;
 
 	for (uint32_t gpu_index = 0; gpu_index < gpu_count; ++gpu_index) {
-		VkPhysicalDevice gpu = physical_devices[gpu_index];
+		VkPhysicalDevice current_gpu = physical_devices[gpu_index];
 
 		VkQueueFamilyProperties queue_props[64];
 		uint32_t queue_count = sizeof(queue_props) / sizeof(queue_props[0]);
-		vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props);
+		vkGetPhysicalDeviceQueueFamilyProperties(current_gpu, &queue_count, queue_props);
 
 		bool can_present = false;
 		bool can_render = false;
 
 		for (uint32_t queue_index = 0; queue_index < queue_count; ++queue_index) {
-			if (vkGetPhysicalDeviceWin32PresentationSupportKHR(gpu, queue_index)) {
+			if (vkGetPhysicalDeviceWin32PresentationSupportKHR(current_gpu, queue_index)) {
 				can_present = true;
 			}
 
@@ -227,7 +231,7 @@ void find_gpu(void) {
 		float score = 0.0;
 
 		VkPhysicalDeviceProperties properties;
-		vkGetPhysicalDeviceProperties(gpu, &properties);
+		vkGetPhysicalDeviceProperties(current_gpu, &properties);
 
 		switch (properties.deviceType) {
 		case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
@@ -249,18 +253,18 @@ void find_gpu(void) {
 		}
 
 		if (score > best_score) {
-			vulkan_gpu = gpu;
+			gpu = current_gpu;
 			best_score = score;
 		}
 	}
 
-	if (vulkan_gpu == VK_NULL_HANDLE) {
+	if (gpu == VK_NULL_HANDLE) {
 		kinc_error_message("No Vulkan device that supports presentation found");
 		return;
 	}
 
 	VkPhysicalDeviceProperties properties;
-	vkGetPhysicalDeviceProperties(vulkan_gpu, &properties);
+	vkGetPhysicalDeviceProperties(gpu, &properties);
 	kinc_log(KINC_LOG_LEVEL_INFO, "Chosen Vulkan device: %s", properties.deviceName);
 }
 
@@ -268,17 +272,42 @@ uint32_t find_graphics_queue_family(void) {
 	VkQueueFamilyProperties queue_family_props[16];
 	uint32_t queue_family_count = sizeof(queue_family_props) / sizeof(queue_family_props[0]);
 
-	vkGetPhysicalDeviceQueueFamilyProperties(vulkan_gpu, &queue_family_count, queue_family_props);
+	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_family_count, queue_family_props);
 
 	for (uint32_t queue_family_index = 0; queue_family_index < queue_family_count; ++queue_family_index) {
 		if ((queue_family_props[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0 &&
-		    vkGetPhysicalDeviceWin32PresentationSupportKHR(vulkan_gpu, queue_family_index)) {
+		    vkGetPhysicalDeviceWin32PresentationSupportKHR(gpu, queue_family_index)) {
 			return queue_family_index;
 		}
 	}
 
 	kinc_error_message("Graphics or present queue not found");
 	return 0;
+}
+
+static VkSurfaceFormatKHR find_surface_format(VkSurfaceKHR surface) {
+	VkSurfaceFormatKHR surface_formats[256];
+
+	uint32_t formats_count = sizeof(surface_formats) / sizeof(surface_formats[0]);
+	VkResult result = vulkan_GetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formats_count, surface_formats);
+	assert(result == VK_SUCCESS);
+
+	// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
+	// the surface has no preferred format.  Otherwise, at least one
+	// supported format will be returned.
+	if (formats_count == 1 && surface_formats[0].format == VK_FORMAT_UNDEFINED) {
+		return surface_formats[0];
+	}
+	else {
+		assert(formats_count >= 1);
+		for (uint32_t i = 0; i < formats_count; ++i) {
+			// avoid SRGB to avoid automatic gamma-correction
+			if (surface_formats[i].format != VK_FORMAT_B8G8R8A8_SRGB) {
+				return surface_formats[i];
+			}
+		}
+		return surface_formats[0];
+	}
 }
 
 static void create_swapchain(kope_g5_device *device, uint32_t graphics_queue_family_index) {
@@ -295,128 +324,86 @@ static void create_swapchain(kope_g5_device *device, uint32_t graphics_queue_fam
 	    .hwnd = window_handle,
 	};
 
-	VkSurfaceKHR surface;
-	VkResult result = vkCreateWin32SurfaceKHR(vulkan_instance, &surface_create_info, NULL, &surface);
+	VkSurfaceKHR surface = {0};
+	VkResult result = vkCreateWin32SurfaceKHR(instance, &surface_create_info, NULL, &surface);
 
-	VkBool32 surface_supported;
-	result = vkGetPhysicalDeviceSurfaceSupportKHR(vulkan_gpu, graphics_queue_family_index, surface, &surface_supported);
-	assert(result == VK_SUCCESS);
-	assert(surface_supported);
+	VkBool32 surface_supported = false;
+	result = vkGetPhysicalDeviceSurfaceSupportKHR(gpu, graphics_queue_family_index, surface, &surface_supported);
+	assert(result == VK_SUCCESS && surface_supported);
 
-	VkSurfaceFormatKHR format;
+	VkSurfaceFormatKHR format = find_surface_format(surface);
 
-	VkSurfaceFormatKHR surfFormats[256];
-	uint32_t formatCount = sizeof(surfFormats) / sizeof(surfFormats[0]);
-	result = vulkan_GetPhysicalDeviceSurfaceFormatsKHR(vulkan_gpu, surface, &formatCount, surfFormats);
-	assert(result == VK_SUCCESS);
-
-	// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
-	// the surface has no preferred format.  Otherwise, at least one
-	// supported format will be returned.
-	if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) {
-		format = surfFormats[0];
-	}
-	else {
-		assert(formatCount >= 1);
-		bool found = false;
-		for (uint32_t i = 0; i < formatCount; ++i) {
-			// avoid SRGB to avoid automatic gamma-correction
-			if (surfFormats[i].format != VK_FORMAT_B8G8R8A8_SRGB) {
-				format = surfFormats[i];
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
-			format = surfFormats[0];
-		}
-	}
-
-	VkSurfaceCapabilitiesKHR surfCapabilities = {0};
-	result = vulkan_GetPhysicalDeviceSurfaceCapabilitiesKHR(vulkan_gpu, surface, &surfCapabilities);
+	VkSurfaceCapabilitiesKHR surface_capabilities = {0};
+	result = vulkan_GetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &surface_capabilities);
 	assert(result == VK_SUCCESS);
 
 	VkPresentModeKHR present_modes[32];
 	uint32_t present_mode_count = sizeof(present_modes) / sizeof(present_modes[0]);
-	result = vulkan_GetPhysicalDeviceSurfacePresentModesKHR(vulkan_gpu, surface, &present_mode_count, present_modes);
+	result = vulkan_GetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &present_mode_count, present_modes);
 	assert(result == VK_SUCCESS);
 
-	VkExtent2D swapchainExtent;
-	if (surfCapabilities.currentExtent.width == (uint32_t)-1) {
-		swapchainExtent.width = window_width;
-		swapchainExtent.height = window_height;
+	VkExtent2D swapchain_extent;
+	if (surface_capabilities.currentExtent.width == (uint32_t)-1) {
+		swapchain_extent.width = window_width;
+		swapchain_extent.height = window_height;
 	}
 	else {
-		swapchainExtent = surfCapabilities.currentExtent;
-		window_width = surfCapabilities.currentExtent.width;
-		window_height = surfCapabilities.currentExtent.height;
+		swapchain_extent = surface_capabilities.currentExtent;
+		window_width = surface_capabilities.currentExtent.width;
+		window_height = surface_capabilities.currentExtent.height;
 	}
 
-	VkPresentModeKHR swapchainPresentMode = vsync ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_MAILBOX_KHR;
-
-	uint32_t desiredNumberOfSwapchainImages = surfCapabilities.minImageCount + 1;
-	if ((surfCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfCapabilities.maxImageCount)) {
-		desiredNumberOfSwapchainImages = surfCapabilities.maxImageCount;
+	VkCompositeAlphaFlagBitsKHR composite_alpha;
+	if (surface_capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR) {
+		composite_alpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 	}
-
-	VkSurfaceTransformFlagBitsKHR preTransform = {0};
-	if (surfCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
-		preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	else if (surface_capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) {
+		composite_alpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
 	}
-	else {
-		preTransform = surfCapabilities.currentTransform;
+	else if (surface_capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR) {
+		composite_alpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
 	}
-
-	VkSwapchainCreateInfoKHR swapchain_info = {0};
-	swapchain_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	swapchain_info.pNext = NULL;
-	swapchain_info.surface = surface;
-	swapchain_info.minImageCount = desiredNumberOfSwapchainImages;
-	swapchain_info.imageFormat = format.format;
-	swapchain_info.imageColorSpace = format.colorSpace;
-	swapchain_info.imageExtent.width = swapchainExtent.width;
-	swapchain_info.imageExtent.height = swapchainExtent.height;
-	swapchain_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	swapchain_info.preTransform = preTransform;
-
-	if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR) {
-		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	}
-	else if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) {
-		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
-	}
-	else if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR) {
-		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
-	}
-	else if (surfCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR) {
-		swapchain_info.compositeAlpha = VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR;
+	else if (surface_capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR) {
+		composite_alpha = VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR;
 	}
 	else {
 		kinc_error_message("Vulkan driver problem, no supported composite alpha.");
 	}
 
-	swapchain_info.imageArrayLayers = 1;
-	swapchain_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	swapchain_info.queueFamilyIndexCount = 0;
-	swapchain_info.pQueueFamilyIndices = NULL;
-	swapchain_info.presentMode = swapchainPresentMode;
-	swapchain_info.oldSwapchain = VK_NULL_HANDLE;
-	swapchain_info.clipped = true;
-
-	VkSwapchainKHR swapchain;
+	const VkSwapchainCreateInfoKHR swapchain_info = {
+	    .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+	    .pNext = NULL,
+	    .surface = surface,
+	    .minImageCount = surface_capabilities.minImageCount,
+	    .imageFormat = format.format,
+	    .imageColorSpace = format.colorSpace,
+	    .imageExtent.width = swapchain_extent.width,
+	    .imageExtent.height = swapchain_extent.height,
+	    .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+	    .preTransform = (surface_capabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) ? VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+	                                                                                                       : surface_capabilities.currentTransform,
+	    .compositeAlpha = composite_alpha,
+	    .imageArrayLayers = 1,
+	    .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+	    .queueFamilyIndexCount = 0,
+	    .pQueueFamilyIndices = NULL,
+	    .presentMode = vsync ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_MAILBOX_KHR,
+	    .oldSwapchain = VK_NULL_HANDLE,
+	    .clipped = true,
+	};
 
 	result = vulkan_CreateSwapchainKHR(device->vulkan.device, &swapchain_info, NULL, &swapchain);
 	assert(result == VK_SUCCESS);
 
 	VkImage images[4];
-	uint32_t image_count = sizeof(images) / sizeof(images[0]);
-	result = vulkan_GetSwapchainImagesKHR(device->vulkan.device, swapchain, &image_count, images);
+	framebuffer_count = sizeof(images) / sizeof(images[0]);
+	result = vulkan_GetSwapchainImagesKHR(device->vulkan.device, swapchain, &framebuffer_count, images);
 	assert(result == VK_SUCCESS);
 
-	VkImageView views[4];
+	for (uint32_t i = 0; i < framebuffer_count; ++i) {
+		VkImageView view;
 
-	for (uint32_t i = 0; i < image_count; ++i) {
-		VkImageViewCreateInfo color_attachment_view = {
+		const VkImageViewCreateInfo color_attachment_view = {
 		    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		    .pNext = NULL,
 		    .format = format.format,
@@ -434,10 +421,13 @@ static void create_swapchain(kope_g5_device *device, uint32_t graphics_queue_fam
 		    .image = images[i],
 		};
 
-		// set_image_layout(images[i], VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-
-		result = vkCreateImageView(device->vulkan.device, &color_attachment_view, NULL, &views[i]);
+		result = vkCreateImageView(device->vulkan.device, &color_attachment_view, NULL, &view);
 		assert(result == VK_SUCCESS);
+
+		framebuffers[i].vulkan.image = images[i];
+		framebuffers[i].vulkan.image_view = view;
+		framebuffers[i].vulkan.width = window_width;
+		framebuffers[i].vulkan.height = window_height;
 	}
 }
 
@@ -501,7 +491,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 	    .pfnFree = vulkan_free,
 	    .pfnReallocation = vulkan_realloc,
 	};
-	VkResult result = vkCreateInstance(&instance_create_info, &allocator_callbacks, &vulkan_instance);
+	VkResult result = vkCreateInstance(&instance_create_info, &allocator_callbacks, &instance);
 #else
 	VkResult result = vkCreateInstance(&instance_create_info, NULL, &vulkan_instance);
 #endif
@@ -576,7 +566,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 		    .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
 		};
 
-		result = vulkan_CreateDebugUtilsMessengerEXT(vulkan_instance, &create_info, NULL, &debug_utils_messenger);
+		result = vulkan_CreateDebugUtilsMessengerEXT(instance, &create_info, NULL, &debug_utils_messenger);
 		assert(result == VK_SUCCESS);
 	}
 
@@ -592,10 +582,16 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 	    .pQueuePriorities = queue_priorities,
 	};
 
+	const VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering = {
+	    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
+	    .pNext = NULL,
+	    .dynamicRendering = VK_TRUE,
+	};
+
 #ifdef KINC_VKRT
 	const VkPhysicalDeviceRayTracingPipelineFeaturesKHR raytracing_pipeline = {
 	    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR,
-	    .pNext = NULL,
+	    .pNext = dynamic_rendering,
 	    .rayTracingPipeline = VK_TRUE,
 	};
 
@@ -626,15 +622,17 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 
 #ifdef KINC_VKRT
 	    .pNext = &buffer_device_address,
+#else
+	    .pNext = &dynamic_rendering,
 #endif
 	};
 
-	result = vkCreateDevice(vulkan_gpu, &device_create_info, NULL, &device->vulkan.device);
+	result = vkCreateDevice(gpu, &device_create_info, NULL, &device->vulkan.device);
 	assert(result == VK_SUCCESS);
 
 	vkGetDeviceQueue(device->vulkan.device, graphics_queue_family_index, 0, &device->vulkan.queue);
 
-	vkGetPhysicalDeviceMemoryProperties(vulkan_gpu, &device->vulkan.device_memory_properties);
+	vkGetPhysicalDeviceMemoryProperties(gpu, &device->vulkan.device_memory_properties);
 
 	const VkCommandPoolCreateInfo command_pool_create_info = {
 	    .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -647,6 +645,15 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 	assert(result == VK_SUCCESS);
 
 	create_swapchain(device, graphics_queue_family_index);
+
+	const VkSemaphoreCreateInfo semaphore_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+	    .pNext = NULL,
+	    .flags = 0,
+	};
+
+	result = vkCreateSemaphore(device->vulkan.device, &semaphore_create_info, NULL, &device->vulkan.framebuffer_available);
+	assert(result == VK_SUCCESS);
 }
 
 void kope_vulkan_device_destroy(kope_g5_device *device) {
@@ -684,7 +691,7 @@ void kope_vulkan_device_create_buffer(kope_g5_device *device, const kope_g5_buff
 
 	buffer->vulkan.size = parameters->size;
 
-	VkBufferUsageFlags usage;
+	VkBufferUsageFlags usage = 0;
 	if ((parameters->usage_flags & KOPE_G5_BUFFER_USAGE_VERTEX) != 0) {
 		usage |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 	}
@@ -741,6 +748,7 @@ void kope_vulkan_device_create_buffer(kope_g5_device *device, const kope_g5_buff
 void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_command_list_type type, kope_g5_command_list *list) {
 	list->vulkan.device = device->vulkan.device;
 	list->vulkan.command_pool = device->vulkan.command_pool;
+	list->vulkan.presenting = false;
 
 	const VkCommandBufferAllocateInfo allocate_info = {
 	    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -752,15 +760,50 @@ void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_comm
 
 	VkResult result = vkAllocateCommandBuffers(device->vulkan.device, &allocate_info, &list->vulkan.command_buffer);
 	assert(result == VK_SUCCESS);
+
+	const VkCommandBufferBeginInfo begin_info = {
+	    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+	    .pNext = NULL,
+	    .flags = 0,
+	    .pInheritanceInfo = NULL,
+	};
+
+	vkBeginCommandBuffer(list->vulkan.command_buffer, &begin_info);
 }
 
 void kope_vulkan_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {}
 
 kope_g5_texture *kope_vulkan_device_get_framebuffer(kope_g5_device *device) {
-	return NULL;
+	VkResult result =
+	    vulkan_AcquireNextImageKHR(device->vulkan.device, swapchain, UINT64_MAX, device->vulkan.framebuffer_available, VK_NULL_HANDLE, &framebuffer_index);
+
+	return &framebuffers[framebuffer_index];
 }
 
-void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {}
+void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
+	if (list->vulkan.presenting) {
+		VkPresentInfoKHR present_info = {
+		    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		    .pNext = NULL,
+		    .swapchainCount = 1,
+		    .pSwapchains = &swapchain,
+		    .pImageIndices = &framebuffer_index,
+		    .pWaitSemaphores = NULL,
+		    .waitSemaphoreCount = 0,
+		};
+
+		VkResult result = vulkan_QueuePresentKHR(device->vulkan.queue, &present_info);
+		if (result == VK_ERROR_SURFACE_LOST_KHR) {
+			kinc_error_message("Surface lost");
+		}
+		else if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+			kinc_error_message("Surface borked");
+		}
+		else {
+			assert(result == VK_SUCCESS);
+		}
+	}
+}
 
 void kope_vulkan_device_wait_until_idle(kope_g5_device *device) {}
 

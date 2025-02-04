@@ -23,6 +23,7 @@ typedef struct kope_vulkan_command_list {
 	VkDevice device;
 	VkCommandPool command_pool;
 	VkCommandBuffer command_buffer;
+	bool presenting;
 } kope_vulkan_command_list;
 
 #ifdef __cplusplus
