@@ -197,7 +197,8 @@ typedef struct kope_vulkan_render_pipeline_parameters {
 } kope_vulkan_render_pipeline_parameters;
 
 typedef struct kope_vulkan_render_pipeline {
-	int nothing;
+	VkPipelineLayout pipeline_layout;
+	VkPipeline pipeline;
 } kope_vulkan_render_pipeline;
 
 typedef struct kope_vulkan_compute_pipeline_parameters {
