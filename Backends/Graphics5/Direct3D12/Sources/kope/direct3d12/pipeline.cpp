@@ -227,7 +227,7 @@ void kope_d3d12_render_pipeline_init(kope_d3d12_device *device, kope_d3d12_rende
 			case KOPE_D3D12_VERTEX_FORMAT_UINT32X4:
 				input_elements[input_element_index].Format = DXGI_FORMAT_R32G32B32A32_UINT;
 				break;
-			case KOPE_D3D12_VERTEX_FORMAT_SIN32:
+			case KOPE_D3D12_VERTEX_FORMAT_SINT32:
 				input_elements[input_element_index].Format = DXGI_FORMAT_R32_SINT;
 				break;
 			case KOPE_D3D12_VERTEX_FORMAT_SINT32X2:
