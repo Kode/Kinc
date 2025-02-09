@@ -209,16 +209,6 @@ void kope_vulkan_render_pipeline_init(kope_vulkan_device *device, kope_vulkan_re
 	VkResult result = vkCreateDescriptorSetLayout(device->device, &descriptor_layout, NULL, &descriptor_set_layout);
 	assert(result == VK_SUCCESS);
 
-	/*memset(pipeline->impl.vertexLocations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	memset(pipeline->impl.vertexOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	memset(pipeline->impl.fragmentLocations, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	memset(pipeline->impl.fragmentOffsets, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	memset(pipeline->impl.textureBindings, 0, sizeof(kinc_internal_named_number) * KINC_INTERNAL_NAMED_NUMBER_COUNT);
-	parse_shader((uint32_t *)pipeline->vertexShader->impl.source, pipeline->vertexShader->impl.length, pipeline->impl.vertexLocations,
-	             pipeline->impl.textureBindings, pipeline->impl.vertexOffsets);
-	parse_shader((uint32_t *)pipeline->fragmentShader->impl.source, pipeline->fragmentShader->impl.length, pipeline->impl.fragmentLocations,
-	             pipeline->impl.textureBindings, pipeline->impl.fragmentOffsets);*/
-
 	const VkPipelineLayoutCreateInfo pipeline_layout_create_info = {
 	    .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 	    .pNext = NULL,
@@ -372,29 +362,29 @@ void kope_vulkan_render_pipeline_init(kope_vulkan_device *device, kope_vulkan_re
 	    .lineWidth = 1.0f,
 	};
 
-	VkPipelineColorBlendAttachmentState att_state[8];
-	memset(att_state, 0, sizeof(att_state));
-	for (int i = 0; i < parameters->fragment.targets_count; ++i) {
-		VkPipelineColorBlendAttachmentState a = {
-		    .colorWriteMask = parameters->fragment.targets[i].write_mask,
-		    .blendEnable = parameters->fragment.targets[i].blend.color.src_factor != KOPE_VULKAN_BLEND_FACTOR_ONE ||
-		                   parameters->fragment.targets[i].blend.color.dst_factor != KOPE_VULKAN_BLEND_FACTOR_ZERO ||
-		                   parameters->fragment.targets[i].blend.alpha.src_factor != KOPE_VULKAN_BLEND_FACTOR_ONE ||
-		                   parameters->fragment.targets[i].blend.alpha.dst_factor != KOPE_VULKAN_BLEND_FACTOR_ZERO,
-		    .srcColorBlendFactor = convert_blend_factor(parameters->fragment.targets[i].blend.color.src_factor),
-		    .dstColorBlendFactor = convert_blend_factor(parameters->fragment.targets[i].blend.color.dst_factor),
-		    .colorBlendOp = convert_blend_operation(parameters->fragment.targets[i].blend.color.operation),
-		    .srcAlphaBlendFactor = convert_blend_factor(parameters->fragment.targets[i].blend.alpha.src_factor),
-		    .dstAlphaBlendFactor = convert_blend_factor(parameters->fragment.targets[i].blend.alpha.dst_factor),
-		    .alphaBlendOp = convert_blend_operation(parameters->fragment.targets[i].blend.alpha.operation),
+	VkPipelineColorBlendAttachmentState color_blend_attachment_states[8] = {0};
+	assert(parameters->fragment.targets_count <= sizeof(color_blend_attachment_states) / sizeof(color_blend_attachment_states[0]));
+	for (size_t target_index = 0; target_index < parameters->fragment.targets_count; ++target_index) {
+		VkPipelineColorBlendAttachmentState color_blend_attachment_state = {
+		    .colorWriteMask = parameters->fragment.targets[target_index].write_mask,
+		    .blendEnable = parameters->fragment.targets[target_index].blend.color.src_factor != KOPE_VULKAN_BLEND_FACTOR_ONE ||
+		                   parameters->fragment.targets[target_index].blend.color.dst_factor != KOPE_VULKAN_BLEND_FACTOR_ZERO ||
+		                   parameters->fragment.targets[target_index].blend.alpha.src_factor != KOPE_VULKAN_BLEND_FACTOR_ONE ||
+		                   parameters->fragment.targets[target_index].blend.alpha.dst_factor != KOPE_VULKAN_BLEND_FACTOR_ZERO,
+		    .srcColorBlendFactor = convert_blend_factor(parameters->fragment.targets[target_index].blend.color.src_factor),
+		    .dstColorBlendFactor = convert_blend_factor(parameters->fragment.targets[target_index].blend.color.dst_factor),
+		    .colorBlendOp = convert_blend_operation(parameters->fragment.targets[target_index].blend.color.operation),
+		    .srcAlphaBlendFactor = convert_blend_factor(parameters->fragment.targets[target_index].blend.alpha.src_factor),
+		    .dstAlphaBlendFactor = convert_blend_factor(parameters->fragment.targets[target_index].blend.alpha.dst_factor),
+		    .alphaBlendOp = convert_blend_operation(parameters->fragment.targets[target_index].blend.alpha.operation),
 		};
-		att_state[i] = a;
+		color_blend_attachment_states[target_index] = color_blend_attachment_state;
 	}
 
 	const VkPipelineColorBlendStateCreateInfo color_blend_state_create_info = {
 	    .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
 	    .attachmentCount = (uint32_t)parameters->fragment.targets_count,
-	    .pAttachments = att_state,
+	    .pAttachments = color_blend_attachment_states,
 	};
 
 	const VkPipelineViewportStateCreateInfo viewport_state_create_info = {
