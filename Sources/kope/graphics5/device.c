@@ -52,6 +52,10 @@ kope_g5_texture *kope_g5_device_get_framebuffer(kope_g5_device *device) {
 	return KOPE_G5_CALL1(device_get_framebuffer, device);
 }
 
+kope_g5_texture_format kope_g5_device_framebuffer_format(kope_g5_device *device) {
+	return KOPE_G5_CALL1(device_framebuffer_format, device);
+}
+
 void kope_g5_device_create_query_set(kope_g5_device *device, const kope_g5_query_set_parameters *parameters, kope_g5_query_set *query_set) {
 	KOPE_G5_CALL3(device_create_query_set, device, parameters, query_set);
 }

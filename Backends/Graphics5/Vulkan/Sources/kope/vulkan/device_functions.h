@@ -30,6 +30,8 @@ void kope_vulkan_device_create_sampler(kope_g5_device *device, const kope_g5_sam
 
 kope_g5_texture *kope_vulkan_device_get_framebuffer(kope_g5_device *device);
 
+kope_g5_texture_format kope_vulkan_device_framebuffer_format(kope_g5_device *device);
+
 void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
 void kope_vulkan_device_wait_until_idle(kope_g5_device *device);

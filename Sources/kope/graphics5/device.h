@@ -91,6 +91,8 @@ KOPE_FUNC void kope_g5_device_create_texture(kope_g5_device *device, const kope_
 
 KOPE_FUNC kope_g5_texture *kope_g5_device_get_framebuffer(kope_g5_device *device);
 
+KOPE_FUNC kope_g5_texture_format kope_g5_device_framebuffer_format(kope_g5_device *device);
+
 typedef enum kope_g5_address_mode { KOPE_G5_ADDRESS_MODE_CLAMP_TO_EDGE, KOPE_G5_ADDRESS_MODE_REPEAT, KOPE_G5_ADDRESS_MODE_MIRROR_REPEAT } kope_g5_address_mode;
 
 typedef enum kope_g5_filter_mode { KOPE_G5_FILTER_MODE_NEAREST, KOPE_G5_FILTER_MODE_LINEAR } kope_g5_filter_mode;

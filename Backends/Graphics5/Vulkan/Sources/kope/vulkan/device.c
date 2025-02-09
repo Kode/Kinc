@@ -19,6 +19,7 @@ static VkInstance instance;
 static VkPhysicalDevice gpu;
 static VkSwapchainKHR swapchain;
 static kope_g5_texture framebuffers[4];
+static VkFormat framebuffer_format;
 static uint32_t framebuffer_count = 0;
 static uint32_t framebuffer_index = 0;
 
@@ -332,6 +333,7 @@ static void create_swapchain(kope_g5_device *device, uint32_t graphics_queue_fam
 	assert(result == VK_SUCCESS && surface_supported);
 
 	VkSurfaceFormatKHR format = find_surface_format(surface);
+	framebuffer_format = format.format;
 
 	VkSurfaceCapabilitiesKHR surface_capabilities = {0};
 	result = vulkan_GetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &surface_capabilities);
@@ -778,6 +780,19 @@ kope_g5_texture *kope_vulkan_device_get_framebuffer(kope_g5_device *device) {
 	    vulkan_AcquireNextImageKHR(device->vulkan.device, swapchain, UINT64_MAX, device->vulkan.framebuffer_available, VK_NULL_HANDLE, &framebuffer_index);
 
 	return &framebuffers[framebuffer_index];
+}
+
+kope_g5_texture_format kope_vulkan_device_framebuffer_format(kope_g5_device *device) {
+	switch (framebuffer_format) {
+	case VK_FORMAT_R8G8B8A8_UNORM:
+		return KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
+	case VK_FORMAT_B8G8R8A8_UNORM:
+		return KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM;
+	default:
+		assert(false);
+	}
+
+	return KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
 }
 
 void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
