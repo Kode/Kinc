@@ -3,6 +3,97 @@
 
 #include <kinc/log.h>
 
+static VkFormat convert_format(kope_g5_texture_format format) {
+	switch (format) {
+	case KOPE_G5_TEXTURE_FORMAT_R8_UNORM:
+		return VK_FORMAT_R8_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_R8_SNORM:
+		return VK_FORMAT_R8_SNORM;
+	case KOPE_G5_TEXTURE_FORMAT_R8_UINT:
+		return VK_FORMAT_R8_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_R8_SINT:
+		return VK_FORMAT_R8_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_R16_UINT:
+		return VK_FORMAT_R16_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_R16_SINT:
+		return VK_FORMAT_R16_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_R16_FLOAT:
+		return VK_FORMAT_R16_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RG8_UNORM:
+		return VK_FORMAT_R8G8_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_RG8_SNORM:
+		return VK_FORMAT_R8G8_SNORM;
+	case KOPE_G5_TEXTURE_FORMAT_RG8_UINT:
+		return VK_FORMAT_R8G8_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG8_SINT:
+		return VK_FORMAT_R8G8_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_R32_UINT:
+		return VK_FORMAT_R32_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_R32_SINT:
+		return VK_FORMAT_R32_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_R32_FLOAT:
+		return VK_FORMAT_R32_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RG16_UINT:
+		return VK_FORMAT_R16G16_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG16_SINT:
+		return VK_FORMAT_R16G16_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG16_FLOAT:
+		return VK_FORMAT_R16G16_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM:
+		return VK_FORMAT_R8G8B8A8_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM_SRGB:
+		return VK_FORMAT_R8G8B8A8_SRGB;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_SNORM:
+		return VK_FORMAT_R8G8B8A8_SNORM;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_UINT:
+		return VK_FORMAT_R8G8B8A8_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_SINT:
+		return VK_FORMAT_R8G8B8A8_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM_SRGB:
+		return VK_FORMAT_B8G8R8A8_SRGB;
+	case KOPE_G5_TEXTURE_FORMAT_RGB9E5U_FLOAT:
+		return VK_FORMAT_E5B9G9R9_UFLOAT_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_RGB10A2_UINT:
+		return VK_FORMAT_A2R10G10B10_UINT_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_RGB10A2_UNORM:
+		return VK_FORMAT_A2R10G10B10_UNORM_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_RG11B10U_FLOAT:
+		return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_RG32_UINT:
+		return VK_FORMAT_R32G32_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG32_SINT:
+		return VK_FORMAT_R32G32_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG32_FLOAT:
+		return VK_FORMAT_R32G32_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA16_UINT:
+		return VK_FORMAT_R16G16B16A16_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA16_SINT:
+		return VK_FORMAT_R16G16B16A16_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA16_FLOAT:
+		VK_FORMAT_R16G16B16A16_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA32_UINT:
+		return VK_FORMAT_R32G32B32A32_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA32_SINT:
+		return VK_FORMAT_R32G32B32A32_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA32_FLOAT:
+		return VK_FORMAT_R32G32B32A32_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH16_UNORM:
+		return VK_FORMAT_D16_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_NOTHING8:
+		return VK_FORMAT_X8_D24_UNORM_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_STENCIL8:
+		return VK_FORMAT_D24_UNORM_S8_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT:
+		return VK_FORMAT_D32_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT_STENCIL8_NOTHING24:
+		return VK_FORMAT_D32_SFLOAT_S8_UINT;
+	}
+
+	return VK_FORMAT_R8G8B8A8_UNORM;
+}
+
 static uint32_t vertex_attribute_size(kope_vulkan_vertex_format format) {
 	switch (format) {
 	case KOPE_VULKAN_VERTEX_FORMAT_UINT8X2:
@@ -441,8 +532,21 @@ void kope_vulkan_render_pipeline_init(kope_vulkan_device *device, kope_vulkan_re
 	                                                              .pName = "main",
 	                                                          }};
 
+	VkFormat color_attachment_formats[8];
+	for (size_t target_index = 0; target_index < parameters->fragment.targets_count; ++target_index) {
+		color_attachment_formats[target_index] = convert_format(parameters->fragment.targets[target_index].format);
+	}
+
+	const VkPipelineRenderingCreateInfo pipeline_rendering_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
+	    .pNext = NULL,
+	    .colorAttachmentCount = (uint32_t)parameters->fragment.targets_count,
+	    .pColorAttachmentFormats = color_attachment_formats,
+	};
+
 	const VkGraphicsPipelineCreateInfo pipeline_create_info = {
 	    .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+	    .pNext = &pipeline_rendering_create_info,
 	    .layout = pipeline->pipeline_layout,
 	    .renderPass = VK_NULL_HANDLE,
 	    .stageCount = 2,

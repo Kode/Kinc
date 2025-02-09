@@ -88,7 +88,9 @@ void kope_vulkan_command_list_set_index_buffer(kope_g5_command_list *list, kope_
 void kope_vulkan_command_list_set_vertex_buffer(kope_g5_command_list *list, uint32_t slot, kope_vulkan_buffer *buffer, uint64_t offset, uint64_t size,
                                                 uint64_t stride) {}
 
-void kope_vulkan_command_list_set_render_pipeline(kope_g5_command_list *list, kope_vulkan_render_pipeline *pipeline) {}
+void kope_vulkan_command_list_set_render_pipeline(kope_g5_command_list *list, kope_vulkan_render_pipeline *pipeline) {
+	vkCmdBindPipeline(list->vulkan.command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipeline);
+}
 
 void kope_vulkan_command_list_draw(kope_g5_command_list *list, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance) {
 }
