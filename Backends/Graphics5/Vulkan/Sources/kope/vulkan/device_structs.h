@@ -17,7 +17,6 @@ typedef struct kope_vulkan_device {
 	VkCommandPool command_pool;
 	VkQueue queue;
 	VkPhysicalDeviceMemoryProperties device_memory_properties;
-	VkSemaphore framebuffer_available;
 } kope_vulkan_device;
 
 typedef struct kope_vulkan_query_set {

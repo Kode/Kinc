@@ -77,6 +77,31 @@ static VKAPI_ATTR void VKAPI_CALL vulkan_free(void *pUserData, void *pMemory) {
 }
 #endif
 
+static VkSemaphore framebuffer_availables[4];
+static uint32_t framebuffer_available_index = 0;
+
+static void init_framebuffer_availables(kope_g5_device *device) {
+	const VkSemaphoreCreateInfo semaphore_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+	    .pNext = NULL,
+	    .flags = 0,
+	};
+
+	for (int i = 0; i < 4; ++i) {
+		VkResult result = vkCreateSemaphore(device->vulkan.device, &semaphore_create_info, NULL, &framebuffer_availables[i]);
+		assert(result == VK_SUCCESS);
+	}
+}
+
+static VkSemaphore *get_next_framebuffer_available_semaphore(void) {
+	framebuffer_available_index = (framebuffer_available_index + 1) % 4;
+	return &framebuffer_availables[framebuffer_available_index];
+}
+
+static VkSemaphore *get_framebuffer_available_semaphore(void) {
+	return &framebuffer_availables[framebuffer_available_index];
+}
+
 static bool check_extensions(const char **extensions, int extensions_count, VkExtensionProperties *extension_properties, int extension_properties_count) {
 	for (int extension_index = 0; extension_index < extensions_count; ++extension_index) {
 		bool found = false;
@@ -648,14 +673,7 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 
 	create_swapchain(device, graphics_queue_family_index);
 
-	const VkSemaphoreCreateInfo semaphore_create_info = {
-	    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-	    .pNext = NULL,
-	    .flags = 0,
-	};
-
-	result = vkCreateSemaphore(device->vulkan.device, &semaphore_create_info, NULL, &device->vulkan.framebuffer_available);
-	assert(result == VK_SUCCESS);
+	init_framebuffer_availables(device);
 }
 
 void kope_vulkan_device_destroy(kope_g5_device *device) {
@@ -776,8 +794,9 @@ void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_comm
 void kope_vulkan_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {}
 
 kope_g5_texture *kope_vulkan_device_get_framebuffer(kope_g5_device *device) {
-	VkResult result =
-	    vulkan_AcquireNextImageKHR(device->vulkan.device, swapchain, UINT64_MAX, device->vulkan.framebuffer_available, VK_NULL_HANDLE, &framebuffer_index);
+	VkResult result = vulkan_AcquireNextImageKHR(device->vulkan.device, swapchain, UINT64_MAX, *get_next_framebuffer_available_semaphore(), VK_NULL_HANDLE,
+	                                             &framebuffer_index);
+	assert(result == VK_SUCCESS);
 
 	return &framebuffers[framebuffer_index];
 }
@@ -825,17 +844,22 @@ void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_com
 
 	VkPipelineStageFlags stage_mask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 
-	const VkSubmitInfo submit_info = {
+	VkSubmitInfo submit_info = {
 	    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
 	    .pNext = NULL,
+	    .waitSemaphoreCount = 0,
 	    .pWaitSemaphores = NULL,
 	    .pWaitDstStageMask = &stage_mask,
-	    .waitSemaphoreCount = 0,
 	    .commandBufferCount = 1,
 	    .pCommandBuffers = &list->vulkan.command_buffer,
 	    .signalSemaphoreCount = 0,
 	    .pSignalSemaphores = NULL,
 	};
+
+	if (list->vulkan.presenting) {
+		submit_info.waitSemaphoreCount = 1;
+		submit_info.pWaitSemaphores = get_framebuffer_available_semaphore();
+	}
 
 	VkResult result = vkQueueSubmit(device->vulkan.queue, 1, &submit_info, VK_NULL_HANDLE);
 	assert(result == VK_SUCCESS);
