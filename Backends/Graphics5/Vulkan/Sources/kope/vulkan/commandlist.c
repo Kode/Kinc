@@ -72,6 +72,23 @@ void kope_vulkan_command_list_begin_render_pass(kope_g5_command_list *list, cons
 	};
 
 	vkCmdBeginRendering(list->vulkan.command_buffer, &rendering_info);
+
+	VkViewport viewport = {.x = 0, .y = 0, .width = (float)texture->vulkan.width, .height = (float)texture->vulkan.height, .minDepth = 0.1f, .maxDepth = 1.0f};
+	vkCmdSetViewport(list->vulkan.command_buffer, 0, 1, &viewport);
+
+	VkRect2D scissor = {
+	    .offset =
+	        {
+	            .x = 0,
+	            .y = 0,
+	        },
+	    .extent =
+	        {
+	            .width = texture->vulkan.width,
+	            .height = texture->vulkan.height,
+	        },
+	};
+	vkCmdSetScissor(list->vulkan.command_buffer, 0, 1, &scissor);
 }
 
 void kope_vulkan_command_list_end_render_pass(kope_g5_command_list *list) {
@@ -83,10 +100,15 @@ void kope_vulkan_command_list_present(kope_g5_command_list *list) {
 }
 
 void kope_vulkan_command_list_set_index_buffer(kope_g5_command_list *list, kope_g5_buffer *buffer, kope_g5_index_format index_format, uint64_t offset,
-                                               uint64_t size) {}
+                                               uint64_t size) {
+	vkCmdBindIndexBuffer(list->vulkan.command_buffer, buffer->vulkan.buffer, offset,
+	                     index_format == KOPE_G5_INDEX_FORMAT_UINT16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+}
 
 void kope_vulkan_command_list_set_vertex_buffer(kope_g5_command_list *list, uint32_t slot, kope_vulkan_buffer *buffer, uint64_t offset, uint64_t size,
-                                                uint64_t stride) {}
+                                                uint64_t stride) {
+	vkCmdBindVertexBuffers(list->vulkan.command_buffer, slot, 1, &buffer->buffer, &offset);
+}
 
 void kope_vulkan_command_list_set_render_pipeline(kope_g5_command_list *list, kope_vulkan_render_pipeline *pipeline) {
 	vkCmdBindPipeline(list->vulkan.command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipeline);
@@ -96,7 +118,9 @@ void kope_vulkan_command_list_draw(kope_g5_command_list *list, uint32_t vertex_c
 }
 
 void kope_vulkan_command_list_draw_indexed(kope_g5_command_list *list, uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t base_vertex,
-                                           uint32_t first_instance) {}
+                                           uint32_t first_instance) {
+	vkCmdDrawIndexed(list->vulkan.command_buffer, index_count, instance_count, first_index, base_vertex, first_instance);
+}
 
 void kope_vulkan_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_vulkan_descriptor_set *set,
                                                    kope_g5_buffer **dynamic_buffers, uint32_t *dynamic_offsets, uint32_t *dynamic_sizes) {}
