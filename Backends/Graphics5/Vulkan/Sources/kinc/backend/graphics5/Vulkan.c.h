@@ -1110,9 +1110,11 @@ void kinc_g5_internal_init_window(int window_index, int depthBufferBits, int ste
 void kinc_g5_internal_destroy_window(int window_index) {
 	struct vk_window *window = &vk_ctx.windows[window_index];
 	VkSwapchainKHR swapchain = cleanup_swapchain(window_index);
+#ifndef KOPE
 	destroy_render_target_pass(window);
 	vk.fpDestroySwapchainKHR(vk_ctx.device, swapchain, NULL);
 	vk.fpDestroySurfaceKHR(vk_ctx.instance, window->surface, NULL);
+#endif
 }
 
 bool kinc_window_vsynced(int window) {

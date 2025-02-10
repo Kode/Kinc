@@ -770,6 +770,14 @@ void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_comm
 	list->vulkan.command_pool = device->vulkan.command_pool;
 	list->vulkan.presenting = false;
 
+	const VkFenceCreateInfo fence_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+	    .pNext = NULL,
+	    .flags = 0,
+	};
+
+	vkCreateFence(device->vulkan.device, &fence_create_info, NULL, &list->vulkan.fence);
+
 	const VkCommandBufferAllocateInfo allocate_info = {
 	    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 	    .pNext = NULL,
@@ -861,7 +869,7 @@ void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_com
 		submit_info.pWaitSemaphores = get_framebuffer_available_semaphore();
 	}
 
-	VkResult result = vkQueueSubmit(device->vulkan.queue, 1, &submit_info, VK_NULL_HANDLE);
+	VkResult result = vkQueueSubmit(device->vulkan.queue, 1, &submit_info, list->vulkan.fence);
 	assert(result == VK_SUCCESS);
 
 	if (list->vulkan.presenting) {
@@ -886,6 +894,22 @@ void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_com
 			assert(result == VK_SUCCESS);
 		}
 	}
+
+	// TODO: Use multiple command buffers to avoid waits
+	result = vkWaitForFences(device->vulkan.device, 1, &list->vulkan.fence, VK_TRUE, UINT64_MAX);
+	assert(result == VK_SUCCESS);
+
+	result = vkResetFences(device->vulkan.device, 1, &list->vulkan.fence);
+	assert(result == VK_SUCCESS);
+
+	const VkCommandBufferBeginInfo begin_info = {
+	    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+	    .pNext = NULL,
+	    .flags = 0,
+	    .pInheritanceInfo = NULL,
+	};
+
+	vkBeginCommandBuffer(list->vulkan.command_buffer, &begin_info);
 }
 
 void kope_vulkan_device_wait_until_idle(kope_g5_device *device) {}
