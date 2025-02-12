@@ -17,7 +17,7 @@ void kope_metal_command_list_destroy(kope_g5_command_list *list) {}
 
 void kope_metal_command_list_begin_render_pass(kope_g5_command_list *list, const kope_g5_render_pass_parameters *parameters) {
 	id<MTLTexture> texture = (__bridge id<MTLTexture>)parameters->color_attachments[0].texture.texture->metal.texture;
-	
+
 	MTLRenderPassDescriptor *render_pass_descriptor = [MTLRenderPassDescriptor renderPassDescriptor];
 	render_pass_descriptor.colorAttachments[0].texture = texture;
 	render_pass_descriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
@@ -44,10 +44,10 @@ void kope_metal_command_list_end_render_pass(kope_g5_command_list *list) {
 
 void kope_metal_command_list_present(kope_g5_command_list *list) {
 	id<MTLCommandBuffer> command_buffer = (__bridge id<MTLCommandBuffer>)list->metal.command_buffer;
-	
+
 	CAMetalLayer *metal_layer = getMetalLayer();
 	id<CAMetalDrawable> drawable = [metal_layer nextDrawable];
-	
+
 	[command_buffer presentDrawable:drawable];
 }
 
@@ -60,14 +60,14 @@ void kope_metal_command_list_set_index_buffer(kope_g5_command_list *list, kope_g
 void kope_metal_command_list_set_vertex_buffer(kope_g5_command_list *list, uint32_t slot, kope_metal_buffer *buffer, uint64_t offset, uint64_t size,
                                                uint64_t stride) {
 	id<MTLBuffer> metal_buffer = (__bridge id<MTLBuffer>)buffer->buffer;
-	
+
 	id<MTLRenderCommandEncoder> render_command_encoder = (__bridge id<MTLRenderCommandEncoder>)list->metal.render_command_encoder;
 	[render_command_encoder setVertexBuffer:metal_buffer offset:offset atIndex:slot];
 }
 
 void kope_metal_command_list_set_render_pipeline(kope_g5_command_list *list, kope_metal_render_pipeline *pipeline) {
 	id<MTLRenderPipelineState> metal_pipeline = (__bridge id<MTLRenderPipelineState>)pipeline->pipeline;
-	
+
 	id<MTLRenderCommandEncoder> render_command_encoder = (__bridge id<MTLRenderCommandEncoder>)list->metal.render_command_encoder;
 	[render_command_encoder setRenderPipelineState:metal_pipeline];
 }
@@ -77,17 +77,17 @@ void kope_metal_command_list_draw(kope_g5_command_list *list, uint32_t vertex_co
 void kope_metal_command_list_draw_indexed(kope_g5_command_list *list, uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t base_vertex,
                                           uint32_t first_instance) {
 	id<MTLBuffer> index_buffer = (__bridge id<MTLBuffer>)list->metal.index_buffer;
-	
+
 	id<MTLRenderCommandEncoder> render_command_encoder = (__bridge id<MTLRenderCommandEncoder>)list->metal.render_command_encoder;
-	
+
 	[render_command_encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
-						indexCount:index_count
-						 indexType:(list->metal.sixteen_bit_indices ? MTLIndexTypeUInt16 : MTLIndexTypeUInt32)
-					   indexBuffer:index_buffer
-				 indexBufferOffset:first_index
-					 instanceCount:instance_count
-						baseVertex:base_vertex
-					  baseInstance:first_instance];
+	                                   indexCount:index_count
+	                                    indexType:list->metal.sixteen_bit_indices ? MTLIndexTypeUInt16 : MTLIndexTypeUInt32
+	                                  indexBuffer:index_buffer
+	                            indexBufferOffset:first_index
+	                                instanceCount:instance_count
+	                                   baseVertex:base_vertex
+	                                 baseInstance:first_instance];
 }
 
 void kope_metal_command_list_set_descriptor_table(kope_g5_command_list *list, uint32_t table_index, kope_metal_descriptor_set *set,

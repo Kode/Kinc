@@ -63,7 +63,7 @@ kope_g5_texture_format kope_metal_device_framebuffer_format(kope_g5_device *devi
 void kope_metal_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	id<MTLCommandBuffer> command_buffer = (__bridge id<MTLCommandBuffer>)list->metal.command_buffer;
 	[command_buffer commit];
-	
+
 	id<MTLCommandQueue> command_queue = (__bridge id<MTLCommandQueue>)list->metal.command_queue;
 	command_buffer = [command_queue commandBuffer];
 	list->metal.command_buffer = (__bridge_retained void *)[command_queue commandBuffer];
