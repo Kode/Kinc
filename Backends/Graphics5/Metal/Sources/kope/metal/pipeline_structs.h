@@ -196,7 +196,7 @@ typedef struct kope_metal_render_pipeline_parameters {
 } kope_metal_render_pipeline_parameters;
 
 typedef struct kope_metal_render_pipeline {
-	int nothing;
+	void *pipeline;
 } kope_metal_render_pipeline;
 
 typedef struct kope_metal_compute_pipeline_parameters {

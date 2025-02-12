@@ -7,6 +7,7 @@
 #import <MetalKit/MTKView.h>
 
 CAMetalLayer *getMetalLayer(void);
+id getMetalLibrary(void);
 
 #include "buffer.m"
 #include "commandlist.m"
