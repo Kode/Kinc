@@ -213,10 +213,6 @@ int kinc_init(const char *name, int width, int height, kinc_window_options_t *wi
 	kinc_g4_internal_init();
 	kinc_g4_internal_init_window(windowId, frame->depth_bits, frame->stencil_bits, true);
 
-#ifdef KINC_KONG
-	kong_init();
-#endif
-
 	return 0;
 }
 

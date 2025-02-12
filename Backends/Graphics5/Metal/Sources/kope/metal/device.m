@@ -57,7 +57,7 @@ kope_g5_texture *kope_metal_device_get_framebuffer(kope_g5_device *device) {
 }
 
 kope_g5_texture_format kope_metal_device_framebuffer_format(kope_g5_device *device) {
-	return KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM;
+	return KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM;
 }
 
 void kope_metal_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {

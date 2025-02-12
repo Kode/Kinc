@@ -434,6 +434,7 @@ static CAMetalLayer *metalLayer = NULL;
 
 	metalLayer.opaque = YES;
 	metalLayer.backgroundColor = nil;
+	
 #else
 	device = MTLCreateSystemDefaultDevice();
 	commandQueue = [device newCommandQueue];
