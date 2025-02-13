@@ -20,31 +20,39 @@ void kope_vulkan_buffer_destroy(kope_g5_buffer *buffer) {
 }
 
 void *kope_vulkan_buffer_try_to_lock_all(kope_g5_buffer *buffer) {
-	void *data = NULL;
-	VkResult result = vkMapMemory(buffer->vulkan.device, buffer->vulkan.memory, 0, buffer->vulkan.size, 0, &data);
+	buffer->vulkan.locked_data_offset = 0;
+	buffer->vulkan.locked_data_size = UINT64_MAX;
+
+	VkResult result = vkMapMemory(buffer->vulkan.device, buffer->vulkan.memory, 0, buffer->vulkan.size, 0, &buffer->vulkan.locked_data);
 	assert(result == VK_SUCCESS);
-	return data;
+	return buffer->vulkan.locked_data;
 }
 
 void *kope_vulkan_buffer_lock_all(kope_g5_buffer *buffer) {
-	void *data = NULL;
-	VkResult result = vkMapMemory(buffer->vulkan.device, buffer->vulkan.memory, 0, buffer->vulkan.size, 0, &data);
+	buffer->vulkan.locked_data_offset = 0;
+	buffer->vulkan.locked_data_size = UINT64_MAX;
+
+	VkResult result = vkMapMemory(buffer->vulkan.device, buffer->vulkan.memory, 0, buffer->vulkan.size, 0, &buffer->vulkan.locked_data);
 	assert(result == VK_SUCCESS);
-	return data;
+	return buffer->vulkan.locked_data;
 }
 
 void *kope_vulkan_buffer_try_to_lock(kope_g5_buffer *buffer, uint64_t offset, uint64_t size) {
-	void *data = NULL;
-	VkResult result = vkMapMemory(buffer->vulkan.device, buffer->vulkan.memory, offset, size, 0, &data);
+	buffer->vulkan.locked_data_offset = offset;
+	buffer->vulkan.locked_data_size = size;
+
+	VkResult result = vkMapMemory(buffer->vulkan.device, buffer->vulkan.memory, offset, size, 0, &buffer->vulkan.locked_data);
 	assert(result == VK_SUCCESS);
-	return data;
+	return buffer->vulkan.locked_data;
 }
 
 void *kope_vulkan_buffer_lock(kope_g5_buffer *buffer, uint64_t offset, uint64_t size) {
-	void *data = NULL;
-	VkResult result = vkMapMemory(buffer->vulkan.device, buffer->vulkan.memory, offset, size, 0, &data);
+	buffer->vulkan.locked_data_offset = offset;
+	buffer->vulkan.locked_data_size = size;
+
+	VkResult result = vkMapMemory(buffer->vulkan.device, buffer->vulkan.memory, offset, size, 0, &buffer->vulkan.locked_data);
 	assert(result == VK_SUCCESS);
-	return data;
+	return buffer->vulkan.locked_data;
 }
 
 void kope_vulkan_buffer_unlock(kope_g5_buffer *buffer) {

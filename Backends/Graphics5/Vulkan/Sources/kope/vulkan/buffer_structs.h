@@ -16,6 +16,10 @@ typedef struct kope_vulkan_buffer {
 	VkBuffer buffer;
 	VkDeviceMemory memory;
 	uint64_t size;
+
+	void *locked_data;
+	uint64_t locked_data_offset;
+	uint64_t locked_data_size;
 } kope_vulkan_buffer;
 
 #ifdef __cplusplus
