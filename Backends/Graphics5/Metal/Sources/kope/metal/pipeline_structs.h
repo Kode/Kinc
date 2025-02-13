@@ -39,7 +39,7 @@ typedef enum kope_metal_vertex_format {
 	KOPE_METAL_VERTEX_FORMAT_UINT32X2,
 	KOPE_METAL_VERTEX_FORMAT_UINT32X3,
 	KOPE_METAL_VERTEX_FORMAT_UINT32X4,
-	KOPE_METAL_VERTEX_FORMAT_SIN32,
+	KOPE_METAL_VERTEX_FORMAT_SINT32,
 	KOPE_METAL_VERTEX_FORMAT_SINT32X2,
 	KOPE_METAL_VERTEX_FORMAT_SINT32X3,
 	KOPE_METAL_VERTEX_FORMAT_SINT32X4,
@@ -196,7 +196,7 @@ typedef struct kope_metal_render_pipeline_parameters {
 } kope_metal_render_pipeline_parameters;
 
 typedef struct kope_metal_render_pipeline {
-	int nothing;
+	void *pipeline;
 } kope_metal_render_pipeline;
 
 typedef struct kope_metal_compute_pipeline_parameters {

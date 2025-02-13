@@ -10,8 +10,6 @@
 
 #include <assert.h>
 
-CAMetalLayer *getMetalLayer(void);
-
 void kope_metal_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
 	id<MTLDevice> metal_device = MTLCreateSystemDefaultDevice();
 	getMetalLayer().device = metal_device;
@@ -58,9 +56,17 @@ kope_g5_texture *kope_metal_device_get_framebuffer(kope_g5_device *device) {
 	return &framebuffer;
 }
 
+kope_g5_texture_format kope_metal_device_framebuffer_format(kope_g5_device *device) {
+	return KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM;
+}
+
 void kope_metal_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list) {
 	id<MTLCommandBuffer> command_buffer = (__bridge id<MTLCommandBuffer>)list->metal.command_buffer;
 	[command_buffer commit];
+
+	id<MTLCommandQueue> command_queue = (__bridge id<MTLCommandQueue>)list->metal.command_queue;
+	command_buffer = [command_queue commandBuffer];
+	list->metal.command_buffer = (__bridge_retained void *)[command_queue commandBuffer];
 }
 
 void kope_metal_device_wait_until_idle(kope_g5_device *device) {}
