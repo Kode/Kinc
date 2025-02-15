@@ -4,81 +4,96 @@
 
 #include <assert.h>
 
-#ifdef KINC_WINDOWS
+static VkFormat convert_format(kope_g5_texture_format format) {
+	switch (format) {
+	case KOPE_G5_TEXTURE_FORMAT_R8_UNORM:
+		return VK_FORMAT_R8_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_R8_SNORM:
+		return VK_FORMAT_R8_SNORM;
+	case KOPE_G5_TEXTURE_FORMAT_R8_UINT:
+		return VK_FORMAT_R8_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_R8_SINT:
+		return VK_FORMAT_R8_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_R16_UINT:
+		return VK_FORMAT_R16_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_R16_SINT:
+		return VK_FORMAT_R16_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_R16_FLOAT:
+		return VK_FORMAT_R16_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RG8_UNORM:
+		return VK_FORMAT_R8G8_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_RG8_SNORM:
+		return VK_FORMAT_R8G8_SNORM;
+	case KOPE_G5_TEXTURE_FORMAT_RG8_UINT:
+		return VK_FORMAT_R8G8_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG8_SINT:
+		return VK_FORMAT_R8G8_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_R32_UINT:
+		return VK_FORMAT_R32_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_R32_SINT:
+		return VK_FORMAT_R32_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_R32_FLOAT:
+		return VK_FORMAT_R32_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RG16_UINT:
+		return VK_FORMAT_R16G16_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG16_SINT:
+		return VK_FORMAT_R16G16_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG16_FLOAT:
+		return VK_FORMAT_R16G16_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM:
+		return VK_FORMAT_R8G8B8A8_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_UNORM_SRGB:
+		return VK_FORMAT_R8G8B8A8_SRGB;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_SNORM:
+		return VK_FORMAT_R8G8B8A8_SNORM;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_UINT:
+		return VK_FORMAT_R8G8B8A8_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA8_SINT:
+		return VK_FORMAT_R8G8B8A8_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM:
+		return VK_FORMAT_B8G8R8A8_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM_SRGB:
+		return VK_FORMAT_B8G8R8A8_SRGB;
+	case KOPE_G5_TEXTURE_FORMAT_RGB9E5U_FLOAT:
+		return VK_FORMAT_E5B9G9R9_UFLOAT_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_RGB10A2_UINT:
+		return VK_FORMAT_A2R10G10B10_UINT_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_RGB10A2_UNORM:
+		return VK_FORMAT_A2R10G10B10_UNORM_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_RG11B10U_FLOAT:
+		return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_RG32_UINT:
+		return VK_FORMAT_R32G32_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG32_SINT:
+		return VK_FORMAT_R32G32_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_RG32_FLOAT:
+		return VK_FORMAT_R32G32_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA16_UINT:
+		return VK_FORMAT_R16G16B16A16_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA16_SINT:
+		return VK_FORMAT_R16G16B16A16_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA16_FLOAT:
+		VK_FORMAT_R16G16B16A16_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA32_UINT:
+		return VK_FORMAT_R32G32B32A32_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA32_SINT:
+		return VK_FORMAT_R32G32B32A32_SINT;
+	case KOPE_G5_TEXTURE_FORMAT_RGBA32_FLOAT:
+		return VK_FORMAT_R32G32B32A32_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH16_UNORM:
+		return VK_FORMAT_D16_UNORM;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_NOTHING8:
+		return VK_FORMAT_X8_D24_UNORM_PACK32;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH24PLUS_STENCIL8:
+		return VK_FORMAT_D24_UNORM_S8_UINT;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT:
+		return VK_FORMAT_D32_SFLOAT;
+	case KOPE_G5_TEXTURE_FORMAT_DEPTH32FLOAT_STENCIL8_NOTHING24:
+		return VK_FORMAT_D32_SFLOAT_S8_UINT;
+	}
 
-// Windows 7
-#define WINVER 0x0601
-#define _WIN32_WINNT 0x0601
-
-#define NOATOM
-#define NOCLIPBOARD
-#define NOCOLOR
-#define NOCOMM
-#define NOCTLMGR
-#define NODEFERWINDOWPOS
-#define NODRAWTEXT
-#define NOGDI
-#define NOGDICAPMASKS
-#define NOHELP
-#define NOICONS
-#define NOKANJI
-#define NOKEYSTATES
-// #define NOMB
-#define NOMCX
-#define NOMEMMGR
-#define NOMENUS
-#define NOMETAFILE
-#define NOMINMAX
-#define NOMSG
-#define NONLS
-#define NOOPENFILE
-#define NOPROFILER
-#define NORASTEROPS
-#define NOSCROLL
-#define NOSERVICE
-#define NOSHOWWINDOW
-#define NOSOUND
-#define NOSYSCOMMANDS
-#define NOSYSMETRICS
-#define NOTEXTMETRIC
-// #define NOUSER
-#define NOVIRTUALKEYCODES
-#define NOWH
-#define NOWINMESSAGES
-#define NOWINOFFSETS
-#define NOWINSTYLES
-#define WIN32_LEAN_AND_MEAN
-
-// avoids a warning in the Windows headers
-#define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
-
-#endif
-
-#ifndef NDEBUG
-#define VALIDATE
-#endif
-
-#include <vulkan/vulkan.h>
-
-static PFN_vkGetPhysicalDeviceSurfaceSupportKHR vulkan_GetPhysicalDeviceSurfaceSupportKHR = NULL;
-static PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vulkan_GetPhysicalDeviceSurfaceCapabilitiesKHR = NULL;
-static PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vulkan_GetPhysicalDeviceSurfaceFormatsKHR = NULL;
-static PFN_vkGetPhysicalDeviceSurfacePresentModesKHR vulkan_GetPhysicalDeviceSurfacePresentModesKHR = NULL;
-static PFN_vkCreateSwapchainKHR vulkan_CreateSwapchainKHR = NULL;
-static PFN_vkDestroySwapchainKHR vulkan_DestroySwapchainKHR = NULL;
-static PFN_vkGetSwapchainImagesKHR vulkan_GetSwapchainImagesKHR = NULL;
-static PFN_vkDestroySurfaceKHR vulkan_DestroySurfaceKHR = NULL;
-
-static PFN_vkCreateDebugUtilsMessengerEXT vulkan_CreateDebugUtilsMessengerEXT = NULL;
-static PFN_vkDestroyDebugUtilsMessengerEXT vulkan_DestroyDebugUtilsMessengerEXT = NULL;
-
-static PFN_vkAcquireNextImageKHR vulkan_AcquireNextImageKHR = NULL;
-static PFN_vkQueuePresentKHR vulkan_QueuePresentKHR = NULL;
-
-static PFN_vkDebugMarkerSetObjectNameEXT vulkan_DebugMarkerSetObjectNameEXT = NULL;
-static PFN_vkCmdDebugMarkerBeginEXT vulkan_CmdDebugMarkerBeginEXT = NULL;
-static PFN_vkCmdDebugMarkerEndEXT vulkan_CmdDebugMarkerEndEXT = NULL;
-static PFN_vkCmdDebugMarkerInsertEXT vulkan_CmdDebugMarkerInsertEXT = NULL;
+	return VK_FORMAT_R8G8B8A8_UNORM;
+}
 
 #include "buffer.c"
 #include "commandlist.c"

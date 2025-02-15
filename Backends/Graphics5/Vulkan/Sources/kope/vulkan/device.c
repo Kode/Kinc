@@ -845,7 +845,91 @@ void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_comm
 	vkBeginCommandBuffer(list->vulkan.command_buffer, &begin_info);
 }
 
-void kope_vulkan_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {}
+void kope_vulkan_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture) {
+	VkFormat format = convert_format(parameters->format);
+
+	VkFormatProperties format_properties;
+	vkGetPhysicalDeviceFormatProperties(gpu, format, &format_properties);
+
+	assert((format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) != 0);
+
+	texture->vulkan.width = parameters->width;
+	texture->vulkan.height = parameters->height;
+
+	VkImageCreateInfo image_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+	    .pNext = NULL,
+	    .imageType = VK_IMAGE_TYPE_2D,
+	    .format = format,
+	    .extent.width = parameters->width,
+	    .extent.height = parameters->height,
+	    .extent.depth = 1,
+	    .mipLevels = 1,
+	    .arrayLayers = 1,
+	    .samples = VK_SAMPLE_COUNT_1_BIT,
+	    .tiling = VK_IMAGE_TILING_OPTIMAL,
+	    .usage = VK_IMAGE_USAGE_SAMPLED_BIT,
+	    .flags = 0,
+	    .initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED,
+	};
+
+	VkMemoryAllocateInfo memory_allocate_info = {
+	    .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+	    .pNext = NULL,
+	    .allocationSize = 0,
+	    .memoryTypeIndex = 0,
+	};
+
+	VkResult result = vkCreateImage(device->vulkan.device, &image_create_info, NULL, &texture->vulkan.image);
+	assert(result == VK_SUCCESS);
+
+	VkMemoryRequirements memory_requirements;
+	vkGetImageMemoryRequirements(device->vulkan.device, texture->vulkan.image, &memory_requirements);
+
+	texture->vulkan.device_size = memory_allocate_info.allocationSize = memory_requirements.size;
+
+	bool memory_type_found =
+	    memory_type_from_properties(device, memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &memory_allocate_info.memoryTypeIndex);
+	assert(memory_type_found);
+
+	result = vkAllocateMemory(device->vulkan.device, &memory_allocate_info, NULL, &texture->vulkan.device_memory);
+	assert(result == VK_SUCCESS);
+
+	result = vkBindImageMemory(device->vulkan.device, texture->vulkan.image, texture->vulkan.device_memory, 0);
+	assert(result == VK_SUCCESS);
+
+	VkImageSubresource subresource = {
+	    .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+	    .mipLevel = 0,
+	    .arrayLayer = 0,
+	};
+
+	VkSubresourceLayout layout;
+	vkGetImageSubresourceLayout(device->vulkan.device, texture->vulkan.image, &subresource, &layout);
+
+	texture->vulkan.row_pitch = layout.rowPitch;
+
+	VkImageViewCreateInfo view_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+	    .pNext = NULL,
+	    .image = texture->vulkan.image,
+	    .viewType = VK_IMAGE_VIEW_TYPE_2D,
+	    .format = format,
+	    .components.r = VK_COMPONENT_SWIZZLE_R,
+	    .components.g = VK_COMPONENT_SWIZZLE_G,
+	    .components.b = VK_COMPONENT_SWIZZLE_B,
+	    .components.a = VK_COMPONENT_SWIZZLE_A,
+	    .subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+	    .subresourceRange.baseMipLevel = 0,
+	    .subresourceRange.levelCount = 1,
+	    .subresourceRange.baseArrayLayer = 0,
+	    .subresourceRange.layerCount = 1,
+	    .flags = 0,
+	};
+
+	result = vkCreateImageView(device->vulkan.device, &view_create_info, NULL, &texture->vulkan.image_view);
+	assert(result == VK_SUCCESS);
+}
 
 kope_g5_texture *kope_vulkan_device_get_framebuffer(kope_g5_device *device) {
 	VkResult result = vulkan_AcquireNextImageKHR(device->vulkan.device, swapchain, UINT64_MAX, *get_next_framebuffer_available_semaphore(), VK_NULL_HANDLE,

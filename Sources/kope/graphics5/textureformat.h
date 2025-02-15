@@ -1,6 +1,7 @@
 #ifndef KOPE_G5_TEXTUREFORMAT_HEADER
 #define KOPE_G5_TEXTUREFORMAT_HEADER
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
