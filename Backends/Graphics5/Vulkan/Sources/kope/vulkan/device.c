@@ -973,7 +973,91 @@ void kope_vulkan_device_create_descriptor_set(kope_g5_device *device, VkDescript
 	assert(result == VK_SUCCESS);
 }
 
-void kope_vulkan_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler) {}
+static VkSamplerAddressMode convert_address_mode(kope_g5_address_mode mode) {
+	switch (mode) {
+	case KOPE_G5_ADDRESS_MODE_CLAMP_TO_EDGE:
+		return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	case KOPE_G5_ADDRESS_MODE_REPEAT:
+		return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	case KOPE_G5_ADDRESS_MODE_MIRROR_REPEAT:
+		return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+	}
+
+	return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+}
+
+static VkFilter convert_filter(kope_g5_filter_mode filter) {
+	switch (filter) {
+	case KOPE_G5_FILTER_MODE_NEAREST:
+		return VK_FILTER_NEAREST;
+	case KOPE_G5_FILTER_MODE_LINEAR:
+		return VK_FILTER_LINEAR;
+	}
+
+	return VK_FILTER_NEAREST;
+}
+
+static VkFilter convert_mipmap_filter(kope_g5_mipmap_filter_mode filter) {
+	switch (filter) {
+	case KOPE_G5_MIPMAP_FILTER_MODE_NEAREST:
+		return VK_FILTER_NEAREST;
+	case KOPE_G5_MIPMAP_FILTER_MODE_LINEAR:
+		return VK_FILTER_LINEAR;
+	}
+
+	return VK_FILTER_NEAREST;
+}
+
+static VkCompareOp convert_compare_function(kope_g5_compare_function func) {
+	switch (func) {
+	case KOPE_G5_COMPARE_FUNCTION_NEVER:
+		return VK_COMPARE_OP_NEVER;
+	case KOPE_G5_COMPARE_FUNCTION_LESS:
+		return VK_COMPARE_OP_LESS;
+	case KOPE_G5_COMPARE_FUNCTION_EQUAL:
+		return VK_COMPARE_OP_EQUAL;
+	case KOPE_G5_COMPARE_FUNCTION_LESS_EQUAL:
+		return VK_COMPARE_OP_LESS_OR_EQUAL;
+	case KOPE_G5_COMPARE_FUNCTION_GREATER:
+		return VK_COMPARE_OP_GREATER;
+	case KOPE_G5_COMPARE_FUNCTION_NOT_EQUAL:
+		return VK_COMPARE_OP_NOT_EQUAL;
+	case KOPE_G5_COMPARE_FUNCTION_GREATER_EQUAL:
+		return VK_COMPARE_OP_GREATER_OR_EQUAL;
+	case KOPE_G5_COMPARE_FUNCTION_ALWAYS:
+		return VK_COMPARE_OP_ALWAYS;
+	}
+
+	return VK_COMPARE_OP_ALWAYS;
+}
+
+void kope_vulkan_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler) {
+	VkSamplerCreateInfo sampler_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+	    .pNext = NULL,
+	    .flags = 0,
+
+	    .addressModeU = convert_address_mode(parameters->address_mode_u),
+	    .addressModeV = convert_address_mode(parameters->address_mode_v),
+	    .addressModeW = convert_address_mode(parameters->address_mode_w),
+
+	    .mipmapMode = convert_mipmap_filter(parameters->mipmap_filter),
+
+	    .magFilter = convert_filter(parameters->mag_filter),
+	    .minFilter = convert_filter(parameters->min_filter),
+
+	    .compareEnable = parameters->compare != KOPE_G5_COMPARE_FUNCTION_ALWAYS,
+	    .compareOp = convert_compare_function(parameters->compare),
+
+	    .anisotropyEnable = parameters->max_anisotropy > 1,
+	    .maxAnisotropy = parameters->max_anisotropy,
+
+	    .maxLod = parameters->lod_max_clamp,
+	    .minLod = parameters->lod_min_clamp,
+	};
+
+	vkCreateSampler(device->vulkan.device, &sampler_create_info, NULL, &sampler->vulkan.sampler);
+}
 
 void kope_vulkan_device_create_raytracing_volume(kope_g5_device *device, kope_g5_buffer *vertex_buffer, uint64_t vertex_count, kope_g5_buffer *index_buffer,
                                                  uint32_t index_count, kope_g5_raytracing_volume *volume) {}

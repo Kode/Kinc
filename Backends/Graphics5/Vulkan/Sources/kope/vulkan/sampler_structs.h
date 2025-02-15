@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 typedef struct kope_vulkan_sampler {
-	int nothing;
+	VkSampler sampler;
 } kope_vulkan_sampler;
 
 #ifdef __cplusplus
