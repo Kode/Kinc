@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 typedef struct kope_vulkan_descriptor_set {
-	int nothing;
+	VkDescriptorSet descriptor_set;
 } kope_vulkan_descriptor_set;
 
 #ifdef __cplusplus

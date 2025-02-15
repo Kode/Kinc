@@ -11,6 +11,8 @@
 extern "C" {
 #endif
 
+struct VkDescriptorSetLayout;
+
 void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist);
 
 void kope_vulkan_device_destroy(kope_g5_device *device);
@@ -23,8 +25,7 @@ void kope_vulkan_device_create_command_list(kope_g5_device *device, kope_g5_comm
 
 void kope_vulkan_device_create_texture(kope_g5_device *device, const kope_g5_texture_parameters *parameters, kope_g5_texture *texture);
 
-void kope_vulkan_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t dynamic_descriptor_count,
-                                              uint32_t bindless_descriptor_count, uint32_t sampler_count, kope_vulkan_descriptor_set *set);
+void kope_vulkan_device_create_descriptor_set(kope_g5_device *device, VkDescriptorSetLayout *descriptor_set_layout, kope_vulkan_descriptor_set *set);
 
 void kope_vulkan_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler);
 

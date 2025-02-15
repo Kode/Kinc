@@ -458,6 +458,50 @@ static void create_swapchain(kope_g5_device *device, uint32_t graphics_queue_fam
 	}
 }
 
+static void create_descriptor_pool(kope_g5_device *device) {
+	VkDescriptorPoolSize pool_sizes[] = {
+	    {
+	        .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+	        .descriptorCount = 128,
+	    },
+	    {
+	        .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+	        .descriptorCount = 128,
+	    },
+	    {
+	        .type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+	        .descriptorCount = 128,
+	    },
+	    {
+	        .type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
+	        .descriptorCount = 128,
+	    },
+	    {
+	        .type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+	        .descriptorCount = 128,
+	    },
+	    {
+	        .type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+	        .descriptorCount = 128,
+	    },
+	    {
+	        .type = VK_DESCRIPTOR_TYPE_SAMPLER,
+	        .descriptorCount = 128,
+	    },
+	};
+
+	VkDescriptorPoolCreateInfo pool_create_info = {
+	    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+	    .pNext = NULL,
+	    .maxSets = 128 * sizeof(pool_sizes) / sizeof(pool_sizes[0]),
+	    .poolSizeCount = sizeof(pool_sizes) / sizeof(pool_sizes[0]),
+	    .pPoolSizes = pool_sizes,
+	};
+
+	VkResult result = vkCreateDescriptorPool(device->vulkan.device, &pool_create_info, NULL, &device->vulkan.descriptor_pool);
+	assert(result == VK_SUCCESS);
+}
+
 void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wishlist *wishlist) {
 	const char *instance_layers[64];
 	int instance_layers_count = 0;
@@ -674,6 +718,8 @@ void kope_vulkan_device_create(kope_g5_device *device, const kope_g5_device_wish
 	create_swapchain(device, graphics_queue_family_index);
 
 	init_framebuffer_availables(device);
+
+	create_descriptor_pool(device);
 }
 
 void kope_vulkan_device_destroy(kope_g5_device *device) {
@@ -914,8 +960,18 @@ void kope_vulkan_device_execute_command_list(kope_g5_device *device, kope_g5_com
 
 void kope_vulkan_device_wait_until_idle(kope_g5_device *device) {}
 
-void kope_vulkan_device_create_descriptor_set(kope_g5_device *device, uint32_t descriptor_count, uint32_t dynamic_descriptor_count,
-                                              uint32_t bindless_descriptor_count, uint32_t sampler_count, kope_vulkan_descriptor_set *set) {}
+void kope_vulkan_device_create_descriptor_set(kope_g5_device *device, VkDescriptorSetLayout *descriptor_set_layout, kope_vulkan_descriptor_set *set) {
+	VkDescriptorSetAllocateInfo descriptor_set_allocate_info = {
+	    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+	    .pNext = NULL,
+	    .descriptorPool = device->vulkan.descriptor_pool,
+	    .descriptorSetCount = 1,
+	    .pSetLayouts = descriptor_set_layout,
+	};
+
+	VkResult result = vkAllocateDescriptorSets(device->vulkan.device, &descriptor_set_allocate_info, &set->descriptor_set);
+	assert(result == VK_SUCCESS);
+}
 
 void kope_vulkan_device_create_sampler(kope_g5_device *device, const kope_g5_sampler_parameters *parameters, kope_g5_sampler *sampler) {}
 
