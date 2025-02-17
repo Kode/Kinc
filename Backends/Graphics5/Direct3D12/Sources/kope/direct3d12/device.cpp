@@ -586,6 +586,10 @@ static void wait_for_fence(kope_g5_device *device, ID3D12Fence *fence, HANDLE ev
 	}
 }
 
+kope_g5_texture_format kope_d3d12_device_framebuffer_format(kope_g5_device *device) {
+	return KOPE_G5_TEXTURE_FORMAT_BGRA8_UNORM;
+}
+
 static bool check_for_fence(ID3D12Fence *fence, UINT64 completion_value) {
 	// kinc_log(KINC_LOG_LEVEL_INFO, "Done: %llu Check: %llu", fence->GetCompletedValue(), completion_value);
 	return fence->GetCompletedValue() >= completion_value;

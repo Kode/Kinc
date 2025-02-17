@@ -30,6 +30,8 @@ void kope_d3d12_device_create_sampler(kope_g5_device *device, const kope_g5_samp
 
 kope_g5_texture *kope_d3d12_device_get_framebuffer(kope_g5_device *device);
 
+kope_g5_texture_format kope_d3d12_device_framebuffer_format(kope_g5_device *device);
+
 void kope_d3d12_device_execute_command_list(kope_g5_device *device, kope_g5_command_list *list);
 
 void kope_d3d12_device_wait_until_idle(kope_g5_device *device);
